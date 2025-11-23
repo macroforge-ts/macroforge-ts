@@ -1,0 +1,26 @@
+{
+  "name": "ts-macros",
+  "version": "0.0.1",
+  "description": "High-performance Rust-powered macro system for TypeScript using Vite, NAPI-RS, and SWC",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "playground"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w playground",
+    "build": "npm run build:rust && npm run build:plugin",
+    "build:rust": "cd crates/swc-napi-macros && napi build --platform --release",
+    "build:plugin": "npm run build -w vite-plugin",
+    "test": "npm test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^3.0.0-alpha.73",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

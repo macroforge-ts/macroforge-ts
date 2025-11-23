@@ -1,0 +1,37 @@
+[package]
+name = "swc-napi-macros"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# NAPI-RS for Node.js bindings
+napi = { version = "3.5.2", features = ["napi8"] }
+napi-derive = "3.3.3"
+
+# SWC Core for TypeScript parsing and transformation
+swc_core = { version = "48.0.4", features = [
+    "ecma_ast",
+    "ecma_parser",
+    "ecma_codegen",
+    "ecma_visit",
+    "ecma_utils",
+    "common"
+] }
+swc_atoms = "9.0.0"
+swc_common = "17.0.1"
+swc_ecma_ast = "18.0.0"
+swc_ecma_visit = "18.0.1"
+
+# Error handling
+anyhow = "1.0"
+
+[build-dependencies]
+napi-build = "2.3.1"
+
+[profile.release]
+lto = true
+strip = true
+opt-level = 3

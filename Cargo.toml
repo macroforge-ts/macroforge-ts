@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "crates/swc-napi-macros"
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+authors = ["ts-macros contributors"]
+license = "MIT"
+repository = "https://github.com/rymskip/ts-macros"

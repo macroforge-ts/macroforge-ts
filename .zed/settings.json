@@ -1,0 +1,41 @@
+{
+    "format_on_save": "on",
+    "languages": {
+        "JavaScript": {
+            "formatter": {
+                "external": {
+                    "command": "npx",
+                    "arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
+                }
+            },
+            "language_servers": ["eslint", "!biome"],
+            "code_actions_on_format": {
+                "source.fixAll.eslint": true
+            }
+        },
+        "TypeScript": {
+            "formatter": {
+                "external": {
+                    "command": "npx",
+                    "arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
+                }
+            },
+            "language_servers": ["typescript-language-server", "eslint", "!biome"],
+            "code_actions_on_format": {
+                "source.fixAll.eslint": true
+            }
+        },
+        "Svelte": {
+            "formatter": {
+                "external": {
+                    "command": "npx",
+                    "arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
+                }
+            },
+            "language_servers": ["svelte-language-server", "eslint", "!biome"],
+            "code_actions_on_format": {
+                "source.fixAll.eslint": true
+            }
+        }
+    }
+}
