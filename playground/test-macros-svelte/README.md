@@ -14,25 +14,32 @@ npx sv create
 npx sv create my-app
 ```
 
+## Macro demo
+
+This playground is wired to the local `@ts-macros/swc-napi` transformer via `vite-plugin-napi`. The `ts-derive-plugin` TypeScript plugin automatically augments every class decorated with `@Derive` so editors know `toString()` and `toJSON()` exist without manual type assertions.
+
+Key files:
+
+- `vite.config.ts` – registers the Rust transformer before `sveltekit()`
+- `src/lib/macros.ts` – ambient definitions that mirror the Rust macros
+- `src/lib/demo/macro-user.ts` – demo class using `@Derive('Debug', 'JSON')`
+- `src/lib/demo/macro-snippet.md` – included at build time via `IncludeStr`
+
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Install deps, build the TypeScript plugin, then start the dev server:
 
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
+npm install            # run once in this directory
+npm run build --workspaces=ts-derive-plugin  # from repo root if plugin changes
 npm run dev -- --open
 ```
 
 ## Building
 
-To create a production version of your app:
-
 ```sh
 npm run build
+npm run preview
 ```
 
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+> To deploy your app, install an [adapter](https://svelte.dev/docs/kit/adapters) for your target runtime.

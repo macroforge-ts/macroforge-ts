@@ -11,13 +11,18 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
+	"dependencies": {
+		"@ts-macros/swc-napi": "file:../../crates/swc-napi-macros"
+	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.0",
 		"@sveltejs/kit": "^2.48.5",
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
 		"svelte": "^5.43.8",
 		"svelte-check": "^4.3.4",
+		"ts-derive-plugin": "file:../../packages/ts-derive-plugin",
 		"typescript": "^5.9.3",
-		"vite": "^7.2.2"
+		"vite": "^7.2.2",
+		"vite-plugin-napi": "file:../../packages/vite-plugin"
 	}
 }

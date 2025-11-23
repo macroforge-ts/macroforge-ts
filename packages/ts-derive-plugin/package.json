@@ -1,0 +1,21 @@
+{
+  "name": "ts-derive-plugin",
+  "version": "0.0.1",
+  "description": "TypeScript language service plugin that augments classes decorated with @Derive to include macro-generated methods.",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}
