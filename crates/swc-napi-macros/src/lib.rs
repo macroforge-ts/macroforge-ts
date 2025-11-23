@@ -1,23 +1,21 @@
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
-use std::io::Write; // Required for Handler::with_emitter_writer
-use std::sync::Arc;
 use swc_core::{
     common::{
+        errors::Handler,
+        sync::Lrc,
         FileName,
-        GLOBALS,
         Globals,
         SourceMap,
-        errors::{ColorConfig, Emitter as SwcEmitter, Handler}, // Add Emitter alias
-        sync::Lrc,                                             // Lrc for SourceMap
+        GLOBALS,
     },
     ecma::{
         ast::EsVersion,
         codegen::{Emitter, text_writer::JsWriter},
-        parser::{Parser, StringInput, Syntax, lexer::Lexer},
-        visit::{FoldWith, VisitMut, VisitMutWith},
+        parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer},
+        visit::VisitMutWith,
     },
-}; // Keep std::sync::Arc for other uses if any
+};
 
 mod macros;
 use macros::MacroTransformer;
@@ -45,21 +43,11 @@ fn transform_inner(code: &str, filepath: &str) -> Result<TransformResult> {
     );
 
     // Create error handler
-    let handler = Handler::with_emitter(
-        true,  // Emit warnings
-        false, // Treat errors as bugs
-        Box::new(ColorEmitter {
-            cm: Some(cm.clone()),
-            dst: Box::new(std::io::stderr()),
-            dont_buffer: true,
-            tty: true,
-            color: ColorConfig::Auto,
-        }),
-    );
+    let handler = Handler::with_emitter_writer(Box::new(std::io::stderr()), Some(cm.clone()));
 
     // Configure TypeScript parser
     let lexer = Lexer::new(
-        Syntax::Typescript(TsConfig {
+        Syntax::Typescript(TsSyntax {
             tsx: filepath.ends_with(".tsx"), // Use ends_back instead of ends_with
             decorators: true,
             dts: false,
@@ -76,17 +64,16 @@ fn transform_inner(code: &str, filepath: &str) -> Result<TransformResult> {
     let program = match parser.parse_program() {
         Ok(program) => program,
         Err(error) => {
+            let message = format!("Failed to parse TypeScript: {:?}", &error);
             error.into_diagnostic(&handler).emit();
-            return Err(Error::new(
-                Status::GenericFailure,
-                format!("Failed to parse TypeScript: {:?}", error), // Use {:?} for Error
-            ));
+            return Err(Error::new(Status::GenericFailure, message));
         }
     };
 
     // Apply macro transformations
-    let mut transformer = MacroTransformer::new(cm.clone(), filepath.to_string());
-    let program = program.fold_with(&mut as_folder(&mut transformer));
+    let mut transformer = MacroTransformer::new(filepath.to_string());
+    let mut program = program;
+    program.visit_mut_with(&mut transformer);
 
     // Generate JavaScript code
     let mut buf = vec![];

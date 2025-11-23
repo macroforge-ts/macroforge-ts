@@ -1,28 +1,28 @@
 {
-  "name": "vite-plugin-napi",
-  "version": "0.0.1",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
-  },
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch"
-  },
-  "dependencies": {
-    "@ts-macros/swc-napi": "file:../../crates/swc-napi-macros"
-  },
-  "peerDependencies": {
-    "vite": "^5.0.0 || ^6.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.10.2",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.3"
-  }
+	"name": "vite-plugin-napi",
+	"version": "0.0.1",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch"
+	},
+	"dependencies": {
+		"@ts-macros/swc-napi": "file:../../crates/swc-napi-macros"
+	},
+	"peerDependencies": {
+		"vite": "^7.2.4"
+	},
+	"devDependencies": {
+		"@types/node": "^22.10.2",
+		"typescript": "^5.9.3",
+		"vite": "^7.2.4"
+	}
 }
