@@ -1,6 +1,5 @@
 import { Plugin } from 'vite'
 import { createRequire } from 'module'
-import path from 'path'
 
 export interface NapiMacrosPluginOptions {
   include?: string | RegExp | (string | RegExp)[]
