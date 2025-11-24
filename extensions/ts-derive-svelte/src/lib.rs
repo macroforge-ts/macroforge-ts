@@ -1,73 +1,128 @@
-use std::path::{Path, PathBuf};
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
 use zed_extension_api as zed;
 
-const LANGUAGE_TOOLS_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/language-tools");
-const LANGUAGE_SERVER_BIN: &str =
-    concat!(env!("CARGO_MANIFEST_DIR"), "/language-tools/packages/language-server/bin/server.js");
-const LANGUAGE_SERVER_WORKSPACE: &str = "svelte-language-server";
+const EXTENSION_ID: &str = "ts-derive-svelte";
+const LANGUAGE_SERVER_RELATIVE_PATH: &str = "packages/language-server";
+const NODE_MODULES_PATH: &str = "node_modules/svelte-language-server";
+const LANGUAGE_SERVER_BIN_RELATIVE: &str = "bin/server.js";
+const LANGUAGE_SERVER_BUILD_ARTIFACT: &str = "dist/src/server.js";
 
 struct TsDeriveSvelteExtension;
 
 impl TsDeriveSvelteExtension {
+    fn fallback_roots() -> Vec<PathBuf> {
+        let mut roots = Vec::new();
+
+        if let Ok(current_dir) = env::current_dir() {
+            roots.push(current_dir.clone());
+
+            if let Some(extensions_dir) = current_dir.parent().and_then(|work| work.parent()) {
+                roots.push(extensions_dir.join("installed").join(EXTENSION_ID));
+            }
+        }
+
+        roots.push(PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+
+        roots
+    }
+
+    fn worktree_file_exists(worktree: &zed::Worktree, relative: &Path) -> bool {
+        let relative_str = relative
+            .components()
+            .map(|comp| comp.as_os_str().to_string_lossy())
+            .collect::<Vec<_>>()
+            .join("/");
+        worktree.read_text_file(&relative_str).is_ok()
+    }
+
+    fn language_server_dir(worktree: &zed::Worktree) -> zed::Result<PathBuf> {
+        let workspace_root = PathBuf::from(worktree.root_path());
+        let workspace_candidates = [
+            (
+                workspace_root.join(NODE_MODULES_PATH),
+                PathBuf::from(NODE_MODULES_PATH).join("package.json"),
+            ),
+            (
+                workspace_root.join(LANGUAGE_SERVER_RELATIVE_PATH),
+                PathBuf::from(LANGUAGE_SERVER_RELATIVE_PATH).join("package.json"),
+            ),
+        ];
+
+        let mut tried: Vec<String> = Vec::new();
+
+        for (candidate, check) in &workspace_candidates {
+            tried.push(candidate.display().to_string());
+            if Self::worktree_file_exists(worktree, check) {
+                return Ok(candidate.clone());
+            }
+        }
+
+        for root in Self::fallback_roots() {
+            let node_modules_candidate = root.join(NODE_MODULES_PATH);
+            tried.push(node_modules_candidate.display().to_string());
+            if node_modules_candidate.exists() {
+                return Ok(node_modules_candidate);
+            }
+
+            let packages_candidate = root.join(LANGUAGE_SERVER_RELATIVE_PATH);
+            tried.push(packages_candidate.display().to_string());
+            if packages_candidate.exists() {
+                return Ok(packages_candidate);
+            }
+        }
+
+        Err(format!(
+            "Svelte language server package not found. Tried: {}",
+            tried.join(", ")
+        ))
+    }
+
+    fn language_server_bin(language_server_dir: &Path) -> PathBuf {
+        language_server_dir.join(LANGUAGE_SERVER_BIN_RELATIVE)
+    }
+
+    fn language_server_ready(language_server_dir: &Path, workspace_root: &Path) -> bool {
+        if language_server_dir.starts_with(workspace_root) {
+            // Assume ready; filesystem checks aren't available from Wasm for workspace paths.
+            return true;
+        }
+
+        let bin = language_server_dir.join(LANGUAGE_SERVER_BIN_RELATIVE);
+        let dist_entry = language_server_dir.join(LANGUAGE_SERVER_BUILD_ARTIFACT);
+        bin.exists() && dist_entry.exists()
+    }
+
     fn ensure_language_server(
         language_server_id: &zed::LanguageServerId,
+        worktree: &zed::Worktree,
     ) -> zed::Result<String> {
-        let server_path = PathBuf::from(LANGUAGE_SERVER_BIN);
-        if server_path.exists() {
+        let workspace_root = PathBuf::from(worktree.root_path());
+        let language_server_dir = Self::language_server_dir(worktree)?;
+        let server_path = Self::language_server_bin(&language_server_dir);
+        if Self::language_server_ready(&language_server_dir, &workspace_root) {
             return Self::path_to_string(&server_path);
         }
 
-        let repo_path = PathBuf::from(LANGUAGE_TOOLS_DIR);
-        if !repo_path.exists() {
-            return Err(format!(
-                "language-tools repo not found at {}",
-                repo_path.display()
-            ));
-        }
+        let instruction = if language_server_dir.ends_with(NODE_MODULES_PATH) {
+            "Run `npm install` in the repository root to install svelte-language-server."
+        } else {
+            "Run `npm install --workspace packages/language-server && npm run build --workspace packages/language-server`."
+        };
 
-        let prefix = Self::path_to_string(&repo_path)?;
         zed::set_language_server_installation_status(
             language_server_id,
-            &zed::LanguageServerInstallationStatus::Downloading,
+            &zed::LanguageServerInstallationStatus::Failed(format!(
+                "Missing build artifacts at {}. {}",
+                language_server_dir
+                    .join(LANGUAGE_SERVER_BUILD_ARTIFACT)
+                    .display(),
+                instruction
+            )),
         );
-        Self::run_npm(&["install", "--workspaces", "--prefix", &prefix])?;
-        Self::run_npm(&[
-            "run",
-            "build",
-            "--workspace",
-            LANGUAGE_SERVER_WORKSPACE,
-            "--prefix",
-            &prefix,
-        ])?;
-
-        if !server_path.exists() {
-            return Err(format!(
-                "Expected {} after building svelte-language-server",
-                server_path.display()
-            ));
-        }
-
-        Self::path_to_string(&server_path)
-    }
-
-    fn run_npm(args: &[&str]) -> zed::Result<()> {
-        let mut command = zed::process::Command::new("npm");
-        command = command.args(args.iter().map(|arg| arg.to_string()));
-        let output = command.output().map_err(|err| {
-            format!("Failed to run npm {}: {err}", args.join(" "))
-        })?;
-
-        if output.status != Some(0) {
-            let stderr = String::from_utf8_lossy(&output.stderr);
-            return Err(format!(
-                "npm {} failed with exit code {:?}: {}",
-                args.join(" "),
-                output.status,
-                stderr
-            ));
-        }
-
-        Ok(())
+        Err("svelte-language-server build artifacts are missing".into())
     }
 
     fn path_to_string(path: &Path) -> zed::Result<String> {
@@ -85,9 +140,9 @@ impl zed::Extension for TsDeriveSvelteExtension {
     fn language_server_command(
         &mut self,
         language_server_id: &zed::LanguageServerId,
-        _: &zed::Worktree,
+        worktree: &zed::Worktree,
     ) -> zed::Result<zed::Command> {
-        let server = Self::ensure_language_server(language_server_id)?;
+        let server = Self::ensure_language_server(language_server_id, worktree)?;
 
         Ok(zed::Command {
             command: zed::node_binary_path()?,

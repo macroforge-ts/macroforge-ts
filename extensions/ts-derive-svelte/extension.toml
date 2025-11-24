@@ -8,6 +8,7 @@ repository = "https://github.com/rymskip/ts-macros"
 
 [language_servers.ts-derive-svelte]
 name = "TS Derive Svelte"
+language = "Svelte"
 languages = ["Svelte"]
 
 [language_servers.ts-derive-svelte.language_ids]

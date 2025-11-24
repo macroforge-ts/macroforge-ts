@@ -1,10 +1,10 @@
 # TS Derive Svelte Language Server
 
-Builds and runs the forked `svelte-language-server` bundled under `extensions/ts-derive-svelte/language-tools` so `.svelte` files inherit the ts-macros TypeScript plugin fix.
+Builds and runs the forked `svelte-language-server` found in `node_modules/svelte-language-server` (after a repo-wide `npm install`) or under `packages/language-server` in the current workspace so `.svelte` files inherit the ts-macros TypeScript plugin fix.
 
-On first launch the extension runs:
+Before launching Zed, ensure the language server artifacts exist:
 
-1. `npm install --workspaces --prefix extensions/ts-derive-svelte/language-tools`
-2. `npm run build --workspace svelte-language-server --prefix extensions/ts-derive-svelte/language-tools`
+1. `npm install`
+2. (Optional) If you're iterating on the fork in `packages/language-server`, run `npm install --workspace packages/language-server` and `npm run build --workspace packages/language-server`.
 
-Afterwards it spawns `node extensions/ts-derive-svelte/language-tools/packages/language-server/bin/server.js --stdio` whenever Zed needs the Svelte language server.
+Afterwards it spawns `node node_modules/svelte-language-server/bin/server.js --stdio` (falling back to `packages/language-server/bin/server.js` if you're running the fork directly) whenever Zed needs the Svelte language server.

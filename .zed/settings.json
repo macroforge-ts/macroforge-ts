@@ -20,6 +20,7 @@
 					"arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
 				}
 			},
+			"language_servers": ["vtsls", "!typescript-language-server"],
 			"code_actions_on_format": {
 				"source.fixAll.eslint": true
 			}

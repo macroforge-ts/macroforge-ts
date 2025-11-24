@@ -1,14 +1,7 @@
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
 use swc_core::{
-    common::{
-        errors::Handler,
-        sync::Lrc,
-        FileName,
-        Globals,
-        SourceMap,
-        GLOBALS,
-    },
+    common::{FileName, GLOBALS, Globals, SourceMap, errors::Handler, sync::Lrc},
     ecma::{
         ast::EsVersion,
         codegen::{Emitter, text_writer::JsWriter},
