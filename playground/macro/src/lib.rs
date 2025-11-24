@@ -5,14 +5,15 @@ use ts_macro_abi::{
 };
 use ts_macro_host::{MacroManifest, MacroRegistry, Result, TsMacro};
 
-const MODULE_NAME: &str = "@playground/macro";
+const PACKAGE_NAME: &str = "@playground/macro";
+const DERIVE_MODULE: &str = "@macro/derive";
 
 pub fn register_playground_macros(registry: &MacroRegistry) -> Result<()> {
     let manifest_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("macro.toml");
     let manifest = MacroManifest::from_toml_file(manifest_path)?;
-    registry.register_manifest(MODULE_NAME, manifest)?;
+    registry.register_manifest(PACKAGE_NAME, manifest)?;
 
-    registry.register(MODULE_NAME, "JSON", Arc::new(DeriveJsonMacro))?;
+    registry.register(DERIVE_MODULE, "JSON", Arc::new(DeriveJsonMacro))?;
     Ok(())
 }
 
@@ -52,6 +53,15 @@ impl TsMacro for DeriveJsonMacro {
                 at: insertion,
                 code: generate_to_json(class),
             }],
+            type_patches: vec![
+                Patch::Delete {
+                    span: ctx.decorator_span,
+                },
+                Patch::Insert {
+                    at: insertion,
+                    code: generate_to_json_signature(),
+                },
+            ],
             ..Default::default()
         }
     }
@@ -85,4 +95,8 @@ fn generate_to_json(class: &ClassIR) -> String {
     }}
 "#
     )
+}
+
+fn generate_to_json_signature() -> String {
+    "    toJSON(): Record<string, unknown>;\n".to_string()
 }
