@@ -12,3 +12,4 @@ name = "playground_macros"
 [dependencies]
 ts_macro_host = { path = "../../crates/ts_macro_host" }
 ts_macro_abi = { path = "../../crates/ts_macro_abi" }
+inventory = "0.3"

@@ -17,6 +17,8 @@ pub fn register_playground_macros(registry: &MacroRegistry) -> Result<()> {
     Ok(())
 }
 
+ts_macro_host::register_macro_package!(PACKAGE_NAME, register_playground_macros);
+
 struct DeriveJsonMacro;
 
 impl TsMacro for DeriveJsonMacro {
