@@ -118,9 +118,11 @@ impl MacroHostIntegration {
         let mut diagnostics = Vec::new();
 
         for target in derive_targets {
-            collector.add_runtime_patches(vec![Patch::Delete {
+            let decorator_removal = Patch::Delete {
                 span: target.decorator_span,
-            }]);
+            };
+            collector.add_runtime_patches(vec![decorator_removal.clone()]);
+            collector.add_type_patches(vec![decorator_removal]);
 
             for macro_name in target.macro_names {
                 let ctx = MacroContextIR::new_derive_class(

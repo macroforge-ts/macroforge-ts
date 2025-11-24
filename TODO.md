@@ -484,6 +484,7 @@ Choose and implement approach:
 
 - [x] Emit `.d.ts` using **type_patches** from macro results
       (wired through Vite plugin output today)
+- [x] Built-in derives emit their method signatures via `type_patches`
 
 - [ ] Wire into TS compiler:
 
@@ -823,7 +824,7 @@ Workarounds:
 ### Immediate Priorities
 1. **Implement Patch Application Engine** - Apply generated patches to source code ✅
 2. **Refactor MacroTransformer** - Use new `ts_macro_host` instead of hardcoded macros ✅
-3. **Create CLI Tool** - For testing macro expansion and debugging
+3. **Create CLI Tool** - For testing macro expansion and debugging ✅ (`cargo run -p ts_macro_cli -- expand`)
 4. **Complete ts_quote** - Implement actual quote! functionality for code generation
 
 ### To Make It Usable
