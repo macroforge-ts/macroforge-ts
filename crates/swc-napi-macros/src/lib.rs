@@ -17,6 +17,7 @@ use crate::macro_host::MacroHostIntegration;
 pub struct TransformResult {
     pub code: String,
     pub map: Option<String>,
+    pub types: Option<String>,
 }
 
 /// Transform TypeScript code to JavaScript with macro expansion
@@ -57,6 +58,7 @@ fn transform_inner(code: &str, filepath: &str) -> Result<TransformResult> {
     Ok(TransformResult {
         code: generated,
         map: None,
+        types: expansion.type_output,
     })
 }
 

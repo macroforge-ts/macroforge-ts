@@ -93,23 +93,28 @@ impl MacroConfig {
         Ok(serde_json::from_str(&content)?)
     }
 
-    /// Try to find and load configuration file
+    /// Try to find and load configuration file, returning both config and its directory
     /// Looks for ts-macros.json (preferred) or legacy ts-macro.config.json in current directory and ancestors
-    pub fn find_and_load() -> Result<Option<Self>> {
+    pub fn find_with_root() -> Result<Option<(Self, std::path::PathBuf)>> {
         let current_dir = std::env::current_dir()?;
         Self::find_config_in_ancestors(&current_dir)
     }
 
-    fn find_config_in_ancestors(start_dir: &Path) -> Result<Option<Self>> {
+    /// Existing helper returning just the config for callers that don't need the root path
+    pub fn find_and_load() -> Result<Option<Self>> {
+        Ok(Self::find_with_root()?.map(|(cfg, _)| cfg))
+    }
+
+    fn find_config_in_ancestors(start_dir: &Path) -> Result<Option<(Self, std::path::PathBuf)>> {
         let mut current = start_dir.to_path_buf();
 
         loop {
             if let Some(config) = Self::load_if_exists(&current.join(DEFAULT_CONFIG_FILENAME))? {
-                return Ok(Some(config));
+                return Ok(Some((config, current.clone())));
             }
 
             if let Some(config) = Self::load_if_exists(&current.join(LEGACY_CONFIG_FILENAME))? {
-                return Ok(Some(config));
+                return Ok(Some((config, current.clone())));
             }
 
             // Check for package.json as a stop condition

@@ -146,6 +146,10 @@ impl PatchCollector {
         self.type_patches.extend(patches);
     }
 
+    pub fn has_type_patches(&self) -> bool {
+        !self.type_patches.is_empty()
+    }
+
     /// Apply runtime patches to source code
     pub fn apply_runtime_patches(&self, source: &str) -> Result<String> {
         if self.runtime_patches.is_empty() {

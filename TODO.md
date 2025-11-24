@@ -482,8 +482,8 @@ Choose and implement approach:
 
 - [ ] Present macro-expanded view to language service
 
-- [ ] Emit `.d.ts` using **type_patches** from macro results
-      (host may also synthesize from IR in v0)
+- [x] Emit `.d.ts` using **type_patches** from macro results
+      (wired through Vite plugin output today)
 
 - [ ] Wire into TS compiler:
 
@@ -829,12 +829,12 @@ Workarounds:
 ### To Make It Usable
 1. **Integration** - Connect `ts_macro_host` with `swc-napi-macros` ✅
 2. **Configuration Loading** - Actually load and use `ts-macros.json`
-3. **Playground Testing** - Verify the new system works with playground apps
+3. **Playground Testing** - Verify the new system works with playground apps ✅
 4. **Documentation** - Write getting started guide for macro authors
 
 ### Current Blockers
 - Need CLI/dev tooling to exercise macros outside the Vite pipeline
 - Macro package loading still hardcodes built-ins; manifest-based registry not wired to external crates yet
-- Type-surface emission (`type_patches`) not surfaced anywhere yet, so generated APIs lack .d.ts support
+- Root-level `ts-macros.json` loader doesn’t search for manifests of requested packages
 
 ---

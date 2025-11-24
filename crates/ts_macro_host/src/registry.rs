@@ -33,6 +33,9 @@ pub struct MacroRegistry {
 /// Manifest data for a macro package
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct MacroManifest {
+    /// Optional module name this manifest represents (e.g., "@macro/derive")
+    #[serde(default)]
+    pub module: Option<String>,
     /// ABI version this package was built against
     #[serde(rename = "abiVersion")]
     pub abi_version: u32,

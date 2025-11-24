@@ -1,6 +1,9 @@
 use anyhow::{Context, Result};
 use playground_macros::register_playground_macros;
-use std::collections::HashMap;
+use std::{
+    collections::{HashMap, HashSet},
+    path::{Path, PathBuf},
+};
 use swc_core::{
     common::Span,
     ecma::ast::{
@@ -9,9 +12,11 @@ use swc_core::{
 };
 use ts_macro_abi::{ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, Patch, SpanIR};
 use ts_macro_host::{
-    MacroConfig, MacroDispatcher, MacroRegistry, PatchCollector, builtin::register_builtin_macros,
+    MacroConfig, MacroDispatcher, MacroManifest, MacroRegistry, PatchCollector,
+    builtin::register_builtin_macros,
 };
 use ts_syn::lower_classes;
+use walkdir::WalkDir;
 
 const DERIVE_MODULE_PATH: &str = "@macro/derive";
 
@@ -26,20 +31,26 @@ pub struct MacroExpansion {
     pub code: String,
     pub diagnostics: Vec<Diagnostic>,
     pub changed: bool,
+    pub type_output: Option<String>,
 }
 
 impl MacroHostIntegration {
     /// Build a macro host with the built-in macro registry populated.
     pub fn new() -> Result<Self> {
-        let config = MacroConfig::find_and_load()
+        let (config, root_dir) = MacroConfig::find_with_root()
             .context("failed to discover macro configuration")?
-            .unwrap_or_default();
-        Self::with_config(config)
+            .unwrap_or_else(|| {
+                (
+                    MacroConfig::default(),
+                    std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from(".")),
+                )
+            });
+        Self::with_config(config, root_dir)
     }
 
-    pub fn with_config(config: MacroConfig) -> Result<Self> {
+    pub fn with_config(config: MacroConfig, root_dir: std::path::PathBuf) -> Result<Self> {
         let registry = MacroRegistry::new();
-        register_packages(&registry, &config)?;
+        register_packages(&registry, &config, &root_dir)?;
 
         Ok(Self {
             dispatcher: MacroDispatcher::new(registry),
@@ -59,6 +70,7 @@ impl MacroHostIntegration {
                 code: source.to_string(),
                 diagnostics: Vec::new(),
                 changed: false,
+                type_output: None,
             });
         }
 
@@ -69,6 +81,7 @@ impl MacroHostIntegration {
                     code: source.to_string(),
                     diagnostics: Vec::new(),
                     changed: false,
+                    type_output: None,
                 });
             }
         };
@@ -81,6 +94,7 @@ impl MacroHostIntegration {
                 code: source.to_string(),
                 diagnostics: Vec::new(),
                 changed: false,
+                type_output: None,
             });
         }
 
@@ -96,6 +110,7 @@ impl MacroHostIntegration {
                 code: source.to_string(),
                 diagnostics: Vec::new(),
                 changed: false,
+                type_output: None,
             });
         }
 
@@ -132,10 +147,21 @@ impl MacroHostIntegration {
             .apply_runtime_patches(source)
             .context("failed to apply macro-generated patches")?;
 
+        let type_output = if collector.has_type_patches() {
+            Some(
+                collector
+                    .apply_type_patches(source)
+                    .context("failed to apply macro-generated type patches")?,
+            )
+        } else {
+            None
+        };
+
         let mut expansion = MacroExpansion {
             code: updated_code,
             diagnostics,
             changed: true,
+            type_output,
         };
 
         self.enforce_diagnostic_limit(&mut expansion.diagnostics);
@@ -303,12 +329,16 @@ fn available_package_registrars() -> Vec<(&'static str, PackageRegistrar)> {
     ]
 }
 
-fn register_packages(registry: &MacroRegistry, config: &MacroConfig) -> Result<()> {
-    let available = available_package_registrars();
-    let table: HashMap<&'static str, PackageRegistrar> = available.into_iter().collect();
+fn register_packages(
+    registry: &MacroRegistry,
+    config: &MacroConfig,
+    config_root: &Path,
+) -> Result<()> {
+    let embedded = available_package_registrars();
+    let embedded_map: HashMap<&'static str, PackageRegistrar> = embedded.into_iter().collect();
 
     let requested = if config.macro_packages.is_empty() {
-        table.keys().cloned().collect::<Vec<_>>()
+        embedded_map.keys().cloned().collect::<Vec<_>>()
     } else {
         config
             .macro_packages
@@ -317,18 +347,92 @@ fn register_packages(registry: &MacroRegistry, config: &MacroConfig) -> Result<(
             .collect::<Vec<_>>()
     };
 
+    let search_roots = default_search_roots(config_root);
+    let discovered_manifests = discover_manifests(&search_roots);
+
     for module in requested {
-        if let Some(registrar) = table.get(module) {
+        if let Some(registrar) = embedded_map.get(module) {
             registrar(registry)
                 .map_err(anyhow::Error::from)
                 .with_context(|| format!("failed to register macro package {module}"))?;
-        } else {
+            continue;
+        }
+
+        if let Some(path) = discovered_manifests.get(module) {
             eprintln!(
-                "[ts-macros] warning: macro package '{}' is not linked into this binary; skipping",
-                module
+                "[ts-macros] warning: macro package '{}' found at '{}' but no native implementation is linked into this build. \
+                 Add the crate to the workspace and register it with the host.",
+                module,
+                path.display()
+            );
+        } else {
+            let roots = search_roots
+                .iter()
+                .map(|p| p.display().to_string())
+                .collect::<Vec<_>>()
+                .join(", ");
+            eprintln!(
+                "[ts-macros] warning: macro package '{}' not found (searched under {}). \
+                 Ensure its macro.toml is present or adjust ts-macros.json.",
+                module, roots
             );
         }
     }
 
     Ok(())
+}
+
+fn default_search_roots(config_root: &Path) -> Vec<PathBuf> {
+    let mut set: HashSet<PathBuf> = HashSet::new();
+    let mut roots = Vec::new();
+
+    let mut push = |path: PathBuf| {
+        if path.exists() && set.insert(path.clone()) {
+            roots.push(path);
+        }
+    };
+
+    push(config_root.to_path_buf());
+    if let Ok(cwd) = std::env::current_dir() {
+        push(cwd);
+    }
+
+    for rel in ["crates", "playground", "packages", "node_modules"] {
+        push(config_root.join(rel));
+    }
+
+    roots
+}
+
+fn discover_manifests(roots: &[PathBuf]) -> HashMap<String, PathBuf> {
+    let mut map = HashMap::new();
+
+    for root in roots {
+        if !root.exists() {
+            continue;
+        }
+
+        for entry in WalkDir::new(root)
+            .max_depth(5)
+            .into_iter()
+            .filter_map(|e| e.ok())
+        {
+            if !entry.file_type().is_file() {
+                continue;
+            }
+
+            if entry.file_name() != "macro.toml" {
+                continue;
+            }
+
+            if let Ok(manifest) = MacroManifest::from_toml_file(entry.path())
+                && let Some(module) = manifest.module.clone()
+            {
+                map.entry(module)
+                    .or_insert_with(|| entry.path().to_path_buf());
+            }
+        }
+    }
+
+    map
 }
