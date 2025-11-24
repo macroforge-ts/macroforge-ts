@@ -1,0 +1,15 @@
+id = "ts-derive-svelte"
+name = "TS Derive Svelte Language Server"
+version = "0.1.0"
+schema_version = 1
+authors = ["ts-macros contributors"]
+description = "Builds and launches the forked svelte-language-server with macro integration."
+repository = "https://github.com/rymskip/ts-macros"
+
+[language_servers.ts-derive-svelte]
+name = "TS Derive Svelte"
+language = "Svelte"
+languages = ["Svelte"]
+
+[language_servers.ts-derive-svelte.language_ids]
+"Svelte" = "svelte"
