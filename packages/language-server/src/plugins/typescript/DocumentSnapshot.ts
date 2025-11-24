@@ -30,6 +30,10 @@ import { dirname, resolve } from 'path';
 import { URI } from 'vscode-uri';
 import { surroundWithIgnoreComments } from './features/utils';
 import { configLoader } from '../../lib/documents/configLoader';
+import {
+    augmentWithTsMacros,
+    TsMacrosAugmentationConfig
+} from './tsMacrosAugmenter';
 
 /**
  * An error which occurred while trying to parse/preprocess the svelte file contents.
@@ -84,7 +88,11 @@ export namespace DocumentSnapshot {
      * @param document the svelte document
      * @param options options that apply to the svelte document
      */
-    export function fromDocument(document: Document, options: SvelteSnapshotOptions) {
+    export function fromDocument(
+        document: Document,
+        options: SvelteSnapshotOptions,
+        tsMacrosConfig?: TsMacrosAugmentationConfig
+    ) {
         const { tsxMap, htmlAst, text, exportedNames, parserError, nrPrependedLines, scriptKind } =
             preprocessSvelteFile(document, options);
 
@@ -97,7 +105,8 @@ export namespace DocumentSnapshot {
             nrPrependedLines,
             exportedNames,
             tsxMap,
-            htmlAst
+            htmlAst,
+            tsMacrosConfig
         );
     }
 
@@ -111,12 +120,19 @@ export namespace DocumentSnapshot {
         filePath: string,
         createDocument: (filePath: string, text: string) => Document,
         options: SvelteSnapshotOptions,
-        tsSystem: ts.System
+        tsSystem: ts.System,
+        tsMacrosConfig?: TsMacrosAugmentationConfig
     ) {
         if (isSvelteFilePath(filePath)) {
-            return DocumentSnapshot.fromSvelteFilePath(filePath, createDocument, options, tsSystem);
+            return DocumentSnapshot.fromSvelteFilePath(
+                filePath,
+                createDocument,
+                options,
+                tsSystem,
+                tsMacrosConfig
+            );
         } else {
-            return DocumentSnapshot.fromNonSvelteFilePath(filePath, tsSystem);
+            return DocumentSnapshot.fromNonSvelteFilePath(filePath, tsSystem, tsMacrosConfig);
         }
     }
 
@@ -125,7 +141,11 @@ export namespace DocumentSnapshot {
      * @param filePath path to the js/ts file
      * @param options options that apply in case it's a svelte file
      */
-    export function fromNonSvelteFilePath(filePath: string, tsSystem: ts.System) {
+    export function fromNonSvelteFilePath(
+        filePath: string,
+        tsSystem: ts.System,
+        tsMacrosConfig?: TsMacrosAugmentationConfig
+    ) {
         // The following (very hacky) code makes sure that the ambient module definitions
         // that tell TS "every import ending with .svelte is a valid module" are removed.
         // They exist in svelte2tsx and svelte to make sure that people don't
@@ -158,10 +178,21 @@ export namespace DocumentSnapshot {
 
         const declarationExtensions = [ts.Extension.Dcts, ts.Extension.Dts, ts.Extension.Dmts];
         if (declarationExtensions.some((ext) => filePath.endsWith(ext))) {
-            return new DtsDocumentSnapshot(INITIAL_VERSION, filePath, originalText, tsSystem);
+            return new DtsDocumentSnapshot(
+                INITIAL_VERSION,
+                filePath,
+                originalText,
+                tsSystem,
+                tsMacrosConfig
+            );
         }
 
-        return new JSOrTSDocumentSnapshot(INITIAL_VERSION, filePath, originalText);
+        return new JSOrTSDocumentSnapshot(
+            INITIAL_VERSION,
+            filePath,
+            originalText,
+            tsMacrosConfig
+        );
     }
 
     /**
@@ -174,10 +205,11 @@ export namespace DocumentSnapshot {
         filePath: string,
         createDocument: (filePath: string, text: string) => Document,
         options: SvelteSnapshotOptions,
-        tsSystem: ts.System
+        tsSystem: ts.System,
+        tsMacrosConfig?: TsMacrosAugmentationConfig
     ) {
         const originalText = tsSystem.readFile(filePath) ?? '';
-        return fromDocument(createDocument(filePath, originalText), options);
+        return fromDocument(createDocument(filePath, originalText), options, tsMacrosConfig);
     }
 }
 
@@ -276,15 +308,35 @@ export class SvelteDocumentSnapshot implements DocumentSnapshot {
         public readonly parserError: ParserError | null,
         public readonly scriptKind: ts.ScriptKind,
         public readonly svelteVersion: string | undefined,
-        private readonly text: string,
+        private text: string,
         private readonly nrPrependedLines: number,
         private readonly exportedNames: IExportedNames,
         private readonly tsxMap?: EncodedSourceMap,
-        private readonly htmlAst?: TemplateNode
-    ) {}
+        private readonly htmlAst?: TemplateNode,
+        private readonly tsMacrosConfig?: TsMacrosAugmentationConfig
+    ) {
+        this.applyTsMacrosAugmentation();
+    }
 
     get filePath() {
         return this.parent.getFilePath() || '';
+    }
+
+    private applyTsMacrosAugmentation() {
+        if (!this.tsMacrosConfig) {
+            return;
+        }
+
+        const augmented = augmentWithTsMacros(
+            ts,
+            this.filePath,
+            this.text,
+            this.tsMacrosConfig
+        );
+
+        if (augmented) {
+            this.text = augmented;
+        }
     }
 
     get scriptInfo() {
@@ -458,7 +510,8 @@ export class JSOrTSDocumentSnapshot extends IdentityMapper implements DocumentSn
     constructor(
         public version: number,
         public readonly filePath: string,
-        private text: string
+        private text: string,
+        private readonly tsMacrosConfig?: TsMacrosAugmentationConfig
     ) {
         super(pathToUrl(filePath));
         this.adjustText();
@@ -593,24 +646,42 @@ export class JSOrTSDocumentSnapshot extends IdentityMapper implements DocumentSn
             this.kitFile = false;
             this.addedCode = [];
             this.text = this.originalText;
+        } else {
+            if (!this.kitFile) {
+                const files = configLoader.getConfig(this.filePath)?.kit?.files;
+                if (files) {
+                    this.paramsPath ||= files.params;
+                    this.serverHooksPath ||= files.hooks?.server;
+                    this.clientHooksPath ||= files.hooks?.client;
+                    this.universalHooksPath ||= files.hooks?.universal;
+                }
+            }
+
+            const { text, addedCode } = result;
+
+            this.kitFile = true;
+            this.addedCode = addedCode;
+            this.text = text;
+        }
+
+        this.applyTsMacrosAugmentation();
+    }
+
+    private applyTsMacrosAugmentation() {
+        if (!this.tsMacrosConfig) {
             return;
         }
 
-        if (!this.kitFile) {
-            const files = configLoader.getConfig(this.filePath)?.kit?.files;
-            if (files) {
-                this.paramsPath ||= files.params;
-                this.serverHooksPath ||= files.hooks?.server;
-                this.clientHooksPath ||= files.hooks?.client;
-                this.universalHooksPath ||= files.hooks?.universal;
-            }
+        const augmented = augmentWithTsMacros(
+            ts,
+            this.filePath,
+            this.text,
+            this.tsMacrosConfig
+        );
+
+        if (augmented) {
+            this.text = augmented;
         }
-
-        const { text, addedCode } = result;
-
-        this.kitFile = true;
-        this.addedCode = addedCode;
-        this.text = text;
     }
 
     private createSource() {
@@ -637,9 +708,10 @@ export class DtsDocumentSnapshot extends JSOrTSDocumentSnapshot implements Docum
         version: number,
         filePath: string,
         text: string,
-        private tsSys: ts.System
+        private tsSys: ts.System,
+        tsMacrosConfig?: TsMacrosAugmentationConfig
     ) {
-        super(version, filePath, text);
+        super(version, filePath, text, tsMacrosConfig);
     }
 
     getOriginalFilePosition(generatedPosition: Position): FilePosition {
