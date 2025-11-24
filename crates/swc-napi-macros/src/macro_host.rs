@@ -336,8 +336,11 @@ fn register_packages(
     config: &MacroConfig,
     config_root: &Path,
 ) -> Result<()> {
-    let embedded = available_package_registrars();
-    let embedded_map: HashMap<&'static str, PackageRegistrar> = embedded.into_iter().collect();
+    let mut embedded_map: HashMap<&'static str, PackageRegistrar> =
+        available_package_registrars().into_iter().collect();
+    for pkg in ts_macro_host::package_registry::registrars() {
+        embedded_map.entry(pkg.module).or_insert(pkg.registrar);
+    }
 
     let requested = if config.macro_packages.is_empty() {
         embedded_map.keys().cloned().collect::<Vec<_>>()

@@ -32,3 +32,5 @@ pub fn register_builtin_macros(registry: &MacroRegistry) -> Result<()> {
 
     Ok(())
 }
+
+crate::register_macro_package!("@macro/derive", register_builtin_macros);
