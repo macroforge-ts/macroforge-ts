@@ -5,10 +5,9 @@ import "./demo-intellisense"; // Trigger type generation for Customer class
 
 // Example of using IncludeStr macro (will be replaced with file content at compile time)
 // const readme = IncludeStr('../README.md')
-
 // Example of using Derive decorator
 @Derive("Debug", "JSON")
-class User {
+export class User {
   constructor(
     public id: number,
     public name: string,

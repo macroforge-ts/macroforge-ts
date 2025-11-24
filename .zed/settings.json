@@ -20,7 +20,6 @@
 					"arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
 				}
 			},
-			"language_servers": ["vtsls", "eslint", "!biome"],
 			"code_actions_on_format": {
 				"source.fixAll.eslint": true
 			}
@@ -32,7 +31,12 @@
 					"arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
 				}
 			},
-			"language_servers": ["svelte-language-server", "eslint", "!biome"],
+			"language_servers": [
+				"ts-derive-svelte",
+				"eslint",
+				"!svelte-language-server",
+				"!biome"
+			],
 			"code_actions_on_format": {
 				"source.fixAll.eslint": true
 			}

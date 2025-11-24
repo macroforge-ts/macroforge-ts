@@ -9,7 +9,7 @@ interface PluginConfig {
 const DEFAULT_MACROS = ["Derive"];
 const DEFAULT_MIXIN_TYPES = ["MacroDebug", "MacroJSON"];
 
-const FILE_EXTENSIONS = [".ts", ".tsx"];
+const FILE_EXTENSIONS = [".ts", ".tsx", ".svelte"];
 
 const AUGMENTATION_BANNER = "\n// @ts-macros/derive augmentations\n";
 
@@ -57,12 +57,17 @@ function hasDecorator(
   });
 }
 
+interface DecoratedClassMeta {
+  name: string;
+  isExported: boolean;
+}
+
 function collectDecoratedClasses(
   tsModule: typeof ts,
   source: ts.SourceFile,
   macroNames: Set<string>,
 ) {
-  const classNames = new Set<string>();
+  const classes: DecoratedClassMeta[] = [];
 
   const visit = (node: ts.Node) => {
     if (
@@ -70,14 +75,17 @@ function collectDecoratedClasses(
       node.name &&
       hasDecorator(tsModule, node, macroNames)
     ) {
-      classNames.add(node.name.text);
+      classes.push({
+        name: node.name.text,
+        isExported: isNodeExported(tsModule, node),
+      });
     }
 
     tsModule.forEachChild(node, visit);
   };
 
   visit(source);
-  return classNames;
+  return classes;
 }
 
 function hasInterfaceDeclaration(sourceText: string, name: string) {
@@ -85,7 +93,11 @@ function hasInterfaceDeclaration(sourceText: string, name: string) {
   return pattern.test(sourceText);
 }
 
-function buildInterfaceBlock(name: string, mixinRefs: string[]) {
+function buildInterfaceBlock(
+  name: string,
+  mixinRefs: string[],
+  isExported: boolean,
+) {
   if (!mixinRefs.length) {
     return "";
   }
@@ -93,8 +105,14 @@ function buildInterfaceBlock(name: string, mixinRefs: string[]) {
   const aliasName = `__TsMacros${name}Mixin`;
   const intersection =
     mixinRefs.length === 1 ? mixinRefs[0] : mixinRefs.join(" & ");
+  const exportPrefix = isExported ? "export " : "";
 
-  return `type ${aliasName} = ${intersection};\ninterface ${name} extends ${aliasName} {}\n`;
+  return `${exportPrefix}type ${aliasName} = ${intersection};\n${exportPrefix}interface ${name} extends ${aliasName} {}\n`;
+}
+
+function isNodeExported(tsModule: typeof ts, node: ts.ClassDeclaration) {
+  const flags = tsModule.getCombinedModifierFlags(node);
+  return (flags & tsModule.ModifierFlags.Export) !== 0;
 }
 
 function augmentSource(
@@ -118,16 +136,16 @@ function augmentSource(
   );
 
   const decorated = collectDecoratedClasses(tsModule, source, macroNames);
-  if (decorated.size === 0) {
+  if (decorated.length === 0) {
     return null;
   }
 
   const mixinRefs = mixinTypes.map(
     (type) => `import("${mixinModule}").${type}`,
   );
-  const additions = Array.from(decorated)
-    .filter((name) => !hasInterfaceDeclaration(sourceText, name))
-    .map((name) => buildInterfaceBlock(name, mixinRefs));
+  const additions = decorated
+    .filter((meta) => !hasInterfaceDeclaration(sourceText, meta.name))
+    .map((meta) => buildInterfaceBlock(meta.name, mixinRefs, meta.isExported));
 
   if (!additions.length) {
     return null;

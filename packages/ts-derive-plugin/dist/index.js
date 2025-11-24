@@ -1,7 +1,7 @@
 "use strict";
 const DEFAULT_MACROS = ["Derive"];
 const DEFAULT_MIXIN_TYPES = ["MacroDebug", "MacroJSON"];
-const FILE_EXTENSIONS = [".ts", ".tsx"];
+const FILE_EXTENSIONS = [".ts", ".tsx", ".svelte"];
 const AUGMENTATION_BANNER = "\n// @ts-macros/derive augmentations\n";
 function shouldProcess(fileName) {
     return FILE_EXTENSIONS.some((ext) => fileName.endsWith(ext));
@@ -34,29 +34,37 @@ function hasDecorator(tsModule, node, macroNames) {
     });
 }
 function collectDecoratedClasses(tsModule, source, macroNames) {
-    const classNames = new Set();
+    const classes = [];
     const visit = (node) => {
         if (tsModule.isClassDeclaration(node) &&
             node.name &&
             hasDecorator(tsModule, node, macroNames)) {
-            classNames.add(node.name.text);
+            classes.push({
+                name: node.name.text,
+                isExported: isNodeExported(tsModule, node),
+            });
         }
         tsModule.forEachChild(node, visit);
     };
     visit(source);
-    return classNames;
+    return classes;
 }
 function hasInterfaceDeclaration(sourceText, name) {
     const pattern = new RegExp(`interface\\s+${name}\\b`);
     return pattern.test(sourceText);
 }
-function buildInterfaceBlock(name, mixinRefs) {
+function buildInterfaceBlock(name, mixinRefs, isExported) {
     if (!mixinRefs.length) {
         return "";
     }
     const aliasName = `__TsMacros${name}Mixin`;
     const intersection = mixinRefs.length === 1 ? mixinRefs[0] : mixinRefs.join(" & ");
-    return `type ${aliasName} = ${intersection};\ninterface ${name} extends ${aliasName} {}\n`;
+    const exportPrefix = isExported ? "export " : "";
+    return `${exportPrefix}type ${aliasName} = ${intersection};\n${exportPrefix}interface ${name} extends ${aliasName} {}\n`;
+}
+function isNodeExported(tsModule, node) {
+    const flags = tsModule.getCombinedModifierFlags(node);
+    return (flags & tsModule.ModifierFlags.Export) !== 0;
 }
 function augmentSource(tsModule, fileName, sourceText, macroNames, mixinModule, mixinTypes) {
     if (!sourceText.includes("@")) {
@@ -64,13 +72,13 @@ function augmentSource(tsModule, fileName, sourceText, macroNames, mixinModule, 
     }
     const source = tsModule.createSourceFile(fileName, sourceText, tsModule.ScriptTarget.Latest, true, tsModule.ScriptKind.TSX);
     const decorated = collectDecoratedClasses(tsModule, source, macroNames);
-    if (decorated.size === 0) {
+    if (decorated.length === 0) {
         return null;
     }
     const mixinRefs = mixinTypes.map((type) => `import("${mixinModule}").${type}`);
-    const additions = Array.from(decorated)
-        .filter((name) => !hasInterfaceDeclaration(sourceText, name))
-        .map((name) => buildInterfaceBlock(name, mixinRefs));
+    const additions = decorated
+        .filter((meta) => !hasInterfaceDeclaration(sourceText, meta.name))
+        .map((meta) => buildInterfaceBlock(meta.name, mixinRefs, meta.isExported));
     if (!additions.length) {
         return null;
     }

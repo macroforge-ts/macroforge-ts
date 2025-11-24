@@ -16,8 +16,10 @@
 		"test": "npm test --workspaces --if-present"
 	},
 	"devDependencies": {
-		"@types/node": "^22.10.2",
 		"@napi-rs/cli": "^3.4.1",
+		"@types/node": "^22.10.2",
+		"@vtsls/language-server": "^0.2.9",
+		"svelte-language-server": "^0.17.22",
 		"typescript": "^5.9.3",
 		"vite": "^7.2.4"
 	},

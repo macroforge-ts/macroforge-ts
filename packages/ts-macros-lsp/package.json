@@ -1,0 +1,21 @@
+{
+  "name": "@ts-macros/ts-macros-lsp",
+  "version": "0.0.1",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/server.js",
+  "types": "dist/server.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -w -p tsconfig.json",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "typescript": "^5.9.3",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.8"
+  }
+}

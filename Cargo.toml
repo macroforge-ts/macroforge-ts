@@ -1,6 +1,8 @@
 [workspace]
 members = [
-    "crates/swc-napi-macros"
+    "crates/swc-napi-macros",
+    "extensions/ts-derive-ts",
+    "extensions/ts-derive-svelte"
 ]
 resolver = "2"
 

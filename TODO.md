@@ -253,6 +253,13 @@ ts-macros-zed/
 
 ## Implementation Plan
 
+### Phase 1 Deliverable (2024-12-16)
+
+- ✅ Added `packages/ts-macros-lsp`: a minimal Node-based LSP that parses TypeScript/TSX files, detects `@Derive` decorators, tracks identifiers referencing those classes, and injects completions for `toString()`/`toJSON()` (kept for experimentation).
+- ✅ Added `extensions/ts-macros-zed`: a Rust extension that launches `@vtsls/language-server` for TS/TSX and `svelte-language-server` for `.svelte` files (auto-installing both via Zed’s `npm:install` capability) while forcing `@ts-macros/ts-derive-plugin` to load in both environments.
+- ✅ Registered a Zed extension that reuses the built-in TypeScript/TSX grammars so the server can attach without compiling extra grammars (Tree-sitter overrides deferred to phase 2).
+- ⏭️ Next iteration: proxy completions/diagnostics from the official TypeScript server, add tests, and expand feature coverage (hover docs, error filtering, etc.).
+
 ### Step 1: Create the Language Server (Node.js/TypeScript)
 
 #### 1.1 Basic LSP Setup
@@ -551,22 +558,22 @@ zed::register_extension!(TsMacrosExtension);
 
 ## Next Steps
 
-1. **Immediate**: Build proof-of-concept Language Server
-2. **Short term**: Test augmented completions work
-3. **Medium term**: Create Zed extension wrapper
-4. **Long term**: Support VS Code and other LSP-compatible editors
+1. **Immediate**: Build proof-of-concept Language Server ✅ (`packages/ts-macros-lsp`)
+2. **Short term**: Test augmented completions work ✅ (baseline completions wired into the custom LSP)
+3. **Medium term**: Create Zed extension wrapper ✅ (`extensions/ts-macros-zed`)
+4. **Long term**: Support VS Code and other LSP-compatible editors ⏳
 
 ## Key Insights
 
 After reviewing the Zed documentation, the approach must be:
 1. **Language Server Protocol is the only way** - Zed extensions work through LSP, not IDE APIs
-2. **We need a proxy server** - Must wrap TypeScript's Language Server
+2. **We need a proxy server** - Must wrap TypeScript's Language Server (Phase 2: replace standalone analyzer with TS proxy)
 3. **Universal solution** - LSP works in any compatible editor (Zed, VS Code, Neovim, etc.)
 4. **Distribution is key** - Need reliable way to distribute the Language Server binary
 
 ---
 
-**Status**: Planning Complete, Ready for Implementation
+**Status**: Phase 1 scaffolding landed (LSP + Zed extension). Continue hardening proxy + tests.
 **Priority**: High
 **Estimated Effort**: 3-4 weeks
 **Risk Level**: Medium-High (Complex but proven approach)

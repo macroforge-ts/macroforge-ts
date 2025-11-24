@@ -13,12 +13,12 @@
 		"sourceMap": true,
 		"strict": true,
 		"moduleResolution": "bundler",
-			"plugins": [
-				{
-					"name": "@ts-macros/ts-derive-plugin",
-					"macroNames": ["Derive"],
-					"mixinModule": "$lib/macros",
-					"mixinTypes": ["MacroDebug", "MacroJSON"]
+		"plugins": [
+			{
+				"name": "@ts-macros/ts-derive-plugin",
+				"macroNames": ["Derive"],
+				"mixinModule": "$lib/macros",
+				"mixinTypes": ["MacroDebug", "MacroJSON"]
 			}
 		]
 	},
