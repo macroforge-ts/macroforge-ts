@@ -12,7 +12,7 @@ This project aims to create a Rust-like procedural macro system for TypeScript, 
 
 ### [ ] 1. Define Macro Model & ABI
 
-Design the three kinds of macros (mirroring Rust's proc-macro types):
+Design the three kinds of macros (mirroring Rust's macro types):
 
 - [ ] **Derive macros**: `@Derive(Debug, Clone, …)` on classes/interfaces/enums
 - [ ] **Attribute macros**: `@log`, `@sqlTable`, etc.
