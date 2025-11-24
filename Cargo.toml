@@ -1,8 +1,11 @@
 [workspace]
 members = [
     "crates/swc-napi-macros",
-    "extensions/ts-derive-ts",
-    "extensions/ts-derive-svelte"
+    "crates/extensions/ts-derive-ts",
+    "crates/extensions/ts-derive-svelte",
+    "crates/ts_macro_abi",
+    "crates/ts_syn",
+    "crates/ts_quote", "playground/debug",
 ]
 resolver = "2"
 

@@ -1,579 +1,796 @@
-# TypeScript Macros IntelliSense Extension Plan (UPDATED)
+# TypeScript Macro Framework - TODO
 
-## Problem Statement
+> Building "proc-macro crates for TS" on top of SWC with Rust implementations
 
-### The Core Issue
-- **Classes decorated with `@Derive("Debug", "JSON")` don't get IntelliSense** for the methods that will be injected at runtime
-- TypeScript cannot augment module-scoped classes from external `.d.ts` files
-- TypeScript Language Service plugins are unreliable and don't work properly in modern IDEs
-- Manual interface declarations in the same file work but defeat the purpose of automation
+## Project Overview
 
-### Current Limitations
-1. **Type Generation Approach**: Generates `.d.ts` files but can't augment module-scoped classes
-2. **Language Service Plugin**: Doesn't work reliably in VS Code or Zed
-3. **TypeScript Transformer**: Only works at build time, no IntelliSense
-4. **Manual Augmentation**: Works but requires manual work in each file
-
-## Solution: Hybrid Approach with Tree-sitter and LSP
-
-### Updated Understanding (After Zed Docs Review)
-
-Based on the Zed extension documentation, we need to revise our approach:
-
-**What Zed Extensions CAN do:**
-- Provide Language Servers via LSP
-- Define Tree-sitter grammars for syntax highlighting
-- Configure language metadata and file associations
-- Provide completion items, diagnostics, and other LSP features
-- **USE SYNTAX OVERRIDES to mark special scopes** ← KEY INSIGHT!
-
-**What Zed Extensions CANNOT do (based on docs):**
-- The docs don't explicitly state limitations
-- However, they don't mention:
-  - Direct IDE API access (no vscode-style APIs)
-  - Virtual document providers
-  - Direct TypeScript plugin integration
-
-**What's UNCLEAR from the docs:**
-- Can a Language Server provide virtual/modified document content?
-- Can syntax overrides affect completion behavior?
-- How much control does the LSP have over TypeScript's view of files?
-
-### The Minimal Solution: Tree-sitter + TS Plugin
-
-Instead of creating a whole new language server, we can:
-
-1. **Use Tree-sitter queries** to detect `@Derive` decorated classes
-2. **Configure TypeScript Language Server** to use our existing `ts-derive-plugin`
-3. **Pass decorator information** to the TS server via configuration
-
-## Phase 1: Minimal TypeScript Extension
-
-### Approach A: TypeScript Plugin Configuration
-
-The Zed extension can:
-1. Detect `@Derive` decorators using Tree-sitter
-2. Generate/update a `tsconfig.json` with our plugin
-3. Let the TypeScript language server use the plugin
-
-```rust
-// In the Zed extension
-fn language_server_command(&mut self, ...) -> Result<Command> {
-    // Configure TS server to use our plugin
-    Ok(Command {
-        command: "typescript-language-server",
-        args: vec![
-            "--stdio",
-            "--tsserver-path", "node_modules/typescript/lib",
-            // Pass plugin configuration
-            "--plugin", "@ts-macros/ts-derive-plugin"
-        ],
-        env: // Set up plugin path
-    })
-}
-```
-
-### Approach B: Tree-sitter Scope + Modified Completions
-
-1. Mark decorated classes with Tree-sitter:
-```scheme
-; overrides.scm
-(
-  decorator
-  (call_expression
-    function: (identifier) @decorator.name
-    (#eq? @decorator.name "Derive"))
-  (class_declaration
-    name: (identifier) @class.name)
-) @macro.derive
-```
-
-2. Configure TypeScript to recognize these scopes:
-```toml
-# config.toml
-[overrides.macro.derive]
-# This scope has special completion rules
-completion_query_characters = [".", "t", "j"]  # Trigger on . for methods
-```
-
-3. Minimal TS server wrapper that:
-   - Reads Tree-sitter scope information
-   - Adds completions for marked classes
-   - No need for full proxy
-
-### Approach C: Hybrid with Minimal Proxy
-
-Create a **thin proxy** that only intercepts completion requests:
-
-```typescript
-// Minimal proxy - only touches completions
-class MinimalTSProxy {
-  constructor(private decoratedClasses: Map<string, string[]>) {}
-
-  handleRequest(method: string, params: any) {
-    if (method === 'textDocument/completion') {
-      // Only modify completions for decorated classes
-      const completions = this.tsServer.getCompletions(params);
-      return this.augmentCompletions(completions, params);
-    }
-    // Pass everything else through unchanged
-    return this.tsServer.handle(method, params);
-  }
-}
-```
-
-## The Focused Solution: Tree-sitter Detection + Targeted Override
-
-Based on your suggestion, here's the minimal approach:
-
-### Step 1: Tree-sitter Query for @Derive Detection
-
-```scheme
-; queries/highlights.scm or queries/injections.scm
-(decorator
-  (call_expression
-    function: (identifier) @function.decorator
-    (#eq? @function.decorator "Derive")
-    arguments: (arguments (string) @macro.feature))
-  (class_declaration
-    name: (identifier) @class.decorated))
-```
-
-### Step 2: Minimal LSP Override
-
-Instead of wrapping the entire TypeScript server, we create a **tiny completion provider** that:
-1. Gets notified when Tree-sitter finds `@Derive`
-2. Only provides the missing method completions
-3. Lets TypeScript handle everything else
-
-```typescript
-// Ultra-minimal completion provider
-export class DeriveCompletionProvider {
-  // Tree-sitter tells us: "User class has @Derive('Debug', 'JSON')"
-  private decoratedClasses = new Map<string, string[]>();
-
-  async provideCompletions(doc: TextDocument, position: Position) {
-    // Check if we're after a dot on a decorated class instance
-    const line = doc.lineAt(position.line);
-    const beforeDot = line.text.substring(0, position.character - 1);
-
-    if (beforeDot.endsWith('.')) {
-      const varName = extractVariable(beforeDot);
-      const className = getClassOfVariable(varName);
-
-      if (this.decoratedClasses.has(className)) {
-        const features = this.decoratedClasses.get(className);
-        const completions = [];
-
-        if (features.includes('Debug')) {
-          completions.push({
-            label: 'toString',
-            kind: CompletionItemKind.Method,
-            detail: '(): string'
-          });
-        }
-
-        if (features.includes('JSON')) {
-          completions.push({
-            label: 'toJSON',
-            kind: CompletionItemKind.Method,
-            detail: '(): object'
-          });
-        }
-
-        return completions;
-      }
-    }
-
-    return []; // Let TypeScript handle everything else
-  }
-}
-```
-
-### Step 3: Integration
-
-The Zed extension would:
-1. Use Tree-sitter to find decorated classes
-2. Register a minimal completion provider for those specific cases
-3. TypeScript server handles everything else normally
-
-No full language server needed, just surgical additions where needed!
-
-## Phase 1: Tree-sitter Detection
-
-### Architecture Overview
-
-```
-┌─────────────────────────────────────────┐
-│     Custom TS-Macros Language Server    │
-├─────────────────────────────────────────┤
-│  1. Proxies TypeScript Language Server  │
-│  2. Parses @Derive decorators           │
-│  3. Augments completion responses       │
-│  4. Modifies diagnostic messages        │
-│  5. Provides hover information          │
-└─────────────────────────────────────────┘
-                    ↕ LSP
-┌─────────────────────────────────────────┐
-│          Zed Extension                  │
-├─────────────────────────────────────────┤
-│  extension.toml:                        │
-│    - Registers ts-macros-lsp            │
-│    - Maps to .ts/.tsx files             │
-│  src/lib.rs:                            │
-│    - Downloads/provides LSP binary      │
-│    - Returns LSP command                │
-└─────────────────────────────────────────┘
-```
-
-### Language Server Implementation (TypeScript/Node.js)
-
-```
-ts-macros-lsp/
-├── package.json              # Node.js dependencies
-├── tsconfig.json            # TypeScript configuration
-├── src/
-│   ├── server.ts            # Main LSP server
-│   ├── decorator-parser.ts  # Parse @Derive decorators
-│   ├── type-augmenter.ts    # Augment TypeScript responses
-│   └── proxy.ts             # Proxy to official TS server
-└── dist/                    # Compiled JavaScript
-```
-
-### Zed Extension Structure
-
-```
-ts-macros-zed/
-├── extension.toml           # Extension metadata
-├── Cargo.toml              # Rust dependencies
-├── src/
-│   └── lib.rs              # Extension implementation
-└── README.md
-```
-
-## Implementation Plan
-
-### Phase 1 Deliverable (2024-12-16)
-
-- ✅ Added `packages/ts-macros-lsp`: a minimal Node-based LSP that parses TypeScript/TSX files, detects `@Derive` decorators, tracks identifiers referencing those classes, and injects completions for `toString()`/`toJSON()` (kept for experimentation).
-- ✅ Added `extensions/ts-macros-zed`: a Rust extension that launches `@vtsls/language-server` for TS/TSX and `svelte-language-server` for `.svelte` files (auto-installing both via Zed’s `npm:install` capability) while forcing `@ts-macros/ts-derive-plugin` to load in both environments.
-- ✅ Registered a Zed extension that reuses the built-in TypeScript/TSX grammars so the server can attach without compiling extra grammars (Tree-sitter overrides deferred to phase 2).
-- ⏭️ Next iteration: proxy completions/diagnostics from the official TypeScript server, add tests, and expand feature coverage (hover docs, error filtering, etc.).
-
-### Step 1: Create the Language Server (Node.js/TypeScript)
-
-#### 1.1 Basic LSP Setup
-```typescript
-// server.ts
-import {
-  createConnection,
-  TextDocuments,
-  ProposedFeatures,
-  InitializeParams,
-  InitializeResult,
-  CompletionItem,
-  TextDocumentPositionParams
-} from 'vscode-languageserver/node';
-
-const connection = createConnection(ProposedFeatures.all);
-const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
-
-// Initialize TypeScript Language Service
-const tsService = new TypeScriptService();
-
-connection.onInitialize((params: InitializeParams): InitializeResult => {
-  return {
-    capabilities: {
-      textDocumentSync: TextDocumentSyncKind.Incremental,
-      completionProvider: {
-        resolveProvider: true,
-        triggerCharacters: ['.']
-      }
-    }
-  };
-});
-```
-
-#### 1.2 Decorator Detection
-```typescript
-// decorator-parser.ts
-export function findDeriveDecorators(sourceFile: ts.SourceFile): Map<string, string[]> {
-  const decoratedClasses = new Map<string, string[]>();
-
-  ts.forEachChild(sourceFile, function visit(node) {
-    if (ts.isClassDeclaration(node) && node.decorators) {
-      const deriveDecorator = findDerive(node.decorators);
-      if (deriveDecorator) {
-        const features = extractFeatures(deriveDecorator);
-        decoratedClasses.set(node.name.text, features);
-      }
-    }
-  });
-
-  return decoratedClasses;
-}
-```
-
-#### 1.3 Augment Completions
-```typescript
-// type-augmenter.ts
-connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] => {
-  // Get completions from TypeScript
-  const tsCompletions = tsService.getCompletions(params);
-
-  // Check if we're completing on a decorated class
-  const classInfo = getClassAtPosition(params);
-  if (classInfo && decoratedClasses.has(classInfo.name)) {
-    const features = decoratedClasses.get(classInfo.name);
-
-    // Add @Derive methods
-    if (features.includes('Debug')) {
-      tsCompletions.push({
-        label: 'toString',
-        kind: CompletionItemKind.Method,
-        detail: '(method) toString(): string',
-        documentation: 'Generated by @Derive("Debug")'
-      });
-    }
-
-    if (features.includes('JSON')) {
-      tsCompletions.push({
-        label: 'toJSON',
-        kind: CompletionItemKind.Method,
-        detail: '(method) toJSON(): object',
-        documentation: 'Generated by @Derive("JSON")'
-      });
-    }
-  }
-
-  return tsCompletions;
-});
-```
-
-### Step 2: Create the Zed Extension
-
-#### 2.1 Extension Configuration
-```toml
-# extension.toml
-id = "ts-macros"
-name = "TypeScript Macros"
-version = "0.1.0"
-schema_version = 1
-authors = ["Your Name <you@example.com>"]
-description = "IntelliSense support for @Derive TypeScript macros"
-repository = "https://github.com/your-name/ts-macros-zed"
-
-[language_servers.ts-macros-lsp]
-name = "TS-Macros Language Server"
-languages = ["TypeScript", "TSX", "JavaScript", "JSX"]
-```
-
-#### 2.2 Extension Implementation
-```rust
-// src/lib.rs
-use zed_extension_api as zed;
-use std::fs;
-
-struct TsMacrosExtension {
-    cached_binary_path: Option<String>
-}
-
-impl zed::Extension for TsMacrosExtension {
-    fn new() -> Self {
-        Self {
-            cached_binary_path: None
-        }
-    }
-
-    fn language_server_command(
-        &mut self,
-        language_server_id: &LanguageServerId,
-        worktree: &zed::Worktree,
-    ) -> Result<zed::Command> {
-        // Download or use local LSP binary
-        let binary_path = self.get_or_download_lsp()?;
-
-        Ok(zed::Command {
-            command: binary_path,
-            args: vec!["--stdio".to_string()],
-            env: Default::default(),
-        })
-    }
-
-    fn get_or_download_lsp(&mut self) -> Result<String> {
-        if let Some(path) = &self.cached_binary_path {
-            return Ok(path.clone());
-        }
-
-        // Download LSP from npm or GitHub releases
-        let version = "0.1.0";
-        let binary_path = download_lsp_binary(version)?;
-
-        self.cached_binary_path = Some(binary_path.clone());
-        Ok(binary_path)
-    }
-}
-
-zed::register_extension!(TsMacrosExtension);
-```
-
-### Step 3: Distribution Strategy
-
-#### Option A: NPM Package
-1. Publish the Language Server to npm as `ts-macros-lsp`
-2. Zed extension downloads it during installation
-3. Updates handled through npm versioning
-
-#### Option B: GitHub Releases
-1. Build Language Server binaries for each platform
-2. Upload to GitHub Releases
-3. Zed extension downloads appropriate binary
-
-#### Option C: Bundle with Extension
-1. Include compiled Language Server in extension
-2. Larger extension size but no download needed
-3. Self-contained solution
-
-## Technical Challenges & Solutions
-
-### Challenge 1: TypeScript Service Integration
-**Problem**: Need to proxy all TypeScript Language Server features while adding our own
-**Solution**:
-- Use `typescript/lib/tsserverlibrary` to create a proper TS service host
-- Forward all standard requests to TS server
-- Intercept and augment only completion/diagnostic responses
-
-### Challenge 2: Performance
-**Problem**: Proxying adds latency to every LSP request
-**Solution**:
-- Cache decorator information per file
-- Only re-parse on file changes
-- Use incremental parsing where possible
-- Consider worker threads for parsing
-
-### Challenge 3: Type Accuracy
-**Problem**: Need to match exact TypeScript types and behavior
-**Solution**:
-- Study TypeScript's completion item format
-- Ensure our injected methods match expected signatures
-- Test with various TypeScript configurations
-
-## Testing Strategy
-
-### Unit Tests (Language Server)
-- Test decorator parsing logic
-- Test completion augmentation
-- Test diagnostic filtering
-- Test hover information
-
-### Integration Tests
-- Test with sample TypeScript project
-- Verify LSP communication
-- Test with Zed editor
-- Test with VS Code (LSP is universal)
-
-### End-to-End Tests
-- Use with `playground/vanilla` project
-- Verify IntelliSense for decorated classes
-- Test file watching and updates
-- Performance benchmarks
-
-## Success Criteria
-
-✅ **Functional Requirements**
-- [ ] IntelliSense shows `toString()` and `toJSON()` for decorated classes
-- [ ] No false positive TypeScript errors
-- [ ] Works with both module and global scopes
-- [ ] Handles multiple files and projects
-
-✅ **Performance Requirements**
-- [ ] < 100ms added latency for completions
-- [ ] < 50MB memory overhead
-- [ ] Incremental updates on file changes
-
-✅ **User Experience**
-- [ ] Zero configuration after extension install
-- [ ] Seamless integration with existing TypeScript tooling
-- [ ] Clear attribution of generated methods
-
-## Alternative Approaches (If LSP Wrapper Fails)
-
-### Plan B: Code Generation with File Watching
-- Watch for files with `@Derive`
-- Generate companion `.d.ts` files with augmentations
-- Use module augmentation where possible
-- Accept limitations of module scope
-
-### Plan C: Different Syntax
-- Use function calls instead of decorators: `Derive(class User {}, "Debug", "JSON")`
-- TypeScript can infer return types from functions
-- Less elegant but more type-safe
-
-### Plan D: Build-Time Only
-- Accept that IntelliSense won't work
-- Provide clear documentation
-- Focus on runtime functionality
-- Use type assertions as needed
-
-## Implementation Timeline
-
-### Week 1: Language Server Core
-- Set up TypeScript Language Server proxy
-- Implement basic LSP protocol
-- Test with simple completions
-
-### Week 2: Decorator Parsing & Augmentation
-- Implement `@Derive` detection
-- Add completion augmentation
-- Handle diagnostics
-
-### Week 3: Zed Extension
-- Create Zed extension wrapper
-- Test in Zed editor
-- Handle binary distribution
-
-### Week 4: Polish & Testing
-- Performance optimization
-- Comprehensive testing
-- Documentation
-- Consider VS Code extension
-
-## Resources & References
-
-### Documentation
-- [Language Server Protocol Specification](https://microsoft.github.io/language-server-protocol/)
-- [TypeScript Language Service API](https://github.com/microsoft/TypeScript/wiki/Using-the-Language-Service-API)
-- [Zed Extension API](https://zed.dev/docs/extensions/developing-extensions)
-- [VS Code Language Server Extension Guide](https://code.visualstudio.com/api/language-extensions/language-server-extension-guide)
-
-### Example Implementations
-- [Volar (Vue Language Server)](https://github.com/vuejs/language-tools)
-- [Svelte Language Server](https://github.com/sveltejs/language-tools)
-- [Astro Language Server](https://github.com/withastro/language-tools)
-- [Angular Language Server](https://github.com/angular/vscode-ng-language-service)
-
-### Tools
-- [LSP Inspector](https://microsoft.github.io/language-server-protocol/inspector/)
-- [TypeScript AST Viewer](https://ts-ast-viewer.com/)
-
-## Next Steps
-
-1. **Immediate**: Build proof-of-concept Language Server ✅ (`packages/ts-macros-lsp`)
-2. **Short term**: Test augmented completions work ✅ (baseline completions wired into the custom LSP)
-3. **Medium term**: Create Zed extension wrapper ✅ (`extensions/ts-macros-zed`)
-4. **Long term**: Support VS Code and other LSP-compatible editors ⏳
-
-## Key Insights
-
-After reviewing the Zed documentation, the approach must be:
-1. **Language Server Protocol is the only way** - Zed extensions work through LSP, not IDE APIs
-2. **We need a proxy server** - Must wrap TypeScript's Language Server (Phase 2: replace standalone analyzer with TS proxy)
-3. **Universal solution** - LSP works in any compatible editor (Zed, VS Code, Neovim, etc.)
-4. **Distribution is key** - Need reliable way to distribute the Language Server binary
+This project aims to create a Rust-like procedural macro system for TypeScript, using SWC for transformations and Rust for macro implementations. The goal is to achieve Rust-level DX with `@Derive(Debug)`-style syntax and reusable macro crates.
 
 ---
 
-**Status**: Phase 1 scaffolding landed (LSP + Zed extension). Continue hardening proxy + tests.
-**Priority**: High
-**Estimated Effort**: 3-4 weeks
-**Risk Level**: Medium-High (Complex but proven approach)
+## Core Architecture Decisions
+
+### [ ] 1. Define Macro Model & ABI
+
+Design the three kinds of macros (mirroring Rust's proc-macro types):
+
+- [ ] **Derive macros**: `@Derive(Debug, Clone, …)` on classes/interfaces/enums
+- [ ] **Attribute macros**: `@log`, `@sqlTable`, etc.
+- [ ] **Call macros** (later): `macro.sql` / tagged templates / `Foo!()` equivalents
+
+#### Derive Dispatch Model (lock early)
+
+- [ ] `@Derive(...)` is a **built-in dispatcher** (Rust `#[derive]` analog).
+
+  - Example:
+
+    ```ts
+    import { Derive, Debug, Clone } from "@macro/derive";
+
+    @Derive(Debug, Clone)
+    class User { ... }
+    ```
+
+- [ ] Each name inside `@Derive(...)` resolves to a registered **derive macro** by `(module, derive_name)`.
+
+#### Stable ABI Between SWC and Macro Crates
+
+- [ ] Implement input format scaffold in `crates/`
+
+- [ ] **Canonical MacroContextIR** (what macros receive):
+
+  - [ ] Define `MacroContextIR` in ABI crate:
+
+    ```rust
+    pub struct MacroContextIR {
+      pub abi_version: u32,
+      pub macro_kind: MacroKind,     // Derive | Attr | Call
+      pub macro_name: String,        // e.g. "Debug"
+      pub module_path: String,       // e.g. "@macro/derive"
+      pub decorator_span: SpanIR,    // span of @Derive(Debug)
+      pub target_span: SpanIR,       // span of class/enum/etc
+      pub file_name: String,
+      pub target: TargetIR,          // Class(ClassIR) | Enum(EnumIR) | ...
+    }
+    ```
+
+  - [ ] `TargetIR` starts with `ClassIR` in v0; add others without breaking ABI.
+
+- [ ] Define output format (**patches + diagnostics only**):
+
+  - Patch ABI is stable and cross-runtime friendly
+
+    - native macros can internally mutate SWC AST and emit patches
+    - WASM macros only need spans + generated code.
+
+  - Add a _type-surface slot_ now to avoid ABI breaks later:
+
+    ```rust
+    pub struct MacroResult {
+      pub runtime_patches: Vec<Patch>,  // emitted into JS/TS output
+      pub type_patches: Vec<Patch>,     // emitted into .d.ts (may be empty in v0)
+      pub diagnostics: Vec<Diagnostic>,
+      pub debug: Option<String>,
+    }
+
+    pub enum Patch {
+      Insert { at: Span, code: String },
+      Replace { span: Span, code: String },
+      Delete { span: Span },
+    }
+    ```
+
+  - Error/diagnostic information with spans
+
+- [ ] Document the ABI contract for 3rd-party macro authors
+
+- [ ] ABI version handshake between host and macro crates
+
+### [ ] Security Considerations
+
+- [ ] Macro sandboxing (WASM by default)
+- [ ] Resource limits (Phase 1 host enforces):
+
+  - [ ] Max execution time
+  - [ ] Max memory usage (WASM runtime)
+  - [ ] Max output size
+  - [ ] Max per-macro time
+  - [ ] Max diagnostics count
+
+- [ ] Code injection prevention:
+
+  - [ ] Validate macro outputs
+  - [ ] Sanitize generated identifiers
+  - [ ] Audit macro packages
+
+- [ ] Native macro execution is **opt-in + gated** (see loading strategy).
+
+---
+
+### [ ] 0.1 ABI + Support Crates Sketch (current draft)
+
+**Purpose:** Provide Rust proc-macro–like ergonomics:
+
+- **`ts_macro_abi`** = stable IR + spans + patches (public ABI)
+- **`ts_syn`** = parse/lower SWC → IR (your “syn”)
+- **`ts_quote`** = codegen helpers + quasiquote → patches/strings (your “quote”)
+
+> (Scaffold lives here; not repeated to keep TODO readable.)
+
+---
+
+### [ ] 2. Discovery & Registration System
+
+How the system knows which macro to call:
+
+- [ ] Implement module-based discovery:
+
+  - Use import source as key: `import { Derive } from "@my-org/macros"`
+  - Key format: `(module: string, name: string)`
+
+- [ ] Create config file structure:
+
+  ```jsonc
+  // ts-macro.config.json
+  {
+    "macroPackages": ["@my-org/ts-macros-derive", "@my-org/ts-macros-serde"],
+    "allowNativeMacros": false,
+    "macroRuntimeOverrides": {
+      "@bar/big-schema-macro": "native",
+    },
+  }
+  ```
+
+- [ ] Implement package allowlist/validation
+
+#### Macro Package Manifest (ecosystem safety)
+
+- [ ] Each macro package ships a manifest, e.g. `macro.manifest.json`:
+
+  ```jsonc
+  {
+    "abiVersion": 1,
+    "macros": [
+      { "kind": "derive", "name": "Debug" },
+      { "kind": "derive", "name": "Clone" },
+      { "kind": "attr", "name": "serde.Json" },
+    ],
+    "runtime": ["wasm", "native"],
+  }
+  ```
+
+- [ ] Host registers from manifest before running code
+- [ ] Clear error if manifest and exports disagree
+
+---
+
+### [ ] 3. Macro Loading Strategy
+
+Implement macro module loading:
+
+- [ ] **WASM-based modules (default)**
+
+  - Like Rust proc macro modules, each macro is its own project
+  - Each macro package ships WASM file
+  - Define macro ABI trait:
+
+    ```rust
+    pub trait TsMacro {
+        fn name(&self) -> &str;
+        fn run(&self, ctx: MacroContextIR) -> MacroResult;
+    }
+    ```
+
+  - Pros: Cross-platform, sandboxed, flexible ecosystem
+
+- [ ] **Native (N-API) modules (opt-in)**
+
+  - Same ABI as WASM (identical semantics)
+  - Loaded only when explicitly allowed / present
+  - Intended for heavy compute / native deps
+  - Gated by `allowNativeMacros` and/or per-package overrides
+
+---
+
+## Phase 1: Core Proc-Macro Host
+
+### [ ] Build the Macro Host Crate
+
+#### Rust Macro Host (`ts_macro_host`)
+
+- [ ] Create core crate structure
+
+- [ ] Implement SWC integration:
+
+  - [ ] Parse TypeScript/JavaScript with SWC
+  - [ ] AST traversal for decorator discovery
+  - [ ] AST transformation after macro expansion
+  - [ ] Code generation/printing
+
+- [ ] Implement macro dispatch:
+
+  - [ ] Registry for macro modules from manifests
+  - [ ] Lookup by `(module, name)` key
+  - [ ] Context building for macro calls (`MacroContextIR`)
+  - [ ] Patch application
+  - [ ] Result handling and error propagation
+
+- [ ] **Precise insertion spans**
+
+  - [ ] During lowering, compute:
+
+    - [ ] `body_open_span`
+    - [ ] `body_close_span`
+
+  - [ ] Store on `ClassIR` so helpers don’t guess `end - 1`.
+
+#### N-API Bindings (using `napi-rs`)
+
+- [ ] Create N-API wrapper crate
+
+- [ ] Expose essential functions:
+
+  ```rust
+  #[napi]
+  pub fn init_macros(config: MacroConfig) -> Result<()>
+
+  #[napi]
+  pub fn expand_file(source: String, file_name: String) -> Result<String>
+
+  #[napi]
+  pub fn run_macro(call: MacroCall) -> Result<MacroResult>
+
+  #[napi]
+  pub fn analyze_macros(source: String, file_name: String) -> Result<Vec<Diagnostic>>
+  ```
+
+- [ ] Implement caching layer:
+
+  - [ ] Cache keyed by `(file_name, version)` or content hash
+  - [ ] Invalidation strategy
+  - [ ] Memory management
+
+### [ ] Implement Core Derives
+
+#### `@Derive(Debug)`
+
+- [ ] Design output format:
+
+  ```ts
+  class User {
+    // ... existing fields ...
+
+    static DEBUG_SYM = Symbol.for("ts-macro.debug");
+
+    [User.DEBUG_SYM](): string {
+      return `User { id: ${this.id}, age: ${this.age} }`;
+    }
+
+    toString(): string {
+      return this[User.DEBUG_SYM]();
+    }
+  }
+  ```
+
+- [ ] Decide naming conventions:
+
+  - [ ] Internal helpers: `Symbol.for("ts-macro.debug")`
+  - [ ] Document and stabilize
+
+- [ ] Define compatibility rules:
+
+  - [ ] Valid targets: classes, enums, interfaces?
+  - [ ] Supported members: private fields, accessors, union types?
+  - [ ] Error cases
+
+- [ ] Implement the macro:
+
+  - [ ] Parse class/interface/enum
+  - [ ] Generate debug string method
+  - [ ] Handle edge cases (circular refs, complex types)
+
+#### Additional Basic Derives
+
+- [ ] `@Derive(Clone)`
+- [ ] `@Derive(Eq)`
+- [ ] Design multi-derive support:
+
+  ```ts
+  @Derive(Debug, Eq, Clone)
+  class User { ... }
+  ```
+
+  - [ ] Define deterministic order
+  - [ ] Dispatch strategy via built-in `Derive` dispatcher
+  - [ ] Field-level flags/attributes routed to active derive
+
+### [ ] Error Handling & Diagnostics
+
+- [ ] Span tracking:
+
+  - [ ] Capture decorator span (`@Derive(Debug)`)
+  - [ ] Capture annotated node span (`class User`)
+  - [ ] Preserve source locations through transformations
+
+- [ ] Error message format (Rust-like):
+
+  ```
+  error: `@Derive(Debug)` on `User` is invalid
+    --> src/user.ts:12:1
+     |
+  12 | @Derive(Debug)
+     | ^^^^^^^^^^^^^^ computed properties are not supported yet
+  13 | class User {
+     | ---------- on this class
+     |
+     = help: remove the `[key: string]` index signature or derive manually
+  ```
+
+  Note: Effect TS has a rich error printing ecosystem that we can use.
+
+- [ ] Error categories:
+
+  - [ ] Syntax errors (invalid decorator usage)
+  - [ ] Compatibility errors (unsupported patterns)
+  - [ ] Generation errors (macro implementation failures)
+
+### [ ] CLI Tool (`ts-derive` / `ts-macro`)
+
+- [ ] Create CLI crate
+
+- [ ] Implement commands:
+
+  - [ ] `expand <file>` - Show transformed code
+
+    - [ ] `--macro Derive` - Filter by macro type
+    - [ ] `--symbol User` - Filter by symbol
+
+  - [ ] `check <file>` - Validate macro usage without emitting
+  - [ ] `init` - Create config file
+
+- [ ] Dev mode features:
+
+  - [ ] Wrap generated code in comments:
+
+    ```ts
+    // @macro-generated begin Derive(Debug) for User
+    ...
+    // @macro-generated end
+    ```
+
+  - [ ] Make conditional on dev flag
+
+---
+
+## Phase 2: DX Polish
+
+### [ ] Field-Level Attributes
+
+Implement per-field attribute support:
+
+```ts
+@Derive(Debug)
+class User {
+  @Debug(skip)
+  password: string;
+
+  @Debug({ rename: "user_id" })
+  id: string;
+}
+```
+
+- [ ] Define attribute syntax parser
+- [ ] Implement attribute handlers:
+
+  - [ ] `skip` - exclude from derive
+  - [ ] `rename` - custom field name in output
+  - [ ] Custom per-derive attributes
+
+- [ ] Update derive macros to respect attributes
+
+### [ ] Hygiene & Naming Rules
+
+- [ ] Define internal naming convention:
+
+  ```ts
+  const __derive_Debug_User_fmt = ...
+  ```
+
+- [ ] Implement collision detection:
+
+  - [ ] Error on user-defined names that conflict
+  - [ ] Provide clear error messages
+
+- [ ] Define visibility rules:
+
+  - [ ] Public API vs internal implementation
+  - [ ] Document what users can rely on
+
+### [ ] Testing Infrastructure
+
+- [ ] Golden tests for expansions:
+
+  - [ ] Input: source files with macros
+  - [ ] Expected: expanded output
+  - [ ] Diff on changes
+
+- [ ] Macro unit tests:
+
+  - [ ] Valid usage patterns
+  - [ ] Error cases
+  - [ ] Edge cases
+
+- [ ] Integration tests:
+
+  - [ ] Full build pipeline
+  - [ ] Multiple macro interactions
+
+### [ ] Documentation
+
+- [ ] Macro API documentation:
+
+  - [ ] How to use each derive
+  - [ ] Expansion examples for each macro
+  - [ ] Field attributes reference
+
+- [ ] Framework documentation:
+
+  - [ ] Getting started guide
+  - [ ] Configuration reference
+  - [ ] Writing custom macros guide
+
+- [ ] Examples repository:
+
+  - [ ] Basic derive usage
+  - [ ] Custom macro implementation
+  - [ ] Complex real-world patterns
+
+---
+
+## Phase 3: Type/IDE Integration
+
+### [ ] TypeScript Type System Strategy
+
+Choose and implement approach:
+
+#### TSServer Plugin & Generate `.d.ts`
+
+- [ ] Create tsserver plugin that calls macro host
+
+- [ ] Present macro-expanded view to language service
+
+- [ ] Emit `.d.ts` using **type_patches** from macro results
+      (host may also synthesize from IR in v0)
+
+- [ ] Wire into TS compiler:
+
+  - [ ] Include generated `.d.ts` in compilation
+  - [ ] Update tsconfig paths
+
+- [ ] Update on file changes
+
+### [ ] TSServer Plugin Implementation
+
+#### Plugin Structure
+
+- [ ] Create plugin package structure:
+
+  ```
+  ts-macro-tsserver-plugin/
+  ├── src/
+  │   ├── index.ts          # Plugin entry point
+  │   ├── macro-resolver.ts # Import resolution
+  │   └── expansion-cache.ts
+  ├── native/               # N-API bindings
+  └── package.json
+  ```
+
+#### Core Functionality
+
+- [ ] Plugin initialization:
+
+  - [ ] Load config
+  - [ ] Initialize N-API host
+  - [ ] Register macro packages
+
+- [ ] Decorator resolution:
+
+  - [ ] Hook into TS language service
+  - [ ] Resolve decorator imports
+  - [ ] Extract `(module, name)` keys
+  - [ ] Filter to registered macro packages only
+
+- [ ] Macro expansion integration:
+
+  - [ ] Call N-API host when needed
+  - [ ] Cache expansions per file version
+  - [ ] Invalidate on file changes
+  - [ ] Performance monitoring
+
+#### Language Service Hooks
+
+- [ ] `getSemanticDiagnostics`:
+
+  - [ ] Add macro validation errors
+  - [ ] Include expansion errors
+
+- [ ] `getQuickInfoAtPosition`:
+
+  - [ ] Show generated member info
+  - [ ] Display expansion details
+
+- [ ] `getCompletionsAtPosition`:
+
+  - [ ] Suggest generated methods
+  - [ ] Autocomplete macro names
+
+- [ ] Virtual file support (optional):
+
+  - [ ] Override `getScriptSnapshot`
+  - [ ] Serve expanded versions
+  - [ ] Maintain file mappings
+
+#### Commands
+
+- [ ] `showMacroExpansion`:
+
+  - [ ] Expand current file
+  - [ ] Display in virtual document
+  - [ ] Syntax highlighting
+
+- [ ] `analyzeMacros`:
+
+  - [ ] Show all macros in file
+  - [ ] List generated members
+  - [ ] Show diagnostics
+
+### [ ] Cross-Platform Support
+
+- [ ] N-API binary distribution:
+
+  - [ ] Prebuild for platforms:
+
+    - [ ] Linux x64
+    - [ ] Linux ARM64
+    - [ ] macOS x64 (Intel)
+    - [ ] macOS ARM64 (Apple Silicon)
+    - [ ] Windows x64
+
+  - [ ] Use `napi-rs` tooling for builds
+  - [ ] Test on each platform
+
+- [ ] Fallback strategy:
+
+  - [ ] Pure-JS degraded mode
+  - [ ] Basic diagnostics without expansion
+  - [ ] Clear error messages
+
+### [ ] Performance Optimization
+
+- [ ] Caching strategy:
+
+  - [ ] File-level caching keyed by hash
+  - [ ] AST caching for unchanged nodes
+  - [ ] Result caching with TTL
+
+- [ ] Incremental processing:
+
+  - [ ] Only re-expand changed files
+  - [ ] Skip validation on unchanged decorators
+  - [ ] Batch processing where possible
+
+- [ ] Monitoring:
+
+  - [ ] Track expansion times
+  - [ ] Log slow operations
+  - [ ] Configurable timeouts
+
+---
+
+## Phase 4: Ecosystem
+
+### [ ] Stabilize Macro Crate ABI
+
+- [ ] Version the ABI:
+
+  ```rust
+  pub const MACRO_ABI_VERSION: &str = "0.1.0";
+  ```
+
+- [ ] Compatibility checks between host and macros
+- [ ] Deprecation strategy for ABI changes
+- [ ] Migration guides for version bumps
+
+### [ ] Official Macro Packages
+
+#### `@macro/derive`
+
+- [ ] Core derives:
+
+  - [x] Debug
+  - [ ] Clone
+  - [ ] Eq / PartialEq
+  - [ ] Hash
+  - [ ] Default
+  - [ ] Copy (shallow copy semantics)
+
+- [ ] Documentation and examples
+
+- [ ] Comprehensive test suite
+
+- [ ] Publish to npm
+
+#### `@macro/serde`
+
+- [ ] Serialization derives:
+
+  - [ ] `@serde.Json()` - JSON serialization
+  - [ ] `@serde.Yaml()` - YAML serialization
+  - [ ] Custom serializers
+
+- [ ] Field attributes:
+
+  - [ ] `@serde(rename = "...")`
+  - [ ] `@serde(skip)`
+  - [ ] `@serde(default)`
+
+- [ ] Documentation and examples
+
+- [ ] Test suite
+
+- [ ] Publish to npm
+
+### [ ] Third-Party Macro Support
+
+- [ ] Create macro template repository:
+
+  - [ ] Rust macro crate structure
+  - [ ] Build configuration
+  - [ ] Testing setup
+  - [ ] Publishing guide
+
+- [ ] Documentation for macro authors:
+
+  - [ ] ABI reference
+  - [ ] Best practices
+  - [ ] Testing strategies
+  - [ ] Publishing checklist
+
+- [ ] Macro registry (optional):
+
+  - [ ] Searchable catalog
+  - [ ] Quality/security badges
+  - [ ] Usage examples
+
+### [ ] Build Tool Integration
+
+#### Vite Plugin
+
+- [ ] Create `vite-plugin-ts-macros`
+- [ ] Hook into SWC transformation
+- [ ] Load macro config
+- [ ] Handle HMR for macro changes
+
+---
+
+## Technical Considerations
+
+### [ ] Macro Execution Model
+
+#### Single Host vs Per-Package
+
+**Decision: Single host + plugin-style macro crates (WASM or SWC plugin ABI)**
+
+Rationale:
+
+- Cleaner architecture
+- Shared SWC/AST handling
+- Consistent behavior across build and IDE
+- Easier to maintain ABI
+
+Implementation:
+
+- [ ] Central macro host in Rust
+- [ ] Macro packages export ABI-compatible functions
+- [ ] Host handles loading and dispatch
+
+#### Same Macros Everywhere
+
+Ensure macro modules work in:
+
+- [ ] Build (Vite + SWC)
+- [ ] TSServer plugin
+- [ ] CLI tools
+- [ ] Testing infrastructure
+
+Strategy:
+
+- [ ] Agnostic macro implementations
+- [ ] Unified `MacroContextIR` interface
+- [ ] Same ABI for all entry points
+
+### [ ] Type Awareness Limitations
+
+**Key constraint**: SWC-based macros are mostly syntactic, not fully type-aware.
+
+Implications:
+
+- [ ] Macros operate on AST, not type information
+- [ ] Cannot resolve complex type relationships
+- [ ] No type inference from context
+
+Workarounds:
+
+- [ ] Explicit annotations where needed
+- [ ] Runtime validation for complex cases
+- [ ] Clear documentation of limitations
+- [ ] Consider optional type-aware mode (future host after TS typecheck)
+
+### [ ] Error Recovery & Partial Expansion
+
+- [ ] Graceful degradation:
+
+  - [ ] If one macro fails, continue with others
+  - [ ] Partial output vs complete failure
+
+- [ ] Error boundaries:
+
+  - [ ] Isolate macro failures
+  - [ ] Preserve valid code
+  - [ ] Clear error attribution
+
+---
+
+## Future Enhancements
+
+### [ ] Advanced Features
+
+- [ ] Procedural attributes on:
+
+  - [ ] Individual methods
+  - [ ] Properties
+  - [ ] Function parameters
+
+### [ ] Type System Integration (Advanced)
+
+- [ ] Full type-aware macros:
+
+  - [ ] Integrate with TS compiler API
+  - [ ] Type-driven code generation
+  - [ ] Type-level computations
+
+- [ ] Conditional compilation based on types:
+
+  - [ ] Different code for different type parameters
+  - [ ] Type-specialized implementations
+
+---
+
+## Resources & References
+
+### External Links
+
+- Rust proc-macro reference: [https://doc.rust-lang.org/reference/procedural-macros.html](https://doc.rust-lang.org/reference/procedural-macros.html)
+- SWC documentation: [https://swc.rs/](https://swc.rs/)
+- napi-rs: [https://napi.rs/](https://napi.rs/)
+- TypeScript Compiler API: [https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API)
+
+### Inspiration & Prior Art
+
+- Rust: `derive(Debug)`, `serde`, etc.
+- Babel macros: `babel-plugin-macros`
+- Sweet.js: Hygienic macros for JavaScript
+- TypeScript transformers: Custom transformers API
+
+---
+
+## Notes
+
+- **Philosophy**: Make it feel like Rust proc-macros, not a special build step
+- **Priority**: DX over absolute performance (but keep it fast enough)
+- **Approach**: Start simple, iterate based on real usage
+- **Community**: Enable third-party macros from day one
+- **Documentation**: Over-document rather than under-document
+- **Testing**: If it's not tested, it's broken
+
+---

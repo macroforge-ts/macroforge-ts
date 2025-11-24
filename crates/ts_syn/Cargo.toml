@@ -1,0 +1,23 @@
+[package]
+name = "ts_syn"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["swc"]
+swc = [
+  "dep:swc_common",
+  "dep:swc_ecma_ast",
+  "dep:swc_ecma_parser",
+  "dep:swc_ecma_visit",
+]
+
+[dependencies]
+ts_macro_abi = { path = "../ts_macro_abi" }
+
+swc_common = { version = "0.35", optional = true }
+swc_ecma_ast = { version = "0.115", optional = true }
+swc_ecma_parser = { version = "0.146", optional = true }
+swc_ecma_visit = { version = "0.101", optional = true }
+
+thiserror = "1"
