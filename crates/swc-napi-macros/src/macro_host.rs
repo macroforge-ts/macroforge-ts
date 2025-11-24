@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use playground_macros::register_playground_macros;
 use std::collections::HashMap;
 use swc_core::{
     common::Span,
@@ -38,8 +39,7 @@ impl MacroHostIntegration {
 
     pub fn with_config(config: MacroConfig) -> Result<Self> {
         let registry = MacroRegistry::new();
-        register_builtin_macros(&registry)
-            .context("failed to register built-in macros with the registry")?;
+        register_packages(&registry, &config)?;
 
         Ok(Self {
             dispatcher: MacroDispatcher::new(registry),
@@ -289,4 +289,46 @@ fn derive_name_from_expr(expr: &swc_core::ecma::ast::Expr) -> Option<String> {
 
 fn span_to_ir(span: Span) -> SpanIR {
     SpanIR::new(span.lo.0, span.hi.0)
+}
+
+type PackageRegistrar = fn(&MacroRegistry) -> ts_macro_host::Result<()>;
+
+fn available_package_registrars() -> Vec<(&'static str, PackageRegistrar)> {
+    vec![
+        ("@macro/derive", register_builtin_macros as PackageRegistrar),
+        (
+            "@playground/macro",
+            register_playground_macros as PackageRegistrar,
+        ),
+    ]
+}
+
+fn register_packages(registry: &MacroRegistry, config: &MacroConfig) -> Result<()> {
+    let available = available_package_registrars();
+    let table: HashMap<&'static str, PackageRegistrar> = available.into_iter().collect();
+
+    let requested = if config.macro_packages.is_empty() {
+        table.keys().cloned().collect::<Vec<_>>()
+    } else {
+        config
+            .macro_packages
+            .iter()
+            .map(|s| s.as_str())
+            .collect::<Vec<_>>()
+    };
+
+    for module in requested {
+        if let Some(registrar) = table.get(module) {
+            registrar(registry)
+                .map_err(anyhow::Error::from)
+                .with_context(|| format!("failed to register macro package {module}"))?;
+        } else {
+            eprintln!(
+                "[ts-macros] warning: macro package '{}' is not linked into this binary; skipping",
+                module
+            );
+        }
+    }
+
+    Ok(())
 }

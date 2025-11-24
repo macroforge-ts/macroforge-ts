@@ -2,7 +2,7 @@
 
 use crate::{MacroError, TsMacro, error::Result};
 use dashmap::DashMap;
-use std::{path::Path, sync::Arc};
+use std::{fs, path::Path, sync::Arc};
 
 /// Key for identifying a macro by module and name
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -54,7 +54,7 @@ pub struct MacroManifestEntry {
 impl MacroManifest {
     /// Load a macro manifest from a macro.toml file
     pub fn from_toml_file(path: impl AsRef<Path>) -> Result<Self> {
-        let content = std::fs::read_to_string(path)?;
+        let content = fs::read_to_string(path)?;
         Ok(toml::from_str(&content)?)
     }
 }

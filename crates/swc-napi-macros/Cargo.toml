@@ -29,6 +29,7 @@ swc_ecma_visit = "18.0.1"
 ts_macro_host = { path = "../ts_macro_host" }
 ts_macro_abi = { path = "../ts_macro_abi" }
 ts_syn = { path = "../ts_syn" }
+playground-macros = { path = "../../playground/macro" }
 
 # Error handling
 anyhow = "1.0"
