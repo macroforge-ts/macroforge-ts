@@ -10,6 +10,7 @@ use swc_core::{
     },
 };
 
+mod derive_builtins;
 mod macros;
 use macros::MacroTransformer;
 

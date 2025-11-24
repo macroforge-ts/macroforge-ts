@@ -69,7 +69,7 @@ fn lower_members(body: &[ClassMember], source: &str) -> (Vec<FieldIR>, Vec<Metho
                     name,
                     span: swc_span_to_ir(p.span),
                     ts_type,
-                    optional: p.optional,
+                    optional: p.is_optional,  // Changed from p.optional
                     readonly: p.readonly,
                     visibility: lower_visibility(p.accessibility),
                     decorators: lower_decorators(&p.decorators),
@@ -109,7 +109,7 @@ fn params_span(params: &[Param]) -> Span {
     for p in params {
         span = match span.is_dummy() {
             true => p.span(),
-            false => Span::new(span.lo, p.span().hi, span.ctxt),
+            false => Span::new(span.lo, p.span().hi),
         };
     }
     span

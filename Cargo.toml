@@ -5,7 +5,7 @@ members = [
     "crates/extensions/ts-derive-svelte",
     "crates/ts_macro_abi",
     "crates/ts_syn",
-    "crates/ts_quote", "playground/debug",
+    "crates/ts_quote", "playground/debug", "crates/ts_macro_host",
 ]
 resolver = "2"
 

@@ -1,0 +1,32 @@
+[package]
+name = "ts_macro_host"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+ts_macro_abi = { path = "../ts_macro_abi" }
+ts_syn = { path = "../ts_syn" }
+ts_quote = { path = "../ts_quote" }
+
+# Core dependencies
+thiserror = "1.0"
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Collections
+indexmap = "2.0"
+dashmap = "6.0"
+
+# Logging
+tracing = "0.1"
+
+# WASM support (for future macro execution)
+wasmtime = { version = "28.0", optional = true }
+
+[features]
+default = []
+wasm = ["wasmtime"]
