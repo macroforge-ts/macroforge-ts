@@ -6,7 +6,7 @@ use swc_core::{
         Class, Decl, Decorator, ExportDecl, Module, ModuleDecl, ModuleItem, Program, Stmt,
     },
 };
-use ts_macro_abi::{ClassIR, Diagnostic, MacroContextIR, Patch, SpanIR};
+use ts_macro_abi::{ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, Patch, SpanIR};
 use ts_macro_host::{
     MacroConfig, MacroDispatcher, MacroRegistry, PatchCollector, builtin::register_builtin_macros,
 };
@@ -17,7 +17,7 @@ const DERIVE_MODULE_PATH: &str = "@macro/derive";
 /// Connects the SWC parser to the macro host.
 pub struct MacroHostIntegration {
     dispatcher: MacroDispatcher,
-    _config: Option<MacroConfig>,
+    config: MacroConfig,
 }
 
 /// Result of attempting to expand macros in a source file.
@@ -30,19 +30,20 @@ pub struct MacroExpansion {
 impl MacroHostIntegration {
     /// Build a macro host with the built-in macro registry populated.
     pub fn new() -> Result<Self> {
-        let config =
-            MacroConfig::find_and_load().context("failed to discover macro configuration")?;
+        let config = MacroConfig::find_and_load()
+            .context("failed to discover macro configuration")?
+            .unwrap_or_default();
         Self::with_config(config)
     }
 
-    pub fn with_config(config: Option<MacroConfig>) -> Result<Self> {
+    pub fn with_config(config: MacroConfig) -> Result<Self> {
         let registry = MacroRegistry::new();
         register_builtin_macros(&registry)
             .context("failed to register built-in macros with the registry")?;
 
         Ok(Self {
             dispatcher: MacroDispatcher::new(registry),
-            _config: config,
+            config,
         })
     }
 
@@ -131,11 +132,40 @@ impl MacroHostIntegration {
             .apply_runtime_patches(source)
             .context("failed to apply macro-generated patches")?;
 
-        Ok(MacroExpansion {
+        let mut expansion = MacroExpansion {
             code: updated_code,
             diagnostics,
             changed: true,
-        })
+        };
+
+        self.enforce_diagnostic_limit(&mut expansion.diagnostics);
+
+        Ok(expansion)
+    }
+
+    fn enforce_diagnostic_limit(&self, diagnostics: &mut Vec<Diagnostic>) {
+        let max = self.config.limits.max_diagnostics;
+        if max == 0 {
+            diagnostics.clear();
+            return;
+        }
+
+        if diagnostics.len() > max {
+            diagnostics.truncate(max.saturating_sub(1));
+            diagnostics.push(Diagnostic {
+                level: DiagnosticLevel::Warning,
+                message: format!(
+                    "Diagnostic output truncated to {} entries per macro host configuration",
+                    max
+                ),
+                span: None,
+                notes: vec![],
+                help: Some(
+                    "Adjust `limits.maxDiagnostics` in ts-macros.json to see all diagnostics"
+                        .to_string(),
+                ),
+            });
+        }
     }
 }
 

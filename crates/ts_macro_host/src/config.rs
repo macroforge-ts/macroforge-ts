@@ -4,7 +4,7 @@ use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
-const DEFAULT_CONFIG_FILENAME: &str = "macro.toml";
+const DEFAULT_CONFIG_FILENAME: &str = "ts-macros.json";
 const LEGACY_CONFIG_FILENAME: &str = "ts-macro.config.json";
 
 /// Configuration for the macro host system
@@ -89,16 +89,12 @@ fn default_max_diagnostics() -> usize {
 impl MacroConfig {
     /// Load configuration from a file
     pub fn from_file(path: impl AsRef<Path>) -> Result<Self> {
-        let path = path.as_ref();
         let content = std::fs::read_to_string(path)?;
-        match path.extension().and_then(|ext| ext.to_str()) {
-            Some(ext) if ext.eq_ignore_ascii_case("json") => Ok(serde_json::from_str(&content)?),
-            _ => Ok(toml::from_str(&content)?),
-        }
+        Ok(serde_json::from_str(&content)?)
     }
 
     /// Try to find and load configuration file
-    /// Looks for macro.toml (preferred) or legacy ts-macro.config.json in current directory and ancestors
+    /// Looks for ts-macros.json (preferred) or legacy ts-macro.config.json in current directory and ancestors
     pub fn find_and_load() -> Result<Option<Self>> {
         let current_dir = std::env::current_dir()?;
         Self::find_config_in_ancestors(&current_dir)
@@ -141,11 +137,7 @@ impl MacroConfig {
 
     /// Save configuration to a file
     pub fn save(&self, path: impl AsRef<Path>) -> Result<()> {
-        let path = path.as_ref();
-        let content = match path.extension().and_then(|ext| ext.to_str()) {
-            Some(ext) if ext.eq_ignore_ascii_case("json") => serde_json::to_string_pretty(self)?,
-            _ => toml::to_string_pretty(self)?,
-        };
+        let content = serde_json::to_string_pretty(self)?;
         std::fs::write(path, content)?;
         Ok(())
     }
@@ -164,8 +156,8 @@ mod tests {
             limits: Default::default(),
         };
 
-        let toml = toml::to_string(&config).unwrap();
-        let parsed: MacroConfig = toml::from_str(&toml).unwrap();
+        let json = serde_json::to_string(&config).unwrap();
+        let parsed: MacroConfig = serde_json::from_str(&json).unwrap();
 
         assert_eq!(config.macro_packages, parsed.macro_packages);
         assert_eq!(config.allow_native_macros, parsed.allow_native_macros);

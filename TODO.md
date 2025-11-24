@@ -148,34 +148,39 @@ How the system knows which macro to call:
   - Use import source as key: `import { Derive } from "@my-org/macros"`
   - Key format: `(module: string, name: string)`
 
-- [x] Create config file structure:
+- [x] Define macro package manifest (`macro.toml`):
 
   ```toml
-  # macro.toml
-  macroPackages = ["@my-org/ts-macros-derive", "@my-org/ts-macros-serde"]
-  allowNativeMacros = false
+  module = "@macro/derive"
+  abiVersion = 1
+  runtime = ["native"]
 
-  [macroRuntimeOverrides]
-  "@bar/big-schema-macro" = "native"
+  [[macros]]
+  name = "Debug"
+  kind = "derive"
+
+  [[macros]]
+  name = "Clone"
+  kind = "derive"
+  ```
+
+- [x] Optional root config (`ts-macros.json`):
+
+  ```jsonc
+  {
+    "macroPackages": ["@macro/derive"],
+    "allowNativeMacros": false,
+    "macroRuntimeOverrides": {
+      "@bar/big-schema-macro": "native"
+    }
+  }
   ```
 
 - [ ] Implement package allowlist/validation
 
 #### Macro Package Manifest (ecosystem safety)
 
-- [x] Each macro package ships a manifest, e.g. `macro.manifest.json`:
-
-  ```jsonc
-  {
-    "abiVersion": 1,
-    "macros": [
-      { "kind": "derive", "name": "Debug" },
-      { "kind": "derive", "name": "Clone" },
-      { "kind": "attr", "name": "serde.Json" },
-    ],
-    "runtime": ["wasm", "native"],
-  }
-  ```
+- [x] Each macro package ships a manifest (`macro.toml`) with ABI + macro list
 
 - [x] Host registers from manifest before running code
 - [ ] Clear error if manifest and exports disagree
@@ -823,13 +828,13 @@ Workarounds:
 
 ### To Make It Usable
 1. **Integration** - Connect `ts_macro_host` with `swc-napi-macros` ✅
-2. **Configuration Loading** - Actually load and use `macro.toml`
+2. **Configuration Loading** - Actually load and use `ts-macros.json`
 3. **Playground Testing** - Verify the new system works with playground apps
 4. **Documentation** - Write getting started guide for macro authors
 
 ### Current Blockers
 - Need CLI/dev tooling to exercise macros outside the Vite pipeline
-- Config loader not wired, so macro packages and runtime options are still hardcoded
+- Macro package loading still hardcodes built-ins; manifest-based registry not wired to external crates yet
 - Type-surface emission (`type_patches`) not surfaced anywhere yet, so generated APIs lack .d.ts support
 
 ---
