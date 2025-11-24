@@ -1,0 +1,7 @@
+module = "@playground/macro"
+abiVersion = 1
+runtime = ["native"]
+
+[[macros]]
+name = "JSON"
+kind = "derive"

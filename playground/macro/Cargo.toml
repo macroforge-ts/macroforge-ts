@@ -1,9 +1,14 @@
 [package]
-name = "macro"
+name = "playground-macros"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
 
+[lib]
+name = "playground_macros"
+
 [dependencies]
+ts_macro_host = { path = "../../crates/ts_macro_host" }
+ts_macro_abi = { path = "../../crates/ts_macro_abi" }
