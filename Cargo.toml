@@ -9,6 +9,7 @@ members = [
     "playground/macro",
     "crates/ts_macro_host",
     "crates/ts_macro_cli",
+    "crates/dynamic_json_macro",
 ]
 resolver = "2"
 

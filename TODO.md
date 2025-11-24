@@ -835,7 +835,7 @@ Workarounds:
 
 ### Current Blockers
 - Need CLI/dev tooling to exercise macros outside the Vite pipeline ✅
-- Third-party macro crates must still be linked into the host binary (no WASM/native dynamic loading yet)
+- Dynamic native macro loading only supports host-local shared libraries (no WASM sandbox or npm distribution yet)
 - Root-level `ts-macros.json` loader doesn’t resolve manifests from node_modules/workspace when the package isn’t built locally
 
 ---

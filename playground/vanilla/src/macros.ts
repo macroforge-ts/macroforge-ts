@@ -16,7 +16,7 @@ export function IncludeStr(_path: string): string {
  * Decorator that auto-generates methods for a class
  * @param features - Features to derive (e.g., 'Debug', 'JSON')
  */
-export function Derive<T extends new (...args: any[]) => any>(..._features: ('Debug' | 'JSON')[]):
+export function Derive<T extends new (...args: any[]) => any>(..._features: ('Debug' | 'JSON' | 'JsonNative')[]):
   (target: T) => T & (new (...args: ConstructorParameters<T>) => InstanceType<T> & Debug & JSON) {
   return function(_target: T) {
     // This should never execute - it should be replaced at compile time

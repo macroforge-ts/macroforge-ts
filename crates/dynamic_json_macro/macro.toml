@@ -1,0 +1,11 @@
+module = "@dynamic/json"
+abiVersion = 1
+runtime = ["native"]
+
+[native]
+path = "../../target/debug/dynamic_json_macro"
+symbol = "ts_macro_register"
+
+[[macros]]
+name = "JsonNative"
+kind = "derive"

@@ -1,0 +1,14 @@
+[package]
+name = "dynamic_json_macro"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+ts_macro_host = { path = "../ts_macro_host" }
+ts_macro_abi = { path = "../ts_macro_abi" }

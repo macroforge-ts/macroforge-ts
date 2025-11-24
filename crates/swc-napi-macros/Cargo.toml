@@ -31,6 +31,7 @@ ts_macro_abi = { path = "../ts_macro_abi" }
 ts_syn = { path = "../ts_syn" }
 playground-macros = { path = "../../playground/macro" }
 walkdir = "2.5"
+libloading = "0.8"
 
 # Error handling
 anyhow = "1.0"

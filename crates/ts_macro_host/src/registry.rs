@@ -36,6 +36,9 @@ pub struct MacroManifest {
     /// Optional module name this manifest represents (e.g., "@macro/derive")
     #[serde(default)]
     pub module: Option<String>,
+    /// Optional native library configuration for dynamic loading
+    #[serde(default)]
+    pub native: Option<NativeLibrary>,
     /// ABI version this package was built against
     #[serde(rename = "abiVersion")]
     pub abi_version: u32,
@@ -52,6 +55,19 @@ pub struct MacroManifestEntry {
     pub kind: String,
     /// The name of the macro
     pub name: String,
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct NativeLibrary {
+    /// Path to the compiled native library (relative to the manifest file)
+    pub path: String,
+    /// Function symbol name that registers macros (defaults to `ts_macro_register`)
+    #[serde(default = "default_registrar_symbol")]
+    pub symbol: String,
+}
+
+fn default_registrar_symbol() -> String {
+    "ts_macro_register".to_string()
 }
 
 impl MacroManifest {
