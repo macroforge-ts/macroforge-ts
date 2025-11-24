@@ -31,6 +31,10 @@ import {
 } from './utils';
 import { createProject, ProjectService } from './serviceCache';
 import { internalHelpers } from 'svelte2tsx';
+import {
+    createTsMacrosAugmentationConfig,
+    TsMacrosAugmentationConfig
+} from './tsMacrosAugmenter';
 
 export interface LanguageServiceContainer {
     readonly tsconfigPath: string;
@@ -338,6 +342,13 @@ async function createLanguageService(
 
     const projectConfig = getParsedConfig();
     const { options: compilerOptions, raw, errors: configErrors } = projectConfig;
+    const tsMacrosPluginSettings =
+        raw?.compilerOptions?.plugins?.find(
+            (plugin: { name?: string }) => plugin?.name === TS_MACROS_PLUGIN_NAME
+        ) ?? {};
+    const tsMacrosConfig: TsMacrosAugmentationConfig = createTsMacrosAugmentationConfig(
+        tsMacrosPluginSettings
+    );
     ensureTsMacrosPlugin(
         compilerOptions,
         tsconfigPath ? dirname(tsconfigPath) : workspacePath || process.cwd()
@@ -561,7 +572,11 @@ async function createLanguageService(
             return prevSnapshot;
         }
 
-        const newSnapshot = DocumentSnapshot.fromDocument(document, transformationConfig);
+        const newSnapshot = DocumentSnapshot.fromDocument(
+            document,
+            transformationConfig,
+            tsMacrosConfig
+        );
 
         if (!prevSnapshot) {
             svelteModuleLoader.scheduleResolutionFailedLocationCheck(filePath);
@@ -631,7 +646,8 @@ async function createLanguageService(
             fileName,
             docContext.createDocument,
             transformationConfig,
-            tsSystem
+            tsSystem,
+            tsMacrosConfig
         );
         snapshotManager.set(fileName, doc);
         return doc;
@@ -1288,7 +1304,10 @@ function ensureTsMacrosPlugin(compilerOptions: ts.CompilerOptions, searchPath: s
 
     try {
         require.resolve(TS_MACROS_PLUGIN_NAME, { paths: [searchPath] });
-    } catch {
+    } catch (err) {
+        Logger.debug?.(
+            `ts-macros plugin not found from ${searchPath}: ${(err as Error).message}`
+        );
         return;
     }
 

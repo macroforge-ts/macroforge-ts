@@ -1,19 +1,10 @@
 // Import macro functions (these will be transformed by our Rust plugin)
-import { Derive } from "./macros";
 import "./test-intellisense"; // Trigger type generation for Product class
 import "./demo-intellisense"; // Trigger type generation for Customer class
+import { User } from "./user";
 
 // Example of using IncludeStr macro (will be replaced with file content at compile time)
 // const readme = IncludeStr('../README.md')
-// Example of using Derive decorator
-@Derive("Debug", "JSON")
-export class User {
-  constructor(
-    public id: number,
-    public name: string,
-    public email: string,
-  ) {}
-}
 
 // Test the generated methods
 function testMacros() {

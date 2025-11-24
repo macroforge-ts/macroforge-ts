@@ -297,6 +297,34 @@ The default language to use when generating new script tags in Svelte. _Default_
 
 Enable document highlight support. Requires a restart. _Default_: `true`
 
+## TS Macros Integration Overview
+
+Some projects rely on the `@ts-macros/ts-derive-plugin` TypeScript plugin to
+inject macro-generated APIs (for example `toJSON()` or `toString()` for classes
+decorated with `@Derive`). tsserver plugins are not guaranteed to load when the
+Svelte language server runs inside sandboxed editor runtimes (Zed, WASM, etc.),
+so we mirrored the plugin’s logic in the language server itself.
+
+Implementation outline:
+
+1. `src/plugins/typescript/tsMacrosAugmenter.ts` contains the decorator scan and
+   interface generation logic extracted from the original plugin. It exposes a
+   small configuration struct (`macroNames`, `mixinModule`, `mixinTypes`) plus an
+   `augmentWithTsMacros` helper that rewrites source text when decorated classes
+   are found.
+2. During TypeScript service boot (`src/plugins/typescript/service.ts`) we read
+   any `@ts-macros/ts-derive-plugin` entry from the workspace tsconfig and build
+   the augmentation config from it. The config travels with the parsed compiler
+   options and is passed to every snapshot factory.
+3. `DocumentSnapshot` applies the augmentation for both Svelte snapshots and
+   plain JS/TS snapshots (`src/plugins/typescript/DocumentSnapshot.ts`). The
+   rewritten text—including the synthetic mixin interfaces—is what the
+   TypeScript language service consumes, so diagnostics/completions in `.svelte`
+   files “see” the macro-generated methods even without tsserver plugin support.
+
+This keeps the plugin available for plain TypeScript projects (via VTSLS) while
+ensuring the Svelte LS behaves consistently in sandboxed environments.
+
 ## Credits
 
 -   [James Birtles](https://github.com/jamesbirtles) for creating the foundation which this language server is built on
