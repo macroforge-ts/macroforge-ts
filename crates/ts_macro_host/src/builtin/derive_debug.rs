@@ -42,7 +42,10 @@ impl TsMacro for DeriveDebugMacro {
                 at: insert_point,
                 code: debug_impl,
             }],
-            type_patches: vec![],
+            type_patches: vec![Patch::Insert {
+                at: insert_point,
+                code: generate_debug_signature(),
+            }],
             diagnostics: vec![],
             debug: None,
         }
@@ -79,4 +82,8 @@ fn generate_debug_implementation(class: &ts_macro_abi::ClassIR) -> String {
     }}"#,
         class.name, class.name, class.name
     )
+}
+
+fn generate_debug_signature() -> String {
+    "    toString(): string;\n".to_string()
 }

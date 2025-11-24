@@ -41,7 +41,10 @@ impl TsMacro for DeriveEqMacro {
                 at: insert_point,
                 code: eq_impl,
             }],
-            type_patches: vec![],
+            type_patches: vec![Patch::Insert {
+                at: insert_point,
+                code: generate_eq_signature(),
+            }],
             diagnostics: vec![],
             debug: None,
         }
@@ -97,4 +100,8 @@ fn generate_eq_implementation(class: &ts_macro_abi::ClassIR) -> String {
     }}"#,
         class.name, class.name, comparison, hash_calc
     )
+}
+
+fn generate_eq_signature() -> String {
+    "    equals(other: unknown): boolean;\n    hashCode(): number;\n".to_string()
 }

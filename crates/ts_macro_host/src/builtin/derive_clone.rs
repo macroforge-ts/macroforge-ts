@@ -41,7 +41,10 @@ impl TsMacro for DeriveCloneMacro {
                 at: insert_point,
                 code: clone_impl,
             }],
-            type_patches: vec![],
+            type_patches: vec![Patch::Insert {
+                at: insert_point,
+                code: generate_clone_signature(class),
+            }],
             diagnostics: vec![],
             debug: None,
         }
@@ -76,4 +79,8 @@ fn generate_clone_implementation(class: &ts_macro_abi::ClassIR) -> String {
     }}"#,
         class.name, assignments
     )
+}
+
+fn generate_clone_signature(class: &ts_macro_abi::ClassIR) -> String {
+    format!("    clone(): {};\n", class.name)
 }

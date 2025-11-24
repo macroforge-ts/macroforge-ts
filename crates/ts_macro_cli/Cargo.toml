@@ -1,0 +1,12 @@
+[package]
+name = "ts_macro_cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+anyhow = "1.0"
+clap = { version = "4.5", features = ["derive"] }
+swc-napi-macros = { path = "../swc-napi-macros" }
