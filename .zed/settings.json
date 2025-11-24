@@ -1,41 +1,62 @@
 {
-    "format_on_save": "on",
-    "languages": {
-        "JavaScript": {
-            "formatter": {
-                "external": {
-                    "command": "npx",
-                    "arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
-                }
-            },
-            "language_servers": ["eslint", "!biome"],
-            "code_actions_on_format": {
-                "source.fixAll.eslint": true
-            }
-        },
-        "TypeScript": {
-            "formatter": {
-                "external": {
-                    "command": "npx",
-                    "arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
-                }
-            },
-            "language_servers": ["typescript-language-server", "eslint", "!biome"],
-            "code_actions_on_format": {
-                "source.fixAll.eslint": true
-            }
-        },
-        "Svelte": {
-            "formatter": {
-                "external": {
-                    "command": "npx",
-                    "arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
-                }
-            },
-            "language_servers": ["svelte-language-server", "eslint", "!biome"],
-            "code_actions_on_format": {
-                "source.fixAll.eslint": true
-            }
-        }
-    }
+	"format_on_save": "on",
+	"languages": {
+		"JavaScript": {
+			"formatter": {
+				"external": {
+					"command": "npx",
+					"arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
+				}
+			},
+			"language_servers": ["eslint", "!biome"],
+			"code_actions_on_format": {
+				"source.fixAll.eslint": true
+			}
+		},
+		"TypeScript": {
+			"formatter": {
+				"external": {
+					"command": "npx",
+					"arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
+				}
+			},
+			"language_servers": ["vtsls", "eslint", "!biome"],
+			"code_actions_on_format": {
+				"source.fixAll.eslint": true
+			}
+		},
+		"Svelte": {
+			"formatter": {
+				"external": {
+					"command": "npx",
+					"arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
+				}
+			},
+			"language_servers": ["svelte-language-server", "eslint", "!biome"],
+			"code_actions_on_format": {
+				"source.fixAll.eslint": true
+			}
+		}
+	},
+	"lsp": {
+		"vtsls": {
+			"initialization_options": {
+				"autoUseWorkspaceTsdk": true,
+				"typescript": {
+					"tsdk": "~/ts-macros/node_modules/typescript/lib"
+				},
+				"tsserver": {
+					"logDirectory": "~/ts-macros/.tsserver-logs",
+					"logVerbosity": "verbose",
+					"globalPlugins": [
+						{
+							"name": "ts-derive-plugin",
+							"location": "~/ts-macros/packages/ts-derive-plugin",
+							"enableForWorkspaceTypeScriptVersions": true
+						}
+					]
+				}
+			}
+		}
+	}
 }

@@ -1,8 +1,8 @@
 "use strict";
-const DEFAULT_MACROS = ['Derive'];
-const DEFAULT_MIXIN_TYPES = ['MacroDebug', 'MacroJSON'];
-const FILE_EXTENSIONS = ['.ts', '.tsx'];
-const AUGMENTATION_BANNER = '\n// @ts-macros/derive augmentations\n';
+const DEFAULT_MACROS = ["Derive"];
+const DEFAULT_MIXIN_TYPES = ["MacroDebug", "MacroJSON"];
+const FILE_EXTENSIONS = [".ts", ".tsx"];
+const AUGMENTATION_BANNER = "\n// @ts-macros/derive augmentations\n";
 function shouldProcess(fileName) {
     return FILE_EXTENSIONS.some((ext) => fileName.endsWith(ext));
 }
@@ -11,14 +11,14 @@ function getDecorators(tsModule, node) {
         return undefined;
     }
     const decorators = tsModule.getDecorators(node);
-    if (decorators && decorators.length) {
+    if (decorators?.length) {
         return decorators;
     }
     return undefined;
 }
 function hasDecorator(tsModule, node, macroNames) {
     const decorators = getDecorators(tsModule, node);
-    if (!(decorators === null || decorators === void 0 ? void 0 : decorators.length)) {
+    if (!decorators?.length) {
         return false;
     }
     return decorators.some((decorator) => {
@@ -26,7 +26,8 @@ function hasDecorator(tsModule, node, macroNames) {
         if (tsModule.isIdentifier(expr)) {
             return macroNames.has(expr.text);
         }
-        if (tsModule.isCallExpression(expr) && tsModule.isIdentifier(expr.expression)) {
+        if (tsModule.isCallExpression(expr) &&
+            tsModule.isIdentifier(expr.expression)) {
             return macroNames.has(expr.expression.text);
         }
         return false;
@@ -35,7 +36,9 @@ function hasDecorator(tsModule, node, macroNames) {
 function collectDecoratedClasses(tsModule, source, macroNames) {
     const classNames = new Set();
     const visit = (node) => {
-        if (tsModule.isClassDeclaration(node) && node.name && hasDecorator(tsModule, node, macroNames)) {
+        if (tsModule.isClassDeclaration(node) &&
+            node.name &&
+            hasDecorator(tsModule, node, macroNames)) {
             classNames.add(node.name.text);
         }
         tsModule.forEachChild(node, visit);
@@ -48,11 +51,15 @@ function hasInterfaceDeclaration(sourceText, name) {
     return pattern.test(sourceText);
 }
 function buildInterfaceBlock(name, mixinRefs) {
-    const extendsClause = mixinRefs.length ? ` extends ${mixinRefs.join(', ')}` : '';
-    return `interface ${name}${extendsClause} {}\n`;
+    if (!mixinRefs.length) {
+        return "";
+    }
+    const aliasName = `__TsMacros${name}Mixin`;
+    const intersection = mixinRefs.length === 1 ? mixinRefs[0] : mixinRefs.join(" & ");
+    return `type ${aliasName} = ${intersection};\ninterface ${name} extends ${aliasName} {}\n`;
 }
 function augmentSource(tsModule, fileName, sourceText, macroNames, mixinModule, mixinTypes) {
-    if (!sourceText.includes('@')) {
+    if (!sourceText.includes("@")) {
         return null;
     }
     const source = tsModule.createSourceFile(fileName, sourceText, tsModule.ScriptTarget.Latest, true, tsModule.ScriptKind.TSX);
@@ -67,17 +74,16 @@ function augmentSource(tsModule, fileName, sourceText, macroNames, mixinModule, 
     if (!additions.length) {
         return null;
     }
-    return `${sourceText}${AUGMENTATION_BANNER}${additions.join('')}`;
+    return `${sourceText}${AUGMENTATION_BANNER}${additions.join("")}`;
 }
 function init(modules) {
     function create(info) {
-        var _a, _b, _c, _d, _e;
         const tsModule = modules.typescript;
-        const config = (_a = info.config) !== null && _a !== void 0 ? _a : {};
-        const macroNames = new Set((_b = config.macroNames) !== null && _b !== void 0 ? _b : DEFAULT_MACROS);
-        const mixinTypes = (_c = config.mixinTypes) !== null && _c !== void 0 ? _c : DEFAULT_MIXIN_TYPES;
-        const mixinModule = (_d = config.mixinModule) !== null && _d !== void 0 ? _d : '$lib/macros';
-        const originalGetScriptSnapshot = (_e = info.languageServiceHost.getScriptSnapshot) === null || _e === void 0 ? void 0 : _e.bind(info.languageServiceHost);
+        const config = info.config ?? {};
+        const macroNames = new Set(config.macroNames ?? DEFAULT_MACROS);
+        const mixinTypes = config.mixinTypes ?? DEFAULT_MIXIN_TYPES;
+        const mixinModule = config.mixinModule ?? "$lib/macros";
+        const originalGetScriptSnapshot = info.languageServiceHost.getScriptSnapshot?.bind(info.languageServiceHost);
         if (originalGetScriptSnapshot) {
             info.languageServiceHost.getScriptSnapshot = (fileName) => {
                 if (!shouldProcess(fileName)) {

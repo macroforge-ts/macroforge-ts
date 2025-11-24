@@ -86,10 +86,15 @@ function hasInterfaceDeclaration(sourceText: string, name: string) {
 }
 
 function buildInterfaceBlock(name: string, mixinRefs: string[]) {
-  const extendsClause = mixinRefs.length
-    ? ` extends ${mixinRefs.join(", ")}`
-    : "";
-  return `interface ${name}${extendsClause} {}\n`;
+  if (!mixinRefs.length) {
+    return "";
+  }
+
+  const aliasName = `__TsMacros${name}Mixin`;
+  const intersection =
+    mixinRefs.length === 1 ? mixinRefs[0] : mixinRefs.join(" & ");
+
+  return `type ${aliasName} = ${intersection};\ninterface ${name} extends ${aliasName} {}\n`;
 }
 
 function augmentSource(

@@ -16,7 +16,7 @@ npx sv create my-app
 
 ## Macro demo
 
-This playground is wired to the local `@ts-macros/swc-napi` transformer via `vite-plugin-napi`. The `ts-derive-plugin` TypeScript plugin automatically augments every class decorated with `@Derive` so editors know `toString()` and `toJSON()` exist without manual type assertions.
+This playground is wired to the local `@ts-macros/swc-napi` transformer via `vite-plugin-napi`. The `@ts-macros/ts-derive-plugin` TypeScript plugin automatically augments every class decorated with `@Derive` so editors know `toString()` and `toJSON()` exist without manual type assertions.
 
 Key files:
 
@@ -31,7 +31,7 @@ Install deps, build the TypeScript plugin, then start the dev server:
 
 ```sh
 npm install            # run once in this directory
-npm run build --workspaces=ts-derive-plugin  # from repo root if plugin changes
+npm run build --workspaces=@ts-macros/ts-derive-plugin  # from repo root if plugin changes
 npm run dev -- --open
 ```
 

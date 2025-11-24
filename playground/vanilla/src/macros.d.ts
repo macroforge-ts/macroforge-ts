@@ -18,6 +18,7 @@ export declare function Derive(...features: ('Debug' | 'JSON')[]): ClassDecorato
 
 /**
  * Interface extensions for generated methods
+ * These are exported for the TypeScript plugin to use when augmenting classes
  */
 export interface Debug {
   toString(): string

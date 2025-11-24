@@ -1,5 +1,6 @@
 {
-  "name": "ts-derive-plugin",
+  "name": "@ts-macros/ts-derive-plugin",
+  "private": true,
   "version": "0.0.1",
   "description": "TypeScript language service plugin that augments classes decorated with @Derive to include macro-generated methods.",
   "type": "commonjs",
@@ -16,6 +17,6 @@
     "typescript": ">=5.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.7.2"
+    "typescript": "^5.9.3"
   }
 }

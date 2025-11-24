@@ -13,15 +13,25 @@
 		"sourceMap": true,
 		"strict": true,
 		"moduleResolution": "bundler",
-		"plugins": [
-			{
-				"name": "ts-derive-plugin",
-				"macroNames": ["Derive"],
-				"mixinModule": "$lib/macros",
-				"mixinTypes": ["MacroDebug", "MacroJSON"]
+			"plugins": [
+				{
+					"name": "@ts-macros/ts-derive-plugin",
+					"macroNames": ["Derive"],
+					"mixinModule": "$lib/macros",
+					"mixinTypes": ["MacroDebug", "MacroJSON"]
 			}
 		]
-	}
+	},
+	"include": [
+		".svelte-kit/ambient.d.ts",
+		".svelte-kit/non-ambient.d.ts",
+		".svelte-kit/types/**/$types.d.ts",
+		"vite.config.ts",
+		"src/**/*.js",
+		"src/**/*.ts",
+		"src/**/*.svelte",
+		"src/macros/generated/**/*.d.ts"
+	]
 	// Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias
 	// except $lib which is handled by https://svelte.dev/docs/kit/configuration#files
 	//

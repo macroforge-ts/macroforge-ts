@@ -13,8 +13,9 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.3",
-    "vite-plugin-napi": "file:../packages/vite-plugin"
+    "typescript": "^5.9.3",
+    "vite": "^7.2.4",
+    "vite-plugin-napi": "file:../../packages/vite-plugin",
+    "@ts-macros/ts-derive-plugin": "file:../../packages/ts-derive-plugin"
   }
 }

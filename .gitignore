@@ -17,3 +17,7 @@ target/
 #.idea/# pixi environments
 .pixi
 node_modules
+
+# Generated type definitions
+src/macros/generated/
+**/src/macros/generated/
