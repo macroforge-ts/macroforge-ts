@@ -1,7 +1,7 @@
 //! @Derive(Debug) macro implementation
 
 use crate::traits::TsMacro;
-use ts_macro_abi::{MacroContextIR, MacroResult, Patch, SpanIR, MacroKind};
+use ts_macro_abi::{MacroContextIR, MacroKind, MacroResult, Patch, SpanIR};
 
 pub struct DeriveDebugMacro;
 
@@ -33,7 +33,7 @@ impl TsMacro for DeriveDebugMacro {
         // Calculate where to insert the debug implementation
         // For now, we'll insert at the end of the class body
         let insert_point = SpanIR {
-            start: ctx.target_span.end - 1,  // Just before the closing brace
+            start: ctx.target_span.end - 1, // Just before the closing brace
             end: ctx.target_span.end - 1,
         };
 

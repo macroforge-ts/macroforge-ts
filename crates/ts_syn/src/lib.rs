@@ -1,7 +1,7 @@
-pub mod parse;
-pub mod lower;
 pub mod errors;
+pub mod lower;
+pub mod parse;
 
-pub use parse::*;
-pub use lower::*;
 pub use errors::*;
+pub use lower::*;
+pub use parse::*;

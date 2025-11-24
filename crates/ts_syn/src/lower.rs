@@ -3,7 +3,7 @@ use ts_macro_abi::*;
 use crate::TsSynError;
 
 #[cfg(feature = "swc")]
-use swc_common::{Span, Spanned, DUMMY_SP};
+use swc_common::{DUMMY_SP, Span, Spanned};
 #[cfg(feature = "swc")]
 use swc_ecma_ast::*;
 #[cfg(feature = "swc")]
@@ -12,7 +12,10 @@ use swc_ecma_visit::{Visit, VisitWith};
 /// Lower a module into ClassIR list (derive targets).
 #[cfg(feature = "swc")]
 pub fn lower_classes(module: &Module, source: &str) -> Result<Vec<ClassIR>, TsSynError> {
-    let mut v = ClassCollector { out: vec![], source };
+    let mut v = ClassCollector {
+        out: vec![],
+        source,
+    };
     module.visit_with(&mut v);
     Ok(v.out)
 }
@@ -69,7 +72,7 @@ fn lower_members(body: &[ClassMember], source: &str) -> (Vec<FieldIR>, Vec<Metho
                     name,
                     span: swc_span_to_ir(p.span),
                     ts_type,
-                    optional: p.is_optional,  // Changed from p.optional
+                    optional: p.is_optional, // Changed from p.optional
                     readonly: p.readonly,
                     visibility: lower_visibility(p.accessibility),
                     decorators: lower_decorators(&p.decorators),
@@ -117,8 +120,7 @@ fn params_span(params: &[Param]) -> Span {
 
 #[cfg(feature = "swc")]
 fn lower_decorators(decs: &[Decorator]) -> Vec<DecoratorIR> {
-    decs
-        .iter()
+    decs.iter()
         .filter_map(|d| {
             let span = swc_span_to_ir(d.span);
             let (name, args_src) = match &*d.expr {
@@ -135,7 +137,11 @@ fn lower_decorators(decs: &[Decorator]) -> Vec<DecoratorIR> {
                 }
                 _ => return None,
             };
-            Some(DecoratorIR { name, args_src, span })
+            Some(DecoratorIR {
+                name,
+                args_src,
+                span,
+            })
         })
         .collect()
 }

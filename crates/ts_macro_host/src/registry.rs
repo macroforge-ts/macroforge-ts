@@ -1,6 +1,6 @@
 //! Macro registry for managing and looking up macros
 
-use crate::{error::Result, MacroError, TsMacro};
+use crate::{MacroError, TsMacro, error::Result};
 use dashmap::DashMap;
 use std::sync::Arc;
 

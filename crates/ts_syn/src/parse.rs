@@ -3,7 +3,7 @@ use swc_common::{FileName, SourceMap, sync::Lrc};
 #[cfg(feature = "swc")]
 use swc_ecma_ast::Module;
 #[cfg(feature = "swc")]
-use swc_ecma_parser::{lexer::Lexer, Parser, StringInput, Syntax, TsSyntax};
+use swc_ecma_parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
 
 use crate::TsSynError;
 
@@ -12,7 +12,7 @@ pub fn parse_ts_module(source: &str, file_name: &str) -> Result<Module, TsSynErr
     let cm: Lrc<SourceMap> = Lrc::new(Default::default());
     let fm = cm.new_source_file(
         FileName::Custom(file_name.into()).into(),
-        source.to_string()
+        source.to_string(),
     );
 
     let syntax = Syntax::Typescript(TsSyntax {
@@ -29,7 +29,9 @@ pub fn parse_ts_module(source: &str, file_name: &str) -> Result<Module, TsSynErr
     );
 
     let mut parser = Parser::new_from(lexer);
-    parser.parse_module().map_err(|e| TsSynError::Parse(format!("{:?}", e)))
+    parser
+        .parse_module()
+        .map_err(|e| TsSynError::Parse(format!("{:?}", e)))
 }
 
 #[cfg(not(feature = "swc"))]

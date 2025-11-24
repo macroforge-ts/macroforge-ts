@@ -1,7 +1,7 @@
 //! Built-in macros provided by the framework
 
-pub mod derive_debug;
 pub mod derive_clone;
+pub mod derive_debug;
 pub mod derive_eq;
 
 use crate::{MacroRegistry, Result};
@@ -24,11 +24,7 @@ pub fn register_builtin_macros(registry: &MacroRegistry) -> Result<()> {
     )?;
 
     // Register @Derive(Eq)
-    registry.register(
-        "@macro/derive",
-        "Eq",
-        Arc::new(derive_eq::DeriveEqMacro),
-    )?;
+    registry.register("@macro/derive", "Eq", Arc::new(derive_eq::DeriveEqMacro))?;
 
     Ok(())
 }

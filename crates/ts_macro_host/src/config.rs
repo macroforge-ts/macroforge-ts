@@ -4,6 +4,9 @@ use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
+const DEFAULT_CONFIG_FILENAME: &str = "macro.toml";
+const LEGACY_CONFIG_FILENAME: &str = "ts-macro.config.json";
+
 /// Configuration for the macro host system
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -86,13 +89,16 @@ fn default_max_diagnostics() -> usize {
 impl MacroConfig {
     /// Load configuration from a file
     pub fn from_file(path: impl AsRef<Path>) -> Result<Self> {
+        let path = path.as_ref();
         let content = std::fs::read_to_string(path)?;
-        let config = serde_json::from_str(&content)?;
-        Ok(config)
+        match path.extension().and_then(|ext| ext.to_str()) {
+            Some(ext) if ext.eq_ignore_ascii_case("json") => Ok(serde_json::from_str(&content)?),
+            _ => Ok(toml::from_str(&content)?),
+        }
     }
 
     /// Try to find and load configuration file
-    /// Looks for ts-macro.config.json in current directory and ancestors
+    /// Looks for macro.toml (preferred) or legacy ts-macro.config.json in current directory and ancestors
     pub fn find_and_load() -> Result<Option<Self>> {
         let current_dir = std::env::current_dir()?;
         Self::find_config_in_ancestors(&current_dir)
@@ -102,9 +108,12 @@ impl MacroConfig {
         let mut current = start_dir.to_path_buf();
 
         loop {
-            let config_path = current.join("ts-macro.config.json");
-            if config_path.exists() {
-                return Ok(Some(Self::from_file(config_path)?));
+            if let Some(config) = Self::load_if_exists(&current.join(DEFAULT_CONFIG_FILENAME))? {
+                return Ok(Some(config));
+            }
+
+            if let Some(config) = Self::load_if_exists(&current.join(LEGACY_CONFIG_FILENAME))? {
+                return Ok(Some(config));
             }
 
             // Check for package.json as a stop condition
@@ -122,14 +131,25 @@ impl MacroConfig {
         Ok(None)
     }
 
+    fn load_if_exists(path: &Path) -> Result<Option<Self>> {
+        if path.exists() {
+            Ok(Some(Self::from_file(path)?))
+        } else {
+            Ok(None)
+        }
+    }
+
     /// Save configuration to a file
     pub fn save(&self, path: impl AsRef<Path>) -> Result<()> {
-        let content = serde_json::to_string_pretty(self)?;
+        let path = path.as_ref();
+        let content = match path.extension().and_then(|ext| ext.to_str()) {
+            Some(ext) if ext.eq_ignore_ascii_case("json") => serde_json::to_string_pretty(self)?,
+            _ => toml::to_string_pretty(self)?,
+        };
         std::fs::write(path, content)?;
         Ok(())
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -144,8 +164,8 @@ mod tests {
             limits: Default::default(),
         };
 
-        let json = serde_json::to_string(&config).unwrap();
-        let parsed: MacroConfig = serde_json::from_str(&json).unwrap();
+        let toml = toml::to_string(&config).unwrap();
+        let parsed: MacroConfig = toml::from_str(&toml).unwrap();
 
         assert_eq!(config.macro_packages, parsed.macro_packages);
         assert_eq!(config.allow_native_macros, parsed.allow_native_macros);

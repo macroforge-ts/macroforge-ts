@@ -150,15 +150,13 @@ How the system knows which macro to call:
 
 - [x] Create config file structure:
 
-  ```jsonc
-  // ts-macro.config.json
-  {
-    "macroPackages": ["@my-org/ts-macros-derive", "@my-org/ts-macros-serde"],
-    "allowNativeMacros": false,
-    "macroRuntimeOverrides": {
-      "@bar/big-schema-macro": "native",
-    },
-  }
+  ```toml
+  # macro.toml
+  macroPackages = ["@my-org/ts-macros-derive", "@my-org/ts-macros-serde"]
+  allowNativeMacros = false
+
+  [macroRuntimeOverrides]
+  "@bar/big-schema-macro" = "native"
   ```
 
 - [ ] Implement package allowlist/validation
@@ -818,20 +816,20 @@ Workarounds:
 ## 🎯 Next Steps
 
 ### Immediate Priorities
-1. **Implement Patch Application Engine** - Apply generated patches to source code
-2. **Refactor MacroTransformer** - Use new `ts_macro_host` instead of hardcoded macros
+1. **Implement Patch Application Engine** - Apply generated patches to source code ✅
+2. **Refactor MacroTransformer** - Use new `ts_macro_host` instead of hardcoded macros ✅
 3. **Create CLI Tool** - For testing macro expansion and debugging
 4. **Complete ts_quote** - Implement actual quote! functionality for code generation
 
 ### To Make It Usable
-1. **Integration** - Connect `ts_macro_host` with `swc-napi-macros`
-2. **Configuration Loading** - Actually load and use `ts-macro.config.json`
+1. **Integration** - Connect `ts_macro_host` with `swc-napi-macros` ✅
+2. **Configuration Loading** - Actually load and use `macro.toml`
 3. **Playground Testing** - Verify the new system works with playground apps
 4. **Documentation** - Write getting started guide for macro authors
 
 ### Current Blockers
-- Patch application not implemented (patches are generated but not applied)
-- MacroTransformer still uses hardcoded macros instead of registry
-- No way to test macro expansion without full build pipeline
+- Need CLI/dev tooling to exercise macros outside the Vite pipeline
+- Config loader not wired, so macro packages and runtime options are still hardcoded
+- Type-surface emission (`type_patches`) not surfaced anywhere yet, so generated APIs lack .d.ts support
 
 ---

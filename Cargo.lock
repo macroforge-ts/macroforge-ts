@@ -2394,6 +2394,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 1.0.69",
+ "toml",
  "tracing",
  "ts_macro_abi",
  "ts_quote",

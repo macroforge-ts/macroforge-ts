@@ -35,12 +35,10 @@ impl<'a> PatchApplicator<'a> {
 
     /// Sort patches by their position (start offset)
     fn sort_patches(&mut self) {
-        self.patches.sort_by_key(|patch| {
-            match patch {
-                Patch::Insert { at, .. } => at.start,
-                Patch::Replace { span, .. } => span.start,
-                Patch::Delete { span } => span.start,
-            }
+        self.patches.sort_by_key(|patch| match patch {
+            Patch::Insert { at, .. } => at.start,
+            Patch::Replace { span, .. } => span.start,
+            Patch::Delete { span } => span.start,
         });
     }
 

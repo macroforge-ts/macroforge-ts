@@ -36,6 +36,14 @@ pub enum MacroError {
     #[error("JSON error: {0}")]
     Json(#[from] serde_json::Error),
 
+    /// TOML error
+    #[error("TOML error: {0}")]
+    Toml(#[from] toml::de::Error),
+
+    /// TOML serialization error
+    #[error("TOML serialization error: {0}")]
+    TomlSer(#[from] toml::ser::Error),
+
     /// Generic error
     #[error("{0}")]
     Other(#[from] anyhow::Error),

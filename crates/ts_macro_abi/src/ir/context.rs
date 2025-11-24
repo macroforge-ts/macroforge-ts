@@ -1,6 +1,6 @@
 //! Macro execution context
 
-use crate::{SpanIR, ClassIR, EnumIR};
+use crate::{ClassIR, EnumIR, SpanIR};
 use serde::{Deserialize, Serialize};
 
 /// The kind of macro being executed

@@ -1,8 +1,8 @@
 //! Macro dispatch and execution
 
 use crate::MacroRegistry;
-use ts_macro_abi::{MacroContextIR, MacroResult, Diagnostic, DiagnosticLevel};
 use tracing::{debug, error, warn};
+use ts_macro_abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult};
 
 /// Dispatches macro calls to registered macro implementations
 pub struct MacroDispatcher {
@@ -122,7 +122,7 @@ mod tests {
     use super::*;
     use crate::traits::TsMacro;
     use std::sync::Arc;
-    use ts_macro_abi::{SpanIR, TargetIR, ClassIR, MacroKind};
+    use ts_macro_abi::{ClassIR, MacroKind, SpanIR, TargetIR};
 
     struct TestMacro {
         name: String,
@@ -161,11 +161,17 @@ mod tests {
             macro_name: "Debug".to_string(),
             module_path: "@macro/derive".to_string(),
             decorator_span: SpanIR { start: 0, end: 10 },
-            target_span: SpanIR { start: 10, end: 100 },
+            target_span: SpanIR {
+                start: 10,
+                end: 100,
+            },
             file_name: "test.ts".to_string(),
             target: TargetIR::Class(ClassIR {
                 name: "Test".to_string(),
-                span: SpanIR { start: 10, end: 100 },
+                span: SpanIR {
+                    start: 10,
+                    end: 100,
+                },
                 is_abstract: false,
                 type_params: vec![],
                 heritage: vec![],

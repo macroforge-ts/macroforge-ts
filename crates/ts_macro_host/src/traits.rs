@@ -1,6 +1,6 @@
 //! Core macro traits
 
-use ts_macro_abi::{MacroResult, MacroContextIR, MacroKind};
+use ts_macro_abi::{MacroContextIR, MacroKind, MacroResult};
 
 /// Core trait that all TypeScript macros must implement
 pub trait TsMacro: Send + Sync {

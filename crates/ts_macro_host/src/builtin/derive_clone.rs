@@ -1,7 +1,7 @@
 //! @Derive(Clone) macro implementation
 
 use crate::traits::TsMacro;
-use ts_macro_abi::{MacroContextIR, MacroResult, Patch, SpanIR, MacroKind};
+use ts_macro_abi::{MacroContextIR, MacroKind, MacroResult, Patch, SpanIR};
 
 pub struct DeriveCloneMacro;
 

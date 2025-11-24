@@ -1,7 +1,7 @@
 //! @Derive(Eq) macro implementation
 
 use crate::traits::TsMacro;
-use ts_macro_abi::{MacroContextIR, MacroResult, Patch, SpanIR, MacroKind};
+use ts_macro_abi::{MacroContextIR, MacroKind, MacroResult, Patch, SpanIR};
 
 pub struct DeriveEqMacro;
 
@@ -69,7 +69,10 @@ fn generate_eq_implementation(class: &ts_macro_abi::ClassIR) -> String {
         .fields
         .iter()
         .map(|f| {
-            format!("hash = (hash * 31 + (this.{} ? this.{}.toString().charCodeAt(0) : 0)) | 0;", f.name, f.name)
+            format!(
+                "hash = (hash * 31 + (this.{} ? this.{}.toString().charCodeAt(0) : 0)) | 0;",
+                f.name, f.name
+            )
         })
         .collect();
 

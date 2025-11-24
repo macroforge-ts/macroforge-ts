@@ -1,7 +1,7 @@
-pub mod span;
-pub mod patch;
 pub mod ir;
+pub mod patch;
+pub mod span;
 
-pub use span::*;
-pub use patch::*;
 pub use ir::*;
+pub use patch::*;
+pub use span::*;
