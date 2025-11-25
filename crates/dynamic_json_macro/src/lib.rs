@@ -28,18 +28,22 @@ impl TsMacro for JsonNativeMacro {
             }
         };
 
-        let insertion = SpanIR {
+        let class_insert = SpanIR {
             start: ctx.target_span.end.saturating_sub(1),
             end: ctx.target_span.end.saturating_sub(1),
+        };
+        let post_class_insert = SpanIR {
+            start: ctx.target_span.end,
+            end: ctx.target_span.end,
         };
 
         MacroResult {
             runtime_patches: vec![Patch::Insert {
-                at: insertion,
+                at: post_class_insert,
                 code: generate_to_json(class),
             }],
             type_patches: vec![Patch::Insert {
-                at: insertion,
+                at: class_insert,
                 code: "    toJSON(): Record<string, unknown>;\n".into(),
             }],
             ..Default::default()
@@ -82,9 +86,10 @@ fn generate_to_json(class: &ClassIR) -> String {
 
     format!(
         r#"
-    toJSON(): Record<string, unknown> {{
+{class_name}.prototype.toJSON = function () {{
 {body}
-    }}
-"#
+}};
+"#,
+        class_name = class.name
     )
 }

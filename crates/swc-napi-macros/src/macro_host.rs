@@ -106,7 +106,7 @@ impl MacroHostIntegration {
             .map(|class| (SpanKey::from(class.span), class))
             .collect();
 
-        let derive_targets = collect_derive_targets(module, &class_map);
+        let derive_targets = collect_derive_targets(module, &class_map, source);
 
         if derive_targets.is_empty() {
             return Ok(MacroExpansion {
@@ -226,19 +226,20 @@ struct DeriveTarget {
 fn collect_derive_targets(
     module: &Module,
     class_map: &HashMap<SpanKey, ClassIR>,
+    source: &str,
 ) -> Vec<DeriveTarget> {
     let mut targets = Vec::new();
 
     for item in &module.body {
         match item {
             ModuleItem::Stmt(Stmt::Decl(Decl::Class(class_decl))) => {
-                collect_from_class(&class_decl.class, class_map, &mut targets);
+                collect_from_class(&class_decl.class, class_map, source, &mut targets);
             }
             ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(ExportDecl {
                 decl: Decl::Class(class_decl),
                 ..
             })) => {
-                collect_from_class(&class_decl.class, class_map, &mut targets);
+                collect_from_class(&class_decl.class, class_map, source, &mut targets);
             }
             _ => {}
         }
@@ -250,6 +251,7 @@ fn collect_derive_targets(
 fn collect_from_class(
     class: &Class,
     class_map: &HashMap<SpanKey, ClassIR>,
+    source: &str,
     out: &mut Vec<DeriveTarget>,
 ) {
     if class.decorators.is_empty() {
@@ -269,11 +271,23 @@ fn collect_from_class(
 
             out.push(DeriveTarget {
                 macro_names,
-                decorator_span: span_to_ir(decorator.span),
+                decorator_span: decorator_span_with_at(decorator.span, source),
                 class_ir: class_ir.clone(),
             });
         }
     }
+}
+
+fn decorator_span_with_at(span: Span, source: &str) -> SpanIR {
+    let mut ir = span_to_ir(span);
+    let start = ir.start as usize;
+    if start > 0 && start <= source.len() {
+        let bytes = source.as_bytes();
+        if bytes[start - 1] == b'@' {
+            ir.start -= 1;
+        }
+    }
+    ir
 }
 
 fn parse_derive_decorator(decorator: &Decorator) -> Option<Vec<String>> {

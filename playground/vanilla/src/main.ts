@@ -3,12 +3,9 @@ import "./test-intellisense"; // Trigger type generation for Product class
 import "./demo-intellisense"; // Trigger type generation for Customer class
 import { User } from "./user";
 
-// Example of using IncludeStr macro (will be replaced with file content at compile time)
-// const readme = IncludeStr('../README.md')
-
 // Test the generated methods
 function testMacros() {
-  const user = new User(1, "John Doe", "john@example.com");
+  const user = new User(1, "John Doe", "john@example.com", "tok_live_secret");
   const derivedSummary = user.toString();
   const derivedJson = user.toJSON();
 
@@ -24,12 +21,20 @@ function testMacros() {
 
       <h2>Features:</h2>
       <ul>
-        <li><code>IncludeStr</code> - Include file contents at compile time</li>
         <li><code>@Derive</code> - Auto-generate methods like toString() and toJSON()</li>
+        <li><code>@Debug(...)</code> - Per-field rename / skip controls inside derives</li>
       </ul>
 
-      <h2>Example User Object:</h2>
-      <pre>${JSON.stringify(user, null, 2)}</pre>
+      <h2>Derived Summary (Debug)</h2>
+      <pre>${derivedSummary}</pre>
+
+      <h2>Derived JSON (JsonNative)</h2>
+      <pre>${JSON.stringify(derivedJson, null, 2)}</pre>
+
+      <p>
+        Notice how the summary uses <code>identifier</code> instead of <code>id</code>, while the
+        <code>authToken</code> field is skipped entirely in <code>toString()</code> but still present in the JSON payload.
+      </p>
 
       <p>Check the console for more examples!</p>
     `;

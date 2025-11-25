@@ -4,15 +4,6 @@
  */
 
 /**
- * Include the contents of a file as a string at compile time
- * @param path - Relative path to the file to include
- * @returns The file contents as a string
- */
-export function IncludeStr(_path: string): string {
-  throw new Error('IncludeStr should be replaced at compile time by the Rust macro plugin');
-}
-
-/**
  * Decorator that auto-generates methods for a class
  * @param features - Features to derive (e.g., 'Debug', 'JSON')
  */
@@ -22,6 +13,19 @@ export function Derive<T extends new (...args: any[]) => any>(..._features: ('De
     // This should never execute - it should be replaced at compile time
     throw new Error('Derive decorator should be replaced at compile time by the Rust macro plugin');
   } as any;
+}
+
+export interface DebugDecoratorOptions {
+  rename?: string;
+  skip?: boolean;
+}
+
+export function Debug(_options?: DebugDecoratorOptions): PropertyDecorator {
+  return function() {
+    if (import.meta.env?.DEV ?? true) {
+      console.warn('Debug field decorator executed at runtime. Check that the macro plugin ran.');
+    }
+  };
 }
 
 /**

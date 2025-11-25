@@ -1,7 +1,14 @@
 <script lang="ts">
-	import { MacroUser, macroNote, showcaseUserJson, showcaseUserSummary } from '$lib/demo/macro-user'
+	import { MacroUser, showcaseUserJson, showcaseUserSummary } from '$lib/demo/macro-user'
 
-	const derivedUser = new MacroUser('Cam Solar', 'Runtime Tinkerer', 'IncludeStr', '2025-01-07')
+	const derivedUser = new MacroUser(
+		'usr_1001',
+		'Cam Solar',
+		'Runtime Tinkerer',
+		'Derive',
+		'2025-01-07',
+		'sk-live-token'
+	)
 	const derivedSummary = derivedUser.toString()
 	const derivedUserJson = derivedUser.toJSON()
 	const derivedJsonPretty = JSON.stringify(derivedUserJson, null, 2)
@@ -18,15 +25,6 @@
 	</section>
 
 	<section>
-		<h2>IncludeStr example</h2>
-		<p>
-			The paragraph below is read at build time with <code>IncludeStr('./macro-snippet.md')</code> and
-			inlined into the bundle.
-		</p>
-		<pre>{macroNote}</pre>
-	</section>
-
-	<section>
 		<h2>@Derive decorator example</h2>
 		<p>
 			A <code>MacroUser</code> class is decorated with <code>@Derive('Debug', 'JSON')</code>. The macro
@@ -38,6 +36,11 @@
 			<p>{derivedSummary}</p>
 			<h3>toJSON()</h3>
 			<pre>{derivedJsonPretty}</pre>
+			<p class="note">
+				Field-level <code>@Debug({...})</code> decorators rename <code>id</code> to <code>userId</code> and skip
+				<code>apiToken</code> entirely when printing the summary, while <code>toJSON()</code> still emits the full
+				object.
+			</p>
 		</div>
 		<div class="card">
 			<h3>Showcase user (module-level)</h3>
@@ -79,6 +82,12 @@
 		border-radius: 0.75rem;
 		padding: 1rem 1.5rem;
 		box-shadow: 0 10px 35px rgba(15, 23, 42, 0.12);
+	}
+
+	.note {
+		margin-top: 1rem;
+		font-size: 0.95rem;
+		color: #475569;
 	}
 
 	code {

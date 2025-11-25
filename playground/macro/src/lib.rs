@@ -50,9 +50,13 @@ impl TsMacro for DeriveJsonMacro {
         };
 
         let insertion = insertion_span(&ctx);
+        let post_class_insertion = SpanIR {
+            start: ctx.target_span.end,
+            end: ctx.target_span.end,
+        };
         MacroResult {
             runtime_patches: vec![Patch::Insert {
-                at: insertion,
+                at: post_class_insertion,
                 code: generate_to_json(class),
             }],
             type_patches: vec![
@@ -92,10 +96,11 @@ fn generate_to_json(class: &ClassIR) -> String {
 
     format!(
         r#"
-    toJSON(): Record<string, unknown> {{
+{class_name}.prototype.toJSON = function () {{
 {body}
-    }}
-"#
+}};
+"#,
+        class_name = class.name
     )
 }
 

@@ -4,17 +4,20 @@
  */
 
 /**
- * Include the contents of a file as a string at compile time
- * @param path - Relative path to the file to include
- * @returns The file contents as a string
- */
-export declare function IncludeStr(path: string): string
-
-/**
  * Decorator that auto-generates methods for a class
  * @param features - Features to derive (e.g., 'Debug', 'JSON')
  */
 export declare function Derive(...features: ('Debug' | 'JSON')[]): ClassDecorator
+
+export interface DebugDecoratorOptions {
+  rename?: string
+  skip?: boolean
+}
+
+/**
+ * Field-level overrides for the Debug derive
+ */
+export declare function Debug(options?: DebugDecoratorOptions): PropertyDecorator
 
 /**
  * Interface extensions for generated methods

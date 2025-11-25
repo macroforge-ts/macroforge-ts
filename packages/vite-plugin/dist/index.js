@@ -29,6 +29,14 @@ function napiMacrosPlugin(options = {}) {
             console.error(`[vite-plugin-napi-macros] Failed to write type definitions for ${id}:`, error);
         }
     }
+    function formatTransformError(error, id) {
+        const relative = projectRoot ? path.relative(projectRoot, id) || id : id;
+        if (error instanceof Error) {
+            const details = error.stack && error.stack.includes(error.message) ? error.stack : `${error.message}\n${error.stack ?? ''}`;
+            return `[vite-plugin-napi-macros] Failed to transform ${relative}\n${details}`.trim();
+        }
+        return `[vite-plugin-napi-macros] Failed to transform ${relative}: ${String(error)}`;
+    }
     return {
         name: 'vite-plugin-napi-macros',
         enforce: 'pre',
@@ -73,9 +81,8 @@ function napiMacrosPlugin(options = {}) {
                 }
             }
             catch (error) {
-                console.error(`[vite-plugin-napi-macros] Transform error in ${id}:`, error);
-                // Return unchanged on error
-                return null;
+                const message = formatTransformError(error, id);
+                this.error(message);
             }
             return null;
         }

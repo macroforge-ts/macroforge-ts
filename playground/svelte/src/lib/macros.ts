@@ -17,18 +17,24 @@ type MacroDeriveConstructor<T extends new (...args: any[]) => any> = new (
 	...args: ConstructorParameters<T>
 ) => InstanceType<T> & MacroDebug & MacroJSON
 
-export function IncludeStr(_path: string): string {
-	if (import.meta.env.DEV) {
-		console.warn('[ts-macros] IncludeStr fallback executed. Check that the NAPI plugin is enabled.')
-	}
-	return ''
-}
-
 export function Derive(..._features: DeriveFeature[]) {
 	return function <T extends new (...args: any[]) => any>(target: T): MacroDeriveConstructor<T> {
 		if (import.meta.env.DEV) {
 			console.warn('[ts-macros] Derive fallback executed. Check that the NAPI plugin is enabled.')
 		}
 		return target as unknown as MacroDeriveConstructor<T>
+	}
+}
+
+export interface DebugDecoratorOptions {
+	rename?: string
+	skip?: boolean
+}
+
+export function Debug(_options?: DebugDecoratorOptions): PropertyDecorator {
+	return function () {
+		if (import.meta.env.DEV) {
+			console.warn('[ts-macros] Debug field decorator executed at runtime. Check macro wiring.')
+		}
 	}
 }

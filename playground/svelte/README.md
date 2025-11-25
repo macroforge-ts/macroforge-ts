@@ -23,7 +23,6 @@ Key files:
 - `vite.config.ts` – registers the Rust transformer before `sveltekit()`
 - `src/lib/macros.ts` – ambient definitions that mirror the Rust macros
 - `src/lib/demo/macro-user.ts` – demo class using `@Derive('Debug', 'JSON')`
-- `src/lib/demo/macro-snippet.md` – included at build time via `IncludeStr`
 
 ## Developing
 

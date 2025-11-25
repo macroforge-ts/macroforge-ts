@@ -8,12 +8,13 @@
 		"packages/*",
 		"playground"
 	],
-	"scripts": {
+ "scripts": {
 		"dev": "npm run dev -w playground",
 		"build": "npm run build:rust && npm run build:plugin",
 		"build:rust": "cd crates/swc-napi-macros && napi build --platform --release",
 		"build:plugin": "npm run build -w vite-plugin-napi",
-		"test": "npm test --workspaces --if-present"
+		"test": "npm test --workspaces --if-present && node --test playground/tests/examples.test.mjs",
+		"test:playground": "node --test playground/tests/examples.test.mjs"
 	},
 	"devDependencies": {
 		"@napi-rs/cli": "^3.4.1",

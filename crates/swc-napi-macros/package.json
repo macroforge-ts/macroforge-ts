@@ -4,7 +4,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "napi": {
-    "name": "swc-napi-macros",
+    "binaryName": "swc-napi-macros",
     "triples": {}
   },
   "files": [

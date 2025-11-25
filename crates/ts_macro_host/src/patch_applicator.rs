@@ -1,6 +1,7 @@
 //! Patch application engine for applying macro-generated patches to source code
 
 use crate::error::{MacroError, Result};
+use std::collections::HashSet;
 use ts_macro_abi::{Patch, SpanIR};
 
 /// Applies patches to source code
@@ -155,8 +156,9 @@ impl PatchCollector {
         if self.runtime_patches.is_empty() {
             return Ok(source.to_string());
         }
-
-        let applicator = PatchApplicator::new(source, self.runtime_patches.clone());
+        let mut patches = self.runtime_patches.clone();
+        dedupe_patches(&mut patches);
+        let applicator = PatchApplicator::new(source, patches);
         applicator.apply()
     }
 
@@ -165,8 +167,9 @@ impl PatchCollector {
         if self.type_patches.is_empty() {
             return Ok(source.to_string());
         }
-
-        let applicator = PatchApplicator::new(source, self.type_patches.clone());
+        let mut patches = self.type_patches.clone();
+        dedupe_patches(&mut patches);
+        let applicator = PatchApplicator::new(source, patches);
         applicator.apply()
     }
 }
@@ -175,6 +178,18 @@ impl Default for PatchCollector {
     fn default() -> Self {
         Self::new()
     }
+}
+
+fn dedupe_patches(patches: &mut Vec<Patch>) {
+    let mut seen: HashSet<(u8, u32, u32, Option<String>)> = HashSet::new();
+    patches.retain(|patch| {
+        let key = match patch {
+            Patch::Insert { at, code } => (0, at.start, at.end, Some(code.clone())),
+            Patch::Replace { span, code } => (1, span.start, span.end, Some(code.clone())),
+            Patch::Delete { span } => (2, span.start, span.end, None),
+        };
+        seen.insert(key)
+    });
 }
 
 #[cfg(test)]
