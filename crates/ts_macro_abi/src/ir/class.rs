@@ -34,9 +34,11 @@ pub struct FieldIR {
 pub struct MethodSigIR {
     pub name: String,
     pub span: SpanIR,
+    pub type_params_src: String, // e.g., "<T>", "<T, U>", or ""
     pub params_src: String,
     pub return_type_src: String,
     pub is_static: bool,
+    pub is_async: bool,
     pub visibility: Visibility,
     pub decorators: Vec<DecoratorIR>,
 }
