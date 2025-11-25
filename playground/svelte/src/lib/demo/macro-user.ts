@@ -1,4 +1,4 @@
-import { Derive, Debug } from "$lib/macros";
+import { Derive, Debug } from "@ts-macros/macros";
 import { Schema } from "effect";
 import {
   TaxRate,

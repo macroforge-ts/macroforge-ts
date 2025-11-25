@@ -1,0 +1,19 @@
+{
+	"name": "@ts-macros/macros",
+	"version": "0.0.1",
+	"type": "module",
+	"private": true,
+	"sideEffects": false,
+	"files": [
+		"index.js",
+		"index.d.ts"
+	],
+	"module": "./index.js",
+	"types": "./index.d.ts",
+	"exports": {
+		".": {
+			"types": "./index.d.ts",
+			"import": "./index.js"
+		}
+	}
+}

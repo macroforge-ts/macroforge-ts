@@ -9,7 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ts-macros/swc-napi": "file:../crates/swc-napi-macros"
+    "@ts-macros/swc-napi": "file:../crates/swc-napi-macros",
+    "@ts-macros/macros": "file:../../packages/macros"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

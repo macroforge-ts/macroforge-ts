@@ -23,14 +23,14 @@
     /* Decorators */
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "plugins": [
-      {
-        "name": "@ts-macros/ts-derive-plugin",
-        "macroNames": ["Derive"],
-        "mixinModule": "./macros",
-        "mixinTypes": ["Debug", "JSON"]
-      }
-    ]
+        "plugins": [
+            {
+                "name": "@ts-macros/ts-derive-plugin",
+                "macroNames": ["Derive"],
+                "mixinModule": "@ts-macros/macros",
+                "mixinTypes": ["MacroDebug", "MacroJSON"]
+            }
+        ]
   },
   "include": ["src", "src/macros/generated/**/*.d.ts"]
 }

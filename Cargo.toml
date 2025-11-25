@@ -10,6 +10,7 @@ members = [
     "crates/ts_macro_host",
     "crates/ts_macro_cli",
     "crates/dynamic_json_macro",
+    "crates/ts_macro_derive",
 ]
 resolver = "2"
 

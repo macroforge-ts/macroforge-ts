@@ -1,4 +1,4 @@
-import { Derive, Debug } from "./macros";
+import { Derive, Debug } from "@ts-macros/macros";
 
 // Example of using Derive decorator and dynamic macro
 @Derive("Debug", "JsonNative")

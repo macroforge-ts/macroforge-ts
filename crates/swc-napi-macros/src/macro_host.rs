@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use libloading::Library;
-use playground_macros::register_playground_macros;
+use playground_macros as _;
 use std::{
     collections::{HashMap, HashSet},
     path::{Path, PathBuf},
@@ -404,13 +404,7 @@ fn span_to_ir(span: Span) -> SpanIR {
 type PackageRegistrar = fn(&MacroRegistry) -> ts_macro_host::Result<()>;
 
 fn available_package_registrars() -> Vec<(&'static str, PackageRegistrar)> {
-    vec![
-        ("@macro/derive", register_builtin_macros as PackageRegistrar),
-        (
-            "@playground/macro",
-            register_playground_macros as PackageRegistrar,
-        ),
-    ]
+    vec![("@macro/derive", register_builtin_macros as PackageRegistrar)]
 }
 
 fn register_packages(
@@ -424,8 +418,12 @@ fn register_packages(
         embedded_map.entry(pkg.module).or_insert(pkg.registrar);
     }
 
+    let derived_modules = ts_macro_host::derived::modules();
+    let derived_set: std::collections::HashSet<&'static str> =
+        derived_modules.iter().copied().collect();
+
     let mut loaded_libs = Vec::new();
-    let requested = if config.macro_packages.is_empty() {
+    let mut requested = if config.macro_packages.is_empty() {
         embedded_map.keys().cloned().collect::<Vec<_>>()
     } else {
         config
@@ -434,6 +432,13 @@ fn register_packages(
             .map(|s| s.as_str())
             .collect::<Vec<_>>()
     };
+
+    if config.macro_packages.is_empty() {
+        requested.extend(derived_modules.iter().copied());
+    }
+
+    requested.sort();
+    requested.dedup();
 
     let search_roots = default_search_roots(config_root);
     let discovered_manifests = discover_manifests(&search_roots);
@@ -444,6 +449,12 @@ fn register_packages(
                 .map_err(anyhow::Error::from)
                 .with_context(|| format!("failed to register macro package {module}"))?;
             continue;
+        }
+
+        if derived_set.contains(module) {
+            if ts_macro_host::derived::register_module(module, registry)? {
+                continue;
+            }
         }
 
         if let Some(entry) = discovered_manifests.get(module) {

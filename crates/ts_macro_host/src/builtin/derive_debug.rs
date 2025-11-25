@@ -170,7 +170,9 @@ fn extract_named_string(args: &str, name: &str) -> Option<String> {
         return parse_string_literal(value);
     }
 
-    if remainder.starts_with('(') && let Some(close) = remainder.rfind(')') {
+    if remainder.starts_with('(')
+        && let Some(close) = remainder.rfind(')')
+    {
         let inner = remainder[1..close].trim();
         return parse_string_literal(inner);
     }

@@ -52,9 +52,9 @@
 	<section>
 		<h2>Try it yourself</h2>
 		<ol>
-			<li>Run <code>npm run dev -w playground/test-macros-svelte</code>.</li>
+			<li>Run <code>npm run dev -w svelte</code>.</li>
 			<li>Edit <code>src/lib/demo/macro-snippet.md</code> or <code>macro-user.ts</code> and watch HMR.</li>
-			<li>Add more macros in <code>$lib/macros.ts</code> and re-export them from Rust.</li>
+			<li>Extend the <code>@playground/macro</code> package and re-export them from Rust.</li>
 		</ol>
 	</section>
 </main>

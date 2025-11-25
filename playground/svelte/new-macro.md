@@ -1,14 +1,6 @@
 This trait:
 
 ```ts
-export interface BaseField<
-  T extends object = Record<string, unknown>,
-  Value = unknown,
-  Depth extends number = 5,
-> {
-  readonly baseProps: BaseFieldProps<T, Value, Depth>;
-}
-
 /**
  * Base field props shared across all field controllers.
  * @template T - The form data type
@@ -208,17 +200,16 @@ adds this expansion to the class:
     return baseProps;
 }
 
-private readonly memoFieldPath = ["memo"] as const;
-readonly memoBaseProps: BaseFieldProps<Account, string | null>;
-
-makeMemoTextAreaController(readonly superForm: SuperForm<Account>) {
-  this.memoBaseProps = makeAccountBaseProps<1, typeof this.fieldPath>(
-    superForm,
-    this.memoFieldPath,
-    {
-      labelText: "Memo",
-      placeholder: "Add notes...",
-    },
-  );
+memoFieldController = {
+fieldPath: ["memo"] as const
+baseProps: makeAccountBaseProps<1, typeof this.fieldPath>(
+  superForm,
+  this.memoFieldPath,
+  {
+    labelText: "Memo",
+    placeholder: "Add notes...",
+  },
+)
 }
+
 ```

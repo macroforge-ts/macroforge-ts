@@ -1616,8 +1616,14 @@ name = "playground-macros"
 version = "0.1.0"
 dependencies = [
  "inventory",
+ "js-sys",
+ "serde",
+ "serde-wasm-bindgen",
  "ts_macro_abi",
+ "ts_macro_derive",
  "ts_macro_host",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
@@ -1901,6 +1907,17 @@ checksum = "9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e"
 dependencies = [
  "serde_core",
  "serde_derive",
+]
+
+[[package]]
+name = "serde-wasm-bindgen"
+version = "0.6.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8302e169f0eddcc139c70f139d19d6467353af16f9fce27e8c30158036a1e16b"
+dependencies = [
+ "js-sys",
+ "serde",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -2546,6 +2563,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ts_macro_derive"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "ts_macro_host"
 version = "0.1.0"
 dependencies = [
@@ -3119,6 +3145,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "45f923705c40830af909c5dec2352ec2821202e4a66008194585e1917458a26d"
 dependencies = [
  "wast",
+]
+
+[[package]]
+name = "web-sys"
+version = "0.3.82"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3a1f95c0d03a47f4ae1f7a64643a6bb97465d9b740f0fa8f90ea33915c99a9a1"
+dependencies = [
+ "js-sys",
+ "wasm-bindgen",
 ]
 
 [[package]]

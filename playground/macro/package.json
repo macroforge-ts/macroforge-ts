@@ -1,0 +1,25 @@
+{
+	"name": "@playground/macro",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"files": [
+		"pkg"
+	],
+	"module": "pkg/index.js",
+	"types": "pkg/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./pkg/index.d.ts",
+			"import": "./pkg/index.js"
+		}
+	},
+	"scripts": {
+		"build": "CARGO_HOME=../../.cargo wasm-pack build --target bundler --out-dir pkg && node ./scripts/postbuild.mjs",
+		"prepare": "npm run build",
+		"clean": "rm -rf pkg"
+	},
+	"devDependencies": {
+		"wasm-pack": "^0.13.1"
+	}
+}

@@ -1,21 +1,26 @@
-import { Derive, FieldController } from "$lib/macros";
+import { Derive } from "@ts-macros/macros";
+import {
+  FieldController,
+  TextAreaController,
+  TextFieldController,
+} from "@playground/macro";
 
 /**
  * Example class using the FieldController macro
  *
  * Usage:
  * @Derive(FieldController) on the class
- * @Field({ component: "TextArea" }) on fields you want to generate controllers for
+ * @FieldController(TextAreaController) on fields you want to generate controllers for
  */
-@Derive("FieldController")
+@Derive(FieldController)
 class FormModel {
-  @FieldController({ component: "TextArea" })
+  @FieldController(TextAreaController)
   memo: string | null;
 
-  @FieldController({ component: "TextField" })
+  @FieldController(TextFieldController)
   username: string;
 
-  @FieldController({ component: "TextArea" })
+  @FieldController(TextAreaController)
   description: string;
 
   constructor(memo: string | null, username: string, description: string) {

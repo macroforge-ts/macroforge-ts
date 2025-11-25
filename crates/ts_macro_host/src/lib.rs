@@ -5,6 +5,7 @@
 
 pub mod builtin;
 pub mod config;
+pub mod derived;
 pub mod dispatch;
 pub mod error;
 pub mod macros;

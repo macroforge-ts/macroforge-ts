@@ -6,10 +6,12 @@
 	"type": "module",
 	"workspaces": [
 		"packages/*",
-		"playground"
+		"playground/macro",
+		"playground/svelte",
+		"playground/vanilla"
 	],
- "scripts": {
-		"dev": "npm run dev -w playground",
+	"scripts": {
+		"dev": "npm run dev -w svelte",
 		"build": "npm run build:rust && npm run build:plugin",
 		"build:rust": "cd crates/swc-napi-macros && napi build --platform --release",
 		"build:plugin": "npm run build -w vite-plugin-napi",
