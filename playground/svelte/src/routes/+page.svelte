@@ -37,7 +37,7 @@
 			<h3>toJSON()</h3>
 			<pre>{derivedJsonPretty}</pre>
 			<p class="note">
-				Field-level <code>@Debug({...})</code> decorators rename <code>id</code> to <code>userId</code> and skip
+				Field-level <code>@Debug({'{'}{'}'})</code> decorators rename <code>id</code> to <code>userId</code> and skip
 				<code>apiToken</code> entirely when printing the summary, while <code>toJSON()</code> still emits the full
 				object.
 			</p>
