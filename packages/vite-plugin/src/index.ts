@@ -8,6 +8,8 @@ export interface NapiMacrosPluginOptions {
   exclude?: string | RegExp | (string | RegExp)[]
   generateTypes?: boolean // Enable type generation (default: true)
   typesOutputDir?: string // Where to output generated types
+  emitMetadata?: boolean // Write macro IR metadata (default: true)
+  metadataOutputDir?: string // Where to output metadata JSON (defaults to types dir)
 }
 
 function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
@@ -15,6 +17,8 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
   let projectRoot: string
   const generateTypes = options.generateTypes !== false // Default to true
   const typesOutputDir = options.typesOutputDir || 'src/macros/generated'
+  const emitMetadata = options.emitMetadata !== false
+  const metadataOutputDir = options.metadataOutputDir || typesOutputDir
 
   // Ensure directory exists
   function ensureDir(dir: string) {
@@ -40,6 +44,26 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
       }
     } catch (error) {
       console.error(`[vite-plugin-napi-macros] Failed to write type definitions for ${id}:`, error)
+    }
+  }
+
+  function writeMetadata(id: string, metadata: string) {
+    const relativePath = path.relative(projectRoot, id)
+    const parsed = path.parse(relativePath)
+    const outputBase = path.join(projectRoot, metadataOutputDir, parsed.dir)
+    ensureDir(outputBase)
+    const targetPath = path.join(outputBase, `${parsed.name}.macro-ir.json`)
+
+    try {
+      const existing = fs.existsSync(targetPath) ? fs.readFileSync(targetPath, 'utf-8') : null
+      if (existing !== metadata) {
+        fs.writeFileSync(targetPath, metadata, 'utf-8')
+        console.log(
+          `[vite-plugin-napi-macros] Wrote metadata for ${relativePath} -> ${path.relative(projectRoot, targetPath)}`
+        )
+      }
+    } catch (error) {
+      console.error(`[vite-plugin-napi-macros] Failed to write metadata for ${id}:`, error)
     }
   }
 
@@ -90,11 +114,14 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
 
       try {
         // Call the Rust transformer
-        const result: { code: string; map?: string; types?: string } = rustTransformer.transformSync(code, id)
+        const result: { code: string; map?: string; types?: string; metadata?: string } = rustTransformer.transformSync(code, id)
 
         if (result && result.code) {
           if (generateTypes && result.types) {
             writeTypeDefinitions(id, result.types)
+          }
+          if (emitMetadata && result.metadata) {
+            writeMetadata(id, result.metadata)
           }
           return {
             code: result.code,
