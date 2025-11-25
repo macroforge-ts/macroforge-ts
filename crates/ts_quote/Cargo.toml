@@ -1,0 +1,19 @@
+[package]
+name = "ts_quote"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[features]
+default = ["swc"]
+swc = ["dep:swc_core"]
+
+[dependencies]
+swc_core = { version = "48", optional = true, default-features = false, features = [
+  "common",
+  "ecma_ast",
+  "ecma_quote",
+] }
+

@@ -4,13 +4,11 @@
 //! over SWC's parser, making it feel more like Rust's syn crate.
 
 #[cfg(feature = "swc")]
-use swc_core::common::{sync::Lrc, FileName, SourceMap};
+use swc_core::common::{FileName, SourceMap, sync::Lrc};
 #[cfg(feature = "swc")]
 use swc_core::ecma::ast::*;
 #[cfg(feature = "swc")]
-use swc_core::ecma::parser::{
-    lexer::Lexer, Parser, PResult, StringInput, Syntax, TsSyntax,
-};
+use swc_core::ecma::parser::{PResult, Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
 
 use crate::TsSynError;
 
@@ -81,12 +79,7 @@ impl TsStream {
             ..Default::default()
         });
 
-        let lexer = Lexer::new(
-            syntax,
-            EsVersion::latest(),
-            StringInput::from(&*fm),
-            None,
-        );
+        let lexer = Lexer::new(syntax, EsVersion::latest(), StringInput::from(&*fm), None);
 
         let mut parser = Parser::new_from(lexer);
         f(&mut parser).map_err(|e| TsSynError::Parse(format!("{:?}", e)))
@@ -106,17 +99,14 @@ impl TsStream {
             // Parse as expression and extract identifier
             parser.parse_expr().and_then(|expr| match *expr {
                 Expr::Ident(ident) => Ok(ident),
-                _ => Err(Error::new(
-                    DUMMY_SP,
-                    SyntaxError::TS1003,
-                )),
+                _ => Err(Error::new(DUMMY_SP, SyntaxError::TS1003)),
             })
         })
     }
 
     /// Parse a statement.
     pub fn parse_stmt(&self) -> Result<Stmt, TsSynError> {
-        self.with_parser(|parser| parser.parse_stmt())
+        self.with_parser(|parser| parser.parse_stmt_list_item())
     }
 
     /// Parse an expression.
@@ -233,6 +223,6 @@ mod tests {
     #[test]
     fn test_parse_stmt() {
         let result = parse_ts_stmt("const x = 5;");
-        assert!(result.is_ok());
+        assert!(result.is_ok(), "parse_ts_stmt failed: {:?}", result.err());
     }
 }
