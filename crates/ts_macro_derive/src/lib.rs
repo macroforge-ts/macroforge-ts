@@ -49,6 +49,10 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         .decorators
         .iter()
         .map(|decorator| decorator.to_tokens(&package_expr));
+    let decorator_stubs = options
+        .decorators
+        .iter()
+        .map(|decorator| decorator.stub_tokens(&struct_ident));
 
     let descriptor_ident = format_ident!(
         "__TS_MACRO_DESCRIPTOR_{}",
@@ -114,6 +118,8 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
                 descriptor: &#descriptor_ident
             }
         }
+
+        #(#decorator_stubs)*
     };
 
     output.into()
@@ -265,6 +271,20 @@ impl DecoratorOptions {
                 export: #export,
                 kind: #kind,
                 docs: #docs,
+            }
+        }
+    }
+
+    fn stub_tokens(&self, owner_ident: &Ident) -> TokenStream2 {
+        let owner_snake = owner_ident.to_string().to_case(Case::Snake);
+        let decorator_snake = self.export.value().to_case(Case::Snake);
+        let fn_ident = format_ident!("__ts_macro_stub_{}_{}", owner_snake, decorator_snake);
+        let js_name = &self.export;
+
+        quote! {
+            #[::napi_derive::napi(js_name = #js_name)]
+            pub fn #fn_ident() -> ::napi::Result<()> {
+                Ok(())
             }
         }
     }
