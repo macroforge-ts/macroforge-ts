@@ -1,5 +1,4 @@
 use ts_macro_abi::*;
-use ts_quote::*;
 use ts_syn::*;
 
 pub fn derive_debug(class: &ClassIR) -> MacroResult {
@@ -13,7 +12,7 @@ pub fn derive_debug(class: &ClassIR) -> MacroResult {
         fields_fmt.push_str(&format!("{}: ${{this.{}}}, ", f.name, f.name));
     }
 
-    let method = ts_quote!(
+    let method = format!(
         "[{debug_sym}](): string {{ return `{name} {{ {fields_fmt} }}`; }}",
         debug_sym = debug_sym,
         name = class.name,

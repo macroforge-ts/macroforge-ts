@@ -235,10 +235,12 @@ mod tests {
             name: name.into(),
             span: span(),
             ts_type: "string".into(),
+            type_ann: None,
             optional: false,
             readonly: false,
             visibility: Visibility::Public,
             decorators: decorator.into_iter().collect(),
+            prop_ast: None,
         }
     }
 
@@ -251,8 +253,10 @@ mod tests {
             type_params: vec![],
             heritage: vec![],
             decorators: vec![],
+            decorators_ast: vec![],
             fields,
             methods: vec![],
+            members: vec![],
         }
     }
 
@@ -262,6 +266,7 @@ mod tests {
             name: "Debug".into(),
             args_src: "skip".into(),
             span: span(),
+            node: None,
         };
 
         let class = base_class(vec![field("password", Some(decorator))]);
@@ -278,6 +283,7 @@ mod tests {
             name: "Debug".into(),
             args_src: r#"{ rename: "identifier" }"#.into(),
             span: span(),
+            node: None,
         };
 
         let class = base_class(vec![field("id", Some(decorator))]);
@@ -294,6 +300,7 @@ mod tests {
             name: "Debug".into(),
             args_src: r#"{ skip: false }"#.into(),
             span: span(),
+            node: None,
         };
 
         let class = base_class(vec![field("email", Some(decorator))]);

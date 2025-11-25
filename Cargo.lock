@@ -2162,6 +2162,7 @@ dependencies = [
  "once_cell",
  "phf",
  "rustc-hash",
+ "serde",
  "string_enum",
  "swc_atoms",
  "swc_common",
@@ -2550,6 +2551,7 @@ version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",
+ "swc_ecma_ast",
 ]
 
 [[package]]
@@ -2587,6 +2589,13 @@ dependencies = [
  "ts_macro_abi",
  "ts_syn",
  "wasmtime",
+]
+
+[[package]]
+name = "ts_quote"
+version = "0.1.0"
+dependencies = [
+ "swc_core",
 ]
 
 [[package]]

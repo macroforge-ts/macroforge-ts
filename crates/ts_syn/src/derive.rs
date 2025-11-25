@@ -239,17 +239,17 @@ impl DeriveInput {
             TargetIR::Interface => {
                 return Err(TsSynError::Unsupported(
                     "Interface derive macros not yet supported".into(),
-                ))
+                ));
             }
             TargetIR::Function => {
                 return Err(TsSynError::Unsupported(
                     "Function derive macros not yet supported".into(),
-                ))
+                ));
             }
             TargetIR::Other => {
                 return Err(TsSynError::Unsupported(
                     "Unknown target type for derive macro".into(),
-                ))
+                ));
             }
         };
 
@@ -389,22 +389,28 @@ mod tests {
                         name: "id".into(),
                         span: SpanIR::new(25, 35),
                         ts_type: "number".into(),
+                        type_ann: None,
                         optional: false,
                         readonly: false,
                         visibility: ts_macro_abi::Visibility::Public,
                         decorators: vec![],
+                        prop_ast: None,
                     },
                     FieldIR {
                         name: "name".into(),
                         span: SpanIR::new(40, 55),
                         ts_type: "string".into(),
+                        type_ann: None,
                         optional: false,
                         readonly: false,
                         visibility: ts_macro_abi::Visibility::Public,
                         decorators: vec![],
+                        prop_ast: None,
                     },
                 ],
                 methods: vec![],
+                decorators_ast: vec![],
+                members: vec![],
             }),
             target_source: "class User { id: number; name: string; }".into(),
         }

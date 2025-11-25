@@ -57,8 +57,10 @@ impl<'a> Visit for ClassCollector<'a> {
             type_params: vec![],
             heritage: vec![], // TODO: lower extends/implements
             decorators,
+            decorators_ast: n.class.decorators.clone(),
             fields,
             methods,
+            members: n.class.body.clone(),
         });
     }
 }
@@ -86,10 +88,12 @@ fn lower_members(body: &[ClassMember], source: &str) -> (Vec<FieldIR>, Vec<Metho
                     name,
                     span: swc_span_to_ir(p.span),
                     ts_type,
+                    type_ann: p.type_ann.as_ref().map(|ann| ann.type_ann.clone()),
                     optional: p.is_optional, // Changed from p.optional
                     readonly: p.readonly,
                     visibility: lower_visibility(p.accessibility),
                     decorators: lower_decorators(&p.decorators, source),
+                    prop_ast: Some(p.clone()),
                 });
             }
             ClassMember::Method(meth) => {
@@ -133,6 +137,7 @@ fn lower_members(body: &[ClassMember], source: &str) -> (Vec<FieldIR>, Vec<Metho
                     is_async: meth.function.is_async,
                     visibility: lower_visibility(meth.accessibility),
                     decorators: lower_decorators(&meth.function.decorators, source),
+                    member_ast: Some(MethodAstIR::Method(meth.clone())),
                 });
             }
             ClassMember::Constructor(c) => {
@@ -160,6 +165,7 @@ fn lower_members(body: &[ClassMember], source: &str) -> (Vec<FieldIR>, Vec<Metho
                     is_async: false, // constructors can't be async
                     visibility: lower_visibility(c.accessibility),
                     decorators: vec![], // Constructors don't have decorators
+                    member_ast: Some(MethodAstIR::Constructor(c.clone())),
                 });
             }
             _ => {}
@@ -192,6 +198,7 @@ fn lower_decorators(decs: &[Decorator], source: &str) -> Vec<DecoratorIR> {
                 name,
                 args_src,
                 span,
+                node: Some(d.clone()),
             })
         })
         .collect()

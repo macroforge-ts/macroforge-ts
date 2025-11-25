@@ -55,23 +55,24 @@ impl MacroDispatcher {
                 }
 
                 // Create TsStream from context
-                let input = match TsStream::with_context(&ctx.target_source, &ctx.file_name, ctx.clone()) {
-                    Ok(stream) => stream,
-                    Err(err) => {
-                        return MacroResult {
-                            runtime_patches: vec![],
-                            type_patches: vec![],
-                            diagnostics: vec![Diagnostic {
-                                level: DiagnosticLevel::Error,
-                                message: format!("Failed to create TsStream: {:?}", err),
-                                span: Some(ctx.decorator_span),
-                                notes: vec![],
-                                help: None,
-                            }],
-                            debug: None,
-                        };
-                    }
-                };
+                let input =
+                    match TsStream::with_context(&ctx.target_source, &ctx.file_name, ctx.clone()) {
+                        Ok(stream) => stream,
+                        Err(err) => {
+                            return MacroResult {
+                                runtime_patches: vec![],
+                                type_patches: vec![],
+                                diagnostics: vec![Diagnostic {
+                                    level: DiagnosticLevel::Error,
+                                    message: format!("Failed to create TsStream: {:?}", err),
+                                    span: Some(ctx.decorator_span),
+                                    notes: vec![],
+                                    help: None,
+                                }],
+                                debug: None,
+                            };
+                        }
+                    };
 
                 // Execute the macro
                 match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
@@ -200,8 +201,10 @@ mod tests {
                 type_params: vec![],
                 heritage: vec![],
                 decorators: vec![],
+                decorators_ast: vec![],
                 fields: vec![],
                 methods: vec![],
+                members: vec![],
             }),
             target_source: "class Test {}".to_string(),
         };

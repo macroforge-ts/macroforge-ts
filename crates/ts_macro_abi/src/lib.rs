@@ -7,3 +7,5 @@ pub use helpers::*;
 pub use ir::*;
 pub use patch::*;
 pub use span::*;
+
+pub use swc_ecma_ast as swc_ast;
