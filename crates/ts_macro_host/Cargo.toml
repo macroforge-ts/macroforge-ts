@@ -9,7 +9,6 @@ repository.workspace = true
 [dependencies]
 ts_macro_abi = { path = "../ts_macro_abi" }
 ts_syn = { path = "../ts_syn" }
-ts_quote = { path = "../ts_quote" }
 
 # Core dependencies
 thiserror = "1.0"

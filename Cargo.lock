@@ -2582,16 +2582,8 @@ dependencies = [
  "toml",
  "tracing",
  "ts_macro_abi",
- "ts_quote",
  "ts_syn",
  "wasmtime",
-]
-
-[[package]]
-name = "ts_quote"
-version = "0.1.0"
-dependencies = [
- "ts_macro_abi",
 ]
 
 [[package]]

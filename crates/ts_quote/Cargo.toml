@@ -1,7 +1,0 @@
-[package]
-name = "ts_quote"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-ts_macro_abi = { path = "../ts_macro_abi" }

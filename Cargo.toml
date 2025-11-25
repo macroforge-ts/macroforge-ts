@@ -5,7 +5,6 @@ members = [
     "crates/extensions/ts-derive-svelte",
     "crates/ts_macro_abi",
     "crates/ts_syn",
-    "crates/ts_quote",
     "playground/macro",
     "crates/ts_macro_host",
     "crates/ts_macro_cli",
