@@ -1,68 +1,65 @@
 use ts_macro_abi::{insert_into_class, Diagnostic, DiagnosticLevel, MacroResult, Patch, SpanIR};
 use ts_macro_derive::ts_macro_derive;
-use ts_syn::{parse_ts_macro_input, DeriveInput, TsStream};
+use ts_syn::{parse_ts_macro_input, Data, DeriveInput, TsStream};
 
 #[ts_macro_derive(JSON, description = "Generates a toJSON() implementation that returns a plain object with all fields")]
 pub fn derive_json_macro(mut input: TsStream) -> MacroResult {
     // Parse using the syn-like API
     let input = parse_ts_macro_input!(input as DeriveInput);
 
-    // Ensure we're targeting a class
-    let class = match input.as_class() {
-        Some(c) => c,
-        None => {
-            return MacroResult {
-                diagnostics: vec![Diagnostic {
-                    level: DiagnosticLevel::Error,
-                    message: "@Derive(JSON) can only target classes".to_string(),
-                    span: Some(input.decorator_span()),
-                    notes: vec![],
-                    help: None,
-                }],
-                ..Default::default()
+    match &input.data {
+        Data::Class(class) => {
+            let class_name = input.name();
+
+            // Generate toJSON implementation using format!()
+            let field_entries: Vec<String> = class
+                .field_names()
+                .map(|f| format!("            {}: this.{},", f, f))
+                .collect();
+
+            let body = if field_entries.is_empty() {
+                "        return {};".to_string()
+            } else {
+                format!("        return {{\n{}\n        }};", field_entries.join("\n"))
             };
-        }
-    };
 
-    let class_name = input.name();
-
-    // Generate toJSON implementation using format!()
-    let field_entries: Vec<String> = class
-        .field_names()
-        .map(|f| format!("            {}: this.{},", f, f))
-        .collect();
-
-    let body = if field_entries.is_empty() {
-        "        return {};".to_string()
-    } else {
-        format!("        return {{\n{}\n        }};", field_entries.join("\n"))
-    };
-
-    let runtime_code = format!(
-        r#"
+            let runtime_code = format!(
+                r#"
 {class_name}.prototype.toJSON = function () {{
 {body}
 }};
 "#
-    );
+            );
 
-    let type_signature = "    toJSON(): Record<string, unknown>;\n".to_string();
+            let type_signature = "    toJSON(): Record<string, unknown>;\n".to_string();
 
-    MacroResult {
-        runtime_patches: vec![Patch::Insert {
-            at: SpanIR {
-                start: input.target_span().end,
-                end: input.target_span().end,
-            },
-            code: runtime_code,
-        }],
-        type_patches: vec![
-            Patch::Delete {
-                span: input.decorator_span(),
-            },
-            insert_into_class(class.body_span(), type_signature),
-        ],
-        ..Default::default()
+            MacroResult {
+                runtime_patches: vec![Patch::Insert {
+                    at: SpanIR {
+                        start: input.target_span().end,
+                        end: input.target_span().end,
+                    },
+                    code: runtime_code,
+                }],
+                type_patches: vec![
+                    Patch::Delete {
+                        span: input.decorator_span(),
+                    },
+                    insert_into_class(class.body_span(), type_signature),
+                ],
+                ..Default::default()
+            }
+        }
+        Data::Enum(_) => MacroResult {
+            diagnostics: vec![Diagnostic {
+                level: DiagnosticLevel::Error,
+                message: "@Derive(JSON) can only target classes".to_string(),
+                span: Some(input.decorator_span()),
+                notes: vec![],
+                help: None,
+            }],
+            ..Default::default()
+        },
     }
 }
 
@@ -75,96 +72,93 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
     // Parse using the syn-like API
     let input = parse_ts_macro_input!(input as DeriveInput);
 
-    // Ensure we're targeting a class
-    let class = match input.as_class() {
-        Some(c) => c,
-        None => {
-            return MacroResult {
-                diagnostics: vec![Diagnostic {
-                    level: DiagnosticLevel::Error,
-                    message: "@Derive(FieldController) can only target classes".to_string(),
-                    span: Some(input.decorator_span()),
-                    notes: vec![],
-                    help: None,
-                }],
+    match &input.data {
+        Data::Class(class) => {
+            // Find fields with @FieldController decorator
+            let decorated_fields: Vec<_> = class
+                .fields()
+                .iter()
+                .filter(|field| field.decorators.iter().any(|d| d.name == "FieldController"))
+                .map(|field| FieldInfo {
+                    name: field.name.clone(),
+                    ts_type: field.ts_type.clone(),
+                })
+                .collect();
+
+            if decorated_fields.is_empty() {
+                return MacroResult {
+                    diagnostics: vec![Diagnostic {
+                        level: DiagnosticLevel::Warning,
+                        message: "@Derive(FieldController) found no @FieldController decorators"
+                            .to_string(),
+                        span: Some(input.decorator_span()),
+                        notes: vec![],
+                        help: Some(
+                            "Add @FieldController decorators to fields you want to generate controllers for"
+                                .into(),
+                        ),
+                    }],
+                    ..Default::default()
+                };
+            }
+
+            let class_name = input.name();
+            let runtime_code = generate_field_controller_runtime(class_name, &decorated_fields);
+            let type_code = generate_field_controller_types(class_name, &decorated_fields);
+
+            // Delete the class decorator and all @FieldController field decorators
+            let mut type_patches = vec![Patch::Delete {
+                span: input.decorator_span(),
+            }];
+
+            // Delete @FieldController decorators from fields
+            for field in class.fields() {
+                for decorator in &field.decorators {
+                    if decorator.name == "FieldController" {
+                        type_patches.push(Patch::Delete {
+                            span: decorator.span,
+                        });
+                    }
+                }
+            }
+
+            type_patches.push(insert_into_class(class.body_span(), type_code));
+
+            let mut runtime_patches = vec![];
+            for field in class.fields() {
+                for decorator in &field.decorators {
+                    if decorator.name == "FieldController" {
+                        runtime_patches.push(Patch::Delete {
+                            span: decorator.span,
+                        });
+                    }
+                }
+            }
+
+            runtime_patches.push(Patch::Insert {
+                at: SpanIR {
+                    start: input.target_span().end,
+                    end: input.target_span().end,
+                },
+                code: runtime_code,
+            });
+
+            MacroResult {
+                runtime_patches,
+                type_patches,
                 ..Default::default()
-            };
+            }
         }
-    };
-
-    // Find fields with @FieldController decorator
-    let decorated_fields: Vec<_> = class
-        .fields()
-        .iter()
-        .filter(|field| field.decorators.iter().any(|d| d.name == "FieldController"))
-        .map(|field| FieldInfo {
-            name: field.name.clone(),
-            ts_type: field.ts_type.clone(),
-        })
-        .collect();
-
-    if decorated_fields.is_empty() {
-        return MacroResult {
+        Data::Enum(_) => MacroResult {
             diagnostics: vec![Diagnostic {
-                level: DiagnosticLevel::Warning,
-                message: "@Derive(FieldController) found no @FieldController decorators"
-                    .to_string(),
+                level: DiagnosticLevel::Error,
+                message: "@Derive(FieldController) can only target classes".to_string(),
                 span: Some(input.decorator_span()),
                 notes: vec![],
-                help: Some(
-                    "Add @FieldController decorators to fields you want to generate controllers for"
-                        .into(),
-                ),
+                help: None,
             }],
             ..Default::default()
-        };
-    }
-
-    let class_name = input.name();
-    let runtime_code = generate_field_controller_runtime(class_name, &decorated_fields);
-    let type_code = generate_field_controller_types(class_name, &decorated_fields);
-
-    // Delete the class decorator and all @FieldController field decorators
-    let mut type_patches = vec![Patch::Delete {
-        span: input.decorator_span(),
-    }];
-
-    // Delete @FieldController decorators from fields
-    for field in class.fields() {
-        for decorator in &field.decorators {
-            if decorator.name == "FieldController" {
-                type_patches.push(Patch::Delete {
-                    span: decorator.span,
-                });
-            }
-        }
-    }
-
-    type_patches.push(insert_into_class(class.body_span(), type_code));
-
-    let mut runtime_patches = vec![];
-    for field in class.fields() {
-        for decorator in &field.decorators {
-            if decorator.name == "FieldController" {
-                runtime_patches.push(Patch::Delete {
-                    span: decorator.span,
-                });
-            }
-        }
-    }
-
-    runtime_patches.push(Patch::Insert {
-        at: SpanIR {
-            start: input.target_span().end,
-            end: input.target_span().end,
         },
-        code: runtime_code,
-    });
-
-    MacroResult {
-        runtime_patches,
-        type_patches,
-        ..Default::default()
     }
 }
 
