@@ -3,38 +3,62 @@
  * The Vite plugin replaces every usage at build time, so these should never run.
  */
 
-export type DeriveFeature = 'Debug' | 'JSON'
+export type DeriveFeature = "Debug" | "JSON" | "FieldController";
 
 export interface MacroDebug {
-	toString(): string
+  toString(): string;
 }
 
 export interface MacroJSON {
-	toJSON(): Record<string, unknown>
+  toJSON(): Record<string, unknown>;
 }
 
 type MacroDeriveConstructor<T extends new (...args: any[]) => any> = new (
-	...args: ConstructorParameters<T>
-) => InstanceType<T> & MacroDebug & MacroJSON
+  ...args: ConstructorParameters<T>
+) => InstanceType<T> & MacroDebug & MacroJSON;
 
 export function Derive(..._features: DeriveFeature[]) {
-	return function <T extends new (...args: any[]) => any>(target: T): MacroDeriveConstructor<T> {
-		if (import.meta.env.DEV) {
-			console.warn('[ts-macros] Derive fallback executed. Check that the NAPI plugin is enabled.')
-		}
-		return target as unknown as MacroDeriveConstructor<T>
-	}
+  return function <T extends new (...args: any[]) => any>(
+    target: T,
+  ): MacroDeriveConstructor<T> {
+    if (import.meta.env.DEV) {
+      console.warn(
+        "[ts-macros] Derive fallback executed. Check that the NAPI plugin is enabled.",
+      );
+    }
+    return target as unknown as MacroDeriveConstructor<T>;
+  };
 }
 
 export interface DebugDecoratorOptions {
-	rename?: string
-	skip?: boolean
+  rename?: string;
+  skip?: boolean;
 }
 
 export function Debug(_options?: DebugDecoratorOptions): PropertyDecorator {
-	return function () {
-		if (import.meta.env.DEV) {
-			console.warn('[ts-macros] Debug field decorator executed at runtime. Check macro wiring.')
-		}
-	}
+  return function () {
+    if (import.meta.env.DEV) {
+      console.warn(
+        "[ts-macros] Debug field decorator executed at runtime. Check macro wiring.",
+      );
+    }
+  };
+}
+
+export interface FieldDecoratorOptions {
+  component?: string;
+  label?: string;
+  placeholder?: string;
+}
+
+export function FieldController(
+  _options?: FieldDecoratorOptions,
+): PropertyDecorator {
+  return function () {
+    if (import.meta.env.DEV) {
+      console.warn(
+        "[ts-macros] Field decorator executed at runtime. Check macro wiring.",
+      );
+    }
+  };
 }

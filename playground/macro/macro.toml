@@ -5,3 +5,7 @@ runtime = ["native"]
 [[macros]]
 name = "JSON"
 kind = "derive"
+
+[[macros]]
+name = "FieldController"
+kind = "derive"
