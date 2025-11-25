@@ -1,62 +1,74 @@
+use convert_case::{Case, Casing};
 use proc_macro::TokenStream;
 use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::{format_ident, quote};
-use syn::{Attribute, DeriveInput, Ident, LitStr, Result, parse_macro_input, spanned::Spanned};
+use syn::{
+    Ident, ItemFn, LitStr, Result, meta, parse::Parser, parse_macro_input, spanned::Spanned,
+};
 
-#[proc_macro_derive(TsMacroDefinition, attributes(ts_macro))]
-pub fn ts_macro_definition(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    match expand_ts_macro(&input) {
-        Ok(tokens) => tokens.into(),
-        Err(err) => err.to_compile_error().into(),
-    }
-}
+#[proc_macro_attribute]
+pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let options = match parse_macro_options(TokenStream2::from(attr)) {
+        Ok(opts) => opts,
+        Err(err) => return err.to_compile_error().into(),
+    };
 
-fn expand_ts_macro(input: &DeriveInput) -> Result<TokenStream2> {
-    let opts = MacroOptions::from_attrs(&input.attrs)?;
-    let ident = &input.ident;
-    let macro_name = opts
+    let mut function = parse_macro_input!(item as ItemFn);
+    function
+        .attrs
+        .retain(|attr| !attr.path().is_ident("ts_macro_derive"));
+
+    let fn_ident = function.sig.ident.clone();
+    let struct_ident = pascal_case_ident(&fn_ident);
+    let macro_name = options
         .name
         .clone()
-        .unwrap_or_else(|| default_macro_name(ident));
-    let description = opts
+        .unwrap_or_else(|| LitStr::new(&struct_ident.to_string(), Span::call_site()));
+    let description = options
         .description
         .clone()
         .unwrap_or_else(|| LitStr::new("", Span::call_site()));
-    let package_expr = opts
+    let package_expr = options
         .package
         .clone()
         .map(|lit| quote! { #lit })
         .unwrap_or_else(|| quote! { env!("CARGO_PKG_NAME") });
-    let module_expr = opts
+    let module_expr = options
         .module
         .clone()
         .map(|lit| quote! { #lit })
         .unwrap_or_else(|| quote! { "@macro/derive" });
-    let runtime_values = if opts.runtime.is_empty() {
+    let runtime_values = if options.runtime.is_empty() {
         vec![LitStr::new("native", Span::call_site())]
     } else {
-        opts.runtime.clone()
+        options.runtime.clone()
     };
     let runtime_exprs = runtime_values.iter().map(|lit| quote! { #lit });
-    let kind_expr = opts.kind.as_tokens();
-    let entry_method = opts.entry_method.clone();
-    let decorator_exprs = opts
+    let kind_expr = options.kind.as_tokens();
+    let decorator_exprs = options
         .decorators
         .iter()
         .map(|decorator| decorator.to_tokens(&package_expr));
 
-    let constructor_name = format_ident!(
-        "__ts_macro_ctor_{}",
-        ident.to_string().trim_start_matches("r#")
+    let descriptor_ident = format_ident!(
+        "__TS_MACRO_DESCRIPTOR_{}",
+        struct_ident.to_string().to_uppercase()
     );
-    let descriptor_name =
-        format_ident!("__TS_MACRO_DESCRIPTOR_{}", ident.to_string().to_uppercase());
-    let decorator_array_name =
-        format_ident!("__TS_MACRO_DECORATORS_{}", ident.to_string().to_uppercase());
+    let decorator_array_ident = format_ident!(
+        "__TS_MACRO_DECORATORS_{}",
+        struct_ident.to_string().to_uppercase()
+    );
+    let ctor_ident = format_ident!(
+        "__ts_macro_ctor_{}",
+        struct_ident.to_string().trim_start_matches("r#")
+    );
 
-    Ok(quote! {
-        impl ts_macro_host::TsMacro for #ident {
+    let output = quote! {
+        #function
+
+        pub struct #struct_ident;
+
+        impl ts_macro_host::TsMacro for #struct_ident {
             fn name(&self) -> &str {
                 #macro_name
             }
@@ -66,7 +78,7 @@ fn expand_ts_macro(input: &DeriveInput) -> Result<TokenStream2> {
             }
 
             fn run(&self, ctx: ts_macro_abi::MacroContextIR) -> ts_macro_abi::MacroResult {
-                self.#entry_method(ctx)
+                #fn_ident(ctx)
             }
 
             fn description(&self) -> &str {
@@ -75,106 +87,105 @@ fn expand_ts_macro(input: &DeriveInput) -> Result<TokenStream2> {
         }
 
         #[allow(non_upper_case_globals)]
-        #[allow(non_upper_case_globals)]
-        const #constructor_name: fn() -> std::sync::Arc<dyn ts_macro_host::TsMacro> = || {
-            std::sync::Arc::new(#ident)
+        const #ctor_ident: fn() -> std::sync::Arc<dyn ts_macro_host::TsMacro> = || {
+            std::sync::Arc::new(#struct_ident)
         };
 
         #[allow(non_upper_case_globals)]
-        static #decorator_array_name: &[ts_macro_host::derived::DecoratorDescriptor] = &[
+        static #decorator_array_ident: &[ts_macro_host::derived::DecoratorDescriptor] = &[
             #(#decorator_exprs),*
         ];
 
         #[allow(non_upper_case_globals)]
-        static #descriptor_name: ts_macro_host::derived::DerivedMacroDescriptor = ts_macro_host::derived::DerivedMacroDescriptor {
-            package: #package_expr,
-            module: #module_expr,
-            runtime: &[#(#runtime_exprs),*],
-            name: #macro_name,
-            kind: #kind_expr,
-            description: #description,
-            constructor: #constructor_name,
-            decorators: #decorator_array_name,
-        };
+        static #descriptor_ident: ts_macro_host::derived::DerivedMacroDescriptor =
+            ts_macro_host::derived::DerivedMacroDescriptor {
+                package: #package_expr,
+                module: #module_expr,
+                runtime: &[#(#runtime_exprs),*],
+                name: #macro_name,
+                kind: #kind_expr,
+                description: #description,
+                constructor: #ctor_ident,
+                decorators: #decorator_array_ident,
+            };
 
         inventory::submit! {
             ts_macro_host::derived::DerivedMacroRegistration {
-                descriptor: &#descriptor_name
+                descriptor: &#descriptor_ident
             }
         }
-    })
+    };
+
+    output.into()
 }
 
-fn default_macro_name(ident: &Ident) -> LitStr {
-    let name = ident.to_string();
-    if let Some(stripped) = name.strip_suffix("Macro") {
-        LitStr::new(stripped, ident.span())
-    } else {
-        LitStr::new(&name, ident.span())
+fn pascal_case_ident(ident: &Ident) -> Ident {
+    let raw = ident.to_string();
+    let trimmed = raw.trim_start_matches("r#");
+    let pascal = trimmed.to_case(Case::Pascal);
+    format_ident!("{}", pascal)
+}
+
+fn parse_macro_options(tokens: TokenStream2) -> Result<MacroOptions> {
+    let mut opts = MacroOptions::default();
+    if tokens.is_empty() {
+        return Ok(opts);
     }
+
+    let parser = syn::meta::parser(|meta| {
+        if meta.path.is_ident("package") {
+            opts.package = Some(meta.value()?.parse()?);
+        } else if meta.path.is_ident("module") {
+            opts.module = Some(meta.value()?.parse()?);
+        } else if meta.path.is_ident("name") {
+            opts.name = Some(meta.value()?.parse()?);
+        } else if meta.path.is_ident("description") {
+            opts.description = Some(meta.value()?.parse()?);
+        } else if meta.path.is_ident("runtime") {
+            let expr: syn::ExprArray = meta.value()?.parse()?;
+            let mut values = Vec::new();
+            for element in expr.elems.iter() {
+                if let syn::Expr::Lit(syn::ExprLit {
+                    lit: syn::Lit::Str(lit),
+                    ..
+                }) = element
+                {
+                    values.push(lit.clone());
+                } else {
+                    return Err(syn::Error::new(
+                        element.span(),
+                        "runtime entries must be string literals",
+                    ));
+                }
+            }
+            opts.runtime = values;
+        } else if meta.path.is_ident("kind") {
+            let lit: LitStr = meta.value()?.parse()?;
+            opts.kind = MacroKindOption::from_lit(&lit)?;
+        } else if meta.path.is_ident("decorator") {
+            let decorator = DecoratorOptions::parse(meta)?;
+            opts.decorators.push(decorator);
+        } else {
+            return Err(syn::Error::new(
+                meta.path.span(),
+                "unknown ts_macro_derive option",
+            ));
+        }
+        Ok(())
+    });
+
+    parser.parse2(tokens)?;
+    Ok(opts)
 }
 
 struct MacroOptions {
     package: Option<LitStr>,
     module: Option<LitStr>,
     name: Option<LitStr>,
-    kind: MacroKindOption,
     description: Option<LitStr>,
     runtime: Vec<LitStr>,
-    entry_method: Ident,
+    kind: MacroKindOption,
     decorators: Vec<DecoratorOptions>,
-}
-
-impl MacroOptions {
-    fn from_attrs(attrs: &[Attribute]) -> Result<Self> {
-        let mut opts = MacroOptions::default();
-
-        for attr in attrs.iter().filter(|attr| attr.path().is_ident("ts_macro")) {
-            attr.parse_nested_meta(|meta| {
-                if meta.path.is_ident("package") {
-                    opts.package = Some(meta.value()?.parse()?);
-                } else if meta.path.is_ident("module") {
-                    opts.module = Some(meta.value()?.parse()?);
-                } else if meta.path.is_ident("name") {
-                    opts.name = Some(meta.value()?.parse()?);
-                } else if meta.path.is_ident("description") {
-                    opts.description = Some(meta.value()?.parse()?);
-                } else if meta.path.is_ident("entry") {
-                    let lit: LitStr = meta.value()?.parse()?;
-                    opts.entry_method = Ident::new(&lit.value(), lit.span());
-                } else if meta.path.is_ident("runtime") {
-                    let content: syn::ExprArray = meta.value()?.parse()?;
-                    let mut values = Vec::new();
-                    for expr in content.elems.iter() {
-                        if let syn::Expr::Lit(syn::ExprLit {
-                            lit: syn::Lit::Str(lit),
-                            ..
-                        }) = expr
-                        {
-                            values.push(lit.clone());
-                        } else {
-                            return Err(syn::Error::new(
-                                expr.span(),
-                                "runtime entries must be string literals",
-                            ));
-                        }
-                    }
-                    opts.runtime = values;
-                } else if meta.path.is_ident("kind") {
-                    let lit: LitStr = meta.value()?.parse()?;
-                    opts.kind = MacroKindOption::from_lit(&lit)?;
-                } else if meta.path.is_ident("decorator") {
-                    let decorator = DecoratorOptions::parse(meta)?;
-                    opts.decorators.push(decorator);
-                } else {
-                    return Err(syn::Error::new(meta.path.span(), "unknown ts_macro option"));
-                }
-                Ok(())
-            })?;
-        }
-
-        Ok(opts)
-    }
 }
 
 impl Default for MacroOptions {
@@ -183,10 +194,9 @@ impl Default for MacroOptions {
             package: None,
             module: None,
             name: None,
-            kind: MacroKindOption::default(),
             description: None,
             runtime: Vec::new(),
-            entry_method: Ident::new("expand", Span::call_site()),
+            kind: MacroKindOption::Derive,
             decorators: Vec::new(),
         }
     }
@@ -200,7 +210,7 @@ struct DecoratorOptions {
 }
 
 impl DecoratorOptions {
-    fn parse(meta: syn::meta::ParseNestedMeta<'_>) -> Result<Self> {
+    fn parse(meta: meta::ParseNestedMeta<'_>) -> Result<Self> {
         let mut module = None;
         let mut export = None;
         let mut kind = None;
@@ -228,12 +238,10 @@ impl DecoratorOptions {
         let export = export
             .ok_or_else(|| syn::Error::new(meta.path.span(), "decorator name is required"))?;
 
-        let kind = kind.unwrap_or(DecoratorKindOption::Property);
-
         Ok(DecoratorOptions {
             module,
             export,
-            kind,
+            kind: kind.unwrap_or_default(),
             docs,
         })
     }

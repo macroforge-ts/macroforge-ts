@@ -451,10 +451,10 @@ fn register_packages(
             continue;
         }
 
-        if derived_set.contains(module) {
-            if ts_macro_host::derived::register_module(module, registry)? {
-                continue;
-            }
+        if derived_set.contains(module)
+            && ts_macro_host::derived::register_module(module, registry)?
+        {
+            continue;
         }
 
         if let Some(entry) = discovered_manifests.get(module) {

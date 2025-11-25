@@ -1,64 +1,56 @@
 use ts_macro_abi::{
     ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult, Patch, SpanIR,
 };
-use ts_macro_derive::TsMacroDefinition;
+use ts_macro_derive::ts_macro_derive;
 
-#[derive(TsMacroDefinition)]
-#[ts_macro(
+#[ts_macro_derive(
     package = "@playground/macro",
     module = "@macro/derive",
     name = "JSON",
     description = "Generates a toJSON() implementation that returns a plain object with all fields",
     runtime = ["native"]
 )]
-pub struct DeriveJsonMacro;
-
-impl DeriveJsonMacro {
-    fn expand(&self, ctx: MacroContextIR) -> MacroResult {
-        let class = match ctx.as_class() {
-            Some(class) => class,
-            None => {
-                return MacroResult {
-                    diagnostics: vec![Diagnostic {
-                        level: DiagnosticLevel::Error,
-                        message: "@Derive(JSON) can only target classes".to_string(),
-                        span: Some(ctx.decorator_span),
-                        notes: vec![],
-                        help: Some(
-                            "Remove the decorator or apply it to a class declaration".into(),
-                        ),
-                    }],
-                    ..Default::default()
-                };
-            }
-        };
-
-        let insertion = insertion_span(&ctx);
-        let post_class_insertion = SpanIR {
-            start: ctx.target_span.end,
-            end: ctx.target_span.end,
-        };
-        MacroResult {
-            runtime_patches: vec![Patch::Insert {
-                at: post_class_insertion,
-                code: generate_to_json(class),
-            }],
-            type_patches: vec![
-                Patch::Delete {
-                    span: ctx.decorator_span,
-                },
-                Patch::Insert {
-                    at: insertion,
-                    code: generate_to_json_signature(),
-                },
-            ],
-            ..Default::default()
+pub fn derive_json_macro(ctx: MacroContextIR) -> MacroResult {
+    let class = match ctx.as_class() {
+        Some(class) => class,
+        None => {
+            return MacroResult {
+                diagnostics: vec![Diagnostic {
+                    level: DiagnosticLevel::Error,
+                    message: "@Derive(JSON) can only target classes".to_string(),
+                    span: Some(ctx.decorator_span),
+                    notes: vec![],
+                    help: Some("Remove the decorator or apply it to a class declaration".into()),
+                }],
+                ..Default::default()
+            };
         }
+    };
+
+    let insertion = insertion_span(&ctx);
+    let post_class_insertion = SpanIR {
+        start: ctx.target_span.end,
+        end: ctx.target_span.end,
+    };
+    MacroResult {
+        runtime_patches: vec![Patch::Insert {
+            at: post_class_insertion,
+            code: generate_to_json(class),
+        }],
+        type_patches: vec![
+            Patch::Delete {
+                span: ctx.decorator_span,
+            },
+            Patch::Insert {
+                at: insertion,
+                code: generate_to_json_signature(),
+            },
+        ],
+        ..Default::default()
     }
 }
 
-#[derive(TsMacroDefinition)]
-#[ts_macro(
+#[ts_macro_derive(
     package = "@playground/macro",
     module = "@macro/derive",
     name = "FieldController",
@@ -71,108 +63,101 @@ impl DeriveJsonMacro {
         docs = "Marks a form field for FieldController macro expansion"
     )
 )]
-pub struct DeriveFieldControllerMacro;
-
-impl DeriveFieldControllerMacro {
-    fn expand(&self, ctx: MacroContextIR) -> MacroResult {
-        let class = match ctx.as_class() {
-            Some(class) => class,
-            None => {
-                return MacroResult {
-                    diagnostics: vec![Diagnostic {
-                        level: DiagnosticLevel::Error,
-                        message: "@Derive(FieldController) can only target classes".to_string(),
-                        span: Some(ctx.decorator_span),
-                        notes: vec![],
-                        help: Some(
-                            "Remove the decorator or apply it to a class declaration".into(),
-                        ),
-                    }],
-                    ..Default::default()
-                };
-            }
-        };
-
-        let decorated_fields: Vec<_> = class
-            .fields
-            .iter()
-            .filter(|field| {
-                field
-                    .decorators
-                    .iter()
-                    .any(|d| is_field_controller_decorator(&d.name))
-            })
-            .collect();
-
-        if decorated_fields.is_empty() {
+pub fn field_controller_macro(ctx: MacroContextIR) -> MacroResult {
+    let class = match ctx.as_class() {
+        Some(class) => class,
+        None => {
             return MacroResult {
                 diagnostics: vec![Diagnostic {
-                    level: DiagnosticLevel::Warning,
-                    message: "@Derive(FieldController) found no @Field decorators".to_string(),
+                    level: DiagnosticLevel::Error,
+                    message: "@Derive(FieldController) can only target classes".to_string(),
                     span: Some(ctx.decorator_span),
                     notes: vec![],
-                    help: Some(
-                        "Add @Field decorators to fields you want to generate controllers for"
-                            .into(),
-                    ),
+                    help: Some("Remove the decorator or apply it to a class declaration".into()),
                 }],
                 ..Default::default()
             };
         }
+    };
 
-        let insertion = SpanIR {
-            start: class.body_span.end.saturating_sub(1),
-            end: class.body_span.end.saturating_sub(1),
-        };
+    let decorated_fields: Vec<_> = class
+        .fields
+        .iter()
+        .filter(|field| {
+            field
+                .decorators
+                .iter()
+                .any(|d| is_field_controller_decorator(&d.name))
+        })
+        .collect();
 
-        let post_class_insertion = SpanIR {
-            start: ctx.target_span.end,
-            end: ctx.target_span.end,
-        };
-
-        let runtime_code = generate_field_controller_runtime(class, &decorated_fields);
-        let type_code = generate_field_controller_types(class, &decorated_fields);
-
-        let mut type_patches = vec![Patch::Delete {
-            span: ctx.decorator_span,
-        }];
-
-        for field in &decorated_fields {
-            for decorator in &field.decorators {
-                if is_field_controller_decorator(&decorator.name) {
-                    type_patches.push(Patch::Delete {
-                        span: decorator.span,
-                    });
-                }
-            }
-        }
-
-        type_patches.push(Patch::Insert {
-            at: insertion,
-            code: type_code,
-        });
-
-        let mut runtime_patches = vec![];
-        for field in &decorated_fields {
-            for decorator in &field.decorators {
-                if is_field_controller_decorator(&decorator.name) {
-                    runtime_patches.push(Patch::Delete {
-                        span: decorator.span,
-                    });
-                }
-            }
-        }
-
-        runtime_patches.push(Patch::Insert {
-            at: post_class_insertion,
-            code: runtime_code,
-        });
-
-        MacroResult {
-            runtime_patches,
-            type_patches,
+    if decorated_fields.is_empty() {
+        return MacroResult {
+            diagnostics: vec![Diagnostic {
+                level: DiagnosticLevel::Warning,
+                message: "@Derive(FieldController) found no @Field decorators".to_string(),
+                span: Some(ctx.decorator_span),
+                notes: vec![],
+                help: Some(
+                    "Add @Field decorators to fields you want to generate controllers for".into(),
+                ),
+            }],
             ..Default::default()
+        };
+    }
+
+    let insertion = SpanIR {
+        start: class.body_span.end.saturating_sub(1),
+        end: class.body_span.end.saturating_sub(1),
+    };
+
+    let post_class_insertion = SpanIR {
+        start: ctx.target_span.end,
+        end: ctx.target_span.end,
+    };
+
+    let runtime_code = generate_field_controller_runtime(class, &decorated_fields);
+    let type_code = generate_field_controller_types(class, &decorated_fields);
+
+    let mut type_patches = vec![Patch::Delete {
+        span: ctx.decorator_span,
+    }];
+
+    for field in &decorated_fields {
+        for decorator in &field.decorators {
+            if is_field_controller_decorator(&decorator.name) {
+                type_patches.push(Patch::Delete {
+                    span: decorator.span,
+                });
+            }
         }
+    }
+
+    type_patches.push(Patch::Insert {
+        at: insertion,
+        code: type_code,
+    });
+
+    let mut runtime_patches = vec![];
+    for field in &decorated_fields {
+        for decorator in &field.decorators {
+            if is_field_controller_decorator(&decorator.name) {
+                runtime_patches.push(Patch::Delete {
+                    span: decorator.span,
+                });
+            }
+        }
+    }
+
+    runtime_patches.push(Patch::Insert {
+        at: post_class_insertion,
+        code: runtime_code,
+    });
+
+    MacroResult {
+        runtime_patches,
+        type_patches,
+        ..Default::default()
     }
 }
 
@@ -342,8 +327,6 @@ fn controller_interface_name(field_name: &str, options: &ControllerOptions) -> S
         expr.clone()
     } else if let Some(component) = &options.component_hint {
         if component.ends_with("Controller") {
-            component.clone()
-        } else if component.ends_with("FieldController") {
             component.clone()
         } else {
             format!("{component}FieldController")
@@ -523,9 +506,7 @@ fn split_component_and_overrides(args: &str) -> (Option<String>, Option<String>)
                 depth += 1;
             }
             ')' | ']' | '}' => {
-                if depth > 0 {
-                    depth -= 1;
-                }
+                depth = depth.saturating_sub(1);
             }
             ',' if depth == 0 => {
                 let left = trimmed[..idx].trim().to_string();
