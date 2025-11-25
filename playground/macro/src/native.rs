@@ -3,13 +3,7 @@ use ts_macro_abi::{
 };
 use ts_macro_derive::ts_macro_derive;
 
-#[ts_macro_derive(
-    package = "@playground/macro",
-    module = "@macro/derive",
-    name = "JSON",
-    description = "Generates a toJSON() implementation that returns a plain object with all fields",
-    runtime = ["native"]
-)]
+#[ts_macro_derive(JSON, description = "Generates a toJSON() implementation that returns a plain object with all fields")]
 pub fn derive_json_macro(ctx: MacroContextIR) -> MacroResult {
     let class = match ctx.as_class() {
         Some(class) => class,
@@ -51,17 +45,9 @@ pub fn derive_json_macro(ctx: MacroContextIR) -> MacroResult {
 }
 
 #[ts_macro_derive(
-    package = "@playground/macro",
-    module = "@macro/derive",
-    name = "FieldController",
+    FieldController,
     description = "Generates depth-aware field controller helpers for reactive forms",
-    runtime = ["native"],
-    decorator(
-        module = "@playground/macro",
-        name = "FieldController",
-        kind = "property",
-        docs = "Marks a form field for FieldController macro expansion"
-    )
+    attributes(FieldController)
 )]
 pub fn field_controller_macro(ctx: MacroContextIR) -> MacroResult {
     let class = match ctx.as_class() {
@@ -95,11 +81,11 @@ pub fn field_controller_macro(ctx: MacroContextIR) -> MacroResult {
         return MacroResult {
             diagnostics: vec![Diagnostic {
                 level: DiagnosticLevel::Warning,
-                message: "@Derive(FieldController) found no @Field decorators".to_string(),
+                message: "@Derive(FieldController) found no @FieldController decorators".to_string(),
                 span: Some(ctx.decorator_span),
                 notes: vec![],
                 help: Some(
-                    "Add @Field decorators to fields you want to generate controllers for".into(),
+                    "Add @FieldController decorators to fields you want to generate controllers for".into(),
                 ),
             }],
             ..Default::default()
@@ -311,7 +297,7 @@ fn generate_field_controller_types(
 }
 
 fn is_field_controller_decorator(name: &str) -> bool {
-    matches!(name, "Field" | "FieldController")
+    matches!(name, "FieldController")
 }
 
 fn capitalize(s: &str) -> String {
