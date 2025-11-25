@@ -8,6 +8,7 @@ use crate::{DecoratorIR, SpanIR};
 pub struct ClassIR {
     pub name: String,
     pub span: SpanIR,
+    pub body_span: SpanIR,
     pub is_abstract: bool,
     pub type_params: Vec<String>,
     pub heritage: Vec<String>,

@@ -77,9 +77,9 @@ impl MacroHostIntegration {
             });
         }
 
-        let module = match program {
-            Program::Module(module) => module,
-            Program::Script(_) => {
+        let (module, classes) = match self.prepare_expansion_context(program, source)? {
+            Some(context) => context,
+            None => {
                 return Ok(MacroExpansion {
                     code: source.to_string(),
                     diagnostics: Vec::new(),
@@ -89,16 +89,69 @@ impl MacroHostIntegration {
             }
         };
 
-        let classes = lower_classes(module, source)
+        let (mut collector, mut diagnostics) =
+            self.collect_macro_patches(&module, classes, file_name, source);
+        self.apply_and_finalize_expansion(source, &mut collector, &mut diagnostics)
+    }
+
+    fn prepare_expansion_context<'a>(
+        &self,
+        program: &'a Program,
+        source: &str,
+    ) -> Result<Option<(Module, Vec<ClassIR>)>> {
+        let module = match program {
+            Program::Module(module) => module.clone(),
+            Program::Script(_) => return Ok(None),
+        };
+
+        let classes = lower_classes(&module, source)
             .context("failed to lower classes for macro processing")?;
 
         if classes.is_empty() {
-            return Ok(MacroExpansion {
-                code: source.to_string(),
-                diagnostics: Vec::new(),
-                changed: false,
-                type_output: None,
-            });
+            return Ok(None);
+        }
+
+        Ok(Some((module, classes)))
+    }
+
+    fn collect_macro_patches(
+        &self,
+        module: &Module,
+        classes: Vec<ClassIR>,
+        file_name: &str,
+        source: &str,
+    ) -> (PatchCollector, Vec<Diagnostic>) {
+        let mut collector = PatchCollector::new();
+        let mut diagnostics = Vec::new();
+
+        // Add patches to remove method bodies from type output
+        for class_ir in classes.iter() {
+            // Remove field decorators from type output
+            for field in &class_ir.fields {
+                for decorator in &field.decorators {
+                    collector.add_type_patches(vec![Patch::Delete {
+                        span: decorator.span,
+                    }]);
+                }
+            }
+
+            for method in &class_ir.methods {
+                let method_signature = if method.name == "constructor" {
+                    format!("constructor({params_src});", params_src = method.params_src)
+                } else {
+                    format!(
+                        "{method_name}({params_src}): {return_type_src};",
+                        method_name = method.name,
+                        params_src = method.params_src,
+                        return_type_src = method.return_type_src
+                    )
+                };
+
+                collector.add_type_patches(vec![Patch::Replace {
+                    span: method.span,
+                    code: method_signature,
+                }]);
+            }
         }
 
         let class_map: HashMap<SpanKey, ClassIR> = classes
@@ -109,16 +162,8 @@ impl MacroHostIntegration {
         let derive_targets = collect_derive_targets(module, &class_map, source);
 
         if derive_targets.is_empty() {
-            return Ok(MacroExpansion {
-                code: source.to_string(),
-                diagnostics: Vec::new(),
-                changed: false,
-                type_output: None,
-            });
+            return (collector, diagnostics);
         }
-
-        let mut collector = PatchCollector::new();
-        let mut diagnostics = Vec::new();
 
         for target in derive_targets {
             let decorator_removal = Patch::Delete {
@@ -147,7 +192,15 @@ impl MacroHostIntegration {
                 collector.add_type_patches(result.type_patches);
             }
         }
+        (collector, diagnostics)
+    }
 
+    fn apply_and_finalize_expansion(
+        &self,
+        source: &str,
+        collector: &mut PatchCollector,
+        diagnostics: &mut Vec<Diagnostic>,
+    ) -> Result<MacroExpansion> {
         let updated_code = collector
             .apply_runtime_patches(source)
             .context("failed to apply macro-generated patches")?;
@@ -164,7 +217,7 @@ impl MacroHostIntegration {
 
         let mut expansion = MacroExpansion {
             code: updated_code,
-            diagnostics,
+            diagnostics: std::mem::take(diagnostics),
             changed: true,
             type_output,
         };
@@ -542,4 +595,320 @@ fn resolve_library_path(manifest_path: &Path, configured: &str) -> Result<PathBu
 
     let filename = format!("{}{}{}", prefix, stem, SUFFIX);
     Ok(dir.join(filename))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use swc_core::{
+        common::{sync::Lrc, FileName, SourceMap, GLOBALS},
+        ecma::parser::{Lexer, Parser, StringInput, Syntax, TsSyntax},
+    };
+
+    fn parse_module(source: &str) -> Program {
+        let cm: Lrc<SourceMap> = Default::default();
+        let fm = cm.new_source_file(
+            FileName::Custom("test.ts".into()).into(),
+            source.to_string(),
+        );
+
+        let lexer = Lexer::new(
+            Syntax::Typescript(TsSyntax {
+                decorators: true,
+                ..Default::default()
+            }),
+            Default::default(),
+            StringInput::from(&*fm),
+            None,
+        );
+
+        let mut parser = Parser::new_from(lexer);
+        let module = parser.parse_module().expect("should parse");
+        Program::Module(module)
+    }
+
+    trait StringExt {
+        fn replace_whitespace(&self) -> String;
+    }
+
+    impl StringExt for str {
+        fn replace_whitespace(&self) -> String {
+            self.chars().filter(|c| !c.is_whitespace()).collect()
+        }
+    }
+
+    #[test]
+    fn test_derive_debug_dts_output() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(Debug)
+class User {
+    name: string;
+}
+"#;
+
+        let expected_dts = r#"
+import { Derive } from "@macro/derive";
+
+
+class User {
+    name: string;
+    toString(): string;
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed, "expand() should report changes");
+            let type_output = result.type_output.expect("should have type output");
+
+            assert_eq!(
+                type_output.replace_whitespace(),
+                expected_dts.replace_whitespace()
+            );
+        });
+    }
+
+    #[test]
+    fn test_derive_clone_dts_output() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(Clone)
+class User {
+    name: string;
+}
+"#;
+
+        let expected_dts = r#"
+import { Derive } from "@macro/derive";
+
+
+class User {
+    name: string;
+    clone(): User;
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed, "expand() should report changes");
+            let type_output = result.type_output.expect("should have type output");
+
+            assert_eq!(
+                type_output.replace_whitespace(),
+                expected_dts.replace_whitespace()
+            );
+        });
+    }
+
+    #[test]
+    fn test_derive_eq_dts_output() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(Eq)
+class User {
+    name: string;
+}
+"#;
+
+        let expected_dts = r#"
+import { Derive } from "@macro/derive";
+
+
+class User {
+    name: string;
+    equals(other: unknown): boolean;
+    hashCode(): number;
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed, "expand() should report changes");
+            let type_output = result.type_output.expect("should have type output");
+
+            assert_eq!(
+                type_output.replace_whitespace(),
+                expected_dts.replace_whitespace()
+            );
+        });
+    }
+
+    #[test]
+    fn test_derive_debug_complex_dts_output() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive("Debug")
+class MacroUser {
+  @Derive({ rename: "userId" })
+  id: string;
+
+  name: string;
+  role: string;
+  favoriteMacro: "Derive" | "JsonNative";
+  since: string;
+
+  @Derive({ skip: true })
+  apiToken: string;
+
+  constructor(
+    id: string,
+    name: string,
+    role: string,
+    favoriteMacro: "Derive" | "JsonNative",
+    since: string,
+    apiToken: string,
+  ) {
+    this.id = id;
+    this.name = name;
+    this.role = role;
+    this.favoriteMacro = favoriteMacro;
+    this.since = since;
+    this.apiToken = apiToken;
+  }
+}
+"#;
+
+        let expected_dts = r#"
+import { Derive } from "@macro/derive";
+
+class MacroUser {
+  id: string;
+
+  name: string;
+  role: string;
+  favoriteMacro: "Derive" | "JsonNative";
+  since: string;
+
+  apiToken: string;
+
+  constructor(
+    id: string,
+    name: string,
+    role: string,
+    favoriteMacro: "Derive" | "JsonNative",
+    since: string,
+    apiToken: string,
+  );
+    toString(): string;
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed, "expand() should report changes");
+            let type_output = result.type_output.expect("should have type output");
+
+            assert_eq!(type_output, expected_dts);
+        });
+    }
+
+    #[test]
+    fn test_prepare_no_derive() {
+        let source = "class User { name: string; }";
+        let program = parse_module(source);
+        let host = MacroHostIntegration::new().unwrap();
+        let result = host.prepare_expansion_context(&program, source).unwrap();
+        // Even without decorators, we return Some because we still need to
+        // generate method signatures for type output
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_prepare_no_classes() {
+        let source = "const x = 1;";
+        let program = parse_module(source);
+        let host = MacroHostIntegration::new().unwrap();
+        let result = host.prepare_expansion_context(&program, source).unwrap();
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_prepare_with_classes() {
+        let source = "@Derive(Debug) class User {}";
+        let program = parse_module(source);
+        let host = MacroHostIntegration::new().unwrap();
+        let result = host.prepare_expansion_context(&program, source).unwrap();
+        assert!(result.is_some());
+        let (_module, classes) = result.unwrap();
+        assert_eq!(classes.len(), 1);
+        assert_eq!(classes[0].name, "User");
+    }
+
+    #[test]
+    fn test_collect_constructor_patch() {
+        let source = "class User { constructor(id: string) { this.id = id; } }";
+        let program = parse_module(source);
+        let host = MacroHostIntegration::new().unwrap();
+        let (module, classes) = host
+            .prepare_expansion_context(&program, source)
+            .unwrap()
+            .unwrap();
+
+        let (collector, _) =
+            host.collect_macro_patches(&module, classes, "test.ts", source);
+
+        let type_patches = collector.get_type_patches();
+        assert_eq!(type_patches.len(), 1);
+        let patch = &type_patches[0];
+
+        if let Patch::Replace { code, .. } = patch {
+            assert_eq!(code, "constructor(id: string);");
+        } else {
+            panic!("Expected a replace patch for constructor");
+        }
+    }
+
+    #[test]
+    fn test_collect_derive_debug_patch() {
+        let source = "@Derive(Debug) class User { name: string; }";
+        let program = parse_module(source);
+        let host = MacroHostIntegration::new().unwrap();
+        let (module, classes) = host
+            .prepare_expansion_context(&program, source)
+            .unwrap()
+            .unwrap();
+        let (collector, _) =
+            host.collect_macro_patches(&module, classes, "test.ts", source);
+
+        let type_patches = collector.get_type_patches();
+        // 1 for decorator removal, 1 for signature insertion
+        assert_eq!(type_patches.len(), 2);
+        // check for decorator deletion
+        assert!(type_patches
+            .iter()
+            .any(|p| matches!(p, Patch::Delete { .. })));
+        // check for method signature insertion
+        assert!(type_patches
+            .iter()
+            .any(|p| matches!(p, Patch::Insert { .. })));
+    }
+
+    #[test]
+    fn test_apply_and_finalize_expansion_no_type_patches() {
+        let source = "class User {}";
+        let mut collector = PatchCollector::new();
+        let mut diagnostics = Vec::new();
+        let host = MacroHostIntegration::new().unwrap();
+        let result = host
+            .apply_and_finalize_expansion(source, &mut collector, &mut diagnostics)
+            .unwrap();
+        assert!(result.type_output.is_none());
+    }
 }

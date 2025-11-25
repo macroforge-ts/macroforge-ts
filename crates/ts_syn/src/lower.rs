@@ -3,7 +3,7 @@ use ts_macro_abi::*;
 use crate::TsSynError;
 
 #[cfg(feature = "swc")]
-use swc_common::{DUMMY_SP, Span, Spanned};
+use swc_common::{Span, Spanned};
 #[cfg(feature = "swc")]
 use swc_ecma_ast::*;
 #[cfg(feature = "swc")]
@@ -32,6 +32,19 @@ impl<'a> Visit for ClassCollector<'a> {
         let name = n.ident.sym.to_string();
         let span = swc_span_to_ir(n.class.span);
 
+        let class_source = snippet(self.source, n.class.span);
+        let body_span = if let (Some(open_brace), Some(close_brace)) =
+            (class_source.find('{'), class_source.rfind('}'))
+        {
+            SpanIR::new(
+                n.class.span.lo.0 + open_brace as u32,
+                n.class.span.lo.0 + close_brace as u32 + 1,
+            )
+        } else {
+            // fallback for classes without a body, though they can't have macros.
+            span
+        };
+
         let decorators = lower_decorators(&n.class.decorators, self.source);
 
         let (fields, methods) = lower_members(&n.class.body, self.source);
@@ -39,6 +52,7 @@ impl<'a> Visit for ClassCollector<'a> {
         self.out.push(ClassIR {
             name,
             span,
+            body_span,
             is_abstract: n.class.is_abstract,
             type_params: vec![],
             heritage: vec![], // TODO: lower extends/implements
@@ -84,10 +98,28 @@ fn lower_members(body: &[ClassMember], source: &str) -> (Vec<FieldIR>, Vec<Metho
                     _ => continue,
                 };
 
+                let method_span = if let Some(body) = &meth.function.body {
+                    Span::new(meth.span.lo, body.span.hi)
+                } else {
+                    meth.span
+                };
+
+                // Extract parameters from method source by finding parentheses
+                let method_src = snippet(source, meth.span);
+                let params_src = if let (Some(open), Some(close)) = (method_src.find('('), method_src.find(')')) {
+                    if open < close {
+                        method_src[open + 1..close].to_string()
+                    } else {
+                        String::new()
+                    }
+                } else {
+                    String::new()
+                };
+
                 methods.push(MethodSigIR {
                     name,
-                    span: swc_span_to_ir(meth.span),
-                    params_src: snippet(source, params_span(&meth.function.params)),
+                    span: swc_span_to_ir(method_span),
+                    params_src,
                     return_type_src: meth
                         .function
                         .return_type
@@ -99,23 +131,67 @@ fn lower_members(body: &[ClassMember], source: &str) -> (Vec<FieldIR>, Vec<Metho
                     decorators: lower_decorators(&meth.function.decorators, source),
                 });
             }
+            ClassMember::Constructor(c) => {
+                let constructor_span = if let Some(body) = &c.body {
+                    Span::new(c.span.lo, body.span.hi)
+                } else {
+                    c.span
+                };
+
+                // Extract parameters from constructor source
+                let constructor_src = snippet(source, c.span);
+                let params_src = if let (Some(open), Some(close)) = (constructor_src.find('('), constructor_src.find(')')) {
+                    if open < close {
+                        constructor_src[open + 1..close].to_string()
+                    } else {
+                        String::new()
+                    }
+                } else {
+                    String::new()
+                };
+
+                // Find the actual start of "constructor" keyword by searching backwards in source
+                let search_start = c.span.lo.0 as usize;
+                let keyword = b"constructor";
+                let mut keyword_start = search_start;
+
+                // Search in a region that includes positions before AND after search_start
+                // to catch keywords that straddle the search_start position
+                let search_region_start = search_start.saturating_sub(keyword.len());
+                let search_region_end = (search_start + keyword.len()).min(source.len());
+                let search_region = &source.as_bytes()[search_region_start..search_region_end];
+
+                // Find the last occurrence of "constructor" that starts before search_start
+                if let Some(pos) = search_region
+                    .windows(keyword.len())
+                    .enumerate()
+                    .filter(|(i, _)| search_region_start + i < search_start)
+                    .filter_map(|(i, window)| if window == keyword { Some(i) } else { None })
+                    .last()
+                {
+                    keyword_start = search_region_start + pos;
+                }
+
+                let adjusted_span = Span::new(
+                    swc_common::BytePos(keyword_start as u32),
+                    constructor_span.hi
+                );
+
+                methods.push(MethodSigIR {
+                    name: "constructor".into(),
+                    span: swc_span_to_ir(adjusted_span),
+                    params_src,
+                    return_type_src: String::new(), // constructors don't have return types
+                    is_static: false,
+                    visibility: lower_visibility(c.accessibility),
+                    decorators: vec![], // Constructors don't have decorators
+                });
+            }
             _ => {}
         }
     }
 
     (fields, methods)
-}
-
-#[cfg(feature = "swc")]
-fn params_span(params: &[Param]) -> Span {
-    let mut span = DUMMY_SP;
-    for p in params {
-        span = match span.is_dummy() {
-            true => p.span(),
-            false => Span::new(span.lo, p.span().hi),
-        };
-    }
-    span
 }
 
 #[cfg(feature = "swc")]
@@ -148,15 +224,36 @@ fn lower_decorators(decs: &[Decorator], source: &str) -> Vec<DecoratorIR> {
 
 fn adjust_decorator_span(span: swc_common::Span, source: &str) -> SpanIR {
     let mut ir = swc_span_to_ir(span);
-    if ir.start > 0 {
-        let start = ir.start as usize;
-        if start <= source.len() {
-            let bytes = source.as_bytes();
-            if start > 0 && bytes[start - 1] == b'@' {
-                ir.start -= 1;
+    let bytes = source.as_bytes();
+    let mut start = ir.start as usize;
+    let mut end = ir.end as usize;
+
+    // Extend backward to include '@' symbol and any leading whitespace on the same line
+    if start > 0 && bytes[start - 1] == b'@' {
+        start -= 1;
+        // Continue backward to include leading whitespace, but stop at newline
+        while start > 0 && (bytes[start - 1] == b' ' || bytes[start - 1] == b'\t') {
+            start -= 1;
+        }
+        ir.start = start as u32;
+    }
+
+    // Extend forward to include trailing newline and subsequent indentation
+    if end < bytes.len() {
+        // Skip trailing whitespace on the same line
+        while end < bytes.len() && (bytes[end] == b' ' || bytes[end] == b'\t') {
+            end += 1;
+        }
+        // If we hit a newline, include it and any leading whitespace on the next line
+        if end < bytes.len() && bytes[end] == b'\n' {
+            end += 1;
+            while end < bytes.len() && (bytes[end] == b' ' || bytes[end] == b'\t') {
+                end += 1;
             }
+            ir.end = end as u32;
         }
     }
+
     ir
 }
 
@@ -167,10 +264,8 @@ fn call_args_src(call: &CallExpr, source: &str) -> String {
     }
 
     let call_src = snippet(source, call.span);
-    if let (Some(open), Some(close)) = (call_src.find('('), call_src.rfind(')')) {
-        if open + 1 <= close {
-            return call_src[open + 1..close].trim().to_string();
-        }
+    if let (Some(open), Some(close)) = (call_src.find('('), call_src.rfind(')')) && open < close {
+        return call_src[open + 1..close].trim().to_string();
     }
     String::new()
 }
@@ -200,6 +295,7 @@ fn snippet(source: &str, sp: swc_common::Span) -> String {
     source.get(lo..hi).unwrap_or("").to_string()
 }
 
+
 #[cfg(not(feature = "swc"))]
 pub fn lower_classes(_module: &(), _source: &str) -> Result<Vec<ClassIR>, TsSynError> {
     Err(TsSynError::Unsupported("swc feature disabled".into()))
@@ -212,6 +308,23 @@ mod tests {
     use swc_common::{FileName, GLOBALS, Globals, SourceMap, sync::Lrc};
     #[cfg(feature = "swc")]
     use swc_ecma_parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
+
+    #[cfg(feature = "swc")]
+    #[test]
+    fn test_regular_method_params() {
+        GLOBALS.set(&Globals::new(), || {
+            let source = "class User { getName(prefix: string, suffix: string): string { return ''; } }";
+            let module = parse_module(source);
+            let classes = lower_classes(&module, source).expect("lowering to succeed");
+            let class = classes.first().expect("class");
+            let method = class.methods.iter().find(|m| m.name == "getName").expect("getName method");
+
+            eprintln!("Method params_src: '{}'", method.params_src);
+            // The params_src should include the commas and spacing
+            assert!(method.params_src.contains("prefix: string"));
+            assert!(method.params_src.contains("suffix: string"));
+        });
+    }
 
     #[cfg(feature = "swc")]
     fn parse_module(source: &str) -> Module {
@@ -271,10 +384,19 @@ mod tests {
             let decorator = class.decorators.first().expect("decorator");
             let snippet =
                 &source.as_bytes()[decorator.span.start as usize..decorator.span.end as usize];
+            let snippet_str = std::str::from_utf8(snippet).unwrap();
+
+            // The span now includes leading whitespace for clean deletion
             assert!(
-                std::str::from_utf8(snippet).unwrap().starts_with("@Derive"),
+                snippet_str.contains("@Derive"),
                 "decorator span should include '@Derive', got {:?}",
-                std::str::from_utf8(snippet).unwrap()
+                snippet_str
+            );
+
+            // Verify it includes the trailing newline and next line's indentation
+            assert!(
+                snippet_str.ends_with('\n'),
+                "decorator span should include trailing newline for clean deletion"
             );
         });
     }

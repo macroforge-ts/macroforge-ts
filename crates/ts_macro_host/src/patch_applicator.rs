@@ -28,7 +28,17 @@ impl<'a> PatchApplicator<'a> {
         let mut result = self.source.to_string();
 
         for patch in self.patches.iter().rev() {
-            result = self.apply_single_patch(result, patch)?;
+            match patch {
+                Patch::Insert { at, code } => {
+                    result.insert_str(at.start as usize, code);
+                }
+                Patch::Replace { span, code } => {
+                    result.replace_range(span.start as usize..span.end as usize, code);
+                }
+                Patch::Delete { span } => {
+                    result.replace_range(span.start as usize..span.end as usize, "");
+                }
+            }
         }
 
         Ok(result)
@@ -72,53 +82,6 @@ impl<'a> PatchApplicator<'a> {
             Patch::Insert { at, .. } => *at,
             Patch::Replace { span, .. } => *span,
             Patch::Delete { span } => *span,
-        }
-    }
-
-    /// Apply a single patch to the source
-    fn apply_single_patch(&self, mut source: String, patch: &Patch) -> Result<String> {
-        // Convert byte offsets to char indices for proper string manipulation
-        let char_indices: Vec<(usize, char)> = source.char_indices().collect();
-
-        match patch {
-            Patch::Insert { at, code } => {
-                let byte_pos = self.span_to_byte_offset(&char_indices, at.start as usize)?;
-                source.insert_str(byte_pos, code);
-            }
-            Patch::Replace { span, code } => {
-                let start = self.span_to_byte_offset(&char_indices, span.start as usize)?;
-                let end = self.span_to_byte_offset(&char_indices, span.end as usize)?;
-
-                // Replace the range with the new code
-                source.replace_range(start..end, code);
-            }
-            Patch::Delete { span } => {
-                let start = self.span_to_byte_offset(&char_indices, span.start as usize)?;
-                let end = self.span_to_byte_offset(&char_indices, span.end as usize)?;
-
-                // Delete the range
-                source.replace_range(start..end, "");
-            }
-        }
-
-        Ok(source)
-    }
-
-    /// Convert a span offset to a byte offset in the string
-    fn span_to_byte_offset(&self, char_indices: &[(usize, char)], offset: usize) -> Result<usize> {
-        if offset > char_indices.len() {
-            return Err(MacroError::Other(anyhow::anyhow!(
-                "Span offset {} exceeds source length {}",
-                offset,
-                char_indices.len()
-            )));
-        }
-
-        if offset == char_indices.len() {
-            // End of string
-            Ok(self.source.len())
-        } else {
-            Ok(char_indices[offset].0)
         }
     }
 }
@@ -171,6 +134,10 @@ impl PatchCollector {
         dedupe_patches(&mut patches);
         let applicator = PatchApplicator::new(source, patches);
         applicator.apply()
+    }
+
+    pub fn get_type_patches(&self) -> &Vec<Patch> {
+        &self.type_patches
     }
 }
 
@@ -255,5 +222,26 @@ mod tests {
         let result = applicator.apply().unwrap();
         assert!(result.contains("bar: string"));
         assert!(result.contains("baz: number"));
+    }
+
+    #[test]
+    fn test_replace_multiline_block_with_single_line() {
+        let source = "class C { constructor() { /* body */ } }";
+        let constructor_start = source.find("constructor").unwrap();
+        let constructor_end = source.find("} }").unwrap() + 1;
+
+        let patch = Patch::Replace {
+            span: SpanIR {
+                start: constructor_start as u32,
+                end: constructor_end as u32,
+            },
+            code: "constructor();".to_string(),
+        };
+
+        let applicator = PatchApplicator::new(source, vec![patch]);
+        let result = applicator.apply().unwrap();
+
+        let expected = "class C { constructor(); }";
+        assert_eq!(result, expected);
     }
 }
