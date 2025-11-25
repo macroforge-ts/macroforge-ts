@@ -172,6 +172,10 @@ mod tests {
                     start: 10,
                     end: 100,
                 },
+                body_span: SpanIR {
+                    start: 20,
+                    end: 100,
+                },
                 is_abstract: false,
                 type_params: vec![],
                 heritage: vec![],

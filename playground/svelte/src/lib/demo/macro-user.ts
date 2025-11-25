@@ -13,7 +13,8 @@ import {
   Colors,
 } from "../types/bindings.ts";
 
-@Derive("Debug", "JSON") class MacroUser {
+@Derive("Debug", "JSON")
+class MacroUser {
   @Debug({ rename: "userId" })
   id: string;
 

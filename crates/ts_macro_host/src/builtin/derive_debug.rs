@@ -30,10 +30,10 @@ impl TsMacro for DeriveDebugMacro {
         let debug_impl = generate_debug_implementation(class);
         let decorator_removals = collect_debug_decorator_removals(class);
 
-        // Calculate where to insert the debug implementation
+        // The body_span includes the enclosing braces. We want to insert inside, before the '}'.
         let class_insert_point = SpanIR {
-            start: ctx.target_span.end.saturating_sub(1),
-            end: ctx.target_span.end.saturating_sub(1),
+            start: class.body_span.end.saturating_sub(1),
+            end: class.body_span.end.saturating_sub(1),
         };
         let post_class_insert_point = SpanIR {
             start: ctx.target_span.end,
@@ -94,14 +94,14 @@ fn generate_debug_implementation(class: &ts_macro_abi::ClassIR) -> String {
 }
 
 fn generate_debug_signature() -> String {
-    "    toString(): string;\n".to_string()
+    "\n    toString(): string;\n".to_string()
 }
 
 fn collect_debug_decorator_removals(class: &ts_macro_abi::ClassIR) -> Vec<Patch> {
     let mut patches = Vec::new();
     for field in &class.fields {
         for decorator in &field.decorators {
-            if decorator.name == "Debug" {
+            if decorator.name == "Derive" {
                 patches.push(Patch::Delete {
                     span: decorator.span,
                 });
@@ -169,11 +169,9 @@ fn extract_named_string(args: &str, name: &str) -> Option<String> {
         return parse_string_literal(value);
     }
 
-    if remainder.starts_with('(') {
-        if let Some(close) = remainder.rfind(')') {
-            let inner = remainder[1..close].trim();
-            return parse_string_literal(inner);
-        }
+    if remainder.starts_with('(') && let Some(close) = remainder.rfind(')') {
+        let inner = remainder[1..close].trim();
+        return parse_string_literal(inner);
     }
 
     None
@@ -232,6 +230,7 @@ mod tests {
         ClassIR {
             name: "User".into(),
             span: span(),
+            body_span: span(),
             is_abstract: false,
             type_params: vec![],
             heritage: vec![],

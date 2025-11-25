@@ -1,7 +1,8 @@
 import { Derive, Debug } from "./macros";
 
 // Example of using Derive decorator and dynamic macro
-@Derive("Debug", "JsonNative") class User {
+@Derive("Debug", "JsonNative")
+class User {
   @Debug({ rename: "identifier" })
   id: number;
 

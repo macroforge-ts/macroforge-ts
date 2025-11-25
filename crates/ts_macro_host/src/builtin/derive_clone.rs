@@ -30,10 +30,10 @@ impl TsMacro for DeriveCloneMacro {
         // Generate the clone implementation
         let clone_impl = generate_clone_implementation(class);
 
-        // Calculate where to insert the clone implementation
+        // The body_span includes the enclosing braces. We want to insert inside, before the '}'.
         let insert_point = SpanIR {
-            start: ctx.target_span.end - 1,
-            end: ctx.target_span.end - 1,
+            start: class.body_span.end.saturating_sub(1),
+            end: class.body_span.end.saturating_sub(1),
         };
 
         MacroResult {
