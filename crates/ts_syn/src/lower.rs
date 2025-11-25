@@ -104,29 +104,33 @@ fn lower_members(body: &[ClassMember], source: &str) -> (Vec<FieldIR>, Vec<Metho
                     meth.span
                 };
 
-                // Extract parameters from method source by finding parentheses
+                // Extract parameters and type parameters from method source
                 let method_src = snippet(source, meth.span);
-                let params_src = if let (Some(open), Some(close)) = (method_src.find('('), method_src.find(')')) {
-                    if open < close {
-                        method_src[open + 1..close].to_string()
-                    } else {
-                        String::new()
-                    }
-                } else {
-                    String::new()
-                };
+                let params_src = extract_params_from_source(&method_src);
+                let type_params_src = extract_type_params_from_source(&method_src, &name);
+
+                // Adjust span to find the actual start (handles modifiers like public, static, async)
+                let adjusted_span = adjust_method_span(
+                    source,
+                    method_span,
+                    &name,
+                    meth.is_static,
+                    meth.accessibility,
+                );
 
                 methods.push(MethodSigIR {
                     name,
-                    span: swc_span_to_ir(method_span),
+                    span: swc_span_to_ir(adjusted_span),
+                    type_params_src,
                     params_src,
                     return_type_src: meth
                         .function
                         .return_type
                         .as_ref()
-                        .map(|t| snippet(source, t.span()))
+                        .map(|t| snippet(source, t.span()).trim().to_string())
                         .unwrap_or_else(|| "void".into()),
                     is_static: meth.is_static,
+                    is_async: meth.function.is_async,
                     visibility: lower_visibility(meth.accessibility),
                     decorators: lower_decorators(&meth.function.decorators, source),
                 });
@@ -140,49 +144,20 @@ fn lower_members(body: &[ClassMember], source: &str) -> (Vec<FieldIR>, Vec<Metho
 
                 // Extract parameters from constructor source
                 let constructor_src = snippet(source, c.span);
-                let params_src = if let (Some(open), Some(close)) = (constructor_src.find('('), constructor_src.find(')')) {
-                    if open < close {
-                        constructor_src[open + 1..close].to_string()
-                    } else {
-                        String::new()
-                    }
-                } else {
-                    String::new()
-                };
+                let params_src = extract_params_from_source(&constructor_src);
 
-                // Find the actual start of "constructor" keyword by searching backwards in source
-                let search_start = c.span.lo.0 as usize;
-                let keyword = b"constructor";
-                let mut keyword_start = search_start;
-
-                // Search in a region that includes positions before AND after search_start
-                // to catch keywords that straddle the search_start position
-                let search_region_start = search_start.saturating_sub(keyword.len());
-                let search_region_end = (search_start + keyword.len()).min(source.len());
-                let search_region = &source.as_bytes()[search_region_start..search_region_end];
-
-                // Find the last occurrence of "constructor" that starts before search_start
-                if let Some(pos) = search_region
-                    .windows(keyword.len())
-                    .enumerate()
-                    .filter(|(i, _)| search_region_start + i < search_start)
-                    .filter_map(|(i, window)| if window == keyword { Some(i) } else { None })
-                    .last()
-                {
-                    keyword_start = search_region_start + pos;
-                }
-
-                let adjusted_span = Span::new(
-                    swc_common::BytePos(keyword_start as u32),
-                    constructor_span.hi
-                );
+                // Adjust span to find the actual start (handles modifiers like private, protected, public)
+                let adjusted_span =
+                    adjust_constructor_span(source, constructor_span, c.accessibility);
 
                 methods.push(MethodSigIR {
                     name: "constructor".into(),
                     span: swc_span_to_ir(adjusted_span),
+                    type_params_src: String::new(), // constructors don't have type parameters
                     params_src,
                     return_type_src: String::new(), // constructors don't have return types
                     is_static: false,
+                    is_async: false, // constructors can't be async
                     visibility: lower_visibility(c.accessibility),
                     decorators: vec![], // Constructors don't have decorators
                 });
@@ -264,7 +239,9 @@ fn call_args_src(call: &CallExpr, source: &str) -> String {
     }
 
     let call_src = snippet(source, call.span);
-    if let (Some(open), Some(close)) = (call_src.find('('), call_src.rfind(')')) && open < close {
+    if let (Some(open), Some(close)) = (call_src.find('('), call_src.rfind(')'))
+        && open < close
+    {
         return call_src[open + 1..close].trim().to_string();
     }
     String::new()
@@ -295,6 +272,202 @@ fn snippet(source: &str, sp: swc_common::Span) -> String {
     source.get(lo..hi).unwrap_or("").to_string()
 }
 
+#[cfg(feature = "swc")]
+fn extract_params_from_source(method_src: &str) -> String {
+    // Find the first '(' which starts the parameter list
+    let Some(open) = method_src.find('(') else {
+        return String::new();
+    };
+
+    // Now find the matching closing ')', accounting for nested parentheses
+    let chars: Vec<char> = method_src.chars().collect();
+    let mut depth = 0;
+    let mut close_pos = None;
+
+    for (i, &ch) in chars.iter().enumerate().skip(open) {
+        match ch {
+            '(' => depth += 1,
+            ')' => {
+                depth -= 1;
+                if depth == 0 {
+                    close_pos = Some(i);
+                    break;
+                }
+            }
+            _ => {}
+        }
+    }
+
+    if let Some(close) = close_pos
+        && open < close
+    {
+        return chars[open + 1..close].iter().collect();
+    }
+
+    String::new()
+}
+
+#[cfg(feature = "swc")]
+fn extract_type_params_from_source(method_src: &str, method_name: &str) -> String {
+    // Find the method name in the source
+    let Some(name_pos) = method_src.find(method_name) else {
+        return String::new();
+    };
+
+    // Look for '<' after the method name
+    let after_name = &method_src[name_pos + method_name.len()..];
+    let chars: Vec<char> = after_name.chars().collect();
+
+    // Skip whitespace
+    let mut i = 0;
+    while i < chars.len() && chars[i].is_whitespace() {
+        i += 1;
+    }
+
+    // Check if we have a '<'
+    if i >= chars.len() || chars[i] != '<' {
+        return String::new();
+    }
+
+    let start = i;
+    i += 1; // skip the '<'
+    let mut depth = 1;
+
+    // Find matching '>'
+    while i < chars.len() && depth > 0 {
+        match chars[i] {
+            '<' => depth += 1,
+            '>' => depth -= 1,
+            _ => {}
+        }
+        i += 1;
+    }
+
+    if depth == 0 {
+        return chars[start..i].iter().collect();
+    }
+
+    String::new()
+}
+
+#[cfg(feature = "swc")]
+fn adjust_constructor_span(source: &str, span: Span, accessibility: Option<Accessibility>) -> Span {
+    let search_start = span.lo.0 as usize;
+    let bytes = source.as_bytes();
+
+    // Build list of possible keywords
+    let mut keywords = vec!["constructor"];
+    match accessibility {
+        Some(Accessibility::Public) => keywords.insert(0, "public"),
+        Some(Accessibility::Protected) => keywords.insert(0, "protected"),
+        Some(Accessibility::Private) => keywords.insert(0, "private"),
+        None => {}
+    }
+
+    // Search backwards for the earliest matching keyword
+    let mut earliest_start = search_start;
+
+    for keyword in &keywords {
+        let keyword_bytes = keyword.as_bytes();
+        let search_region_start = search_start.saturating_sub(keyword.len() + 20);
+        let search_region_end = (search_start + keyword.len()).min(source.len());
+
+        if search_region_start >= search_region_end {
+            continue;
+        }
+
+        let search_region = &bytes[search_region_start..search_region_end];
+
+        for i in 0..search_region.len() {
+            if i + keyword_bytes.len() <= search_region.len() {
+                let candidate = &search_region[i..i + keyword_bytes.len()];
+                if candidate == keyword_bytes {
+                    let abs_pos = search_region_start + i;
+                    if abs_pos < earliest_start {
+                        let is_word_boundary_before = abs_pos == 0
+                            || !bytes[abs_pos - 1].is_ascii_alphanumeric()
+                                && bytes[abs_pos - 1] != b'_';
+                        let is_word_boundary_after = abs_pos + keyword_bytes.len() >= bytes.len()
+                            || !bytes[abs_pos + keyword_bytes.len()].is_ascii_alphanumeric()
+                                && bytes[abs_pos + keyword_bytes.len()] != b'_';
+
+                        if is_word_boundary_before && is_word_boundary_after {
+                            earliest_start = abs_pos;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Span::new(swc_common::BytePos(earliest_start as u32), span.hi)
+}
+
+#[cfg(feature = "swc")]
+fn adjust_method_span(
+    source: &str,
+    span: Span,
+    method_name: &str,
+    is_static: bool,
+    accessibility: Option<Accessibility>,
+) -> Span {
+    let search_start = span.lo.0 as usize;
+    let bytes = source.as_bytes();
+
+    // Build list of possible keywords that might precede the method name
+    let mut keywords = vec![method_name];
+    if is_static {
+        keywords.insert(0, "static");
+    }
+    match accessibility {
+        Some(Accessibility::Public) => keywords.insert(0, "public"),
+        Some(Accessibility::Protected) => keywords.insert(0, "protected"),
+        Some(Accessibility::Private) => keywords.insert(0, "private"),
+        None => {}
+    }
+    // Also check for async keyword
+    keywords.push("async");
+
+    // Search backwards for the earliest matching keyword
+    let mut earliest_start = search_start;
+
+    for keyword in &keywords {
+        let keyword_bytes = keyword.as_bytes();
+        let search_region_start = search_start.saturating_sub(keyword.len() + 20); // Extra buffer for whitespace
+        let search_region_end = (search_start + keyword.len()).min(source.len());
+
+        if search_region_start >= search_region_end {
+            continue;
+        }
+
+        let search_region = &bytes[search_region_start..search_region_end];
+
+        // Find all occurrences of this keyword
+        for i in 0..search_region.len() {
+            if i + keyword_bytes.len() <= search_region.len() {
+                let candidate = &search_region[i..i + keyword_bytes.len()];
+                if candidate == keyword_bytes {
+                    let abs_pos = search_region_start + i;
+                    if abs_pos < earliest_start {
+                        // Verify it's a whole word (not part of a larger identifier)
+                        let is_word_boundary_before = abs_pos == 0
+                            || !bytes[abs_pos - 1].is_ascii_alphanumeric()
+                                && bytes[abs_pos - 1] != b'_';
+                        let is_word_boundary_after = abs_pos + keyword_bytes.len() >= bytes.len()
+                            || !bytes[abs_pos + keyword_bytes.len()].is_ascii_alphanumeric()
+                                && bytes[abs_pos + keyword_bytes.len()] != b'_';
+
+                        if is_word_boundary_before && is_word_boundary_after {
+                            earliest_start = abs_pos;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Span::new(swc_common::BytePos(earliest_start as u32), span.hi)
+}
 
 #[cfg(not(feature = "swc"))]
 pub fn lower_classes(_module: &(), _source: &str) -> Result<Vec<ClassIR>, TsSynError> {
@@ -313,16 +486,49 @@ mod tests {
     #[test]
     fn test_regular_method_params() {
         GLOBALS.set(&Globals::new(), || {
-            let source = "class User { getName(prefix: string, suffix: string): string { return ''; } }";
+            let source =
+                "class User { getName(prefix: string, suffix: string): string { return ''; } }";
             let module = parse_module(source);
             let classes = lower_classes(&module, source).expect("lowering to succeed");
             let class = classes.first().expect("class");
-            let method = class.methods.iter().find(|m| m.name == "getName").expect("getName method");
+            let method = class
+                .methods
+                .iter()
+                .find(|m| m.name == "getName")
+                .expect("getName method");
 
             eprintln!("Method params_src: '{}'", method.params_src);
             // The params_src should include the commas and spacing
             assert!(method.params_src.contains("prefix: string"));
             assert!(method.params_src.contains("suffix: string"));
+        });
+    }
+
+    #[cfg(feature = "swc")]
+    #[test]
+    fn test_method_with_modifiers() {
+        GLOBALS.set(&Globals::new(), || {
+            let source =
+                "class User { public static async getUser(): Promise<User> { return null!; } }";
+            let module = parse_module(source);
+            let classes = lower_classes(&module, source).expect("lowering to succeed");
+            let class = classes.first().expect("class");
+            let method = class.methods.first().expect("method");
+
+            eprintln!("Method name: '{}'", method.name);
+            eprintln!("Method span: {:?}", method.span);
+            let method_snippet = &source[method.span.start as usize..method.span.end as usize];
+            eprintln!("Method span snippet: '{}'", method_snippet);
+            eprintln!("Method params_src: '{}'", method.params_src);
+            eprintln!("Method return type: '{}'", method.return_type_src);
+
+            // Check if the span starts at the correct position
+            assert!(
+                source[method.span.start as usize..].starts_with("public")
+                    || source[method.span.start as usize..].starts_with("getUser"),
+                "Method span should start at modifier or method name, got: {:?}",
+                &source[method.span.start as usize..method.span.start as usize + 10]
+            );
         });
     }
 

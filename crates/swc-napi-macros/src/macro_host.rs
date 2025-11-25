@@ -94,9 +94,9 @@ impl MacroHostIntegration {
         self.apply_and_finalize_expansion(source, &mut collector, &mut diagnostics)
     }
 
-    fn prepare_expansion_context<'a>(
+    fn prepare_expansion_context(
         &self,
-        program: &'a Program,
+        program: &Program,
         source: &str,
     ) -> Result<Option<(Module, Vec<ClassIR>)>> {
         let module = match program {
@@ -137,11 +137,32 @@ impl MacroHostIntegration {
 
             for method in &class_ir.methods {
                 let method_signature = if method.name == "constructor" {
-                    format!("constructor({params_src});", params_src = method.params_src)
-                } else {
+                    let visibility = match method.visibility {
+                        ts_macro_abi::Visibility::Private => "private ",
+                        ts_macro_abi::Visibility::Protected => "protected ",
+                        ts_macro_abi::Visibility::Public => "",
+                    };
                     format!(
-                        "{method_name}({params_src}): {return_type_src};",
+                        "{visibility}constructor({params_src});",
+                        visibility = visibility,
+                        params_src = method.params_src
+                    )
+                } else {
+                    let visibility = match method.visibility {
+                        ts_macro_abi::Visibility::Private => "private ",
+                        ts_macro_abi::Visibility::Protected => "protected ",
+                        ts_macro_abi::Visibility::Public => "",
+                    };
+                    let static_kw = if method.is_static { "static " } else { "" };
+                    let async_kw = if method.is_async { "async " } else { "" };
+
+                    format!(
+                        "{visibility}{static_kw}{async_kw}{method_name}{type_params}({params_src}): {return_type_src};",
+                        visibility = visibility,
+                        static_kw = static_kw,
+                        async_kw = async_kw,
                         method_name = method.name,
+                        type_params = method.type_params_src,
                         params_src = method.params_src,
                         return_type_src = method.return_type_src
                     )
@@ -601,7 +622,7 @@ fn resolve_library_path(manifest_path: &Path, configured: &str) -> Result<PathBu
 mod tests {
     use super::*;
     use swc_core::{
-        common::{sync::Lrc, FileName, SourceMap, GLOBALS},
+        common::{FileName, GLOBALS, SourceMap, sync::Lrc},
         ecma::parser::{Lexer, Parser, StringInput, Syntax, TsSyntax},
     };
 
@@ -861,8 +882,7 @@ class MacroUser {
             .unwrap()
             .unwrap();
 
-        let (collector, _) =
-            host.collect_macro_patches(&module, classes, "test.ts", source);
+        let (collector, _) = host.collect_macro_patches(&module, classes, "test.ts", source);
 
         let type_patches = collector.get_type_patches();
         assert_eq!(type_patches.len(), 1);
@@ -884,20 +904,23 @@ class MacroUser {
             .prepare_expansion_context(&program, source)
             .unwrap()
             .unwrap();
-        let (collector, _) =
-            host.collect_macro_patches(&module, classes, "test.ts", source);
+        let (collector, _) = host.collect_macro_patches(&module, classes, "test.ts", source);
 
         let type_patches = collector.get_type_patches();
         // 1 for decorator removal, 1 for signature insertion
         assert_eq!(type_patches.len(), 2);
         // check for decorator deletion
-        assert!(type_patches
-            .iter()
-            .any(|p| matches!(p, Patch::Delete { .. })));
+        assert!(
+            type_patches
+                .iter()
+                .any(|p| matches!(p, Patch::Delete { .. }))
+        );
         // check for method signature insertion
-        assert!(type_patches
-            .iter()
-            .any(|p| matches!(p, Patch::Insert { .. })));
+        assert!(
+            type_patches
+                .iter()
+                .any(|p| matches!(p, Patch::Insert { .. }))
+        );
     }
 
     #[test]
@@ -910,5 +933,513 @@ class MacroUser {
             .apply_and_finalize_expansion(source, &mut collector, &mut diagnostics)
             .unwrap();
         assert!(result.type_output.is_none());
+    }
+
+    #[test]
+    fn test_complex_class_with_multiple_derives() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(Debug, Clone, Eq)
+class Product {
+    id: string;
+    name: string;
+    price: number;
+    private secret: string;
+
+    constructor(id: string, name: string, price: number, secret: string) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.secret = secret;
+    }
+
+    getDisplayName(): string {
+        return `${this.name} - $${this.price}`;
+    }
+
+    static fromJSON(json: any): Product {
+        return new Product(json.id, json.name, json.price, json.secret);
+    }
+}
+"#;
+
+        let expected_dts = r#"
+import { Derive } from "@macro/derive";
+
+class Product {
+    id: string;
+    name: string;
+    price: number;
+    private secret: string;
+
+    constructor(id: string, name: string, price: number, secret: string);
+
+    getDisplayName(): string;
+
+    static fromJSON(json: any): Product;
+
+    toString(): string;
+    clone(): Product;
+    equals(other: unknown): boolean;
+    hashCode(): number;
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed, "expand() should report changes");
+            let type_output = result.type_output.expect("should have type output");
+
+            assert_eq!(
+                type_output.replace_whitespace(),
+                expected_dts.replace_whitespace()
+            );
+        });
+    }
+
+    #[test]
+    fn test_complex_method_signatures() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(Debug)
+class API {
+    endpoint: string;
+
+    constructor(endpoint: string) {
+        this.endpoint = endpoint;
+    }
+
+    async fetch<T>(
+        path: string,
+        options?: { method?: string; body?: any }
+    ): Promise<T> {
+        return {} as T;
+    }
+
+    subscribe(
+        event: "data" | "error",
+        callback: (data: any) => void,
+        thisArg?: any
+    ): () => void {
+        return () => {};
+    }
+}
+"#;
+
+        let expected_dts = r#"
+import { Derive } from "@macro/derive";
+
+class API {
+    endpoint: string;
+
+    constructor(endpoint: string);
+
+    async fetch<T>(
+        path: string,
+        options?: { method?: string; body?: any }
+    ): Promise<T>;
+
+    subscribe(
+        event: "data" | "error",
+        callback: (data: any) => void,
+        thisArg?: any
+    ): () => void;
+
+    toString(): string;
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed);
+            let type_output = result.type_output.expect("should have type output");
+
+            assert_eq!(
+                type_output.replace_whitespace(),
+                expected_dts.replace_whitespace()
+            );
+        });
+    }
+
+    #[test]
+    fn test_class_with_visibility_modifiers() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(Clone)
+class Account {
+    public username: string;
+    protected password: string;
+    private apiKey: string;
+
+    constructor(username: string, password: string, apiKey: string) {
+        this.username = username;
+        this.password = password;
+        this.apiKey = apiKey;
+    }
+
+    public login(): boolean {
+        return true;
+    }
+
+    protected validatePassword(input: string): boolean {
+        return this.password === input;
+    }
+
+    private getApiKey(): string {
+        return this.apiKey;
+    }
+}
+"#;
+
+        let expected_dts = r#"
+import { Derive } from "@macro/derive";
+
+class Account {
+    public username: string;
+    protected password: string;
+    private apiKey: string;
+
+    constructor(username: string, password: string, apiKey: string);
+
+    login(): boolean;
+
+    protected validatePassword(input: string): boolean;
+
+    private getApiKey(): string;
+
+    clone(): Account;
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed);
+            let type_output = result.type_output.expect("should have type output");
+
+            assert_eq!(
+                type_output.replace_whitespace(),
+                expected_dts.replace_whitespace()
+            );
+        });
+    }
+
+    #[test]
+    fn test_class_with_optional_and_readonly_fields() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(Debug, Eq)
+class Config {
+    readonly id: string;
+    name: string;
+    description?: string;
+    readonly createdAt: Date;
+    updatedAt?: Date;
+
+    constructor(id: string, name: string, createdAt: Date) {
+        this.id = id;
+        this.name = name;
+        this.createdAt = createdAt;
+    }
+
+    update(name: string, description?: string): void {
+        this.name = name;
+        this.description = description;
+        this.updatedAt = new Date();
+    }
+}
+"#;
+
+        let expected_dts = r#"
+import { Derive } from "@macro/derive";
+
+class Config {
+    readonly id: string;
+    name: string;
+    description?: string;
+    readonly createdAt: Date;
+    updatedAt?: Date;
+
+    constructor(id: string, name: string, createdAt: Date);
+
+    update(name: string, description?: string): void;
+
+    toString(): string;
+    equals(other: unknown): boolean;
+    hashCode(): number;
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed);
+            let type_output = result.type_output.expect("should have type output");
+
+            assert_eq!(
+                type_output.replace_whitespace(),
+                expected_dts.replace_whitespace()
+            );
+        });
+    }
+
+    #[test]
+    fn test_empty_constructor_and_no_params_methods() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(Debug)
+class Singleton {
+    private static instance: Singleton;
+
+    private constructor() {
+        // Private constructor
+    }
+
+    static getInstance(): Singleton {
+        if (!Singleton.instance) {
+            Singleton.instance = new Singleton();
+        }
+        return Singleton.instance;
+    }
+
+    reset(): void {
+        // Reset logic
+    }
+}
+"#;
+
+        let expected_dts = r#"
+import { Derive } from "@macro/derive";
+
+class Singleton {
+    private static instance: Singleton;
+
+    private constructor();
+
+    static getInstance(): Singleton;
+
+    reset(): void;
+
+    toString(): string;
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed);
+            let type_output = result.type_output.expect("should have type output");
+
+            assert_eq!(
+                type_output.replace_whitespace(),
+                expected_dts.replace_whitespace()
+            );
+        });
+    }
+
+    #[test]
+    fn test_class_with_field_decorators_and_derive() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(Debug)
+class ValidationExample {
+    @Derive({ rename: "userId" })
+    id: string;
+
+    name: string;
+
+    @Derive({ skip: true })
+    internalFlag: boolean;
+
+    constructor(id: string, name: string, internalFlag: boolean) {
+        this.id = id;
+        this.name = name;
+        this.internalFlag = internalFlag;
+    }
+}
+"#;
+
+        let expected_dts = r#"
+import { Derive } from "@macro/derive";
+
+class ValidationExample {
+    id: string;
+
+    name: string;
+
+    internalFlag: boolean;
+
+    constructor(id: string, name: string, internalFlag: boolean);
+
+    toString(): string;
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed);
+            let type_output = result.type_output.expect("should have type output");
+
+            assert_eq!(
+                type_output.replace_whitespace(),
+                expected_dts.replace_whitespace()
+            );
+        });
+    }
+
+    #[test]
+    fn test_default_parameter_values() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(Debug)
+class ServerConfig {
+    host: string;
+    port: number;
+
+    constructor(
+        host: string = "localhost",
+        port: number = 8080,
+        secure: boolean = false
+    ) {
+        this.host = host;
+        this.port = port;
+    }
+
+    connect(
+        timeout: number = 5000,
+        retries: number = 3,
+        onError?: (err: Error) => void
+    ): Promise<void> {
+        return Promise.resolve();
+    }
+
+    static create(
+        config: Partial<ServerConfig> = {},
+        defaults: { host?: string; port?: number } = { host: "0.0.0.0", port: 3000 }
+    ): ServerConfig {
+        return new ServerConfig();
+    }
+}
+"#;
+
+        let expected_dts = r#"
+import { Derive } from "@macro/derive";
+
+class ServerConfig {
+    host: string;
+    port: number;
+
+    constructor(
+        host: string = "localhost",
+        port: number = 8080,
+        secure: boolean = false
+    );
+
+    connect(
+        timeout: number = 5000,
+        retries: number = 3,
+        onError?: (err: Error) => void
+    ): Promise<void>;
+
+    static create(
+        config: Partial<ServerConfig> = {},
+        defaults: { host?: string; port?: number } = { host: "0.0.0.0", port: 3000 }
+    ): ServerConfig;
+
+    toString(): string;
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed);
+            let type_output = result.type_output.expect("should have type output");
+
+            assert_eq!(
+                type_output.replace_whitespace(),
+                expected_dts.replace_whitespace()
+            );
+        });
+    }
+
+    #[test]
+    fn test_rest_parameters_and_destructuring() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(Clone)
+class EventEmitter {
+    listeners: Map<string, Function[]>;
+
+    constructor() {
+        this.listeners = new Map();
+    }
+
+    on(event: string, ...callbacks: Array<(...args: any[]) => void>): void {
+        const existing = this.listeners.get(event) || [];
+        this.listeners.set(event, [...existing, ...callbacks]);
+    }
+
+    emit(event: string, ...args: any[]): void {
+        const callbacks = this.listeners.get(event) || [];
+        callbacks.forEach(cb => cb(...args));
+    }
+}
+"#;
+
+        let expected_dts = r#"
+import { Derive } from "@macro/derive";
+
+class EventEmitter {
+    listeners: Map<string, Function[]>;
+
+    constructor();
+
+    on(event: string, ...callbacks: Array<(...args: any[]) => void>): void;
+
+    emit(event: string, ...args: any[]): void;
+
+    clone(): EventEmitter;
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed);
+            let type_output = result.type_output.expect("should have type output");
+
+            assert_eq!(
+                type_output.replace_whitespace(),
+                expected_dts.replace_whitespace()
+            );
+        });
     }
 }
