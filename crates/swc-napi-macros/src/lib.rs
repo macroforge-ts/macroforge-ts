@@ -18,6 +18,7 @@ pub struct TransformResult {
     pub code: String,
     pub map: Option<String>,
     pub types: Option<String>,
+    pub metadata: Option<String>,
 }
 
 /// Transform TypeScript code to JavaScript with macro expansion
@@ -54,11 +55,17 @@ fn transform_inner(code: &str, filepath: &str) -> Result<TransformResult> {
     }
 
     let generated = emit_program(&program, &cm)?;
+    let metadata = if expansion.classes.is_empty() {
+        None
+    } else {
+        serde_json::to_string(&expansion.classes).ok()
+    };
 
     Ok(TransformResult {
         code: generated,
         map: None,
         types: expansion.type_output,
+        metadata,
     })
 }
 

@@ -1,23 +1,19 @@
 use anyhow::{Context, Result};
-use libloading::Library;
 use playground_macros as _;
-use std::{
-    collections::{HashMap, HashSet},
-    path::{Path, PathBuf},
-};
+use std::{collections::HashMap, path::Path};
 use swc_core::{
     common::Span,
     ecma::ast::{
         Class, Decl, Decorator, ExportDecl, Module, ModuleDecl, ModuleItem, Program, Stmt,
     },
 };
-use ts_macro_abi::{ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, Patch, SpanIR};
+use ts_macro_abi::{
+    ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, Patch, PatchCode, SpanIR,
+};
 use ts_macro_host::{
-    MacroConfig, MacroDispatcher, MacroManifest, MacroRegistry, PatchCollector,
-    builtin::register_builtin_macros,
+    MacroConfig, MacroDispatcher, MacroRegistry, PatchCollector, builtin::register_builtin_macros,
 };
 use ts_syn::lower_classes;
-use walkdir::WalkDir;
 
 const DERIVE_MODULE_PATH: &str = "@macro/derive";
 
@@ -25,7 +21,6 @@ const DERIVE_MODULE_PATH: &str = "@macro/derive";
 pub struct MacroHostIntegration {
     dispatcher: MacroDispatcher,
     config: MacroConfig,
-    _dynamic_libs: Vec<libloading::Library>,
 }
 
 /// Result of attempting to expand macros in a source file.
@@ -34,6 +29,7 @@ pub struct MacroExpansion {
     pub diagnostics: Vec<Diagnostic>,
     pub changed: bool,
     pub type_output: Option<String>,
+    pub classes: Vec<ClassIR>,
 }
 
 impl MacroHostIntegration {
@@ -52,12 +48,23 @@ impl MacroHostIntegration {
 
     pub fn with_config(config: MacroConfig, root_dir: std::path::PathBuf) -> Result<Self> {
         let registry = MacroRegistry::new();
-        let dynamic_libs = register_packages(&registry, &config, &root_dir)?;
+        register_packages(&registry, &config, &root_dir)?;
+        debug_assert!(
+            registry.contains("@macro/derive", "Debug"),
+            "Built-in @macro/derive::Debug macro should be registered"
+        );
+        debug_assert!(
+            registry.contains("@macro/derive", "Clone"),
+            "Built-in @macro/derive::Clone macro should be registered"
+        );
+        debug_assert!(
+            registry.contains("@macro/derive", "Eq"),
+            "Built-in @macro/derive::Eq macro should be registered"
+        );
 
         Ok(Self {
             dispatcher: MacroDispatcher::new(registry),
             config,
-            _dynamic_libs: dynamic_libs,
         })
     }
 
@@ -74,6 +81,7 @@ impl MacroHostIntegration {
                 diagnostics: Vec::new(),
                 changed: false,
                 type_output: None,
+                classes: Vec::new(),
             });
         }
 
@@ -85,13 +93,16 @@ impl MacroHostIntegration {
                     diagnostics: Vec::new(),
                     changed: false,
                     type_output: None,
+                    classes: Vec::new(),
                 });
             }
         };
 
+        let classes_clone = classes.clone();
+
         let (mut collector, mut diagnostics) =
             self.collect_macro_patches(&module, classes, file_name, source);
-        self.apply_and_finalize_expansion(source, &mut collector, &mut diagnostics)
+        self.apply_and_finalize_expansion(source, &mut collector, &mut diagnostics, classes_clone)
     }
 
     fn prepare_expansion_context(
@@ -161,7 +172,7 @@ impl MacroHostIntegration {
 
                 collector.add_type_patches(vec![Patch::Replace {
                     span: method.span,
-                    code: method_signature,
+                    code: method_signature.into(),
                 }]);
             }
         }
@@ -203,6 +214,12 @@ impl MacroHostIntegration {
 
                 let result = self.dispatcher.dispatch(ctx);
 
+                debug_assert!(
+                    result.diagnostics.is_empty(),
+                    "Macro dispatch returned diagnostics: {:?}",
+                    result.diagnostics
+                );
+
                 if !result.diagnostics.is_empty() {
                     diagnostics.extend(result.diagnostics.clone());
                 }
@@ -219,6 +236,7 @@ impl MacroHostIntegration {
         source: &str,
         collector: &mut PatchCollector,
         diagnostics: &mut Vec<Diagnostic>,
+        classes: Vec<ClassIR>,
     ) -> Result<MacroExpansion> {
         let updated_code = collector
             .apply_runtime_patches(source)
@@ -239,6 +257,7 @@ impl MacroHostIntegration {
             diagnostics: std::mem::take(diagnostics),
             changed: true,
             type_output,
+            classes,
         };
 
         self.enforce_diagnostic_limit(&mut expansion.diagnostics);
@@ -417,8 +436,8 @@ fn available_package_registrars() -> Vec<(&'static str, PackageRegistrar)> {
 fn register_packages(
     registry: &MacroRegistry,
     config: &MacroConfig,
-    config_root: &Path,
-) -> Result<Vec<Library>> {
+    _config_root: &Path,
+) -> Result<()> {
     let mut embedded_map: HashMap<&'static str, PackageRegistrar> =
         available_package_registrars().into_iter().collect();
     for pkg in ts_macro_host::package_registry::registrars() {
@@ -429,7 +448,6 @@ fn register_packages(
     let derived_set: std::collections::HashSet<&'static str> =
         derived_modules.iter().copied().collect();
 
-    let mut loaded_libs = Vec::new();
     let mut requested = if config.macro_packages.is_empty() {
         embedded_map.keys().cloned().collect::<Vec<_>>()
     } else {
@@ -447,9 +465,6 @@ fn register_packages(
     requested.sort();
     requested.dedup();
 
-    let search_roots = default_search_roots(config_root);
-    let discovered_manifests = discover_manifests(&search_roots);
-
     for module in requested {
         if let Some(registrar) = embedded_map.get(module) {
             registrar(registry)
@@ -464,167 +479,14 @@ fn register_packages(
             continue;
         }
 
-        if let Some(entry) = discovered_manifests.get(module) {
-            load_dynamic_package(module, entry, registry)
-                .with_context(|| format!("failed to load macro package {module}"))?
-                .into_iter()
-                .for_each(|lib| loaded_libs.push(lib));
-        } else {
-            let roots = search_roots
-                .iter()
-                .map(|p| p.display().to_string())
-                .collect::<Vec<_>>()
-                .join(", ");
-            eprintln!(
-                "[ts-macros] warning: macro package '{}' not found (searched under {}). \
-                 Ensure its macro.toml is present or adjust ts-macros.json.",
-                module, roots
-            );
-        }
+        eprintln!(
+            "[ts-macros] warning: macro package '{}' not found among embedded/derived macros. \
+             Ensure it is compiled into the host or update ts-macros.json.",
+            module
+        );
     }
 
-    Ok(loaded_libs)
-}
-
-fn default_search_roots(config_root: &Path) -> Vec<PathBuf> {
-    let mut set: HashSet<PathBuf> = HashSet::new();
-    let mut roots = Vec::new();
-
-    let mut push = |path: PathBuf| {
-        if path.exists() && set.insert(path.clone()) {
-            roots.push(path);
-        }
-    };
-
-    push(config_root.to_path_buf());
-    if let Ok(cwd) = std::env::current_dir() {
-        push(cwd);
-    }
-
-    for rel in ["crates", "playground", "packages", "node_modules"] {
-        push(config_root.join(rel));
-    }
-
-    roots
-}
-
-struct DiscoveredManifest {
-    manifest: MacroManifest,
-    manifest_path: PathBuf,
-}
-
-fn discover_manifests(roots: &[PathBuf]) -> HashMap<String, DiscoveredManifest> {
-    let mut map = HashMap::new();
-
-    for root in roots {
-        if !root.exists() {
-            continue;
-        }
-
-        for entry in WalkDir::new(root)
-            .max_depth(5)
-            .into_iter()
-            .filter_map(|e| e.ok())
-        {
-            if !entry.file_type().is_file() {
-                continue;
-            }
-
-            if entry.file_name() != "macro.toml" {
-                continue;
-            }
-
-            if let Ok(manifest) = MacroManifest::from_toml_file(entry.path())
-                && let Some(module) = manifest.module.clone()
-            {
-                map.entry(module).or_insert_with(|| DiscoveredManifest {
-                    manifest,
-                    manifest_path: entry.path().to_path_buf(),
-                });
-            }
-        }
-    }
-
-    map
-}
-
-fn load_dynamic_package(
-    module: &str,
-    discovered: &DiscoveredManifest,
-    registry: &MacroRegistry,
-) -> Result<Vec<Library>> {
-    registry.register_manifest(module, discovered.manifest.clone())?;
-
-    let mut libs = Vec::new();
-
-    let Some(native) = &discovered.manifest.native else {
-        return Ok(libs);
-    };
-
-    let lib_path = resolve_library_path(&discovered.manifest_path, &native.path)?;
-    let library = unsafe { Library::new(&lib_path) }
-        .with_context(|| format!("failed to load {}", lib_path.display()))?;
-
-    unsafe {
-        let registrar: libloading::Symbol<unsafe extern "C" fn(*const MacroRegistry) -> bool> =
-            library.get(native.symbol.as_bytes()).with_context(|| {
-                format!(
-                    "failed to locate symbol '{}' in {}",
-                    native.symbol,
-                    lib_path.display()
-                )
-            })?;
-        if !registrar(registry as *const MacroRegistry) {
-            return Err(anyhow::anyhow!(
-                "macro registrar '{}' in {} reported failure",
-                native.symbol,
-                lib_path.display()
-            ));
-        }
-    }
-
-    libs.push(library);
-    Ok(libs)
-}
-
-fn resolve_library_path(manifest_path: &Path, configured: &str) -> Result<PathBuf> {
-    let base_dir = manifest_path.parent().ok_or_else(|| {
-        anyhow::anyhow!("manifest path {} has no parent", manifest_path.display())
-    })?;
-    let configured_path = base_dir.join(configured);
-
-    if configured_path.extension().is_some() {
-        return Ok(configured_path);
-    }
-
-    let stem_os = configured_path
-        .file_name()
-        .ok_or_else(|| anyhow::anyhow!("invalid native library path '{}'", configured))?;
-    let stem = stem_os.to_str().ok_or_else(|| {
-        anyhow::anyhow!(
-            "native library path '{}' contains invalid unicode",
-            configured
-        )
-    })?;
-    let dir = configured_path
-        .parent()
-        .map(|p| p.to_path_buf())
-        .unwrap_or_else(|| base_dir.to_path_buf());
-
-    let prefix = if cfg!(target_os = "windows") {
-        ""
-    } else {
-        "lib"
-    };
-    #[cfg(target_os = "macos")]
-    const SUFFIX: &str = ".dylib";
-    #[cfg(all(not(target_os = "macos"), not(target_os = "windows")))]
-    const SUFFIX: &str = ".so";
-    #[cfg(target_os = "windows")]
-    const SUFFIX: &str = ".dll";
-
-    let filename = format!("{}{}{}", prefix, stem, SUFFIX);
-    Ok(dir.join(filename))
+    Ok(())
 }
 
 #[cfg(test)]
@@ -898,7 +760,10 @@ class MacroUser {
         let patch = &type_patches[0];
 
         if let Patch::Replace { code, .. } = patch {
-            assert_eq!(code, "constructor(id: string);");
+            match code {
+                PatchCode::Text(text) => assert_eq!(text, "constructor(id: string);"),
+                _ => panic!("Expected textual patch for constructor signature"),
+            }
         } else {
             panic!("Expected a replace patch for constructor");
         }
@@ -939,7 +804,7 @@ class MacroUser {
         let mut diagnostics = Vec::new();
         let host = MacroHostIntegration::new().unwrap();
         let result = host
-            .apply_and_finalize_expansion(source, &mut collector, &mut diagnostics)
+            .apply_and_finalize_expansion(source, &mut collector, &mut diagnostics, Vec::new())
             .unwrap();
         assert!(result.type_output.is_none());
     }

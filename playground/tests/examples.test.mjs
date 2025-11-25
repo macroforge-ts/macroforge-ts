@@ -21,32 +21,19 @@ async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
   const configFile = path.join(rootDir, 'vite.config.ts');
   const previousCwd = process.cwd();
   let server;
-  const createdLinks = [];
   let copiedConfig = false;
   const localConfigPath = path.join(rootDir, 'ts-macros.json');
-  // Ensure workspace-local servers can discover the dynamic macro manifests that live in the repo root.
-  const linkTargets = ['crates'];
 
   try {
     if (useProjectCwd) {
       process.chdir(rootDir);
     }
 
-    // Copy the workspace-level config so the macro host loads @dynamic/json for the vanilla app.
+    // Copy the workspace-level config so the macro host loads the shared macro packages for the vanilla app.
     if (!fs.existsSync(localConfigPath) && fs.existsSync(rootConfigPath)) {
       fs.copyFileSync(rootConfigPath, localConfigPath);
       copiedConfig = true;
     }
-
-    for (const dir of linkTargets) {
-      const source = path.join(repoRoot, dir);
-      const destination = path.join(rootDir, dir);
-      if (!fs.existsSync(destination) && fs.existsSync(source)) {
-        fs.symlinkSync(source, destination, 'dir');
-        createdLinks.push(destination);
-      }
-    }
-
     server = await createServer({
       root: rootDir,
       configFile,
@@ -68,13 +55,6 @@ async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
     }
     if (copiedConfig && fs.existsSync(localConfigPath)) {
       fs.rmSync(localConfigPath);
-    }
-    for (const link of createdLinks) {
-      try {
-        fs.unlinkSync(link);
-      } catch {
-        fs.rmSync(link, { recursive: true, force: true });
-      }
     }
     if (useProjectCwd) {
       process.chdir(previousCwd);

@@ -21,7 +21,7 @@ pub trait TsMacro: Send + Sync {
 
     /// Returns the ABI version this macro was compiled against
     fn abi_version(&self) -> u32 {
-        1
+        2
     }
 }
 

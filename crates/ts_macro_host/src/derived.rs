@@ -1,6 +1,4 @@
-use crate::{
-    MacroError, MacroManifest, MacroRegistry, Result, TsMacro, registry::MacroManifestEntry,
-};
+use crate::{MacroError, MacroRegistry, Result, TsMacro};
 use serde::Serialize;
 use std::{collections::BTreeSet, sync::Arc};
 use ts_macro_abi::MacroKind;
@@ -80,40 +78,17 @@ pub fn register_module(module: &str, registry: &MacroRegistry) -> Result<bool> {
     }
 
     let mut runtime: BTreeSet<String> = BTreeSet::new();
-    let mut manifest_entries = Vec::with_capacity(descriptors.len());
     for descriptor in &descriptors {
         for entry in descriptor.runtime {
             runtime.insert(entry.to_string());
         }
-        manifest_entries.push(MacroManifestEntry {
-            name: descriptor.name.to_string(),
-            kind: macro_kind_name(descriptor.kind).to_string(),
-        });
     }
-
-    let manifest = MacroManifest {
-        module: Some(module.to_string()),
-        native: None,
-        abi_version: 1,
-        macros: manifest_entries,
-        runtime: runtime.into_iter().collect(),
-    };
-
-    registry.register_manifest(package, manifest)?;
 
     for descriptor in descriptors {
         registry.register(module, descriptor.name, (descriptor.constructor)())?;
     }
 
     Ok(true)
-}
-
-fn macro_kind_name(kind: MacroKind) -> &'static str {
-    match kind {
-        MacroKind::Derive => "derive",
-        MacroKind::Attribute => "attribute",
-        MacroKind::Call => "call",
-    }
 }
 
 #[derive(Serialize)]

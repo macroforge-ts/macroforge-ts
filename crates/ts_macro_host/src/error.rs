@@ -24,10 +24,6 @@ pub enum MacroError {
     #[error("ABI version mismatch: expected {expected}, got {actual}")]
     AbiVersionMismatch { expected: u32, actual: u32 },
 
-    /// Invalid macro manifest
-    #[error("Invalid macro manifest: {0}")]
-    InvalidManifest(String),
-
     /// IO error
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
@@ -35,14 +31,6 @@ pub enum MacroError {
     /// JSON error
     #[error("JSON error: {0}")]
     Json(#[from] serde_json::Error),
-
-    /// TOML error
-    #[error("TOML error: {0}")]
-    Toml(#[from] toml::de::Error),
-
-    /// TOML serialization error
-    #[error("TOML serialization error: {0}")]
-    TomlSer(#[from] toml::ser::Error),
 
     /// Generic error
     #[error("{0}")]

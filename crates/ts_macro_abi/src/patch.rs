@@ -1,15 +1,54 @@
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::SpanIR;
+use crate::{swc_ast, SpanIR};
 
 /// Patch-based output = stable "quote" target.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub enum Patch {
-    Insert { at: SpanIR, code: String },
-    Replace { span: SpanIR, code: String },
+    Insert { at: SpanIR, code: PatchCode },
+    Replace { span: SpanIR, code: PatchCode },
     Delete { span: SpanIR },
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Clone, Debug, PartialEq)]
+pub enum PatchCode {
+    Text(String),
+    ClassMember(swc_ast::ClassMember),
+    Stmt(swc_ast::Stmt),
+    ModuleItem(swc_ast::ModuleItem),
+}
+
+impl From<String> for PatchCode {
+    fn from(value: String) -> Self {
+        PatchCode::Text(value)
+    }
+}
+
+impl From<&str> for PatchCode {
+    fn from(value: &str) -> Self {
+        PatchCode::Text(value.to_string())
+    }
+}
+
+impl From<swc_ast::ClassMember> for PatchCode {
+    fn from(member: swc_ast::ClassMember) -> Self {
+        PatchCode::ClassMember(member)
+    }
+}
+
+impl From<swc_ast::Stmt> for PatchCode {
+    fn from(stmt: swc_ast::Stmt) -> Self {
+        PatchCode::Stmt(stmt)
+    }
+}
+
+impl From<swc_ast::ModuleItem> for PatchCode {
+    fn from(item: swc_ast::ModuleItem) -> Self {
+        PatchCode::ModuleItem(item)
+    }
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]

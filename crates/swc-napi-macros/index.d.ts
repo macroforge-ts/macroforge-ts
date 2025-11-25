@@ -4,6 +4,7 @@ export interface TransformResult {
   code: string
   map?: string
   types?: string
+  metadata?: string
 }
 
 /** Transform TypeScript code to JavaScript with macro expansion */

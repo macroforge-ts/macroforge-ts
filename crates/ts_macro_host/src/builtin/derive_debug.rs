@@ -56,13 +56,13 @@ impl TsMacro for DeriveDebugMacro {
         let mut runtime_patches = decorator_removals.clone();
         runtime_patches.push(Patch::Insert {
             at: post_class_insert_point,
-            code: debug_impl,
+            code: debug_impl.into(),
         });
 
         let mut type_patches = decorator_removals;
         type_patches.push(Patch::Insert {
             at: class_insert_point,
-            code: generate_debug_signature(),
+            code: generate_debug_signature().into(),
         });
 
         MacroResult {

@@ -1,8 +1,11 @@
-use ts_macro_abi::{insert_into_class, Diagnostic, DiagnosticLevel, MacroResult, Patch, SpanIR};
+use ts_macro_abi::{Diagnostic, DiagnosticLevel, MacroResult, Patch, SpanIR, insert_into_class};
 use ts_macro_derive::ts_macro_derive;
-use ts_syn::{parse_ts_macro_input, Data, DeriveInput, TsStream};
+use ts_syn::{Data, DeriveInput, TsStream, parse_ts_macro_input};
 
-#[ts_macro_derive(JSON, description = "Generates a toJSON() implementation that returns a plain object with all fields")]
+#[ts_macro_derive(
+    JSON,
+    description = "Generates a toJSON() implementation that returns a plain object with all fields"
+)]
 pub fn derive_json_macro(mut input: TsStream) -> MacroResult {
     // Parse using the syn-like API
     let input = parse_ts_macro_input!(input as DeriveInput);
@@ -20,7 +23,10 @@ pub fn derive_json_macro(mut input: TsStream) -> MacroResult {
             let body = if field_entries.is_empty() {
                 "        return {};".to_string()
             } else {
-                format!("        return {{\n{}\n        }};", field_entries.join("\n"))
+                format!(
+                    "        return {{\n{}\n        }};",
+                    field_entries.join("\n")
+                )
             };
 
             let runtime_code = format!(
@@ -39,7 +45,7 @@ pub fn derive_json_macro(mut input: TsStream) -> MacroResult {
                         start: input.target_span().end,
                         end: input.target_span().end,
                     },
-                    code: runtime_code,
+                    code: runtime_code.into(),
                 }],
                 type_patches: vec![
                     Patch::Delete {
@@ -140,7 +146,7 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
                     start: input.target_span().end,
                     end: input.target_span().end,
                 },
-                code: runtime_code,
+                code: runtime_code.into(),
             });
 
             MacroResult {
