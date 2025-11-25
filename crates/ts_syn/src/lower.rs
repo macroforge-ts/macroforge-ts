@@ -3,11 +3,11 @@ use ts_macro_abi::*;
 use crate::TsSynError;
 
 #[cfg(feature = "swc")]
-use swc_common::{Span, Spanned};
+use swc_core::common::{Span, Spanned};
 #[cfg(feature = "swc")]
-use swc_ecma_ast::*;
+use swc_core::ecma::ast::*;
 #[cfg(feature = "swc")]
-use swc_ecma_visit::{Visit, VisitWith};
+use swc_core::ecma::visit::{Visit, VisitWith};
 
 /// Lower a module into ClassIR list (derive targets).
 #[cfg(feature = "swc")]
@@ -197,7 +197,7 @@ fn lower_decorators(decs: &[Decorator], source: &str) -> Vec<DecoratorIR> {
         .collect()
 }
 
-fn adjust_decorator_span(span: swc_common::Span, source: &str) -> SpanIR {
+fn adjust_decorator_span(span: Span, source: &str) -> SpanIR {
     let mut ir = swc_span_to_ir(span);
     let bytes = source.as_bytes();
     let mut start = ir.start as usize;
@@ -258,12 +258,12 @@ fn lower_visibility(acc: Option<Accessibility>) -> Visibility {
 }
 
 #[cfg(feature = "swc")]
-fn swc_span_to_ir(sp: swc_common::Span) -> SpanIR {
+fn swc_span_to_ir(sp: Span) -> SpanIR {
     SpanIR::new(sp.lo.0, sp.hi.0)
 }
 
 #[cfg(feature = "swc")]
-fn snippet(source: &str, sp: swc_common::Span) -> String {
+fn snippet(source: &str, sp: Span) -> String {
     if sp.is_dummy() {
         return String::new();
     }
@@ -400,7 +400,7 @@ fn adjust_constructor_span(source: &str, span: Span, accessibility: Option<Acces
         }
     }
 
-    Span::new(swc_common::BytePos(earliest_start as u32), span.hi)
+    Span::new(swc_core::common::BytePos(earliest_start as u32), span.hi)
 }
 
 #[cfg(feature = "swc")]
@@ -466,7 +466,7 @@ fn adjust_method_span(
         }
     }
 
-    Span::new(swc_common::BytePos(earliest_start as u32), span.hi)
+    Span::new(swc_core::common::BytePos(earliest_start as u32), span.hi)
 }
 
 #[cfg(not(feature = "swc"))]
@@ -478,9 +478,9 @@ pub fn lower_classes(_module: &(), _source: &str) -> Result<Vec<ClassIR>, TsSynE
 mod tests {
     use super::*;
     #[cfg(feature = "swc")]
-    use swc_common::{FileName, GLOBALS, Globals, SourceMap, sync::Lrc};
+    use swc_core::common::{FileName, GLOBALS, Globals, SourceMap, sync::Lrc};
     #[cfg(feature = "swc")]
-    use swc_ecma_parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
+    use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
 
     #[cfg(feature = "swc")]
     #[test]

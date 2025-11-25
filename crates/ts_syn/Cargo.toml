@@ -5,19 +5,17 @@ edition = "2024"
 
 [features]
 default = ["swc"]
-swc = [
-  "dep:swc_common",
-  "dep:swc_ecma_ast",
-  "dep:swc_ecma_parser",
-  "dep:swc_ecma_visit",
-]
+swc = ["dep:swc_core"]
 
 [dependencies]
 ts_macro_abi = { path = "../ts_macro_abi" }
 
-swc_common = { version = "17.0.1", optional = true }
-swc_ecma_ast = { version = "18.0.0", optional = true }
-swc_ecma_parser = { version = "27.0.7", optional = true }
-swc_ecma_visit = { version = "18.0.1", optional = true }
+swc_core = { version = "48", optional = true, default-features = false, features = [
+  "common",
+  "ecma_ast",
+  "ecma_parser",
+  "ecma_visit",
+  "ecma_quote",
+] }
 
 thiserror = "1"

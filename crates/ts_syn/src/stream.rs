@@ -4,11 +4,11 @@
 //! over SWC's parser, making it feel more like Rust's syn crate.
 
 #[cfg(feature = "swc")]
-use swc_common::{sync::Lrc, FileName, SourceMap};
+use swc_core::common::{sync::Lrc, FileName, SourceMap};
 #[cfg(feature = "swc")]
-use swc_ecma_ast::*;
+use swc_core::ecma::ast::*;
 #[cfg(feature = "swc")]
-use swc_ecma_parser::{
+use swc_core::ecma::parser::{
     lexer::Lexer, Parser, PResult, StringInput, Syntax, TsSyntax,
 };
 
@@ -101,12 +101,14 @@ impl TsStream {
     /// Parse an identifier.
     pub fn parse_ident(&self) -> Result<Ident, TsSynError> {
         self.with_parser(|parser| {
+            use swc_core::common::DUMMY_SP;
+            use swc_core::ecma::parser::error::{Error, SyntaxError};
             // Parse as expression and extract identifier
             parser.parse_expr().and_then(|expr| match *expr {
                 Expr::Ident(ident) => Ok(ident),
-                _ => Err(swc_ecma_parser::error::Error::new(
-                    swc_common::DUMMY_SP,
-                    swc_ecma_parser::error::SyntaxError::TS1003,
+                _ => Err(Error::new(
+                    DUMMY_SP,
+                    SyntaxError::TS1003,
                 )),
             })
         })

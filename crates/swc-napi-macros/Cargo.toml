@@ -20,10 +20,6 @@ swc_core = { version = "48.0.4", features = [
     "ecma_utils",
     "common"
 ] }
-swc_atoms = "9.0.0"
-swc_common = "17.0.1"
-swc_ecma_ast = "18.0.0"
-swc_ecma_visit = "18.0.1"
 
 # Macro host and ABI
 ts_macro_host = { path = "../ts_macro_host" }

@@ -1,9 +1,9 @@
 #[cfg(feature = "swc")]
-use swc_common::{FileName, SourceMap, sync::Lrc};
+use swc_core::common::{FileName, SourceMap, sync::Lrc};
 #[cfg(feature = "swc")]
-use swc_ecma_ast::Module;
+use swc_core::ecma::ast::{EsVersion, Module};
 #[cfg(feature = "swc")]
-use swc_ecma_parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
+use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
 
 use crate::TsSynError;
 
@@ -23,7 +23,7 @@ pub fn parse_ts_module(source: &str, file_name: &str) -> Result<Module, TsSynErr
 
     let lexer = Lexer::new(
         syntax,
-        swc_ecma_ast::EsVersion::latest(),
+        EsVersion::latest(),
         StringInput::from(&*fm),
         None,
     );
