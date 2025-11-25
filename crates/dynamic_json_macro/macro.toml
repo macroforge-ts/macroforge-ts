@@ -3,7 +3,7 @@ abiVersion = 1
 runtime = ["native"]
 
 [native]
-path = "../../target/debug/dynamic_json_macro"
+path = "../../target/release/dynamic_json_macro"
 symbol = "ts_macro_register"
 
 [[macros]]

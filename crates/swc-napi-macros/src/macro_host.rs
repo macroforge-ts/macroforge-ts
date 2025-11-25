@@ -126,15 +126,6 @@ impl MacroHostIntegration {
 
         // Add patches to remove method bodies from type output
         for class_ir in classes.iter() {
-            // Remove field decorators from type output
-            for field in &class_ir.fields {
-                for decorator in &field.decorators {
-                    collector.add_type_patches(vec![Patch::Delete {
-                        span: decorator.span,
-                    }]);
-                }
-            }
-
             for method in &class_ir.methods {
                 let method_signature = if method.name == "constructor" {
                     let visibility = match method.visibility {

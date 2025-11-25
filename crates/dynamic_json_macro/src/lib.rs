@@ -28,10 +28,12 @@ impl TsMacro for JsonNativeMacro {
             }
         };
 
+        // Insert type signature inside the class body (before closing brace)
         let class_insert = SpanIR {
-            start: ctx.target_span.end.saturating_sub(1),
-            end: ctx.target_span.end.saturating_sub(1),
+            start: class.body_span.end.saturating_sub(1),
+            end: class.body_span.end.saturating_sub(1),
         };
+        // Insert runtime implementation after the class
         let post_class_insert = SpanIR {
             start: ctx.target_span.end,
             end: ctx.target_span.end,

@@ -101,7 +101,8 @@ fn collect_debug_decorator_removals(class: &ts_macro_abi::ClassIR) -> Vec<Patch>
     let mut patches = Vec::new();
     for field in &class.fields {
         for decorator in &field.decorators {
-            if decorator.name == "Derive" {
+            // Support both @Debug({...}) and @Derive({...}) patterns on fields
+            if decorator.name == "Debug" || decorator.name == "Derive" {
                 patches.push(Patch::Delete {
                     span: decorator.span,
                 });
