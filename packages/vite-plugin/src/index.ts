@@ -43,6 +43,15 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
     }
   }
 
+  function formatTransformError(error: unknown, id: string): string {
+    const relative = projectRoot ? path.relative(projectRoot, id) || id : id
+    if (error instanceof Error) {
+      const details = error.stack && error.stack.includes(error.message) ? error.stack : `${error.message}\n${error.stack ?? ''}`
+      return `[vite-plugin-napi-macros] Failed to transform ${relative}\n${details}`.trim()
+    }
+    return `[vite-plugin-napi-macros] Failed to transform ${relative}: ${String(error)}`
+  }
+
   return {
     name: 'vite-plugin-napi-macros',
 
@@ -62,7 +71,7 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
       }
     },
 
-    transform(code: string, id: string) {
+    transform(this, code: string, id: string) {
       // Only transform TypeScript files
       if (!id.endsWith('.ts') && !id.endsWith('.tsx')) {
         return null
@@ -93,9 +102,8 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
           }
         }
       } catch (error) {
-        console.error(`[vite-plugin-napi-macros] Transform error in ${id}:`, error)
-        // Return unchanged on error
-        return null
+        const message = formatTransformError(error, id)
+        this.error(message)
       }
 
       return null
