@@ -19,7 +19,7 @@ pub use dispatch::MacroDispatcher;
 pub use error::{MacroError, Result};
 pub use package_registry::MacroPackageRegistration;
 pub use patch_applicator::{PatchApplicator, PatchCollector};
-pub use registry::{MacroManifest, MacroRegistry};
+pub use registry::MacroRegistry;
 pub use traits::TsMacro;
 
 // Re-export commonly used types from ts_macro_abi

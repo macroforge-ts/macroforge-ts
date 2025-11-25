@@ -2,7 +2,11 @@
 
 use crate::error::{MacroError, Result};
 use std::collections::HashSet;
-use ts_macro_abi::{Patch, SpanIR};
+use swc_core::{
+    common::{SourceMap, sync::Lrc},
+    ecma::codegen::{Config, Emitter, Node, text_writer::JsWriter},
+};
+use ts_macro_abi::{Patch, PatchCode, SpanIR};
 
 /// Applies patches to source code
 pub struct PatchApplicator<'a> {
@@ -30,10 +34,12 @@ impl<'a> PatchApplicator<'a> {
         for patch in self.patches.iter().rev() {
             match patch {
                 Patch::Insert { at, code } => {
-                    result.insert_str(at.start as usize, code);
+                    let rendered = render_patch_code(code)?;
+                    result.insert_str(at.start as usize, &rendered);
                 }
                 Patch::Replace { span, code } => {
-                    result.replace_range(span.start as usize..span.end as usize, code);
+                    let rendered = render_patch_code(code)?;
+                    result.replace_range(span.start as usize..span.end as usize, &rendered);
                 }
                 Patch::Delete { span } => {
                     result.replace_range(span.start as usize..span.end as usize, "");
@@ -120,7 +126,7 @@ impl PatchCollector {
             return Ok(source.to_string());
         }
         let mut patches = self.runtime_patches.clone();
-        dedupe_patches(&mut patches);
+        dedupe_patches(&mut patches)?;
         let applicator = PatchApplicator::new(source, patches);
         applicator.apply()
     }
@@ -131,7 +137,7 @@ impl PatchCollector {
             return Ok(source.to_string());
         }
         let mut patches = self.type_patches.clone();
-        dedupe_patches(&mut patches);
+        dedupe_patches(&mut patches)?;
         let applicator = PatchApplicator::new(source, patches);
         applicator.apply()
     }
@@ -147,16 +153,49 @@ impl Default for PatchCollector {
     }
 }
 
-fn dedupe_patches(patches: &mut Vec<Patch>) {
+fn dedupe_patches(patches: &mut Vec<Patch>) -> Result<()> {
     let mut seen: HashSet<(u8, u32, u32, Option<String>)> = HashSet::new();
     patches.retain(|patch| {
         let key = match patch {
-            Patch::Insert { at, code } => (0, at.start, at.end, Some(code.clone())),
-            Patch::Replace { span, code } => (1, span.start, span.end, Some(code.clone())),
+            Patch::Insert { at, code } => match render_patch_code(code) {
+                Ok(rendered) => (0, at.start, at.end, Some(rendered)),
+                Err(_) => return true,
+            },
+            Patch::Replace { span, code } => match render_patch_code(code) {
+                Ok(rendered) => (1, span.start, span.end, Some(rendered)),
+                Err(_) => return true,
+            },
             Patch::Delete { span } => (2, span.start, span.end, None),
         };
         seen.insert(key)
     });
+    Ok(())
+}
+
+fn render_patch_code(code: &PatchCode) -> Result<String> {
+    match code {
+        PatchCode::Text(s) => Ok(s.clone()),
+        PatchCode::ClassMember(member) => emit_node(member),
+        PatchCode::Stmt(stmt) => emit_node(stmt),
+        PatchCode::ModuleItem(item) => emit_node(item),
+    }
+}
+
+fn emit_node<N: Node>(node: &N) -> Result<String> {
+    let cm: Lrc<SourceMap> = Default::default();
+    let mut buf = Vec::new();
+    {
+        let writer = JsWriter::new(cm.clone(), "\n", &mut buf, None);
+        let mut emitter = Emitter {
+            cfg: Config::default(),
+            cm: cm.clone(),
+            comments: None,
+            wr: writer,
+        };
+        node.emit_with(&mut emitter)
+            .map_err(|err| MacroError::Other(anyhow::anyhow!(err)))?;
+    }
+    String::from_utf8(buf).map_err(|err| MacroError::Other(anyhow::anyhow!(err)))
 }
 
 #[cfg(test)]
@@ -169,7 +208,7 @@ mod tests {
         // Inserting at position 11 (just before the closing brace)
         let patch = Patch::Insert {
             at: SpanIR { start: 11, end: 11 },
-            code: " bar: string; ".to_string(),
+            code: " bar: string; ".to_string().into(),
         };
 
         let applicator = PatchApplicator::new(source, vec![patch]);
@@ -183,7 +222,7 @@ mod tests {
         // Replace "old: number;" with "new: string;"
         let patch = Patch::Replace {
             span: SpanIR { start: 12, end: 25 },
-            code: "new: string;".to_string(),
+            code: "new: string;".to_string().into(),
         };
 
         let applicator = PatchApplicator::new(source, vec![patch]);
@@ -210,11 +249,11 @@ mod tests {
         let patches = vec![
             Patch::Insert {
                 at: SpanIR { start: 11, end: 11 },
-                code: " bar: string;".to_string(),
+                code: " bar: string;".to_string().into(),
             },
             Patch::Insert {
                 at: SpanIR { start: 11, end: 11 },
-                code: " baz: number;".to_string(),
+                code: " baz: number;".to_string().into(),
             },
         ];
 
@@ -235,7 +274,7 @@ mod tests {
                 start: constructor_start as u32,
                 end: constructor_end as u32,
             },
-            code: "constructor();".to_string(),
+            code: "constructor();".to_string().into(),
         };
 
         let applicator = PatchApplicator::new(source, vec![patch]);

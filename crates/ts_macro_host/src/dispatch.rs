@@ -177,7 +177,7 @@ mod tests {
         let dispatcher = MacroDispatcher::new(registry);
 
         let ctx = MacroContextIR {
-            abi_version: 1,
+            abi_version: 2,
             macro_kind: MacroKind::Derive,
             macro_name: "Debug".to_string(),
             module_path: "@macro/derive".to_string(),

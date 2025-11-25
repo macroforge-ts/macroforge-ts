@@ -52,11 +52,11 @@ impl TsMacro for DeriveCloneMacro {
         MacroResult {
             runtime_patches: vec![Patch::Insert {
                 at: insert_point,
-                code: clone_impl,
+                code: clone_impl.into(),
             }],
             type_patches: vec![Patch::Insert {
                 at: insert_point,
-                code: generate_clone_signature(class),
+                code: generate_clone_signature(class).into(),
             }],
             diagnostics: vec![],
             debug: None,

@@ -52,11 +52,11 @@ impl TsMacro for DeriveEqMacro {
         MacroResult {
             runtime_patches: vec![Patch::Insert {
                 at: insert_point,
-                code: eq_impl,
+                code: eq_impl.into(),
             }],
             type_patches: vec![Patch::Insert {
                 at: insert_point,
-                code: generate_eq_signature(),
+                code: generate_eq_signature().into(),
             }],
             diagnostics: vec![],
             debug: None,

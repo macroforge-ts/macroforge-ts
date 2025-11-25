@@ -137,6 +137,8 @@ Design the three kinds of macros (mirroring Rust's macro types):
 - **`ts_macro_host`** = macro registry, dispatch, and execution ✅
 - **`swc-napi-macros`** = N-API bindings for Node.js integration ✅
 
+> ABI v2: `transformSync` now returns `metadata` (JSON-serialized `ClassIR` list) and macros compiled against host v2 must report `abi_version = 2`.
+
 ---
 
 ### [x] 2. Discovery & Registration System ✅ CORE IMPLEMENTED
@@ -148,7 +150,7 @@ How the system knows which macro to call:
   - Use import source as key: `import { Derive } from "@my-org/macros"`
   - Key format: `(module: string, name: string)`
 
-- [x] Define macro package manifest (`macro.toml`):
+- [x] Auto-register macro packages compiled into the host binary (no external manifest needed):
 
   ```toml
   module = "@macro/derive"
@@ -178,12 +180,12 @@ How the system knows which macro to call:
 
 - [ ] Implement package allowlist/validation
 
-#### Macro Package Manifest (ecosystem safety)
+#### Macro Package Metadata (ecosystem safety)
 
-- [x] Each macro package ships a manifest (`macro.toml`) with ABI + macro list
+- [x] Macro packages advertise their metadata via `ts_macro_derive`/`TsMacro::abi_version`
 
-- [x] Host registers from manifest before running code
-- [ ] Clear error if manifest and exports disagree
+- [x] Host registers macro packages via compile-time registrars
+- [ ] Validate that package exports match registration metadata
 
 ---
 
@@ -232,7 +234,7 @@ Implement macro module loading:
 
 - [x] Implement macro dispatch:
 
-  - [x] Registry for macro modules from manifests
+  - [x] Registry for macro modules via registrars/inventory
   - [x] Lookup by `(module, name)` key
   - [x] Context building for macro calls (`MacroContextIR`)
   - [ ] Patch application
@@ -835,7 +837,6 @@ Workarounds:
 
 ### Current Blockers
 - Need CLI/dev tooling to exercise macros outside the Vite pipeline ✅
-- Dynamic native macro loading only supports host-local shared libraries (no WASM sandbox or npm distribution yet)
-- Root-level `ts-macros.json` loader doesn’t resolve manifests from node_modules/workspace when the package isn’t built locally
+- Dynamic macro loading is limited to packages compiled into the workspace (no WASM sandbox or npm distribution yet)
 
 ---
