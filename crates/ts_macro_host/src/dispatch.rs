@@ -3,6 +3,7 @@
 use crate::MacroRegistry;
 use tracing::{debug, error, warn};
 use ts_macro_abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult};
+use ts_syn::TsStream;
 
 /// Dispatches macro calls to registered macro implementations
 pub struct MacroDispatcher {
@@ -53,9 +54,28 @@ impl MacroDispatcher {
                     };
                 }
 
+                // Create TsStream from context
+                let input = match TsStream::with_context(&ctx.target_source, &ctx.file_name, ctx.clone()) {
+                    Ok(stream) => stream,
+                    Err(err) => {
+                        return MacroResult {
+                            runtime_patches: vec![],
+                            type_patches: vec![],
+                            diagnostics: vec![Diagnostic {
+                                level: DiagnosticLevel::Error,
+                                message: format!("Failed to create TsStream: {:?}", err),
+                                span: Some(ctx.decorator_span),
+                                notes: vec![],
+                                help: None,
+                            }],
+                            debug: None,
+                        };
+                    }
+                };
+
                 // Execute the macro
                 match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                    macro_impl.run(ctx.clone())
+                    macro_impl.run(input)
                 })) {
                     Ok(result) => result,
                     Err(panic_err) => {
@@ -137,7 +157,7 @@ mod tests {
             MacroKind::Derive
         }
 
-        fn run(&self, _ctx: MacroContextIR) -> MacroResult {
+        fn run(&self, _input: TsStream) -> MacroResult {
             MacroResult::default()
         }
     }
@@ -183,6 +203,7 @@ mod tests {
                 fields: vec![],
                 methods: vec![],
             }),
+            target_source: "class Test {}".to_string(),
         };
 
         let result = dispatcher.dispatch(ctx);

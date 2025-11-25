@@ -55,6 +55,10 @@ pub struct MacroContextIR {
 
     /// The target of the macro application
     pub target: TargetIR,
+
+    /// The source code of the target (class, enum, etc.)
+    /// This enables macros to parse the source themselves using TsStream
+    pub target_source: String,
 }
 
 impl MacroContextIR {
@@ -66,6 +70,7 @@ impl MacroContextIR {
         target_span: SpanIR,
         file_name: String,
         class: ClassIR,
+        target_source: String,
     ) -> Self {
         Self {
             abi_version: 1,
@@ -76,6 +81,7 @@ impl MacroContextIR {
             target_span,
             file_name,
             target: TargetIR::Class(class),
+            target_source,
         }
     }
 

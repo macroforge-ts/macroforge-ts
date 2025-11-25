@@ -733,6 +733,7 @@ version = "0.1.0"
 dependencies = [
  "ts_macro_abi",
  "ts_macro_host",
+ "ts_syn",
 ]
 
 [[package]]
@@ -1628,9 +1629,11 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+ "swc_ecma_ast",
  "ts_macro_abi",
  "ts_macro_derive",
  "ts_macro_host",
+ "ts_syn",
 ]
 
 [[package]]

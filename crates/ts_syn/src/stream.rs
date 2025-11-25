@@ -27,6 +27,9 @@ pub struct TsStream {
     source_map: Lrc<SourceMap>,
     source: String,
     file_name: String,
+    /// Macro context data (decorator span, target span, etc.)
+    /// This is populated when TsStream is created by the macro host
+    pub ctx: Option<ts_macro_abi::MacroContextIR>,
 }
 
 #[cfg(feature = "swc")]
@@ -37,7 +40,28 @@ impl TsStream {
             source_map: Lrc::new(Default::default()),
             source: source.to_string(),
             file_name: file_name.to_string(),
+            ctx: None,
         })
+    }
+
+    /// Create a new parsing stream with macro context attached.
+    /// This is used by the macro host to provide context to macros.
+    pub fn with_context(
+        source: &str,
+        file_name: &str,
+        ctx: ts_macro_abi::MacroContextIR,
+    ) -> Result<Self, TsSynError> {
+        Ok(TsStream {
+            source_map: Lrc::new(Default::default()),
+            source: source.to_string(),
+            file_name: file_name.to_string(),
+            ctx: Some(ctx),
+        })
+    }
+
+    /// Get the macro context if available
+    pub fn context(&self) -> Option<&ts_macro_abi::MacroContextIR> {
+        self.ctx.as_ref()
     }
 
     /// Create a temporary parser for a parsing operation.

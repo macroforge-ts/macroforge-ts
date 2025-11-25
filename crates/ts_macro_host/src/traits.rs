@@ -1,6 +1,7 @@
 //! Core macro traits
 
-use ts_macro_abi::{MacroContextIR, MacroKind, MacroResult};
+use ts_macro_abi::{MacroKind, MacroResult};
+use ts_syn::TsStream;
 
 /// Core trait that all TypeScript macros must implement
 pub trait TsMacro: Send + Sync {
@@ -10,8 +11,8 @@ pub trait TsMacro: Send + Sync {
     /// Returns the kind of this macro
     fn kind(&self) -> MacroKind;
 
-    /// Execute the macro with the given context
-    fn run(&self, ctx: MacroContextIR) -> MacroResult;
+    /// Execute the macro with the given input stream
+    fn run(&self, input: TsStream) -> MacroResult;
 
     /// Returns a description of what this macro does
     fn description(&self) -> &str {

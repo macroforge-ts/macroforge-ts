@@ -184,6 +184,12 @@ impl MacroHostIntegration {
             collector.add_runtime_patches(vec![decorator_removal.clone()]);
             collector.add_type_patches(vec![decorator_removal]);
 
+            // Extract the source code for this class
+            let target_source = source
+                .get(target.class_ir.span.start as usize..target.class_ir.span.end as usize)
+                .unwrap_or("")
+                .to_string();
+
             for macro_name in target.macro_names {
                 let ctx = MacroContextIR::new_derive_class(
                     macro_name.clone(),
@@ -192,6 +198,7 @@ impl MacroHostIntegration {
                     target.class_ir.span,
                     file_name.to_string(),
                     target.class_ir.clone(),
+                    target_source.clone(),
                 );
 
                 let result = self.dispatcher.dispatch(ctx);

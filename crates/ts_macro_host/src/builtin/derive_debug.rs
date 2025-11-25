@@ -1,7 +1,8 @@
 //! @Derive(Debug) macro implementation
 
 use crate::traits::TsMacro;
-use ts_macro_abi::{FieldIR, MacroContextIR, MacroKind, MacroResult, Patch, SpanIR};
+use ts_macro_abi::{FieldIR, MacroKind, MacroResult, Patch, SpanIR};
+use ts_syn::TsStream;
 
 pub struct DeriveDebugMacro;
 
@@ -14,7 +15,19 @@ impl TsMacro for DeriveDebugMacro {
         MacroKind::Derive
     }
 
-    fn run(&self, ctx: MacroContextIR) -> MacroResult {
+    fn run(&self, input: TsStream) -> MacroResult {
+        let ctx = match input.context() {
+            Some(c) => c,
+            None => {
+                return MacroResult {
+                    runtime_patches: vec![],
+                    type_patches: vec![],
+                    diagnostics: vec![],
+                    debug: Some("No macro context available".into()),
+                };
+            }
+        };
+
         let class = match ctx.as_class() {
             Some(class) => class,
             None => {

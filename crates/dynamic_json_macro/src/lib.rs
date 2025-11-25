@@ -1,7 +1,8 @@
 use std::sync::Arc;
 
-use ts_macro_abi::{ClassIR, MacroContextIR, MacroKind, MacroResult, Patch, SpanIR};
+use ts_macro_abi::{ClassIR, MacroKind, MacroResult, Patch, SpanIR};
 use ts_macro_host::{MacroRegistry, Result, TsMacro};
+use ts_syn::TsStream;
 
 const DERIVE_MODULE: &str = "@macro/derive";
 const MACRO_NAME: &str = "JsonNative";
@@ -17,7 +18,17 @@ impl TsMacro for JsonNativeMacro {
         MacroKind::Derive
     }
 
-    fn run(&self, ctx: MacroContextIR) -> MacroResult {
+    fn run(&self, input: TsStream) -> MacroResult {
+        let ctx = match input.context() {
+            Some(c) => c,
+            None => {
+                return MacroResult {
+                    debug: Some("No macro context available".into()),
+                    ..Default::default()
+                };
+            }
+        };
+
         let class = match ctx.as_class() {
             Some(class) => class,
             None => {

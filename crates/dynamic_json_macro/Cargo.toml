@@ -12,3 +12,4 @@ crate-type = ["cdylib"]
 [dependencies]
 ts_macro_host = { path = "../ts_macro_host" }
 ts_macro_abi = { path = "../ts_macro_abi" }
+ts_syn = { path = "../ts_syn" }
