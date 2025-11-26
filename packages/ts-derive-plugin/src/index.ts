@@ -1,201 +1,139 @@
 import type ts from "typescript/lib/tsserverlibrary";
+import { expandSync } from "@ts-macros/swc-napi";
 
 interface PluginConfig {
-  macroNames?: string[];
-  mixinModule?: string;
-  mixinTypes?: string[];
+  // Config options (optional)
 }
 
-const DEFAULT_MACROS = ["Derive"];
-const DEFAULT_MIXIN_TYPES = ["MacroDebug", "MacroJSON"];
-
 const FILE_EXTENSIONS = [".ts", ".tsx", ".svelte"];
-
-const AUGMENTATION_BANNER = "\n// @ts-macros/derive augmentations\n";
 
 function shouldProcess(fileName: string) {
   return FILE_EXTENSIONS.some((ext) => fileName.endsWith(ext));
 }
 
-function getDecorators(tsModule: typeof ts, node: ts.Node) {
-  if (!tsModule.canHaveDecorators(node)) {
-    return undefined;
-  }
-
-  const decorators = tsModule.getDecorators(node);
-  if (decorators?.length) {
-    return decorators;
-  }
-
-  return undefined;
+// Cache expansion results to avoid re-running on every call
+interface CachedExpansion {
+  version: string;
+  output: string | null;
+  diagnostics: MacroDiagnostic[];
 }
 
-function hasDecorator(
-  tsModule: typeof ts,
-  node: ts.ClassDeclaration,
-  macroNames: Set<string>,
-) {
-  const decorators = getDecorators(tsModule, node);
-  if (!decorators?.length) {
-    return false;
-  }
-
-  return decorators.some((decorator) => {
-    const expr = decorator.expression;
-    if (tsModule.isIdentifier(expr)) {
-      return macroNames.has(expr.text);
-    }
-
-    if (
-      tsModule.isCallExpression(expr) &&
-      tsModule.isIdentifier(expr.expression)
-    ) {
-      return macroNames.has(expr.expression.text);
-    }
-
-    return false;
-  });
-}
-
-interface DecoratedClassMeta {
-  name: string;
-  isExported: boolean;
-}
-
-function collectDecoratedClasses(
-  tsModule: typeof ts,
-  source: ts.SourceFile,
-  macroNames: Set<string>,
-) {
-  const classes: DecoratedClassMeta[] = [];
-
-  const visit = (node: ts.Node) => {
-    if (
-      tsModule.isClassDeclaration(node) &&
-      node.name &&
-      hasDecorator(tsModule, node, macroNames)
-    ) {
-      classes.push({
-        name: node.name.text,
-        isExported: isNodeExported(tsModule, node),
-      });
-    }
-
-    tsModule.forEachChild(node, visit);
-  };
-
-  visit(source);
-  return classes;
-}
-
-function hasInterfaceDeclaration(sourceText: string, name: string) {
-  const pattern = new RegExp(`interface\\s+${name}\\b`);
-  return pattern.test(sourceText);
-}
-
-function buildInterfaceBlock(
-  name: string,
-  mixinRefs: string[],
-  isExported: boolean,
-) {
-  if (!mixinRefs.length) {
-    return "";
-  }
-
-  const aliasName = `__TsMacros${name}Mixin`;
-  const intersection =
-    mixinRefs.length === 1 ? mixinRefs[0] : mixinRefs.join(" & ");
-  const exportPrefix = isExported ? "export " : "";
-
-  return `${exportPrefix}type ${aliasName} = ${intersection};\n${exportPrefix}interface ${name} extends ${aliasName} {}\n`;
-}
-
-function isNodeExported(tsModule: typeof ts, node: ts.ClassDeclaration) {
-  const flags = tsModule.getCombinedModifierFlags(node);
-  return (flags & tsModule.ModifierFlags.Export) !== 0;
-}
-
-function augmentSource(
-  tsModule: typeof ts,
-  fileName: string,
-  sourceText: string,
-  macroNames: Set<string>,
-  mixinModule: string,
-  mixinTypes: string[],
-) {
-  if (!sourceText.includes("@")) {
-    return null;
-  }
-
-  const source = tsModule.createSourceFile(
-    fileName,
-    sourceText,
-    tsModule.ScriptTarget.Latest,
-    true,
-    tsModule.ScriptKind.TSX,
-  );
-
-  const decorated = collectDecoratedClasses(tsModule, source, macroNames);
-  if (decorated.length === 0) {
-    return null;
-  }
-
-  const mixinRefs = mixinTypes.map(
-    (type) => `import("${mixinModule}").${type}`,
-  );
-  const additions = decorated
-    .filter((meta) => !hasInterfaceDeclaration(sourceText, meta.name))
-    .map((meta) => buildInterfaceBlock(meta.name, mixinRefs, meta.isExported));
-
-  if (!additions.length) {
-    return null;
-  }
-
-  return `${sourceText}${AUGMENTATION_BANNER}${additions.join("")}`;
+interface MacroDiagnostic {
+  level: string;
+  message: string;
+  start?: number;
+  end?: number;
 }
 
 function init(modules: { typescript: typeof ts }) {
   function create(info: ts.server.PluginCreateInfo) {
     const tsModule = modules.typescript;
+    const expansionCache = new Map<string, CachedExpansion>();
 
-    const config: PluginConfig = info.config ?? {};
-    const macroNames = new Set(config.macroNames ?? DEFAULT_MACROS);
-    const mixinTypes = config.mixinTypes ?? DEFAULT_MIXIN_TYPES;
-    const mixinModule = config.mixinModule ?? "$lib/macros";
+    function getExpansion(fileName: string, content: string, version: string): CachedExpansion {
+      const cached = expansionCache.get(fileName);
+      if (cached && cached.version === version) {
+        return cached;
+      }
 
-    const originalGetScriptSnapshot =
-      info.languageServiceHost.getScriptSnapshot?.bind(
-        info.languageServiceHost,
-      );
-
-    if (originalGetScriptSnapshot) {
-      info.languageServiceHost.getScriptSnapshot = (fileName) => {
-        if (!shouldProcess(fileName)) {
-          return originalGetScriptSnapshot(fileName);
-        }
-
-        const snapshot = originalGetScriptSnapshot(fileName);
-        if (!snapshot) {
-          return snapshot;
-        }
-
-        const text = snapshot.getText(0, snapshot.getLength());
-        const augmented = augmentSource(
-          tsModule,
-          fileName,
-          text,
-          macroNames,
-          mixinModule,
-          mixinTypes,
-        );
-
-        if (!augmented) {
-          return snapshot;
-        }
-
-        return tsModule.ScriptSnapshot.fromString(augmented);
-      };
+      try {
+        // Run the macro expansion
+        const result = expandSync(content, fileName);
+        
+        const expansion: CachedExpansion = {
+          version,
+          output: result.types || null,
+          diagnostics: result.diagnostics,
+        };
+        
+        expansionCache.set(fileName, expansion);
+        return expansion;
+      } catch (e) {
+        // Fallback on error
+        const errorExpansion: CachedExpansion = {
+          version,
+          output: null,
+          diagnostics: [], // Could add a general diagnostic here
+        };
+        expansionCache.set(fileName, errorExpansion);
+        return errorExpansion;
+      }
     }
+
+    // Hook getScriptSnapshot to provide the "expanded" type definition view
+    const originalGetScriptSnapshot = info.languageServiceHost.getScriptSnapshot.bind(
+      info.languageServiceHost
+    );
+
+    info.languageServiceHost.getScriptSnapshot = (fileName) => {
+      if (!shouldProcess(fileName)) {
+        return originalGetScriptSnapshot(fileName);
+      }
+
+      const snapshot = originalGetScriptSnapshot(fileName);
+      if (!snapshot) {
+        return snapshot;
+      }
+
+      // We need the file version to cache correctly.
+      // getScriptVersion is usually available on the host.
+      const version = info.languageServiceHost.getScriptVersion(fileName);
+      const text = snapshot.getText(0, snapshot.getLength());
+
+      // If the text doesn't contain macros, skip
+      if (!text.includes("@Derive") && !text.includes("@")) {
+         return snapshot;
+      }
+
+      const expansion = getExpansion(fileName, text, version);
+
+      if (expansion.output) {
+        return tsModule.ScriptSnapshot.fromString(expansion.output);
+      }
+
+      return snapshot;
+    };
+
+    // Hook getSemanticDiagnostics to provide macro errors
+    const originalGetSemanticDiagnostics = info.languageService.getSemanticDiagnostics.bind(
+      info.languageService
+    );
+
+    info.languageService.getSemanticDiagnostics = (fileName) => {
+      const originalDiagnostics = originalGetSemanticDiagnostics(fileName);
+      
+      if (!shouldProcess(fileName)) {
+        return originalDiagnostics;
+      }
+
+      const snapshot = originalGetScriptSnapshot(fileName);
+      if (!snapshot) return originalDiagnostics;
+
+      const version = info.languageServiceHost.getScriptVersion(fileName);
+      const text = snapshot.getText(0, snapshot.getLength());
+      const expansion = getExpansion(fileName, text, version);
+
+      const macroDiagnostics: ts.Diagnostic[] = expansion.diagnostics.map((d) => {
+        const category =
+          d.level === "error"
+            ? tsModule.DiagnosticCategory.Error
+            : d.level === "warning"
+            ? tsModule.DiagnosticCategory.Warning
+            : tsModule.DiagnosticCategory.Message;
+
+        return {
+          file: info.languageService.getProgram()?.getSourceFile(fileName),
+          start: d.start || 0,
+          length: (d.end || 0) - (d.start || 0),
+          messageText: d.message,
+          category,
+          code: 9999, // Custom error code
+          source: "ts-macros",
+        };
+      });
+
+      return [...originalDiagnostics, ...macroDiagnostics];
+    };
 
     return info.languageService;
   }

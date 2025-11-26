@@ -13,6 +13,9 @@
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist"
   },
+  "dependencies": {
+    "@ts-macros/swc-napi": "workspace:*"
+  },
   "peerDependencies": {
     "typescript": ">=5.0.0"
   },
