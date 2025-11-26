@@ -33,7 +33,7 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
     let module_expr = quote! { "@macro/derive" };
 
     // Default runtime to ["native"]
-    let runtime_values = vec![LitStr::new("native", Span::call_site())];
+    let runtime_values = [LitStr::new("native", Span::call_site())];
     let runtime_exprs = runtime_values.iter().map(|lit| quote! { #lit });
 
     let kind_expr = options.kind.as_tokens();
@@ -75,8 +75,10 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
             }
 
             fn run(&self, input: ts_syn::TsStream) -> ts_macro_abi::MacroResult {
-                let result = #fn_ident(input);
-                ts_syn::TsStream::into_result(result)
+                match #fn_ident(input) {
+                    Ok(stream) => ts_syn::TsStream::into_result(stream),
+                    Err(err) => err.into(),
+                }
             }
 
             fn description(&self) -> &str {
@@ -153,10 +155,10 @@ fn parse_macro_options(tokens: TokenStream2) -> Result<MacroOptions> {
     };
 
     // Consume optional comma
-    if let Some(proc_macro2::TokenTree::Punct(p)) = tokens_iter.peek() {
-        if p.as_char() == ',' {
-            tokens_iter.next();
-        }
+    if let Some(proc_macro2::TokenTree::Punct(p)) = tokens_iter.peek()
+        && p.as_char() == ','
+    {
+        tokens_iter.next();
     }
 
     // Collect remaining tokens for meta parsing

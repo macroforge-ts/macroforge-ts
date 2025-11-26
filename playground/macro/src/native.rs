@@ -1,6 +1,6 @@
 use ts_macro_derive::ts_macro_derive;
 use ts_quote::ts_template;
-use ts_syn::{Data, DeriveInput, TsStream, parse_ts_macro_input};
+use ts_syn::{Data, DeriveInput, TsMacroError, TsStream, parse_ts_macro_input};
 
 fn capitalize(s: &str) -> String {
     let mut chars = s.chars();
@@ -14,13 +14,13 @@ fn capitalize(s: &str) -> String {
     JSON,
     description = "Generates a toJSON() implementation that returns a plain object with all fields"
 )]
-pub fn derive_json_macro(mut input: TsStream) -> TsStream {
+pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
 
     match &input.data {
         Data::Class(class) => {
             // Use Svelte-style templating for clean code generation!
-            ts_template! {
+            let stream = ts_template! {
                 toJSON(): Record<string, unknown> {
 
                     const result = {};
@@ -31,11 +31,14 @@ pub fn derive_json_macro(mut input: TsStream) -> TsStream {
 
                     return result;
                 };
-            }
+            };
+            Ok(stream)
         }
         Data::Enum(_) => {
-            // TODO: Error handling with TsStream result
-            panic!("@Derive(JSON) can only target classes");
+            Err(TsMacroError::new(
+                input.decorator_span(),
+                "@Derive(JSON) can only target classes",
+            ))
         }
     }
 }
@@ -45,7 +48,7 @@ pub fn derive_json_macro(mut input: TsStream) -> TsStream {
     description = "Generates depth-aware field controller helpers for reactive forms",
     attributes(FieldController)
 )]
-pub fn field_controller_macro(mut input: TsStream) -> TsStream {
+pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
 
     match &input.data {
@@ -58,9 +61,8 @@ pub fn field_controller_macro(mut input: TsStream) -> TsStream {
                 .collect();
 
             if decorated_fields.is_empty() {
-                // TODO: Handle warning
-                // For now, return empty stream
-                return ts_template! {};
+                // Return empty stream
+                return Ok(ts_template! {});
             }
 
             let class_name = input.name();
@@ -83,7 +85,7 @@ pub fn field_controller_macro(mut input: TsStream) -> TsStream {
 
             // ===== Generate All Runtime Code in Single Template =====
 
-            ts_template! {
+            let stream = ts_template! {
                 make${class_name}BaseProps<D extends number, const P extends DeepPath<${class_name}, D>, V = DeepValue<${class_name}, P, never, D>>(
                     superForm: SuperForm<${class_name}>,
                     path: P,
@@ -122,10 +124,14 @@ pub fn field_controller_macro(mut input: TsStream) -> TsStream {
                         };
                     };
                 {/each}
-            }
+            };
+            Ok(stream)
         }
         Data::Enum(_) => {
-            panic!("@Derive(FieldController) can only target classes");
+             Err(TsMacroError::new(
+                input.decorator_span(),
+                "@Derive(FieldController) can only target classes",
+            ))
         }
     }
 }
