@@ -82,13 +82,33 @@ function napiMacrosPlugin(options = {}) {
                 return null;
             }
             // Check if Rust transformer is available
-            if (!rustTransformer || !rustTransformer.transformSync) {
+            if (!rustTransformer || !rustTransformer.expandSync) {
                 // Return unchanged if transformer not available
                 return null;
             }
             try {
-                // Call the Rust transformer
-                const result = rustTransformer.transformSync(code, id);
+                const result = rustTransformer.expandSync(code, id);
+                // Report diagnostics
+                for (const diag of result.diagnostics) {
+                    if (diag.level === 'error') {
+                        this.error({
+                            message: `Macro error at ${id}:${diag.start}-${diag.end}: ${diag.message}`,
+                            id: id,
+                            loc: diag.start !== undefined && diag.end !== undefined
+                                ? {
+                                    file: id,
+                                    line: 0, // Vite expects line numbers. MacroDiagnostics are byte offsets.
+                                    column: diag.start // Need to map byte offset to line/column. For now, just use start.
+                                }
+                                : undefined,
+                            // Other error properties can be added if needed
+                        });
+                    }
+                    else {
+                        // Log warnings and info messages
+                        console.warn(`[vite-plugin-napi-macros] ${diag.level}: ${diag.message}`);
+                    }
+                }
                 if (result && result.code) {
                     if (generateTypes && result.types) {
                         writeTypeDefinitions(id, result.types);
@@ -98,7 +118,7 @@ function napiMacrosPlugin(options = {}) {
                     }
                     return {
                         code: result.code,
-                        map: result.map || null
+                        map: null // expandSync does not generate source maps yet
                     };
                 }
             }
