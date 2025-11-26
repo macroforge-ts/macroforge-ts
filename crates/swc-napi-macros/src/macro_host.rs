@@ -247,47 +247,46 @@ impl MacroHostIntegration {
         let mut runtime_patches = Vec::new();
         let mut type_patches = Vec::new();
 
-        if let Some(tokens) = &result.tokens {
-            if ctx.macro_kind == ts_macro_abi::MacroKind::Derive {
-                if let TargetIR::Class(class_ir) = &ctx.target {
-                    // It's a derive on a class.
-                    // Wrap tokens in a class to parse members
-                    let wrapped_src = format!("class __Temp {{ {} }}", tokens);
-                    let stmt = ts_syn::parse_ts_stmt(&wrapped_src)
-                        .map_err(|e| anyhow::anyhow!("Failed to parse macro output: {:?}", e))?;
+        if let Some(tokens) = &result.tokens
+            && ctx.macro_kind == ts_macro_abi::MacroKind::Derive
+            && let TargetIR::Class(class_ir) = &ctx.target
+        {
+            // It's a derive on a class.
+            // Wrap tokens in a class to parse members
+            let wrapped_src = format!("class __Temp {{ {} }}", tokens);
+            let stmt = ts_syn::parse_ts_stmt(&wrapped_src)
+                .map_err(|e| anyhow::anyhow!("Failed to parse macro output: {:?}", e))?;
 
-                    if let Stmt::Decl(Decl::Class(class_decl)) = stmt {
-                        for member in class_decl.class.body {
-                            // Intent: AppendClassMember
-                            // Insert at end of body (before closing brace)
-                            let insert_pos = class_ir.body_span.end - 1;
+            if let Stmt::Decl(Decl::Class(class_decl)) = stmt {
+                for member in class_decl.class.body {
+                    // Intent: AppendClassMember
+                    // Insert at end of body (before closing brace)
+                    let insert_pos = class_ir.body_span.end - 1;
 
-                            runtime_patches.push(Patch::Insert {
-                                at: SpanIR {
-                                    start: insert_pos,
-                                    end: insert_pos,
-                                },
-                                code: PatchCode::ClassMember(member.clone()),
-                            });
+                    runtime_patches.push(Patch::Insert {
+                        at: SpanIR {
+                            start: insert_pos,
+                            end: insert_pos,
+                        },
+                        code: PatchCode::ClassMember(member.clone()),
+                    });
 
-                            // Generate type signature
-                            let mut signature_member = member.clone();
-                            match &mut signature_member {
-                                ClassMember::Method(m) => m.function.body = None,
-                                ClassMember::Constructor(c) => c.body = None,
-                                ClassMember::PrivateMethod(m) => m.function.body = None,
-                                _ => {}
-                            }
-
-                            type_patches.push(Patch::Insert {
-                                at: SpanIR {
-                                    start: insert_pos,
-                                    end: insert_pos,
-                                },
-                                code: PatchCode::ClassMember(signature_member),
-                            });
-                        }
+                    // Generate type signature
+                    let mut signature_member = member.clone();
+                    match &mut signature_member {
+                        ClassMember::Method(m) => m.function.body = None,
+                        ClassMember::Constructor(c) => c.body = None,
+                        ClassMember::PrivateMethod(m) => m.function.body = None,
+                        _ => {}
                     }
+
+                    type_patches.push(Patch::Insert {
+                        at: SpanIR {
+                            start: insert_pos,
+                            end: insert_pos,
+                        },
+                        code: PatchCode::ClassMember(signature_member),
+                    });
                 }
             }
         }
@@ -603,17 +602,6 @@ import { Derive } from "@macro/derive";
 @Derive(JSON)
 class Data {
     val: number;
-}
-"#;
-
-        let expected = r#"
-class Data {
-    val: number;
-    toJSON(): Record<string, unknown> {
-        const result = {};
-        result.val = this.val;
-        return result;
-    };
 }
 "#;
 
