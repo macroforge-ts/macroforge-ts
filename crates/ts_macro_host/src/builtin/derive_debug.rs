@@ -23,6 +23,7 @@ impl TsMacro for DeriveDebugMacro {
                     runtime_patches: vec![],
                     type_patches: vec![],
                     diagnostics: vec![],
+                    tokens: None,
                     debug: Some("No macro context available".into()),
                 };
             }
@@ -35,6 +36,7 @@ impl TsMacro for DeriveDebugMacro {
                     runtime_patches: vec![],
                     type_patches: vec![],
                     diagnostics: vec![],
+                    tokens: None,
                     debug: Some("@Derive(Debug) can only be applied to classes".into()),
                 };
             }
@@ -69,6 +71,7 @@ impl TsMacro for DeriveDebugMacro {
             runtime_patches,
             type_patches,
             diagnostics: vec![],
+            tokens: None,
             debug: None,
         }
     }

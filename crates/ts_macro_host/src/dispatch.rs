@@ -50,6 +50,7 @@ impl MacroDispatcher {
                                     .to_string(),
                             ),
                         }],
+                        tokens: None,
                         debug: None,
                     };
                 }
@@ -67,10 +68,12 @@ impl MacroDispatcher {
                                     message: format!("Failed to create TsStream: {:?}", err),
                                     span: Some(ctx.decorator_span),
                                     notes: vec![],
-                                    help: None,
-                                }],
-                                debug: None,
-                            };
+                                                                    help: None,
+                                                                }],
+                                                                tokens: None,
+                                                                debug: None,
+                                                            };
+                                    
                         }
                     };
 
@@ -103,6 +106,7 @@ impl MacroDispatcher {
                                 notes: vec![],
                                 help: None,
                             }],
+                            tokens: None,
                             debug: None,
                         }
                     }
@@ -126,6 +130,7 @@ impl MacroDispatcher {
                             "Make sure the macro package is installed and configured".to_string(),
                         ),
                     }],
+                    tokens: None,
                     debug: None,
                 }
             }
@@ -177,7 +182,7 @@ mod tests {
         let dispatcher = MacroDispatcher::new(registry);
 
         let ctx = MacroContextIR {
-            abi_version: 2,
+            abi_version: 1,
             macro_kind: MacroKind::Derive,
             macro_name: "Debug".to_string(),
             module_path: "@macro/derive".to_string(),

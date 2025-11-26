@@ -90,6 +90,8 @@ pub struct MacroResult {
     pub type_patches: Vec<Patch>,
     /// Diagnostic messages (errors, warnings, info)
     pub diagnostics: Vec<Diagnostic>,
+    /// Optional raw token stream (source code) returned by the macro
+    pub tokens: Option<String>,
     /// Optional debug information for development
     pub debug: Option<String>,
 }

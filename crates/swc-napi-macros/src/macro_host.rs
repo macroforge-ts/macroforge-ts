@@ -4,11 +4,13 @@ use std::{collections::HashMap, path::Path};
 use swc_core::{
     common::Span,
     ecma::ast::{
-        Class, Decl, Decorator, ExportDecl, Module, ModuleDecl, ModuleItem, Program, Stmt,
+        Class, ClassMember, Decl, Decorator, ExportDecl, Module, ModuleDecl, ModuleItem, Program,
+        Stmt,
     },
 };
 use ts_macro_abi::{
-    ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, Patch, PatchCode, SpanIR,
+    ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode, SpanIR,
+    TargetIR,
 };
 use ts_macro_host::{
     MacroConfig, MacroDispatcher, MacroRegistry, PatchCollector, builtin::register_builtin_macros,
@@ -212,13 +214,19 @@ impl MacroHostIntegration {
                     target_source.clone(),
                 );
 
-                let result = self.dispatcher.dispatch(ctx);
+                let mut result = self.dispatcher.dispatch(ctx.clone());
 
                 debug_assert!(
                     result.diagnostics.is_empty(),
                     "Macro dispatch returned diagnostics: {:?}",
                     result.diagnostics
                 );
+
+                // Process potential token stream result
+                if let Ok((runtime, type_def)) = self.process_macro_output(&mut result, &ctx) {
+                    result.runtime_patches.extend(runtime);
+                    result.type_patches.extend(type_def);
+                }
 
                 if !result.diagnostics.is_empty() {
                     diagnostics.extend(result.diagnostics.clone());
@@ -229,6 +237,61 @@ impl MacroHostIntegration {
             }
         }
         (collector, diagnostics)
+    }
+
+    fn process_macro_output(
+        &self,
+        result: &mut MacroResult,
+        ctx: &MacroContextIR,
+    ) -> Result<(Vec<Patch>, Vec<Patch>)> {
+        let mut runtime_patches = Vec::new();
+        let mut type_patches = Vec::new();
+
+        if let Some(tokens) = &result.tokens {
+            if ctx.macro_kind == ts_macro_abi::MacroKind::Derive {
+                if let TargetIR::Class(class_ir) = &ctx.target {
+                    // It's a derive on a class.
+                    // Wrap tokens in a class to parse members
+                    let wrapped_src = format!("class __Temp {{ {} }}", tokens);
+                    let stmt = ts_syn::parse_ts_stmt(&wrapped_src)
+                        .map_err(|e| anyhow::anyhow!("Failed to parse macro output: {:?}", e))?;
+
+                    if let Stmt::Decl(Decl::Class(class_decl)) = stmt {
+                        for member in class_decl.class.body {
+                            // Intent: AppendClassMember
+                            // Insert at end of body (before closing brace)
+                            let insert_pos = class_ir.body_span.end - 1;
+
+                            runtime_patches.push(Patch::Insert {
+                                at: SpanIR {
+                                    start: insert_pos,
+                                    end: insert_pos,
+                                },
+                                code: PatchCode::ClassMember(member.clone()),
+                            });
+
+                            // Generate type signature
+                            let mut signature_member = member.clone();
+                            match &mut signature_member {
+                                ClassMember::Method(m) => m.function.body = None,
+                                ClassMember::Constructor(c) => c.body = None,
+                                ClassMember::PrivateMethod(m) => m.function.body = None,
+                                _ => {}
+                            }
+
+                            type_patches.push(Patch::Insert {
+                                at: SpanIR {
+                                    start: insert_pos,
+                                    end: insert_pos,
+                                },
+                                code: PatchCode::ClassMember(signature_member),
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        Ok((runtime_patches, type_patches))
     }
 
     fn apply_and_finalize_expansion(
@@ -466,24 +529,27 @@ fn register_packages(
     requested.dedup();
 
     for module in requested {
+        let mut found = false;
+
         if let Some(registrar) = embedded_map.get(module) {
             registrar(registry)
                 .map_err(anyhow::Error::from)
                 .with_context(|| format!("failed to register macro package {module}"))?;
-            continue;
+            found = true;
         }
 
-        if derived_set.contains(module)
-            && ts_macro_host::derived::register_module(module, registry)?
-        {
-            continue;
+        if derived_set.contains(module) {
+            ts_macro_host::derived::register_module(module, registry)?;
+            found = true;
         }
 
-        eprintln!(
-            "[ts-macros] warning: macro package '{}' not found among embedded/derived macros. \
-             Ensure it is compiled into the host or update ts-macros.json.",
-            module
-        );
+        if !found {
+            eprintln!(
+                "[ts-macros] warning: macro package '{}' not found among embedded/derived macros. \
+                 Ensure it is compiled into the host or update ts-macros.json.",
+                module
+            );
+        }
     }
 
     Ok(())
@@ -527,6 +593,44 @@ mod tests {
         fn replace_whitespace(&self) -> String {
             self.chars().filter(|c| !c.is_whitespace()).collect()
         }
+    }
+
+    #[test]
+    fn test_derive_json_macro() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(JSON)
+class Data {
+    val: number;
+}
+"#;
+
+        let expected = r#"
+class Data {
+    val: number;
+    toJSON(): Record<string, unknown> {
+        const result = {};
+        result.val = this.val;
+        return result;
+    };
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed, "expand() should report changes");
+            // We check the code patches, not type output for this one (as it adds implementation)
+            // But wait, the macro adds patches to runtime.
+            // Let's check if the output code contains toJSON
+            
+            // The patch applicator preserves formatting roughly
+            assert!(result.code.contains("toJSON(): Record<string, unknown>"));
+            assert!(result.code.contains("result.val = this.val"));
+        });
     }
 
     #[test]

@@ -344,16 +344,7 @@ macro_rules! parse_ts_macro_input {
         match <$ty as $crate::ParseTs>::parse(&mut $input) {
             Ok(parsed) => parsed,
             Err(e) => {
-                return ::ts_macro_abi::MacroResult {
-                    diagnostics: vec![::ts_macro_abi::Diagnostic {
-                        level: ::ts_macro_abi::DiagnosticLevel::Error,
-                        message: format!("Failed to parse input: {}", e),
-                        span: None,
-                        notes: vec![],
-                        help: None,
-                    }],
-                    ..Default::default()
-                };
+                panic!("Failed to parse input: {}", e);
             }
         }
     };
