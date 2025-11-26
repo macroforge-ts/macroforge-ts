@@ -101,6 +101,25 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
             diagnostics.push(...checker.call(lang, tsDoc.filePath));
         }
 
+        // Add macro diagnostics
+        if (tsDoc.macroDiagnostics && tsDoc.macroDiagnostics.length > 0) {
+            const macroDiags: ts.Diagnostic[] = tsDoc.macroDiagnostics.map((d) => ({
+                category:
+                    d.level === 'error'
+                        ? ts.DiagnosticCategory.Error
+                        : d.level === 'warning'
+                        ? ts.DiagnosticCategory.Warning
+                        : ts.DiagnosticCategory.Message,
+                code: 9999,
+                file: lang.getProgram()?.getSourceFile(tsDoc.filePath),
+                start: d.start,
+                length: (d.end || 0) - (d.start || 0),
+                messageText: d.message,
+                source: 'ts-macros'
+            }));
+            diagnostics.push(...macroDiags);
+        }
+
         const additionalStoreDiagnostics: ts.Diagnostic[] = [];
         const notGenerated = isNotGenerated(tsDoc.getFullText());
         for (const diagnostic of diagnostics) {

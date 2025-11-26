@@ -2,6 +2,22 @@
 /* eslint-disable */
 /** Generates depth-aware field controller helpers for reactive forms */
 export declare function FieldController(): void
+export interface ExpandResult {
+  code: string
+  types?: string
+  diagnostics: Array<MacroDiagnostic>
+}
+
+/** Expand macros in TypeScript code and return the transformed TS (types) and diagnostics */
+export declare function expandSync(code: string, filepath: string): ExpandResult
+
+export interface MacroDiagnostic {
+  level: string
+  message: string
+  start?: number
+  end?: number
+}
+
 export interface TransformResult {
   code: string
   map?: string

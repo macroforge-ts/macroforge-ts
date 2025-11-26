@@ -21,12 +21,69 @@ pub struct TransformResult {
     pub metadata: Option<String>,
 }
 
+#[napi(object)]
+pub struct MacroDiagnostic {
+    pub level: String,
+    pub message: String,
+    pub start: Option<u32>,
+    pub end: Option<u32>,
+}
+
+#[napi(object)]
+pub struct ExpandResult {
+    pub code: String,
+    pub types: Option<String>,
+    pub diagnostics: Vec<MacroDiagnostic>,
+}
+
 /// Transform TypeScript code to JavaScript with macro expansion
 #[napi]
 pub fn transform_sync(code: String, filepath: String) -> Result<TransformResult> {
     // Initialize SWC globals
     let globals = Globals::default();
     GLOBALS.set(&globals, || transform_inner(&code, &filepath))
+}
+
+/// Expand macros in TypeScript code and return the transformed TS (types) and diagnostics
+#[napi]
+pub fn expand_sync(code: String, filepath: String) -> Result<ExpandResult> {
+    let globals = Globals::default();
+    GLOBALS.set(&globals, || expand_inner(&code, &filepath))
+}
+
+fn expand_inner(code: &str, filepath: &str) -> Result<ExpandResult> {
+    let macro_host = MacroHostIntegration::new().map_err(|err| {
+        Error::new(
+            Status::GenericFailure,
+            format!("Failed to initialize macro host: {err:?}"),
+        )
+    })?;
+
+    let (program, _) = parse_program(code, filepath)?;
+
+    let expansion = macro_host.expand(code, &program, filepath).map_err(|err| {
+        Error::new(
+            Status::GenericFailure,
+            format!("Macro expansion failed: {err:?}"),
+        )
+    })?;
+
+    let diagnostics = expansion
+        .diagnostics
+        .into_iter()
+        .map(|d| MacroDiagnostic {
+            level: format!("{:?}", d.level).to_lowercase(),
+            message: d.message,
+            start: d.span.map(|s| s.start),
+            end: d.span.map(|s| s.end),
+        })
+        .collect();
+
+    Ok(ExpandResult {
+        code: expansion.code,
+        types: expansion.type_output,
+        diagnostics,
+    })
 }
 
 fn transform_inner(code: &str, filepath: &str) -> Result<TransformResult> {

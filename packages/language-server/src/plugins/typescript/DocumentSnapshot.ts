@@ -32,7 +32,8 @@ import { surroundWithIgnoreComments } from './features/utils';
 import { configLoader } from '../../lib/documents/configLoader';
 import {
     augmentWithTsMacros,
-    TsMacrosAugmentationConfig
+    TsMacrosAugmentationConfig,
+    MacroDiagnostic
 } from './tsMacrosAugmenter';
 
 /**
@@ -58,6 +59,7 @@ export interface DocumentSnapshot extends ts.IScriptSnapshot, DocumentMapper {
     filePath: string;
     scriptKind: ts.ScriptKind;
     scriptInfo: TagInformation | null;
+    macroDiagnostics: MacroDiagnostic[];
     positionAt(offset: number): Position;
     offsetAt(position: Position): number;
     /**
@@ -322,6 +324,8 @@ export class SvelteDocumentSnapshot implements DocumentSnapshot {
         return this.parent.getFilePath() || '';
     }
 
+    public macroDiagnostics: MacroDiagnostic[] = [];
+
     private applyTsMacrosAugmentation() {
         if (!this.tsMacrosConfig) {
             return;
@@ -334,9 +338,10 @@ export class SvelteDocumentSnapshot implements DocumentSnapshot {
             this.tsMacrosConfig
         );
 
-        if (augmented) {
-            this.text = augmented;
+        if (augmented.types) {
+            this.text = augmented.types;
         }
+        this.macroDiagnostics = augmented.diagnostics;
     }
 
     get scriptInfo() {
@@ -667,6 +672,8 @@ export class JSOrTSDocumentSnapshot extends IdentityMapper implements DocumentSn
         this.applyTsMacrosAugmentation();
     }
 
+    public macroDiagnostics: MacroDiagnostic[] = [];
+
     private applyTsMacrosAugmentation() {
         if (!this.tsMacrosConfig) {
             return;
@@ -679,9 +686,10 @@ export class JSOrTSDocumentSnapshot extends IdentityMapper implements DocumentSn
             this.tsMacrosConfig
         );
 
-        if (augmented) {
-            this.text = augmented;
+        if (augmented.types) {
+            this.text = augmented.types;
         }
+        this.macroDiagnostics = augmented.diagnostics;
     }
 
     private createSource() {
