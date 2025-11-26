@@ -1,5 +1,5 @@
 {
-	"name": "svelte",
+	"name": "@playground/svelte",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
@@ -13,7 +13,6 @@
 	},
 	"dependencies": {
 		"@playground/macro": "file:../macro",
-		"@sveltejs/kit": "^2.48.5",
 		"@ts-macros/macros": "file:../../packages/macros",
 		"@ts-macros/swc-napi": "file:../../crates/swc-napi-macros",
 		"effect": "^3.19.4",
@@ -22,7 +21,7 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.0",
-		"@sveltejs/kit": "^2.48.5",
+		"@sveltejs/kit": "^2.49.0",
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
 		"@ts-macros/ts-derive-plugin": "file:../../packages/ts-derive-plugin",
 		"svelte": "^5.43.8",

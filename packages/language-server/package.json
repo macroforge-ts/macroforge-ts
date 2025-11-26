@@ -52,7 +52,7 @@
 	},
 	"dependencies": {
 		"@jridgewell/trace-mapping": "^0.3.25",
-		"@ts-macros/swc-napi": "workspace:*",
+		"@ts-macros/swc-napi": "file:../../crates/swc-napi-macros",
 		"@vscode/emmet-helper": "2.8.4",
 		"chokidar": "^4.0.1",
 		"estree-walker": "^2.0.1",

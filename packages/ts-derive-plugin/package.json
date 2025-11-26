@@ -14,7 +14,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ts-macros/swc-napi": "workspace:*"
+    "@ts-macros/swc-napi": "file:../../crates/swc-napi-macros"
   },
   "peerDependencies": {
     "typescript": ">=5.0.0"
