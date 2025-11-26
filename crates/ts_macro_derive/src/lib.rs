@@ -2,9 +2,7 @@ use convert_case::{Case, Casing};
 use proc_macro::TokenStream;
 use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::{format_ident, quote};
-use syn::{
-    Ident, ItemFn, LitStr, Result, parse::Parser, parse_macro_input, spanned::Spanned,
-};
+use syn::{Ident, ItemFn, LitStr, Result, parse::Parser, parse_macro_input, spanned::Spanned};
 
 #[proc_macro_attribute]
 pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
@@ -45,10 +43,9 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         .attributes
         .iter()
         .map(|attr_name| generate_decorator_descriptor(attr_name, &package_expr));
-    let decorator_stubs = options
-        .attributes
-        .iter()
-        .map(|attr_name| generate_decorator_stub(attr_name, &struct_ident, options.description.as_ref()));
+    let decorator_stubs = options.attributes.iter().map(|attr_name| {
+        generate_decorator_stub(attr_name, &struct_ident, options.description.as_ref())
+    });
 
     let descriptor_ident = format_ident!(
         "__TS_MACRO_DESCRIPTOR_{}",
@@ -150,7 +147,7 @@ fn parse_macro_options(tokens: TokenStream2) -> Result<MacroOptions> {
             return Err(syn::Error::new(
                 first.span(),
                 "macro name must be an identifier",
-            ))
+            ));
         }
     };
 
@@ -233,7 +230,11 @@ fn generate_decorator_descriptor(attr_name: &Ident, package_expr: &TokenStream2)
 }
 
 // Helper function to generate a napi stub for an attribute decorator
-fn generate_decorator_stub(attr_name: &Ident, owner_ident: &Ident, description: Option<&LitStr>) -> TokenStream2 {
+fn generate_decorator_stub(
+    attr_name: &Ident,
+    owner_ident: &Ident,
+    description: Option<&LitStr>,
+) -> TokenStream2 {
     let owner_snake = owner_ident.to_string().to_case(Case::Snake);
     let decorator_snake = attr_name.to_string().to_case(Case::Snake);
     let fn_ident = format_ident!("__ts_macro_stub_{}_{}", owner_snake, decorator_snake);
@@ -284,4 +285,3 @@ impl MacroKindOption {
         }
     }
 }
-

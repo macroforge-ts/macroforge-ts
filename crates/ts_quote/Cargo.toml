@@ -6,6 +6,9 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 
+[lib]
+proc-macro = true
+
 [features]
 default = ["swc"]
 swc = ["dep:swc_core"]
@@ -17,3 +20,8 @@ swc_core = { version = "48", optional = true, default-features = false, features
   "ecma_quote",
 ] }
 
+[dependencies]
+proc-macro2 = "1.0.95"
+quote = "1.0.40"
+syn = { version = "2.0.104", features = ["full"] }
+convert_case = "0.6"

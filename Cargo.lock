@@ -1610,9 +1610,11 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+ "swc_core",
  "ts_macro_abi",
  "ts_macro_derive",
  "ts_macro_host",
+ "ts_quote",
  "ts_syn",
 ]
 

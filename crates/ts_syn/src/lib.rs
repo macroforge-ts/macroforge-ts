@@ -2,8 +2,6 @@ pub mod derive;
 pub mod errors;
 pub mod lower;
 pub mod parse;
-#[cfg(feature = "swc")]
-pub mod quote;
 pub mod stream;
 
 pub use derive::*;

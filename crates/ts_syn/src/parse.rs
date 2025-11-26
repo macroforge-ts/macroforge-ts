@@ -21,12 +21,7 @@ pub fn parse_ts_module(source: &str, file_name: &str) -> Result<Module, TsSynErr
         ..Default::default()
     });
 
-    let lexer = Lexer::new(
-        syntax,
-        EsVersion::latest(),
-        StringInput::from(&*fm),
-        None,
-    );
+    let lexer = Lexer::new(syntax, EsVersion::latest(), StringInput::from(&*fm), None);
 
     let mut parser = Parser::new_from(lexer);
     parser

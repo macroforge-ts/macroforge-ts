@@ -16,6 +16,11 @@ napi-derive = { version = "3.3.3", features = ["compat-mode"] }
 ts_macro_host = { path = "../../crates/ts_macro_host" }
 ts_macro_abi = { path = "../../crates/ts_macro_abi" }
 ts_syn = { path = "../../crates/ts_syn" }
+ts_quote = { path = "../../crates/ts_quote" }
+swc_core = { version = "48", default-features = false, features = [
+  "common",
+  "ecma_ast",
+] }
 inventory = "0.3"
 ts_macro_derive = { path = "../../crates/ts_macro_derive" }
 
