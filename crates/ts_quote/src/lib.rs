@@ -4,13 +4,16 @@
 //! macro (re-exported from `swc_core`) plus a couple of helpers for creating
 //! identifiers with predictable hygiene. The goal is to decouple codegen
 //! utilities from the heavier parsing utilities that live in `ts_syn`.
-use convert_case::Case;
+
+mod template;
+
+use convert_case::{Case, Casing};
 use proc_macro::TokenStream;
 use proc_macro2::{Delimiter, Spacing, Span, TokenStream as TokenStream2, TokenTree};
-use quote::{ToTokens, quote};
+use quote::ToTokens;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use syn::parse::{Parse, ParseStream};
-use syn::{Expr, Ident, Token, Type, parse_macro_input, parse_str};
+use syn::{Expr, Ident, Type, parse_macro_input, parse_str};
 
 static COUNTER: AtomicUsize = AtomicUsize::new(0);
 
@@ -37,17 +40,17 @@ impl Parse for TsQuoteInput {
 
         if len >= 2 {
             // Check second to last token for "as"
-            if let TokenTree::Ident(ref ident) = tokens[len - 2] {
-                if ident.to_string() == "as" {
-                    // Check if the last token (or tokens) form a valid Type
-                    let last_token = &tokens[len - 1];
-                    let type_candidate: TokenStream2 = last_token.clone().into();
+            if let TokenTree::Ident(ref ident) = tokens[len - 2]
+                && *ident == "as"
+            {
+                // Check if the last token (or tokens) form a valid Type
+                let last_token = &tokens[len - 1];
+                let type_candidate: TokenStream2 = last_token.clone().into();
 
-                    // We attempt to parse the last token as a Type.
-                    if let Ok(ty) = parse_str::<Type>(&type_candidate.to_string()) {
-                        type_node = Some(ty);
-                        cut_index = len - 2;
-                    }
+                // We attempt to parse the last token as a Type.
+                if let Ok(ty) = parse_str::<Type>(&type_candidate.to_string()) {
+                    type_node = Some(ty);
+                    cut_index = len - 2;
                 }
             }
         }
@@ -82,25 +85,57 @@ pub fn ts_quote(input: TokenStream) -> TokenStream {
         final_str = format!("({})", final_str);
     }
 
+    // Use swc_core::quote!
+    let mut output = TokenStream2::new();
+
+    // Start with swc_core::quote!(
+    output.extend(quote_ident("swc_core"));
+    output.extend(quote_punct("::"));
+    output.extend(quote_ident("quote"));
+    output.extend(quote_punct("!"));
+
+    // Build the arguments group
+    let mut args = TokenStream2::new();
+
+    // Add the string literal
     let clean_lit = syn::LitStr::new(&final_str, Span::call_site());
+    args.extend(clean_lit.to_token_stream());
 
-    // Construct the target type syntax for swc_core::quote
-    let quote_target = if let Some(ty) = input.output_type {
-        quote! { #clean_lit as #ty }
-    } else {
-        quote! { #clean_lit }
-    };
+    // Add "as Type" if specified
+    if let Some(ty) = input.output_type {
+        args.extend(quote_ident("as"));
+        args.extend(ty.to_token_stream());
+    }
 
-    // Generate the final macro call to swc_core::quote!
-    // We expand our captured bindings into the `var: Type = val` format it expects.
-    let expanded = quote! {
-        swc_core::quote!(
-            #quote_target,
-            #(#bindings),*
-        )
-    };
+    // Add bindings
+    if !bindings.is_empty() {
+        args.extend(quote_punct(","));
+        for (i, binding) in bindings.iter().enumerate() {
+            if i > 0 {
+                args.extend(quote_punct(","));
+            }
+            args.extend(binding.clone());
+        }
+    }
 
-    TokenStream::from(expanded)
+    // Wrap in parentheses
+    output.extend(TokenStream2::from(TokenTree::Group(
+        proc_macro2::Group::new(Delimiter::Parenthesis, args)
+    )));
+
+    TokenStream::from(output)
+}
+
+fn quote_ident(s: &str) -> TokenStream2 {
+    let ident = Ident::new(s, Span::call_site());
+    TokenStream2::from(TokenTree::Ident(ident))
+}
+
+fn quote_punct(s: &str) -> TokenStream2 {
+    use proc_macro2::Punct;
+    s.chars()
+        .map(|c| TokenTree::Punct(Punct::new(c, Spacing::Joint)))
+        .collect()
 }
 
 /// Walks the token stream to reconstruct the JS string while extracting $(...) patterns.
@@ -113,20 +148,29 @@ fn process_tokens(tokens: TokenStream2) -> (String, Vec<TokenStream2>) {
         match tt {
             // Detect $(...) pattern
             TokenTree::Punct(ref p) if p.as_char() == '$' => {
-                if let Some(TokenTree::Group(g)) = iter.peek() {
-                    if g.delimiter() == Delimiter::Parenthesis {
-                        // Found $(...)
-                        let inner = g.stream();
-                        iter.next(); // consume the group
+                if let Some(TokenTree::Group(g)) = iter.peek()
+                    && g.delimiter() == Delimiter::Parenthesis
+                {
+                    // Found $(...)
+                    let inner = g.stream();
+                    iter.next(); // consume the group
 
-                        // Parse the content of $()
-                        let (bind_name, binding_code) = parse_interpolation(inner);
+                    // Parse the content of $()
+                    let (bind_name, binding_code, is_vec_expansion) = parse_interpolation(inner);
+
+                    // Only push binding if there's actual code
+                    if !binding_code.is_empty() {
                         bindings.push(binding_code);
-
-                        // Output valid SWC interpolation syntax: $var_name
-                        output.push_str(&format!("${}", bind_name));
-                        continue;
                     }
+
+                    // Output valid SWC interpolation syntax
+                    // Use *$var_name for vec expansion, $var_name otherwise
+                    if is_vec_expansion {
+                        output.push_str(&format!("*${}", bind_name));
+                    } else {
+                        output.push_str(&format!("${}", bind_name));
+                    }
+                    continue;
                 }
                 // Just a literal '$'
                 output.push('$');
@@ -170,10 +214,13 @@ fn process_tokens(tokens: TokenStream2) -> (String, Vec<TokenStream2>) {
 /// Parses the content inside $(...).
 /// Handles:
 /// 1. ident!("fmt", args...) -> Ident coercion with formatting
-/// 2. stmt!(expr) -> Stmt coercion
-/// 3. expr : Type -> Explicit typing
-/// 4. expr -> Default (untyped, usually Expr)
-fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2) {
+/// 2. stmt_vec!(expr) -> Vec<Stmt> expansion (returns is_vec=true)
+/// 3. stmt!(expr) -> Stmt coercion
+/// 4. expr : Type -> Explicit typing
+/// 5. expr -> Default (untyped, usually Expr)
+///
+/// Returns: (bind_name, binding_code, is_vec_expansion)
+fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
     // Generate a unique binding name for SWC
     let bind_name = format!(
         "__ts_bind_{}_{}",
@@ -186,103 +233,221 @@ fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2) {
 
     // Check for wrapper syntax: type!(...)
     // Pattern: Ident `name` + Punct `!` + Group `(...)`
-    if token_vec.len() >= 3 {
-        if let TokenTree::Ident(ref wrapper) = token_vec[0] {
-            if let TokenTree::Punct(ref p) = token_vec[1] {
-                if p.as_char() == '!' {
-                    if let TokenTree::Group(ref g) = token_vec[2] {
-                        let wrapper_name = wrapper.to_string();
-                        let args = g.stream();
+    if token_vec.len() >= 3
+        && let TokenTree::Ident(ref wrapper) = token_vec[0]
+        && let TokenTree::Punct(ref p) = token_vec[1]
+        && p.as_char() == '!'
+        && let TokenTree::Group(ref g) = token_vec[2]
+    {
+        let wrapper_name = wrapper.to_string();
+        let args = g.stream();
 
-                        // Special case: ident!(...) supports format! syntax directly
-                        if wrapper_name == "ident" {
-                            return (
-                                bind_name,
-                                quote! {
-                                    #bind_ident: swc_core::ecma::ast::Ident = swc_core::ecma::ast::Ident::new(
-                                        format!(#args).into(),
-                                        swc_core::common::DUMMY_SP
-                                    )
-                                },
-                            );
-                        }
+        // Special case: stmt_vec!(...) for Vec<Stmt> - inline the statements
+        if wrapper_name == "stmt_vec" {
+            // The args should be a simple expression (the vec variable)
+            let expr: Expr = syn::parse2(args).expect("Invalid expression in stmt_vec!()");
 
-                        // General case: stmt!(expr), expr!(expr), module_item!(expr)
-                        // We convert wrapper name to PascalCase type:
-                        // stmt -> Stmt, module_item -> ModuleItem
-                        let type_name = to_pascal_case(&wrapper_name);
-                        let type_ident = Ident::new(&type_name, Span::call_site());
+            // Generate: bind_ident = expr (without type annotation, inferred from usage)
+            let mut binding = TokenStream2::new();
+            binding.extend(bind_ident.to_token_stream());
+            binding.extend(quote_punct("="));
+            binding.extend(expr.to_token_stream());
 
-                        return (
-                            bind_name,
-                            quote! {
-                                #bind_ident: #type_ident = #args
-                            },
-                        );
-                    }
-                }
-            }
+            // Return with is_vec_expansion = true
+            return (bind_name, binding, true);
         }
+
+        // Special case: ident!(...) supports format! syntax directly
+        if wrapper_name == "ident" {
+            // Build the function arguments: (format!(args).into(), swc_core::common::DUMMY_SP)
+            let mut fn_args = TokenStream2::new();
+
+            // format!(args).into()
+            fn_args.extend(quote_ident("format"));
+            fn_args.extend(quote_punct("!"));
+            fn_args.extend(TokenStream2::from(TokenTree::Group(
+                proc_macro2::Group::new(Delimiter::Parenthesis, args.clone())
+            )));
+            fn_args.extend(quote_punct("."));
+            fn_args.extend(quote_ident("into"));
+            fn_args.extend(TokenStream2::from(TokenTree::Group(
+                proc_macro2::Group::new(Delimiter::Parenthesis, TokenStream2::new())
+            )));
+            fn_args.extend(quote_punct(","));
+
+            // swc_core::common::DUMMY_SP
+            fn_args.extend(quote_ident("swc_core"));
+            fn_args.extend(quote_punct("::"));
+            fn_args.extend(quote_ident("common"));
+            fn_args.extend(quote_punct("::"));
+            fn_args.extend(quote_ident("DUMMY_SP"));
+
+            // Generate: bind_ident = swc_core::ecma::ast::Ident::new(...)
+            let mut binding = TokenStream2::new();
+            binding.extend(bind_ident.to_token_stream());
+            binding.extend(quote_punct("="));
+            binding.extend(quote_ident("swc_core"));
+            binding.extend(quote_punct("::"));
+            binding.extend(quote_ident("ecma"));
+            binding.extend(quote_punct("::"));
+            binding.extend(quote_ident("ast"));
+            binding.extend(quote_punct("::"));
+            binding.extend(quote_ident("Ident"));
+            binding.extend(quote_punct("::"));
+            binding.extend(quote_ident("new_no_ctxt"));
+            binding.extend(TokenStream2::from(TokenTree::Group(
+                proc_macro2::Group::new(Delimiter::Parenthesis, fn_args)
+            )));
+
+            return (bind_name, binding, false);
+        }
+
+        // General case: stmt!(expr), expr!(expr), module_item!(expr)
+        // Add type annotation to help swc_core::quote! understand the type
+        let type_name = wrapper_name.to_case(Case::Pascal);
+        let type_ident = Ident::new(&type_name, Span::call_site());
+
+        // Generate: bind_ident: Type = args
+        let mut binding = TokenStream2::new();
+        binding.extend(bind_ident.to_token_stream());
+        binding.extend(quote_punct(":"));
+        binding.extend(type_ident.to_token_stream());
+        binding.extend(quote_punct("="));
+        binding.extend(args);
+
+        return (bind_name, binding, false);
     }
 
     // Check for explicit type syntax: `expr : Type`
     let mut split_idx = None;
     for (i, tt) in token_vec.iter().enumerate() {
-        if let TokenTree::Punct(ref p) = tt {
-            if p.as_char() == ':' {
-                split_idx = Some(i);
-                break;
-            }
+        if let TokenTree::Punct(p) = tt
+            && p.as_char() == ':'
+        {
+            split_idx = Some(i);
+            break;
         }
     }
 
     if let Some(idx) = split_idx {
         let expr_tokens: TokenStream2 = token_vec[0..idx].iter().cloned().collect();
         let type_tokens: TokenStream2 = token_vec[idx + 1..].iter().cloned().collect();
+        let type_str = type_tokens.to_string();
 
-        let ty: Type = parse_str(&type_tokens.to_string()).expect("Invalid type in $(expr: Type)");
+        // Check if it's Vec<Stmt> - special case for inlining
+        if type_str.contains("Vec") && type_str.contains("Stmt") {
+            // Parse the expression
+            let expr: Expr = syn::parse2(expr_tokens).expect("Invalid expression in $(expr: Vec<Stmt>)");
+
+            // Generate: bind_ident: Vec<Stmt> = expr
+            let mut binding = TokenStream2::new();
+            binding.extend(bind_ident.to_token_stream());
+            binding.extend(quote_punct(":"));
+            binding.extend(quote_ident("Vec"));
+            binding.extend(quote_punct("<"));
+            binding.extend(quote_ident("Stmt"));
+            binding.extend(quote_punct(">"));
+            binding.extend(quote_punct("="));
+            binding.extend(expr.to_token_stream());
+
+            // Return with is_vec_expansion = true
+            return (bind_name, binding, true);
+        }
+
+        // Parse both expr and type (swc_core::quote! supports typed bindings)
+        let ty: Type = parse_str(&type_str).expect("Invalid type in $(expr: Type)");
         let expr: Expr = syn::parse2(expr_tokens).expect("Invalid expression in $(expr: Type)");
 
-        return (
-            bind_name,
-            quote! {
-                #bind_ident: #ty = #expr
-            },
-        );
+        // Generate: bind_ident: Type = expr
+        let mut binding = TokenStream2::new();
+        binding.extend(bind_ident.to_token_stream());
+        binding.extend(quote_punct(":"));
+        binding.extend(ty.to_token_stream());
+        binding.extend(quote_punct("="));
+        binding.extend(expr.to_token_stream());
+
+        return (bind_name, binding, false);
     }
 
-    // Default: untyped expression
-    let expr: Expr = syn::parse2(tokens).expect("Invalid expression in $()");
-    (
-        bind_name,
-        quote! {
-            #bind_ident = #expr
-        },
-    )
+    // Default: try to parse as expression
+    let expr: Expr = syn::parse2(tokens.clone()).expect("Invalid expression in $()");
+
+    // Check if this is a StmtVec constructor call: ts_syn::StmtVec(vec_expr) or StmtVec(vec_expr)
+    if let Expr::Call(call) = &expr
+        && let Expr::Path(path) = &*call.func
+    {
+        let path_str = path.path.segments.iter()
+            .map(|s| s.ident.to_string())
+            .collect::<Vec<_>>()
+            .join("::");
+
+        if path_str.contains("StmtVec") && call.args.len() == 1 {
+            // This is a StmtVec wrapper - extract the inner vec expression
+            let inner_arg = &call.args[0];
+
+            // Generate: bind_ident = inner_arg
+            let mut binding = TokenStream2::new();
+            binding.extend(bind_ident.to_token_stream());
+            binding.extend(quote_punct("="));
+            binding.extend(inner_arg.to_token_stream());
+
+            return (bind_name, binding, true);
+        }
+    }
+
+    // Generate: bind_ident = expr
+    let mut binding = TokenStream2::new();
+    binding.extend(bind_ident.to_token_stream());
+    binding.extend(quote_punct("="));
+    binding.extend(expr.to_token_stream());
+
+    (bind_name, binding, false)
 }
 
-#[cfg(feature = "swc")]
-pub use swc_core::{common, ecma::ast};
+/// Svelte-style templating macro for TypeScript code generation.
+///
+/// # Syntax
+///
+/// - `#{expr}` - Interpolate expressions (converts to string)
+/// - `{#if cond}...{/if}` - Conditional blocks
+/// - `{:else}` - Else clause
+/// - `{#each list as item}...{/each}` - Iteration
+///
+/// # Examples
+///
+/// ```ignore
+/// let fields = vec!["name", "age"];
+/// let class_name = "User";
+///
+/// let stmt = ts_template! {
+///     #{class_name}.prototype.toJSON = function() {
+///         const result = {};
+///         {#each fields as field}
+///             result.#{field} = this.#{field};
+///         {/each}
+///         return result;
+///     };
+/// };
+/// ```
+///
+/// The template is compiled to a string at runtime, then parsed with SWC
+/// to produce a typed AST node.
+#[proc_macro]
+pub fn ts_template(input: TokenStream) -> TokenStream {
+    let input = TokenStream2::from(input);
 
-/// Create an identifier without syntax context, mirroring `syn::Ident::new`.
-#[cfg(feature = "swc")]
-#[macro_export]
-macro_rules! ident {
-    ($name:expr) => {
-        swc_core::ecma::ast::Ident::new_no_ctxt($name.into(), swc_core::common::DUMMY_SP)
+    // Parse the template to generate string-building code
+    let string_builder = template::parse_template(input);
+
+    // Wrap in code that builds string and parses it
+    let output = quote::quote! {
+        {
+            let __ts_code = #string_builder;
+            ts_syn::parse_ts_stmt(&__ts_code)
+                .expect(&format!("Failed to parse generated TypeScript:\n{}", __ts_code))
+        }
     };
+
+    TokenStream::from(output)
 }
 
-/// Create a unique private identifier using a fresh mark.
-#[cfg(feature = "swc")]
-#[macro_export]
-macro_rules! private_ident {
-    ($name:expr) => {{
-        let mark = swc_core::common::Mark::fresh(swc_core::common::Mark::root());
-        swc_core::ecma::ast::Ident::new(
-            $name.into(),
-            swc_core::common::DUMMY_SP,
-            swc_core::common::SyntaxContext::empty().apply_mark(mark),
-        )
-    }};
-}

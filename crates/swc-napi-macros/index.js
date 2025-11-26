@@ -572,4 +572,5 @@ if (!nativeBinding) {
 }
 
 module.exports = nativeBinding
+module.exports.FieldController = nativeBinding.FieldController
 module.exports.transformSync = nativeBinding.transformSync

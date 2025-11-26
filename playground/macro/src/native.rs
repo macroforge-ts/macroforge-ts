@@ -1,18 +1,7 @@
-use swc_core::common::DUMMY_SP;
-use swc_core::ecma::ast::{Expr, Ident, Lit, ModuleItem, Stmt, Str};
 use ts_macro_abi::{Diagnostic, DiagnosticLevel, MacroResult, Patch, SpanIR, insert_into_class};
 use ts_macro_derive::ts_macro_derive;
-use ts_quote::ts_quote;
+use ts_quote::ts_template;
 use ts_syn::{Data, DeriveInput, TsStream, parse_ts_macro_input};
-
-// Helper to create SWC String Literal Expressions
-fn str_lit(s: &str) -> Expr {
-    Expr::Lit(Lit::Str(Str {
-        span: DUMMY_SP,
-        value: s.into(),
-        raw: None,
-    }))
-}
 
 fn capitalize(s: &str) -> String {
     let mut chars = s.chars();
@@ -32,34 +21,24 @@ pub fn derive_json_macro(mut input: TsStream) -> MacroResult {
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
+            let fields = class.field_names();
 
-            // 1. Initialize result object
-            // This is safer than constructing a massive object literal string manually.
-            let mut body_stmts = vec![ts_quote!( const result = {}; as Stmt )];
+            // Use Svelte-style templating for clean code generation!
+            let runtime_code = ts_template! {
+                #{class_name}.prototype.toJSON = function() {
 
-            // 2. Loop through fields to generate assignments
-            // Generates: result.fieldName = this.fieldName;
-            for field_name in class.field_names() {
-                body_stmts.push(ts_quote!(
-                    result.$(ident!(field_name)) = this.$(ident!(field_name)); as Stmt
-                ));
-            }
+                    const result = {};
 
-            // 3. Return result
-            body_stmts.push(ts_quote!( return result; as Stmt ));
+                    {#each fields as field}
+                        result.#{field} = this.#{field};
+                    {/each}
 
-            // 4. Wrap it all in the prototype function
-            // SWC's quote! automatically expands the Vec<Stmt> into the function body
-            let runtime_code = ts_quote!(
-                $(ident!(class_name)).prototype.toJSON = function () {
-                    $(body_stmts)
-                }; as Stmt
-            );
+                    return result;
+                };
+            };
 
-            // Generate type signature
-            let type_signature = ts_quote!(
-                toJSON(): Record<string, unknown>; as ModuleItem
-            );
+            // Generate type signature (use string for TypeScript syntax)
+            let type_signature = "    toJSON(): Record<string, unknown>;\n";
 
             MacroResult {
                 runtime_patches: vec![Patch::Insert {
@@ -73,7 +52,7 @@ pub fn derive_json_macro(mut input: TsStream) -> MacroResult {
                     Patch::Delete {
                         span: input.decorator_span(),
                     },
-                    insert_into_class(class.body_span(), type_signature.into()),
+                    insert_into_class(class.body_span(), type_signature),
                 ],
                 ..Default::default()
             }
@@ -101,14 +80,11 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
 
     match &input.data {
         Data::Class(class) => {
+            // Collect decorated fields
             let decorated_fields: Vec<_> = class
                 .fields()
                 .iter()
                 .filter(|field| field.decorators.iter().any(|d| d.name == "FieldController"))
-                .map(|field| FieldInfo {
-                    name: field.name.clone(),
-                    ts_type: field.ts_type.clone(),
-                })
                 .collect();
 
             if decorated_fields.is_empty() {
@@ -129,34 +105,104 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
             }
 
             let class_name = input.name();
+            let base_props_method = format!("make{}BaseProps", class_name);
 
-            // Generate Runtime ASTs
-            let runtime_nodes = generate_field_controller_runtime(class_name, &decorated_fields);
+            // Prepare field data for template
+            let field_data: Vec<_> = decorated_fields
+                .iter()
+                .map(|field| {
+                    let field_name = &field.name;
+                    (
+                        format!("\"{}\"", capitalize(field_name)), // label_text
+                        format!("\"{}\"", field_name),             // field_path_literal
+                        format!("{}FieldPath", field_name),        // field_path_prop
+                        format!("{}FieldController", field_name),  // field_controller_prop
+                    )
+                })
+                .collect();
 
-            // Generate Type ASTs
-            let type_nodes = generate_field_controller_types(class_name, &decorated_fields);
+            // ===== Generate All Runtime Code in Single Template =====
 
-            // --- Patch Logic ---
+            let runtime_code = ts_template! {
+                #{class_name}.prototype.#{base_props_method} = function (superForm, path, overrides) {
+                    const proxy = formFieldProxy(superForm, path);
+                    const baseProps = {
+                        fieldPath: path,
+                        ...(overrides ?? {}),
+                        value: proxy.value,
+                        errors: proxy.errors,
+                        superForm
+                    };
+                    return baseProps;
+                };
+
+                {#each field_data as (label_text, field_path_literal, field_path_prop, field_controller_prop)}
+                    #{class_name}.prototype.#{field_path_prop} = [#{field_path_literal}];
+
+                    #{class_name}.prototype.#{field_controller_prop} = function (superForm) {
+                        const fieldPath = this.#{field_path_prop};
+
+                        return {
+                            fieldPath,
+                            baseProps: this.#{base_props_method}(
+                                superForm,
+                                fieldPath,
+                                {
+                                    labelText: #{label_text}
+                                }
+                            )
+                        };
+                    };
+                {/each}
+            };
+
+            // ===== Generate Type Code =====
+
+            let mut type_code = format!(
+                "    make{class_name}BaseProps<\n\
+                 D extends number,\n        \
+                 const P extends DeepPath<{class_name}, D>,\n        \
+                 V = DeepValue<{class_name}, P, never, D>\n    \
+                 >(\n        \
+                 superForm: SuperForm<{class_name}>,\n        \
+                 path: P,\n        \
+                 overrides?: BasePropsOverrides<{class_name}, V, D>\n    \
+                 ): BaseFieldProps<{class_name}, V, D>;\n"
+            );
+
+            for field in &decorated_fields {
+                let field_name = &field.name;
+                let field_type = &field.ts_type;
+                let field_path_name = format!("{}FieldPath", field_name);
+                let controller_name = format!("{}FieldController", field_name);
+                let controller_type = format!("{}FieldController", capitalize(field_name));
+
+                type_code.push_str(&format!(
+                    "    private readonly {}: [\"{}\"];\n",
+                    field_path_name, field_name
+                ));
+
+                type_code.push_str(&format!(
+                    "    {}(superForm: SuperForm<{}>): {}<{}, {}, 1>;\n",
+                    controller_name, class_name, controller_type, class_name, field_type
+                ));
+            }
+
+            // ===== Create Patches =====
+
             let mut type_patches = vec![Patch::Delete {
                 span: input.decorator_span(),
             }];
 
+            let mut runtime_patches = vec![];
+
+            // Delete all @FieldController decorators from both runtime and type patches
             for field in class.fields() {
                 for decorator in &field.decorators {
                     if decorator.name == "FieldController" {
                         type_patches.push(Patch::Delete {
                             span: decorator.span,
                         });
-                    }
-                }
-            }
-
-            type_patches.push(insert_into_class(class.body_span(), type_nodes.into()));
-
-            let mut runtime_patches = vec![];
-            for field in class.fields() {
-                for decorator in &field.decorators {
-                    if decorator.name == "FieldController" {
                         runtime_patches.push(Patch::Delete {
                             span: decorator.span,
                         });
@@ -164,12 +210,15 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
                 }
             }
 
+            // Insert generated code
+            type_patches.push(insert_into_class(class.body_span(), type_code));
+
             runtime_patches.push(Patch::Insert {
                 at: SpanIR {
                     start: input.target_span().end,
                     end: input.target_span().end,
                 },
-                code: runtime_nodes.into(),
+                code: runtime_code.into(),
             });
 
             MacroResult {
@@ -189,122 +238,4 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
             ..Default::default()
         },
     }
-}
-
-// ============================================================================
-// Helper Types
-// ============================================================================
-
-struct FieldInfo {
-    name: String,
-    ts_type: String,
-}
-
-// ============================================================================
-// FieldController Code Generation
-// ============================================================================
-
-fn generate_field_controller_runtime(
-    class_name: &str,
-    decorated_fields: &[FieldInfo],
-) -> Vec<Stmt> {
-    // 1. Generate the base props maker function
-    let make_base_props_stmt = ts_quote!(
-        $(ident!(class_name)).prototype.$(ident!("make{}BaseProps", class_name)) = function (superForm, path, overrides) {
-            const proxy = formFieldProxy(superForm, path);
-            const baseProps = {
-                fieldPath: path,
-                ...(overrides ?? {}),
-                value: proxy.value,
-                errors: proxy.errors,
-                superForm
-            };
-
-            return baseProps;
-        }; as Stmt
-    );
-
-    let mut stmts = vec![make_base_props_stmt];
-
-    // 2. Generate field controller methods
-    for field in decorated_fields {
-        stmts.extend(generate_field_controller_method(class_name, field));
-    }
-
-    stmts
-}
-
-fn generate_field_controller_method(class_name: &str, field: &FieldInfo) -> Vec<Stmt> {
-    let field_name_str = &field.name;
-
-    // Create string literals as Expr nodes
-    let label_expr = str_lit(&capitalize(field_name_str));
-    let path_literal = str_lit(field_name_str);
-
-    let path_stmt = ts_quote!(
-        $(ident!(class_name)).prototype.$(ident!("{}FieldPath", field_name_str)) = [$(expr!(path_literal))]; as Stmt
-    );
-
-    let controller_stmt = ts_quote!(
-        $(ident!(class_name)).prototype.$(ident!("{}FieldController", field_name_str)) = function (superForm) {
-            const fieldPath = this.$(ident!("{}FieldPath", field_name_str));
-
-            return {
-                fieldPath,
-                baseProps: this.$(ident!("make{}BaseProps", class_name))(
-                    superForm,
-                    fieldPath,
-                    {
-                        labelText: $(expr!(label_expr))
-                    }
-                )
-            };
-        }; as Stmt
-    );
-
-    vec![path_stmt, controller_stmt]
-}
-
-fn generate_field_controller_types(
-    class_name: &str,
-    decorated_fields: &[FieldInfo],
-) -> Vec<ModuleItem> {
-    let mut items = vec![];
-
-    // 1. Add base props maker signature
-    items.push(ts_quote!(
-        $(ident!("make{}BaseProps", class_name))<
-            D extends number,
-            const P extends DeepPath<$(ident!(class_name)), D>,
-            V = DeepValue<$(ident!(class_name)), P, never, D>
-        >(
-            superForm: SuperForm<$(ident!(class_name))>,
-            path: P,
-            overrides?: BasePropsOverrides<$(ident!(class_name)), V, D>
-        ): BaseFieldProps<$(ident!(class_name)), V, D>; as ModuleItem
-    ));
-
-    // 2. Add field controller signatures
-    for field in decorated_fields {
-        let field_name_str = &field.name;
-
-        // Handling the type annotation via ts_quote interpolation.
-        let type_ident = ident!(field.ts_type); // Using coercing ident! macro logic from ts_quote
-
-        // Property: private readonly fieldNameFieldPath: ["fieldName"];
-        let field_name_literal = str_lit(field_name_str);
-
-        items.push(ts_quote!(
-            private readonly $(ident!("{}FieldPath", field_name_str)): [$(expr!(field_name_literal))]; as ModuleItem
-        ));
-
-        // Method: fieldNameFieldController(superForm: SuperForm<Class>): Interface<Class, Type, 1>;
-        items.push(ts_quote!(
-            $(ident!("{}FieldController", field_name_str))(
-                superForm: SuperForm<$(ident!(class_name))>
-            ): $(ident!("{}FieldController", capitalize(field_name_str)))<$(ident!(class_name)), $(ident!(field.ts_type)), 1>; as ModuleItem
-        ));
-    }
-
-    items
 }

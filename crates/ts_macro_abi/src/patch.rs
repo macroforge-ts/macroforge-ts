@@ -2,6 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{swc_ast, SpanIR};
+use swc_common::{DUMMY_SP, SyntaxContext};
 
 /// Patch-based output = stable "quote" target.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -48,6 +49,35 @@ impl From<swc_ast::Stmt> for PatchCode {
 impl From<swc_ast::ModuleItem> for PatchCode {
     fn from(item: swc_ast::ModuleItem) -> Self {
         PatchCode::ModuleItem(item)
+    }
+}
+
+impl From<Vec<swc_ast::Stmt>> for PatchCode {
+    fn from(stmts: Vec<swc_ast::Stmt>) -> Self {
+        // For Vec<Stmt>, wrap in a block and convert to a single Stmt
+        if stmts.len() == 1 {
+            PatchCode::Stmt(stmts.into_iter().next().unwrap())
+        } else {
+            PatchCode::Stmt(swc_ast::Stmt::Block(swc_ast::BlockStmt {
+                span: DUMMY_SP,
+                ctxt: SyntaxContext::empty(),
+                stmts,
+            }))
+        }
+    }
+}
+
+impl From<Vec<swc_ast::ModuleItem>> for PatchCode {
+    fn from(items: Vec<swc_ast::ModuleItem>) -> Self {
+        // For Vec<ModuleItem>, take the first if there's only one
+        if items.len() == 1 {
+            PatchCode::ModuleItem(items.into_iter().next().unwrap())
+        } else {
+            // Multiple items - convert to a string representation
+            // This is a limitation since PatchCode doesn't have a Vec variant
+            let code = items.iter().map(|_| "/* generated code */").collect::<Vec<_>>().join("\n");
+            PatchCode::Text(code)
+        }
     }
 }
 

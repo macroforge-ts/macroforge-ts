@@ -11,3 +11,4 @@ serde = ["dep:serde", "dep:serde_json"]
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }
 swc_ecma_ast = { version = "18", default-features = false, features = ["serde-impl"] }
+swc_common = "17"

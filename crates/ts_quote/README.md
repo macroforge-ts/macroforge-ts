@@ -1,144 +1,213 @@
-ts_quote! Macro Syntax Guide
+# `ts_template!` - Svelte-Style TypeScript Code Generation
 
-The ts_quote! macro is an ergonomic wrapper around swc_core::quote!. It allows you to write TypeScript/JavaScript code templates with inline variable bindings, similar to string interpolation in modern languages.
+The `ts_template!` macro provides an intuitive, template-based way to generate TypeScript code in your macros. It uses Svelte-inspired syntax for control flow and interpolation.
 
-1. Basic Structure
+## Syntax
 
-The macro takes a string literal containing the code template, optionally followed by an as Type cast to specify which AST node to generate.
+### Interpolation: `#{expr}`
 
-// Syntax: ts_quote!("code" as TargetASTType)
-let stmt = ts_quote!("const x = 1;" as Stmt);
+Insert Rust expressions into the generated TypeScript:
 
-Common Target Types:
+```rust
+let class_name = "User";
+let method = "toString";
 
-Expr (Expression) - Values, function calls, object literals.
+let code = ts_template! {
+    #{class_name}.prototype.#{method} = function() {
+        return "User instance";
+    };
+};
+```
 
-Stmt (Statement) - Variable declarations, loops, return statements.
+**Generates:**
 
-ModuleItem - Export/Import declarations, top-level statements.
+```typescript
+User.prototype.toString = function () {
+  return "User instance";
+};
+```
 
-Pat (Pattern) - Destructuring patterns, function arguments.
+### Conditionals: `{#if}...{:else}...{/if}`
 
-2. Variable Interpolation $(...)
+```rust
+let needs_validation = true;
 
-Instead of the verbose argument mapping required by vanilla SWC, ts_quote! supports inline injection.
+let code = ts_template! {
+    function save() {
+        {#if needs_validation}
+            if (!this.isValid()) return false;
+        {/if}
+        return this.doSave();
+    }
+};
+```
 
-A. Simple Identifier Injection
+### Iteration: `{#each list as item}`
 
-Inject a Rust variable that holds an Ident (identifier).
+```rust
+let fields = vec!["name", "email", "age"];
 
-let my_var = ident!("myVar");
+let code = ts_template! {
+    function toJSON() {
+        const result = {};
+        {#each fields as field}
+            result.#{field} = this.#{field};
+        {/each}
+        return result;
+    }
+};
+```
 
-// Generates: const myVar = 10;
-ts_quote!("const $(my_var) = 10;" as Stmt)
+**Generates:**
 
-B. Typed Injection
+```typescript
+function toJSON() {
+  const result = {};
+  result.name = this.name;
+  result.email = this.email;
+  result.age = this.age;
+  return result;
+}
+```
 
-If the Rust variable is an Expr, Stmt, or other AST node, you must provide a type hint inside the interpolation.
+## Complete Example: JSON Derive Macro
 
-let val_expr: Expr = 100.into();
+**Before** (manual AST building):
 
-// Generates: const x = 100;
-// Maps Rust `val_expr` to the template slot
-ts_quote!("const x = $(val_expr: Expr);" as Stmt)
+```rust
+pub fn derive_json_macro(input: TsStream) -> MacroResult {
+    let input = parse_ts_macro_input!(input as DeriveInput);
 
-C. Explicit Property Access
+    match &input.data {
+        Data::Class(class) => {
+            let class_name = input.name();
 
-You can inject object properties directly.
+            let mut body_stmts = vec![ts_quote!( const result = {}; as Stmt )];
 
-let field_name = ident!("id");
+            for field_name in class.field_names() {
+                body_stmts.push(ts_quote!(
+                    result.$(ident!("{}", field_name)) = this.$(ident!("{}", field_name));
+                    as Stmt
+                ));
+            }
 
-// Generates: this.id = 5;
-ts_quote!("this.$(field_name) = 5;" as Stmt)
+            body_stmts.push(ts_quote!( return result; as Stmt ));
 
-3. Object Literals
+            let runtime_code = fn_assign!(
+                member_expr!(Expr::Ident(ident!(class_name)), "prototype"),
+                "toJSON",
+                body_stmts
+            );
 
-When generating object literals (Expr::Object), standard JavaScript parsing rules apply.
+            // ...
+        }
+    }
+}
+```
 
-Rule: An object literal { key: val } at the start of a statement is parsed as a block. You must wrap object literals in parentheses ({}) to force them to be parsed as expressions.
+**After** (with `ts_template!`):
 
-let val_expr = ts_quote!("1" as Expr);
+```rust
+pub fn derive_json_macro(input: TsStream) -> MacroResult {
+    let input = parse_ts_macro_input!(input as DeriveInput);
 
-// ❌ WRONG: Parsed as a block with label 'a'
-// ts_quote!("{ a: $(val_expr: Expr) }" as Expr)
+    match &input.data {
+        Data::Class(class) => {
+            let class_name = input.name();
+            let fields = class.field_names();
 
-// ✅ CORRECT: Parsed as object expression
-ts_quote!("({ a: $(val_expr: Expr) })" as Expr)
+            let runtime_code = ts_template! {
+                #{class_name}.prototype.toJSON = function() {
+                    const result = {};
+                    {#each fields as field}
+                        result.#{field} = this.#{field};
+                    {/each}
+                    return result;
+                };
+            };
 
-Shorthand Properties:
+            // ...
+        }
+    }
+}
+```
 
-let name = ident!("name");
-// Generates: { name }
-ts_quote!("({ $(name) })" as Expr)
+## How It Works
 
-Computed Properties:
+1. **Compile-Time**: The template is parsed during macro expansion
+2. **String Building**: Generates Rust code that builds a TypeScript string at runtime
+3. **SWC Parsing**: The generated string is parsed with SWC to produce a typed AST
+4. **Result**: Returns `Stmt` that can be used in `MacroResult` patches
 
-let key = ts_quote!("'dynamic'" as Expr);
-// Generates: { ['dynamic']: 1 }
-ts_quote!("({ [$(key: Expr)]: 1 })" as Expr)
+## Return Type
 
-4. Complex Examples
+`ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro automatically unwraps and provides helpful error messages showing the generated TypeScript code if parsing fails.
 
-Class Method Generation
+## Nesting and Regular TypeScript
 
-let class_name = ident!("User");
-let method_name = ident!("save");
-let body_stmt = ts_quote!("return true;" as Stmt);
+You can mix template syntax with regular TypeScript. Braces `{}` are recognized as either:
 
-ts_quote!(
-"$(class_name).prototype.$(method_name) = function() {
-console.log('Saving...');
-$(body_stmt: Stmt)
-};" as Stmt
-)
+- **Template tags** if they start with `#`, `:`, or `/`
+- **Regular TypeScript blocks** otherwise
 
-Array Literals
+```rust
+ts_template! {
+    const config = {
+        {#if use_strict}
+            strict: true,
+        {:else}
+            strict: false,
+        {/if}
+        timeout: 5000
+    };
+}
+```
 
-let item1 = ts_quote!("1" as Expr);
-let item2 = ts_quote!("2" as Expr);
+## Advanced: Nested Iterations
 
-ts_quote!("[$(item1: Expr), $(item2: Expr)]" as Expr)
+```rust
+let classes = vec![
+    ("User", vec!["name", "email"]),
+    ("Post", vec!["title", "content"]),
+];
 
-5. Comparison with Vanilla SWC
+ts_template! {
+    {#each classes as (class_name, fields)}
+        #{class_name}.prototype.toJSON = function() {
+            return {
+                {#each fields as field}
+                    #{field}: this.#{field},
+                {/each}
+            };
+        };
+    {/each}
+}
+```
 
-Feature
+## Comparison with Alternatives
 
-Vanilla swc_core::quote!
+| Approach             | Pros                               | Cons                            |
+| -------------------- | ---------------------------------- | ------------------------------- |
+| **`ts_quote!`**      | Compile-time validation, type-safe | Can't handle Vec<Stmt>, verbose |
+| **`parse_ts_str()`** | Maximum flexibility                | Runtime parsing, less readable  |
+| **`ts_template!`**   | Readable, handles loops/conditions | Small runtime parsing overhead  |
 
-ts_quote!
+## Best Practices
 
-Binding Syntax
+1. ✅ Use `ts_template!` for complex code generation with loops/conditions
+2. ✅ Use `ts_quote!` for simple, static statements
+3. ✅ Keep templates readable - extract complex logic into variables
+4. ❌ Don't nest templates too deeply - split into helper functions
 
-$var
+## Error Messages
 
-$(var)
+If the generated TypeScript is invalid, you'll see:
 
-Mapping
+```
+Failed to parse generated TypeScript:
+User.prototype.toJSON = function( {
+    return {};
+}
+```
 
-Manual (var = rust_var) at end
-
-Inline ($(rust_var))
-
-Type Hints
-
-var: Type = rust_var
-
-$(rust_var: Type)
-
-Repetition
-
-Variable names often typed 3 times
-
-Variable typed once
-
-// Vanilla
-quote!(
-"const $name = $val;" as Stmt,
-name = rust_name_var,
-val: Expr = rust_val_var
-);
-
-// ts_quote!
-ts_quote!(
-"const $(rust_name_var) = $(rust_val_var: Expr);" as Stmt
-);
+This shows you exactly what was generated, making debugging easy!
