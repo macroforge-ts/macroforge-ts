@@ -5,6 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
 
+import { createRequire } from 'node:module';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const playgroundRoot = path.resolve(__dirname, '..');
@@ -63,6 +65,72 @@ async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
     }
   }
 }
+
+test('TS Language Plugin augments types', async () => {
+  const pluginPath = path.resolve(repoRoot, 'packages/ts-derive-plugin/dist/index.js');
+  const require = createRequire(import.meta.url);
+  const tsPluginInit = require(pluginPath);
+  const ts = require('typescript');
+
+  // Mock Info for TS Server Plugin
+  const mockHost = {
+    getScriptSnapshot: (fileName) => {
+      if (fileName.endsWith('user.ts')) {
+        const content = fs.readFileSync(path.join(vanillaRoot, 'src/user.ts'), 'utf-8');
+        return ts.ScriptSnapshot.fromString(content);
+      }
+      return undefined;
+    },
+    getScriptVersion: () => '1',
+  };
+
+  const mockInfo = {
+    project: { projectService: { logger: { info: () => {} } } },
+    languageService: {
+        getSemanticDiagnostics: () => []
+    },
+    languageServiceHost: mockHost,
+    config: {}
+  };
+
+  const pluginFactory = tsPluginInit({ typescript: ts });
+  // creating the plugin should wrap the host methods
+  pluginFactory.create(mockInfo);
+
+  // Test getScriptSnapshot via the modified host
+  const snapshot = mockHost.getScriptSnapshot('playground/vanilla/src/user.ts');
+  const text = snapshot.getText(0, snapshot.getLength());
+
+  if (!text.includes('toString(): string;')) {
+      console.log('Snapshot text content:', text);
+  }
+
+  assert.ok(text.includes('toString(): string;'), 'Should include toString() signature');
+  assert.ok(text.includes('toJSON(): Record<string, unknown>;'), 'Should include toJSON() signature');
+  // Ensure decorators are removed or handled if that's the behavior (in .d.ts output they are usually removed)
+  // But here expandSync applies patches. The patches remove decorators.
+  assert.ok(!text.includes('@Debug'), 'Should remove @Debug decorator from output');
+});
+
+test('Macro Host reports diagnostics for invalid usage', async () => {
+    // Test the core macro host logic used by both plugins and language server
+    const require = createRequire(import.meta.url);
+    const swcMacrosPath = path.join(repoRoot, 'crates/swc-napi-macros/index.js');
+    const { expandSync } = require(swcMacrosPath);
+    
+    const code = `
+        import { Derive } from "@ts-macros/macros";
+        @Derive("UnknownMacro")
+        class Foo {}
+    `;
+    
+    // The host will look for ts-macros.json in CWD. 
+    // We are running from root so it should find the root config which allows native macros.
+    const result = expandSync(code, 'test.ts');
+    
+    assert.ok(result.diagnostics.length > 0, 'Should report diagnostics');
+    assert.ok(result.diagnostics.some(d => d.message.includes("UnknownMacro")), 'Should report unknown macro error');
+});
 
 test('vanilla playground macros emit runtime helpers', { timeout: 30000 }, async () => {
   await withViteServer(vanillaRoot, async (server) => {
