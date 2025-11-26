@@ -49,6 +49,7 @@ function init(modules: { typescript: typeof ts }) {
         expansionCache.set(fileName, expansion);
         return expansion;
       } catch (e) {
+        console.error('Plugin expansion failed:', e);
         // Fallback on error
         const errorExpansion: CachedExpansion = {
           version,
@@ -89,6 +90,8 @@ function init(modules: { typescript: typeof ts }) {
 
       if (expansion.output) {
         return tsModule.ScriptSnapshot.fromString(expansion.output);
+      } else {
+        console.error('Plugin expansion returned no output for', fileName);
       }
 
       return snapshot;
