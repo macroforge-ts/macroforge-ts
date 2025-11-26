@@ -27,7 +27,7 @@ pub fn derive_json_macro(mut input: TsStream) -> MacroResult {
                     const result = {};
 
                     {#each class.field_names() as field}
-                        result.#{field} = this.#{field};
+                        result.${field} = this.${field};
                     {/each}
 
                     return result;
@@ -113,11 +113,11 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
             // ===== Generate All Runtime Code in Single Template =====
 
             let runtime_code = ts_template! {
-                make#{class_name}BaseProps<D extends number, const P extends DeepPath<#{class_name}, D>, V = DeepValue<#{class_name}, P, never, D>>(
-                    superForm: SuperForm<#{class_name}>,
+                make${class_name}BaseProps<D extends number, const P extends DeepPath<${class_name}, D>, V = DeepValue<${class_name}, P, never, D>>(
+                    superForm: SuperForm<${class_name}>,
                     path: P,
-                    overrides?: BasePropsOverrides<#{class_name}, V, D>
-                 ): BaseFieldProps<#{class_name}, V, D> {
+                    overrides?: BasePropsOverrides<${class_name}, V, D>
+                 ): BaseFieldProps<${class_name}, V, D> {
                     const proxy = formFieldProxy(superForm, path);
                     const baseProps = {
                         fieldPath: path,
@@ -130,20 +130,20 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
                 };
 
                 {#each field_data as (label_text, field_path_literal, field_path_prop, field_controller_prop, field_type)}
-                    {@const controller_type = format!("{}FieldController", capitalize(field_name))}
+                    {@const controller_type = format!("{}FieldController", label_text)}
 
-                    #{class_name}.prototype.#{field_path_prop} = [#{field_path_literal}];
+                    ${class_name}.prototype.${field_path_prop} = [${field_path_literal}];
 
-                    #{field_controller_prop}(superForm: SuperForm<#{class_name}>): #{controller_type}<#{class_name}, #{field_type}, 1> {
-                        const fieldPath = this.#{field_path_prop};
+                    ${field_controller_prop}(superForm: SuperForm<${class_name}>): ${controller_type}<${class_name}, ${field_type}, 1> {
+                        const fieldPath = this.${field_path_prop};
 
                         return {
                             fieldPath,
-                            baseProps: this.#{base_props_method}(
+                            baseProps: this.${base_props_method}(
                                 superForm,
                                 fieldPath,
                                 {
-                                    labelText: #{label_text}
+                                    labelText: ${label_text}
                                 }
                             )
                         };
