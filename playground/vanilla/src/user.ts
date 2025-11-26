@@ -1,7 +1,7 @@
 import { Derive, Debug } from "@ts-macros/macros";
 
 // Example of using Derive decorator and dynamic macro
-@Derive("Debug", "JsonNative")
+@Derive("Debug", "JSON")
 class User {
   @Debug({ rename: "identifier" })
   id: number;

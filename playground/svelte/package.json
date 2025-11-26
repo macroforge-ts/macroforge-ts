@@ -13,6 +13,7 @@
 	},
 	"dependencies": {
 		"@playground/macro": "file:../macro",
+		"@sveltejs/kit": "^2.48.5",
 		"@ts-macros/macros": "file:../../packages/macros",
 		"@ts-macros/swc-napi": "file:../../crates/swc-napi-macros",
 		"effect": "^3.19.4",

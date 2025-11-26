@@ -1,5 +1,5 @@
 {
-  "macroPackages": ["@macro/derive", "@playground/macro"],
+  "macroPackages": ["@macro/derive"],
   "allowNativeMacros": true,
   "macroRuntimeOverrides": {},
   "limits": {

@@ -5,6 +5,7 @@ export declare function FieldController(): void
 export interface ExpandResult {
   code: string
   types?: string
+  metadata?: string
   diagnostics: Array<MacroDiagnostic>
 }
 

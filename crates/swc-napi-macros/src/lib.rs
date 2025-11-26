@@ -33,6 +33,7 @@ pub struct MacroDiagnostic {
 pub struct ExpandResult {
     pub code: String,
     pub types: Option<String>,
+    pub metadata: Option<String>,
     pub diagnostics: Vec<MacroDiagnostic>,
 }
 
@@ -82,6 +83,11 @@ fn expand_inner(code: &str, filepath: &str) -> Result<ExpandResult> {
     Ok(ExpandResult {
         code: expansion.code,
         types: expansion.type_output,
+        metadata: if expansion.classes.is_empty() {
+            None
+        } else {
+            serde_json::to_string(&expansion.classes).ok()
+        },
         diagnostics,
     })
 }

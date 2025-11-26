@@ -51,6 +51,8 @@ async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
     return await runner(server);
   } finally {
     if (server) {
+      // Give a small grace period for pending requests to settle
+      await new Promise((resolve) => setTimeout(resolve, 100));
       await server.close();
     }
     if (copiedConfig && fs.existsSync(localConfigPath)) {

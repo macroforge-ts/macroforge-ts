@@ -14,7 +14,7 @@
 		"dev": "npm run dev -w svelte",
 		"build": "npm run build:rust && npm run build:plugin",
 		"build:rust": "cd crates/swc-napi-macros && napi build --platform --release",
-		"build:plugin": "npm run build -w vite-plugin-napi",
+		"build:plugin": "npm run build -w vite-plugin-napi-macros",
 		"test": "npm test --workspaces --if-present && node --test playground/tests/examples.test.mjs",
 		"test:playground": "node --test playground/tests/examples.test.mjs"
 	},
