@@ -10,7 +10,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ts-macros/swc-napi": "workspace:*"
+    "@ts-macros/swc-napi": "file:../../crates/swc-napi-macros"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
