@@ -443,8 +443,7 @@ pub fn ts_template(input: TokenStream) -> TokenStream {
     let output = quote::quote! {
         {
             let __ts_code = #string_builder;
-            ts_syn::parse_ts_stmt(&__ts_code)
-                .expect(&format!("Failed to parse generated TypeScript:\n{}", __ts_code))
+            ts_syn::TsStream::from_string(__ts_code)
         }
     };
 

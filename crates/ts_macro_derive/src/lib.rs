@@ -75,7 +75,8 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
             }
 
             fn run(&self, input: ts_syn::TsStream) -> ts_macro_abi::MacroResult {
-                #fn_ident(input)
+                let result = #fn_ident(input);
+                ts_syn::TsStream::into_result(result)
             }
 
             fn description(&self) -> &str {

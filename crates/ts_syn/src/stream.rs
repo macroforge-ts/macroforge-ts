@@ -42,6 +42,21 @@ impl TsStream {
         })
     }
 
+    /// Create a new parsing stream from an owned string.
+    pub fn from_string(source: String) -> Self {
+        TsStream {
+            source_map: Lrc::new(Default::default()),
+            source,
+            file_name: "macro_output.ts".to_string(),
+            ctx: None,
+        }
+    }
+
+    /// Get the source code of the stream.
+    pub fn source(&self) -> &str {
+        &self.source
+    }
+
     /// Create a new parsing stream with macro context attached.
     /// This is used by the macro host to provide context to macros.
     pub fn with_context(
@@ -60,6 +75,17 @@ impl TsStream {
     /// Get the macro context if available
     pub fn context(&self) -> Option<&ts_macro_abi::MacroContextIR> {
         self.ctx.as_ref()
+    }
+
+    /// Convert the stream into a MacroResult
+    pub fn into_result(self) -> ts_macro_abi::MacroResult {
+        ts_macro_abi::MacroResult {
+            runtime_patches: vec![],
+            type_patches: vec![],
+            diagnostics: vec![],
+            tokens: Some(self.source),
+            debug: None,
+        }
     }
 
     /// Create a temporary parser for a parsing operation.

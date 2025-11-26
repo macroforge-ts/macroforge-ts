@@ -23,6 +23,7 @@ impl TsMacro for DeriveCloneMacro {
                     runtime_patches: vec![],
                     type_patches: vec![],
                     diagnostics: vec![],
+                    tokens: None,
                     debug: Some("No macro context available".into()),
                 };
             }
@@ -35,6 +36,7 @@ impl TsMacro for DeriveCloneMacro {
                     runtime_patches: vec![],
                     type_patches: vec![],
                     diagnostics: vec![],
+                    tokens: None,
                     debug: Some("@Derive(Clone) can only be applied to classes".into()),
                 };
             }
@@ -59,6 +61,7 @@ impl TsMacro for DeriveCloneMacro {
                 code: generate_clone_signature(class).into(),
             }],
             diagnostics: vec![],
+            tokens: None,
             debug: None,
         }
     }

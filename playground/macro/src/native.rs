@@ -1,4 +1,3 @@
-use ts_macro_abi::{Diagnostic, DiagnosticLevel, MacroResult, Patch, SpanIR};
 use ts_macro_derive::ts_macro_derive;
 use ts_quote::ts_template;
 use ts_syn::{Data, DeriveInput, TsStream, parse_ts_macro_input};
@@ -15,13 +14,13 @@ fn capitalize(s: &str) -> String {
     JSON,
     description = "Generates a toJSON() implementation that returns a plain object with all fields"
 )]
-pub fn derive_json_macro(mut input: TsStream) -> MacroResult {
+pub fn derive_json_macro(mut input: TsStream) -> TsStream {
     let input = parse_ts_macro_input!(input as DeriveInput);
 
     match &input.data {
         Data::Class(class) => {
             // Use Svelte-style templating for clean code generation!
-            let runtime_code = ts_template! {
+            ts_template! {
                 toJSON(): Record<string, unknown> {
 
                     const result = {};
@@ -32,29 +31,12 @@ pub fn derive_json_macro(mut input: TsStream) -> MacroResult {
 
                     return result;
                 };
-            };
-
-            MacroResult {
-                runtime_patches: vec![Patch::Insert {
-                    at: SpanIR {
-                        start: input.target_span().end,
-                        end: input.target_span().end,
-                    },
-                    code: runtime_code.into(),
-                }],
-                ..Default::default()
             }
         }
-        Data::Enum(_) => MacroResult {
-            diagnostics: vec![Diagnostic {
-                level: DiagnosticLevel::Error,
-                message: "@Derive(JSON) can only target classes".to_string(),
-                span: Some(input.decorator_span()),
-                notes: vec![],
-                help: None,
-            }],
-            ..Default::default()
-        },
+        Data::Enum(_) => {
+            // TODO: Error handling with TsStream result
+            panic!("@Derive(JSON) can only target classes");
+        }
     }
 }
 
@@ -63,7 +45,7 @@ pub fn derive_json_macro(mut input: TsStream) -> MacroResult {
     description = "Generates depth-aware field controller helpers for reactive forms",
     attributes(FieldController)
 )]
-pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
+pub fn field_controller_macro(mut input: TsStream) -> TsStream {
     let input = parse_ts_macro_input!(input as DeriveInput);
 
     match &input.data {
@@ -76,20 +58,9 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
                 .collect();
 
             if decorated_fields.is_empty() {
-                return MacroResult {
-                    diagnostics: vec![Diagnostic {
-                        level: DiagnosticLevel::Warning,
-                        message: "@Derive(FieldController) found no @FieldController decorators"
-                            .to_string(),
-                        span: Some(input.decorator_span()),
-                        notes: vec![],
-                        help: Some(
-                            "Add @FieldController decorators to fields you want to generate controllers for"
-                                .into(),
-                        ),
-                    }],
-                    ..Default::default()
-                };
+                // TODO: Handle warning
+                // For now, return empty stream
+                return ts_template! {};
             }
 
             let class_name = input.name();
@@ -112,7 +83,7 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
 
             // ===== Generate All Runtime Code in Single Template =====
 
-            let runtime_code = ts_template! {
+            ts_template! {
                 make${class_name}BaseProps<D extends number, const P extends DeepPath<${class_name}, D>, V = DeepValue<${class_name}, P, never, D>>(
                     superForm: SuperForm<${class_name}>,
                     path: P,
@@ -132,7 +103,9 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
                 {#each field_data as (label_text, field_path_literal, field_path_prop, field_controller_prop, field_type)}
                     {@const controller_type = format!("{}FieldController", label_text)}
 
-                    ${class_name}.prototype.${field_path_prop} = [${field_path_literal}];
+                    static {
+                        this.prototype.${field_path_prop} = [${field_path_literal}];
+                    }
 
                     ${field_controller_prop}(superForm: SuperForm<${class_name}>): ${controller_type}<${class_name}, ${field_type}, 1> {
                         const fieldPath = this.${field_path_prop};
@@ -149,45 +122,10 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
                         };
                     };
                 {/each}
-            };
-
-            // ===== Create Patches =====
-
-            let mut runtime_patches = vec![];
-
-            // Delete all @FieldController decorators from both runtime and type patches
-            for field in class.fields() {
-                for decorator in &field.decorators {
-                    if decorator.name == "FieldController" {
-                        runtime_patches.push(Patch::Delete {
-                            span: decorator.span,
-                        });
-                    }
-                }
-            }
-
-            runtime_patches.push(Patch::Insert {
-                at: SpanIR {
-                    start: input.target_span().end,
-                    end: input.target_span().end,
-                },
-                code: runtime_code.into(),
-            });
-
-            MacroResult {
-                runtime_patches,
-                ..Default::default()
             }
         }
-        Data::Enum(_) => MacroResult {
-            diagnostics: vec![Diagnostic {
-                level: DiagnosticLevel::Error,
-                message: "@Derive(FieldController) can only target classes".to_string(),
-                span: Some(input.decorator_span()),
-                notes: vec![],
-                help: None,
-            }],
-            ..Default::default()
-        },
+        Data::Enum(_) => {
+            panic!("@Derive(FieldController) can only target classes");
+        }
     }
 }

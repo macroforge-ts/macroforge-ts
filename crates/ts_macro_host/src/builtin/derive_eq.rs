@@ -23,6 +23,7 @@ impl TsMacro for DeriveEqMacro {
                     runtime_patches: vec![],
                     type_patches: vec![],
                     diagnostics: vec![],
+                    tokens: None,
                     debug: Some("No macro context available".into()),
                 };
             }
@@ -35,6 +36,7 @@ impl TsMacro for DeriveEqMacro {
                     runtime_patches: vec![],
                     type_patches: vec![],
                     diagnostics: vec![],
+                    tokens: None,
                     debug: Some("@Derive(Eq) can only be applied to classes".into()),
                 };
             }
@@ -59,6 +61,7 @@ impl TsMacro for DeriveEqMacro {
                 code: generate_eq_signature().into(),
             }],
             diagnostics: vec![],
+            tokens: None,
             debug: None,
         }
     }
