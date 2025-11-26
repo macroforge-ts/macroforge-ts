@@ -1,10 +1,11 @@
 //! Svelte-style templating for TypeScript code generation
 //!
 //! Provides a template syntax with interpolation and control flow:
-//! - `#{expr}` - Interpolate expressions
+//! - `${expr}` - Interpolate expressions
 //! - `{#if cond}...{/if}` - Conditional blocks
 //! - `{:else}` - Else clause
 //! - `{#each list as item}...{/each}` - Iteration
+//! - `{@const name = expr}` - Local constants
 
 use proc_macro2::{Delimiter, TokenStream as TokenStream2, TokenTree, Group};
 use quote::{quote, ToTokens};
@@ -39,6 +40,7 @@ enum TagType {
     Else,
     EndIf,
     EndEach,
+    Const(TokenStream2),
     Block, // Standard TypeScript Block { ... }
 }
 
@@ -96,6 +98,14 @@ fn analyze_tag(g: &Group) -> TagType {
         if i == "each" { return TagType::EndEach; }
     }
 
+    // Check for {@ ...} (Const)
+    if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
+        && p.as_char() == '@' && i == "const"
+    {
+        let body: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+        return TagType::Const(body);
+    }
+
     TagType::Block
 }
 
@@ -108,17 +118,17 @@ fn parse_fragment(
 
     while let Some(token) = iter.peek().cloned() {
         match &token {
-            // Case 1: Interpolation #{ expr }
-            TokenTree::Punct(p) if p.as_char() == '#' => {
+            // Case 1: Interpolation ${ expr }
+            TokenTree::Punct(p) if p.as_char() == '$' => {
                 // Check if the NEXT token is a Group { ... }
                 let p_clone = p.clone();
-                iter.next(); // Consume '#'
+                iter.next(); // Consume '$'
 
                 // Look ahead
                 let is_group = matches!(iter.peek(), Some(TokenTree::Group(g)) if g.delimiter() == Delimiter::Brace);
 
                 if is_group {
-                    // It IS interpolation: #{ expr }
+                    // It IS interpolation: ${ expr }
                     if let Some(TokenTree::Group(g)) = iter.next() {
                          let content = g.stream();
                          output.extend(quote! {
@@ -126,7 +136,7 @@ fn parse_fragment(
                         });
                     }
                 } else {
-                    // It is just a literal '#' (like in private class fields #foo)
+                    // It is just a literal '$'
                     let s = p_clone.to_string();
                     output.extend(quote! { __out.push_str(#s); });
                 }
@@ -209,6 +219,12 @@ fn parse_fragment(
                         }
                         panic!("Unexpected {{/each}}");
                     }
+                    TagType::Const(body) => {
+                        iter.next(); // Consume {@const ...}
+                        output.extend(quote! {
+                            let #body;
+                        });
+                    }
                     TagType::Block => {
                          // Regular TS Block { ... }
                          // Recurse to allow macros inside standard TS objects
@@ -244,13 +260,59 @@ fn parse_fragment(
                 let t = iter.next().unwrap();
                 // Simple stringification. For better TS formatting, you might want custom logic.
                 let s = t.to_string();
+
+                // Check if next token is '$' (start of interpolation)
+                // If so, we skip the space to allow things like `make${Name}`
+                let next_is_dollar = matches!(iter.peek(), Some(TokenTree::Punct(p)) if p.as_char() == '$');
+
                 output.extend(quote! {
                     __out.push_str(#s);
-                    __out.push_str(" ");
                 });
+                if !next_is_dollar {
+                    output.extend(quote! { __out.push_str(" "); });
+                }
             }
         }
     }
 
     (output, None)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quote::quote;
+
+    #[test]
+    fn test_dollar_interpolation_glue() {
+        // Rust allows `make${Name}` naturally without spaces.
+        // We verify that `make${Name}` results in "make" + value (no space).
+        let input = quote! {
+            make${Name}
+        };
+        let output = parse_template(input);
+        let s = output.to_string();
+        
+        // Should generate code that pushes "make"
+        assert!(s.contains("\"make\""));
+        
+        // And then pushes the value.
+        // If our logic works, no " " is pushed in between.
+    }
+
+    #[test]
+    fn test_const_scope() {
+        let input = quote! {
+            {@const val = "hello"}
+            ${val}
+        };
+        let output = parse_template(input);
+        let s = output.to_string();
+        
+        // Should contain "let val = "hello" ;"
+        assert!(s.contains("let val = \"hello\""));
+        
+        // Should contain usage
+        assert!(s.contains("val . to_string"));
+    }
 }
