@@ -1,4 +1,4 @@
-use ts_macro_abi::{Diagnostic, DiagnosticLevel, MacroResult, Patch, SpanIR, insert_into_class};
+use ts_macro_abi::{Diagnostic, DiagnosticLevel, MacroResult, Patch, SpanIR};
 use ts_macro_derive::ts_macro_derive;
 use ts_quote::ts_template;
 use ts_syn::{Data, DeriveInput, TsStream, parse_ts_macro_input};
@@ -20,25 +20,19 @@ pub fn derive_json_macro(mut input: TsStream) -> MacroResult {
 
     match &input.data {
         Data::Class(class) => {
-            let class_name = input.name();
-            let fields = class.field_names();
-
             // Use Svelte-style templating for clean code generation!
             let runtime_code = ts_template! {
-                #{class_name}.prototype.toJSON = function() {
+                toJSON(): Record<string, unknown> {
 
                     const result = {};
 
-                    {#each fields as field}
+                    {#each class.field_names() as field}
                         result.#{field} = this.#{field};
                     {/each}
 
                     return result;
                 };
             };
-
-            // Generate type signature (use string for TypeScript syntax)
-            let type_signature = "    toJSON(): Record<string, unknown>;\n";
 
             MacroResult {
                 runtime_patches: vec![Patch::Insert {
@@ -48,12 +42,6 @@ pub fn derive_json_macro(mut input: TsStream) -> MacroResult {
                     },
                     code: runtime_code.into(),
                 }],
-                type_patches: vec![
-                    Patch::Delete {
-                        span: input.decorator_span(),
-                    },
-                    insert_into_class(class.body_span(), type_signature),
-                ],
                 ..Default::default()
             }
         }
@@ -117,6 +105,7 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
                         format!("\"{}\"", field_name),             // field_path_literal
                         format!("{}FieldPath", field_name),        // field_path_prop
                         format!("{}FieldController", field_name),  // field_controller_prop
+                        &field.ts_type,
                     )
                 })
                 .collect();
@@ -124,7 +113,11 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
             // ===== Generate All Runtime Code in Single Template =====
 
             let runtime_code = ts_template! {
-                #{class_name}.prototype.#{base_props_method} = function (superForm, path, overrides) {
+                make#{class_name}BaseProps<D extends number, const P extends DeepPath<#{class_name}, D>, V = DeepValue<#{class_name}, P, never, D>>(
+                    superForm: SuperForm<#{class_name}>,
+                    path: P,
+                    overrides?: BasePropsOverrides<#{class_name}, V, D>
+                 ): BaseFieldProps<#{class_name}, V, D> {
                     const proxy = formFieldProxy(superForm, path);
                     const baseProps = {
                         fieldPath: path,
@@ -136,10 +129,12 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
                     return baseProps;
                 };
 
-                {#each field_data as (label_text, field_path_literal, field_path_prop, field_controller_prop)}
+                {#each field_data as (label_text, field_path_literal, field_path_prop, field_controller_prop, field_type)}
+                    {@const controller_type = format!("{}FieldController", capitalize(field_name))}
+
                     #{class_name}.prototype.#{field_path_prop} = [#{field_path_literal}];
 
-                    #{class_name}.prototype.#{field_controller_prop} = function (superForm) {
+                    #{field_controller_prop}(superForm: SuperForm<#{class_name}>): #{controller_type}<#{class_name}, #{field_type}, 1> {
                         const fieldPath = this.#{field_path_prop};
 
                         return {
@@ -156,43 +151,7 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
                 {/each}
             };
 
-            // ===== Generate Type Code =====
-
-            let mut type_code = format!(
-                "    make{class_name}BaseProps<\n\
-                 D extends number,\n        \
-                 const P extends DeepPath<{class_name}, D>,\n        \
-                 V = DeepValue<{class_name}, P, never, D>\n    \
-                 >(\n        \
-                 superForm: SuperForm<{class_name}>,\n        \
-                 path: P,\n        \
-                 overrides?: BasePropsOverrides<{class_name}, V, D>\n    \
-                 ): BaseFieldProps<{class_name}, V, D>;\n"
-            );
-
-            for field in &decorated_fields {
-                let field_name = &field.name;
-                let field_type = &field.ts_type;
-                let field_path_name = format!("{}FieldPath", field_name);
-                let controller_name = format!("{}FieldController", field_name);
-                let controller_type = format!("{}FieldController", capitalize(field_name));
-
-                type_code.push_str(&format!(
-                    "    private readonly {}: [\"{}\"];\n",
-                    field_path_name, field_name
-                ));
-
-                type_code.push_str(&format!(
-                    "    {}(superForm: SuperForm<{}>): {}<{}, {}, 1>;\n",
-                    controller_name, class_name, controller_type, class_name, field_type
-                ));
-            }
-
             // ===== Create Patches =====
-
-            let mut type_patches = vec![Patch::Delete {
-                span: input.decorator_span(),
-            }];
 
             let mut runtime_patches = vec![];
 
@@ -200,18 +159,12 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
             for field in class.fields() {
                 for decorator in &field.decorators {
                     if decorator.name == "FieldController" {
-                        type_patches.push(Patch::Delete {
-                            span: decorator.span,
-                        });
                         runtime_patches.push(Patch::Delete {
                             span: decorator.span,
                         });
                     }
                 }
             }
-
-            // Insert generated code
-            type_patches.push(insert_into_class(class.body_span(), type_code));
 
             runtime_patches.push(Patch::Insert {
                 at: SpanIR {
@@ -223,7 +176,6 @@ pub fn field_controller_macro(mut input: TsStream) -> MacroResult {
 
             MacroResult {
                 runtime_patches,
-                type_patches,
                 ..Default::default()
             }
         }
