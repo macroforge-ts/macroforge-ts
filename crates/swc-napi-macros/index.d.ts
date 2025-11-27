@@ -2,6 +2,13 @@
 /* eslint-disable */
 /** Generates depth-aware field controller helpers for reactive forms */
 export declare function FieldController(): void
+
+export declare function FieldController(): void
+
+export declare function JSON(): void
+
+/** Generates depth-aware field controller helpers for reactive forms */
+export declare function textAreaController(): void
 export interface ExpandResult {
   code: string
   types?: string

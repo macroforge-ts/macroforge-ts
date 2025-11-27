@@ -34,19 +34,17 @@ pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> 
             };
             Ok(stream)
         }
-        Data::Enum(_) => {
-            Err(TsMacroError::new(
-                input.decorator_span(),
-                "@Derive(JSON) can only target classes",
-            ))
-        }
+        Data::Enum(_) => Err(TsMacroError::new(
+            input.decorator_span(),
+            "@Derive(JSON) can only target classes",
+        )),
     }
 }
 
 #[ts_macro_derive(
     FieldController,
     description = "Generates depth-aware field controller helpers for reactive forms",
-    attributes(FieldController)
+    attributes(fieldController, textAreaController)
 )]
 pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
@@ -57,7 +55,12 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
             let decorated_fields: Vec<_> = class
                 .fields()
                 .iter()
-                .filter(|field| field.decorators.iter().any(|d| d.name == "FieldController"))
+                .filter(|field| {
+                    field
+                        .decorators
+                        .iter()
+                        .any(|d| d.name == "FieldController" || d.name == "textAreaController")
+                })
                 .collect();
 
             if decorated_fields.is_empty() {
@@ -127,11 +130,9 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
             };
             Ok(stream)
         }
-        Data::Enum(_) => {
-             Err(TsMacroError::new(
-                input.decorator_span(),
-                "@Derive(FieldController) can only target classes",
-            ))
-        }
+        Data::Enum(_) => Err(TsMacroError::new(
+            input.decorator_span(),
+            "@Derive(FieldController) can only target classes",
+        )),
     }
 }

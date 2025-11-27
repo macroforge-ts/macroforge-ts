@@ -1,5 +1,9 @@
 import { Derive } from "@ts-macros/macros";
-import { FieldController, TextAreaFieldController } from "@playground/macro";
+import {
+  FieldController,
+  fieldController,
+  textAreaController,
+} from "@playground/macro";
 
 /**
  * Example class using the FieldController macro
@@ -10,12 +14,12 @@ import { FieldController, TextAreaFieldController } from "@playground/macro";
  */
 @Derive(FieldController)
 class FormModel {
-  @FieldController(TextAreaController)
+  @fieldController(textAreaController)
   memo: string | null;
 
   username: string;
 
-  @FieldController(TextAreaController)
+  @fieldController(textAreaController)
   description: string;
 
   constructor(memo: string | null, username: string, description: string) {

@@ -60,6 +60,15 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         struct_ident.to_string().trim_start_matches("r#")
     );
 
+    let main_macro_stub_fn_ident = format_ident!("__ts_macro_runtime_stub_{}", struct_ident.to_string().to_case(Case::Snake));
+    let main_macro_napi_stub = quote! {
+        #[::napi_derive::napi(js_name = #macro_name)]
+        pub fn #main_macro_stub_fn_ident() -> ::napi::Result<()> {
+            // This stub function does nothing at runtime; its purpose is purely for TypeScript import resolution.
+            Ok(())
+        }
+    };
+
     let output = quote! {
         #function
 
@@ -116,6 +125,8 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         }
 
         #(#decorator_stubs)*
+
+        #main_macro_napi_stub
     };
 
     output.into()

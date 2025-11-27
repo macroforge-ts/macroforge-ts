@@ -12,8 +12,9 @@ import {
   Email,
   Colors,
 } from "../types/bindings.ts";
+import type { JSON } from "@playground/macro"; // Type-only import
 
-@Derive("Debug", "JSON")
+@Derive(Debug, JSON)
 class MacroUser {
   @Debug({ rename: "userId" })
   id: string;
