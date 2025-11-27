@@ -112,6 +112,44 @@ test('TS Language Plugin augments types', async () => {
   assert.ok(!text.includes('@Debug'), 'Should remove @Debug decorator from output');
 });
 
+test('Macro expansion formats code correctly', async () => {
+  const require = createRequire(import.meta.url);
+  const swcMacrosPath = path.join(repoRoot, 'crates/swc-napi-macros/index.js');
+  const { expandSync } = require(swcMacrosPath);
+
+  const userContent = fs.readFileSync(path.join(vanillaRoot, 'src/user.ts'), 'utf8');
+  const result = expandSync(userContent, 'user.ts');
+
+  assert.ok(result.types, 'Should generate type output');
+
+  const lines = result.types.split('\n');
+
+  // Check for methods on same line as other code (the bug we fixed)
+  lines.forEach((line, i) => {
+    const methodMatches = line.match(/\(\):/g);
+    assert.ok(
+      !methodMatches || methodMatches.length <= 1,
+      `Line ${i + 1} should not have multiple methods: "${line}"`
+    );
+  });
+
+  // Check each method is on its own line
+  const toStringLine = lines.find(l => l.includes('toString()'));
+  const toJSONLine = lines.find(l => l.includes('toJSON()'));
+
+  assert.ok(toStringLine, 'Should have toString() method');
+  assert.ok(toJSONLine, 'Should have toJSON() method');
+
+  const toStringIndex = lines.indexOf(toStringLine);
+  const toJSONIndex = lines.indexOf(toJSONLine);
+
+  assert.notEqual(
+    toStringIndex,
+    toJSONIndex,
+    'toString() and toJSON() should be on separate lines'
+  );
+});
+
 test('Macro Host reports diagnostics for invalid usage', async () => {
     // Test the core macro host logic used by both plugins and language server
     const require = createRequire(import.meta.url);

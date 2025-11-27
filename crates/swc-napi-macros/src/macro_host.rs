@@ -1275,6 +1275,90 @@ class ValidationExample {
     }
 
     #[test]
+    fn test_generated_methods_on_separate_lines() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(Debug, Clone)
+class User {
+    id: number;
+    name: string;
+
+    constructor(id: number, name: string) {
+        this.id = id;
+        this.name = name;
+    }
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed);
+            let type_output = result.type_output.expect("should have type output");
+
+            // Verify methods are on separate lines, not jammed together
+            let lines: Vec<&str> = type_output.lines().collect();
+
+            // Find the toString line
+            let tostring_line = lines.iter().position(|l| l.contains("toString()")).expect("should have toString");
+            // Find the clone line
+            let clone_line = lines.iter().position(|l| l.contains("clone()")).expect("should have clone");
+
+            // They should be on different lines
+            assert_ne!(tostring_line, clone_line, "toString and clone should be on different lines");
+
+            // Verify no line contains multiple method signatures
+            for line in &lines {
+                let method_count = line.matches("(): ").count();
+                assert!(method_count <= 1, "Line should not contain multiple methods: {}", line);
+            }
+        });
+    }
+
+    #[test]
+    fn test_proper_indentation_in_generated_code() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(Debug)
+class User {
+  id: number;
+  name: string;
+
+  constructor(id: number, name: string) {
+    this.id = id;
+    this.name = name;
+  }
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed);
+            let type_output = result.type_output.expect("should have type output");
+
+            // Find the toString line
+            let tostring_line = type_output
+                .lines()
+                .find(|l| l.contains("toString()"))
+                .expect("should have toString method");
+
+            // Verify it has proper indentation (2 spaces to match the class body)
+            assert!(
+                tostring_line.starts_with("  toString()") || tostring_line.trim().starts_with("toString()"),
+                "toString should have proper indentation, got: '{}'",
+                tostring_line
+            );
+        });
+    }
+
+    #[test]
     fn test_default_parameter_values() {
         let source = r#"
 import { Derive } from "@macro/derive";
