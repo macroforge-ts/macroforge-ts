@@ -1,0 +1,2 @@
+playground/svelte/src/lib/demo/macro-user.ts(17,16): error TS1361: 'JSON' cannot be used as a value because it was imported using 'import type'.
+playground/svelte/src/lib/demo/macro-user.ts(17,16): error TS1361: 'JSON' cannot be used as a value because it was imported using 'import type'.

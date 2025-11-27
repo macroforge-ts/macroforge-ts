@@ -1,0 +1,7 @@
+playground/vanilla/src/main.ts(10,28): error TS2339: Property 'toJSON' does not exist on type 'User'.
+playground/svelte/src/lib/demo/macro-user.ts(58,46): error TS2339: Property 'toJSON' does not exist on type 'MacroUser'.
+playground/svelte/src/lib/demo/macro-user.ts(58,46): error TS2339: Property 'toJSON' does not exist on type 'MacroUser'.
+playground/svelte/src/lib/form/client/super-form/data-controller/validation.ts(54,24): error TS2339: Property 'issues' does not exist on type 'ValidationResult<Partial<T>>'.
+playground/svelte/src/lib/form/components/utils.ts(170,22): error TS2339: Property 'map' does not exist on type 'unknown'.
+playground/svelte/src/lib/form/superValidate.ts(118,64): error TS2339: Property 'issues' does not exist on type 'ValidationResult<Out>'.
+playground/svelte/src/lib/form/superValidate.ts(128,22): error TS2339: Property 'issues' does not exist on type 'ValidationResult<Out>'.

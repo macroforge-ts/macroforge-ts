@@ -1,0 +1,1 @@
+playground/svelte/src/lib/demo/macro-user.ts(14,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.

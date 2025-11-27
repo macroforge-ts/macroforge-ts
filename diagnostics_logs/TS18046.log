@@ -1,0 +1,1 @@
+playground/svelte/src/lib/form/components/utils.ts(169,17): error TS18046: 'fetchedArray' is of type 'unknown'.

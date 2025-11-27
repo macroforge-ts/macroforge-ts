@@ -1,0 +1,9 @@
+playground/svelte/src/lib/form/client/proxies.svelte.ts(217,46): error TS7006: Parameter 'segment' implicitly has an 'any' type.
+playground/svelte/src/lib/form/components/utils.ts(170,27): error TS7006: Parameter 'raw' implicitly has an 'any' type.
+playground/svelte/src/lib/form/components/utils.ts(179,26): error TS7006: Parameter 'decoded' implicitly has an 'any' type.
+playground/svelte/src/lib/form/components/utils.ts(182,31): error TS7006: Parameter 'decoded' implicitly has an 'any' type.
+playground/svelte/src/lib/form/jsonSchema/constraints.ts(106,34): error TS7006: Parameter 's' implicitly has an 'any' type.
+playground/svelte/src/lib/form/jsonSchema/schemaInfo.ts(48,20): error TS7006: Parameter 's' implicitly has an 'any' type.
+playground/svelte/src/lib/form/jsonSchema/schemaInfo.ts(104,30): error TS7006: Parameter 's' implicitly has an 'any' type.
+playground/svelte/src/lib/form/jsonSchema/schemaInfo.ts(126,39): error TS7006: Parameter 's' implicitly has an 'any' type.
+playground/svelte/src/lib/form/jsonSchema/schemaInfo.ts(159,33): error TS7006: Parameter 's' implicitly has an 'any' type.

@@ -1,0 +1,8 @@
+playground/svelte/src/lib/form/client/type-guards.ts(2,15): error TS2305: Module '"$lib/types/index.js"' has no exported member 'FormConfig'.
+playground/svelte/src/lib/form/components/context.ts(3,15): error TS2305: Module '"$lib/types"' has no exported member 'FormConfig'.
+playground/svelte/src/lib/form/components/utils.ts(3,55): error TS2305: Module '"$lib/types"' has no exported member 'SelectConfig'.
+playground/svelte/src/lib/form/create-form.ts(8,15): error TS2305: Module '"$lib/types"' has no exported member 'FormConfig'.
+playground/svelte/src/lib/form/client/type-guards.ts(2,15): error TS2305: Module '"$lib/types/index.js"' has no exported member 'FormConfig'.
+playground/svelte/src/lib/form/components/context.ts(3,15): error TS2305: Module '"$lib/types"' has no exported member 'FormConfig'.
+playground/svelte/src/lib/form/components/utils.ts(3,55): error TS2305: Module '"$lib/types"' has no exported member 'SelectConfig'.
+playground/svelte/src/lib/form/create-form.ts(8,15): error TS2305: Module '"$lib/types"' has no exported member 'FormConfig'.

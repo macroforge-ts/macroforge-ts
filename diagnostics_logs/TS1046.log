@@ -1,0 +1,1 @@
+playground/svelte/src/macros/generated/src/lib/demo/macro-user.d.ts(17,1): error TS1046: Top-level declarations in .d.ts files must start with either a 'declare' or 'export' modifier.
