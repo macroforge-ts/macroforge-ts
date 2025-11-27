@@ -15,8 +15,9 @@
 		"build": "npm run build:rust && npm run build:plugin",
 		"build:rust": "cd crates/swc-napi-macros && napi build --platform --release",
 		"build:plugin": "npm run build -w vite-plugin-napi-macros",
-		"build:@playground/macros": "cd playground/macro && npm run build",
-		"test": "npm test --workspaces --if-present && node --test playground/tests/examples.test.mjs",
+		"build:@playground/macro": "cd playground/macro && npm run build",
+		"test": "npm run test:rust && npm test --workspaces --if-present && node --test playground/tests/examples.test.mjs",
+		"test:rust": "cargo test --workspace",
 		"test:playground": "node --test playground/tests/examples.test.mjs",
 		"diagnostics:log": "node scripts/diagnostics.cjs"
 	},

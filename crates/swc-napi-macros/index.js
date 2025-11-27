@@ -572,7 +572,7 @@ if (!nativeBinding) {
 }
 
 module.exports = nativeBinding
-module.exports.FieldController = nativeBinding.FieldController
+module.exports.fieldController = nativeBinding.fieldController
 module.exports.FieldController = nativeBinding.FieldController
 module.exports.JSON = nativeBinding.JSON
 module.exports.textAreaController = nativeBinding.textAreaController

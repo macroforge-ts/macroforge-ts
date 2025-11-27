@@ -20,7 +20,7 @@ pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> 
     match &input.data {
         Data::Class(class) => {
             // Use Svelte-style templating for clean code generation!
-            let stream = ts_template! {
+            Ok(ts_template! {
                 toJSON(): Record<string, unknown> {
 
                     const result = {};
@@ -31,8 +31,7 @@ pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> 
 
                     return result;
                 };
-            };
-            Ok(stream)
+            })
         }
         Data::Enum(_) => Err(TsMacroError::new(
             input.decorator_span(),
@@ -59,7 +58,7 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
                     field
                         .decorators
                         .iter()
-                        .any(|d| d.name == "FieldController" || d.name == "textAreaController")
+                        .any(|d| d.name == "fieldController" || d.name == "textAreaController")
                 })
                 .collect();
 
