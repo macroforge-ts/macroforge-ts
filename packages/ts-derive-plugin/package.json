@@ -11,7 +11,8 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "npm run build --silent && node --test tests/**/*.test.js"
   },
   "dependencies": {
     "@ts-macros/swc-napi": "file:../../crates/swc-napi-macros"

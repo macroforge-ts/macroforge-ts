@@ -338,9 +338,11 @@ async function createLanguageService(
     workspacePath: string,
     docContext: LanguageServiceDocumentContext
 ): Promise<LanguageServiceContainer> {
+    Logger.log('createLanguageService: starting for', tsconfigPath);
     const { tsSystem } = docContext;
 
     const projectConfig = getParsedConfig();
+    Logger.log('createLanguageService: parsed config');
     const { options: compilerOptions, raw, errors: configErrors } = projectConfig;
     const tsMacrosPluginSettings =
         raw?.compilerOptions?.plugins?.find(
@@ -359,11 +361,14 @@ async function createLanguageService(
     const getCanonicalFileName = createGetCanonicalFileName(tsSystem.useCaseSensitiveFileNames);
     watchWildCardDirectories(projectConfig);
 
+    Logger.log('createLanguageService: creating snapshot manager');
     const snapshotManager = createSnapshotManager(projectConfig, tsconfigPath);
 
     // Load all configs within the tsconfig scope and the one above so that they are all loaded
     // by the time they need to be accessed synchronously by DocumentSnapshots.
+    Logger.log('createLanguageService: loading configs');
     await configLoader.loadConfigs(workspacePath);
+    Logger.log('createLanguageService: loaded configs');
 
     const svelteModuleLoader = createSvelteModuleLoader(
         getSnapshot,
@@ -448,12 +453,16 @@ async function createLanguageService(
     };
 
     const project = initLsCacheProject();
+    Logger.log('createLanguageService: creating TS language service');
     const languageService = ts.createLanguageService(host, documentRegistry);
+    Logger.log('createLanguageService: created TS language service');
 
     docContext.globalSnapshotsManager.onChange(scheduleUpdate);
 
     reduceLanguageServiceCapabilityIfFileSizeTooBig();
     watchConfigFiles(projectConfig.extendedConfigPaths, projectConfig);
+
+    Logger.log('createLanguageService: finished');
 
     return {
         tsconfigPath,

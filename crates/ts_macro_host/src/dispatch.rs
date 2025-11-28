@@ -1,7 +1,6 @@
 //! Macro dispatch and execution
 
 use crate::MacroRegistry;
-use tracing::{debug, error, warn};
 use ts_macro_abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult};
 use ts_syn::TsStream;
 
@@ -18,22 +17,12 @@ impl MacroDispatcher {
 
     /// Dispatch a macro call
     pub fn dispatch(&self, ctx: MacroContextIR) -> MacroResult {
-        debug!(
-            "Dispatching macro: {}::{} (kind: {:?})",
-            ctx.module_path, ctx.macro_name, ctx.macro_kind
-        );
-
         // Look up the macro in the registry
         match self.registry.lookup(&ctx.module_path, &ctx.macro_name) {
             Ok(macro_impl) => {
                 // Check ABI version compatibility
                 let impl_abi = macro_impl.abi_version();
                 if impl_abi != ctx.abi_version {
-                    warn!(
-                        "ABI version mismatch for macro {}::{}: expected {}, got {}",
-                        ctx.module_path, ctx.macro_name, ctx.abi_version, impl_abi
-                    );
-
                     return MacroResult {
                         runtime_patches: vec![],
                         type_patches: vec![],
@@ -91,11 +80,6 @@ impl MacroDispatcher {
                             "Unknown panic in macro execution".to_string()
                         };
 
-                        error!(
-                            "Macro {}::{} panicked: {}",
-                            ctx.module_path, ctx.macro_name, panic_msg
-                        );
-
                         MacroResult {
                             runtime_patches: vec![],
                             type_patches: vec![],
@@ -113,8 +97,6 @@ impl MacroDispatcher {
                 }
             }
             Err(err) => {
-                error!("Macro not found: {}", err);
-
                 MacroResult {
                     runtime_patches: vec![],
                     type_patches: vec![],

@@ -4,6 +4,12 @@ const path = require('node:path');
 
 const ROOT_DIR = process.cwd();
 const LOGS_DIR = path.join(ROOT_DIR, 'diagnostics_logs');
+const IGNORED_PATH_SEGMENTS = new Set(['node_modules']);
+const IGNORED_PATH_PREFIXES = [
+    path.join('playground', 'svelte', 'src', 'lib', 'form'),
+    path.join('playground', 'svelte', 'src', 'lib', 'types'),
+    path.join('playground', 'svelte', 'src', 'lib', 'traits'),
+].map((prefix) => prefix.split(path.sep).join('/'));
 
 async function runCommand(command, cwd = ROOT_DIR) {
     return new Promise((resolve) => {
@@ -13,13 +19,50 @@ async function runCommand(command, cwd = ROOT_DIR) {
     });
 }
 
+async function isGitIgnored(filePath) {
+    return new Promise((resolve) => {
+        exec(`git check-ignore "${filePath}"`, { cwd: ROOT_DIR }, (error) => {
+            if (!error) {
+                resolve(true);
+            } else if (error && error.code === 1) {
+                resolve(false);
+            } else {
+                resolve(false);
+            }
+        });
+    });
+}
+
+function normalizeFilePath(filePath) {
+    const absolute = path.isAbsolute(filePath) ? filePath : path.join(ROOT_DIR, filePath);
+    const relative = path.relative(ROOT_DIR, absolute);
+    return relative.replace(/\\/g, '/');
+}
+
+function isIgnoredDiagnosticPath(filePath) {
+    const normalized = normalizeFilePath(filePath);
+    if (!normalized || normalized.startsWith('..')) {
+        return false;
+    }
+    if (IGNORED_PATH_PREFIXES.some((prefix) => normalized.startsWith(prefix))) {
+        return true;
+    }
+    const segments = normalized.split('/');
+    return segments.some((segment) => IGNORED_PATH_SEGMENTS.has(segment));
+}
+
 function parseTypeScriptErrors(output) {
     const errors = [];
     const errorRegex = /^(.*?)\((\d+),(\d+)\): error (TS\d+): (.*)$/gm;
     let match;
+
     while ((match = errorRegex.exec(output)) !== null) {
+        const filePath = match[1];
+        if (isIgnoredDiagnosticPath(filePath)) {
+            continue;
+        }
         errors.push({
-            file: match[1],
+            file: filePath,
             line: parseInt(match[2], 10),
             column: parseInt(match[3], 10),
             code: match[4],
@@ -60,9 +103,16 @@ async function getTsConfigPaths() {
     const allTsConfigs = (await fs.readdir(ROOT_DIR, { recursive: true }))
         .filter(file => file.endsWith('tsconfig.json') && !file.includes('node_modules'))
         .map(file => path.join(ROOT_DIR, file));
+
+    const trackedTsConfigs = [];
+    for (const configPath of allTsConfigs) {
+        if (!(await isGitIgnored(configPath))) {
+            trackedTsConfigs.push(configPath);
+        }
+    }
     
     // Filter out test-related tsconfig files
-    const primaryTsConfigs = allTsConfigs.filter(configPath => 
+    const primaryTsConfigs = trackedTsConfigs.filter(configPath => 
         !configPath.includes('test/') && 
         (
             configPath.includes('packages/') || 
@@ -85,6 +135,7 @@ async function getTsConfigPaths() {
 }
 
 async function main() {
+    await fs.rm(LOGS_DIR, { recursive: true, force: true });
     await fs.mkdir(LOGS_DIR, { recursive: true });
     console.log(`Diagnostics logs will be saved in: ${LOGS_DIR}`);
 

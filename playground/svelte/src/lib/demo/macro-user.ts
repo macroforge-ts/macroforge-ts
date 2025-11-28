@@ -11,11 +11,11 @@ import {
   PhoneNumber,
   Email,
   Colors,
-} from "../types/bindings.ts";
-import type { JSON } from "@playground/macro"; // Type-only import
+} from "../types/bindings";
+import { JSON } from "@playground/macro";
 
 @Derive(Debug, JSON)
-class MacroUser {
+export class MacroUser {
   @Debug({ rename: "userId" })
   id: string;
 
@@ -43,7 +43,6 @@ class MacroUser {
     this.apiToken = apiToken;
   }
 }
-export { MacroUser };
 
 const showcaseUser = new MacroUser(
   "usr_2626",
