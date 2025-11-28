@@ -30,7 +30,7 @@ pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> 
                     {/each}
 
                     return result;
-                };
+                }
             })
         }
         Data::Enum(_) => Err(TsMacroError::new(

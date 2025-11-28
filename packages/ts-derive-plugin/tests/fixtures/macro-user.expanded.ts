@@ -14,9 +14,7 @@ import {
 } from "../types/bindings";
 import { JSON } from "@playground/macro";
 
-@Derive(Debug, JSON)
 export class MacroUser {
-  @Debug({ rename: "userId" })
   id: string;
 
   name: string;
@@ -24,7 +22,6 @@ export class MacroUser {
   favoriteMacro: "Derive" | "JsonNative";
   since: string;
 
-  @Debug({ skip: true })
   apiToken: string;
 
   constructor(
@@ -43,6 +40,20 @@ export class MacroUser {
     this.apiToken = apiToken;
   }
 }
+
+MacroUser.prototype.toString = function () {
+    return `MacroUser { userId: ${this.id}, name: ${this.name} }`;
+};
+
+MacroUser.prototype.toJSON = function () {
+    return {
+        userId: this.id,
+        name: this.name,
+        role: this.role,
+        favoriteMacro: this.favoriteMacro,
+        since: this.since,
+    };
+};
 
 const showcaseUser = new MacroUser(
   "usr_2626",
@@ -116,9 +127,7 @@ export class Account extends Schema.Class<Account>("Account")({
   accountName: Schema.propertySignature(AccountName).annotations({
     missingMessage: () => `'Account Name' is required`,
   }),
-  sector: Schema.propertySignature(Sector).annotations({
-    missingMessage: () => `'Sector' is required`,
-  }),
+  sector: Schema.propertySignature(Sector).annotations({ missingMessage: () => `'Sector' is required` }),
   memo: Schema.OptionFromNullishOr(
     Schema.String.pipe(
       Schema.nonEmptyString({ message: () => `Please enter a value` }),
@@ -136,9 +145,7 @@ export class Account extends Schema.Class<Account>("Account")({
       Schema.nonEmptyString({ message: () => `Please enter a value` }),
     ),
   ).annotations({ missingMessage: () => `'Lead Source' is required` }),
-  colors: Schema.propertySignature(Colors).annotations({
-    missingMessage: () => `'Colors' is required`,
-  }),
+  colors: Schema.propertySignature(Colors).annotations({ missingMessage: () => `'Colors' is required` }),
   needsReview: Schema.propertySignature(Schema.Boolean).annotations({
     missingMessage: () => `'Needs Review' is required`,
   }),

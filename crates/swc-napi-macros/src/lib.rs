@@ -42,14 +42,20 @@ pub struct ExpandResult {
 pub fn transform_sync(code: String, filepath: String) -> Result<TransformResult> {
     // Initialize SWC globals
     let globals = Globals::default();
-    GLOBALS.set(&globals, || transform_inner(&code, &filepath))
+    GLOBALS.set(&globals, || {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| transform_inner(&code, &filepath)))
+            .map_err(|_| Error::new(Status::GenericFailure, "Macro transformation panicked"))?
+    })
 }
 
 /// Expand macros in TypeScript code and return the transformed TS (types) and diagnostics
 #[napi]
 pub fn expand_sync(code: String, filepath: String) -> Result<ExpandResult> {
     let globals = Globals::default();
-    GLOBALS.set(&globals, || expand_inner(&code, &filepath))
+    GLOBALS.set(&globals, || {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| expand_inner(&code, &filepath)))
+            .map_err(|_| Error::new(Status::GenericFailure, "Macro expansion panicked"))?
+    })
 }
 
 fn expand_inner(code: &str, filepath: &str) -> Result<ExpandResult> {
@@ -139,7 +145,8 @@ fn parse_program(code: &str, filepath: &str) -> Result<(Program, Lrc<SourceMap>)
         code.to_string(),
     );
 
-    let handler = Handler::with_emitter_writer(Box::new(std::io::stderr()), Some(cm.clone()));
+    // Use a memory buffer instead of stderr to avoid polluting the LSP stream
+    let handler = Handler::with_emitter_writer(Box::new(std::io::Cursor::new(Vec::new())), Some(cm.clone()));
 
     let lexer = Lexer::new(
         Syntax::Typescript(TsSyntax {
@@ -198,10 +205,10 @@ fn handle_macro_diagnostics(diags: &[Diagnostic], file: &str) -> Result<()> {
                 ));
             }
             DiagnosticLevel::Warning => {
-                eprintln!("[ts-macros] warning: {}", diag.message);
+                // eprintln!("[ts-macros] warning: {}", diag.message);
             }
             DiagnosticLevel::Info => {
-                eprintln!("[ts-macros] info: {}", diag.message);
+                // eprintln!("[ts-macros] info: {}", diag.message);
             }
         }
     }

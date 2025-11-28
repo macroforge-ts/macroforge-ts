@@ -66,7 +66,7 @@ impl<'a> PatchApplicator<'a> {
         // 2. Proper indentation
         // 3. The rendered member
         // 4. A newline after (the closing brace should be on its own line)
-        format!("\n{}{}", indent, rendered.trim())
+        format!("\n{}{}\n", indent, rendered.trim())
     }
 
     /// Detect indentation level at a given position by looking backwards
@@ -484,5 +484,36 @@ mod tests {
         let formatted = applicator.format_insertion("test", pos, &PatchCode::Text("test".to_string()));
         // Text patches should not get extra formatting
         assert_eq!(formatted, "test");
+    }
+
+    #[test]
+    fn test_dedupe_patches_removes_identical_inserts() {
+        let mut patches = vec![
+            Patch::Insert {
+                at: SpanIR { start: 10, end: 10 },
+                code: "console.log('a');".to_string().into(),
+            },
+            Patch::Insert {
+                at: SpanIR { start: 10, end: 10 },
+                code: "console.log('a');".to_string().into(),
+            },
+            Patch::Insert {
+                at: SpanIR { start: 20, end: 20 },
+                code: "console.log('b');".to_string().into(),
+            },
+        ];
+
+        dedupe_patches(&mut patches).expect("dedupe should succeed");
+        assert_eq!(
+            patches.len(),
+            2,
+            "duplicate inserts should collapse to a single patch"
+        );
+        assert!(
+            patches
+                .iter()
+                .any(|patch| matches!(patch, Patch::Insert { at, .. } if at.start == 20)),
+            "dedupe should retain distinct spans"
+        );
     }
 }

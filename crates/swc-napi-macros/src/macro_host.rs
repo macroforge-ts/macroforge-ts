@@ -542,14 +542,13 @@ fn register_packages(
             found = true;
         }
 
-        if !found {
-            eprintln!(
-                "[ts-macros] warning: macro package '{}' not found among embedded/derived macros. \
-                 Ensure it is compiled into the host or update ts-macros.json.",
-                module
-            );
-        }
-    }
+                        if !found {
+                    // eprintln!(
+                    //     "[ts-macros] warning: macro package '{}' not found among embedded/derived macros. \
+                    //      Ensure it is compiled into the host or update ts-macros.json.",
+                    //     module
+                    // );
+                }    }
 
     Ok(())
 }
@@ -591,6 +590,22 @@ mod tests {
     impl StringExt for str {
         fn replace_whitespace(&self) -> String {
             self.chars().filter(|c| !c.is_whitespace()).collect()
+        }
+    }
+
+    fn base_class(name: &str) -> ClassIR {
+        ClassIR {
+            name: name.into(),
+            span: SpanIR::new(0, 200),
+            body_span: SpanIR::new(10, 190),
+            is_abstract: false,
+            type_params: vec![],
+            heritage: vec![],
+            decorators: vec![],
+            decorators_ast: vec![],
+            fields: vec![],
+            methods: vec![],
+            members: vec![],
         }
     }
 
@@ -833,6 +848,112 @@ class MacroUser {
         let (_module, classes) = result.unwrap();
         assert_eq!(classes.len(), 1);
         assert_eq!(classes[0].name, "User");
+    }
+
+    #[test]
+    fn test_process_macro_output_converts_tokens_into_patches() {
+        GLOBALS.set(&Default::default(), || {
+            let host = MacroHostIntegration::new().unwrap();
+            let class_ir = base_class("TokenDriven");
+            let ctx = MacroContextIR::new_derive_class(
+                "Debug".into(),
+                DERIVE_MODULE_PATH.into(),
+                SpanIR::new(0, 5),
+                class_ir.span,
+                "token.ts".into(),
+                class_ir.clone(),
+                "class TokenDriven {}".into(),
+            );
+
+            let mut result = MacroResult {
+                tokens: Some(
+                    r#"
+                        toString() { return `${this.value}`; }
+                        constructor(value: string) { this.value = value; }
+                    "#
+                    .into(),
+                ),
+                ..Default::default()
+            };
+
+            let (runtime, type_patches) = host
+                .process_macro_output(&mut result, &ctx)
+                .expect("tokens should parse");
+
+            assert_eq!(
+                runtime.len(),
+                2,
+                "expected one runtime patch per generated member"
+            );
+            assert_eq!(
+                type_patches.len(),
+                2,
+                "expected one type patch per generated member"
+            );
+
+            for patch in runtime {
+                match patch {
+                    Patch::Insert {
+                        code: PatchCode::ClassMember(_),
+                        ..
+                    } => {}
+                    other => panic!("expected class member insert, got {:?}", other),
+                }
+            }
+
+            for patch in type_patches {
+                if let Patch::Insert {
+                    code: PatchCode::ClassMember(member),
+                    ..
+                } = patch
+                {
+                    match member {
+                        ClassMember::Method(method) => assert!(
+                            method.function.body.is_none(),
+                            "type patch should strip method body"
+                        ),
+                        ClassMember::Constructor(cons) => assert!(
+                            cons.body.is_none(),
+                            "type patch should drop constructor body"
+                        ),
+                        _ => {}
+                    }
+                } else {
+                    panic!("expected type patch insert");
+                }
+            }
+        });
+    }
+
+    #[test]
+    fn test_process_macro_output_reports_parse_errors() {
+        GLOBALS.set(&Default::default(), || {
+            let host = MacroHostIntegration::new().unwrap();
+            let class_ir = base_class("Broken");
+            let ctx = MacroContextIR::new_derive_class(
+                "Debug".into(),
+                DERIVE_MODULE_PATH.into(),
+                SpanIR::new(0, 5),
+                class_ir.span,
+                "broken.ts".into(),
+                class_ir.clone(),
+                "class Broken {}".into(),
+            );
+
+            let mut result = MacroResult {
+                tokens: Some("this is not valid class member syntax".into()),
+                ..Default::default()
+            };
+
+            let err = host
+                .process_macro_output(&mut result, &ctx)
+                .expect_err("invalid tokens should bubble an error");
+
+            assert!(
+                err.to_string().contains("Failed to parse macro output"),
+                "should mention parsing failure, got {err:?}"
+            );
+        });
     }
 
     #[test]

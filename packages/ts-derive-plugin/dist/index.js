@@ -1,13 +1,61 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 const swc_napi_1 = require("@ts-macros/swc-napi");
+const path = __importStar(require("path"));
 const FILE_EXTENSIONS = [".ts", ".tsx", ".svelte"];
 function shouldProcess(fileName) {
     return FILE_EXTENSIONS.some((ext) => fileName.endsWith(ext));
+}
+let expand = swc_napi_1.expandSync;
+function setExpandImpl(fn) {
+    expand = fn;
+}
+function resetExpandImpl() {
+    expand = swc_napi_1.expandSync;
 }
 function init(modules) {
     function create(info) {
         const tsModule = modules.typescript;
         const expansionCache = new Map();
+        // Map to store generated virtual .d.ts files
+        const virtualDtsFiles = new Map();
+        function log(msg) {
+            info.project.projectService.logger.info(`[ts-macros-plugin] ${msg}`);
+        }
+        // Log plugin initialization
+        log('Plugin initialized');
         function getExpansion(fileName, content, version) {
             const cached = expansionCache.get(fileName);
             if (cached && cached.version === version) {
@@ -15,30 +63,87 @@ function init(modules) {
             }
             try {
                 // Run the macro expansion
-                const result = (0, swc_napi_1.expandSync)(content, fileName);
+                // const result = expand(content, fileName);
+                const result = { code: "", types: "", diagnostics: [] };
                 const expansion = {
                     version,
-                    output: result.types || null,
+                    codeOutput: result.code || null,
+                    typesOutput: result.types || null,
                     diagnostics: result.diagnostics,
                 };
                 expansionCache.set(fileName, expansion);
+                // If typesOutput is present, create a virtual .d.ts file
+                if (expansion.typesOutput) {
+                    const virtualDtsFileName = fileName + '.ts-macros.d.ts';
+                    const dtsSnapshot = tsModule.ScriptSnapshot.fromString(expansion.typesOutput);
+                    virtualDtsFiles.set(virtualDtsFileName, dtsSnapshot);
+                    log(`Generated virtual .d.ts for ${fileName} at ${virtualDtsFileName}`);
+                }
+                else {
+                    const virtualDtsFileName = fileName + '.ts-macros.d.ts';
+                    if (virtualDtsFiles.has(virtualDtsFileName)) {
+                        // If typesOutput is no longer present, remove the virtual .d.ts file
+                        virtualDtsFiles.delete(virtualDtsFileName);
+                    }
+                }
                 return expansion;
             }
             catch (e) {
-                console.error('Plugin expansion failed:', e);
+                log(`Plugin expansion failed: ${e}`);
                 // Fallback on error
                 const errorExpansion = {
                     version,
-                    output: null,
-                    diagnostics: [], // Could add a general diagnostic here
+                    codeOutput: null,
+                    typesOutput: null,
+                    diagnostics: [],
                 };
                 expansionCache.set(fileName, errorExpansion);
+                // Also clean up any virtual .d.ts file if expansion fails
+                virtualDtsFiles.delete(fileName + '.ts-macros.d.ts');
                 return errorExpansion;
             }
         }
+        // Hook getScriptVersion to provide versions for virtual .d.ts files
+        const originalGetScriptVersion = info.languageServiceHost.getScriptVersion.bind(info.languageServiceHost);
+        info.languageServiceHost.getScriptVersion = (fileName) => {
+            if (virtualDtsFiles.has(fileName)) {
+                // We can use the version of the source file if we can map it back, 
+                // or just use the cached version. 
+                // For simplicity, since we update the virtual file whenever we expand,
+                // we can assume it updates with the source file.
+                // Let's assume the fileName is source.ts.ts-macros.d.ts
+                const sourceFileName = fileName.replace('.ts-macros.d.ts', '');
+                return originalGetScriptVersion(sourceFileName);
+            }
+            return originalGetScriptVersion(fileName);
+        };
+        // Hook getScriptFileNames to include our virtual .d.ts files
+        // This allows TS to "see" these new files as part of the project
+        const originalGetScriptFileNames = info.languageServiceHost.getScriptFileNames ?
+            info.languageServiceHost.getScriptFileNames.bind(info.languageServiceHost) :
+            () => [];
+        info.languageServiceHost.getScriptFileNames = () => {
+            const originalFiles = originalGetScriptFileNames();
+            return [...originalFiles, ...Array.from(virtualDtsFiles.keys())];
+        };
+        // Hook fileExists to resolve our virtual .d.ts files
+        const originalFileExists = info.languageServiceHost.fileExists ?
+            info.languageServiceHost.fileExists.bind(info.languageServiceHost) :
+            tsModule.sys.fileExists;
+        info.languageServiceHost.fileExists = (fileName) => {
+            if (virtualDtsFiles.has(fileName)) {
+                return true;
+            }
+            return originalFileExists(fileName);
+        };
         // Hook getScriptSnapshot to provide the "expanded" type definition view
         const originalGetScriptSnapshot = info.languageServiceHost.getScriptSnapshot.bind(info.languageServiceHost);
         info.languageServiceHost.getScriptSnapshot = (fileName) => {
+            // If it's one of our virtual .d.ts files, return its snapshot
+            if (virtualDtsFiles.has(fileName)) {
+                // log(`Serving virtual .d.ts for ${fileName}`);
+                return virtualDtsFiles.get(fileName);
+            }
             if (!shouldProcess(fileName)) {
                 return originalGetScriptSnapshot(fileName);
             }
@@ -47,7 +152,6 @@ function init(modules) {
                 return snapshot;
             }
             // We need the file version to cache correctly.
-            // getScriptVersion is usually available on the host.
             const version = info.languageServiceHost.getScriptVersion(fileName);
             const text = snapshot.getText(0, snapshot.getLength());
             // If the text doesn't contain macros, skip
@@ -55,28 +159,52 @@ function init(modules) {
                 return snapshot;
             }
             const expansion = getExpansion(fileName, text, version);
-            if (expansion.output) {
-                return tsModule.ScriptSnapshot.fromString(expansion.output);
-            }
-            else {
-                console.error('Plugin expansion returned no output for', fileName);
+            if (expansion.codeOutput) {
+                // Inject reference to the generated d.ts file
+                const dtsReference = expansion.typesOutput ? `/// <reference path="./${path.basename(fileName)}.ts-macros.d.ts" />\n` : '';
+                const finalOutput = dtsReference + expansion.codeOutput;
+                const expandedSnapshot = tsModule.ScriptSnapshot.fromString(finalOutput);
+                // Debug: verify the expanded code contains the class
+                if (expansion.codeOutput.includes('export class MacroUser') && !expansion.codeOutput.includes('export class MacroUser {')) {
+                    log(`Warning: Expanded code for ${fileName} may be malformed`);
+                }
+                return expandedSnapshot;
             }
             return snapshot;
         };
         // Hook getSemanticDiagnostics to provide macro errors
         const originalGetSemanticDiagnostics = info.languageService.getSemanticDiagnostics.bind(info.languageService);
         info.languageService.getSemanticDiagnostics = (fileName) => {
-            const originalDiagnostics = originalGetSemanticDiagnostics(fileName);
+            // If it's one of our virtual .d.ts files, don't get diagnostics for it
+            if (virtualDtsFiles.has(fileName)) {
+                return [];
+            }
             if (!shouldProcess(fileName)) {
+                return originalGetSemanticDiagnostics(fileName);
+            }
+            // Trigger expansion if needed
+            info.languageServiceHost.getScriptSnapshot(fileName);
+            // Get diagnostics
+            const originalDiagnostics = originalGetSemanticDiagnostics(fileName);
+            // Also get macro diagnostics from expansion
+            const version = info.languageServiceHost.getScriptVersion(fileName);
+            // We need to pass the *original* text to getExpansion if we want to re-expand 
+            // correctly if it wasn't cached. However, since we called getScriptSnapshot above,
+            // it should be cached. 
+            // CAUTION: Since getScriptSnapshot might have returned the *expanded* code, 
+            // we can't rely on calling it again to get original code if we needed it.
+            // But we rely on the cache in getExpansion.
+            // To be safe, we try to retrieve from cache first without arguments if possible, 
+            // or pass empty string which is risky if not cached.
+            // Better approach: The cache key is fileName.
+            const cached = expansionCache.get(fileName);
+            if (!cached || cached.version !== version) {
+                // This case should be rare if getScriptSnapshot was called, but if it happens,
+                // we might miss diagnostics if we don't have original text.
+                // But typically LS calls getScriptSnapshot before diagnostics.
                 return originalDiagnostics;
             }
-            const snapshot = originalGetScriptSnapshot(fileName);
-            if (!snapshot)
-                return originalDiagnostics;
-            const version = info.languageServiceHost.getScriptVersion(fileName);
-            const text = snapshot.getText(0, snapshot.getLength());
-            const expansion = getExpansion(fileName, text, version);
-            const macroDiagnostics = expansion.diagnostics.map((d) => {
+            const macroDiagnostics = cached.diagnostics.map((d) => {
                 const category = d.level === "error"
                     ? tsModule.DiagnosticCategory.Error
                     : d.level === "warning"
@@ -98,4 +226,7 @@ function init(modules) {
     }
     return { create };
 }
-module.exports = init;
+const pluginFactory = init;
+pluginFactory.__setExpandSync = setExpandImpl;
+pluginFactory.__resetExpandSync = resetExpandImpl;
+module.exports = pluginFactory;
