@@ -175,8 +175,8 @@ test('E2E: reports error for non-existent methods', (t) => {
 
 test('E2E: macro-user.ts example with Debug and JSON macros', (t) => {
   const fixturesDir = path.join(__dirname, 'fixtures');
-  const macroUserSource = fs.readFileSync(path.join(fixturesDir, 'macro-user.ts'), 'utf-8');
-  const expandedMacroUserCode = fs.readFileSync(path.join(fixturesDir, 'macro-user.expanded.ts'), 'utf-8');
+  const macroUserSource = fs.readFileSync(path.join(fixturesDir, 'macro-user.test.ts'), 'utf-8');
+  const expandedMacroUserCode = fs.readFileSync(path.join(fixturesDir, 'macro-user.expanded.test.ts'), 'utf-8');
 
   const mainFile = '/virtual/macro-user.ts';
   
