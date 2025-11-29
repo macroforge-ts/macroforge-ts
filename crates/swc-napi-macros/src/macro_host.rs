@@ -1,5 +1,4 @@
 use anyhow::{Context, Result};
-use playground_macros as _;
 use std::{collections::HashMap, path::Path};
 use swc_core::{
     common::Span,
@@ -15,7 +14,6 @@ use ts_macro_abi::{
 use ts_macro_host::{MacroConfig, MacroDispatcher, MacroRegistry, PatchCollector};
 
 // Import builtin macros to ensure inventory registrations are linked
-use ts_macros_builtin as _;
 use ts_syn::lower_classes;
 
 const DERIVE_MODULE_PATH: &str = "@macro/derive";
@@ -587,13 +585,14 @@ fn register_packages(
             found = true;
         }
 
-                        if !found {
-                    // eprintln!(
-                    //     "[ts-macros] warning: macro package '{}' not found among embedded/derived macros. \
-                    //      Ensure it is compiled into the host or update ts-macros.json.",
-                    //     module
-                    // );
-                }    }
+        if !found {
+            // eprintln!(
+            //     "[ts-macros] warning: macro package '{}' not found among embedded/derived macros. \
+            //      Ensure it is compiled into the host or update ts-macros.json.",
+            //     module
+            // );
+        }
+    }
 
     Ok(())
 }
@@ -674,7 +673,7 @@ class Data {
             // We check the code patches, not type output for this one (as it adds implementation)
             // But wait, the macro adds patches to runtime.
             // Let's check if the output code contains toJSON
-            
+
             // The patch applicator preserves formatting roughly
             assert!(result.code.contains("toJSON(): Record<string, unknown>"));
             assert!(result.code.contains("result.val = this.val"));
@@ -1469,17 +1468,30 @@ class User {
             let lines: Vec<&str> = type_output.lines().collect();
 
             // Find the toString line
-            let tostring_line = lines.iter().position(|l| l.contains("toString()")).expect("should have toString");
+            let tostring_line = lines
+                .iter()
+                .position(|l| l.contains("toString()"))
+                .expect("should have toString");
             // Find the clone line
-            let clone_line = lines.iter().position(|l| l.contains("clone()")).expect("should have clone");
+            let clone_line = lines
+                .iter()
+                .position(|l| l.contains("clone()"))
+                .expect("should have clone");
 
             // They should be on different lines
-            assert_ne!(tostring_line, clone_line, "toString and clone should be on different lines");
+            assert_ne!(
+                tostring_line, clone_line,
+                "toString and clone should be on different lines"
+            );
 
             // Verify no line contains multiple method signatures
             for line in &lines {
                 let method_count = line.matches("(): ").count();
-                assert!(method_count <= 1, "Line should not contain multiple methods: {}", line);
+                assert!(
+                    method_count <= 1,
+                    "Line should not contain multiple methods: {}",
+                    line
+                );
             }
         });
     }
@@ -1517,7 +1529,8 @@ class User {
 
             // Verify it has proper indentation (2 spaces to match the class body)
             assert!(
-                tostring_line.starts_with("  toString()") || tostring_line.trim().starts_with("toString()"),
+                tostring_line.starts_with("  toString()")
+                    || tostring_line.trim().starts_with("toString()"),
                 "toString should have proper indentation, got: '{}'",
                 tostring_line
             );
@@ -1678,17 +1691,25 @@ class User {
             assert!(result.changed, "Expansion should report changes");
 
             // Source mapping should be produced
-            let mapping = result.source_mapping.expect("Source mapping should be produced");
+            let mapping = result
+                .source_mapping
+                .expect("Source mapping should be produced");
 
             // Should have segments for unchanged regions
             assert!(!mapping.segments.is_empty(), "Should have mapping segments");
 
             // Should have a generated region for the toString implementation
-            assert!(!mapping.generated_regions.is_empty(), "Should have generated regions");
+            assert!(
+                !mapping.generated_regions.is_empty(),
+                "Should have generated regions"
+            );
 
             // Print mapping for debugging
             println!("Source mapping segments: {:?}", mapping.segments);
-            println!("Source mapping generated regions: {:?}", mapping.generated_regions);
+            println!(
+                "Source mapping generated regions: {:?}",
+                mapping.generated_regions
+            );
         });
     }
 }

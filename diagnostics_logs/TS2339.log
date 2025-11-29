@@ -1,0 +1,2 @@
+playground/vanilla/src/main.ts(10,28): error TS2339: Property 'toJSON' does not exist on type 'User'.
+playground/svelte/src/lib/demo/macro-user.ts(57,46): error TS2339: Property 'toJSON' does not exist on type 'MacroUser'.

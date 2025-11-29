@@ -1,4 +1,4 @@
-import { Derive, Debug } from "@ts-macros/macros";
+import { Derive, Debug, debug } from "@ts-macros/swc-napi";
 import { Schema } from "effect";
 import {
   TaxRate,
@@ -16,7 +16,7 @@ import { JSON } from "@playground/macro";
 
 @Derive(Debug, JSON)
 export class MacroUser {
-  @Debug({ rename: "userId" })
+  @debug({ rename: "userId" })
   id: string;
 
   name: string;
@@ -24,7 +24,7 @@ export class MacroUser {
   favoriteMacro: "Derive" | "JsonNative";
   since: string;
 
-  @Debug({ skip: true })
+  @debug({ skip: true })
   apiToken: string;
 
   constructor(

@@ -1,8 +1,8 @@
-import { Derive } from "@ts-macros/macros";
+import { Derive } from "@ts-macros/swc-napi";
 import {
-    FieldController,
-    fieldController,
-    textAreaController,
+  FieldController,
+  fieldController,
+  textAreaController,
 } from "@playground/macro";
 
 /**
@@ -14,19 +14,19 @@ import {
  */
 @Derive(FieldController)
 class FormModel {
-    @fieldController(textAreaController)
-    memo: string | null;
+  @fieldController(textAreaController)
+  memo: string | null;
 
-    username: string;
+  username: string;
 
-    @fieldController(textAreaController)
-    description: string;
+  @fieldController(textAreaController)
+  description: string;
 
-    constructor(memo: string | null, username: string, description: string) {
-        this.memo = memo;
-        this.username = username;
-        this.description = description;
-    }
+  constructor(memo: string | null, username: string, description: string) {
+    this.memo = memo;
+    this.username = username;
+    this.description = description;
+  }
 }
 
 export { FormModel };

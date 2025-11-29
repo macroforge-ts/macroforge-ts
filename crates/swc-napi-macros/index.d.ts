@@ -9,6 +9,19 @@ export declare function JSON(): void
 
 /** Generates depth-aware field controller helpers for reactive forms */
 export declare function textAreaController(): void
+export declare function Clone(): void
+
+/** Generates a toString() method for debugging */
+export declare function debug(...features: Array<string | ((...args:
+any[]) => unknown)>): void
+
+export declare function Debug(): void
+
+export declare function Derive(...features: Array<string | ((...args:
+any[]) => unknown)>): void
+
+export declare function Eq(): void
+
 export interface ExpandResult {
   code: string
   types?: string

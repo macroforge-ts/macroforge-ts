@@ -5,6 +5,19 @@ const path = require('node:path');
 const ROOT_DIR = process.cwd();
 const LOGS_DIR = path.join(ROOT_DIR, 'diagnostics_logs');
 
+// Lazy-loaded TypeScript for Language Service
+let ts = null;
+function getTypeScript() {
+    if (!ts) {
+        try {
+            ts = require('typescript');
+        } catch {
+            console.warn('TypeScript not found, plugin diagnostics will be skipped');
+        }
+    }
+    return ts;
+}
+
 // Parse command line arguments
 const args = process.argv.slice(2);
 const WRITE_LOGS = args.includes('--log');
@@ -186,6 +199,228 @@ async function parseClippyErrors(output) {
     return errors;
 }
 
+async function parseSvelteCheckErrors(output) {
+    const errors = [];
+    // svelte-check outputs in format: /path/to/file.svelte:line:col - (error|warning) message
+    // Or with --output machine: /path/to/file.svelte:line:col:endLine:endCol type code message
+    const errorRegex = /^(.+?):(\d+):(\d+)\s+-?\s*(error|warning|Error|Warning)\s+(.+)$/gm;
+
+    let match;
+    while ((match = errorRegex.exec(output)) !== null) {
+        const filePath = match[1];
+        if (await isIgnoredDiagnosticPath(filePath)) {
+            continue;
+        }
+
+        const line = parseInt(match[2], 10);
+        const column = parseInt(match[3], 10);
+        const level = match[4].toLowerCase();
+        const message = match[5].trim();
+
+        // Extract error code if present (e.g., "ts(2322)" or "svelte(a11y-click-events-have-key-events)")
+        const codeMatch = message.match(/^(\w+\([^)]+\))\s*/);
+        const code = codeMatch ? codeMatch[1] : (level === 'error' ? 'svelte-error' : 'svelte-warning');
+
+        const raw = `${level}[${code}]: ${message}\n  --> ${filePath}:${line}:${column}`;
+
+        errors.push({
+            file: filePath,
+            line,
+            column,
+            code,
+            message,
+            raw,
+            tool: 'svelte-check'
+        });
+    }
+
+    return errors;
+}
+
+async function getSvelteProjectPaths() {
+    // Find directories containing svelte.config.js or svelte.config.ts
+    const svelteConfigs = [];
+
+    try {
+        const files = await fs.readdir(ROOT_DIR, { recursive: true });
+        for (const file of files) {
+            if ((file.endsWith('svelte.config.js') || file.endsWith('svelte.config.ts'))
+                && !file.includes('node_modules')
+                && !file.includes('test/')
+                && !file.includes('/fixtures/')) {
+                const configPath = path.join(ROOT_DIR, file);
+                if (!(await isGitIgnored(configPath))) {
+                    svelteConfigs.push(path.dirname(configPath));
+                }
+            }
+        }
+    } catch {
+        // Ignore errors
+    }
+
+    return svelteConfigs;
+}
+
+/**
+ * Get diagnostics from TypeScript Language Service (includes plugin diagnostics)
+ * This captures diagnostics that plugins report, which tsc --noEmit doesn't see.
+ */
+async function getLanguageServiceDiagnostics(tsConfigPath) {
+    const typescript = getTypeScript();
+    if (!typescript) {
+        return [];
+    }
+
+    const errors = [];
+    const projectDir = path.dirname(tsConfigPath);
+
+    try {
+        // Read and parse tsconfig
+        const configFile = typescript.readConfigFile(tsConfigPath, typescript.sys.readFile);
+        if (configFile.error) {
+            console.warn(`  Warning: Could not read ${tsConfigPath}`);
+            return [];
+        }
+
+        const parsedConfig = typescript.parseJsonConfigFileContent(
+            configFile.config,
+            typescript.sys,
+            projectDir
+        );
+
+        // Check if there are any plugins configured
+        const plugins = configFile.config?.compilerOptions?.plugins;
+        if (!plugins || plugins.length === 0) {
+            // No plugins, skip Language Service (tsc already handles this)
+            return [];
+        }
+
+        console.log(`    Found ${plugins.length} plugin(s): ${plugins.map(p => p.name).join(', ')}`);
+
+        // Create a language service host
+        const files = new Map();
+        const fileVersions = new Map();
+
+        // Read all project files
+        for (const fileName of parsedConfig.fileNames) {
+            if (await isIgnoredDiagnosticPath(fileName)) {
+                continue;
+            }
+            try {
+                const content = await fs.readFile(fileName, 'utf-8');
+                files.set(fileName, content);
+                fileVersions.set(fileName, 1);
+            } catch {
+                // File might not exist or not readable
+            }
+        }
+
+        const host = {
+            getScriptFileNames: () => Array.from(files.keys()),
+            getScriptVersion: (fileName) => String(fileVersions.get(fileName) || 0),
+            getScriptSnapshot: (fileName) => {
+                const content = files.get(fileName);
+                if (content !== undefined) {
+                    return typescript.ScriptSnapshot.fromString(content);
+                }
+                // Try to read from disk for lib files
+                try {
+                    const diskContent = typescript.sys.readFile(fileName);
+                    if (diskContent) {
+                        return typescript.ScriptSnapshot.fromString(diskContent);
+                    }
+                } catch {
+                    // Ignore
+                }
+                return undefined;
+            },
+            getCurrentDirectory: () => projectDir,
+            getCompilationSettings: () => parsedConfig.options,
+            getDefaultLibFileName: (options) => typescript.getDefaultLibFilePath(options),
+            fileExists: typescript.sys.fileExists,
+            readFile: typescript.sys.readFile,
+            readDirectory: typescript.sys.readDirectory,
+            directoryExists: typescript.sys.directoryExists,
+            getDirectories: typescript.sys.getDirectories,
+        };
+
+        // Create the language service
+        const service = typescript.createLanguageService(host, typescript.createDocumentRegistry());
+
+        // Collect diagnostics from all files
+        for (const fileName of files.keys()) {
+            try {
+                // Get semantic diagnostics (this includes plugin diagnostics)
+                const semanticDiagnostics = service.getSemanticDiagnostics(fileName);
+                const syntacticDiagnostics = service.getSyntacticDiagnostics(fileName);
+                const suggestionDiagnostics = service.getSuggestionDiagnostics(fileName);
+
+                const allDiagnostics = [
+                    ...semanticDiagnostics,
+                    ...syntacticDiagnostics,
+                    ...suggestionDiagnostics
+                ];
+
+                for (const diagnostic of allDiagnostics) {
+                    // Skip diagnostics that tsc would already catch (non-plugin diagnostics)
+                    // Plugin diagnostics typically have codes >= 100000 or are from specific sources
+                    const isPluginDiagnostic =
+                        diagnostic.code >= 100000 ||
+                        diagnostic.source?.includes('plugin') ||
+                        (diagnostic.source && diagnostic.source !== 'ts');
+
+                    if (!isPluginDiagnostic) {
+                        continue;
+                    }
+
+                    const file = diagnostic.file?.fileName || fileName;
+                    let line = 1;
+                    let column = 1;
+
+                    if (diagnostic.file && diagnostic.start !== undefined) {
+                        const pos = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+                        line = pos.line + 1;
+                        column = pos.character + 1;
+                    }
+
+                    const message = typescript.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+                    const code = diagnostic.source
+                        ? `${diagnostic.source}(${diagnostic.code})`
+                        : `ts-plugin(${diagnostic.code})`;
+
+                    const level = diagnostic.category === typescript.DiagnosticCategory.Error
+                        ? 'error'
+                        : diagnostic.category === typescript.DiagnosticCategory.Warning
+                            ? 'warning'
+                            : 'suggestion';
+
+                    const raw = `${level}[${code}]: ${message}\n  --> ${file}:${line}:${column}`;
+
+                    errors.push({
+                        file,
+                        line,
+                        column,
+                        code,
+                        message,
+                        raw,
+                        tool: 'ts-language-service'
+                    });
+                }
+            } catch (e) {
+                // Skip files that cause errors
+            }
+        }
+
+        // Clean up
+        service.dispose();
+
+    } catch (e) {
+        console.warn(`  Warning: Language Service error for ${tsConfigPath}: ${e.message}`);
+    }
+
+    return errors;
+}
+
 async function getTsConfigPaths() {
     const allTsConfigs = (await fs.readdir(ROOT_DIR, { recursive: true }))
         .filter(file => file.endsWith('tsconfig.json') && !file.includes('node_modules'))
@@ -264,11 +499,51 @@ async function main() {
         console.log(`  Checking project: ${path.relative(ROOT_DIR, tsConfigPath)}`);
         const tsResult = await runCommand(`npx tsc --noEmit -p ${tsConfigPath}`);
         if (tsResult.stdout || tsResult.stderr) {
-            console.log('TypeScript output detected. Parsing...');
+            console.log('    TypeScript output detected. Parsing...');
             const tsErrors = await parseTypeScriptErrors(tsResult.stdout + tsResult.stderr);
             allErrors.push(...tsErrors);
         } else {
-            console.log('TypeScript check completed with no output.');
+            console.log('    TypeScript check completed with no output.');
+        }
+    }
+
+    // --- TypeScript Plugin Diagnostics (via Language Service) ---
+    console.log('\nRunning TypeScript Language Service for plugin diagnostics...');
+    for (const tsConfigPath of tsConfigPaths) {
+        console.log(`  Checking plugins for: ${path.relative(ROOT_DIR, tsConfigPath)}`);
+        const pluginErrors = await getLanguageServiceDiagnostics(tsConfigPath);
+        if (pluginErrors.length > 0) {
+            console.log(`    Found ${pluginErrors.length} plugin diagnostic(s).`);
+            allErrors.push(...pluginErrors);
+        }
+    }
+
+    // --- Svelte Check ---
+    const svelteProjects = await getSvelteProjectPaths();
+    if (svelteProjects.length > 0) {
+        console.log('\nRunning Svelte checks...');
+        for (const svelteDir of svelteProjects) {
+            const relativePath = path.relative(ROOT_DIR, svelteDir);
+            console.log(`  Checking Svelte project: ${relativePath}`);
+
+            // Check if svelte-check is available
+            const svelteCheckResult = await runCommand(
+                `npx svelte-check --tsconfig ./tsconfig.json`,
+                svelteDir
+            );
+
+            if (svelteCheckResult.stdout || svelteCheckResult.stderr) {
+                const output = svelteCheckResult.stdout + svelteCheckResult.stderr;
+                const svelteErrors = await parseSvelteCheckErrors(output);
+                if (svelteErrors.length > 0) {
+                    console.log(`    Found ${svelteErrors.length} Svelte diagnostic(s).`);
+                    allErrors.push(...svelteErrors);
+                } else {
+                    console.log('    Svelte check completed with no issues.');
+                }
+            } else {
+                console.log('    Svelte check completed with no output.');
+            }
         }
     }
 

@@ -10,6 +10,7 @@ use swc_core::{
 };
 use ts_macro_abi::{Diagnostic, DiagnosticLevel};
 
+mod builtin;
 mod macro_host;
 use crate::macro_host::MacroHostIntegration;
 
@@ -59,14 +60,23 @@ pub struct ExpandResult {
     pub source_mapping: Option<SourceMappingResult>,
 }
 
+#[napi(
+    js_name = "Derive",
+    ts_args_type = "...features: Array<string | ((...args:
+  any[]) => unknown)>"
+)]
+pub fn derive_decorator() {}
+
 /// Transform TypeScript code to JavaScript with macro expansion
 #[napi]
 pub fn transform_sync(code: String, filepath: String) -> Result<TransformResult> {
     // Initialize SWC globals
     let globals = Globals::default();
     GLOBALS.set(&globals, || {
-        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| transform_inner(&code, &filepath)))
-            .map_err(|_| Error::new(Status::GenericFailure, "Macro transformation panicked"))?
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            transform_inner(&code, &filepath)
+        }))
+        .map_err(|_| Error::new(Status::GenericFailure, "Macro transformation panicked"))?
     })
 }
 
@@ -75,8 +85,10 @@ pub fn transform_sync(code: String, filepath: String) -> Result<TransformResult>
 pub fn expand_sync(code: String, filepath: String) -> Result<ExpandResult> {
     let globals = Globals::default();
     GLOBALS.set(&globals, || {
-        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| expand_inner(&code, &filepath)))
-            .map_err(|_| Error::new(Status::GenericFailure, "Macro expansion panicked"))?
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            expand_inner(&code, &filepath)
+        }))
+        .map_err(|_| Error::new(Status::GenericFailure, "Macro expansion panicked"))?
     })
 }
 
@@ -192,7 +204,8 @@ fn parse_program(code: &str, filepath: &str) -> Result<(Program, Lrc<SourceMap>)
     );
 
     // Use a memory buffer instead of stderr to avoid polluting the LSP stream
-    let handler = Handler::with_emitter_writer(Box::new(std::io::Cursor::new(Vec::new())), Some(cm.clone()));
+    let handler =
+        Handler::with_emitter_writer(Box::new(std::io::Cursor::new(Vec::new())), Some(cm.clone()));
 
     let lexer = Lexer::new(
         Syntax::Typescript(TsSyntax {

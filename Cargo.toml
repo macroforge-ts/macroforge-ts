@@ -6,7 +6,6 @@ members = [
     "crates/ts_macro_abi",
     "crates/ts_syn",
     "crates/ts_quote",
-    "crates/ts_macros_builtin",
     "playground/macro",
     "crates/ts_macro_host",
     "crates/ts_macro_cli",
