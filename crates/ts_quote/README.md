@@ -7,6 +7,7 @@ The `ts_template!` macro provides an intuitive, template-based way to generate T
 | Syntax | Description |
 |--------|-------------|
 | `@{expr}` | Interpolate a Rust expression |
+| `@@{` | Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`) |
 | `"text @{expr}"` | String interpolation (auto-detected) |
 | `"'^template ${js}^'"` | JS backtick template literal (outputs `` `template ${js}` ``) |
 | `{#if cond}...{/if}` | Conditional block |
@@ -14,6 +15,8 @@ The `ts_template!` macro provides an intuitive, template-based way to generate T
 | `{#if a}...{:else if b}...{:else}...{/if}` | Full if/else-if/else chain |
 | `{#for item in list}...{/for}` | Iterate over a collection |
 | `{%let name = expr}` | Define a local constant |
+
+> **Note:** A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com` works as expected).
 
 ## Syntax
 

@@ -2,6 +2,7 @@
 //!
 //! Provides a template syntax with interpolation and control flow:
 //! - `@{expr}` - Interpolate expressions
+//! - `@@{` - Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)
 //! - `"string @{expr}"` - String interpolation (auto-detected)
 //! - `"'^template ${expr}^'"` - JS backtick template literal (outputs `` `template ${expr}` ``)
 //! - `{#if cond}...{/if}` - Conditional blocks
@@ -9,6 +10,8 @@
 //! - `{:else if cond}` - Else-if clause
 //! - `{#for item in list}...{/for}` - Iteration
 //! - `{%let name = expr}` - Local constants
+//!
+//! Note: A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com`).
 
 use proc_macro2::{Delimiter, TokenStream as TokenStream2, TokenTree, Group};
 use quote::{quote, ToTokens};
@@ -400,9 +403,9 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> TokenStream2 {
         return quote! { __out.push_str(#raw); };
     };
 
-    // Check if there are any @{} interpolations (Rust expressions)
-    if !content.contains("@{") {
-        // No Rust interpolations, output the backtick string as-is
+    // Check if there are any @{} interpolations or @@ escapes
+    if !content.contains('@') {
+        // No @ at all, output the backtick string as-is
         // The content may contain ${} for JS interpolation, which passes through
         let mut output = TokenStream2::new();
         output.extend(quote! { __out.push_str("`"); });
@@ -411,7 +414,7 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> TokenStream2 {
         return output;
     }
 
-    // Handle @{} Rust interpolations within the backtick template
+    // Handle @{} Rust interpolations and @@ escapes within the backtick template
     let mut output = TokenStream2::new();
     output.extend(quote! { __out.push_str("`"); });
 
@@ -419,43 +422,57 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> TokenStream2 {
     let mut current_literal = String::new();
 
     while let Some(c) = chars.next() {
-        if c == '@' && chars.peek() == Some(&'{') {
-            // Found @{, flush current literal
-            if !current_literal.is_empty() {
-                output.extend(quote! { __out.push_str(#current_literal); });
-                current_literal.clear();
-            }
-
-            chars.next(); // Consume '{'
-
-            // Collect expression until matching '}'
-            let mut expr_str = String::new();
-            let mut brace_depth = 1;
-
-            for ec in chars.by_ref() {
-                if ec == '{' {
-                    brace_depth += 1;
-                    expr_str.push(ec);
-                } else if ec == '}' {
-                    brace_depth -= 1;
-                    if brace_depth == 0 {
-                        break;
-                    }
-                    expr_str.push(ec);
-                } else {
-                    expr_str.push(ec);
+        if c == '@' {
+            match chars.peek() {
+                Some(&'@') => {
+                    // @@ -> literal @
+                    chars.next(); // Consume second @
+                    current_literal.push('@');
                 }
-            }
+                Some(&'{') => {
+                    // @{ -> interpolation
+                    // Flush current literal
+                    if !current_literal.is_empty() {
+                        output.extend(quote! { __out.push_str(#current_literal); });
+                        current_literal.clear();
+                    }
 
-            // Parse the expression and generate interpolation code
-            if let Ok(expr) = syn::parse_str::<syn::Expr>(&expr_str) {
-                output.extend(quote! {
-                    __out.push_str(&#expr.to_string());
-                });
-            } else {
-                // Failed to parse, output as literal
-                let fallback = format!("@{{{}}}", expr_str);
-                output.extend(quote! { __out.push_str(#fallback); });
+                    chars.next(); // Consume '{'
+
+                    // Collect expression until matching '}'
+                    let mut expr_str = String::new();
+                    let mut brace_depth = 1;
+
+                    for ec in chars.by_ref() {
+                        if ec == '{' {
+                            brace_depth += 1;
+                            expr_str.push(ec);
+                        } else if ec == '}' {
+                            brace_depth -= 1;
+                            if brace_depth == 0 {
+                                break;
+                            }
+                            expr_str.push(ec);
+                        } else {
+                            expr_str.push(ec);
+                        }
+                    }
+
+                    // Parse the expression and generate interpolation code
+                    if let Ok(expr) = syn::parse_str::<syn::Expr>(&expr_str) {
+                        output.extend(quote! {
+                            __out.push_str(&#expr.to_string());
+                        });
+                    } else {
+                        // Failed to parse, output as literal
+                        let fallback = format!("@{{{}}}", expr_str);
+                        output.extend(quote! { __out.push_str(#fallback); });
+                    }
+                }
+                _ => {
+                    // Just a literal @
+                    current_literal.push('@');
+                }
             }
         } else {
             current_literal.push(c);
@@ -494,9 +511,9 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> TokenStream2 {
         return quote! { __out.push_str(#raw); };
     };
 
-    // Check if there are any interpolations
-    if !content.contains("@{") {
-        // No interpolations, output the string as-is
+    // Check if there are any interpolations or escapes
+    if !content.contains('@') {
+        // No @ at all, output the string as-is
         return quote! { __out.push_str(#raw); };
     }
 
@@ -509,43 +526,57 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> TokenStream2 {
     let mut current_literal = String::new();
 
     while let Some(c) = chars.next() {
-        if c == '@' && chars.peek() == Some(&'{') {
-            // Found @{, flush current literal
-            if !current_literal.is_empty() {
-                output.extend(quote! { __out.push_str(#current_literal); });
-                current_literal.clear();
-            }
-
-            chars.next(); // Consume '{'
-
-            // Collect expression until matching '}'
-            let mut expr_str = String::new();
-            let mut brace_depth = 1;
-
-            for ec in chars.by_ref() {
-                if ec == '{' {
-                    brace_depth += 1;
-                    expr_str.push(ec);
-                } else if ec == '}' {
-                    brace_depth -= 1;
-                    if brace_depth == 0 {
-                        break;
-                    }
-                    expr_str.push(ec);
-                } else {
-                    expr_str.push(ec);
+        if c == '@' {
+            match chars.peek() {
+                Some(&'@') => {
+                    // @@ -> literal @
+                    chars.next(); // Consume second @
+                    current_literal.push('@');
                 }
-            }
+                Some(&'{') => {
+                    // @{ -> interpolation
+                    // Flush current literal
+                    if !current_literal.is_empty() {
+                        output.extend(quote! { __out.push_str(#current_literal); });
+                        current_literal.clear();
+                    }
 
-            // Parse the expression and generate interpolation code
-            if let Ok(expr) = syn::parse_str::<syn::Expr>(&expr_str) {
-                output.extend(quote! {
-                    __out.push_str(&#expr.to_string());
-                });
-            } else {
-                // Failed to parse, output as literal
-                let fallback = format!("@{{{}}}", expr_str);
-                output.extend(quote! { __out.push_str(#fallback); });
+                    chars.next(); // Consume '{'
+
+                    // Collect expression until matching '}'
+                    let mut expr_str = String::new();
+                    let mut brace_depth = 1;
+
+                    for ec in chars.by_ref() {
+                        if ec == '{' {
+                            brace_depth += 1;
+                            expr_str.push(ec);
+                        } else if ec == '}' {
+                            brace_depth -= 1;
+                            if brace_depth == 0 {
+                                break;
+                            }
+                            expr_str.push(ec);
+                        } else {
+                            expr_str.push(ec);
+                        }
+                    }
+
+                    // Parse the expression and generate interpolation code
+                    if let Ok(expr) = syn::parse_str::<syn::Expr>(&expr_str) {
+                        output.extend(quote! {
+                            __out.push_str(&#expr.to_string());
+                        });
+                    } else {
+                        // Failed to parse, output as literal
+                        let fallback = format!("@{{{}}}", expr_str);
+                        output.extend(quote! { __out.push_str(#fallback); });
+                    }
+                }
+                _ => {
+                    // Just a literal @
+                    current_literal.push('@');
+                }
             }
         } else if c == '\\' {
             // Handle escape sequences - pass through as-is
@@ -762,5 +793,48 @@ mod tests {
         assert!(s.contains("${jsVar}"), "Should pass through JS interpolation");
         // Should interpolate Rust variable
         assert!(s.contains("rustVar . to_string"), "Should interpolate Rust var");
+    }
+
+    #[test]
+    fn test_at_symbol_without_brace_passes_through() {
+        // Test that @ not followed by { passes through unchanged
+        let input = TokenStream2::from_str(r#"
+            "email@domain.com"
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should contain literal @ (no escaping needed)
+        assert!(s.contains("email@domain.com"), "Should pass through @ unchanged");
+    }
+
+    #[test]
+    fn test_at_symbol_in_backtick_passes_through() {
+        // Test that @ not followed by { passes through in backtick templates
+        let input = TokenStream2::from_str(r#"
+            "'^email@domain.com^'"
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should contain backticks and the literal @
+        assert!(s.contains("\"`\""), "Should push backtick");
+        assert!(s.contains("email@domain.com"), "Should pass through @ unchanged");
+    }
+
+    #[test]
+    fn test_escape_at_before_brace() {
+        // Test that @@{ produces a literal @{ (not interpolation)
+        let input = TokenStream2::from_str(r#"
+            "use @@{decorators}"
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should contain literal @{decorators} not try to interpolate
+        let expected = "@{decorators}";
+        assert!(s.contains(expected), "Should contain literal @{{decorators}}");
+        // Should NOT try to interpolate 'decorators'
+        assert!(!s.contains("decorators . to_string"), "Should not interpolate");
     }
 }
