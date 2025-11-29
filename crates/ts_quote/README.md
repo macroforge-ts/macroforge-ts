@@ -13,6 +13,8 @@ The `ts_template!` macro provides an intuitive, template-based way to generate T
 | `{#if cond}...{/if}` | Conditional block |
 | `{#if cond}...{:else}...{/if}` | Conditional with else |
 | `{#if a}...{:else if b}...{:else}...{/if}` | Full if/else-if/else chain |
+| `{#if let pattern = expr}...{/if}` | Pattern matching if-let |
+| `{#match expr}{:case pattern}...{/match}` | Match expression with case arms |
 | `{#for item in list}...{/for}` | Iterate over a collection |
 | `{%let name = expr}` | Define a local constant |
 
@@ -150,6 +152,99 @@ let code = ts_template! {
     {:else}
         console.log("Other level");
     {/if}
+};
+```
+
+### Pattern Matching: `{#if let pattern = expr}...{/if}`
+
+Use `if let` for pattern matching on `Option`, `Result`, or other Rust enums:
+
+```rust
+let maybe_name: Option<&str> = Some("Alice");
+
+let code = ts_template! {
+    {#if let Some(name) = maybe_name}
+        console.log("Hello, @{name}!");
+    {:else}
+        console.log("Hello, anonymous!");
+    {/if}
+};
+```
+
+**Generates:**
+
+```typescript
+console.log("Hello, Alice!");
+```
+
+This is useful when working with optional values from your IR:
+
+```rust
+let code = ts_template! {
+    {#if let Some(default_val) = field.default_value}
+        this.@{field.name} = @{default_val};
+    {:else}
+        this.@{field.name} = undefined;
+    {/if}
+};
+```
+
+### Match Expressions: `{#match expr}{:case pattern}...{/match}`
+
+Use `match` for exhaustive pattern matching:
+
+```rust
+enum Visibility { Public, Private, Protected }
+let visibility = Visibility::Public;
+
+let code = ts_template! {
+    {#match visibility}
+        {:case Visibility::Public}
+            public
+        {:case Visibility::Private}
+            private
+        {:case Visibility::Protected}
+            protected
+    {/match}
+    field: string;
+};
+```
+
+**Generates:**
+
+```typescript
+public field: string;
+```
+
+Match with value extraction:
+
+```rust
+let result: Result<i32, &str> = Ok(42);
+
+let code = ts_template! {
+    const value = {#match result}
+        {:case Ok(val)}
+            @{val}
+        {:case Err(msg)}
+            throw new Error("@{msg}")
+    {/match};
+};
+```
+
+Match with wildcard:
+
+```rust
+let count = 5;
+
+let code = ts_template! {
+    {#match count}
+        {:case 0}
+            console.log("none");
+        {:case 1}
+            console.log("one");
+        {:case _}
+            console.log("many");
+    {/match}
 };
 ```
 
