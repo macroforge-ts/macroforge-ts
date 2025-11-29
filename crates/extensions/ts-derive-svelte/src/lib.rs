@@ -153,3 +153,151 @@ impl zed::Extension for TsDeriveSvelteExtension {
 }
 
 zed::register_extension!(TsDeriveSvelteExtension);
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_extension_can_be_instantiated() {
+        let _ext = TsDeriveSvelteExtension;
+    }
+
+    #[test]
+    fn test_extension_id_constant() {
+        assert_eq!(EXTENSION_ID, "ts-derive-svelte");
+    }
+
+    #[test]
+    fn test_language_server_relative_path_constant() {
+        assert_eq!(LANGUAGE_SERVER_RELATIVE_PATH, "packages/language-server");
+    }
+
+    #[test]
+    fn test_node_modules_path_constant() {
+        assert_eq!(NODE_MODULES_PATH, "node_modules/svelte-language-server");
+    }
+
+    #[test]
+    fn test_language_server_bin_relative_constant() {
+        assert_eq!(LANGUAGE_SERVER_BIN_RELATIVE, "bin/server.js");
+    }
+
+    #[test]
+    fn test_language_server_build_artifact_constant() {
+        assert_eq!(LANGUAGE_SERVER_BUILD_ARTIFACT, "dist/src/server.js");
+    }
+
+    #[test]
+    fn test_fallback_roots_returns_non_empty() {
+        let roots = TsDeriveSvelteExtension::fallback_roots();
+        // Should always have at least one entry (CARGO_MANIFEST_DIR)
+        assert!(!roots.is_empty(), "fallback_roots should return at least one path");
+    }
+
+    #[test]
+    fn test_fallback_roots_contains_cargo_manifest_dir() {
+        let roots = TsDeriveSvelteExtension::fallback_roots();
+        let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        assert!(
+            roots.contains(&manifest_dir),
+            "fallback_roots should contain CARGO_MANIFEST_DIR: {:?}",
+            manifest_dir
+        );
+    }
+
+    #[test]
+    fn test_language_server_bin_path() {
+        let server_dir = Path::new("/workspace/node_modules/svelte-language-server");
+        let bin_path = TsDeriveSvelteExtension::language_server_bin(server_dir);
+        assert_eq!(
+            bin_path,
+            PathBuf::from("/workspace/node_modules/svelte-language-server/bin/server.js")
+        );
+    }
+
+    #[test]
+    fn test_language_server_bin_with_packages_path() {
+        let server_dir = Path::new("/workspace/packages/language-server");
+        let bin_path = TsDeriveSvelteExtension::language_server_bin(server_dir);
+        assert_eq!(
+            bin_path,
+            PathBuf::from("/workspace/packages/language-server/bin/server.js")
+        );
+    }
+
+    #[test]
+    fn test_language_server_ready_within_workspace() {
+        // When server dir is within workspace, it should return true (assume ready)
+        let workspace_root = Path::new("/workspace");
+        let server_dir = Path::new("/workspace/node_modules/svelte-language-server");
+
+        let ready = TsDeriveSvelteExtension::language_server_ready(server_dir, workspace_root);
+        assert!(ready, "Should be ready when server is within workspace");
+    }
+
+    #[test]
+    fn test_language_server_ready_outside_workspace_not_installed() {
+        // When outside workspace and files don't exist, should return false
+        let workspace_root = Path::new("/workspace");
+        let server_dir = Path::new("/other/path/svelte-language-server");
+
+        let ready = TsDeriveSvelteExtension::language_server_ready(server_dir, workspace_root);
+        // Since /other/path doesn't exist, this should be false
+        assert!(!ready, "Should not be ready when server is outside workspace and not installed");
+    }
+
+    #[test]
+    fn test_path_to_string_valid_utf8() {
+        let path = Path::new("/valid/utf8/path");
+        let result = TsDeriveSvelteExtension::path_to_string(path);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "/valid/utf8/path");
+    }
+
+    #[test]
+    fn test_path_to_string_with_spaces() {
+        let path = Path::new("/path/with spaces/file.js");
+        let result = TsDeriveSvelteExtension::path_to_string(path);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "/path/with spaces/file.js");
+    }
+
+    #[test]
+    fn test_path_to_string_with_unicode() {
+        let path = Path::new("/path/with/ünïcödé/file.js");
+        let result = TsDeriveSvelteExtension::path_to_string(path);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "/path/with/ünïcödé/file.js");
+    }
+
+    #[test]
+    fn test_expected_binary_locations() {
+        // Test that we correctly construct expected server binary paths
+        let node_modules_dir = PathBuf::from("/workspace").join(NODE_MODULES_PATH);
+        let packages_dir = PathBuf::from("/workspace").join(LANGUAGE_SERVER_RELATIVE_PATH);
+
+        let node_modules_bin = TsDeriveSvelteExtension::language_server_bin(&node_modules_dir);
+        let packages_bin = TsDeriveSvelteExtension::language_server_bin(&packages_dir);
+
+        assert_eq!(
+            node_modules_bin,
+            PathBuf::from("/workspace/node_modules/svelte-language-server/bin/server.js")
+        );
+        assert_eq!(
+            packages_bin,
+            PathBuf::from("/workspace/packages/language-server/bin/server.js")
+        );
+    }
+
+    #[test]
+    fn test_build_artifact_path() {
+        let server_dir = Path::new("/workspace/packages/language-server");
+        let artifact_path = server_dir.join(LANGUAGE_SERVER_BUILD_ARTIFACT);
+        assert_eq!(
+            artifact_path,
+            PathBuf::from("/workspace/packages/language-server/dist/src/server.js")
+        );
+    }
+}
