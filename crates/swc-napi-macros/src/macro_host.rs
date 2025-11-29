@@ -11,16 +11,19 @@ use ts_macro_abi::{
     ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode,
     SourceMapping, SpanIR, TargetIR,
 };
-use ts_macro_host::{MacroConfig, MacroDispatcher, MacroRegistry, PatchCollector};
+use ts_macro_host::{MacroConfig, MacroDispatcher, MacroRegistry, PatchCollector, derived};
 
-// Import builtin macros to ensure inventory registrations are linked
 use ts_syn::lower_classes;
 
+/// Default module path for built-in derive macros
 const DERIVE_MODULE_PATH: &str = "@macro/derive";
+
+/// Special marker for dynamic module resolution
+const DYNAMIC_MODULE_MARKER: &str = "__DYNAMIC_MODULE__";
 
 /// Connects the SWC parser to the macro host.
 pub struct MacroHostIntegration {
-    dispatcher: MacroDispatcher,
+    pub dispatcher: MacroDispatcher,
     config: MacroConfig,
 }
 
@@ -221,10 +224,10 @@ impl MacroHostIntegration {
                 .unwrap_or("")
                 .to_string();
 
-            for macro_name in target.macro_names {
+            for (macro_name, module_path) in target.macro_names {
                 let ctx = MacroContextIR::new_derive_class(
                     macro_name.clone(),
-                    DERIVE_MODULE_PATH.to_string(),
+                    module_path.clone(),
                     target.decorator_span,
                     target.class_ir.span,
                     file_name.to_string(),
@@ -401,9 +404,51 @@ impl From<Span> for SpanKey {
 
 #[derive(Clone)]
 struct DeriveTarget {
-    macro_names: Vec<String>,
+    /// List of (macro_name, module_path) pairs
+    /// module_path is the import source (e.g., "@playground/macro")
+    macro_names: Vec<(String, String)>,
     decorator_span: SpanIR,
     class_ir: ClassIR,
+}
+
+/// Collect a map of identifier name -> module source from import statements
+fn collect_import_sources(module: &Module) -> HashMap<String, String> {
+    use swc_core::ecma::ast::{ImportDecl, ImportSpecifier};
+
+    let mut import_map = HashMap::new();
+
+    for item in &module.body {
+        if let ModuleItem::ModuleDecl(ModuleDecl::Import(ImportDecl {
+            specifiers,
+            src,
+            ..
+        })) = item
+        {
+            let module_source = src.value.to_string_lossy().to_string();
+
+            for specifier in specifiers {
+                match specifier {
+                    ImportSpecifier::Named(named) => {
+                        // import { Foo } from "module" or import { Foo as Bar } from "module"
+                        let local_name = named.local.sym.to_string();
+                        import_map.insert(local_name, module_source.clone());
+                    }
+                    ImportSpecifier::Default(default) => {
+                        // import Foo from "module"
+                        let local_name = default.local.sym.to_string();
+                        import_map.insert(local_name, module_source.clone());
+                    }
+                    ImportSpecifier::Namespace(ns) => {
+                        // import * as Foo from "module"
+                        let local_name = ns.local.sym.to_string();
+                        import_map.insert(local_name, module_source.clone());
+                    }
+                }
+            }
+        }
+    }
+
+    import_map
 }
 
 fn collect_derive_targets(
@@ -413,16 +458,19 @@ fn collect_derive_targets(
 ) -> Vec<DeriveTarget> {
     let mut targets = Vec::new();
 
+    // Build import source map
+    let import_sources = collect_import_sources(module);
+
     for item in &module.body {
         match item {
             ModuleItem::Stmt(Stmt::Decl(Decl::Class(class_decl))) => {
-                collect_from_class(&class_decl.class, class_map, source, &mut targets);
+                collect_from_class(&class_decl.class, class_map, source, &import_sources, &mut targets);
             }
             ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(ExportDecl {
                 decl: Decl::Class(class_decl),
                 ..
             })) => {
-                collect_from_class(&class_decl.class, class_map, source, &mut targets);
+                collect_from_class(&class_decl.class, class_map, source, &import_sources, &mut targets);
             }
             _ => {}
         }
@@ -435,6 +483,7 @@ fn collect_from_class(
     class: &Class,
     class_map: &HashMap<SpanKey, ClassIR>,
     source: &str,
+    import_sources: &HashMap<String, String>,
     out: &mut Vec<DeriveTarget>,
 ) {
     if class.decorators.is_empty() {
@@ -447,7 +496,7 @@ fn collect_from_class(
     };
 
     for decorator in &class.decorators {
-        if let Some(macro_names) = parse_derive_decorator(decorator) {
+        if let Some(macro_names) = parse_derive_decorator(decorator, import_sources) {
             if macro_names.is_empty() {
                 continue;
             }
@@ -485,7 +534,10 @@ fn span_ir_with_at(span: SpanIR, source: &str) -> SpanIR {
     ir
 }
 
-fn parse_derive_decorator(decorator: &Decorator) -> Option<Vec<String>> {
+fn parse_derive_decorator(
+    decorator: &Decorator,
+    import_sources: &HashMap<String, String>,
+) -> Option<Vec<(String, String)>> {
     let call = match decorator.expr.as_ref() {
         swc_core::ecma::ast::Expr::Call(call) => call,
         _ => return None,
@@ -510,7 +562,13 @@ fn parse_derive_decorator(decorator: &Decorator) -> Option<Vec<String>> {
         }
 
         if let Some(name) = derive_name_from_expr(arg.expr.as_ref()) {
-            macros.push(name);
+            // Look up the import source for this macro identifier
+            // Default to @macro/derive if not found in imports
+            let module_path = import_sources
+                .get(&name)
+                .cloned()
+                .unwrap_or_else(|| DERIVE_MODULE_PATH.to_string());
+            macros.push((name, module_path));
         }
     }
 
@@ -553,6 +611,7 @@ fn register_packages(
     let derived_set: std::collections::HashSet<&'static str> =
         derived_modules.iter().copied().collect();
 
+
     let mut requested = if config.macro_packages.is_empty() {
         embedded_map.keys().cloned().collect::<Vec<_>>()
     } else {
@@ -586,11 +645,29 @@ fn register_packages(
         }
 
         if !found {
-            // eprintln!(
-            //     "[ts-macros] warning: macro package '{}' not found among embedded/derived macros. \
-            //      Ensure it is compiled into the host or update ts-macros.json.",
-            //     module
-            // );
+            // Module not found - this is a warning, not an error
+            // The user may have configured a module that isn't compiled in
+        }
+    }
+
+    // Also register macros with dynamic module marker under the default path
+    // This ensures backward compatibility
+    if derived_set.contains(DYNAMIC_MODULE_MARKER) {
+        // Register dynamic macros under the default derive path for fallback
+        let _ = derived::register_module(DYNAMIC_MODULE_MARKER, registry);
+    }
+
+    // Additionally, register all dynamic-module macros under the default derive path
+    // This handles macros that use __DYNAMIC_MODULE__ marker
+    for entry in inventory::iter::<derived::DerivedMacroRegistration> {
+        let descriptor = entry.descriptor;
+        if descriptor.module == DYNAMIC_MODULE_MARKER {
+            // Register under the default derive path for backward compatibility
+            let _ = registry.register(
+                DERIVE_MODULE_PATH,
+                descriptor.name,
+                (descriptor.constructor)(),
+            );
         }
     }
 
@@ -654,11 +731,13 @@ mod tests {
     }
 
     #[test]
-    fn test_derive_json_macro() {
+    fn test_derive_debug_runtime_output() {
+        // Note: JSON macro is in playground-macros, not swc-napi-macros
+        // Testing Debug macro which generates toString() implementation
         let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(JSON)
+@Derive(Debug)
 class Data {
     val: number;
 }
@@ -670,13 +749,9 @@ class Data {
             let result = host.expand(source, &program, "test.ts").unwrap();
 
             assert!(result.changed, "expand() should report changes");
-            // We check the code patches, not type output for this one (as it adds implementation)
-            // But wait, the macro adds patches to runtime.
-            // Let's check if the output code contains toJSON
-
-            // The patch applicator preserves formatting roughly
-            assert!(result.code.contains("toJSON(): Record<string, unknown>"));
-            assert!(result.code.contains("result.val = this.val"));
+            // Debug macro adds toString() method
+            assert!(result.code.contains("toString()"));
+            assert!(result.code.contains("Data"));
         });
     }
 

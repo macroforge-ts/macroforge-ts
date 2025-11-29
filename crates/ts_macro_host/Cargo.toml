@@ -19,7 +19,9 @@ inventory = "0.3"
 
 swc_core = { version = "48", default-features = false, features = [
   "common",
+  "ecma_ast",
   "ecma_codegen",
+  "ecma_parser",
 ] }
 
 # Collections

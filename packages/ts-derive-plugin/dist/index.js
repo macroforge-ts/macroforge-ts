@@ -30,6 +30,130 @@ function setExpandImpl(fn) {
 function resetExpandImpl() {
     expand = expandSyncImpl || noopExpand;
 }
+/** Cache of loaded macro packages by module specifier */
+const macroPackageCache = new Map();
+/**
+ * Try to load a module as a macro package.
+ * Returns null if the module is not a macro package.
+ */
+function tryLoadMacroPackage(moduleSpecifier, logger) {
+    // Check cache first
+    if (macroPackageCache.has(moduleSpecifier)) {
+        return macroPackageCache.get(moduleSpecifier) || null;
+    }
+    try {
+        const mod = require(moduleSpecifier);
+        // Check if it's a macro package
+        if (typeof mod.__tsMacrosIsMacroPackage !== 'function' || !mod.__tsMacrosIsMacroPackage()) {
+            macroPackageCache.set(moduleSpecifier, null);
+            return null;
+        }
+        // Get manifest
+        const manifest = mod.__tsMacrosGetManifest();
+        // Build run function map
+        const runFunctions = new Map();
+        for (const macro of manifest.macros) {
+            const runFnName = `__tsMacrosRun${macro.name}`;
+            if (typeof mod[runFnName] === 'function') {
+                runFunctions.set(macro.name, mod[runFnName]);
+                logger?.(`Loaded macro ${macro.name} from ${moduleSpecifier}`);
+            }
+        }
+        const pkg = { module: mod, manifest, runFunctions };
+        macroPackageCache.set(moduleSpecifier, pkg);
+        logger?.(`Loaded macro package ${moduleSpecifier} with ${runFunctions.size} macros`);
+        return pkg;
+    }
+    catch (e) {
+        // Module not found or load error - not a macro package
+        macroPackageCache.set(moduleSpecifier, null);
+        return null;
+    }
+}
+/**
+ * Extract import sources from TypeScript/JavaScript code.
+ * Returns a map of identifier name -> module specifier.
+ */
+function extractImportSources(code) {
+    const importMap = new Map();
+    // Simple regex-based import extraction
+    // Matches: import { Foo, Bar } from "module"
+    // And: import { Foo as Baz } from "module"
+    const importRegex = /import\s+\{([^}]+)\}\s+from\s+["']([^"']+)["']/g;
+    let match;
+    while ((match = importRegex.exec(code)) !== null) {
+        const imports = match[1];
+        const moduleSpecifier = match[2];
+        // Parse individual imports
+        const identifiers = imports.split(',').map(s => s.trim());
+        for (const id of identifiers) {
+            // Handle "Foo as Bar" syntax
+            const asMatch = id.match(/(\w+)\s+as\s+(\w+)/);
+            if (asMatch) {
+                importMap.set(asMatch[2], moduleSpecifier); // Use local name
+            }
+            else {
+                const name = id.trim();
+                if (name) {
+                    importMap.set(name, moduleSpecifier);
+                }
+            }
+        }
+    }
+    return importMap;
+}
+/**
+ * Find macro packages that need to be loaded based on imports in the code.
+ * Excludes the built-in @ts-macros/swc-napi package.
+ */
+function findMacroPackages(code, logger) {
+    const importSources = extractImportSources(code);
+    const packages = new Map();
+    // Get unique module specifiers (excluding built-in)
+    const moduleSpecifiers = new Set(importSources.values());
+    for (const specifier of moduleSpecifiers) {
+        // Skip built-in package
+        if (specifier === '@ts-macros/swc-napi' || specifier === '@macro/derive') {
+            continue;
+        }
+        const pkg = tryLoadMacroPackage(specifier, logger);
+        if (pkg) {
+            packages.set(specifier, pkg);
+        }
+    }
+    return packages;
+}
+/**
+ * Build macro name to package mapping for external macros.
+ * Returns a map of macro name -> { moduleSpecifier, package }
+ */
+function buildMacroToPackageMap(code, logger) {
+    const importSources = extractImportSources(code);
+    const macroToPackage = new Map();
+    for (const [name, moduleSpecifier] of importSources) {
+        // Skip built-in
+        if (moduleSpecifier === '@ts-macros/swc-napi' || moduleSpecifier === '@macro/derive') {
+            continue;
+        }
+        const pkg = tryLoadMacroPackage(moduleSpecifier, logger);
+        if (pkg && pkg.runFunctions.has(name)) {
+            macroToPackage.set(name, { moduleSpecifier, package: pkg });
+        }
+    }
+    return macroToPackage;
+}
+/**
+ * Check if a diagnostic indicates an unresolved macro.
+ * Returns the macro name and module if so.
+ */
+function parseUnresolvedMacroDiagnostic(diag) {
+    // Pattern: "Macro {name} not found in module {module}"
+    const match = diag.message.match(/Macro\s+(\w+)\s+not found in module\s+(\S+)/);
+    if (match) {
+        return { name: match[1], module: match[2] };
+    }
+    return null;
+}
 /** Convert native module source mapping to TypeScript-friendly format */
 function convertNativeMapping(native) {
     if (!native) {
@@ -70,10 +194,32 @@ function init(modules) {
                 return cached;
             }
             try {
+                // Build map of external macros available from imports
+                const externalMacros = buildMacroToPackageMap(content, log);
+                if (externalMacros.size > 0) {
+                    log(`Found ${externalMacros.size} external macros: ${Array.from(externalMacros.keys()).join(', ')}`);
+                }
                 // Run the macro expansion
                 log(`Expanding macros for ${fileName}`);
                 const result = expand(content, fileName);
                 log(`Expansion result: code=${result.code?.length ?? 0} chars, types=${result.types?.length ?? 0} chars, diagnostics=${result.diagnostics?.length ?? 0}`);
+                // Filter out "macro not found" diagnostics for external macros that ARE available
+                // These will be expanded at build time by the Vite plugin
+                let filteredDiagnostics = result.diagnostics || [];
+                if (externalMacros.size > 0) {
+                    const originalCount = filteredDiagnostics.length;
+                    filteredDiagnostics = filteredDiagnostics.filter(diag => {
+                        const unresolved = parseUnresolvedMacroDiagnostic(diag);
+                        if (unresolved && externalMacros.has(unresolved.name)) {
+                            log(`Suppressing 'macro not found' for external macro: ${unresolved.name}`);
+                            return false; // Filter out - macro is available in external package
+                        }
+                        return true;
+                    });
+                    if (filteredDiagnostics.length < originalCount) {
+                        log(`Filtered ${originalCount - filteredDiagnostics.length} diagnostics for external macros`);
+                    }
+                }
                 // Create position mapper from source mapping
                 const sourceMapping = convertNativeMapping(result.sourceMapping);
                 const hasMapping = sourceMapping.segments.length > 0 || sourceMapping.generatedRegions.length > 0;
@@ -85,7 +231,7 @@ function init(modules) {
                     version,
                     codeOutput: result.code || null,
                     typesOutput: result.types || null,
-                    diagnostics: result.diagnostics || [],
+                    diagnostics: filteredDiagnostics,
                     mapper,
                 };
                 expansionCache.set(fileName, expansion);

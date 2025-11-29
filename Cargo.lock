@@ -1610,6 +1610,7 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+ "serde_json",
  "swc_core",
  "ts_macro_abi",
  "ts_macro_derive",

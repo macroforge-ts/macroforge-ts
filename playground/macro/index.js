@@ -572,6 +572,11 @@ if (!nativeBinding) {
 }
 
 module.exports = nativeBinding
+module.exports.__tsMacrosGetMacroNames = nativeBinding.__tsMacrosGetMacroNames
+module.exports.__tsMacrosGetManifest = nativeBinding.__tsMacrosGetManifest
+module.exports.__tsMacrosIsMacroPackage = nativeBinding.__tsMacrosIsMacroPackage
+module.exports.__tsMacrosRunFieldController = nativeBinding.__tsMacrosRunFieldController
+module.exports.__tsMacrosRunJSON = nativeBinding.__tsMacrosRunJSON
 module.exports.fieldController = nativeBinding.fieldController
 module.exports.FieldController = nativeBinding.FieldController
 module.exports.JSON = nativeBinding.JSON

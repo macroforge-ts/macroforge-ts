@@ -84,6 +84,33 @@ impl MacroRegistry {
         self.macros.contains_key(&key)
     }
 
+    /// Look up a macro by name only, ignoring module path
+    /// This is used for fallback resolution when exact module match fails
+    /// Returns the first matching macro found
+    pub fn lookup_by_name(&self, name: &str) -> Result<Arc<dyn TsMacro>> {
+        for entry in self.macros.iter() {
+            if entry.key().name == name {
+                return Ok(Arc::clone(&entry));
+            }
+        }
+
+        Err(MacroError::MacroNotFound {
+            module: "<any>".to_string(),
+            name: name.to_string(),
+        })
+    }
+
+    /// Look up a macro, falling back to name-only lookup if module doesn't match
+    pub fn lookup_with_fallback(&self, module: &str, name: &str) -> Result<Arc<dyn TsMacro>> {
+        // First try exact match
+        if let Ok(m) = self.lookup(module, name) {
+            return Ok(m);
+        }
+
+        // Fall back to name-only lookup
+        self.lookup_by_name(name)
+    }
+
     /// Clear all registered macros
     pub fn clear(&self) {
         self.macros.clear();

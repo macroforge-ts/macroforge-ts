@@ -18,6 +18,23 @@ function getTypeScript() {
     return ts;
 }
 
+// Lazy-loaded ts-macros native module
+let tsMacrosModule = null;
+function getTsMacrosModule() {
+    if (tsMacrosModule === undefined) {
+        return tsMacrosModule;
+    }
+    if (tsMacrosModule === null) {
+        try {
+            tsMacrosModule = require('@ts-macros/swc-napi');
+        } catch {
+            tsMacrosModule = undefined;
+            console.warn('ts-macros native module not found, macro diagnostics will be skipped');
+        }
+    }
+    return tsMacrosModule;
+}
+
 // Parse command line arguments
 const args = process.argv.slice(2);
 const WRITE_LOGS = args.includes('--log');
@@ -363,10 +380,17 @@ async function getLanguageServiceDiagnostics(tsConfigPath) {
 
                 for (const diagnostic of allDiagnostics) {
                     // Skip diagnostics that tsc would already catch (non-plugin diagnostics)
-                    // Plugin diagnostics typically have codes >= 100000 or are from specific sources
+                    // Plugin diagnostics typically have:
+                    // - codes >= 100000
+                    // - code 9999 (ts-macros)
+                    // - source containing 'plugin' or 'macros'
+                    // - source that's not 'ts' (standard TypeScript)
                     const isPluginDiagnostic =
                         diagnostic.code >= 100000 ||
+                        diagnostic.code === 9999 ||
                         diagnostic.source?.includes('plugin') ||
+                        diagnostic.source?.includes('macros') ||
+                        diagnostic.source === 'ts-macros' ||
                         (diagnostic.source && diagnostic.source !== 'ts');
 
                     if (!isPluginDiagnostic) {
@@ -416,6 +440,88 @@ async function getLanguageServiceDiagnostics(tsConfigPath) {
 
     } catch (e) {
         console.warn(`  Warning: Language Service error for ${tsConfigPath}: ${e.message}`);
+    }
+
+    return errors;
+}
+
+/**
+ * Get macro diagnostics by running the ts-macros expansion directly.
+ * This catches errors like "Macro X not found in module Y".
+ */
+async function getMacroDiagnostics(projectDir) {
+    const macroModule = getTsMacrosModule();
+    if (!macroModule || !macroModule.expandSync) {
+        return [];
+    }
+
+    const errors = [];
+
+    try {
+        // Find all TypeScript files in the project
+        const files = await fs.readdir(projectDir, { recursive: true });
+        const tsFiles = files.filter(f =>
+            (f.endsWith('.ts') || f.endsWith('.tsx')) &&
+            !f.includes('node_modules') &&
+            !f.includes('.d.ts')
+        );
+
+        for (const file of tsFiles) {
+            const filePath = path.join(projectDir, file);
+
+            // Skip git-ignored files
+            if (await isIgnoredDiagnosticPath(filePath)) {
+                continue;
+            }
+
+            try {
+                const content = await fs.readFile(filePath, 'utf-8');
+
+                // Skip files without @Derive (quick check)
+                if (!content.includes('@Derive')) {
+                    continue;
+                }
+
+                // Run macro expansion
+                const result = macroModule.expandSync(content, filePath);
+
+                // Collect diagnostics
+                if (result.diagnostics && result.diagnostics.length > 0) {
+                    for (const diag of result.diagnostics) {
+                        const level = diag.level || 'error';
+                        const message = diag.message || 'Unknown macro error';
+                        const start = diag.start || 0;
+
+                        // Try to get line/column from position
+                        let line = 1;
+                        let column = 1;
+                        if (start > 0) {
+                            const beforeStart = content.substring(0, start);
+                            const lines = beforeStart.split('\n');
+                            line = lines.length;
+                            column = (lines[lines.length - 1]?.length || 0) + 1;
+                        }
+
+                        const code = 'ts-macros(9999)';
+                        const raw = `${level}[${code}]: ${message}\n  --> ${path.relative(ROOT_DIR, filePath)}:${line}:${column}`;
+
+                        errors.push({
+                            file: filePath,
+                            line,
+                            column,
+                            code,
+                            message,
+                            raw,
+                            tool: 'ts-macros'
+                        });
+                    }
+                }
+            } catch (e) {
+                // Skip files that cause expansion errors (syntax errors, etc.)
+            }
+        }
+    } catch (e) {
+        console.warn(`  Warning: Error scanning for macro diagnostics: ${e.message}`);
     }
 
     return errors;
@@ -547,9 +653,58 @@ async function main() {
         }
     }
 
+    // --- ts-macros Diagnostics ---
+    console.log('\nRunning ts-macros expansion checks...');
+    const macroModule = getTsMacrosModule();
+    if (macroModule) {
+        // Check playground directories and any other directories with @Derive usage
+        const dirsToCheck = [
+            path.join(ROOT_DIR, 'playground'),
+            ...tsConfigPaths.map(p => path.dirname(p))
+        ];
+        const checkedDirs = new Set();
+
+        for (const dir of dirsToCheck) {
+            // Avoid checking the same directory twice
+            const normalizedDir = path.resolve(dir);
+            if (checkedDirs.has(normalizedDir)) continue;
+            checkedDirs.add(normalizedDir);
+
+            // Skip if directory doesn't exist
+            try {
+                await fs.access(dir);
+            } catch {
+                continue;
+            }
+
+            console.log(`  Checking macros in: ${path.relative(ROOT_DIR, dir)}`);
+            const macroErrors = await getMacroDiagnostics(dir);
+            if (macroErrors.length > 0) {
+                console.log(`    Found ${macroErrors.length} macro diagnostic(s).`);
+                allErrors.push(...macroErrors);
+            } else {
+                console.log('    No macro issues found.');
+            }
+        }
+    } else {
+        console.log('  Skipping (ts-macros module not available)');
+    }
+
+    // --- Deduplicate Errors ---
+    // Some errors may be reported multiple times from different check passes
+    const seenErrors = new Set();
+    const deduplicatedErrors = allErrors.filter(error => {
+        const key = `${error.file}:${error.line}:${error.column}:${error.code}:${error.message}`;
+        if (seenErrors.has(key)) {
+            return false;
+        }
+        seenErrors.add(key);
+        return true;
+    });
+
     // --- Categorize and Log Errors ---
     const categorizedErrors = new Map();
-    for (const error of allErrors) {
+    for (const error of deduplicatedErrors) {
         const category = error.code;
         if (!categorizedErrors.has(category)) {
             categorizedErrors.set(category, []);
@@ -573,7 +728,7 @@ async function main() {
     // Print all errors to console when not writing logs
     if (!WRITE_LOGS && totalErrors > 0) {
         console.log('\n--- All Diagnostics ---\n');
-        for (const error of allErrors) {
+        for (const error of deduplicatedErrors) {
             console.log(error.raw);
             console.log('');
         }

@@ -572,10 +572,22 @@ if (!nativeBinding) {
 }
 
 module.exports = nativeBinding
+module.exports.__tsMacrosGetMacroNames = nativeBinding.__tsMacrosGetMacroNames
+module.exports.__tsMacrosGetManifest = nativeBinding.__tsMacrosGetManifest
+module.exports.__tsMacrosIsMacroPackage = nativeBinding.__tsMacrosIsMacroPackage
 module.exports.fieldController = nativeBinding.fieldController
 module.exports.FieldController = nativeBinding.FieldController
 module.exports.JSON = nativeBinding.JSON
 module.exports.textAreaController = nativeBinding.textAreaController
+module.exports.__tsMacrosDebugDescriptors = nativeBinding.__tsMacrosDebugDescriptors
+module.exports.__tsMacrosDebugGetModules = nativeBinding.__tsMacrosDebugGetModules
+module.exports.__tsMacrosDebugLookup = nativeBinding.__tsMacrosDebugLookup
+module.exports.__tsMacrosGetMacroNames = nativeBinding.__tsMacrosGetMacroNames
+module.exports.__tsMacrosGetManifest = nativeBinding.__tsMacrosGetManifest
+module.exports.__tsMacrosIsMacroPackage = nativeBinding.__tsMacrosIsMacroPackage
+module.exports.__tsMacrosRunClone = nativeBinding.__tsMacrosRunClone
+module.exports.__tsMacrosRunDebug = nativeBinding.__tsMacrosRunDebug
+module.exports.__tsMacrosRunEq = nativeBinding.__tsMacrosRunEq
 module.exports.Clone = nativeBinding.Clone
 module.exports.debug = nativeBinding.debug
 module.exports.Debug = nativeBinding.Debug

@@ -1,0 +1,6 @@
+playground/vanilla/src/user.ts(6,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+playground/vanilla/src/user.ts(12,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+playground/svelte/src/lib/demo/field-controller-test.ts(17,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+playground/svelte/src/lib/demo/field-controller-test.ts(22,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+playground/svelte/src/lib/demo/macro-user.ts(19,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+playground/svelte/src/lib/demo/macro-user.ts(27,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.

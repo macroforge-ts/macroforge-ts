@@ -9,6 +9,7 @@ use swc_core::{
     },
 };
 use ts_macro_abi::{Diagnostic, DiagnosticLevel};
+use ts_macro_host::derived;
 
 mod builtin;
 mod macro_host;
@@ -272,4 +273,141 @@ fn handle_macro_diagnostics(diags: &[Diagnostic], file: &str) -> Result<()> {
         }
     }
     Ok(())
+}
+
+// ============================================================================
+// Macro Package Manifest API
+// ============================================================================
+
+/// Entry for a single macro in the manifest
+#[napi(object)]
+pub struct MacroManifestEntry {
+    /// The macro name (e.g., "Debug", "JSON")
+    pub name: String,
+    /// The macro kind ("derive", "attribute", or "call")
+    pub kind: String,
+    /// Description of what the macro does
+    pub description: String,
+    /// The Rust package that provides this macro
+    pub package: String,
+}
+
+/// Decorator metadata for TypeScript type stubs
+#[napi(object)]
+pub struct DecoratorManifestEntry {
+    /// Module this decorator is exported from
+    pub module: String,
+    /// Export name
+    pub export: String,
+    /// Decorator kind ("class", "property", "method", etc.)
+    pub kind: String,
+    /// Documentation
+    pub docs: String,
+}
+
+/// Complete manifest for this macro package
+#[napi(object)]
+pub struct MacroManifest {
+    /// Manifest format version
+    pub version: u32,
+    /// List of macros provided by this package
+    pub macros: Vec<MacroManifestEntry>,
+    /// List of decorator exports
+    pub decorators: Vec<DecoratorManifestEntry>,
+}
+
+/// Get the manifest of all macros available in this package
+/// This is used by the TypeScript plugin to auto-discover macro packages
+#[napi(js_name = "__tsMacrosGetManifest")]
+pub fn get_macro_manifest() -> MacroManifest {
+    let manifest = derived::get_manifest();
+
+    MacroManifest {
+        version: manifest.version,
+        macros: manifest
+            .macros
+            .into_iter()
+            .map(|m| MacroManifestEntry {
+                name: m.name.to_string(),
+                kind: format!("{:?}", m.kind).to_lowercase(),
+                description: m.description.to_string(),
+                package: m.package.to_string(),
+            })
+            .collect(),
+        decorators: manifest
+            .decorators
+            .into_iter()
+            .map(|d| DecoratorManifestEntry {
+                module: d.module.to_string(),
+                export: d.export.to_string(),
+                kind: format!("{:?}", d.kind).to_lowercase(),
+                docs: d.docs.to_string(),
+            })
+            .collect(),
+    }
+}
+
+/// Check if this package exports macros (quick probe)
+#[napi(js_name = "__tsMacrosIsMacroPackage")]
+pub fn is_macro_package() -> bool {
+    !derived::macro_names().is_empty()
+}
+
+/// Get the names of all macros in this package
+#[napi(js_name = "__tsMacrosGetMacroNames")]
+pub fn get_macro_names() -> Vec<String> {
+    derived::macro_names()
+        .into_iter()
+        .map(|s| s.to_string())
+        .collect()
+}
+
+/// Debug: Get all registered module paths from inventory
+#[napi(js_name = "__tsMacrosDebugGetModules")]
+pub fn debug_get_modules() -> Vec<String> {
+    let modules = ts_macro_host::derived::modules();
+    modules.into_iter().map(|s| s.to_string()).collect()
+}
+
+/// Debug: Try to look up a macro by module and name
+#[napi(js_name = "__tsMacrosDebugLookup")]
+pub fn debug_lookup(module: String, name: String) -> String {
+    // Create a fresh host to test lookup
+    match MacroHostIntegration::new() {
+        Ok(host) => {
+            let registry = host.dispatcher.registry();
+            match registry.lookup(&module, &name) {
+                Ok(_) => format!("Found: ({}, {})", module, name),
+                Err(_e) => {
+                    // Try fallback
+                    match registry.lookup_with_fallback(&module, &name) {
+                        Ok(_) => format!("Found via fallback: ({}, {})", module, name),
+                        Err(_) => {
+                            // List all macros in registry
+                            let all = registry.all_macros();
+                            let keys: Vec<String> = all.iter()
+                                .map(|(k, _)| format!("({}, {})", k.module, k.name))
+                                .collect();
+                            format!("Not found: ({}, {}). Available: {:?}", module, name, keys)
+                        }
+                    }
+                }
+            }
+        }
+        Err(e) => format!("Failed to create host: {}", e),
+    }
+}
+
+/// Debug: List all descriptors from inventory
+#[napi(js_name = "__tsMacrosDebugDescriptors")]
+pub fn debug_descriptors() -> Vec<String> {
+    use ts_macro_host::derived::DerivedMacroRegistration;
+
+    inventory::iter::<DerivedMacroRegistration>
+        .into_iter()
+        .map(|entry| {
+            let d = entry.descriptor;
+            format!("name={}, module={}, package={}", d.name, d.module, d.package)
+        })
+        .collect()
 }

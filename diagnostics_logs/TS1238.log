@@ -1,0 +1,3 @@
+playground/vanilla/src/user.ts(4,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+playground/svelte/src/lib/demo/field-controller-test.ts(15,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+playground/svelte/src/lib/demo/macro-user.ts(17,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.

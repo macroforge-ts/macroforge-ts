@@ -1,1 +1,0 @@
-playground/svelte/src/lib/demo/macro-user.ts(1,25): error TS2724: '"@ts-macros/macros"' has no exported member named 'debug'. Did you mean 'Debug'?

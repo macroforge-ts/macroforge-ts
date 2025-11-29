@@ -29,8 +29,8 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
     // Derive package from CARGO_PKG_NAME
     let package_expr = quote! { env!("CARGO_PKG_NAME") };
 
-    // Default module to "@macro/derive"
-    let module_expr = quote! { "@macro/derive" };
+    // Module is always resolved dynamically at runtime based on import source
+    let module_expr = quote! { "__DYNAMIC_MODULE__" };
 
     // Default runtime to ["native"]
     let runtime_values = [LitStr::new("native", Span::call_site())];
@@ -67,6 +67,37 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         pub fn #main_macro_stub_fn_ident() -> ::napi::Result<()> {
             // This stub function does nothing at runtime; its purpose is purely for TypeScript import resolution.
             Ok(())
+        }
+    };
+
+    // Generate the runMacro NAPI function for this specific macro
+    // Use the macro name (not the struct name) for consistent naming
+    let run_macro_fn_ident = format_ident!("__ts_macro_run_{}", options.name.to_string().to_case(Case::Snake));
+    let run_macro_js_name = format!("__tsMacrosRun{}", options.name);
+    let run_macro_js_name_lit = LitStr::new(&run_macro_js_name, Span::call_site());
+
+    let run_macro_napi = quote! {
+        /// Run this macro with the given context
+        /// Called by the TS plugin to execute macro expansion
+        #[::napi_derive::napi(js_name = #run_macro_js_name_lit)]
+        pub fn #run_macro_fn_ident(context_json: String) -> ::napi::Result<String> {
+            use ts_macro_host::TsMacro;
+
+            // Parse the context from JSON
+            let ctx: ts_macro_abi::MacroContextIR = serde_json::from_str(&context_json)
+                .map_err(|e| ::napi::Error::new(::napi::Status::InvalidArg, format!("Invalid context JSON: {}", e)))?;
+
+            // Create TsStream from context
+            let input = ts_syn::TsStream::with_context(&ctx.target_source, &ctx.file_name, ctx.clone())
+                .map_err(|e| ::napi::Error::new(::napi::Status::GenericFailure, format!("Failed to create TsStream: {:?}", e)))?;
+
+            // Run the macro
+            let macro_impl = #struct_ident;
+            let result = macro_impl.run(input);
+
+            // Serialize result to JSON
+            serde_json::to_string(&result)
+                .map_err(|e| ::napi::Error::new(::napi::Status::GenericFailure, format!("Failed to serialize result: {}", e)))
         }
     };
 
@@ -128,6 +159,8 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         #(#decorator_stubs)*
 
         #main_macro_napi_stub
+
+        #run_macro_napi
     };
 
     output.into()

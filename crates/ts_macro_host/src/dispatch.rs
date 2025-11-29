@@ -17,8 +17,9 @@ impl MacroDispatcher {
 
     /// Dispatch a macro call
     pub fn dispatch(&self, ctx: MacroContextIR) -> MacroResult {
-        // Look up the macro in the registry
-        match self.registry.lookup(&ctx.module_path, &ctx.macro_name) {
+        // Look up the macro in the registry, with fallback to name-only lookup
+        // This supports both exact module paths and dynamic module resolution
+        match self.registry.lookup_with_fallback(&ctx.module_path, &ctx.macro_name) {
             Ok(macro_impl) => {
                 // Check ABI version compatibility
                 let impl_abi = macro_impl.abi_version();
