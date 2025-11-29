@@ -13,7 +13,7 @@ import {
  * @FieldController(TextAreaController) on fields you want to generate controllers for
  */
 @Derive(FieldController)
-class FormModel {
+export class FormModel {
   @fieldController(textAreaController)
   memo: string | null;
 
@@ -28,5 +28,3 @@ class FormModel {
     this.description = description;
   }
 }
-
-export { FormModel };
