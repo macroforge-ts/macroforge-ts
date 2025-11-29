@@ -8,6 +8,7 @@ The `ts_template!` macro provides an intuitive, template-based way to generate T
 |--------|-------------|
 | `@{expr}` | Interpolate a Rust expression |
 | `"text @{expr}"` | String interpolation (auto-detected) |
+| `"'^template ${js}^'"` | JS backtick template literal (outputs `` `template ${js}` ``) |
 | `{#if cond}...{/if}` | Conditional block |
 | `{#if cond}...{:else}...{/if}` | Conditional with else |
 | `{#if a}...{:else if b}...{:else}...{/if}` | Full if/else-if/else chain |
@@ -68,6 +69,40 @@ let field = "username";
 let code = ts_template! {
     throw new Error("Invalid @{field.to_uppercase()}");
 };
+```
+
+### Backtick Template Literals: `"'^...^'"`
+
+For JavaScript template literals (backtick strings), use the `'^...^'` syntax. This outputs actual backticks and passes through `${}` for JS interpolation:
+
+```rust
+let tag_name = "div";
+
+let code = ts_template! {
+    const html = "'^<@{tag_name}>${content}</@{tag_name}>^'";
+};
+```
+
+**Generates:**
+
+```typescript
+const html = `<div>${content}</div>`;
+```
+
+You can mix Rust `@{}` interpolation (evaluated at macro expansion time) with JS `${}` interpolation (evaluated at runtime):
+
+```rust
+let class_name = "User";
+
+let code = ts_template! {
+    "'^Hello ${this.name}, you are a @{class_name}^'"
+};
+```
+
+**Generates:**
+
+```typescript
+`Hello ${this.name}, you are a User`
 ```
 
 ### Conditionals: `{#if}...{:else}...{/if}`

@@ -3,6 +3,7 @@
 //! Provides a template syntax with interpolation and control flow:
 //! - `@{expr}` - Interpolate expressions
 //! - `"string @{expr}"` - String interpolation (auto-detected)
+//! - `"'^template ${expr}^'"` - JS backtick template literal (outputs `` `template ${expr}` ``)
 //! - `{#if cond}...{/if}` - Conditional blocks
 //! - `{:else}` - Else clause
 //! - `{:else if cond}` - Else-if clause
@@ -309,7 +310,15 @@ fn parse_fragment(
                 output.extend(quote! { __out.push_str(#close); });
             }
 
-            // Case 4: String literals with interpolation
+            // Case 4a: Backtick template literals "'^...^'" -> `...`
+            TokenTree::Literal(lit) if is_backtick_template(lit) => {
+                iter.next(); // Consume
+                let processed = process_backtick_template(lit);
+                output.extend(processed);
+                output.extend(quote! { __out.push_str(" "); });
+            }
+
+            // Case 4b: String literals with interpolation
             TokenTree::Literal(lit) if is_string_literal(lit) => {
                 iter.next(); // Consume
                 let interpolated = interpolate_string_literal(lit);
@@ -355,6 +364,111 @@ fn parse_fragment(
 fn is_string_literal(lit: &proc_macro2::Literal) -> bool {
     let s = lit.to_string();
     s.starts_with('"') || s.starts_with('\'') || s.starts_with("r\"") || s.starts_with("r#")
+}
+
+/// Check if a literal is a backtick template literal marker: "'^...^'"
+/// This syntax outputs JS template literals with backticks: `...`
+fn is_backtick_template(lit: &proc_macro2::Literal) -> bool {
+    let s = lit.to_string();
+    // Check for "'^...^'" pattern (the outer quotes are part of the Rust string)
+    if s.starts_with("\"'^") && s.ends_with("^'\"") && s.len() >= 6 {
+        return true;
+    }
+    // Also support raw strings: r"'^...^'" or r#"'^...^'"#
+    if s.starts_with("r\"'^") && s.ends_with("^'\"") {
+        return true;
+    }
+    if s.starts_with("r#\"'^") && s.ends_with("^'\"#") {
+        return true;
+    }
+    false
+}
+
+/// Process a backtick template literal "'^...^'" -> `...`
+/// Supports @{expr} interpolation for Rust expressions within the template
+fn process_backtick_template(lit: &proc_macro2::Literal) -> TokenStream2 {
+    let raw = lit.to_string();
+
+    // Extract content between '^...^' markers
+    let content = if raw.starts_with("\"'^") && raw.ends_with("^'\"") {
+        &raw[3..raw.len()-3]
+    } else if raw.starts_with("r\"'^") && raw.ends_with("^'\"") {
+        &raw[4..raw.len()-3]
+    } else if raw.starts_with("r#\"'^") && raw.ends_with("^'\"#") {
+        &raw[5..raw.len()-4]
+    } else {
+        return quote! { __out.push_str(#raw); };
+    };
+
+    // Check if there are any @{} interpolations (Rust expressions)
+    if !content.contains("@{") {
+        // No Rust interpolations, output the backtick string as-is
+        // The content may contain ${} for JS interpolation, which passes through
+        let mut output = TokenStream2::new();
+        output.extend(quote! { __out.push_str("`"); });
+        output.extend(quote! { __out.push_str(#content); });
+        output.extend(quote! { __out.push_str("`"); });
+        return output;
+    }
+
+    // Handle @{} Rust interpolations within the backtick template
+    let mut output = TokenStream2::new();
+    output.extend(quote! { __out.push_str("`"); });
+
+    let mut chars = content.chars().peekable();
+    let mut current_literal = String::new();
+
+    while let Some(c) = chars.next() {
+        if c == '@' && chars.peek() == Some(&'{') {
+            // Found @{, flush current literal
+            if !current_literal.is_empty() {
+                output.extend(quote! { __out.push_str(#current_literal); });
+                current_literal.clear();
+            }
+
+            chars.next(); // Consume '{'
+
+            // Collect expression until matching '}'
+            let mut expr_str = String::new();
+            let mut brace_depth = 1;
+
+            for ec in chars.by_ref() {
+                if ec == '{' {
+                    brace_depth += 1;
+                    expr_str.push(ec);
+                } else if ec == '}' {
+                    brace_depth -= 1;
+                    if brace_depth == 0 {
+                        break;
+                    }
+                    expr_str.push(ec);
+                } else {
+                    expr_str.push(ec);
+                }
+            }
+
+            // Parse the expression and generate interpolation code
+            if let Ok(expr) = syn::parse_str::<syn::Expr>(&expr_str) {
+                output.extend(quote! {
+                    __out.push_str(&#expr.to_string());
+                });
+            } else {
+                // Failed to parse, output as literal
+                let fallback = format!("@{{{}}}", expr_str);
+                output.extend(quote! { __out.push_str(#fallback); });
+            }
+        } else {
+            current_literal.push(c);
+        }
+    }
+
+    // Flush remaining literal
+    if !current_literal.is_empty() {
+        output.extend(quote! { __out.push_str(#current_literal); });
+    }
+
+    output.extend(quote! { __out.push_str("`"); });
+    output
 }
 
 /// Process a string literal and handle @{expr} interpolations inside it
@@ -603,5 +717,50 @@ mod tests {
 
         // Should contain the method call
         assert!(s.contains("to_uppercase"), "Should contain method call");
+    }
+
+    #[test]
+    fn test_backtick_template_simple() {
+        // Test that "'^...^'" outputs backtick template literals
+        let input = TokenStream2::from_str(r#"
+            "'^hello ${name}^'"
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should push backtick at start
+        assert!(s.contains("\"`\""), "Should push opening backtick");
+        // Should contain the template content with ${name} passed through
+        assert!(s.contains("hello ${name}"), "Should contain template content");
+    }
+
+    #[test]
+    fn test_backtick_template_with_rust_interpolation() {
+        // Test that @{} works inside backtick templates for Rust expressions
+        let input = TokenStream2::from_str(r#"
+            "'^hello @{rust_var}^'"
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should push backtick
+        assert!(s.contains("\"`\""), "Should push backtick");
+        // Should interpolate the Rust variable
+        assert!(s.contains("rust_var . to_string"), "Should interpolate Rust var");
+    }
+
+    #[test]
+    fn test_backtick_template_mixed() {
+        // Test mixing JS ${} and Rust @{} in backtick templates
+        let input = TokenStream2::from_str(r#"
+            "'^${jsVar} and @{rustVar}^'"
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should contain JS interpolation passed through
+        assert!(s.contains("${jsVar}"), "Should pass through JS interpolation");
+        // Should interpolate Rust variable
+        assert!(s.contains("rustVar . to_string"), "Should interpolate Rust var");
     }
 }

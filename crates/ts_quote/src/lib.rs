@@ -409,6 +409,7 @@ fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
 /// # Syntax
 ///
 /// - `@{expr}` - Interpolate expressions (converts to string)
+/// - `"'^template ${js}^'"` - JS backtick template literal (outputs `` `template ${js}` ``)
 /// - `{#if cond}...{/if}` - Conditional blocks
 /// - `{:else}` - Else clause
 /// - `{:else if cond}` - Else-if clause
@@ -430,6 +431,16 @@ fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
 ///         return result;
 ///     };
 /// };
+/// ```
+///
+/// For JS template literals with backticks, use `"'^...^'"`:
+///
+/// ```ignore
+/// let tag = "div";
+/// let stmt = ts_template! {
+///     const html = "'^<@{tag}>${content}</@{tag}>^'";
+/// };
+/// // Generates: const html = `<div>${content}</div>`;
 /// ```
 ///
 /// The template is compiled to a string at runtime, then parsed with SWC
