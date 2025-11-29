@@ -193,7 +193,10 @@ mod tests {
     fn test_fallback_roots_returns_non_empty() {
         let roots = TsDeriveSvelteExtension::fallback_roots();
         // Should always have at least one entry (CARGO_MANIFEST_DIR)
-        assert!(!roots.is_empty(), "fallback_roots should return at least one path");
+        assert!(
+            !roots.is_empty(),
+            "fallback_roots should return at least one path"
+        );
     }
 
     #[test]
@@ -245,7 +248,10 @@ mod tests {
 
         let ready = TsDeriveSvelteExtension::language_server_ready(server_dir, workspace_root);
         // Since /other/path doesn't exist, this should be false
-        assert!(!ready, "Should not be ready when server is outside workspace and not installed");
+        assert!(
+            !ready,
+            "Should not be ready when server is outside workspace and not installed"
+        );
     }
 
     #[test]
