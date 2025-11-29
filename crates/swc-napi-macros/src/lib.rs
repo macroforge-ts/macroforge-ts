@@ -70,12 +70,12 @@ pub fn derive_decorator() {}
 
 /// Transform TypeScript code to JavaScript with macro expansion
 #[napi]
-pub fn transform_sync(code: String, filepath: String) -> Result<TransformResult> {
+pub fn transform_sync(env: Env, code: String, filepath: String) -> Result<TransformResult> {
     // Initialize SWC globals
     let globals = Globals::default();
     GLOBALS.set(&globals, || {
         std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            transform_inner(&code, &filepath)
+            transform_inner(env, &code, &filepath)
         }))
         .map_err(|_| Error::new(Status::GenericFailure, "Macro transformation panicked"))?
     })
@@ -83,18 +83,18 @@ pub fn transform_sync(code: String, filepath: String) -> Result<TransformResult>
 
 /// Expand macros in TypeScript code and return the transformed TS (types) and diagnostics
 #[napi]
-pub fn expand_sync(code: String, filepath: String) -> Result<ExpandResult> {
+pub fn expand_sync(env: Env, code: String, filepath: String) -> Result<ExpandResult> {
     let globals = Globals::default();
     GLOBALS.set(&globals, || {
         std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            expand_inner(&code, &filepath)
+            expand_inner(env, &code, &filepath)
         }))
         .map_err(|_| Error::new(Status::GenericFailure, "Macro expansion panicked"))?
     })
 }
 
-fn expand_inner(code: &str, filepath: &str) -> Result<ExpandResult> {
-    let macro_host = MacroHostIntegration::new().map_err(|err| {
+fn expand_inner(env: Env, code: &str, filepath: &str) -> Result<ExpandResult> {
+    let macro_host = MacroHostIntegration::new_with_env(Some(env)).map_err(|err| {
         Error::new(
             Status::GenericFailure,
             format!("Failed to initialize macro host: {err:?}"),
@@ -166,8 +166,8 @@ fn expand_inner(code: &str, filepath: &str) -> Result<ExpandResult> {
     })
 }
 
-fn transform_inner(code: &str, filepath: &str) -> Result<TransformResult> {
-    let macro_host = MacroHostIntegration::new().map_err(|err| {
+fn transform_inner(env: Env, code: &str, filepath: &str) -> Result<TransformResult> {
+    let macro_host = MacroHostIntegration::new_with_env(Some(env)).map_err(|err| {
         Error::new(
             Status::GenericFailure,
             format!("Failed to initialize macro host: {err:?}"),

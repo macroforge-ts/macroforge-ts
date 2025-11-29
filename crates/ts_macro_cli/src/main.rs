@@ -28,6 +28,9 @@ enum Command {
         /// Print expansion result to stdout even if --out is specified
         #[arg(long)]
         print: bool,
+        /// Use Node.js NAPI module instead of Rust expander (supports external macros)
+        #[arg(long)]
+        use_node: bool,
     },
     /// Run tsc with macro expansion baked into file reads (tsc --noEmit semantics)
     Tsc {
@@ -46,7 +49,8 @@ fn main() -> Result<()> {
             out,
             types_out,
             print,
-        } => expand_file(input, out, types_out, print),
+            use_node,
+        } => expand_file(input, out, types_out, print, use_node),
         Command::Tsc { project } => run_tsc_wrapper(project),
     }
 }
@@ -56,7 +60,12 @@ fn expand_file(
     out: Option<PathBuf>,
     types_out: Option<PathBuf>,
     print: bool,
+    use_node: bool,
 ) -> Result<()> {
+    if use_node {
+        return expand_file_via_node(input, out, types_out, print);
+    }
+
     let expander = MacroExpander::new().context("failed to initialize macro expander")?;
     let source = fs::read_to_string(&input)
         .with_context(|| format!("failed to read {}", input.display()))?;
@@ -68,6 +77,107 @@ fn expand_file(
     emit_diagnostics(&expansion, &source, &input);
     emit_runtime_output(&expansion, &input, out.as_ref(), print)?;
     emit_type_output(&expansion, &input, types_out.as_ref(), print)?;
+
+    Ok(())
+}
+
+fn expand_file_via_node(
+    input: PathBuf,
+    out: Option<PathBuf>,
+    types_out: Option<PathBuf>,
+    print: bool,
+) -> Result<()> {
+    let script = r#"
+const { createRequire } = require('module');
+const fs = require('fs');
+const path = require('path');
+
+// Create require from the cwd to resolve modules properly
+const cwdRequire = createRequire(process.cwd() + '/package.json');
+const { expandSync } = cwdRequire('@ts-macros/swc-napi');
+
+const inputPath = process.argv[2];
+const code = fs.readFileSync(inputPath, 'utf8');
+
+try {
+  const result = expandSync(code, inputPath);
+
+  // Output as JSON for the Rust CLI to parse
+  console.log(JSON.stringify({
+    code: result.code,
+    types: result.types,
+    diagnostics: result.diagnostics || []
+  }));
+} catch (err) {
+  console.error('Error:', err.message);
+  process.exit(1);
+}
+"#;
+
+    let mut temp_dir = std::env::temp_dir();
+    temp_dir.push("ts-macro-cli");
+    fs::create_dir_all(&temp_dir)?;
+    let script_path = temp_dir.join("expand-wrapper.js");
+    fs::write(&script_path, script)?;
+
+    let output = std::process::Command::new("node")
+        .arg(&script_path)
+        .arg(&input)
+        .current_dir(std::env::current_dir()?)
+        .output()
+        .context("failed to run node expand wrapper")?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("node expansion failed: {}", stderr);
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let result: serde_json::Value = serde_json::from_str(&stdout)
+        .context("failed to parse expansion result from node")?;
+
+    let code = result["code"]
+        .as_str()
+        .ok_or_else(|| anyhow!("missing 'code' in expansion result"))?;
+    let types = result["types"].as_str();
+
+    // Write outputs
+    if let Some(out_path) = out {
+        write_file(&out_path, code)?;
+        println!(
+            "[ts-macro] wrote expanded output for {} to {}",
+            input.display(),
+            out_path.display()
+        );
+    }
+
+    if print {
+        println!("// --- {} (expanded) ---", input.display());
+        println!("{}", code);
+    }
+
+    if let Some(types_str) = types {
+        if let Some(types_path) = types_out {
+            write_file(&types_path, types_str)?;
+            println!(
+                "[ts-macro] wrote type output for {} to {}",
+                input.display(),
+                types_path.display()
+            );
+        } else if print {
+            println!("// --- {} (.d.ts) ---", input.display());
+            println!("{}", types_str);
+        }
+    }
+
+    // Print diagnostics
+    if let Some(diags) = result["diagnostics"].as_array() {
+        for diag in diags {
+            if let (Some(level), Some(message)) = (diag["level"].as_str(), diag["message"].as_str()) {
+                eprintln!("[ts-macro] {} at {}: {}", level, input.display(), message);
+            }
+        }
+    }
 
     Ok(())
 }
