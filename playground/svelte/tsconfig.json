@@ -6,6 +6,8 @@
 		"checkJs": true,
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": false,
+		"baseUrl": ".",
+		"rootDirs": ["src", ".ts-macros/types/src"],
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
@@ -13,6 +15,9 @@
 		"sourceMap": true,
 		"strict": true,
 		"moduleResolution": "bundler",
+		"paths": {
+			"*": [".ts-macros/types/*", "./*"]
+		},
 		"plugins": [
 			{
 				"name": "@ts-macros/ts-derive-plugin",
@@ -30,7 +35,7 @@
 		"src/**/*.js",
 		"src/**/*.ts",
 		"src/**/*.svelte",
-		"src/macros/generated/**/*.d.ts"
+		".ts-macros/types/**/*.d.ts"
 	]
 	// Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias
 	// except $lib which is handled by https://svelte.dev/docs/kit/configuration#files

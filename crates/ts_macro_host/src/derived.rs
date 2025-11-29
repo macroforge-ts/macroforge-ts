@@ -69,7 +69,11 @@ pub fn register_module(module: &str, registry: &MacroRegistry) -> Result<bool> {
         .collect();
 
     #[cfg(debug_assertions)]
-    eprintln!("[derived] register_module({}) found {} descriptors", module, descriptors.len());
+    eprintln!(
+        "[derived] register_module({}) found {} descriptors",
+        module,
+        descriptors.len()
+    );
 
     if descriptors.is_empty() {
         return Ok(false);

@@ -15,6 +15,22 @@ try {
 }
 
 const compilerOptionsCache = new Map<string, ts.CompilerOptions>()
+let cachedRequire: NodeJS.Require | undefined
+
+async function ensureRequire(): Promise<NodeRequire> {
+  if (typeof require !== 'undefined') {
+    return require
+  }
+
+  if (!cachedRequire) {
+    const { createRequire } = await import('module')
+    cachedRequire = createRequire(process.cwd() + '/') as unknown as NodeJS.Require
+    // Expose on globalThis so native runtime loaders can use it
+    ;(globalThis as any).require = cachedRequire
+  }
+
+  return cachedRequire
+}
 
 export interface NapiMacrosPluginOptions {
   include?: string | RegExp | (string | RegExp)[]
@@ -231,7 +247,9 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
       }
     },
 
-    transform(this, code: string, id: string) {
+    async transform(this, code: string, id: string) {
+      await ensureRequire()
+
       // Only transform TypeScript files
       if (!id.endsWith('.ts') && !id.endsWith('.tsx')) {
         return null
@@ -254,18 +272,8 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
         // Report diagnostics
         for (const diag of result.diagnostics) {
           if (diag.level === 'error') {
-            this.error({
-              message: `Macro error at ${id}:${diag.start}-${diag.end}: ${diag.message}`,
-              id: id,
-              loc: diag.start !== undefined && diag.end !== undefined
-                ? {
-                    file: id,
-                    line: 0, // Vite expects line numbers. MacroDiagnostics are byte offsets.
-                    column: diag.start // Need to map byte offset to line/column. For now, just use start.
-                  }
-                : undefined,
-              // Other error properties can be added if needed
-            })
+            const message = `Macro error at ${id}:${diag.start ?? '?'}-${diag.end ?? '?'}: ${diag.message}`
+            this.error(message)
           } else {
             // Log warnings and info messages
             console.warn(`[vite-plugin-napi-macros] ${diag.level}: ${diag.message}`)
@@ -273,6 +281,13 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
         }
 
         if (result && result.code) {
+          // Remove macro-only imports so SSR output doesn't load native bindings
+          result.code = result.code
+            .replace(/^import\s+\{[^}]*\}\s+from ["']@ts-macros\/swc-napi["'];?\n?/m, '')
+            .replace(/^import\s+\{[^}]*\}\s+from ["']@playground\/macro["'];?\n?/m, '')
+            .replace(/^\s*@Derive[^\n]*\n?/gm, '')
+            .replace(/^\s*@debug[^\n]*\n?/gm, '')
+
           if (generateTypes) {
             const emitted = emitDeclarationsFromCode(result.code, id, projectRoot)
             if (emitted) {
@@ -288,6 +303,9 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
           }
         }
       } catch (error) {
+        if (error && typeof error === 'object' && 'plugin' in error) {
+          throw error
+        }
         const message = formatTransformError(error, id)
         this.error(message)
       }

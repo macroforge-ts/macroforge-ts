@@ -7,9 +7,7 @@ use std::collections::HashMap;
 
 use swc_core::{
     common::Span,
-    ecma::ast::{
-        Class, Decl, Decorator, ExportDecl, Module, ModuleDecl, ModuleItem, Stmt,
-    },
+    ecma::ast::{Class, Decl, Decorator, ExportDecl, Module, ModuleDecl, ModuleItem, Stmt},
 };
 use ts_macro_abi::{
     ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode,
@@ -232,7 +230,7 @@ impl MacroExpander {
         result: &mut MacroResult,
         ctx: &MacroContextIR,
     ) -> crate::Result<(Vec<Patch>, Vec<Patch>)> {
-        use swc_core::ecma::ast::{ClassMember, Stmt as SwcStmt, Decl as SwcDecl};
+        use swc_core::ecma::ast::{ClassMember, Decl as SwcDecl, Stmt as SwcStmt};
 
         let mut runtime_patches = Vec::new();
         let mut type_patches = Vec::new();
@@ -242,8 +240,9 @@ impl MacroExpander {
             && let TargetIR::Class(class_ir) = &ctx.target
         {
             let wrapped_src = format!("class __Temp {{ {} }}", tokens);
-            let stmt = ts_syn::parse_ts_stmt(&wrapped_src)
-                .map_err(|e| crate::MacroError::InvalidConfig(format!("Failed to parse macro output: {:?}", e)))?;
+            let stmt = ts_syn::parse_ts_stmt(&wrapped_src).map_err(|e| {
+                crate::MacroError::InvalidConfig(format!("Failed to parse macro output: {:?}", e))
+            })?;
 
             if let SwcStmt::Decl(SwcDecl::Class(class_decl)) = stmt {
                 for member in class_decl.class.body {
@@ -290,11 +289,9 @@ impl MacroExpander {
             .map_err(|e| crate::MacroError::InvalidConfig(format!("Patch error: {:?}", e)))?;
 
         let type_output = if collector.has_type_patches() {
-            Some(
-                collector
-                    .apply_type_patches(source)
-                    .map_err(|e| crate::MacroError::InvalidConfig(format!("Type patch error: {:?}", e)))?,
-            )
+            Some(collector.apply_type_patches(source).map_err(|e| {
+                crate::MacroError::InvalidConfig(format!("Type patch error: {:?}", e))
+            })?)
         } else {
             None
         };
@@ -384,9 +381,7 @@ fn collect_import_sources(module: &Module) -> HashMap<String, String> {
 
     for item in &module.body {
         if let ModuleItem::ModuleDecl(ModuleDecl::Import(ImportDecl {
-            specifiers,
-            src,
-            ..
+            specifiers, src, ..
         })) = item
         {
             let module_source = src.value.to_string_lossy().to_string();
@@ -424,13 +419,25 @@ fn collect_derive_targets(
     for item in &module.body {
         match item {
             ModuleItem::Stmt(Stmt::Decl(Decl::Class(class_decl))) => {
-                collect_from_class(&class_decl.class, class_map, source, &import_sources, &mut targets);
+                collect_from_class(
+                    &class_decl.class,
+                    class_map,
+                    source,
+                    &import_sources,
+                    &mut targets,
+                );
             }
             ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(ExportDecl {
                 decl: Decl::Class(class_decl),
                 ..
             })) => {
-                collect_from_class(&class_decl.class, class_map, source, &import_sources, &mut targets);
+                collect_from_class(
+                    &class_decl.class,
+                    class_map,
+                    source,
+                    &import_sources,
+                    &mut targets,
+                );
             }
             _ => {}
         }

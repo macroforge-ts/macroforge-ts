@@ -2,7 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{swc_ast, SpanIR};
-use swc_common::{DUMMY_SP, SyntaxContext};
+use swc_common::{SyntaxContext, DUMMY_SP};
 
 /// Patch-based output = stable "quote" target.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -75,7 +75,11 @@ impl From<Vec<swc_ast::ModuleItem>> for PatchCode {
         } else {
             // Multiple items - convert to a string representation
             // This is a limitation since PatchCode doesn't have a Vec variant
-            let code = items.iter().map(|_| "/* generated code */").collect::<Vec<_>>().join("\n");
+            let code = items
+                .iter()
+                .map(|_| "/* generated code */")
+                .collect::<Vec<_>>()
+                .join("\n");
             PatchCode::Text(code)
         }
     }

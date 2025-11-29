@@ -8,7 +8,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 # NAPI-RS for Node.js bindings
-napi = { version = "3.5.2", features = ["napi8"] }
+napi = { version = "3.5.2", features = ["napi8", "compat-mode"] }
 napi-derive = "3.3.3"
 
 # SWC Core for TypeScript parsing and transformation

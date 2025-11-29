@@ -63,8 +63,8 @@ pub struct ExpandResult {
 
 #[napi(
     js_name = "Derive",
-    ts_args_type = "...features: Array<string | ((...args:
-  any[]) => unknown)>"
+    ts_return_type = "ClassDecorator",
+    ts_args_type = "...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:\n  any[]) => unknown) | Record<string, unknown>>"
 )]
 pub fn derive_decorator() {}
 
@@ -144,9 +144,18 @@ fn expand_inner(code: &str, filepath: &str) -> Result<ExpandResult> {
             .collect(),
     });
 
+    let mut types_output = expansion.type_output;
+    if let Some(types) = &mut types_output
+        && expansion.code.contains("toJSON(")
+        && !types.contains("toJSON(")
+        && let Some(insert_at) = types.rfind('}')
+    {
+        types.insert_str(insert_at, "  toJSON(): Record<string, unknown>;\n");
+    }
+
     Ok(ExpandResult {
         code: expansion.code,
-        types: expansion.type_output,
+        types: types_output,
         metadata: if expansion.classes.is_empty() {
             None
         } else {
@@ -385,7 +394,8 @@ pub fn debug_lookup(module: String, name: String) -> String {
                         Err(_) => {
                             // List all macros in registry
                             let all = registry.all_macros();
-                            let keys: Vec<String> = all.iter()
+                            let keys: Vec<String> = all
+                                .iter()
                                 .map(|(k, _)| format!("({}, {})", k.module, k.name))
                                 .collect();
                             format!("Not found: ({}, {}). Available: {:?}", module, name, keys)
@@ -407,7 +417,10 @@ pub fn debug_descriptors() -> Vec<String> {
         .into_iter()
         .map(|entry| {
             let d = entry.descriptor;
-            format!("name={}, module={}, package={}", d.name, d.module, d.package)
+            format!(
+                "name={}, module={}, package={}",
+                d.name, d.module, d.package
+            )
         })
         .collect()
 }

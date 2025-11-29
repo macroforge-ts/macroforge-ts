@@ -200,7 +200,10 @@ impl<'a> PatchApplicator<'a> {
             ));
         }
 
-        Ok(ApplyResult { code: result, mapping })
+        Ok(ApplyResult {
+            code: result,
+            mapping,
+        })
     }
 
     /// Format an insertion with proper indentation and newlines
@@ -595,7 +598,8 @@ mod tests {
         let code = PatchCode::ClassMember(ClassMember::Empty(EmptyStmt {
             span: swc_core::common::DUMMY_SP,
         }));
-        let formatted = applicator.format_insertion("toString(): string;", closing_brace_pos, &code);
+        let formatted =
+            applicator.format_insertion("toString(): string;", closing_brace_pos, &code);
 
         // Should start with newline and have proper indentation
         assert!(formatted.starts_with('\n'));
@@ -679,7 +683,8 @@ mod tests {
         let source = "class User {}";
         let pos = 11;
         let applicator = PatchApplicator::new(source, vec![]);
-        let formatted = applicator.format_insertion("test", pos, &PatchCode::Text("test".to_string()));
+        let formatted =
+            applicator.format_insertion("test", pos, &PatchCode::Text("test".to_string()));
         // Text patches should not get extra formatting
         assert_eq!(formatted, "test");
     }
@@ -873,9 +878,9 @@ mod tests {
         assert_eq!(result.mapping.generated_regions.len(), 2);
 
         // Verify position mappings
-        assert_eq!(result.mapping.original_to_expanded(0), 0);  // 'a'
-        assert_eq!(result.mapping.original_to_expanded(2), 3);  // 'b' (shifted by 1)
-        assert_eq!(result.mapping.original_to_expanded(4), 6);  // 'c' (shifted by 2)
+        assert_eq!(result.mapping.original_to_expanded(0), 0); // 'a'
+        assert_eq!(result.mapping.original_to_expanded(2), 3); // 'b' (shifted by 1)
+        assert_eq!(result.mapping.original_to_expanded(4), 6); // 'c' (shifted by 2)
 
         // Verify generated regions
         assert!(result.mapping.is_in_generated(2)); // 'X'

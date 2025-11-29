@@ -1,7 +1,8 @@
 import { Derive, Debug, debug } from "@ts-macros/swc-napi";
+import { JSON } from "@playground/macro";
 
 // Example of using Derive decorator and dynamic macro
-@Derive("Debug", "JSON")
+@Derive(Debug, JSON)
 class User {
   @debug({ rename: "identifier" })
   id: number;

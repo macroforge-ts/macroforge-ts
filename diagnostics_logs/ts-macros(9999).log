@@ -1,8 +1,0 @@
-error[ts-macros(9999)]: Macro 'JSON' not found in module '@macro/derive'
-  --> playground/vanilla/src/user.ts:4:1
-error[ts-macros(9999)]: Macro 'FieldController' not found in module '@playground/macro'
-  --> playground/svelte/src/lib/demo/field-controller-test.ts:15:1
-error[ts-macros(9999)]: Macro 'JSON' not found in module '@playground/macro'
-  --> playground/svelte/src/lib/demo/macro-user.ts:17:1
-error[ts-macros(9999)]: Macro 'JSON' not found in module '@playground/macro'
-  --> packages/ts-derive-plugin/tests/fixtures/macro-user.test.ts:5:1

@@ -25,7 +25,12 @@ pub struct MappingSegment {
 }
 
 impl MappingSegment {
-    pub fn new(original_start: u32, original_end: u32, expanded_start: u32, expanded_end: u32) -> Self {
+    pub fn new(
+        original_start: u32,
+        original_end: u32,
+        expanded_start: u32,
+        expanded_end: u32,
+    ) -> Self {
         Self {
             original_start,
             original_end,
@@ -203,7 +208,9 @@ impl SourceMapping {
 
     /// Check if a position in expanded source is within generated code.
     pub fn is_in_generated(&self, expanded_pos: u32) -> bool {
-        self.generated_regions.iter().any(|r| r.contains(expanded_pos))
+        self.generated_regions
+            .iter()
+            .any(|r| r.contains(expanded_pos))
     }
 
     /// Find which macro generated code at a position, if any.

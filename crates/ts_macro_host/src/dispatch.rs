@@ -19,7 +19,10 @@ impl MacroDispatcher {
     pub fn dispatch(&self, ctx: MacroContextIR) -> MacroResult {
         // Look up the macro in the registry, with fallback to name-only lookup
         // This supports both exact module paths and dynamic module resolution
-        match self.registry.lookup_with_fallback(&ctx.module_path, &ctx.macro_name) {
+        match self
+            .registry
+            .lookup_with_fallback(&ctx.module_path, &ctx.macro_name)
+        {
             Ok(macro_impl) => {
                 // Check ABI version compatibility
                 let impl_abi = macro_impl.abi_version();
@@ -58,12 +61,11 @@ impl MacroDispatcher {
                                     message: format!("Failed to create TsStream: {:?}", err),
                                     span: Some(ctx.decorator_span),
                                     notes: vec![],
-                                                                    help: None,
-                                                                }],
-                                                                tokens: None,
-                                                                debug: None,
-                                                            };
-                                    
+                                    help: None,
+                                }],
+                                tokens: None,
+                                debug: None,
+                            };
                         }
                     };
 
@@ -97,26 +99,24 @@ impl MacroDispatcher {
                     }
                 }
             }
-            Err(_err) => {
-                MacroResult {
-                    runtime_patches: vec![],
-                    type_patches: vec![],
-                    diagnostics: vec![Diagnostic {
-                        level: DiagnosticLevel::Error,
-                        message: format!(
-                            "Macro '{}' not found in module '{}'",
-                            ctx.macro_name, ctx.module_path
-                        ),
-                        span: Some(ctx.decorator_span),
-                        notes: vec![],
-                        help: Some(
-                            "Make sure the macro package is installed and configured".to_string(),
-                        ),
-                    }],
-                    tokens: None,
-                    debug: None,
-                }
-            }
+            Err(_err) => MacroResult {
+                runtime_patches: vec![],
+                type_patches: vec![],
+                diagnostics: vec![Diagnostic {
+                    level: DiagnosticLevel::Error,
+                    message: format!(
+                        "Macro '{}' not found in module '{}'",
+                        ctx.macro_name, ctx.module_path
+                    ),
+                    span: Some(ctx.decorator_span),
+                    notes: vec![],
+                    help: Some(
+                        "Make sure the macro package is installed and configured".to_string(),
+                    ),
+                }],
+                tokens: None,
+                debug: None,
+            },
         }
     }
 

@@ -1,4 +1,0 @@
-playground/vanilla/src/user.ts(6,12): error TS2353: Object literal may only specify known properties, and 'rename' does not exist in type '(...args: any[]) => unknown'.
-playground/vanilla/src/user.ts(12,12): error TS2353: Object literal may only specify known properties, and 'skip' does not exist in type '(...args: any[]) => unknown'.
-playground/svelte/src/lib/demo/macro-user.ts(19,12): error TS2353: Object literal may only specify known properties, and 'rename' does not exist in type '(...args: any[]) => unknown'.
-playground/svelte/src/lib/demo/macro-user.ts(27,12): error TS2353: Object literal may only specify known properties, and 'skip' does not exist in type '(...args: any[]) => unknown'.

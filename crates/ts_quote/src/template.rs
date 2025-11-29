@@ -15,8 +15,8 @@
 //!
 //! Note: A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com`).
 
-use proc_macro2::{Delimiter, TokenStream as TokenStream2, TokenTree, Group};
-use quote::{quote, ToTokens};
+use proc_macro2::{Delimiter, Group, TokenStream as TokenStream2, TokenTree};
+use quote::{ToTokens, quote};
 use std::iter::Peekable;
 
 /// Parse the template stream and generate code to build a TypeScript string
@@ -118,7 +118,8 @@ fn analyze_tag(g: &Group) -> TagType {
             // Split on "in" keyword
             for t in tokens.iter().skip(2) {
                 if let TokenTree::Ident(id) = t
-                    && id == "in" && !seen_in
+                    && id == "in"
+                    && !seen_in
                 {
                     seen_in = true;
                     continue;
@@ -131,7 +132,6 @@ fn analyze_tag(g: &Group) -> TagType {
             }
             return TagType::For(item, list);
         }
-
     }
 
     // Check for {% ...} tags (let)
@@ -153,7 +153,8 @@ fn analyze_tag(g: &Group) -> TagType {
             if let Some(TokenTree::Ident(next)) = tokens.get(2)
                 && next == "if"
             {
-                let cond: TokenStream2 = tokens.iter().skip(3).map(|t| t.to_token_stream()).collect();
+                let cond: TokenStream2 =
+                    tokens.iter().skip(3).map(|t| t.to_token_stream()).collect();
                 return TagType::ElseIf(cond);
             }
             return TagType::Else;
@@ -161,7 +162,8 @@ fn analyze_tag(g: &Group) -> TagType {
 
         if i == "case" {
             // Format: {:case pattern}
-            let pattern: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            let pattern: TokenStream2 =
+                tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
             return TagType::Case(pattern);
         }
     }
@@ -170,9 +172,15 @@ fn analyze_tag(g: &Group) -> TagType {
     if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
         && p.as_char() == '/'
     {
-        if i == "if" { return TagType::EndIf; }
-        if i == "for" { return TagType::EndFor; }
-        if i == "match" { return TagType::EndMatch; }
+        if i == "if" {
+            return TagType::EndIf;
+        }
+        if i == "for" {
+            return TagType::EndFor;
+        }
+        if i == "match" {
+            return TagType::EndMatch;
+        }
     }
 
     TagType::Block
@@ -241,10 +249,8 @@ fn parse_if_let_chain(
     expr: TokenStream2,
 ) -> TokenStream2 {
     // Parse the true block, stopping at {:else} or {/if}
-    let (true_block, terminator) = parse_fragment(
-        iter,
-        Some(&[Terminator::Else, Terminator::EndIf]),
-    );
+    let (true_block, terminator) =
+        parse_fragment(iter, Some(&[Terminator::Else, Terminator::EndIf]));
 
     match terminator {
         Some(Terminator::EndIf) => {
@@ -351,8 +357,8 @@ fn parse_fragment(
                 if is_group {
                     // It IS interpolation: @{ expr }
                     if let Some(TokenTree::Group(g)) = iter.next() {
-                         let content = g.stream();
-                         output.extend(quote! {
+                        let content = g.stream();
+                        output.extend(quote! {
                             __out.push_str(&#content.to_string());
                         });
                     }
@@ -455,15 +461,16 @@ fn parse_fragment(
                         });
                     }
                     TagType::Block => {
-                         // Regular TS Block { ... }
-                         // Recurse to allow macros inside standard TS objects
-                         iter.next(); // Consume
-                         let inner_stream = g.stream();
+                        // Regular TS Block { ... }
+                        // Recurse to allow macros inside standard TS objects
+                        iter.next(); // Consume
+                        let inner_stream = g.stream();
 
-                         output.extend(quote! { __out.push_str("{"); });
-                         let (inner_parsed, _) = parse_fragment(&mut inner_stream.into_iter().peekable(), None);
-                         output.extend(inner_parsed);
-                         output.extend(quote! { __out.push_str("}"); });
+                        output.extend(quote! { __out.push_str("{"); });
+                        let (inner_parsed, _) =
+                            parse_fragment(&mut inner_stream.into_iter().peekable(), None);
+                        output.extend(inner_parsed);
+                        output.extend(quote! { __out.push_str("}"); });
                     }
                 }
             }
@@ -479,7 +486,8 @@ fn parse_fragment(
                 };
 
                 output.extend(quote! { __out.push_str(#open); });
-                let (inner_parsed, _) = parse_fragment(&mut g.stream().into_iter().peekable(), None);
+                let (inner_parsed, _) =
+                    parse_fragment(&mut g.stream().into_iter().peekable(), None);
                 output.extend(inner_parsed);
                 output.extend(quote! { __out.push_str(#close); });
             }
@@ -509,11 +517,13 @@ fn parse_fragment(
                 let is_ident = matches!(&t, TokenTree::Ident(_));
 
                 // Check if next token is '@' (start of interpolation)
-                let next_is_at = matches!(iter.peek(), Some(TokenTree::Punct(p)) if p.as_char() == '@');
+                let next_is_at =
+                    matches!(iter.peek(), Some(TokenTree::Punct(p)) if p.as_char() == '@');
 
                 // Check if this is a punctuation token with Joint spacing
                 // (e.g., first two chars of `===` should not have spaces)
-                let is_joint_punct = matches!(&t, TokenTree::Punct(p) if p.spacing() == proc_macro2::Spacing::Joint);
+                let is_joint_punct =
+                    matches!(&t, TokenTree::Punct(p) if p.spacing() == proc_macro2::Spacing::Joint);
 
                 output.extend(quote! {
                     __out.push_str(#s);
@@ -565,11 +575,11 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> TokenStream2 {
 
     // Extract content between '^...^' markers
     let content = if raw.starts_with("\"'^") && raw.ends_with("^'\"") {
-        &raw[3..raw.len()-3]
+        &raw[3..raw.len() - 3]
     } else if raw.starts_with("r\"'^") && raw.ends_with("^'\"") {
-        &raw[4..raw.len()-3]
+        &raw[4..raw.len() - 3]
     } else if raw.starts_with("r#\"'^") && raw.ends_with("^'\"#") {
-        &raw[5..raw.len()-4]
+        &raw[5..raw.len() - 4]
     } else {
         return quote! { __out.push_str(#raw); };
     };
@@ -665,12 +675,12 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> TokenStream2 {
 
     // Determine quote character and extract content
     let (quote_char, content) = if raw.starts_with('"') {
-        ('"', &raw[1..raw.len()-1])
+        ('"', &raw[1..raw.len() - 1])
     } else if raw.starts_with('\'') {
-        ('\'', &raw[1..raw.len()-1])
+        ('\'', &raw[1..raw.len() - 1])
     } else if raw.starts_with("r\"") {
         // Raw string r"..."
-        ('"', &raw[2..raw.len()-1])
+        ('"', &raw[2..raw.len() - 1])
     } else if raw.starts_with("r#") {
         // Raw string r#"..."# - find the actual content
         let hash_count = raw[1..].chars().take_while(|&c| c == '#').count();
@@ -795,10 +805,13 @@ mod tests {
 
     #[test]
     fn test_let_scope() {
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             {%let val = "hello"}
             @{val}
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 
@@ -811,11 +824,14 @@ mod tests {
 
     #[test]
     fn test_for_loop() {
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             {#for item in items}
                 @{item}
             {/for}
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 
@@ -825,13 +841,16 @@ mod tests {
 
     #[test]
     fn test_if_else() {
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             {#if condition}
                 "true"
             {:else}
                 "false"
             {/if}
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 
@@ -842,7 +861,8 @@ mod tests {
 
     #[test]
     fn test_if_else_if() {
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             {#if a}
                 "a"
             {:else if b}
@@ -850,7 +870,9 @@ mod tests {
             {:else}
                 "c"
             {/if}
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 
@@ -891,7 +913,10 @@ mod tests {
         println!("Output: {}", s);
 
         // Should just push the whole string as-is (escaped in the generated code)
-        assert!(s.contains("Just a plain string"), "Should contain the string content");
+        assert!(
+            s.contains("Just a plain string"),
+            "Should contain the string content"
+        );
     }
 
     #[test]
@@ -904,7 +929,10 @@ mod tests {
         let s = output.to_string();
 
         // Should interpolate both
-        assert!(s.contains("greeting . to_string"), "Should interpolate greeting");
+        assert!(
+            s.contains("greeting . to_string"),
+            "Should interpolate greeting"
+        );
         assert!(s.contains("name . to_string"), "Should interpolate name");
     }
 
@@ -924,117 +952,168 @@ mod tests {
     #[test]
     fn test_backtick_template_simple() {
         // Test that "'^...^'" outputs backtick template literals
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             "'^hello ${name}^'"
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 
         // Should push backtick at start
         assert!(s.contains("\"`\""), "Should push opening backtick");
         // Should contain the template content with ${name} passed through
-        assert!(s.contains("hello ${name}"), "Should contain template content");
+        assert!(
+            s.contains("hello ${name}"),
+            "Should contain template content"
+        );
     }
 
     #[test]
     fn test_backtick_template_with_rust_interpolation() {
         // Test that @{} works inside backtick templates for Rust expressions
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             "'^hello @{rust_var}^'"
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 
         // Should push backtick
         assert!(s.contains("\"`\""), "Should push backtick");
         // Should interpolate the Rust variable
-        assert!(s.contains("rust_var . to_string"), "Should interpolate Rust var");
+        assert!(
+            s.contains("rust_var . to_string"),
+            "Should interpolate Rust var"
+        );
     }
 
     #[test]
     fn test_backtick_template_mixed() {
         // Test mixing JS ${} and Rust @{} in backtick templates
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             "'^${jsVar} and @{rustVar}^'"
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 
         // Should contain JS interpolation passed through
-        assert!(s.contains("${jsVar}"), "Should pass through JS interpolation");
+        assert!(
+            s.contains("${jsVar}"),
+            "Should pass through JS interpolation"
+        );
         // Should interpolate Rust variable
-        assert!(s.contains("rustVar . to_string"), "Should interpolate Rust var");
+        assert!(
+            s.contains("rustVar . to_string"),
+            "Should interpolate Rust var"
+        );
     }
 
     #[test]
     fn test_at_symbol_without_brace_passes_through() {
         // Test that @ not followed by { passes through unchanged
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             "email@domain.com"
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 
         // Should contain literal @ (no escaping needed)
-        assert!(s.contains("email@domain.com"), "Should pass through @ unchanged");
+        assert!(
+            s.contains("email@domain.com"),
+            "Should pass through @ unchanged"
+        );
     }
 
     #[test]
     fn test_at_symbol_in_backtick_passes_through() {
         // Test that @ not followed by { passes through in backtick templates
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             "'^email@domain.com^'"
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 
         // Should contain backticks and the literal @
         assert!(s.contains("\"`\""), "Should push backtick");
-        assert!(s.contains("email@domain.com"), "Should pass through @ unchanged");
+        assert!(
+            s.contains("email@domain.com"),
+            "Should pass through @ unchanged"
+        );
     }
 
     #[test]
     fn test_escape_at_before_brace() {
         // Test that @@{ produces a literal @{ (not interpolation)
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             "use @@{decorators}"
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 
         // Should contain literal @{decorators} not try to interpolate
         let expected = "@{decorators}";
-        assert!(s.contains(expected), "Should contain literal @{{decorators}}");
+        assert!(
+            s.contains(expected),
+            "Should contain literal @{{decorators}}"
+        );
         // Should NOT try to interpolate 'decorators'
-        assert!(!s.contains("decorators . to_string"), "Should not interpolate");
+        assert!(
+            !s.contains("decorators . to_string"),
+            "Should not interpolate"
+        );
     }
 
     #[test]
     fn test_if_let_simple() {
         // Test {#if let pattern = expr}...{/if}
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             {#if let Some(value) = option}
                 @{value}
             {/if}
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 
         // Should generate if let
-        assert!(s.contains("if let Some (value)"), "Should have if let pattern");
+        assert!(
+            s.contains("if let Some (value)"),
+            "Should have if let pattern"
+        );
         assert!(s.contains("= option"), "Should have expression");
     }
 
     #[test]
     fn test_if_let_with_else() {
         // Test {#if let}...{:else}...{/if}
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             {#if let Some(x) = maybe}
                 "found"
             {:else}
                 "not found"
             {/if}
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 
@@ -1046,14 +1125,17 @@ mod tests {
     #[test]
     fn test_match_simple() {
         // Test {#match expr}{:case pattern}...{/match}
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             {#match value}
                 {:case Some(x)}
                     @{x}
                 {:case None}
                     "nothing"
             {/match}
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 
@@ -1066,7 +1148,8 @@ mod tests {
     #[test]
     fn test_match_with_wildcard() {
         // Test match with wildcard pattern
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             {#match num}
                 {:case 1}
                     "one"
@@ -1075,7 +1158,9 @@ mod tests {
                 {:case _}
                     "other"
             {/match}
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 
@@ -1089,14 +1174,17 @@ mod tests {
     #[test]
     fn test_match_with_interpolation() {
         // Test match arms with interpolation
-        let input = TokenStream2::from_str(r#"
+        let input = TokenStream2::from_str(
+            r#"
             {#match result}
                 {:case Ok(val)}
                     "success: @{val}"
                 {:case Err(e)}
                     "error: @{e}"
             {/match}
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
         let output = parse_template(input);
         let s = output.to_string();
 

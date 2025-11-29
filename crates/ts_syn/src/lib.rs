@@ -8,9 +8,9 @@ pub mod stream;
 pub use derive::*;
 pub use errors::*;
 pub use lower::*;
+pub use stream::*;
 #[cfg(feature = "swc")]
 pub use swc_core::quote;
-pub use stream::*;
 
 // Re-export swc_core for convenience
 #[cfg(feature = "swc")]
@@ -158,12 +158,14 @@ macro_rules! assign_stmt {
     ($lhs:expr, $rhs:expr) => {
         swc_core::ecma::ast::Stmt::Expr(swc_core::ecma::ast::ExprStmt {
             span: swc_core::common::DUMMY_SP,
-            expr: Box::new(swc_core::ecma::ast::Expr::Assign(swc_core::ecma::ast::AssignExpr {
-                span: swc_core::common::DUMMY_SP,
-                op: swc_core::ecma::ast::AssignOp::Assign,
-                left: $lhs,
-                right: Box::new($rhs),
-            })),
+            expr: Box::new(swc_core::ecma::ast::Expr::Assign(
+                swc_core::ecma::ast::AssignExpr {
+                    span: swc_core::common::DUMMY_SP,
+                    op: swc_core::ecma::ast::AssignOp::Assign,
+                    left: $lhs,
+                    right: Box::new($rhs),
+                },
+            )),
         })
     };
 }
@@ -175,8 +177,8 @@ macro_rules! assign_stmt {
 #[macro_export]
 macro_rules! fn_assign {
     ($obj:expr, $prop:expr, $body_stmts:expr) => {{
-        use swc_core::ecma::ast::*;
         use swc_core::common::{DUMMY_SP, SyntaxContext};
+        use swc_core::ecma::ast::*;
 
         Stmt::Expr(ExprStmt {
             span: DUMMY_SP,
@@ -213,8 +215,8 @@ macro_rules! fn_assign {
         })
     }};
     ($obj:expr, $prop:expr, $params:expr, $body_stmts:expr) => {{
-        use swc_core::ecma::ast::*;
         use swc_core::common::{DUMMY_SP, SyntaxContext};
+        use swc_core::ecma::ast::*;
 
         Stmt::Expr(ExprStmt {
             span: DUMMY_SP,

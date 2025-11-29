@@ -2537,7 +2537,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
- "swc-napi-macros",
+ "ts_macro_host",
 ]
 
 [[package]]

@@ -4,7 +4,7 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
-use swc_napi_macros::TransformResult;
+use ts_macro_host::{MacroExpander, MacroExpansion};
 
 #[derive(Parser)]
 #[command(name = "ts-macro", about = "TypeScript macro development utilities")]
@@ -50,26 +50,30 @@ fn expand_file(
     types_out: Option<PathBuf>,
     print: bool,
 ) -> Result<()> {
+    let expander = MacroExpander::new().context("failed to initialize macro expander")?;
     let source = fs::read_to_string(&input)
         .with_context(|| format!("failed to read {}", input.display()))?;
 
-    let result = swc_napi_macros::transform_sync(source, input.display().to_string())
-        .map_err(|err| anyhow!(err.to_string()))?;
+    let expansion = expander
+        .expand(&source, &input.display().to_string())
+        .map_err(|err| anyhow!(format!("{err:?}")))?;
 
-    emit_runtime_output(&result, &input, out.as_ref(), print)?;
-    emit_type_output(&result, &input, types_out.as_ref(), print)?;
+    emit_diagnostics(&expansion, &source, &input);
+    emit_runtime_output(&expansion, &input, out.as_ref(), print)?;
+    emit_type_output(&expansion, &input, types_out.as_ref(), print)?;
 
     Ok(())
 }
 
 fn emit_runtime_output(
-    result: &TransformResult,
+    result: &MacroExpansion,
     input: &Path,
     explicit_out: Option<&PathBuf>,
     should_print: bool,
 ) -> Result<()> {
+    let code = &result.code;
     if let Some(path) = explicit_out {
-        write_file(path, &result.code)?;
+        write_file(path, code)?;
         println!(
             "[ts-macro] wrote expanded output for {} to {}",
             input.display(),
@@ -77,18 +81,18 @@ fn emit_runtime_output(
         );
     } else if should_print || explicit_out.is_none() {
         println!("// --- {} (expanded) ---", input.display());
-        println!("{}", result.code);
+        println!("{code}");
     }
     Ok(())
 }
 
 fn emit_type_output(
-    result: &TransformResult,
+    result: &MacroExpansion,
     input: &Path,
     explicit_out: Option<&PathBuf>,
     print: bool,
 ) -> Result<()> {
-    let Some(types) = result.types.as_ref() else {
+    let Some(types) = result.type_output.as_ref() else {
         return Ok(());
     };
 
@@ -113,4 +117,42 @@ fn write_file(path: &PathBuf, contents: &str) -> Result<()> {
     }
     fs::write(path, contents).with_context(|| format!("failed to write {}", path.display()))?;
     Ok(())
+}
+
+fn emit_diagnostics(expansion: &MacroExpansion, source: &str, input: &Path) {
+    if expansion.diagnostics.is_empty() {
+        return;
+    }
+
+    for diag in &expansion.diagnostics {
+        let (line, col) = diag
+            .span
+            .map(|s| offset_to_line_col(source, s.start as usize))
+            .unwrap_or((1, 1));
+        eprintln!(
+            "[ts-macro] {} at {}:{}:{}: {}",
+            format!("{:?}", diag.level).to_lowercase(),
+            input.display(),
+            line,
+            col,
+            diag.message
+        );
+    }
+}
+
+fn offset_to_line_col(source: &str, offset: usize) -> (usize, usize) {
+    let mut line = 1;
+    let mut col = 1;
+    for (idx, ch) in source.char_indices() {
+        if idx >= offset {
+            break;
+        }
+        if ch == '\n' {
+            line += 1;
+            col = 1;
+        } else {
+            col += 1;
+        }
+    }
+    (line, col)
 }

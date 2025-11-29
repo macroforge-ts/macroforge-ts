@@ -82,13 +82,15 @@ export declare function __tsMacrosRunDebug(contextJson: string): string
  */
 export declare function __tsMacrosRunEq(contextJson: string): string
 
-export declare function Clone(): void
+export declare function Clone(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
 /** Generates a toString() method for debugging */
-export declare function debug(...features: Array<string | ((...args:
-any[]) => unknown)>): void
+export declare function debug(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
 
-export declare function Debug(): void
+export declare function Debug(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
 /** Decorator metadata for TypeScript type stubs */
 export interface DecoratorManifestEntry {
@@ -102,10 +104,11 @@ export interface DecoratorManifestEntry {
   docs: string
 }
 
-export declare function Derive(...features: Array<string | ((...args:
-any[]) => unknown)>): void
+export declare function Derive(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
-export declare function Eq(): void
+export declare function Eq(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
 export interface ExpandResult {
   code: string

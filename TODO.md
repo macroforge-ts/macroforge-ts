@@ -4,23 +4,19 @@
 
 ## 🚀 Project Status
 
-### Phase 1: Core Proc-Macro Host - **75% Complete**
+### Current Status
 - ✅ Core ABI and macro model defined
-- ✅ `ts_macro_host` crate with registry and dispatch
-- ✅ Three derive macros implemented (@Derive(Debug/Clone/Eq))
-- ✅ Basic SWC integration working
-- ✅ All crates compile without errors or warnings
-- 🔄 Patch application engine needed
-- 🔄 CLI tool needed
-- 🔄 Host integration with transformer needed
+- ✅ `ts_macro_host` registry/dispatch, derive macros Debug/Clone/Eq
+- ✅ SWC integration + N-API bindings compile clean
+- ✅ External macro loader shim (workspace probing, SSR require bridge)
+- 🔄 Patch application still rough; type surface for `toJSON` needs proper type patches
+- 🔄 CLI + docs + WASM sandbox not done
 
-### Recent Progress (Nov 24, 2024)
-- Created `ts_macro_host` crate with complete macro registry and dispatch system
-- Implemented `MacroContextIR` and enhanced `MacroResult` with separate runtime/type patches
-- Built three working derive macros: Debug, Clone, and Eq
-- Fixed all SWC version conflicts and compilation issues across workspace
-- Established stable ABI with version checking
-- Created configuration structure for macro packages
+### Recent Progress
+- Added workspace macro runtime loader and SSR `require` shim
+- Case-insensitive debug decorator handling for field options
+- Fixed native binding load path for external macros; patched Vite plugin to strip macro-only imports in SSR
+- Expanded tests to cover external macros; playground fixtures now use `@playground/macro::JSON`
 
 ## Project Overview
 
@@ -106,28 +102,15 @@ Design the three kinds of macros (mirroring Rust's macro types):
 
 - [x] ABI version handshake between host and macro crates
 
-### [ ] Security Considerations
-
-- [ ] Macro sandboxing (WASM by default)
-- [ ] Resource limits (Phase 1 host enforces):
-
-  - [ ] Max execution time
-  - [ ] Max memory usage (WASM runtime)
-  - [ ] Max output size
-  - [ ] Max per-macro time
-  - [ ] Max diagnostics count
-
-- [ ] Code injection prevention:
-
-  - [ ] Validate macro outputs
-  - [ ] Sanitize generated identifiers
-  - [ ] Audit macro packages
-
-- [ ] Native macro execution is **opt-in + gated** (see loading strategy).
+### Security & Sandboxing (not started)
+- Macro sandboxing (WASM default)
+- Resource limits: execution time, memory, output size, diagnostics
+- Code injection: validate outputs, sanitize identifiers, audit packages
+- Native execution remains opt-in/gated
 
 ---
 
-### [x] 0.1 ABI + Support Crates ✅ IMPLEMENTED
+### 0.1 ABI + Support Crates ✅
 
 **Purpose:** Provide Rust proc-macro–like ergonomics:
 
@@ -141,7 +124,7 @@ Design the three kinds of macros (mirroring Rust's macro types):
 
 ---
 
-### [x] 2. Discovery & Registration System ✅ CORE IMPLEMENTED
+### 2. Discovery & Registration ✅
 
 How the system knows which macro to call:
 
@@ -189,15 +172,19 @@ How the system knows which macro to call:
 
 ---
 
-### [ ] 3. Macro Loading Strategy
+### 3. Macro Loading Strategy (open)
+- WASM-first modules (sandboxed), identical ABI
+- Native (N-API) modules opt-in for heavy compute
+- Workspace/package discovery for external macros (e.g., `@playground/macro`)
 
-Implement macro module loading:
+---
 
-- [ ] **WASM-based modules (default)**
-
-  - Like Rust proc macro modules, each macro is its own project
-  - Each macro package ships WASM file
-  - Define macro ABI trait:
+## Current Gaps / Next Steps
+- ESM-safe loader: remove `module/require` assumptions in SSR; ship a small loader to resolve native bindings and external macro packages.
+- Type patches: emit `toJSON()` (and other derives) into `.d.ts` via macro result patches, drop manual post-processing.
+- Playground SSR stability: address native binding resolution and avoid HMR port conflicts (set fixed HMR port or disable HMR in middleware tests).
+- Security: implement WASM sandbox path with resource limits; audit macro package loading.
+- Tooling: CLI, docs for third-party macro authors, and package allowlist/validation.
 
     ```rust
     pub trait TsMacro {

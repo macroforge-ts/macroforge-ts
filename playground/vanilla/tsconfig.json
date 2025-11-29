@@ -3,6 +3,7 @@
     "target": "ES2022",
     "useDefineForClassFields": true,
     "module": "ESNext",
+    "baseUrl": ".",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -13,6 +14,9 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
+    "paths": {
+      "*": [".ts-macros/types/*", "./*"]
+    },
 
     /* Linting */
     "strict": true,
@@ -23,6 +27,7 @@
     /* Decorators */
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "rootDirs": ["src", ".ts-macros/types"],
         "plugins": [
             {
                 "name": "@ts-macros/ts-derive-plugin",
@@ -32,5 +37,5 @@
             }
         ]
   },
-  "include": ["src", "src/macros/generated/**/*.d.ts"]
+  "include": ["src", ".ts-macros/types/**/*.d.ts"]
 }

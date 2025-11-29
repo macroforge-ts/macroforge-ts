@@ -216,6 +216,89 @@ async function parseClippyErrors(output) {
     return errors;
 }
 
+function loadCompilerOptions(ts, tsConfigPath) {
+    const projectRoot = path.dirname(tsConfigPath);
+    const configFile = ts.readConfigFile(tsConfigPath, ts.sys.readFile);
+    if (configFile.error) {
+        return { options: undefined, projectRoot };
+    }
+    const parsed = ts.parseJsonConfigFileContent(
+        configFile.config,
+        ts.sys,
+        projectRoot
+    );
+
+    const options = {
+        ...parsed.options,
+        declaration: true,
+        emitDeclarationOnly: true,
+        noEmit: false,
+        noEmitOnError: false,
+        incremental: false
+    };
+
+    delete options.outDir;
+    delete options.outFile;
+    options.moduleResolution ??= ts.ModuleResolutionKind.Bundler;
+    options.module ??= ts.ModuleKind.ESNext;
+    options.target ??= ts.ScriptTarget.ESNext;
+    options.strict ??= true;
+    options.skipLibCheck ??= true;
+
+    return { options, projectRoot };
+}
+
+function emitDeclarationsFromCode(ts, code, fileName, options, projectRoot) {
+    if (!options) return undefined;
+
+    const normalizedFileName = path.resolve(fileName);
+    const compilerHost = ts.createCompilerHost(options, true);
+
+    compilerHost.getSourceFile = (requestedFileName, languageVersion) => {
+        if (path.resolve(requestedFileName) === normalizedFileName) {
+            return ts.createSourceFile(requestedFileName, code, languageVersion, true);
+        }
+        const text = ts.sys.readFile(requestedFileName);
+        return text !== undefined
+            ? ts.createSourceFile(requestedFileName, text, languageVersion, true)
+            : undefined;
+    };
+
+    compilerHost.readFile = (requestedFileName) => {
+        return path.resolve(requestedFileName) === normalizedFileName
+            ? code
+            : ts.sys.readFile(requestedFileName);
+    };
+
+    compilerHost.fileExists = (requestedFileName) => {
+        return (
+            path.resolve(requestedFileName) === normalizedFileName || ts.sys.fileExists(requestedFileName)
+        );
+    };
+
+    let output;
+    const writeFile = (outputName, text) => {
+        if (outputName.endsWith('.d.ts')) {
+            output = text;
+        }
+    };
+
+    const program = ts.createProgram([normalizedFileName], options, compilerHost);
+    const emitResult = program.emit(undefined, writeFile, undefined, true);
+
+    if (emitResult.emitSkipped && emitResult.diagnostics.length > 0) {
+        const formatted = ts.formatDiagnosticsWithColorAndContext(emitResult.diagnostics, {
+            getCurrentDirectory: () => projectRoot,
+            getCanonicalFileName: (fileName) => fileName,
+            getNewLine: () => ts.sys.newLine
+        });
+        console.warn(`[diagnostics] Declaration emit failed for ${path.relative(projectRoot, fileName)}\n${formatted}`);
+        return undefined;
+    }
+
+    return output;
+}
+
 async function parseSvelteCheckErrors(output) {
     const errors = [];
     // svelte-check outputs in format: /path/to/file.svelte:line:col - (error|warning) message
@@ -527,6 +610,89 @@ async function getMacroDiagnostics(projectDir) {
     return errors;
 }
 
+async function generateMacroTypes(tsConfigPaths) {
+    const macroModule = getTsMacrosModule();
+    const ts = getTypeScript();
+    if (!macroModule || !macroModule.expandSync || !ts) {
+        return;
+    }
+
+    for (const tsConfigPath of tsConfigPaths) {
+        const projectRoot = path.dirname(tsConfigPath);
+        const typesRoot = path.join(projectRoot, '.ts-macros', 'types');
+        const { options } = loadCompilerOptions(ts, tsConfigPath);
+
+        try {
+            await fs.rm(typesRoot, { recursive: true, force: true });
+            await fs.mkdir(typesRoot, { recursive: true });
+        } catch {
+            // ignore mkdir errors
+        }
+
+        let files = [];
+        try {
+            files = await fs.readdir(projectRoot, { recursive: true });
+        } catch {
+            continue;
+        }
+
+        for (const file of files) {
+            const fullPath = path.join(projectRoot, file);
+            const relPath = normalizeFilePath(fullPath);
+
+            if (
+                relPath.endsWith('.d.ts') ||
+                (!relPath.endsWith('.ts') && !relPath.endsWith('.tsx')) ||
+                relPath.includes('node_modules') ||
+                relPath.includes('.ts-macros/types')
+            ) {
+                continue;
+            }
+
+            if (await isIgnoredDiagnosticPath(fullPath)) {
+                continue;
+            }
+
+            let content = '';
+            try {
+                content = await fs.readFile(fullPath, 'utf-8');
+            } catch {
+                continue;
+            }
+
+            if (!content.includes('@Derive')) {
+                continue;
+            }
+
+            try {
+                const result = macroModule.expandSync(content, fullPath);
+                const decls = emitDeclarationsFromCode(ts, result.code || content, fullPath, options, projectRoot);
+                if (decls) {
+                    const parsed = path.parse(path.relative(projectRoot, fullPath));
+                    const outDir = parsed.dir ? path.join(typesRoot, parsed.dir) : typesRoot;
+                    await fs.mkdir(outDir, { recursive: true });
+                    const outPath = path.join(outDir, `${parsed.name}.d.ts`);
+                    const absWithExt = path.resolve(fullPath).replace(/\\/g, '/');
+                    const absNoExt = absWithExt.replace(/\\.(tsx|ts)$/, '');
+                    const relNoExt = path
+                        .relative(projectRoot, fullPath)
+                        .replace(/\\/g, '/')
+                        .replace(/\\.(tsx|ts)$/, '');
+                    const relWithDot = `./${relNoExt}`;
+                    const localRelative = `./${parsed.name}`;
+                    const localRelativeExt = `./${parsed.name}${parsed.ext}`;
+                    const moduleNames = new Set([absWithExt, absNoExt, relNoExt, relWithDot, localRelative, localRelativeExt]);
+
+                    // Write plain declarations without module wrappers
+                    await fs.writeFile(outPath, decls, 'utf-8');
+                }
+            } catch {
+                // ignore expansion errors here; they will surface in later diagnostics
+            }
+        }
+    }
+}
+
 async function getTsConfigPaths() {
     const allTsConfigs = (await fs.readdir(ROOT_DIR, { recursive: true }))
         .filter(file => file.endsWith('tsconfig.json') && !file.includes('node_modules'))
@@ -600,6 +766,8 @@ async function main() {
     // --- TypeScript Type Check ---
     console.log('\nRunning TypeScript type checks...');
     const tsConfigPaths = await getTsConfigPaths();
+    // Generate macro-driven type output into hidden folders before running tsc
+    await generateMacroTypes(tsConfigPaths);
 
     for (const tsConfigPath of tsConfigPaths) {
         console.log(`  Checking project: ${path.relative(ROOT_DIR, tsConfigPath)}`);

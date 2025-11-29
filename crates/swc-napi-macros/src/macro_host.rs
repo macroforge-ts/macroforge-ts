@@ -1,4 +1,6 @@
 use anyhow::{Context, Result};
+use napi::bindgen_prelude::{Env, Unknown};
+use napi::{JsValue, Status};
 use std::{collections::HashMap, path::Path};
 use swc_core::{
     common::Span,
@@ -25,6 +27,7 @@ const DYNAMIC_MODULE_MARKER: &str = "__DYNAMIC_MODULE__";
 pub struct MacroHostIntegration {
     pub dispatcher: MacroDispatcher,
     config: MacroConfig,
+    external_loader: Option<ExternalMacroLoader>,
 }
 
 /// Result of attempting to expand macros in a source file.
@@ -41,6 +44,10 @@ pub struct MacroExpansion {
 impl MacroHostIntegration {
     /// Build a macro host with the built-in macro registry populated.
     pub fn new() -> Result<Self> {
+        Self::new_with_env(None)
+    }
+
+    pub fn new_with_env(env: Option<Env>) -> Result<Self> {
         let (config, root_dir) = MacroConfig::find_with_root()
             .context("failed to discover macro configuration")?
             .unwrap_or_else(|| {
@@ -49,10 +56,19 @@ impl MacroHostIntegration {
                     std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from(".")),
                 )
             });
-        Self::with_config(config, root_dir)
+        Self::with_config_and_env(config, root_dir, env)
     }
 
+    #[allow(dead_code)]
     pub fn with_config(config: MacroConfig, root_dir: std::path::PathBuf) -> Result<Self> {
+        Self::with_config_and_env(config, root_dir, None)
+    }
+
+    pub fn with_config_and_env(
+        config: MacroConfig,
+        root_dir: std::path::PathBuf,
+        env: Option<Env>,
+    ) -> Result<Self> {
         let registry = MacroRegistry::new();
         register_packages(&registry, &config, &root_dir)?;
         debug_assert!(
@@ -71,6 +87,7 @@ impl MacroHostIntegration {
         Ok(Self {
             dispatcher: MacroDispatcher::new(registry),
             config,
+            external_loader: env.map(|e| ExternalMacroLoader::new(e, root_dir.clone())),
         })
     }
 
@@ -237,11 +254,27 @@ impl MacroHostIntegration {
 
                 let mut result = self.dispatcher.dispatch(ctx.clone());
 
-                debug_assert!(
-                    result.diagnostics.is_empty(),
-                    "Macro dispatch returned diagnostics: {:?}",
-                    result.diagnostics
-                );
+                if is_macro_not_found(&result)
+                    && let Some(loader) = &self.external_loader
+                {
+                    match loader.run_macro(&ctx) {
+                        Ok(external_result) => {
+                            result = external_result;
+                        }
+                        Err(err) => {
+                            result.diagnostics.push(Diagnostic {
+                                level: DiagnosticLevel::Error,
+                                message: format!(
+                                    "Failed to load external macro '{}::{}': {}",
+                                    ctx.module_path, ctx.macro_name, err
+                                ),
+                                span: Some(ctx.decorator_span),
+                                notes: vec![],
+                                help: None,
+                            });
+                        }
+                    }
+                }
 
                 // Process potential token stream result
                 if let Ok((runtime, type_def)) = self.process_macro_output(&mut result, &ctx) {
@@ -386,6 +419,224 @@ impl MacroHostIntegration {
     }
 }
 
+fn is_macro_not_found(result: &MacroResult) -> bool {
+    result
+        .diagnostics
+        .iter()
+        .any(|d| d.message.contains("Macro") && d.message.contains("not found in module"))
+}
+
+struct ExternalMacroLoader {
+    env: Env,
+    root_dir: std::path::PathBuf,
+}
+
+impl ExternalMacroLoader {
+    fn new(env: Env, root_dir: std::path::PathBuf) -> Self {
+        Self { env, root_dir }
+    }
+
+    fn run_macro(&self, ctx: &MacroContextIR) -> napi::Result<MacroResult> {
+        let fn_name = format!("__tsMacrosRun{}", ctx.macro_name);
+        let ctx_json =
+            serde_json::to_string(ctx).map_err(|e| napi::Error::new(Status::InvalidArg, e))?;
+
+        match self.try_run_via_workspaces(&fn_name, &ctx.module_path, &ctx_json) {
+            Ok(Some(result_json)) => {
+                let host_result: ts_macro_abi::MacroResult = serde_json::from_str(&result_json)
+                    .map_err(|e| {
+                        napi::Error::new(
+                            Status::InvalidArg,
+                            format!("Failed to parse macro result: {e}"),
+                        )
+                    })?;
+
+                Ok(MacroResult {
+                    runtime_patches: host_result.runtime_patches,
+                    type_patches: host_result.type_patches,
+                    diagnostics: host_result.diagnostics,
+                    tokens: host_result.tokens,
+                    debug: host_result.debug,
+                })
+            }
+            Ok(None) => Ok(MacroResult {
+                diagnostics: vec![Diagnostic {
+                    level: DiagnosticLevel::Error,
+                    message: format!(
+                        "Macro '{}' not found in module '{}' or workspace macro packages",
+                        ctx.macro_name, ctx.module_path
+                    ),
+                    span: Some(ctx.decorator_span),
+                    notes: vec![],
+                    help: None,
+                }],
+                ..MacroResult::default()
+            }),
+            Err(err) => Ok(MacroResult {
+                diagnostics: vec![Diagnostic {
+                    level: DiagnosticLevel::Error,
+                    message: format!(
+                        "Failed to load macro '{}' from module '{}': {}",
+                        ctx.macro_name, ctx.module_path, err
+                    ),
+                    span: Some(ctx.decorator_span),
+                    notes: vec![],
+                    help: None,
+                }],
+                ..MacroResult::default()
+            }),
+        }
+    }
+
+    fn try_run_via_workspaces(
+        &self,
+        fn_name: &str,
+        module_path: &str,
+        ctx_json: &str,
+    ) -> napi::Result<Option<String>> {
+        let module_path_lit =
+            serde_json::to_string(module_path).unwrap_or_else(|_| "null".to_string());
+        let fn_name_lit = serde_json::to_string(fn_name).unwrap_or_else(|_| "\"\"".to_string());
+        let ctx_lit = serde_json::to_string(ctx_json).unwrap_or_else(|_| "\"\"".to_string());
+        let root_dir_lit = serde_json::to_string(self.root_dir.to_string_lossy().as_ref())
+            .unwrap_or_else(|_| "\"\"".to_string());
+        let root_pkg_lit = serde_json::to_string(
+            self.root_dir
+                .join("package.json")
+                .to_string_lossy()
+                .as_ref(),
+        )
+        .unwrap_or_else(|_| "\"\"".to_string());
+
+        let script = format!(
+            r#"(function() {{
+  const normalizeWorkspaces = (val) => Array.isArray(val) ? val : (val && Array.isArray(val.packages) ? val.packages : []);
+  const buildRequire = () => {{
+    if (typeof globalThis.require === "function") return globalThis.require;
+    if (typeof require === "function") return require;
+    if (typeof process !== "undefined" && process.mainModule && process.mainModule.require) {{
+      return process.mainModule.require;
+    }}
+    try {{
+      // Some embedders expose module with createRequire even when require is absent
+      if (typeof module !== "undefined" && typeof module.createRequire === "function") {{
+        return module.createRequire(process.cwd() + "/");
+      }}
+    }} catch {{}}
+    try {{
+      const {{ createRequire }} = (typeof module !== "undefined" ? module : null) || {{}};
+      if (typeof createRequire === "function") {{
+        return createRequire(process.cwd() + "/");
+      }}
+    }} catch {{}}
+    return null;
+  }};
+
+  const baseRequire = buildRequire();
+  if (!baseRequire) return null;
+
+  const path = baseRequire("path");
+  const fs = baseRequire("fs");
+  let rootRequire = baseRequire;
+  try {{
+    const {{ createRequire }} = baseRequire("module");
+    if (typeof createRequire === "function") {{
+      rootRequire = createRequire(path.join({root_dir}, "package.json"));
+    }}
+  }} catch {{}}
+
+  const resolveModule = (id) => {{
+    try {{
+      return rootRequire(id);
+    }} catch (err) {{
+      try {{
+        return baseRequire(id);
+      }} catch (_ignore) {{
+        return null;
+      }}
+    }}
+  }};
+
+  const candidates = [];
+  const seen = new Set();
+  const addCandidate = (id) => {{
+    if (!id || seen.has(id)) return;
+    const mod = resolveModule(id);
+    if (mod) {{
+      seen.add(id);
+      candidates.push(mod);
+    }}
+  }};
+
+  // Try the requested module path first
+  addCandidate({module_path});
+
+  // Inspect workspace packages (supports ["packages/*"] and {{ packages: [...] }})
+  try {{
+    const rootPkg = resolveModule({root_pkg});
+    const workspaces = normalizeWorkspaces(rootPkg?.workspaces);
+
+    const expandWorkspace = (pattern) => {{
+      if (typeof pattern !== "string") return [];
+      const absolute = path.resolve({root_dir}, pattern);
+      if (!pattern.includes("*")) {{
+        return [absolute];
+      }}
+
+      const starIdx = pattern.indexOf("*");
+      const baseDir = path.resolve({root_dir}, pattern.slice(0, starIdx));
+      const suffix = pattern.slice(starIdx + 1);
+      if (!fs.existsSync(baseDir)) return [];
+
+      return fs
+        .readdirSync(baseDir, {{ withFileTypes: true }})
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => path.join(baseDir, entry.name + suffix));
+    }};
+
+    for (const ws of workspaces) {{
+      for (const pkgDir of expandWorkspace(ws)) {{
+        try {{
+          const pkgJsonPath = path.join(pkgDir, "package.json");
+          if (!fs.existsSync(pkgJsonPath)) continue;
+
+          const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, "utf8"));
+          addCandidate(pkgJson.name || pkgDir);
+          addCandidate(pkgDir);
+        }} catch {{}}
+      }}
+    }}
+  }} catch {{}}
+
+  for (const mod of candidates) {{
+    if (!mod) continue;
+    const fn = mod[{fn_name}];
+    if (typeof fn === "function") {{
+      return fn({ctx_json});
+    }}
+  }}
+
+  return null;
+}})()"#,
+            module_path = module_path_lit,
+            root_pkg = root_pkg_lit,
+            root_dir = root_dir_lit,
+            fn_name = fn_name_lit,
+            ctx_json = ctx_lit,
+        );
+
+        let result_unknown: Unknown = self.env.run_script(&script)?;
+        let result_str = result_unknown
+            .coerce_to_string()?
+            .into_utf8()?
+            .into_owned()?;
+        if result_str == "null" || result_str == "undefined" {
+            return Ok(None);
+        }
+        Ok(Some(result_str))
+    }
+}
+
 /// Internal span key for matching lowered IR to SWC nodes.
 #[derive(Hash, PartialEq, Eq)]
 struct SpanKey(u32, u32);
@@ -419,9 +670,7 @@ fn collect_import_sources(module: &Module) -> HashMap<String, String> {
 
     for item in &module.body {
         if let ModuleItem::ModuleDecl(ModuleDecl::Import(ImportDecl {
-            specifiers,
-            src,
-            ..
+            specifiers, src, ..
         })) = item
         {
             let module_source = src.value.to_string_lossy().to_string();
@@ -464,13 +713,25 @@ fn collect_derive_targets(
     for item in &module.body {
         match item {
             ModuleItem::Stmt(Stmt::Decl(Decl::Class(class_decl))) => {
-                collect_from_class(&class_decl.class, class_map, source, &import_sources, &mut targets);
+                collect_from_class(
+                    &class_decl.class,
+                    class_map,
+                    source,
+                    &import_sources,
+                    &mut targets,
+                );
             }
             ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(ExportDecl {
                 decl: Decl::Class(class_decl),
                 ..
             })) => {
-                collect_from_class(&class_decl.class, class_map, source, &import_sources, &mut targets);
+                collect_from_class(
+                    &class_decl.class,
+                    class_map,
+                    source,
+                    &import_sources,
+                    &mut targets,
+                );
             }
             _ => {}
         }
@@ -610,7 +871,6 @@ fn register_packages(
     let derived_modules = ts_macro_host::derived::modules();
     let derived_set: std::collections::HashSet<&'static str> =
         derived_modules.iter().copied().collect();
-
 
     let mut requested = if config.macro_packages.is_empty() {
         embedded_map.keys().cloned().collect::<Vec<_>>()

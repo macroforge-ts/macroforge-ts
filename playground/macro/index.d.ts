@@ -30,12 +30,14 @@ export interface DecoratorManifestEntry {
 }
 
 /** Generates depth-aware field controller helpers for reactive forms */
-export declare function fieldController(...features: Array<string | ((...args:
-any[]) => unknown)>): void
+export declare function fieldController(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
 
-export declare function FieldController(): void
+export declare function FieldController(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
-export declare function JSON(): void
+export declare function JSON(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
 /** Complete manifest for this macro package */
 export interface MacroManifest {
@@ -53,5 +55,5 @@ export interface MacroManifestEntry {
 }
 
 /** Generates depth-aware field controller helpers for reactive forms */
-export declare function textAreaController(...features: Array<string | ((...args:
-any[]) => unknown)>): void
+export declare function textAreaController(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): PropertyDecorator

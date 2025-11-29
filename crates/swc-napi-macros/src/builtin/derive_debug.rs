@@ -15,7 +15,7 @@ impl DebugFieldOptions {
     fn from_decorators(decorators: &[ts_macro_abi::DecoratorIR]) -> Self {
         let mut opts = DebugFieldOptions::default();
         for decorator in decorators {
-            if decorator.name != "Debug" {
+            if !decorator.name.eq_ignore_ascii_case("debug") {
                 continue;
             }
 

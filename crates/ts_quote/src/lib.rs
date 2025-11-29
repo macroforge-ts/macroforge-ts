@@ -120,7 +120,7 @@ pub fn ts_quote(input: TokenStream) -> TokenStream {
 
     // Wrap in parentheses
     output.extend(TokenStream2::from(TokenTree::Group(
-        proc_macro2::Group::new(Delimiter::Parenthesis, args)
+        proc_macro2::Group::new(Delimiter::Parenthesis, args),
     )));
 
     TokenStream::from(output)
@@ -266,12 +266,12 @@ fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
             fn_args.extend(quote_ident("format"));
             fn_args.extend(quote_punct("!"));
             fn_args.extend(TokenStream2::from(TokenTree::Group(
-                proc_macro2::Group::new(Delimiter::Parenthesis, args.clone())
+                proc_macro2::Group::new(Delimiter::Parenthesis, args.clone()),
             )));
             fn_args.extend(quote_punct("."));
             fn_args.extend(quote_ident("into"));
             fn_args.extend(TokenStream2::from(TokenTree::Group(
-                proc_macro2::Group::new(Delimiter::Parenthesis, TokenStream2::new())
+                proc_macro2::Group::new(Delimiter::Parenthesis, TokenStream2::new()),
             )));
             fn_args.extend(quote_punct(","));
 
@@ -296,7 +296,7 @@ fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
             binding.extend(quote_punct("::"));
             binding.extend(quote_ident("new_no_ctxt"));
             binding.extend(TokenStream2::from(TokenTree::Group(
-                proc_macro2::Group::new(Delimiter::Parenthesis, fn_args)
+                proc_macro2::Group::new(Delimiter::Parenthesis, fn_args),
             )));
 
             return (bind_name, binding, false);
@@ -337,7 +337,8 @@ fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
         // Check if it's Vec<Stmt> - special case for inlining
         if type_str.contains("Vec") && type_str.contains("Stmt") {
             // Parse the expression
-            let expr: Expr = syn::parse2(expr_tokens).expect("Invalid expression in $(expr: Vec<Stmt>)");
+            let expr: Expr =
+                syn::parse2(expr_tokens).expect("Invalid expression in $(expr: Vec<Stmt>)");
 
             // Generate: bind_ident: Vec<Stmt> = expr
             let mut binding = TokenStream2::new();
@@ -376,7 +377,10 @@ fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
     if let Expr::Call(call) = &expr
         && let Expr::Path(path) = &*call.func
     {
-        let path_str = path.path.segments.iter()
+        let path_str = path
+            .path
+            .segments
+            .iter()
             .map(|s| s.ident.to_string())
             .collect::<Vec<_>>()
             .join("::");
@@ -465,4 +469,3 @@ pub fn ts_template(input: TokenStream) -> TokenStream {
 
     TokenStream::from(output)
 }
-

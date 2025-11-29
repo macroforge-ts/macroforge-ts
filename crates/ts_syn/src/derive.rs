@@ -344,7 +344,10 @@ macro_rules! parse_ts_macro_input {
         match <$ty as $crate::ParseTs>::parse(&mut $input) {
             Ok(parsed) => parsed,
             Err(e) => {
-                return Err($crate::TsMacroError::new_global(format!("Failed to parse input: {}", e)));
+                return Err($crate::TsMacroError::new_global(format!(
+                    "Failed to parse input: {}",
+                    e
+                )));
             }
         }
     };

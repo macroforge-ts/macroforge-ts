@@ -60,10 +60,17 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         struct_ident.to_string().trim_start_matches("r#")
     );
 
-    let main_macro_stub_fn_ident =
-        format_ident!("__ts_macro_runtime_stub_{}", struct_ident.to_string().to_case(Case::Snake));
+    let main_macro_stub_fn_ident = format_ident!(
+        "__ts_macro_runtime_stub_{}",
+        struct_ident.to_string().to_case(Case::Snake)
+    );
+    let features_args_type = features_args_type_literal();
     let main_macro_napi_stub = quote! {
-        #[::napi_derive::napi(js_name = #macro_name)]
+        #[::napi_derive::napi(
+            js_name = #macro_name,
+            ts_return_type = "ClassDecorator",
+            ts_args_type = #features_args_type
+        )]
         pub fn #main_macro_stub_fn_ident() -> ::napi::Result<()> {
             // This stub function does nothing at runtime; its purpose is purely for TypeScript import resolution.
             Ok(())
@@ -72,7 +79,10 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     // Generate the runMacro NAPI function for this specific macro
     // Use the macro name (not the struct name) for consistent naming
-    let run_macro_fn_ident = format_ident!("__ts_macro_run_{}", options.name.to_string().to_case(Case::Snake));
+    let run_macro_fn_ident = format_ident!(
+        "__ts_macro_run_{}",
+        options.name.to_string().to_case(Case::Snake)
+    );
     let run_macro_js_name = format!("__tsMacrosRun{}", options.name);
     let run_macro_js_name_lit = LitStr::new(&run_macro_js_name, Span::call_site());
 
@@ -262,8 +272,9 @@ impl Default for MacroOptions {
 }
 
 fn features_args_type_literal() -> LitStr {
+    // Allow strings, decorators, closures, or option objects (for field-level configs)
     LitStr::new(
-        "...features: Array<string | ((...args:\n  any[]) => unknown)>",
+        "...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:\n  any[]) => unknown) | Record<string, unknown>>",
         Span::call_site(),
     )
 }
@@ -306,7 +317,11 @@ fn generate_decorator_stub(
 
     quote! {
         #doc_comment
-        #[::napi_derive::napi(js_name = #js_name, ts_args_type = #decorator_args_type)]
+        #[::napi_derive::napi(
+            js_name = #js_name,
+            ts_args_type = #decorator_args_type,
+            ts_return_type = "PropertyDecorator"
+        )]
         pub fn #fn_ident() -> ::napi::Result<()> {
             Ok(())
         }
