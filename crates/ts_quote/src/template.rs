@@ -6,8 +6,10 @@
 //! - `"string @{expr}"` - String interpolation (auto-detected)
 //! - `"'^template ${expr}^'"` - JS backtick template literal (outputs `` `template ${expr}` ``)
 //! - `{#if cond}...{/if}` - Conditional blocks
+//! - `{#if let pattern = expr}...{/if}` - Pattern matching if-let blocks
 //! - `{:else}` - Else clause
 //! - `{:else if cond}` - Else-if clause
+//! - `{#match expr}{:case pattern}...{/match}` - Match blocks with case arms
 //! - `{#for item in list}...{/for}` - Iteration
 //! - `{%let name = expr}` - Local constants
 //!
@@ -38,16 +40,22 @@ enum Terminator {
     ElseIf(TokenStream2),
     EndIf,
     EndFor,
+    Case(TokenStream2),
+    EndMatch,
 }
 
 // Analyzes a braces group { ... } to see if it's a Macro Tag or just TS code
 enum TagType {
     If(TokenStream2),
-    For(TokenStream2, TokenStream2), // item_name, collection
+    IfLet(TokenStream2, TokenStream2), // pattern, expression
+    For(TokenStream2, TokenStream2),   // item_name, collection
+    Match(TokenStream2),               // expression to match
     Else,
     ElseIf(TokenStream2),
+    Case(TokenStream2), // pattern for match arm
     EndIf,
     EndFor,
+    EndMatch,
     Let(TokenStream2),
     Block, // Standard TypeScript Block { ... }
 }
@@ -63,9 +71,42 @@ fn analyze_tag(g: &Group) -> TagType {
         && p.as_char() == '#'
     {
         if i == "if" {
+            // Check for {#if let pattern = expr}
+            if let Some(TokenTree::Ident(let_kw)) = tokens.get(2)
+                && let_kw == "let"
+            {
+                // Format: {#if let pattern = expr}
+                // Split on "=" to separate pattern from expression
+                let mut pattern = TokenStream2::new();
+                let mut expr = TokenStream2::new();
+                let mut seen_eq = false;
+
+                for t in tokens.iter().skip(3) {
+                    if let TokenTree::Punct(eq) = t
+                        && eq.as_char() == '='
+                        && !seen_eq
+                    {
+                        seen_eq = true;
+                        continue;
+                    }
+                    if !seen_eq {
+                        t.to_tokens(&mut pattern);
+                    } else {
+                        t.to_tokens(&mut expr);
+                    }
+                }
+                return TagType::IfLet(pattern, expr);
+            }
+
             // Format: {#if condition}
             let cond: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
             return TagType::If(cond);
+        }
+
+        if i == "match" {
+            // Format: {#match expr}
+            let expr: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            return TagType::Match(expr);
         }
 
         if i == "for" {
@@ -103,19 +144,26 @@ fn analyze_tag(g: &Group) -> TagType {
         return TagType::Let(body);
     }
 
-    // Check for {: ...} tags (else, else if)
+    // Check for {: ...} tags (else, else if, case)
     if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
         && p.as_char() == ':'
-        && i == "else"
     {
-        // Check for {:else if condition}
-        if let Some(TokenTree::Ident(next)) = tokens.get(2)
-            && next == "if"
-        {
-            let cond: TokenStream2 = tokens.iter().skip(3).map(|t| t.to_token_stream()).collect();
-            return TagType::ElseIf(cond);
+        if i == "else" {
+            // Check for {:else if condition}
+            if let Some(TokenTree::Ident(next)) = tokens.get(2)
+                && next == "if"
+            {
+                let cond: TokenStream2 = tokens.iter().skip(3).map(|t| t.to_token_stream()).collect();
+                return TagType::ElseIf(cond);
+            }
+            return TagType::Else;
         }
-        return TagType::Else;
+
+        if i == "case" {
+            // Format: {:case pattern}
+            let pattern: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            return TagType::Case(pattern);
+        }
     }
 
     // Check for {/ ...} (End tags)
@@ -124,6 +172,7 @@ fn analyze_tag(g: &Group) -> TagType {
     {
         if i == "if" { return TagType::EndIf; }
         if i == "for" { return TagType::EndFor; }
+        if i == "match" { return TagType::EndMatch; }
     }
 
     TagType::Block
@@ -185,6 +234,102 @@ fn parse_if_chain(
     }
 }
 
+/// Parse an if-let/else chain starting from the pattern and expression
+fn parse_if_let_chain(
+    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
+    pattern: TokenStream2,
+    expr: TokenStream2,
+) -> TokenStream2 {
+    // Parse the true block, stopping at {:else} or {/if}
+    let (true_block, terminator) = parse_fragment(
+        iter,
+        Some(&[Terminator::Else, Terminator::EndIf]),
+    );
+
+    match terminator {
+        Some(Terminator::EndIf) => {
+            // Simple if let without else
+            quote! {
+                if let #pattern = #expr {
+                    #true_block
+                }
+            }
+        }
+        Some(Terminator::Else) => {
+            // if let with else - parse else block until {/if}
+            let (else_block, terminator) = parse_fragment(iter, Some(&[Terminator::EndIf]));
+            if !matches!(terminator, Some(Terminator::EndIf)) {
+                panic!("Unclosed {{:else}} block: Missing {{/if}}");
+            }
+            quote! {
+                if let #pattern = #expr {
+                    #true_block
+                } else {
+                    #else_block
+                }
+            }
+        }
+        None => {
+            panic!("Unclosed {{#if let}} block: Missing {{/if}}");
+        }
+        _ => unreachable!(),
+    }
+}
+
+/// Parse match arms starting after {#match expr}
+/// Format: {#match expr}{:case pattern1}body1{:case pattern2}body2{/match}
+fn parse_match_arms(
+    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
+    match_expr: TokenStream2,
+) -> TokenStream2 {
+    let mut arms = TokenStream2::new();
+    let mut current_pattern: Option<TokenStream2> = None;
+
+    loop {
+        // Parse until we hit {:case} or {/match}
+        let (body, terminator) = parse_fragment(
+            iter,
+            Some(&[Terminator::Case(TokenStream2::new()), Terminator::EndMatch]),
+        );
+
+        match terminator {
+            Some(Terminator::Case(pattern)) => {
+                // If we have a previous pattern, emit its arm with the body we just parsed
+                if let Some(prev_pattern) = current_pattern.take() {
+                    arms.extend(quote! {
+                        #prev_pattern => {
+                            #body
+                        }
+                    });
+                }
+                // Store this pattern for the next iteration
+                current_pattern = Some(pattern);
+            }
+            Some(Terminator::EndMatch) => {
+                // Emit the final arm if we have one
+                if let Some(prev_pattern) = current_pattern.take() {
+                    arms.extend(quote! {
+                        #prev_pattern => {
+                            #body
+                        }
+                    });
+                }
+                break;
+            }
+            None => {
+                panic!("Unclosed {{#match}} block: Missing {{/match}}");
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    quote! {
+        match #match_expr {
+            #arms
+        }
+    }
+}
+
 /// Recursive function to parse tokens until a terminator is found
 fn parse_fragment(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
@@ -227,6 +372,10 @@ fn parse_fragment(
                         iter.next(); // Consume {#if}
                         output.extend(parse_if_chain(iter, cond));
                     }
+                    TagType::IfLet(pattern, expr) => {
+                        iter.next(); // Consume {#if let}
+                        output.extend(parse_if_let_chain(iter, pattern, expr));
+                    }
                     TagType::For(item, list) => {
                         iter.next(); // Consume {#for}
 
@@ -240,6 +389,10 @@ fn parse_fragment(
                                 #body
                             }
                         });
+                    }
+                    TagType::Match(expr) => {
+                        iter.next(); // Consume {#match}
+                        output.extend(parse_match_arms(iter, expr));
                     }
                     TagType::Else => {
                         if let Some(stops) = stop_at
@@ -276,6 +429,24 @@ fn parse_fragment(
                             return (output, Some(Terminator::EndFor));
                         }
                         panic!("Unexpected {{/for}}");
+                    }
+                    TagType::Case(pattern) => {
+                        if let Some(stops) = stop_at
+                            && stops.iter().any(|s| matches!(s, Terminator::Case(_)))
+                        {
+                            iter.next(); // Consume
+                            return (output, Some(Terminator::Case(pattern)));
+                        }
+                        panic!("Unexpected {{:case}}");
+                    }
+                    TagType::EndMatch => {
+                        if let Some(stops) = stop_at
+                            && stops.iter().any(|s| matches!(s, Terminator::EndMatch))
+                        {
+                            iter.next(); // Consume
+                            return (output, Some(Terminator::EndMatch));
+                        }
+                        panic!("Unexpected {{/match}}");
                     }
                     TagType::Let(body) => {
                         iter.next(); // Consume {%let ...}
@@ -836,5 +1007,101 @@ mod tests {
         assert!(s.contains(expected), "Should contain literal @{{decorators}}");
         // Should NOT try to interpolate 'decorators'
         assert!(!s.contains("decorators . to_string"), "Should not interpolate");
+    }
+
+    #[test]
+    fn test_if_let_simple() {
+        // Test {#if let pattern = expr}...{/if}
+        let input = TokenStream2::from_str(r#"
+            {#if let Some(value) = option}
+                @{value}
+            {/if}
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should generate if let
+        assert!(s.contains("if let Some (value)"), "Should have if let pattern");
+        assert!(s.contains("= option"), "Should have expression");
+    }
+
+    #[test]
+    fn test_if_let_with_else() {
+        // Test {#if let}...{:else}...{/if}
+        let input = TokenStream2::from_str(r#"
+            {#if let Some(x) = maybe}
+                "found"
+            {:else}
+                "not found"
+            {/if}
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should generate if let with else
+        assert!(s.contains("if let Some (x)"), "Should have if let pattern");
+        assert!(s.contains("else"), "Should have else branch");
+    }
+
+    #[test]
+    fn test_match_simple() {
+        // Test {#match expr}{:case pattern}...{/match}
+        let input = TokenStream2::from_str(r#"
+            {#match value}
+                {:case Some(x)}
+                    @{x}
+                {:case None}
+                    "nothing"
+            {/match}
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should generate match
+        assert!(s.contains("match value"), "Should have match expr");
+        assert!(s.contains("Some (x) =>"), "Should have Some case arm");
+        assert!(s.contains("None =>"), "Should have None case arm");
+    }
+
+    #[test]
+    fn test_match_with_wildcard() {
+        // Test match with wildcard pattern
+        let input = TokenStream2::from_str(r#"
+            {#match num}
+                {:case 1}
+                    "one"
+                {:case 2}
+                    "two"
+                {:case _}
+                    "other"
+            {/match}
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should generate match with all arms
+        assert!(s.contains("match num"), "Should have match expr");
+        assert!(s.contains("1 =>"), "Should have case 1");
+        assert!(s.contains("2 =>"), "Should have case 2");
+        assert!(s.contains("_ =>"), "Should have wildcard case");
+    }
+
+    #[test]
+    fn test_match_with_interpolation() {
+        // Test match arms with interpolation
+        let input = TokenStream2::from_str(r#"
+            {#match result}
+                {:case Ok(val)}
+                    "success: @{val}"
+                {:case Err(e)}
+                    "error: @{e}"
+            {/match}
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should interpolate values in match arms
+        assert!(s.contains("val . to_string"), "Should interpolate val");
+        assert!(s.contains("e . to_string"), "Should interpolate e");
     }
 }
