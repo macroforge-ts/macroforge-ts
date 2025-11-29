@@ -15,13 +15,13 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, TsMacroError>
             let has_fields = !field_names.is_empty();
 
             Ok(ts_template! {
-                clone(): ${class_name} {
+                clone(): @{class_name} {
                     const cloned = Object.create(Object.getPrototypeOf(this));
 
                     {#if has_fields}
-                        {#each field_names as field}
-                            cloned.${field} = this.${field};
-                        {/each}
+                        {#for field in field_names}
+                            cloned.@{field} = this.@{field};
+                        {/for}
                     {/if}
 
                     return cloned;

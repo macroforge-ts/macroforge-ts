@@ -1,11 +1,13 @@
-//! Svelte-style templating for TypeScript code generation
+//! Rust-style templating for TypeScript code generation
 //!
 //! Provides a template syntax with interpolation and control flow:
-//! - `${expr}` - Interpolate expressions
+//! - `@{expr}` - Interpolate expressions
+//! - `"string @{expr}"` - String interpolation (auto-detected)
 //! - `{#if cond}...{/if}` - Conditional blocks
 //! - `{:else}` - Else clause
-//! - `{#each list as item}...{/each}` - Iteration
-//! - `{@const name = expr}` - Local constants
+//! - `{:else if cond}` - Else-if clause
+//! - `{#for item in list}...{/for}` - Iteration
+//! - `{%let name = expr}` - Local constants
 
 use proc_macro2::{Delimiter, TokenStream as TokenStream2, TokenTree, Group};
 use quote::{quote, ToTokens};
@@ -26,21 +28,23 @@ pub fn parse_template(input: TokenStream2) -> TokenStream2 {
 }
 
 // Terminators tell the parser when to stop current recursion level
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, Clone)]
 enum Terminator {
     Else,
+    ElseIf(TokenStream2),
     EndIf,
-    EndEach,
+    EndFor,
 }
 
 // Analyzes a braces group { ... } to see if it's a Macro Tag or just TS code
 enum TagType {
     If(TokenStream2),
-    Each(TokenStream2, TokenStream2), // collection, item_name
+    For(TokenStream2, TokenStream2), // item_name, collection
     Else,
+    ElseIf(TokenStream2),
     EndIf,
-    EndEach,
-    Const(TokenStream2),
+    EndFor,
+    Let(TokenStream2),
     Block, // Standard TypeScript Block { ... }
 }
 
@@ -50,7 +54,7 @@ fn analyze_tag(g: &Group) -> TagType {
         return TagType::Block;
     }
 
-    // Check for {# ...}
+    // Check for {# ...} tags
     if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
         && p.as_char() == '#'
     {
@@ -59,34 +63,54 @@ fn analyze_tag(g: &Group) -> TagType {
             let cond: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
             return TagType::If(cond);
         }
-        if i == "each" {
-            // Format: {#each users as user}
-            let mut list = TokenStream2::new();
-            let mut item = TokenStream2::new();
-            let mut seen_as = false;
 
-            // Simple splitter on "as" keyword
+        if i == "for" {
+            // Format: {#for item in collection}
+            let mut item = TokenStream2::new();
+            let mut list = TokenStream2::new();
+            let mut seen_in = false;
+
+            // Split on "in" keyword
             for t in tokens.iter().skip(2) {
-                 if let TokenTree::Ident(id) = t
-                     && id == "as" && !seen_as
-                 {
-                     seen_as = true;
-                     continue;
-                 }
-                 if !seen_as {
-                     t.to_tokens(&mut list);
-                 } else {
-                     t.to_tokens(&mut item);
-                 }
+                if let TokenTree::Ident(id) = t
+                    && id == "in" && !seen_in
+                {
+                    seen_in = true;
+                    continue;
+                }
+                if !seen_in {
+                    t.to_tokens(&mut item);
+                } else {
+                    t.to_tokens(&mut list);
+                }
             }
-            return TagType::Each(list, item);
+            return TagType::For(item, list);
         }
+
     }
 
-    // Check for {: ...} (Else)
+    // Check for {% ...} tags (let)
     if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
-        && p.as_char() == ':' && i == "else"
+        && p.as_char() == '%'
+        && i == "let"
     {
+        // Format: {%let name = expr}
+        let body: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+        return TagType::Let(body);
+    }
+
+    // Check for {: ...} tags (else, else if)
+    if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
+        && p.as_char() == ':'
+        && i == "else"
+    {
+        // Check for {:else if condition}
+        if let Some(TokenTree::Ident(next)) = tokens.get(2)
+            && next == "if"
+        {
+            let cond: TokenStream2 = tokens.iter().skip(3).map(|t| t.to_token_stream()).collect();
+            return TagType::ElseIf(cond);
+        }
         return TagType::Else;
     }
 
@@ -95,18 +119,66 @@ fn analyze_tag(g: &Group) -> TagType {
         && p.as_char() == '/'
     {
         if i == "if" { return TagType::EndIf; }
-        if i == "each" { return TagType::EndEach; }
-    }
-
-    // Check for {@ ...} (Const)
-    if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
-        && p.as_char() == '@' && i == "const"
-    {
-        let body: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-        return TagType::Const(body);
+        if i == "for" { return TagType::EndFor; }
     }
 
     TagType::Block
+}
+
+/// Parse an if/else-if/else chain starting from the condition
+fn parse_if_chain(
+    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
+    initial_cond: TokenStream2,
+) -> TokenStream2 {
+    // Parse the true block, stopping at {:else}, {:else if}, or {/if}
+    let (true_block, terminator) = parse_fragment(
+        iter,
+        Some(&[
+            Terminator::Else,
+            Terminator::ElseIf(TokenStream2::new()),
+            Terminator::EndIf,
+        ]),
+    );
+
+    match terminator {
+        Some(Terminator::EndIf) => {
+            // Simple if without else
+            quote! {
+                if #initial_cond {
+                    #true_block
+                }
+            }
+        }
+        Some(Terminator::Else) => {
+            // if with else - parse else block until {/if}
+            let (else_block, terminator) = parse_fragment(iter, Some(&[Terminator::EndIf]));
+            if !matches!(terminator, Some(Terminator::EndIf)) {
+                panic!("Unclosed {{:else}} block: Missing {{/if}}");
+            }
+            quote! {
+                if #initial_cond {
+                    #true_block
+                } else {
+                    #else_block
+                }
+            }
+        }
+        Some(Terminator::ElseIf(else_if_cond)) => {
+            // if with else if - recursively parse the else-if chain
+            let else_if_chain = parse_if_chain(iter, else_if_cond);
+            quote! {
+                if #initial_cond {
+                    #true_block
+                } else {
+                    #else_if_chain
+                }
+            }
+        }
+        None => {
+            panic!("Unclosed {{#if}} block: Missing {{/if}}");
+        }
+        _ => unreachable!(),
+    }
 }
 
 /// Recursive function to parse tokens until a terminator is found
@@ -118,17 +190,17 @@ fn parse_fragment(
 
     while let Some(token) = iter.peek().cloned() {
         match &token {
-            // Case 1: Interpolation ${ expr }
-            TokenTree::Punct(p) if p.as_char() == '$' => {
+            // Case 1: Interpolation @{ expr }
+            TokenTree::Punct(p) if p.as_char() == '@' => {
                 // Check if the NEXT token is a Group { ... }
                 let p_clone = p.clone();
-                iter.next(); // Consume '$'
+                iter.next(); // Consume '@'
 
                 // Look ahead
                 let is_group = matches!(iter.peek(), Some(TokenTree::Group(g)) if g.delimiter() == Delimiter::Brace);
 
                 if is_group {
-                    // It IS interpolation: ${ expr }
+                    // It IS interpolation: @{ expr }
                     if let Some(TokenTree::Group(g)) = iter.next() {
                          let content = g.stream();
                          output.extend(quote! {
@@ -136,7 +208,7 @@ fn parse_fragment(
                         });
                     }
                 } else {
-                    // It is just a literal '$'
+                    // It is just a literal '@'
                     let s = p_clone.to_string();
                     output.extend(quote! { __out.push_str(#s); });
                 }
@@ -149,41 +221,14 @@ fn parse_fragment(
                 match tag {
                     TagType::If(cond) => {
                         iter.next(); // Consume {#if}
-
-                        // Recursively parse True block
-                        let (true_block, terminator) = parse_fragment(iter, Some(&[Terminator::Else, Terminator::EndIf]));
-
-                        match terminator {
-                            Some(Terminator::Else) => {
-                                // Hit {:else}, parse False block
-                                let (false_block, term2) = parse_fragment(iter, Some(&[Terminator::EndIf]));
-                                if term2 != Some(Terminator::EndIf) {
-                                     panic!("Unclosed {{#if}} block: Missing {{/if}} after {{:else}}");
-                                }
-                                output.extend(quote! {
-                                    if #cond {
-                                        #true_block
-                                    } else {
-                                        #false_block
-                                    }
-                                });
-                            }
-                            Some(Terminator::EndIf) => {
-                                output.extend(quote! {
-                                    if #cond {
-                                        #true_block
-                                    }
-                                });
-                            }
-                            _ => panic!("Unclosed {{#if}} block: Missing {{/if}} or {{:else}}"),
-                        }
+                        output.extend(parse_if_chain(iter, cond));
                     }
-                    TagType::Each(list, item) => {
-                        iter.next(); // Consume {#each}
+                    TagType::For(item, list) => {
+                        iter.next(); // Consume {#for}
 
-                        let (body, terminator) = parse_fragment(iter, Some(&[Terminator::EndEach]));
-                        if terminator != Some(Terminator::EndEach) {
-                            panic!("Unclosed {{#each}} block: Missing {{/each}}");
+                        let (body, terminator) = parse_fragment(iter, Some(&[Terminator::EndFor]));
+                        if !matches!(terminator, Some(Terminator::EndFor)) {
+                            panic!("Unclosed {{#for}} block: Missing {{/for}}");
                         }
 
                         output.extend(quote! {
@@ -194,33 +239,42 @@ fn parse_fragment(
                     }
                     TagType::Else => {
                         if let Some(stops) = stop_at
-                            && stops.contains(&Terminator::Else)
+                            && stops.iter().any(|s| matches!(s, Terminator::Else))
                         {
                             iter.next(); // Consume
                             return (output, Some(Terminator::Else));
                         }
                         panic!("Unexpected {{:else}}");
                     }
+                    TagType::ElseIf(cond) => {
+                        if let Some(stops) = stop_at
+                            && stops.iter().any(|s| matches!(s, Terminator::ElseIf(_)))
+                        {
+                            iter.next(); // Consume
+                            return (output, Some(Terminator::ElseIf(cond)));
+                        }
+                        panic!("Unexpected {{:else if}}");
+                    }
                     TagType::EndIf => {
                         if let Some(stops) = stop_at
-                            && stops.contains(&Terminator::EndIf)
+                            && stops.iter().any(|s| matches!(s, Terminator::EndIf))
                         {
                             iter.next(); // Consume
                             return (output, Some(Terminator::EndIf));
                         }
                         panic!("Unexpected {{/if}}");
                     }
-                    TagType::EndEach => {
+                    TagType::EndFor => {
                         if let Some(stops) = stop_at
-                            && stops.contains(&Terminator::EndEach)
+                            && stops.iter().any(|s| matches!(s, Terminator::EndFor))
                         {
                             iter.next(); // Consume
-                            return (output, Some(Terminator::EndEach));
+                            return (output, Some(Terminator::EndFor));
                         }
-                        panic!("Unexpected {{/each}}");
+                        panic!("Unexpected {{/for}}");
                     }
-                    TagType::Const(body) => {
-                        iter.next(); // Consume {@const ...}
+                    TagType::Let(body) => {
+                        iter.next(); // Consume {%let ...}
                         output.extend(quote! {
                             let #body;
                         });
@@ -255,7 +309,15 @@ fn parse_fragment(
                 output.extend(quote! { __out.push_str(#close); });
             }
 
-            // Case 4: Plain Text
+            // Case 4: String literals with interpolation
+            TokenTree::Literal(lit) if is_string_literal(lit) => {
+                iter.next(); // Consume
+                let interpolated = interpolate_string_literal(lit);
+                output.extend(interpolated);
+                output.extend(quote! { __out.push_str(" "); });
+            }
+
+            // Case 5: Plain Text
             _ => {
                 let t = iter.next().unwrap();
                 let s = t.to_string();
@@ -263,8 +325,8 @@ fn parse_fragment(
                 // Check if this is an identifier (includes keywords like `instanceof`, `return`, etc.)
                 let is_ident = matches!(&t, TokenTree::Ident(_));
 
-                // Check if next token is '$' (start of interpolation)
-                let next_is_dollar = matches!(iter.peek(), Some(TokenTree::Punct(p)) if p.as_char() == '$');
+                // Check if next token is '@' (start of interpolation)
+                let next_is_at = matches!(iter.peek(), Some(TokenTree::Punct(p)) if p.as_char() == '@');
 
                 // Check if this is a punctuation token with Joint spacing
                 // (e.g., first two chars of `===` should not have spaces)
@@ -276,8 +338,8 @@ fn parse_fragment(
 
                 // Add space after:
                 // - Identifiers (always need space before next token for keywords like `instanceof`, `return`)
-                // - Non-joint punctuation when not followed by $ (allows `make${Name}` but spaces around operators)
-                let should_add_space = is_ident || (!is_joint_punct && !next_is_dollar);
+                // - Non-joint punctuation when not followed by @ (allows `make@{Name}` but spaces around operators)
+                let should_add_space = is_ident || (!is_joint_punct && !next_is_at);
 
                 if should_add_space {
                     output.extend(quote! { __out.push_str(" "); });
@@ -289,41 +351,257 @@ fn parse_fragment(
     (output, None)
 }
 
+/// Check if a literal is a string (starts with " or ')
+fn is_string_literal(lit: &proc_macro2::Literal) -> bool {
+    let s = lit.to_string();
+    s.starts_with('"') || s.starts_with('\'') || s.starts_with("r\"") || s.starts_with("r#")
+}
+
+/// Process a string literal and handle @{expr} interpolations inside it
+fn interpolate_string_literal(lit: &proc_macro2::Literal) -> TokenStream2 {
+    let raw = lit.to_string();
+
+    // Determine quote character and extract content
+    let (quote_char, content) = if raw.starts_with('"') {
+        ('"', &raw[1..raw.len()-1])
+    } else if raw.starts_with('\'') {
+        ('\'', &raw[1..raw.len()-1])
+    } else if raw.starts_with("r\"") {
+        // Raw string r"..."
+        ('"', &raw[2..raw.len()-1])
+    } else if raw.starts_with("r#") {
+        // Raw string r#"..."# - find the actual content
+        let hash_count = raw[1..].chars().take_while(|&c| c == '#').count();
+        let start = 2 + hash_count; // r + # + "
+        let end = raw.len() - 1 - hash_count; // " + #
+        ('"', &raw[start..end])
+    } else {
+        // Not a string we recognize, just output as-is
+        return quote! { __out.push_str(#raw); };
+    };
+
+    // Check if there are any interpolations
+    if !content.contains("@{") {
+        // No interpolations, output the string as-is
+        return quote! { __out.push_str(#raw); };
+    }
+
+    // Parse and interpolate
+    let mut output = TokenStream2::new();
+    let quote_str = quote_char.to_string();
+    output.extend(quote! { __out.push_str(#quote_str); });
+
+    let mut chars = content.chars().peekable();
+    let mut current_literal = String::new();
+
+    while let Some(c) = chars.next() {
+        if c == '@' && chars.peek() == Some(&'{') {
+            // Found @{, flush current literal
+            if !current_literal.is_empty() {
+                output.extend(quote! { __out.push_str(#current_literal); });
+                current_literal.clear();
+            }
+
+            chars.next(); // Consume '{'
+
+            // Collect expression until matching '}'
+            let mut expr_str = String::new();
+            let mut brace_depth = 1;
+
+            for ec in chars.by_ref() {
+                if ec == '{' {
+                    brace_depth += 1;
+                    expr_str.push(ec);
+                } else if ec == '}' {
+                    brace_depth -= 1;
+                    if brace_depth == 0 {
+                        break;
+                    }
+                    expr_str.push(ec);
+                } else {
+                    expr_str.push(ec);
+                }
+            }
+
+            // Parse the expression and generate interpolation code
+            if let Ok(expr) = syn::parse_str::<syn::Expr>(&expr_str) {
+                output.extend(quote! {
+                    __out.push_str(&#expr.to_string());
+                });
+            } else {
+                // Failed to parse, output as literal
+                let fallback = format!("@{{{}}}", expr_str);
+                output.extend(quote! { __out.push_str(#fallback); });
+            }
+        } else if c == '\\' {
+            // Handle escape sequences - pass through as-is
+            current_literal.push(c);
+            if chars.peek().is_some() {
+                current_literal.push(chars.next().unwrap());
+            }
+        } else {
+            current_literal.push(c);
+        }
+    }
+
+    // Flush remaining literal
+    if !current_literal.is_empty() {
+        output.extend(quote! { __out.push_str(#current_literal); });
+    }
+
+    output.extend(quote! { __out.push_str(#quote_str); });
+
+    output
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use quote::quote;
+    use std::str::FromStr;
 
     #[test]
-    fn test_dollar_interpolation_glue() {
-        // Rust allows `make${Name}` naturally without spaces.
-        // We verify that `make${Name}` results in "make" + value (no space).
+    fn test_at_interpolation_glue() {
+        // Rust allows `make@{Name}` naturally without spaces.
+        // We verify that `make@{Name}` results in "make" + value (no space).
         let input = quote! {
-            make${Name}
+            make@{Name}
         };
         let output = parse_template(input);
         let s = output.to_string();
-        
+
         // Should generate code that pushes "make"
         assert!(s.contains("\"make\""));
-        
+
         // And then pushes the value.
         // If our logic works, no " " is pushed in between.
     }
 
     #[test]
-    fn test_const_scope() {
+    fn test_let_scope() {
+        let input = TokenStream2::from_str(r#"
+            {%let val = "hello"}
+            @{val}
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should contain "let val = "hello" ;"
+        assert!(s.contains("let val = \"hello\""));
+
+        // Should contain usage
+        assert!(s.contains("val . to_string"));
+    }
+
+    #[test]
+    fn test_for_loop() {
+        let input = TokenStream2::from_str(r#"
+            {#for item in items}
+                @{item}
+            {/for}
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should generate a for loop
+        assert!(s.contains("for item in items"), "Should generate for loop");
+    }
+
+    #[test]
+    fn test_if_else() {
+        let input = TokenStream2::from_str(r#"
+            {#if condition}
+                "true"
+            {:else}
+                "false"
+            {/if}
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should generate an if-else
+        assert!(s.contains("if condition"), "Should generate if condition");
+        assert!(s.contains("else"), "Should have else branch");
+    }
+
+    #[test]
+    fn test_if_else_if() {
+        let input = TokenStream2::from_str(r#"
+            {#if a}
+                "a"
+            {:else if b}
+                "b"
+            {:else}
+                "c"
+            {/if}
+        "#).unwrap();
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should generate if/else if/else chain
+        assert!(s.contains("if a"), "Should have if a");
+        assert!(s.contains("if b"), "Should have else if b");
+        assert!(s.contains("else"), "Should have else");
+    }
+
+    #[test]
+    fn test_string_interpolation_simple() {
+        // Test that @{expr} inside strings gets interpolated
         let input = quote! {
-            {@const val = "hello"}
-            ${val}
+            "Hello @{name}!"
         };
         let output = parse_template(input);
         let s = output.to_string();
-        
-        // Should contain "let val = "hello" ;"
-        assert!(s.contains("let val = \"hello\""));
-        
-        // Should contain usage
-        assert!(s.contains("val . to_string"));
+
+        // Should push the opening quote
+        assert!(s.contains("\"\\\"\""), "Should push opening quote");
+        // Should push "Hello "
+        assert!(s.contains("\"Hello \""), "Should push 'Hello '");
+        // Should interpolate name
+        assert!(s.contains("name . to_string"), "Should interpolate name");
+        // Should push "!"
+        assert!(s.contains("\"!\""), "Should push '!'");
+    }
+
+    #[test]
+    fn test_string_no_interpolation() {
+        // Strings without @{} should pass through unchanged
+        let input = quote! {
+            "Just a plain string"
+        };
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        println!("Output: {}", s);
+
+        // Should just push the whole string as-is (escaped in the generated code)
+        assert!(s.contains("Just a plain string"), "Should contain the string content");
+    }
+
+    #[test]
+    fn test_string_interpolation_multiple() {
+        // Test multiple interpolations in one string
+        let input = quote! {
+            "@{greeting}, @{name}!"
+        };
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should interpolate both
+        assert!(s.contains("greeting . to_string"), "Should interpolate greeting");
+        assert!(s.contains("name . to_string"), "Should interpolate name");
+    }
+
+    #[test]
+    fn test_string_interpolation_with_method_call() {
+        // Test that expressions with method calls work
+        let input = quote! {
+            "Name: @{name.to_uppercase()}"
+        };
+        let output = parse_template(input);
+        let s = output.to_string();
+
+        // Should contain the method call
+        assert!(s.contains("to_uppercase"), "Should contain method call");
     }
 }

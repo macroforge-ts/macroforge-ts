@@ -28,18 +28,18 @@ pub fn derive_eq_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> {
             Ok(ts_template! {
                 equals(other: unknown): boolean {
                     if (this === other) return true;
-                    if (!(other instanceof ${class_name})) return false;
-                    const typedOther = other as ${class_name};
-                    return ${comparison};
+                    if (!(other instanceof @{class_name})) return false;
+                    const typedOther = other as @{class_name};
+                    return @{comparison};
                 }
 
                 hashCode(): number {
                     let hash = 0;
 
                     {#if has_fields}
-                        {#each field_names as field}
-                            hash = (hash * 31 + (this.${field} ? this.${field}.toString().charCodeAt(0) : 0)) | 0;
-                        {/each}
+                        {#for field in field_names}
+                            hash = (hash * 31 + (this.@{field} ? this.@{field}.toString().charCodeAt(0) : 0)) | 0;
+                        {/for}
                     {/if}
 
                     return hash;
@@ -73,18 +73,18 @@ mod tests {
         let output = ts_template! {
             equals(other: unknown): boolean {
                 if (this === other) return true;
-                if (!(other instanceof ${class_name})) return false;
-                const typedOther = other as ${class_name};
-                return ${comparison};
+                if (!(other instanceof @{class_name})) return false;
+                const typedOther = other as @{class_name};
+                return @{comparison};
             }
 
             hashCode(): number {
                 let hash = 0;
 
                 {#if has_fields}
-                    {#each field_names as field}
-                        hash = (hash * 31 + (this.${field} ? this.${field}.toString().charCodeAt(0) : 0)) | 0;
-                    {/each}
+                    {#for field in field_names}
+                        hash = (hash * 31 + (this.@{field} ? this.@{field}.toString().charCodeAt(0) : 0)) | 0;
+                    {/for}
                 {/if}
 
                 return hash;
