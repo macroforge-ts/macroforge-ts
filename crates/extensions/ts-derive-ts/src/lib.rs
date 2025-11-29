@@ -106,7 +106,10 @@ mod tests {
             plugin.get("location").unwrap(),
             "/workspace/ts-macros/packages/ts-derive-plugin"
         );
-        assert_eq!(plugin.get("enableForWorkspaceTypeScriptVersions").unwrap(), true);
+        assert_eq!(
+            plugin.get("enableForWorkspaceTypeScriptVersions").unwrap(),
+            true
+        );
 
         let languages = plugin
             .get("languages")
@@ -121,8 +124,12 @@ mod tests {
     fn test_plugin_config_typescript_section() {
         let config = generate_plugin_config("/my/project");
 
-        let typescript = config.get("typescript").expect("typescript config should exist");
-        let tsserver = typescript.get("tsserver").expect("tsserver config should exist");
+        let typescript = config
+            .get("typescript")
+            .expect("typescript config should exist");
+        let tsserver = typescript
+            .get("tsserver")
+            .expect("tsserver config should exist");
         let plugin_paths = tsserver
             .get("pluginPaths")
             .expect("pluginPaths should exist")
@@ -153,8 +160,16 @@ mod tests {
                 .as_str()
                 .unwrap();
 
-            assert_eq!(vtsls_plugin_location, expected_path, "vtsls location mismatch for root: {}", root);
-            assert_eq!(ts_plugin_path, expected_path, "typescript path mismatch for root: {}", root);
+            assert_eq!(
+                vtsls_plugin_location, expected_path,
+                "vtsls location mismatch for root: {}",
+                root
+            );
+            assert_eq!(
+                ts_plugin_path, expected_path,
+                "typescript path mismatch for root: {}",
+                root
+            );
         }
     }
 
