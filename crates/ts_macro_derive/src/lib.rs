@@ -60,7 +60,8 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         struct_ident.to_string().trim_start_matches("r#")
     );
 
-    let main_macro_stub_fn_ident = format_ident!("__ts_macro_runtime_stub_{}", struct_ident.to_string().to_case(Case::Snake));
+    let main_macro_stub_fn_ident =
+        format_ident!("__ts_macro_runtime_stub_{}", struct_ident.to_string().to_case(Case::Snake));
     let main_macro_napi_stub = quote! {
         #[::napi_derive::napi(js_name = #macro_name)]
         pub fn #main_macro_stub_fn_ident() -> ::napi::Result<()> {
@@ -227,6 +228,13 @@ impl Default for MacroOptions {
     }
 }
 
+fn features_args_type_literal() -> LitStr {
+    LitStr::new(
+        "...features: Array<string | ((...args:\n  any[]) => unknown)>",
+        Span::call_site(),
+    )
+}
+
 // Helper function to generate a decorator descriptor from an attribute identifier
 fn generate_decorator_descriptor(attr_name: &Ident, package_expr: &TokenStream2) -> TokenStream2 {
     let attr_str = LitStr::new(&attr_name.to_string(), attr_name.span());
@@ -261,9 +269,11 @@ fn generate_decorator_stub(
         }
     });
 
+    let decorator_args_type = features_args_type_literal();
+
     quote! {
         #doc_comment
-        #[::napi_derive::napi(js_name = #js_name)]
+        #[::napi_derive::napi(js_name = #js_name, ts_args_type = #decorator_args_type)]
         pub fn #fn_ident() -> ::napi::Result<()> {
             Ok(())
         }
