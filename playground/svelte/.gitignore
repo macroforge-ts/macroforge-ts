@@ -25,3 +25,5 @@ vite.config.ts.timestamp-*
 src/lib/form
 src/lib/types
 src/lib/traits
+
+.ts-macros
