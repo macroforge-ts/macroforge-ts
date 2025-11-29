@@ -1167,6 +1167,44 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
+    // Hook provideInlayHints to map positions
+    const originalProvideInlayHints = info.languageService.provideInlayHints?.bind(
+      info.languageService
+    );
+
+    if (originalProvideInlayHints) {
+      info.languageService.provideInlayHints = (fileName, span, preferences) => {
+        try {
+          if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+            return originalProvideInlayHints(fileName, span, preferences);
+          }
+
+          const mapper = getMapper(fileName);
+          // Map the input span to expanded coordinates
+          const expandedSpan = mapper.mapSpanToExpanded(span.start, span.length);
+          const result = originalProvideInlayHints(fileName, expandedSpan, preferences);
+
+          if (!result) return result;
+
+          // Map each hint's position back to original coordinates
+          return result.map(hint => {
+            const originalPos = mapper.expandedToOriginal(hint.position);
+            if (originalPos === null) {
+              // Hint is in generated code, skip it
+              return null;
+            }
+            return {
+              ...hint,
+              position: originalPos
+            };
+          }).filter((hint): hint is ts.InlayHint => hint !== null);
+        } catch (e) {
+          log(`Error in provideInlayHints: ${e instanceof Error ? e.message : String(e)}`);
+          return originalProvideInlayHints(fileName, span, preferences);
+        }
+      };
+    }
+
     return info.languageService;
   }
 
