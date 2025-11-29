@@ -1,0 +1,13 @@
+{
+  "name": "e2e-test-project",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@ts-macros/macros": "file:../../../../packages/macros",
+    "@ts-macros/ts-derive-plugin": "file:../../../../packages/ts-derive-plugin",
+    "@ts-macros/swc-napi": "file:../../../../crates/swc-napi-macros"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

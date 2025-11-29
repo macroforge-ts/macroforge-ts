@@ -30,11 +30,33 @@ pub struct MacroDiagnostic {
 }
 
 #[napi(object)]
+pub struct MappingSegmentResult {
+    pub original_start: u32,
+    pub original_end: u32,
+    pub expanded_start: u32,
+    pub expanded_end: u32,
+}
+
+#[napi(object)]
+pub struct GeneratedRegionResult {
+    pub start: u32,
+    pub end: u32,
+    pub source_macro: String,
+}
+
+#[napi(object)]
+pub struct SourceMappingResult {
+    pub segments: Vec<MappingSegmentResult>,
+    pub generated_regions: Vec<GeneratedRegionResult>,
+}
+
+#[napi(object)]
 pub struct ExpandResult {
     pub code: String,
     pub types: Option<String>,
     pub metadata: Option<String>,
     pub diagnostics: Vec<MacroDiagnostic>,
+    pub source_mapping: Option<SourceMappingResult>,
 }
 
 /// Transform TypeScript code to JavaScript with macro expansion
@@ -86,6 +108,29 @@ fn expand_inner(code: &str, filepath: &str) -> Result<ExpandResult> {
         })
         .collect();
 
+    // Convert SourceMapping to NAPI-compatible SourceMappingResult
+    let source_mapping = expansion.source_mapping.map(|mapping| SourceMappingResult {
+        segments: mapping
+            .segments
+            .into_iter()
+            .map(|seg| MappingSegmentResult {
+                original_start: seg.original_start,
+                original_end: seg.original_end,
+                expanded_start: seg.expanded_start,
+                expanded_end: seg.expanded_end,
+            })
+            .collect(),
+        generated_regions: mapping
+            .generated_regions
+            .into_iter()
+            .map(|region| GeneratedRegionResult {
+                start: region.start,
+                end: region.end,
+                source_macro: region.source_macro,
+            })
+            .collect(),
+    });
+
     Ok(ExpandResult {
         code: expansion.code,
         types: expansion.type_output,
@@ -95,6 +140,7 @@ fn expand_inner(code: &str, filepath: &str) -> Result<ExpandResult> {
             serde_json::to_string(&expansion.classes).ok()
         },
         diagnostics,
+        source_mapping,
     })
 }
 

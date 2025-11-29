@@ -42,6 +42,22 @@ function createPluginEnvironment(source, fileName = '/virtual/MacroUser.ts') {
 
   const languageService = {
     getSemanticDiagnostics: () => baseDiagnostics,
+    getSyntacticDiagnostics: () => [],
+    getQuickInfoAtPosition: () => undefined,
+    getCompletionsAtPosition: () => undefined,
+    getDefinitionAtPosition: () => undefined,
+    getDefinitionAndBoundSpan: () => undefined,
+    getTypeDefinitionAtPosition: () => undefined,
+    getReferencesAtPosition: () => undefined,
+    findReferences: () => undefined,
+    getSignatureHelpItems: () => undefined,
+    getRenameInfo: () => ({ canRename: false }),
+    findRenameLocations: () => undefined,
+    getDocumentHighlights: () => undefined,
+    getImplementationAtPosition: () => undefined,
+    getCodeFixesAtPosition: () => [],
+    getNavigationTree: () => ({ text: '', kind: ts.ScriptElementKind.moduleElement, kindModifiers: '', spans: [], childItems: [] }),
+    getOutliningSpans: () => [],
     getProgram: () => ({
       getSourceFile: () =>
         ts.createSourceFile(fileName, source, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TS)

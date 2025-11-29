@@ -19,6 +19,9 @@
 		"test": "npm run test:rust && npm test --workspaces --if-present && node --test playground/tests/examples.test.mjs",
 		"test:rust": "cargo test --workspace",
 		"test:playground": "node --test playground/tests/examples.test.mjs",
+		"test:e2e:zed": "./tests/e2e/run-zed-test.sh",
+		"test:e2e:zed:verbose": "./tests/e2e/run-zed-test.sh --verbose",
+		"test:e2e:zed:node": "node --test tests/e2e/zed-extension-startup.test.js",
 		"diagnostics:log": "node scripts/diagnostics.cjs"
 	},
 	"devDependencies": {

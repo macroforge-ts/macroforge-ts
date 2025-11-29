@@ -9,8 +9,8 @@ use swc_core::{
     },
 };
 use ts_macro_abi::{
-    ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode, SpanIR,
-    TargetIR,
+    ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode,
+    SourceMapping, SpanIR, TargetIR,
 };
 use ts_macro_host::{
     MacroConfig, MacroDispatcher, MacroRegistry, PatchCollector, builtin::register_builtin_macros,
@@ -32,6 +32,8 @@ pub struct MacroExpansion {
     pub changed: bool,
     pub type_output: Option<String>,
     pub classes: Vec<ClassIR>,
+    /// Source mapping between original and expanded code positions
+    pub source_mapping: Option<SourceMapping>,
 }
 
 impl MacroHostIntegration {
@@ -84,6 +86,7 @@ impl MacroHostIntegration {
                 changed: false,
                 type_output: None,
                 classes: Vec::new(),
+                source_mapping: None,
             });
         }
 
@@ -96,6 +99,7 @@ impl MacroHostIntegration {
                     changed: false,
                     type_output: None,
                     classes: Vec::new(),
+                    source_mapping: None,
                 });
             }
         };
@@ -300,11 +304,15 @@ impl MacroHostIntegration {
         diagnostics: &mut Vec<Diagnostic>,
         classes: Vec<ClassIR>,
     ) -> Result<MacroExpansion> {
-        let updated_code = collector
-            .apply_runtime_patches(source)
+        // Apply runtime patches with source mapping
+        // Note: macro_name is passed as None here since patches come from multiple macros
+        // The individual generated regions track which macro generated them
+        let runtime_result = collector
+            .apply_runtime_patches_with_mapping(source, None)
             .context("failed to apply macro-generated patches")?;
 
         let type_output = if collector.has_type_patches() {
+            // Type patches don't need mapping - they're for .d.ts output only
             Some(
                 collector
                     .apply_type_patches(source)
@@ -314,12 +322,20 @@ impl MacroHostIntegration {
             None
         };
 
+        // Only include mapping if code actually changed
+        let source_mapping = if runtime_result.mapping.is_empty() {
+            None
+        } else {
+            Some(runtime_result.mapping)
+        };
+
         let mut expansion = MacroExpansion {
-            code: updated_code,
+            code: runtime_result.code,
             diagnostics: std::mem::take(diagnostics),
             changed: true,
             type_output,
             classes,
+            source_mapping,
         };
 
         self.enforce_diagnostic_limit(&mut expansion.diagnostics);
@@ -1611,6 +1627,39 @@ class EventEmitter {
                 type_output.replace_whitespace(),
                 expected_dts.replace_whitespace()
             );
+        });
+    }
+
+    #[test]
+    fn test_source_mapping_produced() {
+        let source = r#"
+import { Derive } from "@macro/derive";
+
+@Derive(Debug)
+class User {
+    name: string;
+}
+"#;
+
+        GLOBALS.set(&Default::default(), || {
+            let program = parse_module(source);
+            let host = MacroHostIntegration::new().unwrap();
+            let result = host.expand(source, &program, "test.ts").unwrap();
+
+            assert!(result.changed, "Expansion should report changes");
+
+            // Source mapping should be produced
+            let mapping = result.source_mapping.expect("Source mapping should be produced");
+
+            // Should have segments for unchanged regions
+            assert!(!mapping.segments.is_empty(), "Should have mapping segments");
+
+            // Should have a generated region for the toString implementation
+            assert!(!mapping.generated_regions.is_empty(), "Should have generated regions");
+
+            // Print mapping for debugging
+            println!("Source mapping segments: {:?}", mapping.segments);
+            println!("Source mapping generated regions: {:?}", mapping.generated_regions);
         });
     }
 }

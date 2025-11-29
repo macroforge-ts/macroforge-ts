@@ -1,6 +1,6 @@
 import type ts from "typescript/lib/tsserverlibrary";
-import { expandSync as expandSyncImpl } from "@ts-macros/swc-napi";
 import * as path from 'path';
+import { PositionMapper, IdentityMapper, type SourceMapping } from './source-map';
 
 interface PluginConfig {
   // Config options (optional)
@@ -18,6 +18,8 @@ interface CachedExpansion {
   codeOutput: string | null;
   typesOutput: string | null;
   diagnostics: MacroDiagnostic[];
+  /** Position mapper for translating between original and expanded positions */
+  mapper: PositionMapper;
 }
 
 interface MacroDiagnostic {
@@ -27,15 +29,79 @@ interface MacroDiagnostic {
   end?: number;
 }
 
-type ExpandFn = typeof expandSyncImpl;
-let expand: ExpandFn = expandSyncImpl;
+/** Native module source mapping result (uses camelCase from NAPI-RS) */
+interface NativeSourceMapping {
+  segments: Array<{
+    originalStart: number;
+    originalEnd: number;
+    expandedStart: number;
+    expandedEnd: number;
+  }>;
+  generatedRegions: Array<{
+    start: number;
+    end: number;
+    sourceMacro: string;
+  }>;
+}
+
+interface ExpandResult {
+  code: string;
+  types?: string;
+  diagnostics: MacroDiagnostic[];
+  sourceMapping?: NativeSourceMapping;
+}
+
+type ExpandFn = (code: string, fileName: string) => ExpandResult;
+
+// Try to load the native module, but don't crash if it fails
+let nativeModuleLoaded = false;
+let nativeModuleError: string | null = null;
+let expandSyncImpl: ExpandFn | null = null;
+
+try {
+  const nativeModule = require("@ts-macros/swc-napi");
+  expandSyncImpl = nativeModule.expandSync;
+  nativeModuleLoaded = true;
+} catch (e) {
+  nativeModuleError = e instanceof Error ? e.message : String(e);
+  // Native module failed to load - plugin will be disabled
+}
+
+// Default no-op expand function
+const noopExpand: ExpandFn = (code: string, _fileName: string) => ({
+  code: code,
+  types: undefined,
+  diagnostics: [],
+});
+
+let expand: ExpandFn = expandSyncImpl || noopExpand;
 
 function setExpandImpl(fn: ExpandFn) {
   expand = fn;
 }
 
 function resetExpandImpl() {
-  expand = expandSyncImpl;
+  expand = expandSyncImpl || noopExpand;
+}
+
+/** Convert native module source mapping to TypeScript-friendly format */
+function convertNativeMapping(native: NativeSourceMapping | undefined): SourceMapping {
+  if (!native) {
+    return { segments: [], generatedRegions: [] };
+  }
+  return {
+    segments: native.segments.map((s) => ({
+      originalStart: s.originalStart,
+      originalEnd: s.originalEnd,
+      expandedStart: s.expandedStart,
+      expandedEnd: s.expandedEnd,
+    })),
+    generatedRegions: native.generatedRegions.map((r) => ({
+      start: r.start,
+      end: r.end,
+      sourceMacro: r.sourceMacro,
+    })),
+  };
 }
 
 function init(modules: { typescript: typeof ts }) {
@@ -44,13 +110,17 @@ function init(modules: { typescript: typeof ts }) {
     const expansionCache = new Map<string, CachedExpansion>();
     // Map to store generated virtual .d.ts files
     const virtualDtsFiles = new Map<string, ts.IScriptSnapshot>();
-    
+
     function log(msg: string) {
-      info.project.projectService.logger.info(`[ts-macros-plugin] ${msg}`);
+      info.project?.projectService?.logger?.info(`[ts-macros-plugin] ${msg}`);
     }
 
-    // Log plugin initialization
+    // Log plugin initialization with module status
     log('Plugin initialized');
+    log(`Native module loaded: ${nativeModuleLoaded}`);
+    if (nativeModuleError) {
+      log(`Native module error: ${nativeModuleError}`);
+    }
 
     function getExpansion(fileName: string, content: string, version: string): CachedExpansion {
       const cached = expansionCache.get(fileName);
@@ -60,16 +130,27 @@ function init(modules: { typescript: typeof ts }) {
 
       try {
         // Run the macro expansion
-        // const result = expand(content, fileName);
-        const result = { code: "", types: "", diagnostics: [] };
-        
+        log(`Expanding macros for ${fileName}`);
+        const result = expand(content, fileName);
+        log(`Expansion result: code=${result.code?.length ?? 0} chars, types=${result.types?.length ?? 0} chars, diagnostics=${result.diagnostics?.length ?? 0}`);
+
+        // Create position mapper from source mapping
+        const sourceMapping = convertNativeMapping(result.sourceMapping);
+        const hasMapping = sourceMapping.segments.length > 0 || sourceMapping.generatedRegions.length > 0;
+        const mapper = hasMapping ? new PositionMapper(sourceMapping) : new IdentityMapper();
+
+        if (hasMapping) {
+          log(`Source mapping: ${sourceMapping.segments.length} segments, ${sourceMapping.generatedRegions.length} generated regions`);
+        }
+
         const expansion: CachedExpansion = {
           version,
           codeOutput: result.code || null,
           typesOutput: result.types || null,
-          diagnostics: result.diagnostics,
+          diagnostics: result.diagnostics || [],
+          mapper,
         };
-        
+
         expansionCache.set(fileName, expansion);
 
         // If typesOutput is present, create a virtual .d.ts file
@@ -88,13 +169,15 @@ function init(modules: { typescript: typeof ts }) {
         
         return expansion;
       } catch (e) {
-        log(`Plugin expansion failed: ${e}`);
+        const errorMessage = e instanceof Error ? e.stack || e.message : String(e);
+        log(`Plugin expansion failed for ${fileName}: ${errorMessage}`);
         // Fallback on error
         const errorExpansion: CachedExpansion = {
           version,
           codeOutput: null,
           typesOutput: null,
-          diagnostics: [], 
+          diagnostics: [],
+          mapper: new IdentityMapper(),
         };
         expansionCache.set(fileName, errorExpansion);
         // Also clean up any virtual .d.ts file if expansion fails
@@ -109,16 +192,16 @@ function init(modules: { typescript: typeof ts }) {
     );
 
     info.languageServiceHost.getScriptVersion = (fileName) => {
-      if (virtualDtsFiles.has(fileName)) {
-        // We can use the version of the source file if we can map it back, 
-        // or just use the cached version. 
-        // For simplicity, since we update the virtual file whenever we expand,
-        // we can assume it updates with the source file.
-        // Let's assume the fileName is source.ts.ts-macros.d.ts
-        const sourceFileName = fileName.replace('.ts-macros.d.ts', '');
-        return originalGetScriptVersion(sourceFileName);
+      try {
+        if (virtualDtsFiles.has(fileName)) {
+          const sourceFileName = fileName.replace('.ts-macros.d.ts', '');
+          return originalGetScriptVersion(sourceFileName);
+        }
+        return originalGetScriptVersion(fileName);
+      } catch (e) {
+        log(`Error in getScriptVersion: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetScriptVersion(fileName);
       }
-      return originalGetScriptVersion(fileName);
     };
 
     // Hook getScriptFileNames to include our virtual .d.ts files
@@ -128,8 +211,13 @@ function init(modules: { typescript: typeof ts }) {
         () => [];
 
     info.languageServiceHost.getScriptFileNames = () => {
-      const originalFiles = originalGetScriptFileNames();
-      return [...originalFiles, ...Array.from(virtualDtsFiles.keys())];
+      try {
+        const originalFiles = originalGetScriptFileNames();
+        return [...originalFiles, ...Array.from(virtualDtsFiles.keys())];
+      } catch (e) {
+        log(`Error in getScriptFileNames: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetScriptFileNames();
+      }
     };
 
 
@@ -139,10 +227,15 @@ function init(modules: { typescript: typeof ts }) {
         tsModule.sys.fileExists;
 
     info.languageServiceHost.fileExists = (fileName) => {
-      if (virtualDtsFiles.has(fileName)) {
-        return true;
+      try {
+        if (virtualDtsFiles.has(fileName)) {
+          return true;
+        }
+        return originalFileExists(fileName);
+      } catch (e) {
+        log(`Error in fileExists: ${e instanceof Error ? e.message : String(e)}`);
+        return originalFileExists(fileName);
       }
-      return originalFileExists(fileName);
     };
 
     // Hook getScriptSnapshot to provide the "expanded" type definition view
@@ -151,111 +244,654 @@ function init(modules: { typescript: typeof ts }) {
     );
 
     info.languageServiceHost.getScriptSnapshot = (fileName) => {
-      // If it's one of our virtual .d.ts files, return its snapshot
-      if (virtualDtsFiles.has(fileName)) {
-        // log(`Serving virtual .d.ts for ${fileName}`);
-        return virtualDtsFiles.get(fileName);
-      }
+      try {
+        // If it's one of our virtual .d.ts files, return its snapshot
+        if (virtualDtsFiles.has(fileName)) {
+          return virtualDtsFiles.get(fileName);
+        }
 
-      if (!shouldProcess(fileName)) {
+        const snapshot = originalGetScriptSnapshot(fileName);
+        if (!snapshot) {
+          return snapshot;
+        }
+
+        // Don't process non-TypeScript files
+        if (!shouldProcess(fileName)) {
+          return snapshot;
+        }
+
+        const text = snapshot.getText(0, snapshot.getLength());
+
+        // Only process files with @Derive decorator
+        if (!text.includes("@Derive")) {
+          return snapshot;
+        }
+
+        // Run expansion
+        const version = info.languageServiceHost.getScriptVersion(fileName);
+        const expansion = getExpansion(fileName, text, version);
+
+        // Return expanded code if available
+        // Use codeOutput which contains the actual implementation
+        if (expansion.codeOutput && expansion.codeOutput !== text) {
+          log(`Returning expanded code for ${fileName} (${expansion.codeOutput.length} chars)`);
+          const expandedSnapshot = tsModule.ScriptSnapshot.fromString(expansion.codeOutput);
+          return expandedSnapshot;
+        }
+
+        return snapshot;
+      } catch (e) {
+        log(`Error in getScriptSnapshot for ${fileName}: ${e instanceof Error ? e.stack || e.message : String(e)}`);
         return originalGetScriptSnapshot(fileName);
       }
-
-      const snapshot = originalGetScriptSnapshot(fileName);
-      if (!snapshot) {
-        return snapshot;
-      }
-
-      // We need the file version to cache correctly.
-      const version = info.languageServiceHost.getScriptVersion(fileName);
-      const text = snapshot.getText(0, snapshot.getLength());
-
-      // If the text doesn't contain macros, skip
-      if (!text.includes("@Derive") && !text.includes("@")) {
-         return snapshot;
-      }
-      
-      const expansion = getExpansion(fileName, text, version);
-
-      if (expansion.codeOutput) {
-        // Inject reference to the generated d.ts file
-        const dtsReference = expansion.typesOutput ? `/// <reference path="./${path.basename(fileName)}.ts-macros.d.ts" />\n` : '';
-        const finalOutput = dtsReference + expansion.codeOutput;
-
-        const expandedSnapshot = tsModule.ScriptSnapshot.fromString(finalOutput);
-        // Debug: verify the expanded code contains the class
-        if (expansion.codeOutput.includes('export class MacroUser') && !expansion.codeOutput.includes('export class MacroUser {')) {
-          log(`Warning: Expanded code for ${fileName} may be malformed`);
-        }
-        return expandedSnapshot;
-      } 
-
-      return snapshot;
     };
 
-    // Hook getSemanticDiagnostics to provide macro errors
+    // Helper to get mapper for a file (triggering expansion if needed)
+    function getMapper(fileName: string): PositionMapper {
+      const version = info.languageServiceHost.getScriptVersion(fileName);
+      const cached = expansionCache.get(fileName);
+      if (cached && cached.version === version) {
+        return cached.mapper;
+      }
+      // Trigger expansion to get mapper
+      info.languageServiceHost.getScriptSnapshot(fileName);
+      const newCached = expansionCache.get(fileName);
+      return newCached?.mapper ?? new IdentityMapper();
+    }
+
+    // Helper to map a diagnostic's position from expanded to original
+    function mapDiagnosticPosition(diag: ts.Diagnostic, mapper: PositionMapper): ts.Diagnostic {
+      if (diag.start === undefined || diag.length === undefined) {
+        return diag;
+      }
+
+      const mapped = mapper.mapSpanToOriginal(diag.start, diag.length);
+      if (!mapped) {
+        // Diagnostic is in generated code - keep expanded position with a note
+        return {
+          ...diag,
+          messageText: `[in generated code] ${typeof diag.messageText === 'string' ? diag.messageText : diag.messageText.messageText}`,
+        };
+      }
+
+      return {
+        ...diag,
+        start: mapped.start,
+        length: mapped.length,
+      };
+    }
+
+    // Hook getSemanticDiagnostics to provide macro errors and map positions
     const originalGetSemanticDiagnostics = info.languageService.getSemanticDiagnostics.bind(
       info.languageService
     );
 
     info.languageService.getSemanticDiagnostics = (fileName) => {
-      // If it's one of our virtual .d.ts files, don't get diagnostics for it
-      if (virtualDtsFiles.has(fileName)) {
-        return [];
-      }
+      try {
+        // If it's one of our virtual .d.ts files, don't get diagnostics for it
+        if (virtualDtsFiles.has(fileName)) {
+          return [];
+        }
 
-      if (!shouldProcess(fileName)) {
+        if (!shouldProcess(fileName)) {
+          return originalGetSemanticDiagnostics(fileName);
+        }
+
+        // Get mapper (triggers expansion if needed)
+        const mapper = getMapper(fileName);
+
+        // Get diagnostics (these are in expanded positions)
+        const expandedDiagnostics = originalGetSemanticDiagnostics(fileName);
+
+        // Map all diagnostic positions back to original
+        const mappedDiagnostics = expandedDiagnostics.map((d) => mapDiagnosticPosition(d, mapper));
+
+        // Also get macro diagnostics from expansion
+        const version = info.languageServiceHost.getScriptVersion(fileName);
+        const cached = expansionCache.get(fileName);
+
+        if (!cached || cached.version !== version || cached.diagnostics.length === 0) {
+          return mappedDiagnostics;
+        }
+
+        const macroDiagnostics: ts.Diagnostic[] = cached.diagnostics.map((d) => {
+          const category =
+            d.level === "error"
+              ? tsModule.DiagnosticCategory.Error
+              : d.level === "warning"
+              ? tsModule.DiagnosticCategory.Warning
+              : tsModule.DiagnosticCategory.Message;
+
+          return {
+            file: info.languageService.getProgram()?.getSourceFile(fileName),
+            start: d.start || 0,
+            length: (d.end || 0) - (d.start || 0),
+            messageText: d.message,
+            category,
+            code: 9999, // Custom error code
+            source: "ts-macros",
+          };
+        });
+
+        return [...mappedDiagnostics, ...macroDiagnostics];
+      } catch (e) {
+        log(`Error in getSemanticDiagnostics for ${fileName}: ${e instanceof Error ? e.stack || e.message : String(e)}`);
         return originalGetSemanticDiagnostics(fileName);
       }
+    };
 
-      // Trigger expansion if needed
-      info.languageServiceHost.getScriptSnapshot(fileName);
+    // Hook getSyntacticDiagnostics to map positions
+    const originalGetSyntacticDiagnostics = info.languageService.getSyntacticDiagnostics.bind(
+      info.languageService
+    );
 
-      // Get diagnostics
-      const originalDiagnostics = originalGetSemanticDiagnostics(fileName);
+    info.languageService.getSyntacticDiagnostics = (fileName) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalGetSyntacticDiagnostics(fileName);
+        }
 
-      // Also get macro diagnostics from expansion
-      const version = info.languageServiceHost.getScriptVersion(fileName);
-      
-      // We need to pass the *original* text to getExpansion if we want to re-expand 
-      // correctly if it wasn't cached. However, since we called getScriptSnapshot above,
-      // it should be cached. 
-      // CAUTION: Since getScriptSnapshot might have returned the *expanded* code, 
-      // we can't rely on calling it again to get original code if we needed it.
-      // But we rely on the cache in getExpansion.
-      
-      // To be safe, we try to retrieve from cache first without arguments if possible, 
-      // or pass empty string which is risky if not cached.
-      // Better approach: The cache key is fileName.
-      const cached = expansionCache.get(fileName);
-      
-      if (!cached || cached.version !== version) {
-          // This case should be rare if getScriptSnapshot was called, but if it happens,
-          // we might miss diagnostics if we don't have original text.
-          // But typically LS calls getScriptSnapshot before diagnostics.
-          return originalDiagnostics;
+        const mapper = getMapper(fileName);
+        const expandedDiagnostics = originalGetSyntacticDiagnostics(fileName);
+        return expandedDiagnostics.map((d) => mapDiagnosticPosition(d, mapper) as ts.DiagnosticWithLocation);
+      } catch (e) {
+        log(`Error in getSyntacticDiagnostics: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetSyntacticDiagnostics(fileName);
       }
+    };
 
-      const macroDiagnostics: ts.Diagnostic[] = cached.diagnostics.map((d) => {
-        const category =
-          d.level === "error"
-            ? tsModule.DiagnosticCategory.Error
-            : d.level === "warning"
-            ? tsModule.DiagnosticCategory.Warning
-            : tsModule.DiagnosticCategory.Message;
+    // Hook getQuickInfoAtPosition to map input position and output spans
+    const originalGetQuickInfoAtPosition = info.languageService.getQuickInfoAtPosition.bind(
+      info.languageService
+    );
+
+    info.languageService.getQuickInfoAtPosition = (fileName, position) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalGetQuickInfoAtPosition(fileName, position);
+        }
+
+        const mapper = getMapper(fileName);
+        // Map original position to expanded
+        const expandedPos = mapper.originalToExpanded(position);
+        const result = originalGetQuickInfoAtPosition(fileName, expandedPos);
+
+        if (!result) return result;
+
+        // Map result spans back to original
+        const mappedTextSpan = mapper.mapSpanToOriginal(result.textSpan.start, result.textSpan.length);
+        if (!mappedTextSpan) return result; // In generated code
 
         return {
-          file: info.languageService.getProgram()?.getSourceFile(fileName),
-          start: d.start || 0,
-          length: (d.end || 0) - (d.start || 0),
-          messageText: d.message,
-          category,
-          code: 9999, // Custom error code
-          source: "ts-macros",
+          ...result,
+          textSpan: { start: mappedTextSpan.start, length: mappedTextSpan.length },
         };
-      });
+      } catch (e) {
+        log(`Error in getQuickInfoAtPosition: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetQuickInfoAtPosition(fileName, position);
+      }
+    };
 
-      return [...originalDiagnostics, ...macroDiagnostics];
+    // Hook getCompletionsAtPosition to map input position
+    const originalGetCompletionsAtPosition = info.languageService.getCompletionsAtPosition.bind(
+      info.languageService
+    );
+
+    info.languageService.getCompletionsAtPosition = (fileName, position, options, formattingSettings) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalGetCompletionsAtPosition(fileName, position, options, formattingSettings);
+        }
+
+        const mapper = getMapper(fileName);
+        const expandedPos = mapper.originalToExpanded(position);
+        return originalGetCompletionsAtPosition(fileName, expandedPos, options, formattingSettings);
+      } catch (e) {
+        log(`Error in getCompletionsAtPosition: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetCompletionsAtPosition(fileName, position, options, formattingSettings);
+      }
+    };
+
+    // Hook getDefinitionAtPosition to map input and output positions
+    const originalGetDefinitionAtPosition = info.languageService.getDefinitionAtPosition.bind(
+      info.languageService
+    );
+
+    info.languageService.getDefinitionAtPosition = (fileName, position) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalGetDefinitionAtPosition(fileName, position);
+        }
+
+        const mapper = getMapper(fileName);
+        const expandedPos = mapper.originalToExpanded(position);
+        const definitions = originalGetDefinitionAtPosition(fileName, expandedPos);
+
+        if (!definitions) return definitions;
+
+        // Map each definition's span back to original (only for same file)
+        return definitions.map((def) => {
+          if (def.fileName !== fileName) return def;
+          const defMapper = getMapper(def.fileName);
+          const mapped = defMapper.mapSpanToOriginal(def.textSpan.start, def.textSpan.length);
+          if (!mapped) return def;
+          return {
+            ...def,
+            textSpan: { start: mapped.start, length: mapped.length },
+          };
+        });
+      } catch (e) {
+        log(`Error in getDefinitionAtPosition: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetDefinitionAtPosition(fileName, position);
+      }
+    };
+
+    // Hook getDefinitionAndBoundSpan for more complete definition handling
+    const originalGetDefinitionAndBoundSpan = info.languageService.getDefinitionAndBoundSpan.bind(
+      info.languageService
+    );
+
+    info.languageService.getDefinitionAndBoundSpan = (fileName, position) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalGetDefinitionAndBoundSpan(fileName, position);
+        }
+
+        const mapper = getMapper(fileName);
+        const expandedPos = mapper.originalToExpanded(position);
+        const result = originalGetDefinitionAndBoundSpan(fileName, expandedPos);
+
+        if (!result) return result;
+
+        // Map textSpan back to original
+        const mappedTextSpan = mapper.mapSpanToOriginal(result.textSpan.start, result.textSpan.length);
+        if (!mappedTextSpan) return result;
+
+        // Map each definition's span
+        const mappedDefinitions = result.definitions?.map((def) => {
+          if (def.fileName !== fileName) return def;
+          const defMapper = getMapper(def.fileName);
+          const mapped = defMapper.mapSpanToOriginal(def.textSpan.start, def.textSpan.length);
+          if (!mapped) return def;
+          return {
+            ...def,
+            textSpan: { start: mapped.start, length: mapped.length },
+          };
+        });
+
+        return {
+          textSpan: { start: mappedTextSpan.start, length: mappedTextSpan.length },
+          definitions: mappedDefinitions,
+        };
+      } catch (e) {
+        log(`Error in getDefinitionAndBoundSpan: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetDefinitionAndBoundSpan(fileName, position);
+      }
+    };
+
+    // Hook getTypeDefinitionAtPosition
+    const originalGetTypeDefinitionAtPosition = info.languageService.getTypeDefinitionAtPosition.bind(
+      info.languageService
+    );
+
+    info.languageService.getTypeDefinitionAtPosition = (fileName, position) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalGetTypeDefinitionAtPosition(fileName, position);
+        }
+
+        const mapper = getMapper(fileName);
+        const expandedPos = mapper.originalToExpanded(position);
+        const definitions = originalGetTypeDefinitionAtPosition(fileName, expandedPos);
+
+        if (!definitions) return definitions;
+
+        return definitions.map((def) => {
+          if (def.fileName !== fileName) return def;
+          const defMapper = getMapper(def.fileName);
+          const mapped = defMapper.mapSpanToOriginal(def.textSpan.start, def.textSpan.length);
+          if (!mapped) return def;
+          return {
+            ...def,
+            textSpan: { start: mapped.start, length: mapped.length },
+          };
+        });
+      } catch (e) {
+        log(`Error in getTypeDefinitionAtPosition: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetTypeDefinitionAtPosition(fileName, position);
+      }
+    };
+
+    // Hook getReferencesAtPosition
+    const originalGetReferencesAtPosition = info.languageService.getReferencesAtPosition.bind(
+      info.languageService
+    );
+
+    info.languageService.getReferencesAtPosition = (fileName, position) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalGetReferencesAtPosition(fileName, position);
+        }
+
+        const mapper = getMapper(fileName);
+        const expandedPos = mapper.originalToExpanded(position);
+        const refs = originalGetReferencesAtPosition(fileName, expandedPos);
+
+        if (!refs) return refs;
+
+        return refs.map((ref) => {
+          if (!shouldProcess(ref.fileName)) return ref;
+          const refMapper = getMapper(ref.fileName);
+          const mapped = refMapper.mapSpanToOriginal(ref.textSpan.start, ref.textSpan.length);
+          if (!mapped) return ref;
+          return {
+            ...ref,
+            textSpan: { start: mapped.start, length: mapped.length },
+          };
+        });
+      } catch (e) {
+        log(`Error in getReferencesAtPosition: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetReferencesAtPosition(fileName, position);
+      }
+    };
+
+    // Hook findReferences
+    const originalFindReferences = info.languageService.findReferences.bind(
+      info.languageService
+    );
+
+    info.languageService.findReferences = (fileName, position) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalFindReferences(fileName, position);
+        }
+
+        const mapper = getMapper(fileName);
+        const expandedPos = mapper.originalToExpanded(position);
+        const refSymbols = originalFindReferences(fileName, expandedPos);
+
+        if (!refSymbols) return refSymbols;
+
+        return refSymbols.map((refSymbol) => ({
+          ...refSymbol,
+          references: refSymbol.references.map((ref) => {
+            if (!shouldProcess(ref.fileName)) return ref;
+            const refMapper = getMapper(ref.fileName);
+            const mapped = refMapper.mapSpanToOriginal(ref.textSpan.start, ref.textSpan.length);
+            if (!mapped) return ref;
+            return {
+              ...ref,
+              textSpan: { start: mapped.start, length: mapped.length },
+            };
+          }),
+        }));
+      } catch (e) {
+        log(`Error in findReferences: ${e instanceof Error ? e.message : String(e)}`);
+        return originalFindReferences(fileName, position);
+      }
+    };
+
+    // Hook getSignatureHelpItems
+    const originalGetSignatureHelpItems = info.languageService.getSignatureHelpItems.bind(
+      info.languageService
+    );
+
+    info.languageService.getSignatureHelpItems = (fileName, position, options) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalGetSignatureHelpItems(fileName, position, options);
+        }
+
+        const mapper = getMapper(fileName);
+        const expandedPos = mapper.originalToExpanded(position);
+        const result = originalGetSignatureHelpItems(fileName, expandedPos, options);
+
+        if (!result) return result;
+
+        // Map applicableSpan back to original
+        const mappedSpan = mapper.mapSpanToOriginal(result.applicableSpan.start, result.applicableSpan.length);
+        if (!mappedSpan) return result;
+
+        return {
+          ...result,
+          applicableSpan: { start: mappedSpan.start, length: mappedSpan.length },
+        };
+      } catch (e) {
+        log(`Error in getSignatureHelpItems: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetSignatureHelpItems(fileName, position, options);
+      }
+    };
+
+    // Hook getRenameInfo
+    const originalGetRenameInfo = info.languageService.getRenameInfo.bind(
+      info.languageService
+    );
+
+    info.languageService.getRenameInfo = (fileName, position, options) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalGetRenameInfo(fileName, position, options);
+        }
+
+        const mapper = getMapper(fileName);
+        const expandedPos = mapper.originalToExpanded(position);
+        const result = originalGetRenameInfo(fileName, expandedPos, options);
+
+        if (!result.canRename || !result.triggerSpan) return result;
+
+        const mappedSpan = mapper.mapSpanToOriginal(result.triggerSpan.start, result.triggerSpan.length);
+        if (!mappedSpan) return result;
+
+        return {
+          ...result,
+          triggerSpan: { start: mappedSpan.start, length: mappedSpan.length },
+        };
+      } catch (e) {
+        log(`Error in getRenameInfo: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetRenameInfo(fileName, position, options);
+      }
+    };
+
+    // Hook findRenameLocations
+    const originalFindRenameLocations = info.languageService.findRenameLocations.bind(
+      info.languageService
+    );
+
+    // Cast to any to handle multiple overloads
+    (info.languageService as any).findRenameLocations = (
+      fileName: string,
+      position: number,
+      findInStrings: boolean,
+      findInComments: boolean,
+      providePrefixAndSuffixTextForRename?: boolean
+    ) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalFindRenameLocations(fileName, position, findInStrings, findInComments, providePrefixAndSuffixTextForRename);
+        }
+
+        const mapper = getMapper(fileName);
+        const expandedPos = mapper.originalToExpanded(position);
+        const locations = originalFindRenameLocations(fileName, expandedPos, findInStrings, findInComments, providePrefixAndSuffixTextForRename);
+
+        if (!locations) return locations;
+
+        return locations.map((loc) => {
+          if (!shouldProcess(loc.fileName)) return loc;
+          const locMapper = getMapper(loc.fileName);
+          const mapped = locMapper.mapSpanToOriginal(loc.textSpan.start, loc.textSpan.length);
+          if (!mapped) return loc;
+          return {
+            ...loc,
+            textSpan: { start: mapped.start, length: mapped.length },
+          };
+        });
+      } catch (e) {
+        log(`Error in findRenameLocations: ${e instanceof Error ? e.message : String(e)}`);
+        return originalFindRenameLocations(fileName, position, findInStrings, findInComments, providePrefixAndSuffixTextForRename);
+      }
+    };
+
+    // Hook getDocumentHighlights
+    const originalGetDocumentHighlights = info.languageService.getDocumentHighlights.bind(
+      info.languageService
+    );
+
+    info.languageService.getDocumentHighlights = (fileName, position, filesToSearch) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalGetDocumentHighlights(fileName, position, filesToSearch);
+        }
+
+        const mapper = getMapper(fileName);
+        const expandedPos = mapper.originalToExpanded(position);
+        const highlights = originalGetDocumentHighlights(fileName, expandedPos, filesToSearch);
+
+        if (!highlights) return highlights;
+
+        return highlights.map((docHighlight) => ({
+          ...docHighlight,
+          highlightSpans: docHighlight.highlightSpans.map((span) => {
+            if (!shouldProcess(docHighlight.fileName)) return span;
+            const spanMapper = getMapper(docHighlight.fileName);
+            const mapped = spanMapper.mapSpanToOriginal(span.textSpan.start, span.textSpan.length);
+            if (!mapped) return span;
+            return {
+              ...span,
+              textSpan: { start: mapped.start, length: mapped.length },
+            };
+          }),
+        }));
+      } catch (e) {
+        log(`Error in getDocumentHighlights: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetDocumentHighlights(fileName, position, filesToSearch);
+      }
+    };
+
+    // Hook getImplementationAtPosition
+    const originalGetImplementationAtPosition = info.languageService.getImplementationAtPosition.bind(
+      info.languageService
+    );
+
+    info.languageService.getImplementationAtPosition = (fileName, position) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalGetImplementationAtPosition(fileName, position);
+        }
+
+        const mapper = getMapper(fileName);
+        const expandedPos = mapper.originalToExpanded(position);
+        const implementations = originalGetImplementationAtPosition(fileName, expandedPos);
+
+        if (!implementations) return implementations;
+
+        return implementations.map((impl) => {
+          if (!shouldProcess(impl.fileName)) return impl;
+          const implMapper = getMapper(impl.fileName);
+          const mapped = implMapper.mapSpanToOriginal(impl.textSpan.start, impl.textSpan.length);
+          if (!mapped) return impl;
+          return {
+            ...impl,
+            textSpan: { start: mapped.start, length: mapped.length },
+          };
+        });
+      } catch (e) {
+        log(`Error in getImplementationAtPosition: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetImplementationAtPosition(fileName, position);
+      }
+    };
+
+    // Hook getCodeFixesAtPosition
+    const originalGetCodeFixesAtPosition = info.languageService.getCodeFixesAtPosition.bind(
+      info.languageService
+    );
+
+    info.languageService.getCodeFixesAtPosition = (fileName, start, end, errorCodes, formatOptions, preferences) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalGetCodeFixesAtPosition(fileName, start, end, errorCodes, formatOptions, preferences);
+        }
+
+        const mapper = getMapper(fileName);
+        const expandedStart = mapper.originalToExpanded(start);
+        const expandedEnd = mapper.originalToExpanded(end);
+        return originalGetCodeFixesAtPosition(fileName, expandedStart, expandedEnd, errorCodes, formatOptions, preferences);
+      } catch (e) {
+        log(`Error in getCodeFixesAtPosition: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetCodeFixesAtPosition(fileName, start, end, errorCodes, formatOptions, preferences);
+      }
+    };
+
+    // Hook getNavigationTree
+    const originalGetNavigationTree = info.languageService.getNavigationTree.bind(
+      info.languageService
+    );
+
+    info.languageService.getNavigationTree = (fileName) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalGetNavigationTree(fileName);
+        }
+
+        const mapper = getMapper(fileName);
+        const tree = originalGetNavigationTree(fileName);
+
+        // Recursively map spans in navigation tree
+        function mapNavigationItem(item: ts.NavigationTree): ts.NavigationTree {
+          const mappedSpans = item.spans.map((span) => {
+            const mapped = mapper.mapSpanToOriginal(span.start, span.length);
+            return mapped ? { start: mapped.start, length: mapped.length } : span;
+          });
+
+          const mappedNameSpan = item.nameSpan
+            ? mapper.mapSpanToOriginal(item.nameSpan.start, item.nameSpan.length) ?? item.nameSpan
+            : undefined;
+
+          return {
+            ...item,
+            spans: mappedSpans,
+            nameSpan: mappedNameSpan ? { start: mappedNameSpan.start, length: mappedNameSpan.length } : undefined,
+            childItems: item.childItems?.map(mapNavigationItem),
+          };
+        }
+
+        return mapNavigationItem(tree);
+      } catch (e) {
+        log(`Error in getNavigationTree: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetNavigationTree(fileName);
+      }
+    };
+
+    // Hook getOutliningSpans
+    const originalGetOutliningSpans = info.languageService.getOutliningSpans.bind(
+      info.languageService
+    );
+
+    info.languageService.getOutliningSpans = (fileName) => {
+      try {
+        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          return originalGetOutliningSpans(fileName);
+        }
+
+        const mapper = getMapper(fileName);
+        const spans = originalGetOutliningSpans(fileName);
+
+        return spans.map((span) => {
+          const mappedTextSpan = mapper.mapSpanToOriginal(span.textSpan.start, span.textSpan.length);
+          const mappedHintSpan = mapper.mapSpanToOriginal(span.hintSpan.start, span.hintSpan.length);
+
+          if (!mappedTextSpan || !mappedHintSpan) return span;
+
+          return {
+            ...span,
+            textSpan: { start: mappedTextSpan.start, length: mappedTextSpan.length },
+            hintSpan: { start: mappedHintSpan.start, length: mappedHintSpan.length },
+          };
+        });
+      } catch (e) {
+        log(`Error in getOutliningSpans: ${e instanceof Error ? e.message : String(e)}`);
+        return originalGetOutliningSpans(fileName);
+      }
     };
 
     return info.languageService;

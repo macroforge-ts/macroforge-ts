@@ -14,16 +14,35 @@ export interface ExpandResult {
   types?: string
   metadata?: string
   diagnostics: Array<MacroDiagnostic>
+  sourceMapping?: SourceMappingResult
 }
 
 /** Expand macros in TypeScript code and return the transformed TS (types) and diagnostics */
 export declare function expandSync(code: string, filepath: string): ExpandResult
+
+export interface GeneratedRegionResult {
+  start: number
+  end: number
+  sourceMacro: string
+}
 
 export interface MacroDiagnostic {
   level: string
   message: string
   start?: number
   end?: number
+}
+
+export interface MappingSegmentResult {
+  originalStart: number
+  originalEnd: number
+  expandedStart: number
+  expandedEnd: number
+}
+
+export interface SourceMappingResult {
+  segments: Array<MappingSegmentResult>
+  generatedRegions: Array<GeneratedRegionResult>
 }
 
 export interface TransformResult {
