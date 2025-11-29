@@ -19,15 +19,15 @@ pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> 
 
     match &input.data {
         Data::Class(class) => {
-            // Use Svelte-style templating for clean code generation!
+            // Use Rust-style templating for clean code generation!
             Ok(ts_template! {
                 toJSON(): Record<string, unknown> {
 
                     const result = {};
 
-                    {#each class.field_names() as field}
-                        result.${field} = this.${field};
-                    {/each}
+                    {#for field in class.field_names()}
+                        result.@{field} = this.@{field};
+                    {/for}
 
                     return result;
                 }
@@ -88,11 +88,11 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
             // ===== Generate All Runtime Code in Single Template =====
 
             let stream = ts_template! {
-                make${class_name}BaseProps<D extends number, const P extends DeepPath<${class_name}, D>, V = DeepValue<${class_name}, P, never, D>>(
-                    superForm: SuperForm<${class_name}>,
+                make@{class_name}BaseProps<D extends number, const P extends DeepPath<@{class_name}, D>, V = DeepValue<@{class_name}, P, never, D>>(
+                    superForm: SuperForm<@{class_name}>,
                     path: P,
-                    overrides?: BasePropsOverrides<${class_name}, V, D>
-                 ): BaseFieldProps<${class_name}, V, D> {
+                    overrides?: BasePropsOverrides<@{class_name}, V, D>
+                 ): BaseFieldProps<@{class_name}, V, D> {
                     const proxy = formFieldProxy(superForm, path);
                     const baseProps = {
                         fieldPath: path,
@@ -104,28 +104,28 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
                     return baseProps;
                 };
 
-                {#each field_data as (label_text, field_path_literal, field_path_prop, field_controller_prop, field_type)}
-                    {@const controller_type = format!("{}FieldController", label_text)}
+                {#for (label_text, field_path_literal, field_path_prop, field_controller_prop, field_type) in field_data}
+                    {%let controller_type = format!("{}FieldController", label_text)}
 
                     static {
-                        this.prototype.${field_path_prop} = [${field_path_literal}];
+                        this.prototype.@{field_path_prop} = [@{field_path_literal}];
                     }
 
-                    ${field_controller_prop}(superForm: SuperForm<${class_name}>): ${controller_type}<${class_name}, ${field_type}, 1> {
-                        const fieldPath = this.${field_path_prop};
+                    @{field_controller_prop}(superForm: SuperForm<@{class_name}>): @{controller_type}<@{class_name}, @{field_type}, 1> {
+                        const fieldPath = this.@{field_path_prop};
 
                         return {
                             fieldPath,
-                            baseProps: this.${base_props_method}(
+                            baseProps: this.@{base_props_method}(
                                 superForm,
                                 fieldPath,
                                 {
-                                    labelText: ${label_text}
+                                    labelText: @{label_text}
                                 }
                             )
                         };
                     };
-                {/each}
+                {/for}
             };
             Ok(stream)
         }

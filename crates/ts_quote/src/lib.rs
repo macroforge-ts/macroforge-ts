@@ -404,14 +404,16 @@ fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
     (bind_name, binding, false)
 }
 
-/// Svelte-style templating macro for TypeScript code generation.
+/// Template-style macro for TypeScript code generation.
 ///
 /// # Syntax
 ///
-/// - `#{expr}` - Interpolate expressions (converts to string)
+/// - `@{expr}` - Interpolate expressions (converts to string)
 /// - `{#if cond}...{/if}` - Conditional blocks
 /// - `{:else}` - Else clause
-/// - `{#each list as item}...{/each}` - Iteration
+/// - `{:else if cond}` - Else-if clause
+/// - `{#for item in list}...{/for}` - Iteration
+/// - `{%let name = expr}` - Local constants
 ///
 /// # Examples
 ///
@@ -420,11 +422,11 @@ fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
 /// let class_name = "User";
 ///
 /// let stmt = ts_template! {
-///     #{class_name}.prototype.toJSON = function() {
+///     @{class_name}.prototype.toJSON = function() {
 ///         const result = {};
-///         {#each fields as field}
-///             result.#{field} = this.#{field};
-///         {/each}
+///         {#for field in fields}
+///             result.@{field} = this.@{field};
+///         {/for}
 ///         return result;
 ///     };
 /// };

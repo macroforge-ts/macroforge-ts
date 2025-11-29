@@ -4,12 +4,13 @@ const path = require('node:path');
 
 const ROOT_DIR = process.cwd();
 const LOGS_DIR = path.join(ROOT_DIR, 'diagnostics_logs');
-const IGNORED_PATH_SEGMENTS = new Set(['node_modules']);
-const IGNORED_PATH_PREFIXES = [
-    path.join('playground', 'svelte', 'src', 'lib', 'form'),
-    path.join('playground', 'svelte', 'src', 'lib', 'types'),
-    path.join('playground', 'svelte', 'src', 'lib', 'traits'),
-].map((prefix) => prefix.split(path.sep).join('/'));
+
+// Parse command line arguments
+const args = process.argv.slice(2);
+const WRITE_LOGS = args.includes('--log');
+
+// Cache for git ignore checks to avoid repeated calls for the same path
+const gitIgnoreCache = new Map();
 
 async function runCommand(command, cwd = ROOT_DIR) {
     return new Promise((resolve) => {
@@ -20,8 +21,15 @@ async function runCommand(command, cwd = ROOT_DIR) {
 }
 
 async function isGitIgnored(filePath) {
-    return new Promise((resolve) => {
-        exec(`git check-ignore "${filePath}"`, { cwd: ROOT_DIR }, (error) => {
+    // Normalize the path for consistent caching
+    const normalized = normalizeFilePath(filePath);
+
+    if (gitIgnoreCache.has(normalized)) {
+        return gitIgnoreCache.get(normalized);
+    }
+
+    const result = await new Promise((resolve) => {
+        exec(`git check-ignore "${normalized}"`, { cwd: ROOT_DIR }, (error) => {
             if (!error) {
                 resolve(true);
             } else if (error && error.code === 1) {
@@ -31,6 +39,9 @@ async function isGitIgnored(filePath) {
             }
         });
     });
+
+    gitIgnoreCache.set(normalized, result);
+    return result;
 }
 
 function normalizeFilePath(filePath) {
@@ -39,38 +50,52 @@ function normalizeFilePath(filePath) {
     return relative.replace(/\\/g, '/');
 }
 
-function isIgnoredDiagnosticPath(filePath) {
+async function isIgnoredDiagnosticPath(filePath) {
     const normalized = normalizeFilePath(filePath);
+
+    // Paths outside the project are not ignored (let them through for reporting)
     if (!normalized || normalized.startsWith('..')) {
         return false;
     }
-    if (IGNORED_PATH_PREFIXES.some((prefix) => normalized.startsWith(prefix))) {
-        return true;
-    }
-    const segments = normalized.split('/');
-    return segments.some((segment) => IGNORED_PATH_SEGMENTS.has(segment));
+
+    // Use git check-ignore to determine if the path should be ignored
+    return await isGitIgnored(normalized);
 }
 
-function parseTypeScriptErrors(output) {
+async function parseTypeScriptErrors(output) {
     const errors = [];
     const errorRegex = /^(.*?)\((\d+),(\d+)\): error (TS\d+): (.*)$/gm;
     let match;
 
+    // Collect all matches first
+    const matches = [];
     while ((match = errorRegex.exec(output)) !== null) {
-        const filePath = match[1];
-        if (isIgnoredDiagnosticPath(filePath)) {
-            continue;
-        }
-        errors.push({
-            file: filePath,
+        matches.push({
+            filePath: match[1],
             line: parseInt(match[2], 10),
             column: parseInt(match[3], 10),
             code: match[4],
             message: match[5],
             raw: match[0],
+        });
+    }
+
+    // Filter out ignored paths (async)
+    for (const m of matches) {
+        if (await isIgnoredDiagnosticPath(m.filePath)) {
+            continue;
+        }
+        errors.push({
+            file: m.filePath,
+            line: m.line,
+            column: m.column,
+            code: m.code,
+            message: m.message,
+            raw: m.raw,
             tool: 'tsc'
         });
     }
+
     return errors;
 }
 
@@ -81,7 +106,7 @@ function parseBiomeErrors(output) {
     // Example:  lint/complexity/noForEach (https://biomejs.dev/l/no-for-each)
     const errorRegex = /^(.*?): (error|warning) (.*?): (.*)$/gm; // Basic match for now
     const ruleRegex = /(lint\/[a-zA-Z]+\/[a-zA-Z]+)/;
-    
+
     let match;
     for (const line of output.split('\n')) {
         const lineMatch = line.match(errorRegex);
@@ -96,6 +121,68 @@ function parseBiomeErrors(output) {
             });
         }
     }
+    return errors;
+}
+
+async function parseClippyErrors(output) {
+    const errors = [];
+    const candidates = [];
+
+    // Parse JSON messages from clippy (one JSON object per line)
+    for (const line of output.split('\n')) {
+        if (!line.trim()) continue;
+
+        try {
+            const msg = JSON.parse(line);
+
+            // Only process compiler messages with actual diagnostic info
+            if (msg.reason !== 'compiler-message' || !msg.message) continue;
+
+            const diagnostic = msg.message;
+
+            // Skip notes and help messages, only capture warnings and errors
+            if (diagnostic.level !== 'warning' && diagnostic.level !== 'error') continue;
+
+            // Get the lint code (e.g., "clippy::needless_return" or "unused_variables")
+            const code = diagnostic.code?.code || 'clippy-general';
+
+            // Get file location from the primary span
+            const primarySpan = diagnostic.spans?.find(s => s.is_primary) || diagnostic.spans?.[0];
+            const file = primarySpan?.file_name || 'unknown';
+            const line_num = primarySpan?.line_start || 0;
+            const column = primarySpan?.column_start || 0;
+
+            // Skip absolute paths (external crates)
+            if (file.startsWith('/')) continue;
+
+            // Format the raw output similar to rustc's default format
+            const raw = `${diagnostic.level}[${code}]: ${diagnostic.message}\n  --> ${file}:${line_num}:${column}`;
+
+            // Normalize the code - some already have clippy:: prefix, some don't
+            const normalizedCode = code.startsWith('clippy::') ? code : `clippy::${code}`;
+
+            candidates.push({
+                file,
+                line: line_num,
+                column,
+                code: normalizedCode,
+                message: diagnostic.message,
+                raw,
+                tool: 'clippy'
+            });
+        } catch {
+            // Not a JSON line, skip it
+        }
+    }
+
+    // Filter out ignored paths (async) - this handles target/, node_modules, etc. via gitignore
+    for (const candidate of candidates) {
+        if (await isIgnoredDiagnosticPath(candidate.file)) {
+            continue;
+        }
+        errors.push(candidate);
+    }
+
     return errors;
 }
 
@@ -135,9 +222,11 @@ async function getTsConfigPaths() {
 }
 
 async function main() {
-    await fs.rm(LOGS_DIR, { recursive: true, force: true });
-    await fs.mkdir(LOGS_DIR, { recursive: true });
-    console.log(`Diagnostics logs will be saved in: ${LOGS_DIR}`);
+    if (WRITE_LOGS) {
+        await fs.rm(LOGS_DIR, { recursive: true, force: true });
+        await fs.mkdir(LOGS_DIR, { recursive: true });
+        console.log(`Diagnostics logs will be saved in: ${LOGS_DIR}`);
+    }
 
     const allErrors = [];
 
@@ -152,16 +241,31 @@ async function main() {
         console.log('Biome check completed with no output.');
     }
 
+    // --- Clippy Check (Rust) ---
+    console.log('\nRunning Clippy check for Rust files...');
+    const clippyResult = await runCommand('cargo clippy --workspace --all-targets --message-format=json 2>&1');
+    if (clippyResult.stdout || clippyResult.stderr) {
+        const clippyErrors = await parseClippyErrors(clippyResult.stdout + clippyResult.stderr);
+        if (clippyErrors.length > 0) {
+            console.log(`Clippy found ${clippyErrors.length} warnings/errors.`);
+            allErrors.push(...clippyErrors);
+        } else {
+            console.log('Clippy check completed with no warnings.');
+        }
+    } else {
+        console.log('Clippy check completed with no output.');
+    }
+
     // --- TypeScript Type Check ---
     console.log('\nRunning TypeScript type checks...');
     const tsConfigPaths = await getTsConfigPaths();
-    
+
     for (const tsConfigPath of tsConfigPaths) {
         console.log(`  Checking project: ${path.relative(ROOT_DIR, tsConfigPath)}`);
         const tsResult = await runCommand(`npx tsc --noEmit -p ${tsConfigPath}`);
         if (tsResult.stdout || tsResult.stderr) {
             console.log('TypeScript output detected. Parsing...');
-            const tsErrors = parseTypeScriptErrors(tsResult.stdout + tsResult.stderr);
+            const tsErrors = await parseTypeScriptErrors(tsResult.stdout + tsResult.stderr);
             allErrors.push(...tsErrors);
         } else {
             console.log('TypeScript check completed with no output.');
@@ -171,20 +275,33 @@ async function main() {
     // --- Categorize and Log Errors ---
     const categorizedErrors = new Map();
     for (const error of allErrors) {
-        const category = error.tool === 'tsc' ? error.code : error.code; // Use rule for biome, TS code for tsc
+        const category = error.code;
         if (!categorizedErrors.has(category)) {
             categorizedErrors.set(category, []);
         }
         categorizedErrors.get(category).push(error.raw);
     }
 
-    console.log('\nWriting categorized logs...');
+    console.log('\n--- Diagnostics Summary ---');
     let totalErrors = 0;
     for (const [category, errors] of categorizedErrors.entries()) {
-        const logFileName = path.join(LOGS_DIR, `${category}.log`);
-        await fs.writeFile(logFileName, errors.join('\n') + '\n');
-        console.log(`  ${category}: ${errors.length} errors -> ${logFileName}`);
+        if (WRITE_LOGS) {
+            const logFileName = path.join(LOGS_DIR, `${category}.log`);
+            await fs.writeFile(logFileName, errors.join('\n') + '\n');
+            console.log(`  ${category}: ${errors.length} errors -> ${logFileName}`);
+        } else {
+            console.log(`  ${category}: ${errors.length} errors`);
+        }
         totalErrors += errors.length;
+    }
+
+    // Print all errors to console when not writing logs
+    if (!WRITE_LOGS && totalErrors > 0) {
+        console.log('\n--- All Diagnostics ---\n');
+        for (const error of allErrors) {
+            console.log(error.raw);
+            console.log('');
+        }
     }
 
     if (totalErrors > 0) {

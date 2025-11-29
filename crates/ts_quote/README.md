@@ -1,20 +1,22 @@
-# `ts_template!` - Svelte-Style TypeScript Code Generation
+# `ts_template!` - Rust-Style TypeScript Code Generation
 
-The `ts_template!` macro provides an intuitive, template-based way to generate TypeScript code in your macros. It uses Svelte-inspired syntax for control flow and interpolation.
+The `ts_template!` macro provides an intuitive, template-based way to generate TypeScript code in your macros. It uses Rust-inspired syntax for control flow and interpolation.
 
 ## Quick Reference
 
 | Syntax | Description |
 |--------|-------------|
-| `${expr}` | Interpolate a Rust expression |
+| `@{expr}` | Interpolate a Rust expression |
+| `"text @{expr}"` | String interpolation (auto-detected) |
 | `{#if cond}...{/if}` | Conditional block |
 | `{#if cond}...{:else}...{/if}` | Conditional with else |
-| `{#each list as item}...{/each}` | Iterate over a collection |
-| `{@const name = expr}` | Define a local constant |
+| `{#if a}...{:else if b}...{:else}...{/if}` | Full if/else-if/else chain |
+| `{#for item in list}...{/for}` | Iterate over a collection |
+| `{%let name = expr}` | Define a local constant |
 
 ## Syntax
 
-### Interpolation: `${expr}`
+### Interpolation: `@{expr}`
 
 Insert Rust expressions into the generated TypeScript:
 
@@ -23,7 +25,7 @@ let class_name = "User";
 let method = "toString";
 
 let code = ts_template! {
-    ${class_name}.prototype.${method} = function() {
+    @{class_name}.prototype.@{method} = function() {
         return "User instance";
     };
 };
@@ -34,6 +36,37 @@ let code = ts_template! {
 ```typescript
 User.prototype.toString = function () {
   return "User instance";
+};
+```
+
+### String Interpolation: `"text @{expr}"`
+
+Interpolation works automatically inside string literals - no `format!()` needed:
+
+```rust
+let name = "World";
+let count = 42;
+
+let code = ts_template! {
+    console.log("Hello @{name}!");
+    console.log("Count: @{count}, doubled: @{count * 2}");
+};
+```
+
+**Generates:**
+
+```typescript
+console.log("Hello World!");
+console.log("Count: 42, doubled: 84");
+```
+
+This also works with method calls and complex expressions:
+
+```rust
+let field = "username";
+
+let code = ts_template! {
+    throw new Error("Invalid @{field.to_uppercase()}");
 };
 ```
 
@@ -52,7 +85,37 @@ let code = ts_template! {
 };
 ```
 
-### Iteration: `{#each list as item}...{/each}`
+With else:
+
+```rust
+let has_default = true;
+
+let code = ts_template! {
+    {#if has_default}
+        return defaultValue;
+    {:else}
+        throw new Error("No default");
+    {/if}
+};
+```
+
+With else-if:
+
+```rust
+let level = 2;
+
+let code = ts_template! {
+    {#if level == 1}
+        console.log("Level 1");
+    {:else if level == 2}
+        console.log("Level 2");
+    {:else}
+        console.log("Other level");
+    {/if}
+};
+```
+
+### Iteration: `{#for item in list}...{/for}`
 
 ```rust
 let fields = vec!["name", "email", "age"];
@@ -60,9 +123,9 @@ let fields = vec!["name", "email", "age"];
 let code = ts_template! {
     function toJSON() {
         const result = {};
-        {#each fields as field}
-            result.${field} = this.${field};
-        {/each}
+        {#for field in fields}
+            result.@{field} = this.@{field};
+        {/for}
         return result;
     }
 };
@@ -80,7 +143,19 @@ function toJSON() {
 }
 ```
 
-### Local Constants: `{@const name = expr}`
+### Tuple Destructuring in Loops
+
+```rust
+let items = vec![("user", "User"), ("post", "Post")];
+
+let code = ts_template! {
+    {#for (key, class_name) in items}
+        const @{key} = new @{class_name}();
+    {/for}
+};
+```
+
+### Local Constants: `{%let name = expr}`
 
 Define local variables within the template scope:
 
@@ -88,11 +163,11 @@ Define local variables within the template scope:
 let items = vec![("user", "User"), ("post", "Post")];
 
 let code = ts_template! {
-    {#each items as (key, class_name)}
-        {@const upper = class_name.to_uppercase()}
-        console.log("Processing ${upper}");
-        const ${key} = new ${class_name}();
-    {/each}
+    {#for (key, class_name) in items}
+        {%let upper = class_name.to_uppercase()}
+        console.log("Processing @{upper}");
+        const @{key} = new @{class_name}();
+    {/for}
 };
 ```
 
@@ -145,11 +220,11 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
             let fields = class.field_names();
 
             let runtime_code = ts_template! {
-                ${class_name}.prototype.toJSON = function() {
+                @{class_name}.prototype.toJSON = function() {
                     const result = {};
-                    {#each fields as field}
-                        result.${field} = this.${field};
-                    {/each}
+                    {#for field in fields}
+                        result.@{field} = this.@{field};
+                    {/for}
                     return result;
                 };
             };
@@ -175,7 +250,7 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
 
 You can mix template syntax with regular TypeScript. Braces `{}` are recognized as either:
 
-- **Template tags** if they start with `#`, `:`, or `/`
+- **Template tags** if they start with `#`, `%`, `:`, or `/`
 - **Regular TypeScript blocks** otherwise
 
 ```rust
@@ -200,15 +275,15 @@ let classes = vec![
 ];
 
 ts_template! {
-    {#each classes as (class_name, fields)}
-        ${class_name}.prototype.toJSON = function() {
+    {#for (class_name, fields) in classes}
+        @{class_name}.prototype.toJSON = function() {
             return {
-                {#each fields as field}
-                    ${field}: this.${field},
-                {/each}
+                {#for field in fields}
+                    @{field}: this.@{field},
+                {/for}
             };
         };
-    {/each}
+    {/for}
 }
 ```
 
@@ -222,10 +297,10 @@ ts_template! {
 
 ## Best Practices
 
-1. ✅ Use `ts_template!` for complex code generation with loops/conditions
-2. ✅ Use `ts_quote!` for simple, static statements
-3. ✅ Keep templates readable - extract complex logic into variables
-4. ❌ Don't nest templates too deeply - split into helper functions
+1. Use `ts_template!` for complex code generation with loops/conditions
+2. Use `ts_quote!` for simple, static statements
+3. Keep templates readable - extract complex logic into variables
+4. Don't nest templates too deeply - split into helper functions
 
 ## Error Messages
 

@@ -62,11 +62,11 @@ fn extract_named_string(args: &str, name: &str) -> Option<String> {
         return parse_string_literal(value);
     }
 
-    if remainder.starts_with('(') {
-        if let Some(close) = remainder.rfind(')') {
-            let inner = remainder[1..close].trim();
-            return parse_string_literal(inner);
-        }
+    if remainder.starts_with('(')
+        && let Some(close) = remainder.rfind(')')
+    {
+        let inner = remainder[1..close].trim();
+        return parse_string_literal(inner);
     }
 
     None
@@ -135,12 +135,12 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, TsMacroError>
                 toString(): string {
                     {#if has_fields}
                         const parts: string[] = [];
-                        {#each debug_fields as (label, name)}
-                            parts.push(${format!("\"{label}\"")} + ": " + this.${name});
-                        {/each}
-                        return ${format!("\"{class_name}\"")} + " { " + parts.join(", ") + " }";
+                        {#for (label, name) in debug_fields}
+                            parts.push("@{label}: " + this.@{name});
+                        {/for}
+                        return "@{class_name} { " + parts.join(", ") + " }";
                     {:else}
-                        return ${format!("\"{class_name} {{}}\"")};
+                        return "@{class_name} {}";
                     {/if}
                 }
             })
