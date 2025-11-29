@@ -667,25 +667,15 @@ async function generateMacroTypes(tsConfigPaths) {
             try {
                 const result = macroModule.expandSync(content, fullPath);
                 const decls = emitDeclarationsFromCode(ts, result.code || content, fullPath, options, projectRoot);
-                if (decls) {
-                    const parsed = path.parse(path.relative(projectRoot, fullPath));
-                    const outDir = parsed.dir ? path.join(typesRoot, parsed.dir) : typesRoot;
-                    await fs.mkdir(outDir, { recursive: true });
-                    const outPath = path.join(outDir, `${parsed.name}.d.ts`);
-                    const absWithExt = path.resolve(fullPath).replace(/\\/g, '/');
-                    const absNoExt = absWithExt.replace(/\\.(tsx|ts)$/, '');
-                    const relNoExt = path
-                        .relative(projectRoot, fullPath)
-                        .replace(/\\/g, '/')
-                        .replace(/\\.(tsx|ts)$/, '');
-                    const relWithDot = `./${relNoExt}`;
-                    const localRelative = `./${parsed.name}`;
-                    const localRelativeExt = `./${parsed.name}${parsed.ext}`;
-                    const moduleNames = new Set([absWithExt, absNoExt, relNoExt, relWithDot, localRelative, localRelativeExt]);
+                if (!decls) continue;
 
-                    // Write plain declarations without module wrappers
-                    await fs.writeFile(outPath, decls, 'utf-8');
-                }
+                const parsed = path.parse(path.relative(projectRoot, fullPath));
+                const outDir = parsed.dir ? path.join(typesRoot, parsed.dir) : typesRoot;
+                await fs.mkdir(outDir, { recursive: true });
+                const outPath = path.join(outDir, `${parsed.name}.d.ts`);
+
+                // Write plain declarations; resolution is handled via tsconfig paths/rootDirs
+                await fs.writeFile(outPath, decls, 'utf-8');
             } catch {
                 // ignore expansion errors here; they will surface in later diagnostics
             }
@@ -771,7 +761,7 @@ async function main() {
 
     for (const tsConfigPath of tsConfigPaths) {
         console.log(`  Checking project: ${path.relative(ROOT_DIR, tsConfigPath)}`);
-        const tsResult = await runCommand(`npx tsc --noEmit -p ${tsConfigPath}`);
+        const tsResult = await runCommand(`npx ts-macro tsc -p ${tsConfigPath}`);
         if (tsResult.stdout || tsResult.stderr) {
             console.log('    TypeScript output detected. Parsing...');
             const tsErrors = await parseTypeScriptErrors(tsResult.stdout + tsResult.stderr);

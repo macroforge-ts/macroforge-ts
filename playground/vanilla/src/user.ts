@@ -3,7 +3,7 @@ import { JSON } from "@playground/macro";
 
 // Example of using Derive decorator and dynamic macro
 @Derive(Debug, JSON)
-class User {
+export class User {
   @debug({ rename: "identifier" })
   id: number;
 
@@ -20,5 +20,3 @@ class User {
     this.authToken = authToken;
   }
 }
-
-export { User };
