@@ -6,8 +6,6 @@
 		"checkJs": true,
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": false,
-		"baseUrl": ".",
-		"rootDirs": ["src", ".ts-macros/types/src"],
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
@@ -15,9 +13,6 @@
 		"sourceMap": true,
 		"strict": true,
 		"moduleResolution": "bundler",
-		"paths": {
-			"*": [".ts-macros/types/*", "./*"]
-		},
 		"plugins": [
 			{
 				"name": "@ts-macros/ts-derive-plugin",
