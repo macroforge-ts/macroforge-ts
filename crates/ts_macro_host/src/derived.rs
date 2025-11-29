@@ -1,4 +1,4 @@
-use crate::{MacroError, MacroRegistry, Result, TsMacro};
+use crate::{MacroRegistry, Result, TsMacro};
 use serde::Serialize;
 use std::{collections::BTreeSet, sync::Arc};
 use ts_macro_abi::MacroKind;
@@ -67,16 +67,7 @@ pub fn register_module(module: &str, registry: &MacroRegistry) -> Result<bool> {
         return Ok(false);
     }
 
-    let package = descriptors[0].package;
-    if descriptors
-        .iter()
-        .any(|descriptor| descriptor.package != package)
-    {
-        return Err(MacroError::InvalidConfig(format!(
-            "derived macros for module '{module}' have conflicting package names"
-        )));
-    }
-
+    // Collect runtime entries from all packages
     let mut runtime: BTreeSet<String> = BTreeSet::new();
     for descriptor in &descriptors {
         for entry in descriptor.runtime {
@@ -84,6 +75,7 @@ pub fn register_module(module: &str, registry: &MacroRegistry) -> Result<bool> {
         }
     }
 
+    // Register all macros - the registry will catch duplicate names
     for descriptor in descriptors {
         registry.register(module, descriptor.name, (descriptor.constructor)())?;
     }

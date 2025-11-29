@@ -1,0 +1,25 @@
+[package]
+name = "ts_macros_builtin"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Built-in derive macros for ts-macros framework"
+
+[lib]
+name = "ts_macros_builtin"
+crate-type = ["rlib"]
+
+[dependencies]
+ts_macro_host = { path = "../ts_macro_host" }
+ts_macro_abi = { path = "../ts_macro_abi" }
+ts_syn = { path = "../ts_syn" }
+ts_quote = { path = "../ts_quote" }
+ts_macro_derive = { path = "../ts_macro_derive" }
+
+# NAPI for macro stub generation
+napi = { version = "3.5.2", features = ["napi8", "compat-mode", "napi5"] }
+napi-derive = { version = "3.3.3", features = ["compat-mode"] }
+
+inventory = "0.3"

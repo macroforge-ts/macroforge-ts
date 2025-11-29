@@ -25,6 +25,7 @@ swc_core = { version = "48.0.4", features = [
 ts_macro_host = { path = "../ts_macro_host" }
 ts_macro_abi = { path = "../ts_macro_abi" }
 ts_syn = { path = "../ts_syn" }
+ts_macros_builtin = { path = "../ts_macros_builtin" }
 playground-macros = { path = "../../playground/macro" }
 serde_json = "1.0"
 

@@ -12,9 +12,10 @@ use ts_macro_abi::{
     ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode,
     SourceMapping, SpanIR, TargetIR,
 };
-use ts_macro_host::{
-    MacroConfig, MacroDispatcher, MacroRegistry, PatchCollector, builtin::register_builtin_macros,
-};
+use ts_macro_host::{MacroConfig, MacroDispatcher, MacroRegistry, PatchCollector};
+
+// Import builtin macros to ensure inventory registrations are linked
+use ts_macros_builtin as _;
 use ts_syn::lower_classes;
 
 const DERIVE_MODULE_PATH: &str = "@macro/derive";
@@ -200,6 +201,21 @@ impl MacroHostIntegration {
             };
             collector.add_runtime_patches(vec![decorator_removal.clone()]);
             collector.add_type_patches(vec![decorator_removal]);
+
+            // Remove field decorators (e.g., @Derive({skip: true}) on fields)
+            // These are macro configuration decorators that should not appear in output
+            for field in &target.class_ir.fields {
+                for decorator in &field.decorators {
+                    // Strip Derive decorators and any declared attribute decorators
+                    if decorator.name == "Derive" || decorator.name == "Debug" {
+                        let field_dec_removal = Patch::Delete {
+                            span: span_ir_with_at(decorator.span, source),
+                        };
+                        collector.add_runtime_patches(vec![field_dec_removal.clone()]);
+                        collector.add_type_patches(vec![field_dec_removal]);
+                    }
+                }
+            }
 
             // Extract the source code for this class
             let target_source = source
@@ -459,6 +475,18 @@ fn decorator_span_with_at(span: Span, source: &str) -> SpanIR {
     ir
 }
 
+fn span_ir_with_at(span: SpanIR, source: &str) -> SpanIR {
+    let mut ir = span;
+    let start = ir.start as usize;
+    if start > 0 && start <= source.len() {
+        let bytes = source.as_bytes();
+        if bytes[start - 1] == b'@' {
+            ir.start -= 1;
+        }
+    }
+    ir
+}
+
 fn parse_derive_decorator(decorator: &Decorator) -> Option<Vec<String>> {
     let call = match decorator.expr.as_ref() {
         swc_core::ecma::ast::Expr::Call(call) => call,
@@ -508,7 +536,8 @@ fn span_to_ir(span: Span) -> SpanIR {
 type PackageRegistrar = fn(&MacroRegistry) -> ts_macro_host::Result<()>;
 
 fn available_package_registrars() -> Vec<(&'static str, PackageRegistrar)> {
-    vec![("@macro/derive", register_builtin_macros as PackageRegistrar)]
+    // Built-in macros are now registered via inventory (ts_macro_derive)
+    vec![]
 }
 
 fn register_packages(

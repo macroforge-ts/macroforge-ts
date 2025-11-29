@@ -2052,6 +2052,7 @@ dependencies = [
  "swc_core",
  "ts_macro_abi",
  "ts_macro_host",
+ "ts_macros_builtin",
  "ts_syn",
 ]
 
@@ -2563,6 +2564,20 @@ dependencies = [
  "ts_macro_abi",
  "ts_syn",
  "wasmtime",
+]
+
+[[package]]
+name = "ts_macros_builtin"
+version = "0.1.0"
+dependencies = [
+ "inventory",
+ "napi",
+ "napi-derive",
+ "ts_macro_abi",
+ "ts_macro_derive",
+ "ts_macro_host",
+ "ts_quote",
+ "ts_syn",
 ]
 
 [[package]]

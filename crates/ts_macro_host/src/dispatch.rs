@@ -96,7 +96,7 @@ impl MacroDispatcher {
                     }
                 }
             }
-            Err(err) => {
+            Err(_err) => {
                 MacroResult {
                     runtime_patches: vec![],
                     type_patches: vec![],

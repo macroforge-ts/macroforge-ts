@@ -258,17 +258,28 @@ fn parse_fragment(
             // Case 4: Plain Text
             _ => {
                 let t = iter.next().unwrap();
-                // Simple stringification. For better TS formatting, you might want custom logic.
                 let s = t.to_string();
 
+                // Check if this is an identifier (includes keywords like `instanceof`, `return`, etc.)
+                let is_ident = matches!(&t, TokenTree::Ident(_));
+
                 // Check if next token is '$' (start of interpolation)
-                // If so, we skip the space to allow things like `make${Name}`
                 let next_is_dollar = matches!(iter.peek(), Some(TokenTree::Punct(p)) if p.as_char() == '$');
+
+                // Check if this is a punctuation token with Joint spacing
+                // (e.g., first two chars of `===` should not have spaces)
+                let is_joint_punct = matches!(&t, TokenTree::Punct(p) if p.spacing() == proc_macro2::Spacing::Joint);
 
                 output.extend(quote! {
                     __out.push_str(#s);
                 });
-                if !next_is_dollar {
+
+                // Add space after:
+                // - Identifiers (always need space before next token for keywords like `instanceof`, `return`)
+                // - Non-joint punctuation when not followed by $ (allows `make${Name}` but spaces around operators)
+                let should_add_space = is_ident || (!is_joint_punct && !next_is_dollar);
+
+                if should_add_space {
                     output.extend(quote! { __out.push_str(" "); });
                 }
             }
