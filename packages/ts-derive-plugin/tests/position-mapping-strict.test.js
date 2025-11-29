@@ -12,6 +12,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const ts = require('typescript/lib/tsserverlibrary');
 const initPlugin = require('../dist/index.js');
+const { loadFixture, findLineNumber } = require('./test-utils');
 
 // ============================================================================
 // Test Utilities
@@ -209,60 +210,29 @@ u.BAD_METHOD();`;
     );
   });
 
-  test.skip('Multi-line expansion should preserve error line numbers (line calculation complex)', (t) => {
+  test('Multi-line expansion should preserve error line numbers', (t) => {
     /**
      * When expansion adds multiple lines, errors should still
      * appear on the correct line in the original file.
      */
 
-    const original = `import { Derive, Debug } from "./macros";
+    // Load fixture with automatically calculated source mapping
+    const fixture = loadFixture('multiline-error');
 
-@Derive(Debug)
-class User {
-  id: string;
-}
-
-const x: string = 123;`; // Error on line 9
-
-    // Expansion adds 5 lines
-    const expanded = `import { Derive, Debug } from "./macros";
-
-@Derive(Debug)
-class User {
-  id: string;
-  toString(): string {
-    return "User { id: " + this.id + " }";
-  }
-  clone(): User {
-    return new User();
-  }
-}
-
-const x: string = 123;`; // Error now on line 14
+    // Calculate expected line numbers from fixture
+    const originalErrorLine = findLineNumber(fixture.original, 'const x: string = 123');
+    const expandedErrorLine = findLineNumber(fixture.expanded, 'const x: string = 123');
 
     t.after(() => initPlugin.__resetExpandSync?.());
 
-    // Insertion point: after "id: string;\n" (position 71)
-    // The 5 lines of methods are 99 chars total
-    const insertionPoint = 71;
-    const insertionLength = expanded.length - original.length;
-
     const env = createEnv({
-      '/virtual/test.ts': original,
+      '/virtual/test.ts': fixture.original,
       '/virtual/macros.ts': MACROS_DTS,
       '/virtual/lib.d.ts': LIB_DTS,
     }, (code, fileName) => ({
-      code: expanded,
+      code: fixture.expanded,
       diagnostics: [],
-      sourceMapping: {
-        segments: [
-          { originalStart: 0, originalEnd: insertionPoint, expandedStart: 0, expandedEnd: insertionPoint },
-          { originalStart: insertionPoint, originalEnd: original.length, expandedStart: insertionPoint + insertionLength, expandedEnd: expanded.length }
-        ],
-        generatedRegions: [
-          { start: insertionPoint, end: insertionPoint + insertionLength, sourceMacro: 'Debug' }
-        ]
-      }
+      sourceMapping: fixture.sourceMapping
     }));
 
     env.info.languageServiceHost.getScriptSnapshot('/virtual/test.ts');
@@ -276,26 +246,22 @@ const x: string = 123;`; // Error now on line 14
 
     assert(typeError, 'Should have type error');
 
-    // Get line number from source file
-    const sourceFile = env.pluginService.getProgram()?.getSourceFile('/virtual/test.ts');
-    if (sourceFile && typeError.start !== undefined) {
-      const { line } = ts.getLineAndCharacterOfPosition(sourceFile, typeError.start);
-      const reportedLine = line + 1;
+    // Get line number from the mapped position
+    const { line } = ts.getLineAndCharacterOfPosition(
+      ts.createSourceFile('/virtual/test.ts', fixture.original, ts.ScriptTarget.ESNext),
+      typeError.start
+    );
+    const reportedLine = line + 1;
 
-      // Original has error on line 9
-      const originalErrorLine = 9;
-      // Expanded has error on line 14
-      const expandedErrorLine = 14;
+    console.log(`  Original error line: ${originalErrorLine}`);
+    console.log(`  Expanded error line: ${expandedErrorLine}`);
+    console.log(`  Reported error position: ${typeError.start}`);
+    console.log(`  Reported error line: ${reportedLine}`);
 
-      console.log(`  Original error line: ${originalErrorLine}`);
-      console.log(`  Expanded error line: ${expandedErrorLine}`);
-      console.log(`  Reported error line: ${reportedLine}`);
-
-      // Error should be on the original line
-      assert.strictEqual(reportedLine, originalErrorLine,
-        `Error should be on line ${originalErrorLine}, not line ${reportedLine}`
-      );
-    }
+    // Error should be on the original line
+    assert.strictEqual(reportedLine, originalErrorLine,
+      `Error should be on line ${originalErrorLine}, not line ${reportedLine}`
+    );
   });
 
 });
@@ -459,49 +425,32 @@ function helper() {
 
 test.describe('STRICT: Completions Position Validation', () => {
 
-  test.skip('completions at original position after expansion should work (KNOWN FAIL)', (t) => {
+  test('completions at original position after expansion should work', (t) => {
     /**
      * User types 'obj.' at a position in original source.
      * Even after expansion, completions should work.
      */
 
-    const original = `import { Derive, Debug } from "./macros";
-
-@Derive(Debug)
-class User {
-  id: string;
-}
-
-const obj = new User();
-obj.`;
-
-    const expanded = `import { Derive, Debug } from "./macros";
-
-@Derive(Debug)
-class User {
-  id: string;
-  toString(): string { return this.id; }
-}
-
-const obj = new User();
-obj.`;
+    // Load fixture with automatically calculated source mapping
+    const fixture = loadFixture('completions');
 
     t.after(() => initPlugin.__resetExpandSync?.());
 
     const env = createEnv({
-      '/virtual/test.ts': original,
+      '/virtual/test.ts': fixture.original,
       '/virtual/macros.ts': MACROS_DTS,
       '/virtual/lib.d.ts': LIB_DTS,
     }, (code, fileName) => ({
-      code: expanded,
-      diagnostics: []
+      code: fixture.expanded,
+      diagnostics: [],
+      sourceMapping: fixture.sourceMapping
     }));
 
     env.info.languageServiceHost.getScriptSnapshot('/virtual/test.ts');
 
     // User triggers completion at end of 'obj.' in ORIGINAL
-    const originalDotPos = original.lastIndexOf('obj.') + 4;
-    const expandedDotPos = expanded.lastIndexOf('obj.') + 4;
+    const originalDotPos = fixture.original.lastIndexOf('obj.') + 4;
+    const expandedDotPos = fixture.expanded.lastIndexOf('obj.') + 4;
 
     console.log(`  Original completion position: ${originalDotPos}`);
     console.log(`  Expanded completion position: ${expandedDotPos}`);
@@ -535,68 +484,51 @@ obj.`;
 
 test.describe('STRICT: Go-to-Definition Position Validation', () => {
 
-  test.skip('definition result should use original source positions (KNOWN FAIL)', (t) => {
+  test('definition result should use original source positions', (t) => {
     /**
      * When user goes to definition, the result position should be
      * in original source coordinates (for editor navigation).
      */
 
-    const original = `import { Derive, Debug } from "./macros";
-
-@Derive(Debug)
-class User {
-  id: string;
-}
-
-const u = new User();
-console.log(u.id);`;
-
-    const expanded = `import { Derive, Debug } from "./macros";
-
-@Derive(Debug)
-class User {
-  id: string;
-  toString(): string { return this.id; }
-}
-
-const u = new User();
-console.log(u.id);`;
+    // Load fixture with automatically calculated source mapping
+    const fixture = loadFixture('definition');
 
     t.after(() => initPlugin.__resetExpandSync?.());
 
     const env = createEnv({
-      '/virtual/test.ts': original,
+      '/virtual/test.ts': fixture.original,
       '/virtual/macros.ts': MACROS_DTS,
       '/virtual/lib.d.ts': LIB_DTS,
     }, (code, fileName) => ({
-      code: expanded,
-      diagnostics: []
+      code: fixture.expanded,
+      diagnostics: [],
+      sourceMapping: fixture.sourceMapping
     }));
 
     env.info.languageServiceHost.getScriptSnapshot('/virtual/test.ts');
 
-    // Find 'id' in the usage 'u.id'
-    const usagePos = expanded.lastIndexOf('.id') + 1;
+    // Find 'id' in the usage 'u.id' - use ORIGINAL position (mapper will convert)
+    const originalUsagePos = fixture.original.lastIndexOf('.id') + 1;
+    const expandedUsagePos = fixture.expanded.lastIndexOf('.id') + 1;
 
-    const definitions = env.pluginService.getDefinitionAtPosition('/virtual/test.ts', usagePos);
+    console.log(`  Original usage position: ${originalUsagePos}`);
+    console.log(`  Expanded usage position: ${expandedUsagePos}`);
+
+    const definitions = env.pluginService.getDefinitionAtPosition('/virtual/test.ts', originalUsagePos);
 
     assert(definitions && definitions.length > 0, 'Should find definition');
 
     const def = definitions[0];
 
-    // Definition should point to field declaration
-    // In ORIGINAL: 'id: string' is at a certain position
-    // In EXPANDED: it's at a different position (same in this case, before insertion)
-
-    const originalFieldPos = findMarker(original, 'id: string');
-    const expandedFieldPos = findMarker(expanded, 'id: string');
+    // Definition should point to field declaration in ORIGINAL coordinates
+    const originalFieldPos = findMarker(fixture.original, 'id: string');
+    const expandedFieldPos = findMarker(fixture.expanded, 'id: string');
 
     console.log(`  Definition textSpan.start: ${def.textSpan.start}`);
     console.log(`  Original field position: ${originalFieldPos.offset}`);
     console.log(`  Expanded field position: ${expandedFieldPos.offset}`);
 
     // The definition should give us ORIGINAL position for editor navigation
-    // Currently it gives expanded position
     assert.strictEqual(def.textSpan.start, originalFieldPos.offset,
       'Definition should use original source position'
     );
