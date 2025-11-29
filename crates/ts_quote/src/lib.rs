@@ -409,12 +409,15 @@ fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
 /// # Syntax
 ///
 /// - `@{expr}` - Interpolate expressions (converts to string)
+/// - `@@{` - Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)
 /// - `"'^template ${js}^'"` - JS backtick template literal (outputs `` `template ${js}` ``)
 /// - `{#if cond}...{/if}` - Conditional blocks
 /// - `{:else}` - Else clause
 /// - `{:else if cond}` - Else-if clause
 /// - `{#for item in list}...{/for}` - Iteration
 /// - `{%let name = expr}` - Local constants
+///
+/// Note: A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com`).
 ///
 /// # Examples
 ///
