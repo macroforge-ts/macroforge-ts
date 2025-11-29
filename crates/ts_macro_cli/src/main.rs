@@ -29,6 +29,12 @@ enum Command {
         #[arg(long)]
         print: bool,
     },
+    /// Run tsc with macro expansion baked into file reads (tsc --noEmit semantics)
+    Tsc {
+        /// Path to tsconfig.json (defaults to tsconfig.json in cwd)
+        #[arg(long, short = 'p')]
+        project: Option<PathBuf>,
+    },
 }
 
 fn main() -> Result<()> {
@@ -41,6 +47,7 @@ fn main() -> Result<()> {
             types_out,
             print,
         } => expand_file(input, out, types_out, print),
+        Command::Tsc { project } => run_tsc_wrapper(project),
     }
 }
 
@@ -116,6 +123,100 @@ fn write_file(path: &PathBuf, contents: &str) -> Result<()> {
             .with_context(|| format!("failed to create {}", parent.display()))?;
     }
     fs::write(path, contents).with_context(|| format!("failed to write {}", path.display()))?;
+    Ok(())
+}
+
+fn run_tsc_wrapper(project: Option<PathBuf>) -> Result<()> {
+    // Write a temporary Node.js script that wraps tsc and expands macros on file load
+    let script = r#"
+const ts = require('typescript');
+const macros = require('@ts-macros/swc-napi');
+const path = require('path');
+
+const projectArg = process.argv[2] || 'tsconfig.json';
+const configPath = ts.findConfigFile(process.cwd(), ts.sys.fileExists, projectArg);
+if (!configPath) {
+  console.error(`[ts-macro] tsconfig not found: ${projectArg}`);
+  process.exit(1);
+}
+
+const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
+if (configFile.error) {
+  console.error(ts.formatDiagnostic(configFile.error, {
+    getCanonicalFileName: (f) => f,
+    getCurrentDirectory: ts.sys.getCurrentDirectory,
+    getNewLine: () => ts.sys.newLine
+  }));
+  process.exit(1);
+}
+
+const parsed = ts.parseJsonConfigFileContent(
+  configFile.config,
+  ts.sys,
+  path.dirname(configPath)
+);
+
+const options = { ...parsed.options, noEmit: true };
+const formatHost = {
+  getCanonicalFileName: (f) => f,
+  getCurrentDirectory: ts.sys.getCurrentDirectory,
+  getNewLine: () => ts.sys.newLine,
+};
+
+const host = ts.createCompilerHost(options);
+const origGetSourceFile = host.getSourceFile.bind(host);
+host.getSourceFile = (fileName, languageVersion, ...rest) => {
+  try {
+    if (
+      (fileName.endsWith('.ts') || fileName.endsWith('.tsx')) &&
+      !fileName.endsWith('.d.ts')
+    ) {
+      const sourceText = ts.sys.readFile(fileName);
+      if (sourceText && sourceText.includes('@Derive')) {
+        const expanded = macros.expandSync(sourceText, fileName);
+        const text = expanded.code || sourceText;
+        return ts.createSourceFile(fileName, text, languageVersion, true);
+      }
+    }
+  } catch (e) {
+    // fall through to original host
+  }
+  return origGetSourceFile(fileName, languageVersion, ...rest);
+};
+
+const program = ts.createProgram(parsed.fileNames, options, host);
+const diagnostics = ts.getPreEmitDiagnostics(program);
+if (diagnostics.length) {
+  diagnostics.forEach((d) => {
+    const msg = ts.formatDiagnostic(d, formatHost);
+    console.error(msg.trimEnd());
+  });
+}
+const hasError = diagnostics.some((d) => d.category === ts.DiagnosticCategory.Error);
+process.exit(hasError ? 1 : 0);
+"#;
+
+    let mut temp_dir = std::env::temp_dir();
+    temp_dir.push("ts-macro-cli");
+    fs::create_dir_all(&temp_dir)?;
+    let script_path = temp_dir.join("tsc-wrapper.js");
+    fs::write(&script_path, script)?;
+
+    let project_arg = project
+        .unwrap_or_else(|| PathBuf::from("tsconfig.json"))
+        .to_string_lossy()
+        .to_string();
+
+    let status = std::process::Command::new("node")
+        .arg(script_path)
+        .arg(project_arg)
+        .status()
+        .context("failed to run node tsc wrapper")?;
+
+    if !status.success() {
+        anyhow::bail!("tsc wrapper exited with status {}", status);
+    }
+
     Ok(())
 }
 
