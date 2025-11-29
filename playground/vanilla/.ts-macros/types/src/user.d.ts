@@ -1,4 +1,4 @@
-declare class User {
+export declare class User {
     id: number;
     name: string;
     email: string;
@@ -7,4 +7,3 @@ declare class User {
     toString(): string;
     toJSON(): Record<string, unknown>;
 }
-export { User };

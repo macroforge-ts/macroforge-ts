@@ -23,7 +23,7 @@ pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> 
             Ok(ts_template! {
                 toJSON(): Record<string, unknown> {
 
-                    const result = {};
+                    const result: Record<string, unknown> = {};
 
                     {#for field in class.field_names()}
                         result.@{field} = this.@{field};
