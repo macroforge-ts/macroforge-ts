@@ -19,6 +19,10 @@ pub struct MacroConfig {
     #[serde(default)]
     pub allow_native_macros: bool,
 
+    /// Whether to keep decorators in the output (useful for language server)
+    #[serde(default)]
+    pub keep_decorators: bool,
+
     /// Per-package runtime overrides
     #[serde(default)]
     pub macro_runtime_overrides: std::collections::HashMap<String, RuntimeMode>,

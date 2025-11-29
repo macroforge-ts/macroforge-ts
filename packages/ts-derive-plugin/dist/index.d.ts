@@ -25,7 +25,10 @@ interface ExpandResult {
     diagnostics: MacroDiagnostic[];
     sourceMapping?: NativeSourceMapping;
 }
-type ExpandFn = (code: string, fileName: string) => ExpandResult;
+interface ExpandOptions {
+    keepDecorators?: boolean;
+}
+type ExpandFn = (code: string, fileName: string, options?: ExpandOptions) => ExpandResult;
 declare function init(modules: {
     typescript: typeof ts;
 }): {

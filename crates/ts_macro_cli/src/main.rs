@@ -100,7 +100,7 @@ const inputPath = process.argv[2];
 const code = fs.readFileSync(inputPath, 'utf8');
 
 try {
-  const result = expandSync(code, inputPath);
+  const result = expandSync(code, inputPath, null);
 
   // Output as JSON for the Rust CLI to parse
   console.log(JSON.stringify({

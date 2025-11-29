@@ -1,6 +1,7 @@
 {
-  "macroPackages": ["@macro/derive"],
   "allowNativeMacros": true,
+  "keepDecorators": true,
+  "macroPackages": [],
   "macroRuntimeOverrides": {},
   "limits": {
     "maxExecutionTimeMs": 5000,

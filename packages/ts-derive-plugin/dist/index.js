@@ -2,6 +2,9 @@
 const source_map_1 = require("./source-map");
 const FILE_EXTENSIONS = [".ts", ".tsx", ".svelte"];
 function shouldProcess(fileName) {
+    if (fileName.endsWith(".expanded.ts")) {
+        return false;
+    }
     return FILE_EXTENSIONS.some((ext) => fileName.endsWith(ext));
 }
 // Try to load the native module, but don't crash if it fails
@@ -18,7 +21,7 @@ catch (e) {
     // Native module failed to load - plugin will be disabled
 }
 // Default no-op expand function
-const noopExpand = (code, _fileName) => ({
+const noopExpand = (code, _fileName, _options) => ({
     code: code,
     types: undefined,
     diagnostics: [],
@@ -201,7 +204,7 @@ function init(modules) {
                 }
                 // Run the macro expansion
                 log(`Expanding macros for ${fileName}`);
-                const result = expand(content, fileName);
+                const result = expand(content, fileName, { keepDecorators: true });
                 log(`Expansion result: code=${result.code?.length ?? 0} chars, types=${result.types?.length ?? 0} chars, diagnostics=${result.diagnostics?.length ?? 0}`);
                 // Filter out "macro not found" diagnostics for external macros that ARE available
                 // These will be expanded at build time by the Vite plugin
@@ -461,7 +464,7 @@ function init(modules) {
                 // Map result spans back to original
                 const mappedTextSpan = mapper.mapSpanToOriginal(result.textSpan.start, result.textSpan.length);
                 if (!mappedTextSpan)
-                    return result; // In generated code
+                    return undefined; // In generated code - hide hover
                 return {
                     ...result,
                     textSpan: { start: mappedTextSpan.start, length: mappedTextSpan.length },
@@ -481,7 +484,31 @@ function init(modules) {
                 }
                 const mapper = getMapper(fileName);
                 const expandedPos = mapper.originalToExpanded(position);
-                return originalGetCompletionsAtPosition(fileName, expandedPos, options, formattingSettings);
+                const result = originalGetCompletionsAtPosition(fileName, expandedPos, options, formattingSettings);
+                if (!result)
+                    return result;
+                // Map optionalReplacementSpan if present
+                let mappedOptionalSpan = undefined;
+                if (result.optionalReplacementSpan) {
+                    const mapped = mapper.mapSpanToOriginal(result.optionalReplacementSpan.start, result.optionalReplacementSpan.length);
+                    if (mapped) {
+                        mappedOptionalSpan = { start: mapped.start, length: mapped.length };
+                    }
+                }
+                // Map entries replacementSpan
+                const mappedEntries = result.entries.map(entry => {
+                    if (!entry.replacementSpan)
+                        return entry;
+                    const mapped = mapper.mapSpanToOriginal(entry.replacementSpan.start, entry.replacementSpan.length);
+                    if (!mapped)
+                        return { ...entry, replacementSpan: undefined }; // Remove invalid span
+                    return { ...entry, replacementSpan: { start: mapped.start, length: mapped.length } };
+                });
+                return {
+                    ...result,
+                    optionalReplacementSpan: mappedOptionalSpan,
+                    entries: mappedEntries
+                };
             }
             catch (e) {
                 log(`Error in getCompletionsAtPosition: ${e instanceof Error ? e.message : String(e)}`);
@@ -501,18 +528,21 @@ function init(modules) {
                 if (!definitions)
                     return definitions;
                 // Map each definition's span back to original (only for same file)
-                return definitions.map((def) => {
-                    if (def.fileName !== fileName)
-                        return def;
+                return definitions.reduce((acc, def) => {
+                    if (def.fileName !== fileName) {
+                        acc.push(def);
+                        return acc;
+                    }
                     const defMapper = getMapper(def.fileName);
                     const mapped = defMapper.mapSpanToOriginal(def.textSpan.start, def.textSpan.length);
-                    if (!mapped)
-                        return def;
-                    return {
-                        ...def,
-                        textSpan: { start: mapped.start, length: mapped.length },
-                    };
-                });
+                    if (mapped) {
+                        acc.push({
+                            ...def,
+                            textSpan: { start: mapped.start, length: mapped.length },
+                        });
+                    }
+                    return acc;
+                }, []);
             }
             catch (e) {
                 log(`Error in getDefinitionAtPosition: ${e instanceof Error ? e.message : String(e)}`);
@@ -534,20 +564,23 @@ function init(modules) {
                 // Map textSpan back to original
                 const mappedTextSpan = mapper.mapSpanToOriginal(result.textSpan.start, result.textSpan.length);
                 if (!mappedTextSpan)
-                    return result;
+                    return undefined; // In generated code
                 // Map each definition's span
-                const mappedDefinitions = result.definitions?.map((def) => {
-                    if (def.fileName !== fileName)
-                        return def;
+                const mappedDefinitions = result.definitions?.reduce((acc, def) => {
+                    if (def.fileName !== fileName) {
+                        acc.push(def);
+                        return acc;
+                    }
                     const defMapper = getMapper(def.fileName);
                     const mapped = defMapper.mapSpanToOriginal(def.textSpan.start, def.textSpan.length);
-                    if (!mapped)
-                        return def;
-                    return {
-                        ...def,
-                        textSpan: { start: mapped.start, length: mapped.length },
-                    };
-                });
+                    if (mapped) {
+                        acc.push({
+                            ...def,
+                            textSpan: { start: mapped.start, length: mapped.length },
+                        });
+                    }
+                    return acc;
+                }, []);
                 return {
                     textSpan: { start: mappedTextSpan.start, length: mappedTextSpan.length },
                     definitions: mappedDefinitions,
@@ -570,18 +603,21 @@ function init(modules) {
                 const definitions = originalGetTypeDefinitionAtPosition(fileName, expandedPos);
                 if (!definitions)
                     return definitions;
-                return definitions.map((def) => {
-                    if (def.fileName !== fileName)
-                        return def;
+                return definitions.reduce((acc, def) => {
+                    if (def.fileName !== fileName) {
+                        acc.push(def);
+                        return acc;
+                    }
                     const defMapper = getMapper(def.fileName);
                     const mapped = defMapper.mapSpanToOriginal(def.textSpan.start, def.textSpan.length);
-                    if (!mapped)
-                        return def;
-                    return {
-                        ...def,
-                        textSpan: { start: mapped.start, length: mapped.length },
-                    };
-                });
+                    if (mapped) {
+                        acc.push({
+                            ...def,
+                            textSpan: { start: mapped.start, length: mapped.length },
+                        });
+                    }
+                    return acc;
+                }, []);
             }
             catch (e) {
                 log(`Error in getTypeDefinitionAtPosition: ${e instanceof Error ? e.message : String(e)}`);
@@ -600,18 +636,21 @@ function init(modules) {
                 const refs = originalGetReferencesAtPosition(fileName, expandedPos);
                 if (!refs)
                     return refs;
-                return refs.map((ref) => {
-                    if (!shouldProcess(ref.fileName))
-                        return ref;
+                return refs.reduce((acc, ref) => {
+                    if (!shouldProcess(ref.fileName)) {
+                        acc.push(ref);
+                        return acc;
+                    }
                     const refMapper = getMapper(ref.fileName);
                     const mapped = refMapper.mapSpanToOriginal(ref.textSpan.start, ref.textSpan.length);
-                    if (!mapped)
-                        return ref;
-                    return {
-                        ...ref,
-                        textSpan: { start: mapped.start, length: mapped.length },
-                    };
-                });
+                    if (mapped) {
+                        acc.push({
+                            ...ref,
+                            textSpan: { start: mapped.start, length: mapped.length },
+                        });
+                    }
+                    return acc;
+                }, []);
             }
             catch (e) {
                 log(`Error in getReferencesAtPosition: ${e instanceof Error ? e.message : String(e)}`);
@@ -632,19 +671,22 @@ function init(modules) {
                     return refSymbols;
                 return refSymbols.map((refSymbol) => ({
                     ...refSymbol,
-                    references: refSymbol.references.map((ref) => {
-                        if (!shouldProcess(ref.fileName))
-                            return ref;
+                    references: refSymbol.references.reduce((acc, ref) => {
+                        if (!shouldProcess(ref.fileName)) {
+                            acc.push(ref);
+                            return acc;
+                        }
                         const refMapper = getMapper(ref.fileName);
                         const mapped = refMapper.mapSpanToOriginal(ref.textSpan.start, ref.textSpan.length);
-                        if (!mapped)
-                            return ref;
-                        return {
-                            ...ref,
-                            textSpan: { start: mapped.start, length: mapped.length },
-                        };
-                    }),
-                }));
+                        if (mapped) {
+                            acc.push({
+                                ...ref,
+                                textSpan: { start: mapped.start, length: mapped.length },
+                            });
+                        }
+                        return acc;
+                    }, []),
+                })).filter(s => s.references.length > 0);
             }
             catch (e) {
                 log(`Error in findReferences: ${e instanceof Error ? e.message : String(e)}`);
@@ -666,7 +708,7 @@ function init(modules) {
                 // Map applicableSpan back to original
                 const mappedSpan = mapper.mapSpanToOriginal(result.applicableSpan.start, result.applicableSpan.length);
                 if (!mappedSpan)
-                    return result;
+                    return undefined;
                 return {
                     ...result,
                     applicableSpan: { start: mappedSpan.start, length: mappedSpan.length },
@@ -690,8 +732,9 @@ function init(modules) {
                 if (!result.canRename || !result.triggerSpan)
                     return result;
                 const mappedSpan = mapper.mapSpanToOriginal(result.triggerSpan.start, result.triggerSpan.length);
-                if (!mappedSpan)
-                    return result;
+                if (!mappedSpan) {
+                    return { canRename: false, localizedErrorMessage: "Cannot rename in generated code" };
+                }
                 return {
                     ...result,
                     triggerSpan: { start: mappedSpan.start, length: mappedSpan.length },
@@ -715,18 +758,21 @@ function init(modules) {
                 const locations = originalFindRenameLocations(fileName, expandedPos, findInStrings, findInComments, providePrefixAndSuffixTextForRename);
                 if (!locations)
                     return locations;
-                return locations.map((loc) => {
-                    if (!shouldProcess(loc.fileName))
-                        return loc;
+                return locations.reduce((acc, loc) => {
+                    if (!shouldProcess(loc.fileName)) {
+                        acc.push(loc);
+                        return acc;
+                    }
                     const locMapper = getMapper(loc.fileName);
                     const mapped = locMapper.mapSpanToOriginal(loc.textSpan.start, loc.textSpan.length);
-                    if (!mapped)
-                        return loc;
-                    return {
-                        ...loc,
-                        textSpan: { start: mapped.start, length: mapped.length },
-                    };
-                });
+                    if (mapped) {
+                        acc.push({
+                            ...loc,
+                            textSpan: { start: mapped.start, length: mapped.length },
+                        });
+                    }
+                    return acc;
+                }, []);
             }
             catch (e) {
                 log(`Error in findRenameLocations: ${e instanceof Error ? e.message : String(e)}`);
@@ -747,19 +793,22 @@ function init(modules) {
                     return highlights;
                 return highlights.map((docHighlight) => ({
                     ...docHighlight,
-                    highlightSpans: docHighlight.highlightSpans.map((span) => {
-                        if (!shouldProcess(docHighlight.fileName))
-                            return span;
+                    highlightSpans: docHighlight.highlightSpans.reduce((acc, span) => {
+                        if (!shouldProcess(docHighlight.fileName)) {
+                            acc.push(span);
+                            return acc;
+                        }
                         const spanMapper = getMapper(docHighlight.fileName);
                         const mapped = spanMapper.mapSpanToOriginal(span.textSpan.start, span.textSpan.length);
-                        if (!mapped)
-                            return span;
-                        return {
-                            ...span,
-                            textSpan: { start: mapped.start, length: mapped.length },
-                        };
-                    }),
-                }));
+                        if (mapped) {
+                            acc.push({
+                                ...span,
+                                textSpan: { start: mapped.start, length: mapped.length },
+                            });
+                        }
+                        return acc;
+                    }, []),
+                })).filter(h => h.highlightSpans.length > 0);
             }
             catch (e) {
                 log(`Error in getDocumentHighlights: ${e instanceof Error ? e.message : String(e)}`);
@@ -778,18 +827,21 @@ function init(modules) {
                 const implementations = originalGetImplementationAtPosition(fileName, expandedPos);
                 if (!implementations)
                     return implementations;
-                return implementations.map((impl) => {
-                    if (!shouldProcess(impl.fileName))
-                        return impl;
+                return implementations.reduce((acc, impl) => {
+                    if (!shouldProcess(impl.fileName)) {
+                        acc.push(impl);
+                        return acc;
+                    }
                     const implMapper = getMapper(impl.fileName);
                     const mapped = implMapper.mapSpanToOriginal(impl.textSpan.start, impl.textSpan.length);
-                    if (!mapped)
-                        return impl;
-                    return {
-                        ...impl,
-                        textSpan: { start: mapped.start, length: mapped.length },
-                    };
-                });
+                    if (mapped) {
+                        acc.push({
+                            ...impl,
+                            textSpan: { start: mapped.start, length: mapped.length },
+                        });
+                    }
+                    return acc;
+                }, []);
             }
             catch (e) {
                 log(`Error in getImplementationAtPosition: ${e instanceof Error ? e.message : String(e)}`);

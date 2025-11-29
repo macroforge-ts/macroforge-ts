@@ -91,6 +91,10 @@ impl MacroHostIntegration {
         })
     }
 
+    pub fn set_keep_decorators(&mut self, keep: bool) {
+        self.config.keep_decorators = keep;
+    }
+
     /// Expand all macros found in the parsed program and return the updated source code.
     pub fn expand(
         &self,
@@ -214,11 +218,13 @@ impl MacroHostIntegration {
         }
 
         for target in derive_targets {
-            let decorator_removal = Patch::Delete {
-                span: target.decorator_span,
-            };
-            collector.add_runtime_patches(vec![decorator_removal.clone()]);
-            collector.add_type_patches(vec![decorator_removal]);
+            if !self.config.keep_decorators {
+                let decorator_removal = Patch::Delete {
+                    span: target.decorator_span,
+                };
+                collector.add_runtime_patches(vec![decorator_removal.clone()]);
+                collector.add_type_patches(vec![decorator_removal]);
+            }
 
             // Remove field decorators (e.g., @Derive({skip: true}) on fields)
             // These are macro configuration decorators that should not appear in output
@@ -226,11 +232,13 @@ impl MacroHostIntegration {
                 for decorator in &field.decorators {
                     // Strip Derive decorators and any declared attribute decorators
                     if decorator.name == "Derive" || decorator.name == "Debug" {
-                        let field_dec_removal = Patch::Delete {
-                            span: span_ir_with_at(decorator.span, source),
-                        };
-                        collector.add_runtime_patches(vec![field_dec_removal.clone()]);
-                        collector.add_type_patches(vec![field_dec_removal]);
+                        if !self.config.keep_decorators {
+                            let field_dec_removal = Patch::Delete {
+                                span: span_ir_with_at(decorator.span, source),
+                            };
+                            collector.add_runtime_patches(vec![field_dec_removal.clone()]);
+                            collector.add_type_patches(vec![field_dec_removal]);
+                        }
                     }
                 }
             }

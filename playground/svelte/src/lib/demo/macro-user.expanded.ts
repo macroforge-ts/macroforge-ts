@@ -14,6 +14,7 @@ import {
 } from "../types/bindings";
 import { JSON } from "@playground/macro";
 
+@Derive(Debug, JSON)
 export class MacroUser {
   @debug({ rename: "userId" })
   id: string;
@@ -42,7 +43,7 @@ export class MacroUser {
     this.apiToken = apiToken;
   }
 
-  toString(): string {
+    toString(): string {
     const parts: string[] = [];
     parts.push("userId: " + this.id);
     parts.push("name: " + this.name);
@@ -50,9 +51,9 @@ export class MacroUser {
     parts.push("favoriteMacro: " + this.favoriteMacro);
     parts.push("since: " + this.since);
     return "MacroUser { " + parts.join(", ") + " }";
-  }
+}
 
-  toJSON(): Record<string, unknown> {
+    toJSON(): Record<string, unknown> {
     const result: Record<string, unknown> = {};
     result.id = this.id;
     result.name = this.name;
@@ -61,7 +62,7 @@ export class MacroUser {
     result.since = this.since;
     result.apiToken = this.apiToken;
     return result;
-  }
+}
 }
 
 const showcaseUser = new MacroUser(

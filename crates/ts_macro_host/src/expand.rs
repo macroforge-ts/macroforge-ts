@@ -171,21 +171,25 @@ impl MacroExpander {
         }
 
         for target in derive_targets {
-            let decorator_removal = Patch::Delete {
-                span: target.decorator_span,
-            };
-            collector.add_runtime_patches(vec![decorator_removal.clone()]);
-            collector.add_type_patches(vec![decorator_removal]);
+            if !self.config.keep_decorators {
+                let decorator_removal = Patch::Delete {
+                    span: target.decorator_span,
+                };
+                collector.add_runtime_patches(vec![decorator_removal.clone()]);
+                collector.add_type_patches(vec![decorator_removal]);
+            }
 
             // Remove field decorators
             for field in &target.class_ir.fields {
                 for decorator in &field.decorators {
                     if decorator.name == "Derive" || decorator.name == "Debug" {
-                        let field_dec_removal = Patch::Delete {
-                            span: span_ir_with_at(decorator.span, source),
-                        };
-                        collector.add_runtime_patches(vec![field_dec_removal.clone()]);
-                        collector.add_type_patches(vec![field_dec_removal]);
+                        if !self.config.keep_decorators {
+                            let field_dec_removal = Patch::Delete {
+                                span: span_ir_with_at(decorator.span, source),
+                            };
+                            collector.add_runtime_patches(vec![field_dec_removal.clone()]);
+                            collector.add_type_patches(vec![field_dec_removal]);
+                        }
                     }
                 }
             }

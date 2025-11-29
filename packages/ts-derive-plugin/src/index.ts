@@ -9,6 +9,9 @@ interface PluginConfig {
 const FILE_EXTENSIONS = [".ts", ".tsx", ".svelte"];
 
 function shouldProcess(fileName: string) {
+  if (fileName.endsWith(".expanded.ts")) {
+    return false;
+  }
   return FILE_EXTENSIONS.some((ext) => fileName.endsWith(ext));
 }
 
@@ -51,7 +54,11 @@ interface ExpandResult {
   sourceMapping?: NativeSourceMapping;
 }
 
-type ExpandFn = (code: string, fileName: string) => ExpandResult;
+interface ExpandOptions {
+  keepDecorators?: boolean;
+}
+
+type ExpandFn = (code: string, fileName: string, options?: ExpandOptions) => ExpandResult;
 
 // Try to load the native module, but don't crash if it fails
 let nativeModuleLoaded = false;
@@ -68,7 +75,7 @@ try {
 }
 
 // Default no-op expand function
-const noopExpand: ExpandFn = (code: string, _fileName: string) => ({
+const noopExpand: ExpandFn = (code: string, _fileName: string, _options?: ExpandOptions) => ({
   code: code,
   types: undefined,
   diagnostics: [],
@@ -313,7 +320,7 @@ function init(modules: { typescript: typeof ts }) {
 
         // Run the macro expansion
         log(`Expanding macros for ${fileName}`);
-        const result = expand(content, fileName);
+        const result = expand(content, fileName, { keepDecorators: true });
         log(`Expansion result: code=${result.code?.length ?? 0} chars, types=${result.types?.length ?? 0} chars, diagnostics=${result.diagnostics?.length ?? 0}`);
 
         // Filter out "macro not found" diagnostics for external macros that ARE available
@@ -600,407 +607,473 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getQuickInfoAtPosition to map input position and output spans
-    const originalGetQuickInfoAtPosition = info.languageService.getQuickInfoAtPosition.bind(
-      info.languageService
-    );
-
-    info.languageService.getQuickInfoAtPosition = (fileName, position) => {
-      try {
-        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
-          return originalGetQuickInfoAtPosition(fileName, position);
-        }
-
-        const mapper = getMapper(fileName);
-        // Map original position to expanded
-        const expandedPos = mapper.originalToExpanded(position);
-        const result = originalGetQuickInfoAtPosition(fileName, expandedPos);
-
-        if (!result) return result;
-
-        // Map result spans back to original
-        const mappedTextSpan = mapper.mapSpanToOriginal(result.textSpan.start, result.textSpan.length);
-        if (!mappedTextSpan) return result; // In generated code
-
-        return {
-          ...result,
-          textSpan: { start: mappedTextSpan.start, length: mappedTextSpan.length },
-        };
-      } catch (e) {
-        log(`Error in getQuickInfoAtPosition: ${e instanceof Error ? e.message : String(e)}`);
-        return originalGetQuickInfoAtPosition(fileName, position);
-      }
-    };
-
-    // Hook getCompletionsAtPosition to map input position
-    const originalGetCompletionsAtPosition = info.languageService.getCompletionsAtPosition.bind(
-      info.languageService
-    );
-
-    info.languageService.getCompletionsAtPosition = (fileName, position, options, formattingSettings) => {
-      try {
-        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
-          return originalGetCompletionsAtPosition(fileName, position, options, formattingSettings);
-        }
-
-        const mapper = getMapper(fileName);
-        const expandedPos = mapper.originalToExpanded(position);
-        return originalGetCompletionsAtPosition(fileName, expandedPos, options, formattingSettings);
-      } catch (e) {
-        log(`Error in getCompletionsAtPosition: ${e instanceof Error ? e.message : String(e)}`);
-        return originalGetCompletionsAtPosition(fileName, position, options, formattingSettings);
-      }
-    };
-
-    // Hook getDefinitionAtPosition to map input and output positions
-    const originalGetDefinitionAtPosition = info.languageService.getDefinitionAtPosition.bind(
-      info.languageService
-    );
-
-    info.languageService.getDefinitionAtPosition = (fileName, position) => {
-      try {
-        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
-          return originalGetDefinitionAtPosition(fileName, position);
-        }
-
-        const mapper = getMapper(fileName);
-        const expandedPos = mapper.originalToExpanded(position);
-        const definitions = originalGetDefinitionAtPosition(fileName, expandedPos);
-
-        if (!definitions) return definitions;
-
-        // Map each definition's span back to original (only for same file)
-        return definitions.map((def) => {
-          if (def.fileName !== fileName) return def;
-          const defMapper = getMapper(def.fileName);
-          const mapped = defMapper.mapSpanToOriginal(def.textSpan.start, def.textSpan.length);
-          if (!mapped) return def;
-          return {
-            ...def,
-            textSpan: { start: mapped.start, length: mapped.length },
-          };
-        });
-      } catch (e) {
-        log(`Error in getDefinitionAtPosition: ${e instanceof Error ? e.message : String(e)}`);
-        return originalGetDefinitionAtPosition(fileName, position);
-      }
-    };
-
-    // Hook getDefinitionAndBoundSpan for more complete definition handling
-    const originalGetDefinitionAndBoundSpan = info.languageService.getDefinitionAndBoundSpan.bind(
-      info.languageService
-    );
-
-    info.languageService.getDefinitionAndBoundSpan = (fileName, position) => {
-      try {
-        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
-          return originalGetDefinitionAndBoundSpan(fileName, position);
-        }
-
-        const mapper = getMapper(fileName);
-        const expandedPos = mapper.originalToExpanded(position);
-        const result = originalGetDefinitionAndBoundSpan(fileName, expandedPos);
-
-        if (!result) return result;
-
-        // Map textSpan back to original
-        const mappedTextSpan = mapper.mapSpanToOriginal(result.textSpan.start, result.textSpan.length);
-        if (!mappedTextSpan) return result;
-
-        // Map each definition's span
-        const mappedDefinitions = result.definitions?.map((def) => {
-          if (def.fileName !== fileName) return def;
-          const defMapper = getMapper(def.fileName);
-          const mapped = defMapper.mapSpanToOriginal(def.textSpan.start, def.textSpan.length);
-          if (!mapped) return def;
-          return {
-            ...def,
-            textSpan: { start: mapped.start, length: mapped.length },
-          };
-        });
-
-        return {
-          textSpan: { start: mappedTextSpan.start, length: mappedTextSpan.length },
-          definitions: mappedDefinitions,
-        };
-      } catch (e) {
-        log(`Error in getDefinitionAndBoundSpan: ${e instanceof Error ? e.message : String(e)}`);
-        return originalGetDefinitionAndBoundSpan(fileName, position);
-      }
-    };
-
-    // Hook getTypeDefinitionAtPosition
-    const originalGetTypeDefinitionAtPosition = info.languageService.getTypeDefinitionAtPosition.bind(
-      info.languageService
-    );
-
-    info.languageService.getTypeDefinitionAtPosition = (fileName, position) => {
-      try {
-        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
-          return originalGetTypeDefinitionAtPosition(fileName, position);
-        }
-
-        const mapper = getMapper(fileName);
-        const expandedPos = mapper.originalToExpanded(position);
-        const definitions = originalGetTypeDefinitionAtPosition(fileName, expandedPos);
-
-        if (!definitions) return definitions;
-
-        return definitions.map((def) => {
-          if (def.fileName !== fileName) return def;
-          const defMapper = getMapper(def.fileName);
-          const mapped = defMapper.mapSpanToOriginal(def.textSpan.start, def.textSpan.length);
-          if (!mapped) return def;
-          return {
-            ...def,
-            textSpan: { start: mapped.start, length: mapped.length },
-          };
-        });
-      } catch (e) {
-        log(`Error in getTypeDefinitionAtPosition: ${e instanceof Error ? e.message : String(e)}`);
-        return originalGetTypeDefinitionAtPosition(fileName, position);
-      }
-    };
-
-    // Hook getReferencesAtPosition
-    const originalGetReferencesAtPosition = info.languageService.getReferencesAtPosition.bind(
-      info.languageService
-    );
-
-    info.languageService.getReferencesAtPosition = (fileName, position) => {
-      try {
-        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
-          return originalGetReferencesAtPosition(fileName, position);
-        }
-
-        const mapper = getMapper(fileName);
-        const expandedPos = mapper.originalToExpanded(position);
-        const refs = originalGetReferencesAtPosition(fileName, expandedPos);
-
-        if (!refs) return refs;
-
-        return refs.map((ref) => {
-          if (!shouldProcess(ref.fileName)) return ref;
-          const refMapper = getMapper(ref.fileName);
-          const mapped = refMapper.mapSpanToOriginal(ref.textSpan.start, ref.textSpan.length);
-          if (!mapped) return ref;
-          return {
-            ...ref,
-            textSpan: { start: mapped.start, length: mapped.length },
-          };
-        });
-      } catch (e) {
-        log(`Error in getReferencesAtPosition: ${e instanceof Error ? e.message : String(e)}`);
-        return originalGetReferencesAtPosition(fileName, position);
-      }
-    };
-
-    // Hook findReferences
-    const originalFindReferences = info.languageService.findReferences.bind(
-      info.languageService
-    );
-
-    info.languageService.findReferences = (fileName, position) => {
-      try {
-        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
-          return originalFindReferences(fileName, position);
-        }
-
-        const mapper = getMapper(fileName);
-        const expandedPos = mapper.originalToExpanded(position);
-        const refSymbols = originalFindReferences(fileName, expandedPos);
-
-        if (!refSymbols) return refSymbols;
-
-        return refSymbols.map((refSymbol) => ({
-          ...refSymbol,
-          references: refSymbol.references.map((ref) => {
-            if (!shouldProcess(ref.fileName)) return ref;
-            const refMapper = getMapper(ref.fileName);
-            const mapped = refMapper.mapSpanToOriginal(ref.textSpan.start, ref.textSpan.length);
-            if (!mapped) return ref;
+            // Hook getQuickInfoAtPosition to map input position and output spans
+        const originalGetQuickInfoAtPosition = info.languageService.getQuickInfoAtPosition.bind(
+          info.languageService
+        );
+    
+        info.languageService.getQuickInfoAtPosition = (fileName, position) => {
+          try {
+            if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+              return originalGetQuickInfoAtPosition(fileName, position);
+            }
+    
+            const mapper = getMapper(fileName);
+            // Map original position to expanded
+            const expandedPos = mapper.originalToExpanded(position);
+            const result = originalGetQuickInfoAtPosition(fileName, expandedPos);
+    
+            if (!result) return result;
+    
+            // Map result spans back to original
+            const mappedTextSpan = mapper.mapSpanToOriginal(result.textSpan.start, result.textSpan.length);
+            if (!mappedTextSpan) return undefined; // In generated code - hide hover
+    
             return {
-              ...ref,
-              textSpan: { start: mapped.start, length: mapped.length },
+              ...result,
+              textSpan: { start: mappedTextSpan.start, length: mappedTextSpan.length },
             };
-          }),
-        }));
-      } catch (e) {
-        log(`Error in findReferences: ${e instanceof Error ? e.message : String(e)}`);
-        return originalFindReferences(fileName, position);
-      }
-    };
-
-    // Hook getSignatureHelpItems
-    const originalGetSignatureHelpItems = info.languageService.getSignatureHelpItems.bind(
-      info.languageService
-    );
-
-    info.languageService.getSignatureHelpItems = (fileName, position, options) => {
-      try {
-        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
-          return originalGetSignatureHelpItems(fileName, position, options);
-        }
-
-        const mapper = getMapper(fileName);
-        const expandedPos = mapper.originalToExpanded(position);
-        const result = originalGetSignatureHelpItems(fileName, expandedPos, options);
-
-        if (!result) return result;
-
-        // Map applicableSpan back to original
-        const mappedSpan = mapper.mapSpanToOriginal(result.applicableSpan.start, result.applicableSpan.length);
-        if (!mappedSpan) return result;
-
-        return {
-          ...result,
-          applicableSpan: { start: mappedSpan.start, length: mappedSpan.length },
+          } catch (e) {
+            log(`Error in getQuickInfoAtPosition: ${e instanceof Error ? e.message : String(e)}`);
+            return originalGetQuickInfoAtPosition(fileName, position);
+          }
         };
-      } catch (e) {
-        log(`Error in getSignatureHelpItems: ${e instanceof Error ? e.message : String(e)}`);
-        return originalGetSignatureHelpItems(fileName, position, options);
-      }
-    };
-
-    // Hook getRenameInfo
-    const originalGetRenameInfo = info.languageService.getRenameInfo.bind(
-      info.languageService
-    );
-
-    info.languageService.getRenameInfo = (fileName, position, options) => {
-      try {
-        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
-          return originalGetRenameInfo(fileName, position, options);
-        }
-
-        const mapper = getMapper(fileName);
-        const expandedPos = mapper.originalToExpanded(position);
-        const result = originalGetRenameInfo(fileName, expandedPos, options);
-
-        if (!result.canRename || !result.triggerSpan) return result;
-
-        const mappedSpan = mapper.mapSpanToOriginal(result.triggerSpan.start, result.triggerSpan.length);
-        if (!mappedSpan) return result;
-
-        return {
-          ...result,
-          triggerSpan: { start: mappedSpan.start, length: mappedSpan.length },
-        };
-      } catch (e) {
-        log(`Error in getRenameInfo: ${e instanceof Error ? e.message : String(e)}`);
-        return originalGetRenameInfo(fileName, position, options);
-      }
-    };
-
-    // Hook findRenameLocations
-    const originalFindRenameLocations = info.languageService.findRenameLocations.bind(
-      info.languageService
-    );
-
-    // Cast to any to handle multiple overloads
-    (info.languageService as any).findRenameLocations = (
-      fileName: string,
-      position: number,
-      findInStrings: boolean,
-      findInComments: boolean,
-      providePrefixAndSuffixTextForRename?: boolean
-    ) => {
-      try {
-        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
-          return originalFindRenameLocations(fileName, position, findInStrings, findInComments, providePrefixAndSuffixTextForRename);
-        }
-
-        const mapper = getMapper(fileName);
-        const expandedPos = mapper.originalToExpanded(position);
-        const locations = originalFindRenameLocations(fileName, expandedPos, findInStrings, findInComments, providePrefixAndSuffixTextForRename);
-
-        if (!locations) return locations;
-
-        return locations.map((loc) => {
-          if (!shouldProcess(loc.fileName)) return loc;
-          const locMapper = getMapper(loc.fileName);
-          const mapped = locMapper.mapSpanToOriginal(loc.textSpan.start, loc.textSpan.length);
-          if (!mapped) return loc;
-          return {
-            ...loc,
-            textSpan: { start: mapped.start, length: mapped.length },
-          };
-        });
-      } catch (e) {
-        log(`Error in findRenameLocations: ${e instanceof Error ? e.message : String(e)}`);
-        return originalFindRenameLocations(fileName, position, findInStrings, findInComments, providePrefixAndSuffixTextForRename);
-      }
-    };
-
-    // Hook getDocumentHighlights
-    const originalGetDocumentHighlights = info.languageService.getDocumentHighlights.bind(
-      info.languageService
-    );
-
-    info.languageService.getDocumentHighlights = (fileName, position, filesToSearch) => {
-      try {
-        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
-          return originalGetDocumentHighlights(fileName, position, filesToSearch);
-        }
-
-        const mapper = getMapper(fileName);
-        const expandedPos = mapper.originalToExpanded(position);
-        const highlights = originalGetDocumentHighlights(fileName, expandedPos, filesToSearch);
-
-        if (!highlights) return highlights;
-
-        return highlights.map((docHighlight) => ({
-          ...docHighlight,
-          highlightSpans: docHighlight.highlightSpans.map((span) => {
-            if (!shouldProcess(docHighlight.fileName)) return span;
-            const spanMapper = getMapper(docHighlight.fileName);
-            const mapped = spanMapper.mapSpanToOriginal(span.textSpan.start, span.textSpan.length);
-            if (!mapped) return span;
+    
+        // Hook getCompletionsAtPosition to map input position
+        const originalGetCompletionsAtPosition = info.languageService.getCompletionsAtPosition.bind(
+          info.languageService
+        );
+    
+        info.languageService.getCompletionsAtPosition = (fileName, position, options, formattingSettings) => {
+          try {
+            if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+              return originalGetCompletionsAtPosition(fileName, position, options, formattingSettings);
+            }
+    
+            const mapper = getMapper(fileName);
+            const expandedPos = mapper.originalToExpanded(position);
+            const result = originalGetCompletionsAtPosition(fileName, expandedPos, options, formattingSettings);
+    
+            if (!result) return result;
+    
+            // Map optionalReplacementSpan if present
+            let mappedOptionalSpan = undefined;
+            if (result.optionalReplacementSpan) {
+              const mapped = mapper.mapSpanToOriginal(result.optionalReplacementSpan.start, result.optionalReplacementSpan.length);
+              if (mapped) {
+                mappedOptionalSpan = { start: mapped.start, length: mapped.length };
+              }
+            }
+    
+            // Map entries replacementSpan
+            const mappedEntries = result.entries.map(entry => {
+              if (!entry.replacementSpan) return entry;
+              const mapped = mapper.mapSpanToOriginal(entry.replacementSpan.start, entry.replacementSpan.length);
+              if (!mapped) return { ...entry, replacementSpan: undefined }; // Remove invalid span
+              return { ...entry, replacementSpan: { start: mapped.start, length: mapped.length } };
+            });
+    
             return {
-              ...span,
-              textSpan: { start: mapped.start, length: mapped.length },
+              ...result,
+              optionalReplacementSpan: mappedOptionalSpan,
+              entries: mappedEntries
             };
-          }),
-        }));
-      } catch (e) {
-        log(`Error in getDocumentHighlights: ${e instanceof Error ? e.message : String(e)}`);
-        return originalGetDocumentHighlights(fileName, position, filesToSearch);
-      }
-    };
-
-    // Hook getImplementationAtPosition
-    const originalGetImplementationAtPosition = info.languageService.getImplementationAtPosition.bind(
-      info.languageService
-    );
-
-    info.languageService.getImplementationAtPosition = (fileName, position) => {
-      try {
-        if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
-          return originalGetImplementationAtPosition(fileName, position);
-        }
-
-        const mapper = getMapper(fileName);
-        const expandedPos = mapper.originalToExpanded(position);
-        const implementations = originalGetImplementationAtPosition(fileName, expandedPos);
-
-        if (!implementations) return implementations;
-
-        return implementations.map((impl) => {
-          if (!shouldProcess(impl.fileName)) return impl;
-          const implMapper = getMapper(impl.fileName);
-          const mapped = implMapper.mapSpanToOriginal(impl.textSpan.start, impl.textSpan.length);
-          if (!mapped) return impl;
-          return {
-            ...impl,
-            textSpan: { start: mapped.start, length: mapped.length },
-          };
-        });
-      } catch (e) {
-        log(`Error in getImplementationAtPosition: ${e instanceof Error ? e.message : String(e)}`);
-        return originalGetImplementationAtPosition(fileName, position);
-      }
-    };
-
+          } catch (e) {
+            log(`Error in getCompletionsAtPosition: ${e instanceof Error ? e.message : String(e)}`);
+            return originalGetCompletionsAtPosition(fileName, position, options, formattingSettings);
+          }
+        };
+    
+        // Hook getDefinitionAtPosition to map input and output positions
+        const originalGetDefinitionAtPosition = info.languageService.getDefinitionAtPosition.bind(
+          info.languageService
+        );
+    
+        info.languageService.getDefinitionAtPosition = (fileName, position) => {
+          try {
+            if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+              return originalGetDefinitionAtPosition(fileName, position);
+            }
+    
+            const mapper = getMapper(fileName);
+            const expandedPos = mapper.originalToExpanded(position);
+            const definitions = originalGetDefinitionAtPosition(fileName, expandedPos);
+    
+            if (!definitions) return definitions;
+    
+            // Map each definition's span back to original (only for same file)
+            return definitions.reduce((acc, def) => {
+              if (def.fileName !== fileName) {
+                 acc.push(def);
+                 return acc;
+              }
+              const defMapper = getMapper(def.fileName);
+              const mapped = defMapper.mapSpanToOriginal(def.textSpan.start, def.textSpan.length);
+              if (mapped) {
+                acc.push({
+                  ...def,
+                  textSpan: { start: mapped.start, length: mapped.length },
+                });
+              }
+              return acc;
+            }, [] as ts.DefinitionInfo[]);
+          } catch (e) {
+            log(`Error in getDefinitionAtPosition: ${e instanceof Error ? e.message : String(e)}`);
+            return originalGetDefinitionAtPosition(fileName, position);
+          }
+        };
+    
+        // Hook getDefinitionAndBoundSpan for more complete definition handling
+        const originalGetDefinitionAndBoundSpan = info.languageService.getDefinitionAndBoundSpan.bind(
+          info.languageService
+        );
+    
+        info.languageService.getDefinitionAndBoundSpan = (fileName, position) => {
+          try {
+            if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+              return originalGetDefinitionAndBoundSpan(fileName, position);
+            }
+    
+            const mapper = getMapper(fileName);
+            const expandedPos = mapper.originalToExpanded(position);
+            const result = originalGetDefinitionAndBoundSpan(fileName, expandedPos);
+    
+            if (!result) return result;
+    
+            // Map textSpan back to original
+            const mappedTextSpan = mapper.mapSpanToOriginal(result.textSpan.start, result.textSpan.length);
+            if (!mappedTextSpan) return undefined; // In generated code
+    
+            // Map each definition's span
+            const mappedDefinitions = result.definitions?.reduce((acc, def) => {
+              if (def.fileName !== fileName) {
+                 acc.push(def);
+                 return acc;
+              }
+              const defMapper = getMapper(def.fileName);
+              const mapped = defMapper.mapSpanToOriginal(def.textSpan.start, def.textSpan.length);
+              if (mapped) {
+                acc.push({
+                  ...def,
+                  textSpan: { start: mapped.start, length: mapped.length },
+                });
+              }
+              return acc;
+            }, [] as ts.DefinitionInfo[]);
+    
+            return {
+              textSpan: { start: mappedTextSpan.start, length: mappedTextSpan.length },
+              definitions: mappedDefinitions,
+            };
+          } catch (e) {
+            log(`Error in getDefinitionAndBoundSpan: ${e instanceof Error ? e.message : String(e)}`);
+            return originalGetDefinitionAndBoundSpan(fileName, position);
+          }
+        };
+    
+        // Hook getTypeDefinitionAtPosition
+        const originalGetTypeDefinitionAtPosition = info.languageService.getTypeDefinitionAtPosition.bind(
+          info.languageService
+        );
+    
+        info.languageService.getTypeDefinitionAtPosition = (fileName, position) => {
+          try {
+            if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+              return originalGetTypeDefinitionAtPosition(fileName, position);
+            }
+    
+            const mapper = getMapper(fileName);
+            const expandedPos = mapper.originalToExpanded(position);
+            const definitions = originalGetTypeDefinitionAtPosition(fileName, expandedPos);
+    
+            if (!definitions) return definitions;
+    
+            return definitions.reduce((acc, def) => {
+              if (def.fileName !== fileName) {
+                acc.push(def);
+                return acc;
+              }
+              const defMapper = getMapper(def.fileName);
+              const mapped = defMapper.mapSpanToOriginal(def.textSpan.start, def.textSpan.length);
+              if (mapped) {
+                acc.push({
+                  ...def,
+                  textSpan: { start: mapped.start, length: mapped.length },
+                });
+              }
+              return acc;
+            }, [] as ts.DefinitionInfo[]);
+          } catch (e) {
+            log(`Error in getTypeDefinitionAtPosition: ${e instanceof Error ? e.message : String(e)}`);
+            return originalGetTypeDefinitionAtPosition(fileName, position);
+          }
+        };
+    
+        // Hook getReferencesAtPosition
+        const originalGetReferencesAtPosition = info.languageService.getReferencesAtPosition.bind(
+          info.languageService
+        );
+    
+        info.languageService.getReferencesAtPosition = (fileName, position) => {
+          try {
+            if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+              return originalGetReferencesAtPosition(fileName, position);
+            }
+    
+            const mapper = getMapper(fileName);
+            const expandedPos = mapper.originalToExpanded(position);
+            const refs = originalGetReferencesAtPosition(fileName, expandedPos);
+    
+            if (!refs) return refs;
+    
+            return refs.reduce((acc, ref) => {
+              if (!shouldProcess(ref.fileName)) {
+                 acc.push(ref);
+                 return acc;
+              }
+              const refMapper = getMapper(ref.fileName);
+              const mapped = refMapper.mapSpanToOriginal(ref.textSpan.start, ref.textSpan.length);
+              if (mapped) {
+                acc.push({
+                  ...ref,
+                  textSpan: { start: mapped.start, length: mapped.length },
+                });
+              }
+              return acc;
+            }, [] as ts.ReferenceEntry[]);
+          } catch (e) {
+            log(`Error in getReferencesAtPosition: ${e instanceof Error ? e.message : String(e)}`);
+            return originalGetReferencesAtPosition(fileName, position);
+          }
+        };
+    
+        // Hook findReferences
+        const originalFindReferences = info.languageService.findReferences.bind(
+          info.languageService
+        );
+    
+        info.languageService.findReferences = (fileName, position) => {
+          try {
+            if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+              return originalFindReferences(fileName, position);
+            }
+    
+            const mapper = getMapper(fileName);
+            const expandedPos = mapper.originalToExpanded(position);
+            const refSymbols = originalFindReferences(fileName, expandedPos);
+    
+            if (!refSymbols) return refSymbols;
+    
+            return refSymbols.map((refSymbol) => ({
+              ...refSymbol,
+              references: refSymbol.references.reduce((acc, ref) => {
+                if (!shouldProcess(ref.fileName)) {
+                  acc.push(ref);
+                  return acc;
+                }
+                const refMapper = getMapper(ref.fileName);
+                const mapped = refMapper.mapSpanToOriginal(ref.textSpan.start, ref.textSpan.length);
+                if (mapped) {
+                  acc.push({
+                    ...ref,
+                    textSpan: { start: mapped.start, length: mapped.length },
+                  });
+                }
+                return acc;
+              }, [] as ts.ReferenceEntry[]),
+            })).filter(s => s.references.length > 0);
+          } catch (e) {
+            log(`Error in findReferences: ${e instanceof Error ? e.message : String(e)}`);
+            return originalFindReferences(fileName, position);
+          }
+        };
+    
+        // Hook getSignatureHelpItems
+        const originalGetSignatureHelpItems = info.languageService.getSignatureHelpItems.bind(
+          info.languageService
+        );
+    
+        info.languageService.getSignatureHelpItems = (fileName, position, options) => {
+          try {
+            if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+              return originalGetSignatureHelpItems(fileName, position, options);
+            }
+    
+            const mapper = getMapper(fileName);
+            const expandedPos = mapper.originalToExpanded(position);
+            const result = originalGetSignatureHelpItems(fileName, expandedPos, options);
+    
+            if (!result) return result;
+    
+            // Map applicableSpan back to original
+            const mappedSpan = mapper.mapSpanToOriginal(result.applicableSpan.start, result.applicableSpan.length);
+            if (!mappedSpan) return undefined;
+    
+            return {
+              ...result,
+              applicableSpan: { start: mappedSpan.start, length: mappedSpan.length },
+            };
+          } catch (e) {
+            log(`Error in getSignatureHelpItems: ${e instanceof Error ? e.message : String(e)}`);
+            return originalGetSignatureHelpItems(fileName, position, options);
+          }
+        };
+    
+        // Hook getRenameInfo
+        const originalGetRenameInfo = info.languageService.getRenameInfo.bind(
+          info.languageService
+        );
+    
+        info.languageService.getRenameInfo = (fileName, position, options) => {
+          try {
+            if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+              return originalGetRenameInfo(fileName, position, options);
+            }
+    
+            const mapper = getMapper(fileName);
+            const expandedPos = mapper.originalToExpanded(position);
+            const result = originalGetRenameInfo(fileName, expandedPos, options);
+    
+            if (!result.canRename || !result.triggerSpan) return result;
+    
+            const mappedSpan = mapper.mapSpanToOriginal(result.triggerSpan.start, result.triggerSpan.length);
+            if (!mappedSpan) {
+                return { canRename: false, localizedErrorMessage: "Cannot rename in generated code" };
+            }
+    
+            return {
+              ...result,
+              triggerSpan: { start: mappedSpan.start, length: mappedSpan.length },
+            };
+          } catch (e) {
+            log(`Error in getRenameInfo: ${e instanceof Error ? e.message : String(e)}`);
+            return originalGetRenameInfo(fileName, position, options);
+          }
+        };
+    
+        // Hook findRenameLocations
+        const originalFindRenameLocations = info.languageService.findRenameLocations.bind(
+          info.languageService
+        );
+    
+        // Cast to any to handle multiple overloads
+        (info.languageService as any).findRenameLocations = (
+          fileName: string,
+          position: number,
+          findInStrings: boolean,
+          findInComments: boolean,
+          providePrefixAndSuffixTextForRename?: boolean
+        ) => {
+          try {
+            if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+              return originalFindRenameLocations(fileName, position, findInStrings, findInComments, providePrefixAndSuffixTextForRename);
+            }
+    
+            const mapper = getMapper(fileName);
+            const expandedPos = mapper.originalToExpanded(position);
+            const locations = originalFindRenameLocations(fileName, expandedPos, findInStrings, findInComments, providePrefixAndSuffixTextForRename);
+    
+            if (!locations) return locations;
+    
+            return locations.reduce((acc, loc) => {
+              if (!shouldProcess(loc.fileName)) {
+                acc.push(loc);
+                return acc;
+              }
+              const locMapper = getMapper(loc.fileName);
+              const mapped = locMapper.mapSpanToOriginal(loc.textSpan.start, loc.textSpan.length);
+              if (mapped) {
+                acc.push({
+                  ...loc,
+                  textSpan: { start: mapped.start, length: mapped.length },
+                });
+              }
+              return acc;
+            }, [] as ts.RenameLocation[]);
+          } catch (e) {
+            log(`Error in findRenameLocations: ${e instanceof Error ? e.message : String(e)}`);
+            return originalFindRenameLocations(fileName, position, findInStrings, findInComments, providePrefixAndSuffixTextForRename);
+          }
+        };
+    
+        // Hook getDocumentHighlights
+        const originalGetDocumentHighlights = info.languageService.getDocumentHighlights.bind(
+          info.languageService
+        );
+    
+        info.languageService.getDocumentHighlights = (fileName, position, filesToSearch) => {
+          try {
+            if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+              return originalGetDocumentHighlights(fileName, position, filesToSearch);
+            }
+    
+            const mapper = getMapper(fileName);
+            const expandedPos = mapper.originalToExpanded(position);
+            const highlights = originalGetDocumentHighlights(fileName, expandedPos, filesToSearch);
+    
+            if (!highlights) return highlights;
+    
+            return highlights.map((docHighlight) => ({
+              ...docHighlight,
+              highlightSpans: docHighlight.highlightSpans.reduce((acc, span) => {
+                if (!shouldProcess(docHighlight.fileName)) {
+                  acc.push(span);
+                  return acc;
+                }
+                const spanMapper = getMapper(docHighlight.fileName);
+                const mapped = spanMapper.mapSpanToOriginal(span.textSpan.start, span.textSpan.length);
+                if (mapped) {
+                  acc.push({
+                    ...span,
+                    textSpan: { start: mapped.start, length: mapped.length },
+                  });
+                }
+                return acc;
+              }, [] as ts.HighlightSpan[]),
+            })).filter(h => h.highlightSpans.length > 0);
+          } catch (e) {
+            log(`Error in getDocumentHighlights: ${e instanceof Error ? e.message : String(e)}`);
+            return originalGetDocumentHighlights(fileName, position, filesToSearch);
+          }
+        };
+    
+        // Hook getImplementationAtPosition
+        const originalGetImplementationAtPosition = info.languageService.getImplementationAtPosition.bind(
+          info.languageService
+        );
+    
+        info.languageService.getImplementationAtPosition = (fileName, position) => {
+          try {
+            if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+              return originalGetImplementationAtPosition(fileName, position);
+            }
+    
+            const mapper = getMapper(fileName);
+            const expandedPos = mapper.originalToExpanded(position);
+            const implementations = originalGetImplementationAtPosition(fileName, expandedPos);
+    
+            if (!implementations) return implementations;
+    
+            return implementations.reduce((acc, impl) => {
+              if (!shouldProcess(impl.fileName)) {
+                 acc.push(impl);
+                 return acc;
+              }
+              const implMapper = getMapper(impl.fileName);
+              const mapped = implMapper.mapSpanToOriginal(impl.textSpan.start, impl.textSpan.length);
+              if (mapped) {
+                acc.push({
+                  ...impl,
+                  textSpan: { start: mapped.start, length: mapped.length },
+                });
+              }
+              return acc;
+            }, [] as ts.ImplementationLocation[]);
+          } catch (e) {
+            log(`Error in getImplementationAtPosition: ${e instanceof Error ? e.message : String(e)}`);
+            return originalGetImplementationAtPosition(fileName, position);
+          }
+        };
     // Hook getCodeFixesAtPosition
     const originalGetCodeFixesAtPosition = info.languageService.getCodeFixesAtPosition.bind(
       info.languageService

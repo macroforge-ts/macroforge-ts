@@ -110,6 +110,10 @@ any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 export declare function Eq(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
 any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
+export interface ExpandOptions {
+  keepDecorators?: boolean
+}
+
 export interface ExpandResult {
   code: string
   types?: string
@@ -119,7 +123,7 @@ export interface ExpandResult {
 }
 
 /** Expand macros in TypeScript code and return the transformed TS (types) and diagnostics */
-export declare function expandSync(code: string, filepath: string): ExpandResult
+export declare function expandSync(code: string, filepath: string, options?: ExpandOptions | undefined | null): ExpandResult
 
 export interface GeneratedRegionResult {
   start: number
