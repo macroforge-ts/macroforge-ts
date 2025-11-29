@@ -2,9 +2,19 @@
 
 The `ts_template!` macro provides an intuitive, template-based way to generate TypeScript code in your macros. It uses Svelte-inspired syntax for control flow and interpolation.
 
+## Quick Reference
+
+| Syntax | Description |
+|--------|-------------|
+| `${expr}` | Interpolate a Rust expression |
+| `{#if cond}...{/if}` | Conditional block |
+| `{#if cond}...{:else}...{/if}` | Conditional with else |
+| `{#each list as item}...{/each}` | Iterate over a collection |
+| `{@const name = expr}` | Define a local constant |
+
 ## Syntax
 
-### Interpolation: `#{expr}`
+### Interpolation: `${expr}`
 
 Insert Rust expressions into the generated TypeScript:
 
@@ -13,7 +23,7 @@ let class_name = "User";
 let method = "toString";
 
 let code = ts_template! {
-    #{class_name}.prototype.#{method} = function() {
+    ${class_name}.prototype.${method} = function() {
         return "User instance";
     };
 };
@@ -42,7 +52,7 @@ let code = ts_template! {
 };
 ```
 
-### Iteration: `{#each list as item}`
+### Iteration: `{#each list as item}...{/each}`
 
 ```rust
 let fields = vec!["name", "email", "age"];
@@ -51,7 +61,7 @@ let code = ts_template! {
     function toJSON() {
         const result = {};
         {#each fields as field}
-            result.#{field} = this.#{field};
+            result.${field} = this.${field};
         {/each}
         return result;
     }
@@ -69,6 +79,24 @@ function toJSON() {
   return result;
 }
 ```
+
+### Local Constants: `{@const name = expr}`
+
+Define local variables within the template scope:
+
+```rust
+let items = vec![("user", "User"), ("post", "Post")];
+
+let code = ts_template! {
+    {#each items as (key, class_name)}
+        {@const upper = class_name.to_uppercase()}
+        console.log("Processing ${upper}");
+        const ${key} = new ${class_name}();
+    {/each}
+};
+```
+
+This is useful for computing derived values inside loops without cluttering the Rust code.
 
 ## Complete Example: JSON Derive Macro
 
@@ -117,10 +145,10 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
             let fields = class.field_names();
 
             let runtime_code = ts_template! {
-                #{class_name}.prototype.toJSON = function() {
+                ${class_name}.prototype.toJSON = function() {
                     const result = {};
                     {#each fields as field}
-                        result.#{field} = this.#{field};
+                        result.${field} = this.${field};
                     {/each}
                     return result;
                 };
@@ -173,10 +201,10 @@ let classes = vec![
 
 ts_template! {
     {#each classes as (class_name, fields)}
-        #{class_name}.prototype.toJSON = function() {
+        ${class_name}.prototype.toJSON = function() {
             return {
                 {#each fields as field}
-                    #{field}: this.#{field},
+                    ${field}: this.${field},
                 {/each}
             };
         };

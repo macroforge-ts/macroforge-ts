@@ -3,7 +3,6 @@
 //! This crate provides the core macro hosting infrastructure for TypeScript macros.
 //! It handles macro registration, dispatch, and execution.
 
-pub mod builtin;
 pub mod config;
 pub mod derived;
 pub mod dispatch;
