@@ -7,15 +7,15 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * Load a fixture pair (original.ts and expanded.ts) and calculate source mapping.
+ * Load a fixture pair (original.test.ts and expanded.test.ts) and calculate source mapping.
  *
  * @param {string} fixtureName - Name of the fixture directory under tests/fixtures/
  * @returns {{ original: string, expanded: string, sourceMapping: object, insertionPoint: number }}
  */
 function loadFixture(fixtureName) {
   const fixtureDir = path.join(__dirname, 'fixtures', fixtureName);
-  const original = fs.readFileSync(path.join(fixtureDir, 'original.ts'), 'utf-8');
-  const expanded = fs.readFileSync(path.join(fixtureDir, 'expanded.ts'), 'utf-8');
+  const original = fs.readFileSync(path.join(fixtureDir, 'original.test.ts'), 'utf-8');
+  const expanded = fs.readFileSync(path.join(fixtureDir, 'expanded.test.ts'), 'utf-8');
 
   // Calculate the insertion point by finding where the files diverge
   const { insertionPoint, insertionLength } = findInsertion(original, expanded);
