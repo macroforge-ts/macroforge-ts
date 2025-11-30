@@ -910,8 +910,6 @@ mod tests {
         let output = parse_template(input);
         let s = output.to_string();
 
-        println!("Output: {}", s);
-
         // Should just push the whole string as-is (escaped in the generated code)
         assert!(
             s.contains("Just a plain string"),

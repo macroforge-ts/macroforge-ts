@@ -504,7 +504,6 @@ mod tests {
                 .find(|m| m.name == "getName")
                 .expect("getName method");
 
-            eprintln!("Method params_src: '{}'", method.params_src);
             // The params_src should include the commas and spacing
             assert!(method.params_src.contains("prefix: string"));
             assert!(method.params_src.contains("suffix: string"));
@@ -522,12 +521,7 @@ mod tests {
             let class = classes.first().expect("class");
             let method = class.methods.first().expect("method");
 
-            eprintln!("Method name: '{}'", method.name);
-            eprintln!("Method span: {:?}", method.span);
             let method_snippet = &source[method.span.start as usize..method.span.end as usize];
-            eprintln!("Method span snippet: '{}'", method_snippet);
-            eprintln!("Method params_src: '{}'", method.params_src);
-            eprintln!("Method return type: '{}'", method.return_type_src);
 
             // Check if the span starts at the correct position
             assert!(

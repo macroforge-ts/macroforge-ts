@@ -51,6 +51,8 @@
 					"tsdk": "~/ts-macros/node_modules/typescript/lib"
 				},
 				"tsserver": {
+				    "maxTsServerMemory": 8192,
+                    "nodePath": "~/.pixi/envs/nodejs/bin/node",
 					"logDirectory": "~/ts-macros/.tsserver-logs",
 					"logVerbosity": "verbose",
 					"globalPlugins": [

@@ -92,17 +92,14 @@ mod tests {
         };
 
         let source = output.source();
-        println!("Eq macro output:\n{}", source);
 
         // Try to parse as class members
         let wrapped = format!("class __Temp {{ {} }}", source);
-        println!("Wrapped source:\n{}", wrapped);
 
-        let parse_result = ts_syn::parse_ts_stmt(&wrapped);
-        match parse_result {
-            Ok(_) => println!("Parsed successfully!"),
-            Err(e) => println!("Parse error: {:?}", e),
-        }
+        assert!(
+            ts_syn::parse_ts_stmt(&wrapped).is_ok(),
+            "Generated Eq macro output should parse as class members"
+        );
 
         assert!(source.contains("equals"), "Should contain equals method");
         assert!(

@@ -328,17 +328,35 @@ function init(modules: { typescript: typeof ts }) {
     const expansionCache = new Map<string, CachedExpansion>();
     // Map to store generated virtual .d.ts files
     const virtualDtsFiles = new Map<string, ts.IScriptSnapshot>();
+    // Cache snapshots to ensure identity stability
+    const snapshotCache = new Map<string, { version: string; snapshot: ts.IScriptSnapshot }>();
+    // Guard against reentrancy
+    const processingFiles = new Set<string>();
 
-    function log(msg: string) {
-      info.project?.projectService?.logger?.info(`[ts-macros-plugin] ${msg}`);
-    }
+    // Write logs to a file we can actually see
+    const fs = require('fs');
+    const logFile = '/tmp/ts-macros-plugin.log';
+
+    // Clear log on startup
+    try {
+      fs.writeFileSync(logFile, `=== ts-macros plugin loaded at ${new Date().toISOString()} ===\n`);
+    } catch {}
+
+    const log = (msg: string) => {
+      const line = `[${new Date().toISOString()}] ${msg}\n`;
+      try {
+        fs.appendFileSync(logFile, line);
+      } catch {}
+      try {
+        info.project.projectService.logger.info(`[ts-macros] ${msg}`);
+      } catch {}
+      try {
+        console.error(`[ts-macros] ${msg}`);
+      } catch {}
+    };
 
     // Log plugin initialization with module status
     log("Plugin initialized");
-    log(`Native module loaded: ${nativeModuleLoaded}`);
-    if (nativeModuleError) {
-      log(`Native module error: ${nativeModuleError}`);
-    }
 
     function getExpansion(
       fileName: string,
@@ -365,6 +383,62 @@ function init(modules: { typescript: typeof ts }) {
       try {
         log(`getExpansion START for ${fileName}`);
 
+        // SYNTAX GUARD: Validate syntax with TypeScript's parser BEFORE calling native module
+        // This prevents crashes when native module receives invalid syntax
+        // IMPORTANT: Don't call languageService methods here to avoid reentrancy!
+        log(`Validating syntax before calling native module...`);
+
+        // Parse with TypeScript's standalone parser (doesn't trigger getScriptSnapshot)
+        try {
+          const sourceFile = tsModule.createSourceFile(
+            fileName,
+            content,
+            tsModule.ScriptTarget.Latest,
+            true, // setParentNodes
+            fileName.endsWith('.tsx') ? tsModule.ScriptKind.TSX : tsModule.ScriptKind.TS
+          );
+
+          // Look for any parse errors in the AST
+          // If TypeScript couldn't parse it cleanly, don't send to native module
+          let foundError = false;
+          function visit(node: any): void {
+            // Check for error recovery nodes that indicate parse failures
+            if (node.kind === tsModule.SyntaxKind.Unknown ||
+                node.kind === tsModule.SyntaxKind.MissingDeclaration ||
+                (node as any).parseDiagnostics?.length > 0) {
+              foundError = true;
+              return;
+            }
+            if (!foundError) {
+              tsModule.forEachChild(node, visit);
+            }
+          }
+          visit(sourceFile);
+
+          if (foundError) {
+            log(`Parse errors detected, skipping native expansion to prevent crash`);
+            return {
+              version,
+              codeOutput: content,
+              typesOutput: null,
+              diagnostics: [],
+              mapper: new IdentityMapper(),
+            };
+          }
+        } catch (parseError) {
+          log(`TypeScript parse failed: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+          // If TypeScript itself can't parse it, definitely don't send to native module
+          return {
+            version,
+            codeOutput: content,
+            typesOutput: null,
+            diagnostics: [],
+            mapper: new IdentityMapper(),
+          };
+        }
+
+        log(`Syntax validation passed - safe to call native module`);
+
         // Build map of external macros available from imports
         log(`Building macro package map for ${fileName}`);
         const externalMacros = buildMacroToPackageMap(content, log);
@@ -374,20 +448,14 @@ function init(modules: { typescript: typeof ts }) {
           );
         }
 
-        // Run the macro expansion
-        log(
-          `BEFORE expand() call for ${fileName}, content length: ${content.length}`,
-        );
+        // Run the macro expansion - now safe because we validated syntax
+        log(`CALLING NATIVE expand() for ${fileName} (${content.length} bytes)`);
         let result: ExpandResult;
         try {
           result = expand(content, fileName, { keepDecorators: true });
-          log(
-            `AFTER expand() call for ${fileName}. Code length: ${result.code?.length ?? 0} chars, types=${result.types?.length ?? 0} chars, diagnostics=${result.diagnostics?.length ?? 0}`,
-          );
+          log(`NATIVE expand() SUCCESS for ${fileName} -> ${result.code?.length ?? 0} bytes, ${result.diagnostics?.length ?? 0} diags`);
         } catch (expandError) {
-          log(
-            `FATAL ERROR in expand() for ${fileName}: ${expandError instanceof Error ? expandError.stack : String(expandError)}`,
-          );
+          log(`NATIVE expand() CRASHED for ${fileName}: ${expandError instanceof Error ? expandError.stack : String(expandError)}`);
           throw expandError;
         }
 
@@ -543,63 +611,103 @@ function init(modules: { typescript: typeof ts }) {
 
     info.languageServiceHost.getScriptSnapshot = (fileName) => {
       try {
-        log(`getScriptSnapshot called for ${fileName}`);
+        log(`getScriptSnapshot: ${fileName}`);
 
         // If it's one of our virtual .d.ts files, return its snapshot
         if (virtualDtsFiles.has(fileName)) {
-          log(`Returning cached virtual .d.ts for ${fileName}`);
+          log(`  -> virtual .d.ts cache hit`);
           return virtualDtsFiles.get(fileName);
         }
 
-        log(`Getting original snapshot for ${fileName}`);
+        // Guard against reentrancy - if we're already processing this file, return original
+        if (processingFiles.has(fileName)) {
+          log(`  -> REENTRANCY DETECTED, returning original`);
+          return originalGetScriptSnapshot(fileName);
+        }
+
         const snapshot = originalGetScriptSnapshot(fileName);
         if (!snapshot) {
-          log(`No snapshot available for ${fileName}`);
+          log(`  -> no snapshot available`);
           return snapshot;
         }
 
         // Don't process non-TypeScript files
         if (!shouldProcess(fileName)) {
-          log(`Skipping ${fileName} - not a processable file`);
+          log(`  -> not processable, returning original`);
           return snapshot;
         }
 
-        log(`Getting text from snapshot for ${fileName}`);
         const text = snapshot.getText(0, snapshot.getLength());
 
         // Only process files with @Derive decorator
         if (!text.includes("@Derive")) {
-          log(`Skipping ${fileName} - no @Derive decorator found`);
+          log(`  -> no @Derive, returning original`);
           return snapshot;
         }
 
-        log(`File ${fileName} contains @Derive, getting version`);
-        // Run expansion
-        const version = info.languageServiceHost.getScriptVersion(fileName);
-        log(`About to call getExpansion for ${fileName} (version: ${version})`);
-        const expansion = getExpansion(fileName, text, version);
-        log(`getExpansion completed for ${fileName}`);
+        log(`  -> has @Derive, expanding...`);
+        // Mark as processing to prevent reentrancy
+        processingFiles.add(fileName);
+        try {
+          // Run expansion
+          const version = info.languageServiceHost.getScriptVersion(fileName);
+          log(`  -> version: ${version}`);
 
-        // Return expanded code if available
-        // Use codeOutput which contains the actual implementation
-        if (expansion.codeOutput && expansion.codeOutput !== text) {
-          log(
-            `Returning expanded code for ${fileName} (${expansion.codeOutput.length} chars)`,
-          );
-          const expandedSnapshot = tsModule.ScriptSnapshot.fromString(
-            expansion.codeOutput,
-          );
-          return expandedSnapshot;
+          // Check if we have a cached snapshot for this version
+          const cached = snapshotCache.get(fileName);
+          if (cached && cached.version === version) {
+            log(`  -> snapshot cache hit`);
+            return cached.snapshot;
+          }
+
+          log(`  -> calling getExpansion...`);
+          const expansion = getExpansion(fileName, text, version);
+          log(`  -> getExpansion returned`);
+
+          // Return expanded code if available
+          // Use codeOutput which contains the actual implementation
+          if (expansion.codeOutput && expansion.codeOutput !== text) {
+            log(`  -> creating expanded snapshot (${expansion.codeOutput.length} chars)`);
+
+            // Create snapshot with proper getChangeRange support
+            // Store previous snapshot for change detection
+            const previousCached = snapshotCache.get(fileName);
+            const expandedSnapshot = tsModule.ScriptSnapshot.fromString(expansion.codeOutput);
+
+            // Wrap to add proper getChangeRange
+            const wrappedSnapshot: ts.IScriptSnapshot = {
+              getText: (start, end) => expandedSnapshot.getText(start, end),
+              getLength: () => expandedSnapshot.getLength(),
+              getChangeRange: (oldSnapshot) => {
+                // If switching from previous snapshot, return undefined to force full reparse
+                // This prevents incremental parsing crashes
+                if (previousCached && oldSnapshot === previousCached.snapshot) {
+                  return undefined;
+                }
+                return expandedSnapshot.getChangeRange?.(oldSnapshot);
+              }
+            };
+
+            // Cache the wrapped snapshot
+            snapshotCache.set(fileName, { version, snapshot: wrappedSnapshot });
+            log(`  -> returning expanded snapshot`);
+            return wrappedSnapshot;
+          }
+
+          log(`  -> no expansion needed, caching original`);
+          // Cache the original snapshot
+          snapshotCache.set(fileName, { version, snapshot });
+          return snapshot;
+        } finally {
+          // Always remove from processing set
+          processingFiles.delete(fileName);
         }
-
-        log(
-          `Returning original snapshot for ${fileName} (no expansion or same content)`,
-        );
-        return snapshot;
       } catch (e) {
         log(
-          `Error in getScriptSnapshot for ${fileName}: ${e instanceof Error ? e.stack || e.message : String(e)}`,
+          `ERROR in getScriptSnapshot for ${fileName}: ${e instanceof Error ? e.stack || e.message : String(e)}`,
         );
+        // Make sure we clean up on error
+        processingFiles.delete(fileName);
         return originalGetScriptSnapshot(fileName);
       }
     };
@@ -648,25 +756,35 @@ function init(modules: { typescript: typeof ts }) {
 
     info.languageService.getSemanticDiagnostics = (fileName) => {
       try {
+        log(`getSemanticDiagnostics: ${fileName}`);
+
         // If it's one of our virtual .d.ts files, don't get diagnostics for it
         if (virtualDtsFiles.has(fileName)) {
+          log(`  -> skipping virtual .d.ts`);
           return [];
         }
 
         if (!shouldProcess(fileName)) {
+          log(`  -> not processable, using original`);
           return originalGetSemanticDiagnostics(fileName);
         }
 
+        log(`  -> getting mapper...`);
         // Get mapper (triggers expansion if needed)
         const mapper = getMapper(fileName);
+        log(`  -> got mapper`);
 
+        log(`  -> getting original diagnostics...`);
         // Get diagnostics (these are in expanded positions)
         const expandedDiagnostics = originalGetSemanticDiagnostics(fileName);
+        log(`  -> got ${expandedDiagnostics.length} diagnostics`);
 
+        log(`  -> mapping diagnostics...`);
         // Map all diagnostic positions back to original
         const mappedDiagnostics = expandedDiagnostics.map((d) =>
           mapDiagnosticPosition(d, mapper),
         );
+        log(`  -> mapped ${mappedDiagnostics.length} diagnostics`);
 
         // Also get macro diagnostics from expansion
         const version = info.languageServiceHost.getScriptVersion(fileName);
@@ -716,18 +834,26 @@ function init(modules: { typescript: typeof ts }) {
 
     info.languageService.getSyntacticDiagnostics = (fileName) => {
       try {
+        log(`getSyntacticDiagnostics: ${fileName}`);
+
         if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
+          log(`  -> using original`);
           return originalGetSyntacticDiagnostics(fileName);
         }
 
+        log(`  -> getting mapper...`);
         const mapper = getMapper(fileName);
+        log(`  -> calling original...`);
         const expandedDiagnostics = originalGetSyntacticDiagnostics(fileName);
-        return expandedDiagnostics.map(
+        log(`  -> got ${expandedDiagnostics.length} diagnostics, mapping...`);
+        const result = expandedDiagnostics.map(
           (d) => mapDiagnosticPosition(d, mapper) as ts.DiagnosticWithLocation,
         );
+        log(`  -> returning ${result.length} mapped diagnostics`);
+        return result;
       } catch (e) {
         log(
-          `Error in getSyntacticDiagnostics: ${e instanceof Error ? e.message : String(e)}`,
+          `ERROR in getSyntacticDiagnostics: ${e instanceof Error ? e.stack || e.message : String(e)}`,
         );
         return originalGetSyntacticDiagnostics(fileName);
       }
@@ -1505,6 +1631,10 @@ function init(modules: { typescript: typeof ts }) {
           }
 
           const mapper = getMapper(fileName);
+          // If no mapping info, avoid remapping to reduce risk
+          if (mapper.isEmpty()) {
+            return originalProvideInlayHints(fileName, span, preferences);
+          }
           // Map the input span to expanded coordinates
           const expandedSpan = mapper.mapSpanToExpanded(
             span.start,
@@ -1519,19 +1649,19 @@ function init(modules: { typescript: typeof ts }) {
           if (!result) return result;
 
           // Map each hint's position back to original coordinates
-          return result
-            .map((hint) => {
-              const originalPos = mapper.expandedToOriginal(hint.position);
-              if (originalPos === null) {
-                // Hint is in generated code, skip it
-                return null;
-              }
-              return {
+          return result.flatMap((hint) => {
+            const originalPos = mapper.expandedToOriginal(hint.position);
+            if (originalPos === null) {
+              // Hint is in generated code, skip it
+              return [];
+            }
+            return [
+              {
                 ...hint,
                 position: originalPos,
-              };
-            })
-            .filter((hint): hint is ts.InlayHint => hint !== null);
+              },
+            ];
+          });
         } catch (e) {
           log(
             `Error in provideInlayHints: ${e instanceof Error ? e.message : String(e)}`,

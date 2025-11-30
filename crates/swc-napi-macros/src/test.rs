@@ -1106,11 +1106,5 @@ class User {
             "Should have generated regions"
         );
 
-        // Print mapping for debugging
-        println!("Source mapping segments: {:?}", mapping.segments);
-        println!(
-            "Source mapping generated regions: {:?}",
-            mapping.generated_regions
-        );
     });
 }
