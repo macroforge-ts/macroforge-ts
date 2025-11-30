@@ -29,6 +29,11 @@ function init(modules: { typescript: typeof ts }) {
     // Instantiate native plugin (handles caching and logging in Rust)
     const nativePlugin = new NativePlugin();
 
+    const getCurrentDirectory = () =>
+      info.project.getCurrentDirectory?.() ??
+      info.languageServiceHost.getCurrentDirectory?.() ??
+      process.cwd();
+
     // Log helper - delegates to Rust
     const log = (msg: string) => {
       const line = `[${new Date().toISOString()}] ${msg}`;
@@ -40,6 +45,81 @@ function init(modules: { typescript: typeof ts }) {
         console.error(`[ts-macros] ${msg}`);
       } catch {}
     };
+
+    const ensureVirtualDtsRegistered = (fileName: string) => {
+      const projectService = info.project.projectService as any;
+      const register = projectService?.getOrCreateScriptInfoNotOpenedByClient;
+      if (!register) return;
+
+      try {
+        const scriptInfo = register(
+          fileName,
+          getCurrentDirectory(),
+          info.languageServiceHost,
+          /*deferredDeleteOk*/ false,
+        );
+        if (scriptInfo?.attachToProject) {
+          scriptInfo.attachToProject(info.project);
+        }
+      } catch (error) {
+        log(
+          `Failed to register virtual .d.ts ${fileName}: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    };
+
+    const cleanupVirtualDts = (fileName: string) => {
+      const projectService = info.project.projectService as any;
+      const getScriptInfo = projectService?.getScriptInfo;
+      if (!getScriptInfo) return;
+
+      try {
+        const scriptInfo = getScriptInfo.call(projectService, fileName);
+        if (!scriptInfo) return;
+
+        scriptInfo.detachFromProject?.(info.project);
+        if (!scriptInfo.isScriptOpen?.() && scriptInfo.containingProjects?.length === 0) {
+          projectService.deleteScriptInfo?.(scriptInfo);
+        }
+      } catch (error) {
+        log(
+          `Failed to clean up virtual .d.ts ${fileName}: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    };
+
+    const projectService = info.project.projectService as any;
+    if (projectService?.setDocument) {
+      projectService.setDocument = (
+        key: unknown,
+        filePath: string,
+        sourceFile: unknown,
+      ) => {
+        try {
+          const scriptInfo =
+            projectService.getScriptInfoForPath?.(filePath) ??
+            projectService.getOrCreateScriptInfoNotOpenedByClient?.(
+              filePath,
+              getCurrentDirectory(),
+              info.languageServiceHost,
+              /*deferredDeleteOk*/ false,
+            );
+
+          if (!scriptInfo) {
+            log(`Skipping cache write for missing ScriptInfo at ${filePath}`);
+            return;
+          }
+
+          scriptInfo.attachToProject?.(info.project);
+          // Mirror the behavior of the original setDocument but avoid throwing when ScriptInfo is absent.
+          scriptInfo.cacheSourceFile = { key, sourceFile } as any;
+        } catch (error) {
+          log(
+            `Error in guarded setDocument for ${filePath}: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
+      };
+    }
 
     // Log plugin initialization
     log("Plugin initialized");
@@ -79,9 +159,11 @@ function init(modules: { typescript: typeof ts }) {
             virtualDtsFileName,
             tsModule.ScriptSnapshot.fromString(result.types),
           );
+          ensureVirtualDtsRegistered(virtualDtsFileName);
           log(`Generated virtual .d.ts for ${fileName}`);
         } else {
           virtualDtsFiles.delete(virtualDtsFileName);
+          cleanupVirtualDts(virtualDtsFileName);
         }
 
         return { result, code: result.code };
@@ -91,6 +173,7 @@ function init(modules: { typescript: typeof ts }) {
         log(`Plugin expansion failed for ${fileName}: ${errorMessage}`);
 
         virtualDtsFiles.delete(fileName + ".ts-macros.d.ts");
+        cleanupVirtualDts(fileName + ".ts-macros.d.ts");
         return {
           result: {
             code: content,
