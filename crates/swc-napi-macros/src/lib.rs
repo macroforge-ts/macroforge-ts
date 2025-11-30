@@ -301,6 +301,7 @@ pub struct ExpandOptions {
 #[napi]
 pub struct NativePlugin {
     cache: std::sync::Mutex<std::collections::HashMap<String, CachedResult>>,
+    log_file: std::sync::Mutex<Option<std::path::PathBuf>>,
 }
 
 impl Default for NativePlugin {
@@ -325,8 +326,49 @@ fn option_expand_options(opts: Option<ProcessFileOptions>) -> Option<ExpandOptio
 impl NativePlugin {
     #[napi(constructor)]
     pub fn new() -> Self {
-        Self {
+        let plugin = Self {
             cache: std::sync::Mutex::new(std::collections::HashMap::new()),
+            log_file: std::sync::Mutex::new(None),
+        };
+
+        // Initialize log file with default path
+        if let Ok(mut log_guard) = plugin.log_file.lock() {
+            let log_path = std::path::PathBuf::from("/tmp/ts-macros-plugin.log");
+
+            // Clear/create log file
+            if let Err(e) = std::fs::write(
+                &log_path,
+                "=== ts-macros plugin loaded ===\n",
+            ) {
+                eprintln!("[ts-macros] Failed to initialize log file: {}", e);
+            } else {
+                *log_guard = Some(log_path);
+            }
+        }
+
+        plugin
+    }
+
+    #[napi]
+    pub fn log(&self, message: String) {
+        if let Ok(log_guard) = self.log_file.lock() {
+            if let Some(log_path) = log_guard.as_ref() {
+                use std::io::Write;
+                if let Ok(mut file) = std::fs::OpenOptions::new()
+                    .append(true)
+                    .create(true)
+                    .open(log_path)
+                {
+                    let _ = writeln!(file, "{}", message);
+                }
+            }
+        }
+    }
+
+    #[napi]
+    pub fn set_log_file(&self, path: String) {
+        if let Ok(mut log_guard) = self.log_file.lock() {
+            *log_guard = Some(std::path::PathBuf::from(path));
         }
     }
 
@@ -556,30 +598,26 @@ fn expand_inner(
     let (program, _) = match parse_program(code, filepath) {
         Ok(p) => p,
         Err(e) => {
-            // Check if this is an "ExpectedIdent" error at the end of the file,
-            // which often indicates incomplete user input that the language server
-            // should gracefully handle by not crashing.
-            if e.to_string().contains("ExpectedIdent")
-                && e.to_string().contains(&format!("{}:{}", filepath, code.len())) // Roughly at EOF
-            {
-                // Return a "no-op" expansion result: original code, no changes,
-                // and optionally a diagnostic for the user.
-                return Ok(ExpandResult {
-                    code: code.to_string(),
-                    types: None,
-                    metadata: None,
-                    diagnostics: vec![MacroDiagnostic {
-                        level: "warning".to_string(),
-                        message: "Incomplete code, macro expansion skipped.".to_string(),
-                        start: None,
-                        end: None,
-                    }],
-                    source_mapping: None,
-                });
-            } else {
-                // For other parsing errors, propagate the error.
-                return Err(e);
-            }
+            // Instead of failing on parse errors (which can happen frequently
+            // when the user is typing or the code is incomplete), return a
+            // no-op expansion result with the original code unchanged.
+            // This allows the language server to continue functioning smoothly.
+            let error_msg = e.to_string();
+
+            // Return a "no-op" expansion result: original code, no changes,
+            // and optionally a diagnostic for the user.
+            return Ok(ExpandResult {
+                code: code.to_string(),
+                types: None,
+                metadata: None,
+                diagnostics: vec![MacroDiagnostic {
+                    level: "info".to_string(),
+                    message: format!("Macro expansion skipped due to syntax error: {}", error_msg),
+                    start: None,
+                    end: None,
+                }],
+                source_mapping: None,
+            });
         }
     };
 
