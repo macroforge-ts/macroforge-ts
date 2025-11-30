@@ -521,8 +521,6 @@ mod tests {
             let class = classes.first().expect("class");
             let method = class.methods.first().expect("method");
 
-            let method_snippet = &source[method.span.start as usize..method.span.end as usize];
-
             // Check if the span starts at the correct position
             assert!(
                 source[method.span.start as usize..].starts_with("public")

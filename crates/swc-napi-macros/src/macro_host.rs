@@ -231,14 +231,14 @@ impl MacroHostIntegration {
             for field in &target.class_ir.fields {
                 for decorator in &field.decorators {
                     // Strip Derive decorators and any declared attribute decorators
-                    if decorator.name == "Derive" || decorator.name == "Debug" {
-                        if !self.config.keep_decorators {
-                            let field_dec_removal = Patch::Delete {
-                                span: span_ir_with_at(decorator.span, source),
-                            };
-                            collector.add_runtime_patches(vec![field_dec_removal.clone()]);
-                            collector.add_type_patches(vec![field_dec_removal]);
-                        }
+                    if (decorator.name == "Derive" || decorator.name == "Debug")
+                        && !self.config.keep_decorators
+                    {
+                        let field_dec_removal = Patch::Delete {
+                            span: span_ir_with_at(decorator.span, source),
+                        };
+                        collector.add_runtime_patches(vec![field_dec_removal.clone()]);
+                        collector.add_type_patches(vec![field_dec_removal]);
                     }
                 }
             }
@@ -284,24 +284,23 @@ impl MacroHostIntegration {
 
                 if ctx.module_path != DERIVE_MODULE_PATH
                     && (is_macro_not_found(&result) || no_output)
+                    && let Some(loader) = &self.external_loader
                 {
-                    if let Some(loader) = &self.external_loader {
-                        match loader.run_macro(&ctx) {
-                            Ok(external_result) => {
-                                result = external_result;
-                            }
-                            Err(err) => {
-                                result.diagnostics.push(Diagnostic {
-                                    level: DiagnosticLevel::Error,
-                                    message: format!(
-                                        "Failed to load external macro '{}::{}': {}",
-                                        ctx.macro_name, ctx.module_path, err
-                                    ),
-                                    span: Some(ctx.decorator_span),
-                                    notes: vec![],
-                                    help: None,
-                                });
-                            }
+                    match loader.run_macro(&ctx) {
+                        Ok(external_result) => {
+                            result = external_result;
+                        }
+                        Err(err) => {
+                            result.diagnostics.push(Diagnostic {
+                                level: DiagnosticLevel::Error,
+                                message: format!(
+                                    "Failed to load external macro '{}::{}': {}",
+                                    ctx.macro_name, ctx.module_path, err
+                                ),
+                                span: Some(ctx.decorator_span),
+                                notes: vec![],
+                                help: None,
+                            });
                         }
                     }
                 }
@@ -677,7 +676,7 @@ struct DeriveTarget {
 }
 
 /// Collect a map of identifier name -> module source from import statements
-fn collect_import_sources(module: &Module) -> HashMap<String, String> {
+pub(crate) fn collect_import_sources(module: &Module) -> HashMap<String, String> {
     use swc_core::ecma::ast::{ImportDecl, ImportSpecifier};
 
     let mut import_map = HashMap::new();

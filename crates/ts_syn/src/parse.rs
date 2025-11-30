@@ -18,6 +18,7 @@ pub fn parse_ts_module(source: &str, file_name: &str) -> Result<Module, TsSynErr
     let syntax = Syntax::Typescript(TsSyntax {
         tsx: file_name.ends_with(".tsx"),
         decorators: true,
+        no_early_errors: true,
         ..Default::default()
     });
 

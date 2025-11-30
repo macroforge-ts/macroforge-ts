@@ -43,6 +43,38 @@ export interface MacroManifestEntry {
 /** Generates depth-aware field controller helpers for reactive forms */
 export declare function textAreaController(...features: Array<string | ((...args:
 any[]) => unknown)>): void
+/** Alias for the mapper under the "NativeMapper" name expected by the plugin refactor */
+export declare class NativeMapper {
+  constructor(mapping: SourceMappingResult)
+  isEmpty(): boolean
+  originalToExpanded(pos: number): number
+  expandedToOriginal(pos: number): number | null
+  generatedBy(pos: number): string | null
+  mapSpanToOriginal(start: number, length: number): SpanResult | null
+  mapSpanToExpanded(start: number, length: number): SpanResult
+  isInGenerated(pos: number): boolean
+}
+
+export declare class NativePlugin {
+  constructor()
+  processFile(filepath: string, code: string, options?: ProcessFileOptions | undefined | null): ExpandResult
+  getMapper(filepath: string): NativeMapper | null
+  mapDiagnostics(filepath: string, diags: Array<JsDiagnostic>): Array<JsDiagnostic>
+}
+
+/** Native position mapper that mirrors the TypeScript PositionMapper helper */
+export declare class PositionMapper {
+  constructor(mapping: SourceMappingResult)
+  isEmpty(): boolean
+  originalToExpanded(pos: number): number
+  expandedToOriginal(pos: number): number | null
+  generatedBy(pos: number): string | null
+  mapSpanToOriginal(start: number, length: number): SpanResult | null
+  mapSpanToExpanded(start: number, length: number): SpanResult
+  isInGenerated(pos: number): boolean
+}
+export type NativePositionMapper = PositionMapper
+
 /** Debug: List all descriptors from inventory */
 export declare function __tsMacrosDebugDescriptors(): Array<string>
 
@@ -81,6 +113,9 @@ export declare function __tsMacrosRunDebug(contextJson: string): string
  * r" Called by the TS plugin to execute macro expansion
  */
 export declare function __tsMacrosRunEq(contextJson: string): string
+
+/** Quick syntax validation using the same parser as the expander */
+export declare function checkSyntax(code: string, filepath: string): SyntaxCheckResult
 
 export declare function Clone(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
 any[]) => unknown) | Record<string, unknown>>): ClassDecorator
@@ -131,6 +166,22 @@ export interface GeneratedRegionResult {
   sourceMacro: string
 }
 
+export interface ImportSourceResult {
+  /** Local identifier name in the import statement */
+  local: string
+  /** Module specifier this identifier was imported from */
+  module: string
+}
+
+/** Simplified diagnostic object for span mapping from JS */
+export interface JsDiagnostic {
+  start?: number
+  length?: number
+  message?: string
+  code?: number
+  category?: string
+}
+
 export interface MacroDiagnostic {
   level: string
   message: string
@@ -167,9 +218,29 @@ export interface MappingSegmentResult {
   expandedEnd: number
 }
 
+/** Parse import statements with SWC to avoid regex-based extraction in JavaScript */
+export declare function parseImportSources(code: string, filepath: string): Array<ImportSourceResult>
+
+export interface ProcessFileOptions {
+  keepDecorators?: boolean
+  version?: string
+}
+
 export interface SourceMappingResult {
   segments: Array<MappingSegmentResult>
   generatedRegions: Array<GeneratedRegionResult>
+}
+
+export interface SpanResult {
+  start: number
+  length: number
+}
+
+export interface SyntaxCheckResult {
+  /** True when the source code parsed successfully */
+  ok: boolean
+  /** Optional error string when parsing fails */
+  error?: string
 }
 
 export interface TransformResult {
