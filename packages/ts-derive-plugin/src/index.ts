@@ -1,30 +1,17 @@
 import type ts from "typescript/lib/tsserverlibrary";
-import type {
-  ExpandOptions,
-  ExpandResult,
-  MacroDiagnostic,
-} from "@ts-macros/swc-napi";
+import type { ExpandResult } from "@ts-macros/swc-napi";
 import { NativePlugin, PositionMapper } from "@ts-macros/swc-napi";
+import path from "path";
 
 const FILE_EXTENSIONS = [".ts", ".tsx", ".svelte"];
 
 function shouldProcess(fileName: string) {
-  return !fileName.endsWith(".expanded.ts");
+  const lower = fileName.toLowerCase();
+  if (lower.endsWith(".expanded.ts")) return false;
+  if (lower.endsWith(".d.ts")) return false;
+  if (fileName.includes(`${path.sep}.ts-macros${path.sep}`)) return false;
+  return FILE_EXTENSIONS.some((ext) => lower.endsWith(ext));
 }
-
-// Test hooks for stubbing expansion
-let expandSyncStub:
-  | ((
-      code: string,
-      fileName: string,
-    ) => {
-      code: string;
-      diagnostics?: MacroDiagnostic[];
-      types?: string;
-      metadata?: string;
-      sourceMapping?: any;
-    })
-  | null = null;
 
 function init(modules: { typescript: typeof ts }) {
   function create(info: ts.server.PluginCreateInfo) {
@@ -80,25 +67,10 @@ function init(modules: { typescript: typeof ts }) {
       try {
         log(`Processing ${fileName}`);
 
-        // Use stub if available (for testing)
-        let result: ExpandResult;
-        if (expandSyncStub) {
-          log(`Using test stub for expansion`);
-          const stubResult = expandSyncStub(content, fileName);
-          result = {
-            code: stubResult.code,
-            types: stubResult.types || undefined,
-            metadata: stubResult.metadata || undefined,
-            diagnostics: stubResult.diagnostics || [],
-            sourceMapping: stubResult.sourceMapping || undefined,
-          };
-        } else {
-          // Rust handles caching internally
-          result = nativePlugin.processFile(fileName, content, {
-            keepDecorators: true,
-            version,
-          }) as ExpandResult;
-        }
+        const result = nativePlugin.processFile(fileName, content, {
+          keepDecorators: true,
+          version,
+        });
 
         // Update virtual .d.ts files
         const virtualDtsFileName = fileName + ".ts-macros.d.ts";
@@ -219,8 +191,9 @@ function init(modules: { typescript: typeof ts }) {
 
         const snapshot = originalGetScriptSnapshot(fileName);
         if (!snapshot) {
-          log(`  -> no snapshot available`);
-          return snapshot;
+          // Avoid tsserver crashes when a file was reported but no snapshot exists
+          log(`  -> no snapshot available for ${fileName}, returning empty snapshot`);
+          return tsModule.ScriptSnapshot.fromString("");
         }
 
         const text = snapshot.getText(0, snapshot.getLength());
@@ -344,32 +317,13 @@ function init(modules: { typescript: typeof ts }) {
           return originalGetSemanticDiagnostics(fileName);
         }
 
-        // Ensure mapper is ready
-        const mapper = nativePlugin.getMapper(fileName);
-
         log(`  -> getting original diagnostics...`);
         const expandedDiagnostics = originalGetSemanticDiagnostics(fileName);
         log(`  -> got ${expandedDiagnostics.length} diagnostics`);
 
         // Map diagnostics using mapper
+        const effectiveMapper = nativePlugin.getMapper(fileName);
         let mappedDiagnostics: ts.Diagnostic[];
-
-        // If using test stub, we need to get the mapper from the result
-        let effectiveMapper = mapper;
-        if (expandSyncStub) {
-          // When using stubs, processFile was already called - get mapper from it
-          const snapshot = originalGetScriptSnapshot(fileName);
-          if (snapshot) {
-            const text = snapshot.getText(0, snapshot.getLength());
-            const version = info.languageServiceHost.getScriptVersion(fileName);
-            const { result } = processFile(fileName, text, version);
-            if (result.sourceMapping) {
-              try {
-                effectiveMapper = new PositionMapper(result.sourceMapping);
-              } catch {}
-            }
-          }
-        }
 
         if (effectiveMapper && !effectiveMapper.isEmpty()) {
           log(`  -> mapping diagnostics with mapper`);
@@ -1427,31 +1381,4 @@ function init(modules: { typescript: typeof ts }) {
   return { create };
 }
 
-type TsMacrosPluginFactory = typeof init & {
-  __setExpandSync?: (
-    stub: (
-      code: string,
-      fileName: string,
-    ) => {
-      code: string;
-      diagnostics?: MacroDiagnostic[];
-      types?: string;
-      metadata?: string;
-      sourceMapping?: any;
-    },
-  ) => void;
-  __resetExpandSync?: () => void;
-};
-
-const pluginFactory = init as TsMacrosPluginFactory;
-
-// Test hooks
-pluginFactory.__setExpandSync = (stub) => {
-  expandSyncStub = stub;
-};
-
-pluginFactory.__resetExpandSync = () => {
-  expandSyncStub = null;
-};
-
-export = pluginFactory;
+export = init;
