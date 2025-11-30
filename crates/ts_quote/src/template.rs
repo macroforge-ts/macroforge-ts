@@ -21,7 +21,7 @@ use std::iter::Peekable;
 
 /// Parse the template stream and generate code to build a TypeScript string
 pub fn parse_template(input: TokenStream2) -> TokenStream2 {
-    // Parse the tokens into a Rust block that returns a String
+    // Parse the tokens into a Rust block that returns a String or a templating error
     let (body, _) = parse_fragment(&mut input.into_iter().peekable(), None);
 
     quote! {

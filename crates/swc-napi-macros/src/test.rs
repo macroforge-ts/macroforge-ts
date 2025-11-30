@@ -7,7 +7,9 @@ use swc_core::{
     common::{FileName, GLOBALS, SourceMap, sync::Lrc},
     ecma::parser::{Lexer, Parser, StringInput, Syntax, TsSyntax},
 };
-use ts_macro_abi::{ClassIR, MacroContextIR, MacroResult, Patch, PatchCode, SpanIR};
+use ts_macro_abi::{
+    ClassIR, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode, SpanIR,
+};
 use ts_macro_host::PatchCollector;
 
 const DERIVE_MODULE_PATH: &str = "@macro/derive";
@@ -394,14 +396,16 @@ fn test_process_macro_output_reports_parse_errors() {
             ..Default::default()
         };
 
-        let err = host
+        let (_runtime, _types) = host
             .process_macro_output(&mut result, &ctx)
-            .expect_err("invalid tokens should bubble an error");
+            .expect("process_macro_output should succeed with raw insertion fallback");
 
-        assert!(
-            err.to_string().contains("Failed to parse macro output"),
-            "should mention parsing failure, got {err:?}"
-        );
+        let diag = result
+            .diagnostics
+            .iter()
+            .find(|d| d.message.contains("Failed to parse macro output"))
+            .expect("diagnostic should mention parsing failure");
+        assert_eq!(diag.level, DiagnosticLevel::Warning);
     });
 }
 

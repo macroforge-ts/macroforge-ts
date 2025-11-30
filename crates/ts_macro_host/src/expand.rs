@@ -187,12 +187,10 @@ impl MacroExpander {
                 collector.add_type_patches(vec![decorator_removal]);
             }
 
-            // Remove field decorators
-            for field in &target.class_ir.fields {
-                for decorator in &field.decorators {
-                    if (decorator.name == "Derive" || decorator.name == "Debug")
-                        && !self.keep_decorators
-                    {
+            // Remove all field decorators when not keeping decorators
+            if !self.keep_decorators {
+                for field in &target.class_ir.fields {
+                    for decorator in &field.decorators {
                         let field_dec_removal = Patch::Delete {
                             span: span_ir_with_at(decorator.span, source),
                         };
@@ -314,8 +312,13 @@ impl MacroExpander {
             Some(runtime_result.mapping)
         };
 
+        let mut code = runtime_result.code;
+        if !self.keep_decorators {
+            code = strip_decorators(&code);
+        }
+
         let mut expansion = MacroExpansion {
-            code: runtime_result.code,
+            code,
             diagnostics: std::mem::take(diagnostics),
             changed: true,
             type_output,
@@ -358,6 +361,13 @@ impl Default for MacroExpander {
     fn default() -> Self {
         Self::new().expect("Failed to create default MacroExpander")
     }
+}
+
+fn strip_decorators(code: &str) -> String {
+    code.lines()
+        .filter(|line| !line.trim_start().starts_with('@'))
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 // ============================================================================

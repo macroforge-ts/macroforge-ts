@@ -25,7 +25,8 @@
 		"diagnostics": "node scripts/diagnostics.cjs",
 		"diagnostics:log": "node scripts/diagnostics.cjs --log",
 		"macro:expand": "cargo run -p ts_macro_cli -- expand --use-node",
-		"macro:tsc": "cargo run -p ts_macro_cli -- tsc"
+		"macro:tsc": "cargo run -p ts_macro_cli -- tsc",
+		"expand:playground": "node scripts/expand-playground.cjs"
 	},
 	"devDependencies": {
 		"@napi-rs/cli": "^3.4.1",

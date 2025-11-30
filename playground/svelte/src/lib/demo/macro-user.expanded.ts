@@ -14,9 +14,7 @@ import {
 } from "../types/bindings";
 import { JSON } from "@playground/macro";
 
-@Derive(Debug, JSON)
 export class MacroUser {
-  @debug({ rename: "userId" })
   id: string;
 
   name: string;
@@ -24,7 +22,6 @@ export class MacroUser {
   favoriteMacro: "Derive" | "JsonNative";
   since: string;
 
-  @debug({ skip: true })
   apiToken: string;
 
   constructor(

@@ -229,14 +229,10 @@ impl MacroHostIntegration {
                 collector.add_type_patches(vec![decorator_removal]);
             }
 
-            // Remove field decorators (e.g., @Derive({skip: true}) on fields)
-            // These are macro configuration decorators that should not appear in output
-            for field in &target.class_ir.fields {
-                for decorator in &field.decorators {
-                    // Strip Derive decorators and any declared attribute decorators
-                    if (decorator.name == "Derive" || decorator.name == "Debug")
-                        && !self.keep_decorators
-                    {
+            // Remove all field decorators when not keeping decorators
+            if !self.keep_decorators {
+                for field in &target.class_ir.fields {
+                    for decorator in &field.decorators {
                         let field_dec_removal = Patch::Delete {
                             span: span_ir_with_at(decorator.span, source),
                         };
@@ -339,39 +335,91 @@ impl MacroHostIntegration {
         {
             // It's a derive on a class.
             // Wrap tokens in a class to parse members
+            let insert_pos = class_ir.body_span.end - 1;
             let wrapped_src = format!("class __Temp {{ {} }}", tokens);
-            let stmt = ts_syn::parse_ts_stmt(&wrapped_src)
-                .map_err(|e| anyhow::anyhow!("Failed to parse macro output: {:?}", e))?;
+            match ts_syn::parse_ts_stmt(&wrapped_src) {
+                Ok(Stmt::Decl(Decl::Class(class_decl))) => {
+                    for member in class_decl.class.body {
+                        runtime_patches.push(Patch::Insert {
+                            at: SpanIR {
+                                start: insert_pos,
+                                end: insert_pos,
+                            },
+                            code: PatchCode::ClassMember(member.clone()),
+                        });
 
-            if let Stmt::Decl(Decl::Class(class_decl)) = stmt {
-                for member in class_decl.class.body {
-                    // Intent: AppendClassMember
-                    // Insert at end of body (before closing brace)
-                    let insert_pos = class_ir.body_span.end - 1;
+                        let mut signature_member = member.clone();
+                        match &mut signature_member {
+                            ClassMember::Method(m) => m.function.body = None,
+                            ClassMember::Constructor(c) => c.body = None,
+                            ClassMember::PrivateMethod(m) => m.function.body = None,
+                            _ => {}
+                        }
 
-                    runtime_patches.push(Patch::Insert {
+                        type_patches.push(Patch::Insert {
+                            at: SpanIR {
+                                start: insert_pos,
+                                end: insert_pos,
+                            },
+                            code: PatchCode::ClassMember(signature_member),
+                        });
+                    }
+                }
+                Ok(_) => {
+                    let warning = format!(
+                        "/** ts-macros warning: {}::{} output could not be mapped precisely */\n",
+                        ctx.module_path, ctx.macro_name
+                    );
+                    let payload = format!("{warning}{tokens}");
+
+                    runtime_patches.push(Patch::InsertRaw {
                         at: SpanIR {
                             start: insert_pos,
                             end: insert_pos,
                         },
-                        code: PatchCode::ClassMember(member.clone()),
+                        code: payload.clone(),
+                        context: Some(format!("Macro {}::{} output (unparsed)", ctx.module_path, ctx.macro_name)),
+                    });
+                    type_patches.push(Patch::ReplaceRaw {
+                        span: SpanIR {
+                            start: insert_pos,
+                            end: insert_pos,
+                        },
+                        code: payload,
+                        context: Some(format!("Macro {}::{} output (unparsed)", ctx.module_path, ctx.macro_name)),
+                    });
+                }
+                Err(err) => {
+                    // Fallback: inject raw tokens to avoid losing macro output, with visible warning.
+                    let warning = format!(
+                        "/** ts-macros warning: Failed to parse macro output for {}::{}: {:?} */\n",
+                        ctx.module_path, ctx.macro_name, err
+                    );
+                    let payload = format!("{warning}{tokens}");
+
+                    runtime_patches.push(Patch::InsertRaw {
+                        at: SpanIR {
+                            start: insert_pos,
+                            end: insert_pos,
+                        },
+                        code: payload.clone(),
+                        context: Some(format!("Macro {}::{} output (unparsed)", ctx.module_path, ctx.macro_name)),
+                    });
+                    type_patches.push(Patch::ReplaceRaw {
+                        span: SpanIR {
+                            start: insert_pos,
+                            end: insert_pos,
+                        },
+                        code: payload,
+                        context: Some(format!("Macro {}::{} output (unparsed)", ctx.module_path, ctx.macro_name)),
                     });
 
-                    // Generate type signature
-                    let mut signature_member = member.clone();
-                    match &mut signature_member {
-                        ClassMember::Method(m) => m.function.body = None,
-                        ClassMember::Constructor(c) => c.body = None,
-                        ClassMember::PrivateMethod(m) => m.function.body = None,
-                        _ => {}
-                    }
-
-                    type_patches.push(Patch::Insert {
-                        at: SpanIR {
-                            start: insert_pos,
-                            end: insert_pos,
-                        },
-                        code: PatchCode::ClassMember(signature_member),
+                    result.diagnostics.push(Diagnostic {
+                        level: DiagnosticLevel::Warning,
+                        message: format!("Failed to parse macro output, inserted raw tokens: {err:?}"),
+                        span: Some(ctx.decorator_span),
+                        notes: vec![],
+                        help: None,
                     });
                 }
             }
@@ -411,8 +459,13 @@ impl MacroHostIntegration {
             Some(runtime_result.mapping)
         };
 
+        let mut code = runtime_result.code;
+        if !self.keep_decorators {
+            code = strip_decorators(&code);
+        }
+
         let mut expansion = MacroExpansion {
-            code: runtime_result.code,
+            code,
             diagnostics: std::mem::take(diagnostics),
             changed: true,
             type_output,
@@ -425,7 +478,7 @@ impl MacroHostIntegration {
         Ok(expansion)
     }
 
-    fn enforce_diagnostic_limit(&self, diagnostics: &mut Vec<Diagnostic>) {
+fn enforce_diagnostic_limit(&self, diagnostics: &mut Vec<Diagnostic>) {
         let max = self.config.limits.max_diagnostics;
         if max == 0 {
             diagnostics.clear();
@@ -456,6 +509,13 @@ fn is_macro_not_found(result: &MacroResult) -> bool {
         .diagnostics
         .iter()
         .any(|d| d.message.contains("Macro") && d.message.contains("not found"))
+}
+
+fn strip_decorators(code: &str) -> String {
+    code.lines()
+        .filter(|line| !line.trim_start().starts_with('@'))
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 struct ExternalMacroLoader {
@@ -651,6 +711,7 @@ const tryImport = async (id) => {
             debug: host_result.debug,
         })
     }
+
 }
 
 /// Internal span key for matching lowered IR to SWC nodes.

@@ -47,9 +47,15 @@ impl<'a> PatchApplicator<'a> {
                     let formatted = self.format_insertion(&rendered, at.start as usize, code);
                     result.insert_str(at.start as usize, &formatted);
                 }
+                Patch::InsertRaw { at, code, .. } => {
+                    result.insert_str(at.start as usize, code);
+                }
                 Patch::Replace { span, code } => {
                     let rendered = render_patch_code(code)?;
                     result.replace_range(span.start as usize..span.end as usize, &rendered);
+                }
+                Patch::ReplaceRaw { span, code, .. } => {
+                    result.replace_range(span.start as usize..span.end as usize, code);
                 }
                 Patch::Delete { span } => {
                     result.replace_range(span.start as usize..span.end as usize, "");
@@ -131,6 +137,32 @@ impl<'a> PatchApplicator<'a> {
                     expanded_pos += gen_len;
                     // original_pos stays the same (we didn't consume any original content)
                 }
+                Patch::InsertRaw { at, code, context: _ } => {
+                    if at.start > original_pos {
+                        let len = at.start - original_pos;
+                        let unchanged = &self.source[original_pos as usize..at.start as usize];
+                        result.push_str(unchanged);
+
+                        mapping.add_segment(MappingSegment::new(
+                            original_pos,
+                            at.start,
+                            expanded_pos,
+                            expanded_pos + len,
+                        ));
+
+                        expanded_pos += len;
+                        original_pos = at.start;
+                    }
+
+                    let gen_len = code.len() as u32;
+                    result.push_str(code);
+                    mapping.add_generated(GeneratedRegion::new(
+                        expanded_pos,
+                        expanded_pos + gen_len,
+                        macro_attribution,
+                    ));
+                    expanded_pos += gen_len;
+                }
                 Patch::Replace { span, code } => {
                     // Copy unchanged content before replacement
                     if span.start > original_pos {
@@ -181,6 +213,32 @@ impl<'a> PatchApplicator<'a> {
                     }
 
                     // Skip deleted content (no output, no generated region)
+                    original_pos = span.end;
+                }
+                Patch::ReplaceRaw { span, code, context: _ } => {
+                    if span.start > original_pos {
+                        let len = span.start - original_pos;
+                        let unchanged = &self.source[original_pos as usize..span.start as usize];
+                        result.push_str(unchanged);
+
+                        mapping.add_segment(MappingSegment::new(
+                            original_pos,
+                            span.start,
+                            expanded_pos,
+                            expanded_pos + len,
+                        ));
+
+                        expanded_pos += len;
+                    }
+
+                    let gen_len = code.len() as u32;
+                    result.push_str(code);
+                    mapping.add_generated(GeneratedRegion::new(
+                        expanded_pos,
+                        expanded_pos + gen_len,
+                        macro_attribution,
+                    ));
+                    expanded_pos += gen_len;
                     original_pos = span.end;
                 }
             }
@@ -283,7 +341,9 @@ impl<'a> PatchApplicator<'a> {
     fn sort_patches(&mut self) {
         self.patches.sort_by_key(|patch| match patch {
             Patch::Insert { at, .. } => at.start,
+            Patch::InsertRaw { at, .. } => at.start,
             Patch::Replace { span, .. } => span.start,
+            Patch::ReplaceRaw { span, .. } => span.start,
             Patch::Delete { span } => span.start,
         });
     }
@@ -315,7 +375,9 @@ impl<'a> PatchApplicator<'a> {
     fn get_patch_span(&self, patch: &Patch) -> SpanIR {
         match patch {
             Patch::Insert { at, .. } => *at,
+            Patch::InsertRaw { at, .. } => *at,
             Patch::Replace { span, .. } => *span,
+            Patch::ReplaceRaw { span, .. } => *span,
             Patch::Delete { span } => *span,
         }
     }
@@ -436,10 +498,12 @@ fn dedupe_patches(patches: &mut Vec<Patch>) -> Result<()> {
                 Ok(rendered) => (0, at.start, at.end, Some(rendered)),
                 Err(_) => return true,
             },
+            Patch::InsertRaw { at, code, .. } => (3, at.start, at.end, Some(code.clone())),
             Patch::Replace { span, code } => match render_patch_code(code) {
                 Ok(rendered) => (1, span.start, span.end, Some(rendered)),
                 Err(_) => return true,
             },
+            Patch::ReplaceRaw { span, code, .. } => (4, span.start, span.end, Some(code.clone())),
             Patch::Delete { span } => (2, span.start, span.end, None),
         };
         seen.insert(key)
