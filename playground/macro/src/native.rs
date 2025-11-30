@@ -62,11 +62,6 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
                 })
                 .collect();
 
-            if decorated_fields.is_empty() {
-                // Return empty stream
-                return Ok(ts_template! {});
-            }
-
             let class_name = input.name();
             let base_props_method = format!("make{}BaseProps", class_name);
 
