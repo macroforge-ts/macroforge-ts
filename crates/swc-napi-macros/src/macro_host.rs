@@ -27,6 +27,8 @@ const DYNAMIC_MODULE_MARKER: &str = "__DYNAMIC_MODULE__";
 pub struct MacroHostIntegration {
     pub dispatcher: MacroDispatcher,
     config: MacroConfig,
+    /// Whether to keep decorators in the expanded output (only set by TS plugin for mapping)
+    keep_decorators: bool,
     external_loader: Option<ExternalMacroLoader>,
 }
 
@@ -87,12 +89,13 @@ impl MacroHostIntegration {
         Ok(Self {
             dispatcher: MacroDispatcher::new(registry),
             config,
+            keep_decorators: false,
             external_loader: Some(ExternalMacroLoader::new(root_dir.clone())),
         })
     }
 
     pub fn set_keep_decorators(&mut self, keep: bool) {
-        self.config.keep_decorators = keep;
+        self.keep_decorators = keep;
     }
 
     /// Expand all macros found in the parsed program and return the updated source code.
@@ -218,7 +221,7 @@ impl MacroHostIntegration {
         }
 
         for target in derive_targets {
-            if !self.config.keep_decorators {
+            if !self.keep_decorators {
                 let decorator_removal = Patch::Delete {
                     span: target.decorator_span,
                 };
@@ -232,7 +235,7 @@ impl MacroHostIntegration {
                 for decorator in &field.decorators {
                     // Strip Derive decorators and any declared attribute decorators
                     if (decorator.name == "Derive" || decorator.name == "Debug")
-                        && !self.config.keep_decorators
+                        && !self.keep_decorators
                     {
                         let field_dec_removal = Patch::Delete {
                             span: span_ir_with_at(decorator.span, source),

@@ -19,10 +19,6 @@ pub struct MacroConfig {
     #[serde(default)]
     pub allow_native_macros: bool,
 
-    /// Whether to keep decorators in the output (useful for language server)
-    #[serde(default)]
-    pub keep_decorators: bool,
-
     /// Per-package runtime overrides
     #[serde(default)]
     pub macro_runtime_overrides: std::collections::HashMap<String, RuntimeMode>,
@@ -161,7 +157,6 @@ mod tests {
         let config = MacroConfig {
             macro_packages: vec!["@macro/derive".to_string()],
             allow_native_macros: false,
-            keep_decorators: false,
             macro_runtime_overrides: Default::default(),
             limits: Default::default(),
         };

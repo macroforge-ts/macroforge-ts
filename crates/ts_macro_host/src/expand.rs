@@ -39,6 +39,8 @@ pub struct MacroExpansion {
 pub struct MacroExpander {
     pub dispatcher: MacroDispatcher,
     config: MacroConfig,
+    /// Whether to keep decorators in emitted output (used only by host integrations that need mapping)
+    keep_decorators: bool,
 }
 
 impl MacroExpander {
@@ -63,7 +65,13 @@ impl MacroExpander {
         Ok(Self {
             dispatcher: MacroDispatcher::new(registry),
             config,
+            keep_decorators: false,
         })
+    }
+
+    /// Control whether decorators are preserved in the expanded output.
+    pub fn set_keep_decorators(&mut self, keep: bool) {
+        self.keep_decorators = keep;
     }
 
     /// Expand all macros in the source code
@@ -171,7 +179,7 @@ impl MacroExpander {
         }
 
         for target in derive_targets {
-            if !self.config.keep_decorators {
+            if !self.keep_decorators {
                 let decorator_removal = Patch::Delete {
                     span: target.decorator_span,
                 };
@@ -183,7 +191,7 @@ impl MacroExpander {
             for field in &target.class_ir.fields {
                 for decorator in &field.decorators {
                     if (decorator.name == "Derive" || decorator.name == "Debug")
-                        && !self.config.keep_decorators
+                        && !self.keep_decorators
                     {
                         let field_dec_removal = Patch::Delete {
                             span: span_ir_with_at(decorator.span, source),

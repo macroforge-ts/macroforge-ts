@@ -22,4 +22,9 @@ export class FormModel {
   @fieldController(textAreaController)
   description: string;
 
-  constructor(memo: string | null, username: string, description: string);}
+  constructor(memo: string | null, username: string, description: string) {
+    this.memo = memo;
+    this.username = username;
+    this.description = description;
+  }
+}

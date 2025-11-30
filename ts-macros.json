@@ -1,6 +1,5 @@
 {
   "allowNativeMacros": true,
-  "keepDecorators": true,
   "macroPackages": [],
   "macroRuntimeOverrides": {},
   "limits": {
