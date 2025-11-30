@@ -6,6 +6,8 @@
 //! utilities from the heavier parsing utilities that live in `ts_syn`.
 
 mod template;
+#[cfg(test)]
+mod test;
 
 use convert_case::{Case, Casing};
 use proc_macro::TokenStream;
@@ -457,7 +459,10 @@ pub fn ts_template(input: TokenStream) -> TokenStream {
     let input = TokenStream2::from(input);
 
     // Parse the template to generate string-building code
-    let string_builder = template::parse_template(input);
+    let string_builder = match template::parse_template(input) {
+        Ok(s) => s,
+        Err(e) => return e.to_compile_error().into(),
+    };
 
     // Wrap in code that builds string and parses it
     let output = quote::quote! {
