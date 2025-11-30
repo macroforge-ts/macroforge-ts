@@ -43,7 +43,6 @@ export interface MacroManifestEntry {
 /** Generates depth-aware field controller helpers for reactive forms */
 export declare function textAreaController(...features: Array<string | ((...args:
 any[]) => unknown)>): void
-/** Alias for the mapper under the "NativeMapper" name expected by the plugin refactor */
 export declare class NativeMapper {
   constructor(mapping: SourceMappingResult)
   isEmpty(): boolean
@@ -57,12 +56,13 @@ export declare class NativeMapper {
 
 export declare class NativePlugin {
   constructor()
+  log(message: string): void
+  setLogFile(path: string): void
   processFile(filepath: string, code: string, options?: ProcessFileOptions | undefined | null): ExpandResult
   getMapper(filepath: string): NativeMapper | null
   mapDiagnostics(filepath: string, diags: Array<JsDiagnostic>): Array<JsDiagnostic>
 }
 
-/** Native position mapper that mirrors the TypeScript PositionMapper helper */
 export declare class PositionMapper {
   constructor(mapping: SourceMappingResult)
   isEmpty(): boolean
@@ -75,25 +75,16 @@ export declare class PositionMapper {
 }
 export type NativePositionMapper = PositionMapper
 
-/** Debug: List all descriptors from inventory */
 export declare function __tsMacrosDebugDescriptors(): Array<string>
 
-/** Debug: Get all registered module paths from inventory */
 export declare function __tsMacrosDebugGetModules(): Array<string>
 
-/** Debug: Try to look up a macro by module and name */
 export declare function __tsMacrosDebugLookup(module: string, name: string): string
 
-/** Get the names of all macros in this package */
 export declare function __tsMacrosGetMacroNames(): Array<string>
 
-/**
- * Get the manifest of all macros available in this package
- * This is used by the TypeScript plugin to auto-discover macro packages
- */
 export declare function __tsMacrosGetManifest(): MacroManifest
 
-/** Check if this package exports macros (quick probe) */
 export declare function __tsMacrosIsMacroPackage(): boolean
 
 /**
@@ -114,7 +105,6 @@ export declare function __tsMacrosRunDebug(contextJson: string): string
  */
 export declare function __tsMacrosRunEq(contextJson: string): string
 
-/** Quick syntax validation using the same parser as the expander */
 export declare function checkSyntax(code: string, filepath: string): SyntaxCheckResult
 
 export declare function Clone(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
@@ -127,20 +117,14 @@ any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
 export declare function Debug(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
 any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
-/** Decorator metadata for TypeScript type stubs */
 export interface DecoratorManifestEntry {
-  /** Module this decorator is exported from */
   module: string
-  /** Export name */
   export: string
-  /** Decorator kind ("class", "property", "method", etc.) */
   kind: string
-  /** Documentation */
   docs: string
 }
 
-export declare function Derive(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): ClassDecorator
+export declare function Derive(...features: any[]): ClassDecorator
 
 export declare function Eq(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
 any[]) => unknown) | Record<string, unknown>>): ClassDecorator
@@ -173,7 +157,6 @@ export interface ImportSourceResult {
   module: string
 }
 
-/** Simplified diagnostic object for span mapping from JS */
 export interface JsDiagnostic {
   start?: number
   length?: number
@@ -189,25 +172,16 @@ export interface MacroDiagnostic {
   end?: number
 }
 
-/** Complete manifest for this macro package */
 export interface MacroManifest {
-  /** Manifest format version */
   version: number
-  /** List of macros provided by this package */
   macros: Array<MacroManifestEntry>
-  /** List of decorator exports */
   decorators: Array<DecoratorManifestEntry>
 }
 
-/** Entry for a single macro in the manifest */
 export interface MacroManifestEntry {
-  /** The macro name (e.g., "Debug", "JSON") */
   name: string
-  /** The macro kind ("derive", "attribute", or "call") */
   kind: string
-  /** Description of what the macro does */
   description: string
-  /** The Rust package that provides this macro */
   package: string
 }
 
@@ -218,7 +192,6 @@ export interface MappingSegmentResult {
   expandedEnd: number
 }
 
-/** Parse import statements with SWC to avoid regex-based extraction in JavaScript */
 export declare function parseImportSources(code: string, filepath: string): Array<ImportSourceResult>
 
 export interface ProcessFileOptions {
@@ -237,9 +210,7 @@ export interface SpanResult {
 }
 
 export interface SyntaxCheckResult {
-  /** True when the source code parsed successfully */
   ok: boolean
-  /** Optional error string when parsing fails */
   error?: string
 }
 
@@ -250,5 +221,4 @@ export interface TransformResult {
   metadata?: string
 }
 
-/** Transform TypeScript code to JavaScript with macro expansion */
 export declare function transformSync(code: string, filepath: string): TransformResult

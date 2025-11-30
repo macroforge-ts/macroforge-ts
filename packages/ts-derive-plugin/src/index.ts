@@ -4,7 +4,7 @@ import type {
   ExpandResult,
   MacroDiagnostic,
 } from "@ts-macros/swc-napi";
-import type { PositionMapper } from "./source-map";
+import { NativePlugin, PositionMapper } from "@ts-macros/swc-napi";
 
 const FILE_EXTENSIONS = [".ts", ".tsx", ".svelte"];
 
@@ -12,55 +12,40 @@ function shouldProcess(fileName: string) {
   return !fileName.endsWith(".expanded.ts");
 }
 
-interface CachedExpansion {
-  version: string;
-  codeOutput: string | null;
-  typesOutput: string | null;
-  diagnostics: MacroDiagnostic[];
-  mapper: PositionMapper | null;
-}
-
-type NativeBindings = typeof import("@ts-macros/swc-napi");
-
-// Try to load the native module, but don't crash if it fails
-let nativeModuleLoaded = false;
-let loadedNativeModule: NativeBindings | null = null;
-
-try {
-  loadedNativeModule = require("@ts-macros/swc-napi") as NativeBindings;
-  nativeModuleLoaded = true;
-} catch (e) {
-  // Native module failed to load - plugin will be disabled
-}
+// Test hooks for stubbing expansion
+let expandSyncStub:
+  | ((
+      code: string,
+      fileName: string,
+    ) => {
+      code: string;
+      diagnostics?: MacroDiagnostic[];
+      types?: string;
+      metadata?: string;
+      sourceMapping?: any;
+    })
+  | null = null;
 
 function init(modules: { typescript: typeof ts }) {
   function create(info: ts.server.PluginCreateInfo) {
     const tsModule = modules.typescript;
-    const expansionCache = new Map<string, CachedExpansion>();
     // Map to store generated virtual .d.ts files
     const virtualDtsFiles = new Map<string, ts.IScriptSnapshot>();
     // Cache snapshots to ensure identity stability for TypeScript's incremental compiler
-    const snapshotCache = new Map<string, { version: string; snapshot: ts.IScriptSnapshot }>();
+    const snapshotCache = new Map<
+      string,
+      { version: string; snapshot: ts.IScriptSnapshot }
+    >();
     // Guard against reentrancy
     const processingFiles = new Set<string>();
 
-    // Write logs to a file we can actually see
-    const fs = require("fs");
-    const logFile = "/tmp/ts-macros-plugin.log";
+    // Instantiate native plugin (handles caching and logging in Rust)
+    const nativePlugin = new NativePlugin();
 
-    // Clear log on startup
-    try {
-      fs.writeFileSync(
-        logFile,
-        `=== ts-macros plugin loaded at ${new Date().toISOString()} ===\n`,
-      );
-    } catch {}
-
+    // Log helper - delegates to Rust
     const log = (msg: string) => {
-      const line = `[${new Date().toISOString()}] ${msg}\n`;
-      try {
-        fs.appendFileSync(logFile, line);
-      } catch {}
+      const line = `[${new Date().toISOString()}] ${msg}`;
+      nativePlugin.log(line);
       try {
         info.project.projectService.logger.info(`[ts-macros] ${msg}`);
       } catch {}
@@ -69,99 +54,81 @@ function init(modules: { typescript: typeof ts }) {
       } catch {}
     };
 
-    // Log plugin initialization with module status
+    // Log plugin initialization
     log("Plugin initialized");
 
-    // Instantiate a native plugin per language service instance
-    const nativePlugin =
-      nativeModuleLoaded && loadedNativeModule?.NativePlugin
-        ? new loadedNativeModule.NativePlugin()
-        : null;
-
-    if (!nativePlugin) {
-      log("Native plugin unavailable; using original language service");
-      return info.languageService;
-    }
-
-    function getExpansion(
+    // Process file through macro expansion (caching handled in Rust)
+    function processFile(
       fileName: string,
       content: string,
       version: string,
-    ): CachedExpansion {
-      // 1. Check Cache
-      const cached = expansionCache.get(fileName);
-      if (cached && cached.version === version) {
-        return cached;
-      }
-
-      // 2. Define Fallback (No-Op) State
-      const noOpExpansion: CachedExpansion = {
-        version,
-        codeOutput: content,
-        typesOutput: null,
-        diagnostics: [],
-        mapper: null,
-      };
-
-      // 3. Fast Exit: Empty Content
+    ): { result: ExpandResult; code: string } {
+      // Fast Exit: Empty Content
       if (!content || content.trim().length === 0) {
-        return noOpExpansion;
+        return {
+          result: {
+            code: content,
+            types: undefined,
+            metadata: undefined,
+            diagnostics: [],
+            sourceMapping: undefined,
+          },
+          code: content,
+        };
       }
 
       try {
-        log(`getExpansion START for ${fileName}`);
+        log(`Processing ${fileName}`);
 
-        if (!nativePlugin?.processFile) {
-          return noOpExpansion;
+        // Use stub if available (for testing)
+        let result: ExpandResult;
+        if (expandSyncStub) {
+          log(`Using test stub for expansion`);
+          const stubResult = expandSyncStub(content, fileName);
+          result = {
+            code: stubResult.code,
+            types: stubResult.types || undefined,
+            metadata: stubResult.metadata || undefined,
+            diagnostics: stubResult.diagnostics || [],
+            sourceMapping: stubResult.sourceMapping || undefined,
+          };
+        } else {
+          // Rust handles caching internally
+          result = nativePlugin.processFile(fileName, content, {
+            keepDecorators: true,
+            version,
+          }) as ExpandResult;
         }
 
-        const result = nativePlugin.processFile(fileName, content, {
-          keepDecorators: true,
-          version,
-        }) as ExpandResult;
-
-        const mapper =
-          (nativePlugin.getMapper?.(fileName) as PositionMapper | undefined) ||
-          null;
-
-        if (mapper && !mapper.isEmpty() && result.sourceMapping) {
-          log(
-            `Source mapping: ${result.sourceMapping.segments.length} segments, ${result.sourceMapping.generatedRegions.length} generated regions`,
-          );
-        }
-
-        const expansion: CachedExpansion = {
-          version,
-          codeOutput: result.code || null,
-          typesOutput: result.types || null,
-          diagnostics: result.diagnostics || [],
-          mapper,
-        };
-
-        // 6. Update State (Cache & Virtual Files)
-        expansionCache.set(fileName, expansion);
-
+        // Update virtual .d.ts files
         const virtualDtsFileName = fileName + ".ts-macros.d.ts";
-        if (expansion.typesOutput) {
+        if (result.types) {
           virtualDtsFiles.set(
             virtualDtsFileName,
-            tsModule.ScriptSnapshot.fromString(expansion.typesOutput),
+            tsModule.ScriptSnapshot.fromString(result.types),
           );
           log(`Generated virtual .d.ts for ${fileName}`);
         } else {
           virtualDtsFiles.delete(virtualDtsFileName);
         }
 
-        return expansion;
+        return { result, code: result.code };
       } catch (e) {
-        // 7. Error Recovery
         const errorMessage =
           e instanceof Error ? e.stack || e.message : String(e);
         log(`Plugin expansion failed for ${fileName}: ${errorMessage}`);
 
-        expansionCache.set(fileName, noOpExpansion);
         virtualDtsFiles.delete(fileName + ".ts-macros.d.ts");
-        return noOpExpansion;
+        return {
+          result: {
+            code: content,
+            types: undefined,
+            metadata: undefined,
+            diagnostics: [],
+            sourceMapping: undefined,
+          },
+          code: content,
+        };
       }
     }
 
@@ -278,16 +245,17 @@ function init(modules: { typescript: typeof ts }) {
             return cached.snapshot;
           }
 
-          const expansion = getExpansion(fileName, text, version);
-          log(`  -> getExpansion returned`);
+          const { code } = processFile(fileName, text, version);
+          log(`  -> processFile returned`);
 
-          if (expansion.codeOutput && expansion.codeOutput !== text) {
-            log(
-              `  -> creating expanded snapshot (${expansion.codeOutput.length} chars)`,
-            );
-            const expandedSnapshot = tsModule.ScriptSnapshot.fromString(expansion.codeOutput);
+          if (code && code !== text) {
+            log(`  -> creating expanded snapshot (${code.length} chars)`);
+            const expandedSnapshot = tsModule.ScriptSnapshot.fromString(code);
             // Cache the snapshot for stable identity
-            snapshotCache.set(fileName, { version, snapshot: expandedSnapshot });
+            snapshotCache.set(fileName, {
+              version,
+              snapshot: expandedSnapshot,
+            });
             log(`  -> returning expanded snapshot`);
             return expandedSnapshot;
           }
@@ -307,17 +275,6 @@ function init(modules: { typescript: typeof ts }) {
         return originalGetScriptSnapshot(fileName);
       }
     };
-
-    // Helper to get mapper for a file (triggering expansion if needed)
-    function getMapper(fileName: string): PositionMapper | null {
-      const nativeMapper = nativePlugin?.getMapper?.(fileName) as
-        | PositionMapper
-        | undefined;
-      if (nativeMapper) {
-        return nativeMapper;
-      }
-      return expansionCache.get(fileName)?.mapper ?? null;
-    }
 
     function toPlainDiagnostic(diag: ts.Diagnostic): {
       start?: number;
@@ -387,40 +344,79 @@ function init(modules: { typescript: typeof ts }) {
           return originalGetSemanticDiagnostics(fileName);
         }
 
-        if (!nativePlugin?.mapDiagnostics) {
-          log(`  -> native plugin unavailable, using original diagnostics`);
-          return originalGetSemanticDiagnostics(fileName);
-        }
-
         // Ensure mapper is ready
-        getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
 
         log(`  -> getting original diagnostics...`);
         const expandedDiagnostics = originalGetSemanticDiagnostics(fileName);
         log(`  -> got ${expandedDiagnostics.length} diagnostics`);
 
-        log(`  -> mapping diagnostics in native plugin`);
-        const mappedDiagnostics = applyMappedDiagnostics(
-          expandedDiagnostics,
-          nativePlugin.mapDiagnostics(
-            fileName,
-            expandedDiagnostics.map(toPlainDiagnostic),
-          ),
-        );
+        // Map diagnostics using mapper
+        let mappedDiagnostics: ts.Diagnostic[];
 
-        // Also get macro diagnostics from expansion
-        const version = info.languageServiceHost.getScriptVersion(fileName);
-        const cached = expansionCache.get(fileName);
+        // If using test stub, we need to get the mapper from the result
+        let effectiveMapper = mapper;
+        if (expandSyncStub) {
+          // When using stubs, processFile was already called - get mapper from it
+          const snapshot = originalGetScriptSnapshot(fileName);
+          if (snapshot) {
+            const text = snapshot.getText(0, snapshot.getLength());
+            const version = info.languageServiceHost.getScriptVersion(fileName);
+            const { result } = processFile(fileName, text, version);
+            if (result.sourceMapping) {
+              try {
+                effectiveMapper = new PositionMapper(result.sourceMapping);
+              } catch {}
+            }
+          }
+        }
 
-        if (
-          !cached ||
-          cached.version !== version ||
-          cached.diagnostics.length === 0
-        ) {
+        if (effectiveMapper && !effectiveMapper.isEmpty()) {
+          log(`  -> mapping diagnostics with mapper`);
+          mappedDiagnostics = expandedDiagnostics.map((diag) => {
+            if (diag.start === undefined || diag.length === undefined) {
+              return diag;
+            }
+            const mapped = effectiveMapper!.mapSpanToOriginal(
+              diag.start,
+              diag.length,
+            );
+            if (!mapped) {
+              return diag;
+            }
+            return {
+              ...diag,
+              start: mapped.start,
+              length: mapped.length,
+            };
+          });
+        } else {
+          // Native plugin is guaranteed to exist after early return check
+          log(`  -> mapping diagnostics in native plugin`);
+          mappedDiagnostics = applyMappedDiagnostics(
+            expandedDiagnostics,
+            nativePlugin.mapDiagnostics(
+              fileName,
+              expandedDiagnostics.map(toPlainDiagnostic),
+            ),
+          );
+        }
+
+        // Get macro diagnostics from Rust (hits cache if already expanded)
+        const snapshot = originalGetScriptSnapshot(fileName);
+        if (!snapshot) {
           return mappedDiagnostics;
         }
 
-        const macroDiagnostics: ts.Diagnostic[] = cached.diagnostics.map(
+        const text = snapshot.getText(0, snapshot.getLength());
+        const version = info.languageServiceHost.getScriptVersion(fileName);
+        const { result } = processFile(fileName, text, version);
+
+        if (!result.diagnostics || result.diagnostics.length === 0) {
+          return mappedDiagnostics;
+        }
+
+        const macroDiagnostics: ts.Diagnostic[] = result.diagnostics.map(
           (d) => {
             const category =
               d.level === "error"
@@ -463,15 +459,12 @@ function init(modules: { typescript: typeof ts }) {
           return originalGetSyntacticDiagnostics(fileName);
         }
 
-        if (!nativePlugin?.mapDiagnostics) {
-          return originalGetSyntacticDiagnostics(fileName);
-        }
-
         // Ensure mapper ready
-        getMapper(fileName);
+        nativePlugin.getMapper(fileName);
 
         const expandedDiagnostics = originalGetSyntacticDiagnostics(fileName);
         log(`  -> got ${expandedDiagnostics.length} diagnostics, mapping...`);
+        // Native plugin is guaranteed to exist after early return check
         const result = applyMappedDiagnostics(
           expandedDiagnostics,
           nativePlugin.mapDiagnostics(
@@ -499,7 +492,7 @@ function init(modules: { typescript: typeof ts }) {
           return originalGetQuickInfoAtPosition(fileName, position);
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return originalGetQuickInfoAtPosition(fileName, position);
         }
@@ -551,7 +544,7 @@ function init(modules: { typescript: typeof ts }) {
           );
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return originalGetCompletionsAtPosition(
             fileName,
@@ -624,7 +617,7 @@ function init(modules: { typescript: typeof ts }) {
           return originalGetDefinitionAtPosition(fileName, position);
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return originalGetDefinitionAtPosition(fileName, position);
         }
@@ -642,7 +635,7 @@ function init(modules: { typescript: typeof ts }) {
             acc.push(def);
             return acc;
           }
-          const defMapper = getMapper(def.fileName);
+          const defMapper = nativePlugin.getMapper(def.fileName);
           if (!defMapper) {
             acc.push(def);
             return acc;
@@ -677,7 +670,7 @@ function init(modules: { typescript: typeof ts }) {
           return originalGetDefinitionAndBoundSpan(fileName, position);
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return originalGetDefinitionAndBoundSpan(fileName, position);
         }
@@ -699,7 +692,7 @@ function init(modules: { typescript: typeof ts }) {
             acc.push(def);
             return acc;
           }
-          const defMapper = getMapper(def.fileName);
+          const defMapper = nativePlugin.getMapper(def.fileName);
           if (!defMapper) {
             acc.push(def);
             return acc;
@@ -744,7 +737,7 @@ function init(modules: { typescript: typeof ts }) {
           return originalGetTypeDefinitionAtPosition(fileName, position);
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return originalGetTypeDefinitionAtPosition(fileName, position);
         }
@@ -761,7 +754,7 @@ function init(modules: { typescript: typeof ts }) {
             acc.push(def);
             return acc;
           }
-          const defMapper = getMapper(def.fileName);
+          const defMapper = nativePlugin.getMapper(def.fileName);
           if (!defMapper) {
             acc.push(def);
             return acc;
@@ -796,7 +789,7 @@ function init(modules: { typescript: typeof ts }) {
           return originalGetReferencesAtPosition(fileName, position);
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return originalGetReferencesAtPosition(fileName, position);
         }
@@ -810,7 +803,7 @@ function init(modules: { typescript: typeof ts }) {
             acc.push(ref);
             return acc;
           }
-          const refMapper = getMapper(ref.fileName);
+          const refMapper = nativePlugin.getMapper(ref.fileName);
           if (!refMapper) {
             acc.push(ref);
             return acc;
@@ -846,7 +839,7 @@ function init(modules: { typescript: typeof ts }) {
           return originalFindReferences(fileName, position);
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return originalFindReferences(fileName, position);
         }
@@ -863,7 +856,7 @@ function init(modules: { typescript: typeof ts }) {
                 acc.push(ref);
                 return acc;
               }
-              const refMapper = getMapper(ref.fileName);
+              const refMapper = nativePlugin.getMapper(ref.fileName);
               if (!refMapper) {
                 acc.push(ref);
                 return acc;
@@ -904,7 +897,7 @@ function init(modules: { typescript: typeof ts }) {
           return originalGetSignatureHelpItems(fileName, position, options);
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return originalGetSignatureHelpItems(fileName, position, options);
         }
@@ -970,7 +963,7 @@ function init(modules: { typescript: typeof ts }) {
           return callGetRenameInfo(fileName, position, options as any);
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return callGetRenameInfo(fileName, position, options as any);
         }
@@ -1040,7 +1033,7 @@ function init(modules: { typescript: typeof ts }) {
           return callFindRenameLocations(fileName, position, options);
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return callFindRenameLocations(fileName, position, options);
         }
@@ -1053,28 +1046,31 @@ function init(modules: { typescript: typeof ts }) {
 
         if (!locations) return locations;
 
-        return locations.reduce((acc: ts.RenameLocation[], loc: ts.RenameLocation) => {
-          if (!shouldProcess(loc.fileName)) {
-            acc.push(loc);
+        return locations.reduce(
+          (acc: ts.RenameLocation[], loc: ts.RenameLocation) => {
+            if (!shouldProcess(loc.fileName)) {
+              acc.push(loc);
+              return acc;
+            }
+            const locMapper = nativePlugin.getMapper(loc.fileName);
+            if (!locMapper) {
+              acc.push(loc);
+              return acc;
+            }
+            const mapped = locMapper.mapSpanToOriginal(
+              loc.textSpan.start,
+              loc.textSpan.length,
+            );
+            if (mapped) {
+              acc.push({
+                ...loc,
+                textSpan: { start: mapped.start, length: mapped.length },
+              });
+            }
             return acc;
-          }
-          const locMapper = getMapper(loc.fileName);
-          if (!locMapper) {
-            acc.push(loc);
-            return acc;
-          }
-          const mapped = locMapper.mapSpanToOriginal(
-            loc.textSpan.start,
-            loc.textSpan.length,
-          );
-          if (mapped) {
-            acc.push({
-              ...loc,
-              textSpan: { start: mapped.start, length: mapped.length },
-            });
-          }
-          return acc;
-        }, [] as ts.RenameLocation[]);
+          },
+          [] as ts.RenameLocation[],
+        );
       } catch (e) {
         log(
           `Error in findRenameLocations: ${e instanceof Error ? e.message : String(e)}`,
@@ -1101,7 +1097,7 @@ function init(modules: { typescript: typeof ts }) {
           );
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return originalGetDocumentHighlights(
             fileName,
@@ -1126,7 +1122,7 @@ function init(modules: { typescript: typeof ts }) {
                 acc.push(span);
                 return acc;
               }
-              const spanMapper = getMapper(docHighlight.fileName);
+              const spanMapper = nativePlugin.getMapper(docHighlight.fileName);
               if (!spanMapper) {
                 acc.push(span);
                 return acc;
@@ -1165,7 +1161,7 @@ function init(modules: { typescript: typeof ts }) {
           return originalGetImplementationAtPosition(fileName, position);
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return originalGetImplementationAtPosition(fileName, position);
         }
@@ -1182,7 +1178,7 @@ function init(modules: { typescript: typeof ts }) {
             acc.push(impl);
             return acc;
           }
-          const implMapper = getMapper(impl.fileName);
+          const implMapper = nativePlugin.getMapper(impl.fileName);
           if (!implMapper) {
             acc.push(impl);
             return acc;
@@ -1230,7 +1226,7 @@ function init(modules: { typescript: typeof ts }) {
           );
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return originalGetCodeFixesAtPosition(
             fileName,
@@ -1276,7 +1272,7 @@ function init(modules: { typescript: typeof ts }) {
           return originalGetNavigationTree(fileName);
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return originalGetNavigationTree(fileName);
         }
@@ -1328,7 +1324,7 @@ function init(modules: { typescript: typeof ts }) {
           return originalGetOutliningSpans(fileName);
         }
 
-        const mapper = getMapper(fileName);
+        const mapper = nativePlugin.getMapper(fileName);
         if (!mapper) {
           return originalGetOutliningSpans(fileName);
         }
@@ -1381,7 +1377,7 @@ function init(modules: { typescript: typeof ts }) {
             return originalProvideInlayHints(fileName, span, preferences);
           }
 
-          const mapper = getMapper(fileName);
+          const mapper = nativePlugin.getMapper(fileName);
           if (!mapper) {
             return originalProvideInlayHints(fileName, span, preferences);
           }
@@ -1431,8 +1427,31 @@ function init(modules: { typescript: typeof ts }) {
   return { create };
 }
 
-type TsMacrosPluginFactory = typeof init & {};
+type TsMacrosPluginFactory = typeof init & {
+  __setExpandSync?: (
+    stub: (
+      code: string,
+      fileName: string,
+    ) => {
+      code: string;
+      diagnostics?: MacroDiagnostic[];
+      types?: string;
+      metadata?: string;
+      sourceMapping?: any;
+    },
+  ) => void;
+  __resetExpandSync?: () => void;
+};
 
 const pluginFactory = init as TsMacrosPluginFactory;
+
+// Test hooks
+pluginFactory.__setExpandSync = (stub) => {
+  expandSyncStub = stub;
+};
+
+pluginFactory.__resetExpandSync = () => {
+  expandSyncStub = null;
+};
 
 export = pluginFactory;
