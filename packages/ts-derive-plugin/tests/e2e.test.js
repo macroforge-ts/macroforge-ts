@@ -116,7 +116,10 @@ test('E2E: expands MacroUser and validates methods', (t) => {
         interface Boolean {}
         interface Number {}
         interface RegExp {}
-        interface Array<T> {}
+        interface Array<T> {
+            push(...items: T[]): number;
+            join(separator?: string): string;
+        }
         declare var Object: { new(value?: any): Object; prototype: Object; };
       `
   };
@@ -131,6 +134,9 @@ test('E2E: expands MacroUser and validates methods', (t) => {
 
   // Check valid usage
   const diagnostics = env.languageServiceWithPlugin.getSemanticDiagnostics(mainFile);
+  if (diagnostics.length > 0) {
+      console.log('Diagnostics found:', diagnostics.map(d => d.messageText));
+  }
   assert.strictEqual(diagnostics.length, 0, 'Should have no semantic errors for valid usage');
 });
 
@@ -256,7 +262,10 @@ test('E2E: macro-user.ts example with Debug and JSON macros', (t) => {
         interface Boolean {}
         interface Number {}
         interface RegExp {}
-        interface Array<T> {}
+        interface Array<T> {
+            push(...items: T[]): number;
+            join(separator?: string): string;
+        }
         declare var Object: { new(value?: any): Object; prototype: Object; };
       `,
       '/virtual/macro-user.ts.ts-macros.d.ts': `

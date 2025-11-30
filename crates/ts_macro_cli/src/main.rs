@@ -133,8 +133,8 @@ try {
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    let result: serde_json::Value = serde_json::from_str(&stdout)
-        .context("failed to parse expansion result from node")?;
+    let result: serde_json::Value =
+        serde_json::from_str(&stdout).context("failed to parse expansion result from node")?;
 
     let code = result["code"]
         .as_str()
@@ -173,7 +173,8 @@ try {
     // Print diagnostics
     if let Some(diags) = result["diagnostics"].as_array() {
         for diag in diags {
-            if let (Some(level), Some(message)) = (diag["level"].as_str(), diag["message"].as_str()) {
+            if let (Some(level), Some(message)) = (diag["level"].as_str(), diag["message"].as_str())
+            {
                 eprintln!("[ts-macro] {} at {}: {}", level, input.display(), message);
             }
         }

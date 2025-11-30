@@ -13,6 +13,10 @@ use ts_macro_host::derived;
 
 mod builtin;
 mod macro_host;
+
+#[cfg(test)]
+mod test;
+
 use crate::macro_host::MacroHostIntegration;
 
 #[napi(object)]
@@ -88,7 +92,12 @@ pub struct ExpandOptions {
 
 /// Expand macros in TypeScript code and return the transformed TS (types) and diagnostics
 #[napi]
-pub fn expand_sync(env: Env, code: String, filepath: String, options: Option<ExpandOptions>) -> Result<ExpandResult> {
+pub fn expand_sync(
+    env: Env,
+    code: String,
+    filepath: String,
+    options: Option<ExpandOptions>,
+) -> Result<ExpandResult> {
     let globals = Globals::default();
     GLOBALS.set(&globals, || {
         std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
@@ -98,8 +107,14 @@ pub fn expand_sync(env: Env, code: String, filepath: String, options: Option<Exp
     })
 }
 
-fn expand_inner(env: Env, code: &str, filepath: &str, options: Option<ExpandOptions>) -> Result<ExpandResult> {
-    let mut macro_host = MacroHostIntegration::new_with_env(Some(env)).map_err(|err| {
+fn expand_inner(
+    env: Env,
+    code: &str,
+    filepath: &str,
+    options: Option<ExpandOptions>,
+) -> Result<ExpandResult> {
+    println!("[ts-macros-rust] expand_inner: Creating MacroHostIntegration");
+    let mut macro_host = MacroHostIntegration::new_with_env(Some(&env)).map_err(|err| {
         Error::new(
             Status::GenericFailure,
             format!("Failed to initialize macro host: {err:?}"),
@@ -178,7 +193,7 @@ fn expand_inner(env: Env, code: &str, filepath: &str, options: Option<ExpandOpti
 }
 
 fn transform_inner(env: Env, code: &str, filepath: &str) -> Result<TransformResult> {
-    let macro_host = MacroHostIntegration::new_with_env(Some(env)).map_err(|err| {
+    let macro_host = MacroHostIntegration::new_with_env(Some(&env)).map_err(|err| {
         Error::new(
             Status::GenericFailure,
             format!("Failed to initialize macro host: {err:?}"),

@@ -20,3 +20,8 @@ export class User {
     this.authToken = authToken;
   }
 }
+
+const user = new User(1, "John Doe", "john@example.com", "tok_live_secret");
+
+const derivedSummary = user.toString();
+const derivedJson = user.toJSON();

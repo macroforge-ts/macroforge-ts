@@ -161,6 +161,7 @@ mod tests {
         let config = MacroConfig {
             macro_packages: vec!["@macro/derive".to_string()],
             allow_native_macros: false,
+            keep_decorators: false,
             macro_runtime_overrides: Default::default(),
             limits: Default::default(),
         };

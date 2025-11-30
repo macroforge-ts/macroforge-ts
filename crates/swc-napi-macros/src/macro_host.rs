@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
-use napi::bindgen_prelude::{Env, Unknown};
-use napi::{JsValue, Status};
-use std::{collections::HashMap, path::Path};
+use napi::Status;
+use napi::bindgen_prelude::Env;
+use std::{collections::HashMap, path::Path, process::Command};
 use swc_core::{
     common::Span,
     ecma::ast::{
@@ -47,7 +47,7 @@ impl MacroHostIntegration {
         Self::new_with_env(None)
     }
 
-    pub fn new_with_env(env: Option<Env>) -> Result<Self> {
+    pub fn new_with_env(env: Option<&Env>) -> Result<Self> {
         let (config, root_dir) = MacroConfig::find_with_root()
             .context("failed to discover macro configuration")?
             .unwrap_or_else(|| {
@@ -67,7 +67,7 @@ impl MacroHostIntegration {
     pub fn with_config_and_env(
         config: MacroConfig,
         root_dir: std::path::PathBuf,
-        env: Option<Env>,
+        _env: Option<&Env>,
     ) -> Result<Self> {
         let registry = MacroRegistry::new();
         register_packages(&registry, &config, &root_dir)?;
@@ -87,7 +87,7 @@ impl MacroHostIntegration {
         Ok(Self {
             dispatcher: MacroDispatcher::new(registry),
             config,
-            external_loader: env.map(|e| ExternalMacroLoader::new(e, root_dir.clone())),
+            external_loader: Some(ExternalMacroLoader::new(root_dir.clone())),
         })
     }
 
@@ -134,7 +134,7 @@ impl MacroHostIntegration {
         self.apply_and_finalize_expansion(source, &mut collector, &mut diagnostics, classes_clone)
     }
 
-    fn prepare_expansion_context(
+    pub(crate) fn prepare_expansion_context(
         &self,
         program: &Program,
         source: &str,
@@ -154,7 +154,7 @@ impl MacroHostIntegration {
         Ok(Some((module, classes)))
     }
 
-    fn collect_macro_patches(
+    pub(crate) fn collect_macro_patches(
         &self,
         module: &Module,
         classes: Vec<ClassIR>,
@@ -263,23 +263,45 @@ impl MacroHostIntegration {
                 let mut result = self.dispatcher.dispatch(ctx.clone());
 
                 if is_macro_not_found(&result)
-                    && let Some(loader) = &self.external_loader
+                    && ctx.module_path != DERIVE_MODULE_PATH
+                    && ctx.module_path.starts_with('.')
                 {
-                    match loader.run_macro(&ctx) {
-                        Ok(external_result) => {
-                            result = external_result;
-                        }
-                        Err(err) => {
-                            result.diagnostics.push(Diagnostic {
-                                level: DiagnosticLevel::Error,
-                                message: format!(
-                                    "Failed to load external macro '{}::{}': {}",
-                                    ctx.module_path, ctx.macro_name, err
-                                ),
-                                span: Some(ctx.decorator_span),
-                                notes: vec![],
-                                help: None,
-                            });
+                    let fallback_ctx = MacroContextIR::new_derive_class(
+                        macro_name.clone(),
+                        DERIVE_MODULE_PATH.to_string(),
+                        target.decorator_span,
+                        target.class_ir.span,
+                        file_name.to_string(),
+                        target.class_ir.clone(),
+                        target_source.clone(),
+                    );
+                    result = self.dispatcher.dispatch(fallback_ctx);
+                }
+
+                let no_output = result.runtime_patches.is_empty()
+                    && result.type_patches.is_empty()
+                    && result.tokens.is_none();
+
+                if ctx.module_path != DERIVE_MODULE_PATH
+                    && (is_macro_not_found(&result) || no_output)
+                {
+                    if let Some(loader) = &self.external_loader {
+                        match loader.run_macro(&ctx) {
+                            Ok(external_result) => {
+                                result = external_result;
+                            }
+                            Err(err) => {
+                                result.diagnostics.push(Diagnostic {
+                                    level: DiagnosticLevel::Error,
+                                    message: format!(
+                                        "Failed to load external macro '{}::{}': {}",
+                                        ctx.macro_name, ctx.module_path, err
+                                    ),
+                                    span: Some(ctx.decorator_span),
+                                    notes: vec![],
+                                    help: None,
+                                });
+                            }
                         }
                     }
                 }
@@ -301,7 +323,7 @@ impl MacroHostIntegration {
         (collector, diagnostics)
     }
 
-    fn process_macro_output(
+    pub(crate) fn process_macro_output(
         &self,
         result: &mut MacroResult,
         ctx: &MacroContextIR,
@@ -355,7 +377,7 @@ impl MacroHostIntegration {
         Ok((runtime_patches, type_patches))
     }
 
-    fn apply_and_finalize_expansion(
+    pub(crate) fn apply_and_finalize_expansion(
         &self,
         source: &str,
         collector: &mut PatchCollector,
@@ -431,17 +453,16 @@ fn is_macro_not_found(result: &MacroResult) -> bool {
     result
         .diagnostics
         .iter()
-        .any(|d| d.message.contains("Macro") && d.message.contains("not found in module"))
+        .any(|d| d.message.contains("Macro") && d.message.contains("not found"))
 }
 
 struct ExternalMacroLoader {
-    env: Env,
     root_dir: std::path::PathBuf,
 }
 
 impl ExternalMacroLoader {
-    fn new(env: Env, root_dir: std::path::PathBuf) -> Self {
-        Self { env, root_dir }
+    fn new(root_dir: std::path::PathBuf) -> Self {
+        Self { root_dir }
     }
 
     fn run_macro(&self, ctx: &MacroContextIR) -> napi::Result<MacroResult> {
@@ -449,199 +470,184 @@ impl ExternalMacroLoader {
         let ctx_json =
             serde_json::to_string(ctx).map_err(|e| napi::Error::new(Status::InvalidArg, e))?;
 
-        match self.try_run_via_workspaces(&fn_name, &ctx.module_path, &ctx_json) {
-            Ok(Some(result_json)) => {
-                let host_result: ts_macro_abi::MacroResult = serde_json::from_str(&result_json)
-                    .map_err(|e| {
-                        napi::Error::new(
-                            Status::InvalidArg,
-                            format!("Failed to parse macro result: {e}"),
-                        )
-                    })?;
+        let script = r#"
+const [modulePath, fnName, ctxJson, rootDir] = process.argv.slice(1);
+const path = require('path');
+const fs = require('fs');
+const { pathToFileURL } = require('url');
 
-                Ok(MacroResult {
-                    runtime_patches: host_result.runtime_patches,
-                    type_patches: host_result.type_patches,
-                    diagnostics: host_result.diagnostics,
-                    tokens: host_result.tokens,
-                    debug: host_result.debug,
-                })
-            }
-            Ok(None) => Ok(MacroResult {
-                diagnostics: vec![Diagnostic {
-                    level: DiagnosticLevel::Error,
-                    message: format!(
-                        "Macro '{}' not found in module '{}' or workspace macro packages",
-                        ctx.macro_name, ctx.module_path
-                    ),
-                    span: Some(ctx.decorator_span),
-                    notes: vec![],
-                    help: None,
-                }],
-                ..MacroResult::default()
-            }),
-            Err(err) => Ok(MacroResult {
-                diagnostics: vec![Diagnostic {
-                    level: DiagnosticLevel::Error,
-                    message: format!(
-                        "Failed to load macro '{}' from module '{}': {}",
-                        ctx.macro_name, ctx.module_path, err
-                    ),
-                    span: Some(ctx.decorator_span),
-                    notes: vec![],
-                    help: None,
-                }],
-                ..MacroResult::default()
-            }),
-        }
+const normalizeWorkspaces = (val) =>
+  Array.isArray(val) ? val : (val && Array.isArray(val.packages) ? val.packages : []);
+
+const toImportSpecifier = (id) => {
+  if (id.startsWith('.') || id.startsWith('/')) {
+    return pathToFileURL(path.resolve(rootDir, id)).href;
+  }
+  return id;
+};
+
+const expandWorkspace = (pattern) => {
+  if (typeof pattern !== 'string') return [];
+  const absolute = path.resolve(rootDir, pattern);
+  if (!pattern.includes('*')) {
+    return [absolute];
+  }
+
+  const starIdx = pattern.indexOf('*');
+  const baseDir = path.resolve(rootDir, pattern.slice(0, starIdx));
+  const suffix = pattern.slice(starIdx + 1);
+  if (!fs.existsSync(baseDir)) return [];
+
+  return fs
+    .readdirSync(baseDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(baseDir, entry.name + suffix));
+};
+
+const candidates = [];
+const seen = new Set();
+const addCandidate = (id) => {
+  if (!id) return;
+  const key = id.startsWith('.') || id.startsWith('/') ? path.resolve(rootDir, id) : id;
+  if (seen.has(key)) return;
+  seen.add(key);
+  candidates.push(id);
+};
+
+addCandidate(modulePath);
+
+try {
+  const rootPkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
+  const workspaces = normalizeWorkspaces(rootPkg.workspaces);
+
+  for (const ws of workspaces) {
+    for (const pkgDir of expandWorkspace(ws)) {
+      try {
+        const pkgJsonPath = path.join(pkgDir, 'package.json');
+        if (!fs.existsSync(pkgJsonPath)) continue;
+
+        const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
+        addCandidate(pkgJson.name || pkgDir);
+        addCandidate(pkgDir);
+      } catch {}
+    }
+  }
+} catch {}
+
+const tryRequire = (id) => {
+  try {
+    return { module: require(id), loader: 'require' };
+  } catch (error) {
+    return { error };
+  }
+};
+
+const tryImport = async (id) => {
+  try {
+    return { module: await import(toImportSpecifier(id)), loader: 'import' };
+  } catch (error) {
+    return { error };
+  }
+};
+
+(async () => {
+  const errors = [];
+
+  for (const id of candidates) {
+    let loaded = tryRequire(id);
+
+    if (!loaded.module) {
+      const imported = await tryImport(id);
+      if (imported.module) {
+        loaded = imported;
+      } else {
+        errors.push(
+          `Failed to load '${id}' via require/import: ${
+            imported.error?.message || loaded.error?.message || 'unknown error'
+          }`
+        );
+        continue;
+      }
     }
 
-    fn try_run_via_workspaces(
-        &self,
-        fn_name: &str,
-        module_path: &str,
-        ctx_json: &str,
-    ) -> napi::Result<Option<String>> {
-        let module_path_lit =
-            serde_json::to_string(module_path).unwrap_or_else(|_| "null".to_string());
-        let fn_name_lit = serde_json::to_string(fn_name).unwrap_or_else(|_| "\"\"".to_string());
-        let ctx_lit = serde_json::to_string(ctx_json).unwrap_or_else(|_| "\"\"".to_string());
-        let root_dir_lit = serde_json::to_string(self.root_dir.to_string_lossy().as_ref())
-            .unwrap_or_else(|_| "\"\"".to_string());
-        let root_pkg_lit = serde_json::to_string(
-            self.root_dir
-                .join("package.json")
-                .to_string_lossy()
-                .as_ref(),
-        )
-        .unwrap_or_else(|_| "\"\"".to_string());
+    const mod = loaded.module;
+    const fn =
+      mod?.[fnName] ||
+      mod?.default?.[fnName] ||
+      (typeof mod?.default === 'object' ? mod.default[fnName] : undefined);
 
-        let script = format!(
-            r#"(function() {{
-  const normalizeWorkspaces = (val) => Array.isArray(val) ? val : (val && Array.isArray(val.packages) ? val.packages : []);
-  const buildRequire = () => {{
-    if (typeof globalThis.require === "function") return globalThis.require;
-    if (typeof require === "function") return require;
-    if (typeof process !== "undefined" && process.mainModule && process.mainModule.require) {{
-      return process.mainModule.require;
-    }}
-    try {{
-      // Some embedders expose module with createRequire even when require is absent
-      if (typeof module !== "undefined" && typeof module.createRequire === "function") {{
-        return module.createRequire(process.cwd() + "/");
-      }}
-    }} catch {{}}
-    try {{
-      const {{ createRequire }} = (typeof module !== "undefined" ? module : null) || {{}};
-      if (typeof createRequire === "function") {{
-        return createRequire(process.cwd() + "/");
-      }}
-    }} catch {{}}
-    return null;
-  }};
+    if (typeof fn !== 'function') {
+      errors.push(`Module '${id}' loaded via ${loaded.loader} but missing export '${fnName}'`);
+      continue;
+    }
 
-  const baseRequire = buildRequire();
-  if (!baseRequire) return null;
+    const out = await fn(ctxJson);
+    if (typeof out === 'string') {
+      process.stdout.write(out);
+      process.exit(0);
+    }
 
-  const path = baseRequire("path");
-  const fs = baseRequire("fs");
-  let rootRequire = baseRequire;
-  try {{
-    const {{ createRequire }} = baseRequire("module");
-    if (typeof createRequire === "function") {{
-      rootRequire = createRequire(path.join({root_dir}, "package.json"));
-    }}
-  }} catch {{}}
+    errors.push(`Macro '${fnName}' in '${id}' returned ${typeof out}, expected string`);
+  }
 
-  const resolveModule = (id) => {{
-    try {{
-      return rootRequire(id);
-    }} catch (err) {{
-      try {{
-        return baseRequire(id);
-      }} catch (_ignore) {{
-        return null;
-      }}
-    }}
-  }};
+  if (errors.length === 0) {
+    errors.push('Macro not found in any workspace candidate');
+  }
 
-  const candidates = [];
-  const seen = new Set();
-  const addCandidate = (id) => {{
-    if (!id || seen.has(id)) return;
-    const mod = resolveModule(id);
-    if (mod) {{
-      seen.add(id);
-      candidates.push(mod);
-    }}
-  }};
+  console.error(errors.join('\n'));
+  process.exit(2);
+})().catch((err) => {
+  console.error(err?.stack || String(err));
+  process.exit(1);
+});
+"#;
 
-  // Try the requested module path first
-  addCandidate({module_path});
+        let child = Command::new("node")
+            .current_dir(&self.root_dir)
+            .arg("-e")
+            .arg(script)
+            .arg(&ctx.module_path)
+            .arg(&fn_name)
+            .arg(&ctx_json)
+            .arg(self.root_dir.to_string_lossy().as_ref())
+            .output()
+            .map_err(|e| {
+                napi::Error::new(
+                    Status::GenericFailure,
+                    format!("Failed to spawn node for external macro: {e}"),
+                )
+            })?;
 
-  // Inspect workspace packages (supports ["packages/*"] and {{ packages: [...] }})
-  try {{
-    const rootPkg = resolveModule({root_pkg});
-    const workspaces = normalizeWorkspaces(rootPkg?.workspaces);
-
-    const expandWorkspace = (pattern) => {{
-      if (typeof pattern !== "string") return [];
-      const absolute = path.resolve({root_dir}, pattern);
-      if (!pattern.includes("*")) {{
-        return [absolute];
-      }}
-
-      const starIdx = pattern.indexOf("*");
-      const baseDir = path.resolve({root_dir}, pattern.slice(0, starIdx));
-      const suffix = pattern.slice(starIdx + 1);
-      if (!fs.existsSync(baseDir)) return [];
-
-      return fs
-        .readdirSync(baseDir, {{ withFileTypes: true }})
-        .filter((entry) => entry.isDirectory())
-        .map((entry) => path.join(baseDir, entry.name + suffix));
-    }};
-
-    for (const ws of workspaces) {{
-      for (const pkgDir of expandWorkspace(ws)) {{
-        try {{
-          const pkgJsonPath = path.join(pkgDir, "package.json");
-          if (!fs.existsSync(pkgJsonPath)) continue;
-
-          const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, "utf8"));
-          addCandidate(pkgJson.name || pkgDir);
-          addCandidate(pkgDir);
-        }} catch {{}}
-      }}
-    }}
-  }} catch {{}}
-
-  for (const mod of candidates) {{
-    if (!mod) continue;
-    const fn = mod[{fn_name}];
-    if (typeof fn === "function") {{
-      return fn({ctx_json});
-    }}
-  }}
-
-  return null;
-}})()"#,
-            module_path = module_path_lit,
-            root_pkg = root_pkg_lit,
-            root_dir = root_dir_lit,
-            fn_name = fn_name_lit,
-            ctx_json = ctx_lit,
-        );
-
-        let result_unknown: Unknown = self.env.run_script(&script)?;
-        let result_str = result_unknown
-            .coerce_to_string()?
-            .into_utf8()?
-            .into_owned()?;
-        if result_str == "null" || result_str == "undefined" {
-            return Ok(None);
+        if !child.status.success() {
+            let stderr = String::from_utf8_lossy(&child.stderr);
+            return Err(napi::Error::new(
+                Status::GenericFailure,
+                format!("External macro runner failed: {stderr}"),
+            ));
         }
-        Ok(Some(result_str))
+
+        let result_json = String::from_utf8(child.stdout).map_err(|e| {
+            napi::Error::new(
+                Status::InvalidArg,
+                format!("Macro runner returned non-UTF8 output: {e}"),
+            )
+        })?;
+
+        let host_result: ts_macro_abi::MacroResult =
+            serde_json::from_str(&result_json).map_err(|e| {
+                napi::Error::new(
+                    Status::InvalidArg,
+                    format!("Failed to parse macro result: {e}"),
+                )
+            })?;
+
+        Ok(MacroResult {
+            runtime_patches: host_result.runtime_patches,
+            type_patches: host_result.type_patches,
+            diagnostics: host_result.diagnostics,
+            tokens: host_result.tokens,
+            debug: host_result.debug,
+        })
     }
 }
 
@@ -943,50 +949,24 @@ fn register_packages(
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use swc_core::{
-        common::{FileName, GLOBALS, SourceMap, sync::Lrc},
-        ecma::parser::{Lexer, Parser, StringInput, Syntax, TsSyntax},
-    };
+mod external_macro_loader_tests {
+    use super::ExternalMacroLoader;
+    use std::{fs, path::Path};
+    use tempfile::tempdir;
+    use ts_macro_abi::{ClassIR, MacroContextIR, SpanIR};
 
-    fn parse_module(source: &str) -> Program {
-        let cm: Lrc<SourceMap> = Default::default();
-        let fm = cm.new_source_file(
-            FileName::Custom("test.ts".into()).into(),
-            source.to_string(),
-        );
-
-        let lexer = Lexer::new(
-            Syntax::Typescript(TsSyntax {
-                decorators: true,
-                ..Default::default()
-            }),
-            Default::default(),
-            StringInput::from(&*fm),
-            None,
-        );
-
-        let mut parser = Parser::new_from(lexer);
-        let module = parser.parse_module().expect("should parse");
-        Program::Module(module)
-    }
-
-    trait StringExt {
-        fn replace_whitespace(&self) -> String;
-    }
-
-    impl StringExt for str {
-        fn replace_whitespace(&self) -> String {
-            self.chars().filter(|c| !c.is_whitespace()).collect()
+    fn write(path: &Path, contents: &str) {
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent).unwrap();
         }
+        fs::write(path, contents).unwrap();
     }
 
-    fn base_class(name: &str) -> ClassIR {
+    fn test_class() -> ClassIR {
         ClassIR {
-            name: name.into(),
-            span: SpanIR::new(0, 200),
-            body_span: SpanIR::new(10, 190),
+            name: "Temp".into(),
+            span: SpanIR::new(0, 10),
+            body_span: SpanIR::new(1, 9),
             is_abstract: false,
             type_params: vec![],
             heritage: vec![],
@@ -999,1060 +979,48 @@ mod tests {
     }
 
     #[test]
-    fn test_derive_debug_runtime_output() {
-        // Note: JSON macro is in playground-macros, not swc-napi-macros
-        // Testing Debug macro which generates toString() implementation
-        let source = r#"
-import { Derive } from "@macro/derive";
+    fn loads_esm_workspace_macro_via_dynamic_import() {
+        let dir = tempdir().unwrap();
+        let root = dir.path();
 
-@Derive(Debug)
-class Data {
-    val: number;
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed, "expand() should report changes");
-            // Debug macro adds toString() method
-            assert!(result.code.contains("toString()"));
-            assert!(result.code.contains("Data"));
-        });
-    }
-
-    #[test]
-    fn test_derive_debug_dts_output() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive(Debug)
-class User {
-    name: string;
-}
-"#;
-
-        let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-
-class User {
-    name: string;
-    toString(): string;
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed, "expand() should report changes");
-            let type_output = result.type_output.expect("should have type output");
-
-            assert_eq!(
-                type_output.replace_whitespace(),
-                expected_dts.replace_whitespace()
-            );
-        });
-    }
-
-    #[test]
-    fn test_derive_clone_dts_output() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive(Clone)
-class User {
-    name: string;
-}
-"#;
-
-        let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-
-class User {
-    name: string;
-    clone(): User;
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed, "expand() should report changes");
-            let type_output = result.type_output.expect("should have type output");
-
-            assert_eq!(
-                type_output.replace_whitespace(),
-                expected_dts.replace_whitespace()
-            );
-        });
-    }
-
-    #[test]
-    fn test_derive_eq_dts_output() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive(Eq)
-class User {
-    name: string;
-}
-"#;
-
-        let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-
-class User {
-    name: string;
-    equals(other: unknown): boolean;
-    hashCode(): number;
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed, "expand() should report changes");
-            let type_output = result.type_output.expect("should have type output");
-
-            assert_eq!(
-                type_output.replace_whitespace(),
-                expected_dts.replace_whitespace()
-            );
-        });
-    }
-
-    #[test]
-    fn test_derive_debug_complex_dts_output() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive("Debug")
-class MacroUser {
-  @Derive({ rename: "userId" })
-  id: string;
-
-  name: string;
-  role: string;
-  favoriteMacro: "Derive" | "JsonNative";
-  since: string;
-
-  @Derive({ skip: true })
-  apiToken: string;
-
-  constructor(
-    id: string,
-    name: string,
-    role: string,
-    favoriteMacro: "Derive" | "JsonNative",
-    since: string,
-    apiToken: string,
-  ) {
-    this.id = id;
-    this.name = name;
-    this.role = role;
-    this.favoriteMacro = favoriteMacro;
-    this.since = since;
-    this.apiToken = apiToken;
-  }
-}
-"#;
-
-        let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class MacroUser {
-  id: string;
-
-  name: string;
-  role: string;
-  favoriteMacro: "Derive" | "JsonNative";
-  since: string;
-
-  apiToken: string;
-
-  constructor(
-    id: string,
-    name: string,
-    role: string,
-    favoriteMacro: "Derive" | "JsonNative",
-    since: string,
-    apiToken: string,
-  );
-    toString(): string;
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed, "expand() should report changes");
-            let type_output = result.type_output.expect("should have type output");
-
-            assert_eq!(type_output, expected_dts);
-        });
-    }
-
-    #[test]
-    fn test_prepare_no_derive() {
-        let source = "class User { name: string; }";
-        let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
-        let result = host.prepare_expansion_context(&program, source).unwrap();
-        // Even without decorators, we return Some because we still need to
-        // generate method signatures for type output
-        assert!(result.is_some());
-    }
-
-    #[test]
-    fn test_prepare_no_classes() {
-        let source = "const x = 1;";
-        let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
-        let result = host.prepare_expansion_context(&program, source).unwrap();
-        assert!(result.is_none());
-    }
-
-    #[test]
-    fn test_prepare_with_classes() {
-        let source = "@Derive(Debug) class User {}";
-        let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
-        let result = host.prepare_expansion_context(&program, source).unwrap();
-        assert!(result.is_some());
-        let (_module, classes) = result.unwrap();
-        assert_eq!(classes.len(), 1);
-        assert_eq!(classes[0].name, "User");
-    }
-
-    #[test]
-    fn test_process_macro_output_converts_tokens_into_patches() {
-        GLOBALS.set(&Default::default(), || {
-            let host = MacroHostIntegration::new().unwrap();
-            let class_ir = base_class("TokenDriven");
-            let ctx = MacroContextIR::new_derive_class(
-                "Debug".into(),
-                DERIVE_MODULE_PATH.into(),
-                SpanIR::new(0, 5),
-                class_ir.span,
-                "token.ts".into(),
-                class_ir.clone(),
-                "class TokenDriven {}".into(),
-            );
-
-            let mut result = MacroResult {
-                tokens: Some(
-                    r#"
-                        toString() { return `${this.value}`; }
-                        constructor(value: string) { this.value = value; }
-                    "#
-                    .into(),
-                ),
-                ..Default::default()
-            };
-
-            let (runtime, type_patches) = host
-                .process_macro_output(&mut result, &ctx)
-                .expect("tokens should parse");
-
-            assert_eq!(
-                runtime.len(),
-                2,
-                "expected one runtime patch per generated member"
-            );
-            assert_eq!(
-                type_patches.len(),
-                2,
-                "expected one type patch per generated member"
-            );
-
-            for patch in runtime {
-                match patch {
-                    Patch::Insert {
-                        code: PatchCode::ClassMember(_),
-                        ..
-                    } => {}
-                    other => panic!("expected class member insert, got {:?}", other),
-                }
-            }
-
-            for patch in type_patches {
-                if let Patch::Insert {
-                    code: PatchCode::ClassMember(member),
-                    ..
-                } = patch
-                {
-                    match member {
-                        ClassMember::Method(method) => assert!(
-                            method.function.body.is_none(),
-                            "type patch should strip method body"
-                        ),
-                        ClassMember::Constructor(cons) => assert!(
-                            cons.body.is_none(),
-                            "type patch should drop constructor body"
-                        ),
-                        _ => {}
-                    }
-                } else {
-                    panic!("expected type patch insert");
-                }
-            }
-        });
-    }
-
-    #[test]
-    fn test_process_macro_output_reports_parse_errors() {
-        GLOBALS.set(&Default::default(), || {
-            let host = MacroHostIntegration::new().unwrap();
-            let class_ir = base_class("Broken");
-            let ctx = MacroContextIR::new_derive_class(
-                "Debug".into(),
-                DERIVE_MODULE_PATH.into(),
-                SpanIR::new(0, 5),
-                class_ir.span,
-                "broken.ts".into(),
-                class_ir.clone(),
-                "class Broken {}".into(),
-            );
-
-            let mut result = MacroResult {
-                tokens: Some("this is not valid class member syntax".into()),
-                ..Default::default()
-            };
-
-            let err = host
-                .process_macro_output(&mut result, &ctx)
-                .expect_err("invalid tokens should bubble an error");
-
-            assert!(
-                err.to_string().contains("Failed to parse macro output"),
-                "should mention parsing failure, got {err:?}"
-            );
-        });
-    }
-
-    #[test]
-    fn test_collect_constructor_patch() {
-        let source = "class User { constructor(id: string) { this.id = id; } }";
-        let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
-        let (module, classes) = host
-            .prepare_expansion_context(&program, source)
-            .unwrap()
-            .unwrap();
-
-        let (collector, _) = host.collect_macro_patches(&module, classes, "test.ts", source);
-
-        let type_patches = collector.get_type_patches();
-        assert_eq!(type_patches.len(), 1);
-        let patch = &type_patches[0];
-
-        if let Patch::Replace { code, .. } = patch {
-            match code {
-                PatchCode::Text(text) => assert_eq!(text, "constructor(id: string);"),
-                _ => panic!("Expected textual patch for constructor signature"),
-            }
-        } else {
-            panic!("Expected a replace patch for constructor");
-        }
-    }
-
-    #[test]
-    fn test_collect_derive_debug_patch() {
-        let source = "@Derive(Debug) class User { name: string; }";
-        let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
-        let (module, classes) = host
-            .prepare_expansion_context(&program, source)
-            .unwrap()
-            .unwrap();
-        let (collector, _) = host.collect_macro_patches(&module, classes, "test.ts", source);
-
-        let type_patches = collector.get_type_patches();
-        // 1 for decorator removal, 1 for signature insertion
-        assert_eq!(type_patches.len(), 2);
-        // check for decorator deletion
-        assert!(
-            type_patches
-                .iter()
-                .any(|p| matches!(p, Patch::Delete { .. }))
+        write(
+            &root.join("package.json"),
+            r#"{"name":"root","type":"module","workspaces":["packages/*"]}"#,
         );
-        // check for method signature insertion
-        assert!(
-            type_patches
-                .iter()
-                .any(|p| matches!(p, Patch::Insert { .. }))
+        write(
+            &root.join("packages/macro/package.json"),
+            r#"{"name":"@ext/macro","type":"module","main":"index.js"}"#,
         );
-    }
-
-    #[test]
-    fn test_apply_and_finalize_expansion_no_type_patches() {
-        let source = "class User {}";
-        let mut collector = PatchCollector::new();
-        let mut diagnostics = Vec::new();
-        let host = MacroHostIntegration::new().unwrap();
-        let result = host
-            .apply_and_finalize_expansion(source, &mut collector, &mut diagnostics, Vec::new())
-            .unwrap();
-        assert!(result.type_output.is_none());
-    }
-
-    #[test]
-    fn test_complex_class_with_multiple_derives() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive(Debug, Clone, Eq)
-class Product {
-    id: string;
-    name: string;
-    price: number;
-    private secret: string;
-
-    constructor(id: string, name: string, price: number, secret: string) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.secret = secret;
-    }
-
-    getDisplayName(): string {
-        return `${this.name} - $${this.price}`;
-    }
-
-    static fromJSON(json: any): Product {
-        return new Product(json.id, json.name, json.price, json.secret);
-    }
+        write(
+            &root.join("packages/macro/index.js"),
+            r#"
+export function __tsMacrosRunDebug(ctxJson) {
+  return JSON.stringify({
+    runtime_patches: [],
+    type_patches: [],
+    diagnostics: [],
+    tokens: null,
+    debug: null
+  });
 }
-"#;
-
-        let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class Product {
-    id: string;
-    name: string;
-    price: number;
-    private secret: string;
-
-    constructor(id: string, name: string, price: number, secret: string);
-
-    getDisplayName(): string;
-
-    static fromJSON(json: any): Product;
-
-    toString(): string;
-    clone(): Product;
-    equals(other: unknown): boolean;
-    hashCode(): number;
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed, "expand() should report changes");
-            let type_output = result.type_output.expect("should have type output");
-
-            assert_eq!(
-                type_output.replace_whitespace(),
-                expected_dts.replace_whitespace()
-            );
-        });
-    }
-
-    #[test]
-    fn test_complex_method_signatures() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive(Debug)
-class API {
-    endpoint: string;
-
-    constructor(endpoint: string) {
-        this.endpoint = endpoint;
-    }
-
-    async fetch<T>(
-        path: string,
-        options?: { method?: string; body?: any }
-    ): Promise<T> {
-        return {} as T;
-    }
-
-    subscribe(
-        event: "data" | "error",
-        callback: (data: any) => void,
-        thisArg?: any
-    ): () => void {
-        return () => {};
-    }
-}
-"#;
-
-        let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class API {
-    endpoint: string;
-
-    constructor(endpoint: string);
-
-    async fetch<T>(
-        path: string,
-        options?: { method?: string; body?: any }
-    ): Promise<T>;
-
-    subscribe(
-        event: "data" | "error",
-        callback: (data: any) => void,
-        thisArg?: any
-    ): () => void;
-
-    toString(): string;
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed);
-            let type_output = result.type_output.expect("should have type output");
-
-            assert_eq!(
-                type_output.replace_whitespace(),
-                expected_dts.replace_whitespace()
-            );
-        });
-    }
-
-    #[test]
-    fn test_class_with_visibility_modifiers() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive(Clone)
-class Account {
-    public username: string;
-    protected password: string;
-    private apiKey: string;
-
-    constructor(username: string, password: string, apiKey: string) {
-        this.username = username;
-        this.password = password;
-        this.apiKey = apiKey;
-    }
-
-    public login(): boolean {
-        return true;
-    }
-
-    protected validatePassword(input: string): boolean {
-        return this.password === input;
-    }
-
-    private getApiKey(): string {
-        return this.apiKey;
-    }
-}
-"#;
-
-        let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class Account {
-    public username: string;
-    protected password: string;
-    private apiKey: string;
-
-    constructor(username: string, password: string, apiKey: string);
-
-    login(): boolean;
-
-    protected validatePassword(input: string): boolean;
-
-    private getApiKey(): string;
-
-    clone(): Account;
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed);
-            let type_output = result.type_output.expect("should have type output");
-
-            assert_eq!(
-                type_output.replace_whitespace(),
-                expected_dts.replace_whitespace()
-            );
-        });
-    }
-
-    #[test]
-    fn test_class_with_optional_and_readonly_fields() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive(Debug, Eq)
-class Config {
-    readonly id: string;
-    name: string;
-    description?: string;
-    readonly createdAt: Date;
-    updatedAt?: Date;
-
-    constructor(id: string, name: string, createdAt: Date) {
-        this.id = id;
-        this.name = name;
-        this.createdAt = createdAt;
-    }
-
-    update(name: string, description?: string): void {
-        this.name = name;
-        this.description = description;
-        this.updatedAt = new Date();
-    }
-}
-"#;
-
-        let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class Config {
-    readonly id: string;
-    name: string;
-    description?: string;
-    readonly createdAt: Date;
-    updatedAt?: Date;
-
-    constructor(id: string, name: string, createdAt: Date);
-
-    update(name: string, description?: string): void;
-
-    toString(): string;
-    equals(other: unknown): boolean;
-    hashCode(): number;
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed);
-            let type_output = result.type_output.expect("should have type output");
-
-            assert_eq!(
-                type_output.replace_whitespace(),
-                expected_dts.replace_whitespace()
-            );
-        });
-    }
-
-    #[test]
-    fn test_empty_constructor_and_no_params_methods() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive(Debug)
-class Singleton {
-    private static instance: Singleton;
-
-    private constructor() {
-        // Private constructor
-    }
-
-    static getInstance(): Singleton {
-        if (!Singleton.instance) {
-            Singleton.instance = new Singleton();
-        }
-        return Singleton.instance;
-    }
-
-    reset(): void {
-        // Reset logic
-    }
-}
-"#;
-
-        let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class Singleton {
-    private static instance: Singleton;
-
-    private constructor();
-
-    static getInstance(): Singleton;
-
-    reset(): void;
-
-    toString(): string;
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed);
-            let type_output = result.type_output.expect("should have type output");
-
-            assert_eq!(
-                type_output.replace_whitespace(),
-                expected_dts.replace_whitespace()
-            );
-        });
-    }
-
-    #[test]
-    fn test_class_with_field_decorators_and_derive() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive(Debug)
-class ValidationExample {
-    @Derive({ rename: "userId" })
-    id: string;
-
-    name: string;
-
-    @Derive({ skip: true })
-    internalFlag: boolean;
-
-    constructor(id: string, name: string, internalFlag: boolean) {
-        this.id = id;
-        this.name = name;
-        this.internalFlag = internalFlag;
-    }
-}
-"#;
-
-        let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class ValidationExample {
-    id: string;
-
-    name: string;
-
-    internalFlag: boolean;
-
-    constructor(id: string, name: string, internalFlag: boolean);
-
-    toString(): string;
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed);
-            let type_output = result.type_output.expect("should have type output");
-
-            assert_eq!(
-                type_output.replace_whitespace(),
-                expected_dts.replace_whitespace()
-            );
-        });
-    }
-
-    #[test]
-    fn test_generated_methods_on_separate_lines() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive(Debug, Clone)
-class User {
-    id: number;
-    name: string;
-
-    constructor(id: number, name: string) {
-        this.id = id;
-        this.name = name;
-    }
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed);
-            let type_output = result.type_output.expect("should have type output");
-
-            // Verify methods are on separate lines, not jammed together
-            let lines: Vec<&str> = type_output.lines().collect();
-
-            // Find the toString line
-            let tostring_line = lines
-                .iter()
-                .position(|l| l.contains("toString()"))
-                .expect("should have toString");
-            // Find the clone line
-            let clone_line = lines
-                .iter()
-                .position(|l| l.contains("clone()"))
-                .expect("should have clone");
-
-            // They should be on different lines
-            assert_ne!(
-                tostring_line, clone_line,
-                "toString and clone should be on different lines"
-            );
-
-            // Verify no line contains multiple method signatures
-            for line in &lines {
-                let method_count = line.matches("(): ").count();
-                assert!(
-                    method_count <= 1,
-                    "Line should not contain multiple methods: {}",
-                    line
-                );
-            }
-        });
-    }
-
-    #[test]
-    fn test_proper_indentation_in_generated_code() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive(Debug)
-class User {
-  id: number;
-  name: string;
-
-  constructor(id: number, name: string) {
-    this.id = id;
-    this.name = name;
-  }
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed);
-            let type_output = result.type_output.expect("should have type output");
-
-            // Find the toString line
-            let tostring_line = type_output
-                .lines()
-                .find(|l| l.contains("toString()"))
-                .expect("should have toString method");
-
-            // Verify it has proper indentation (2 spaces to match the class body)
-            assert!(
-                tostring_line.starts_with("  toString()")
-                    || tostring_line.trim().starts_with("toString()"),
-                "toString should have proper indentation, got: '{}'",
-                tostring_line
-            );
-        });
-    }
-
-    #[test]
-    fn test_default_parameter_values() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive(Debug)
-class ServerConfig {
-    host: string;
-    port: number;
-
-    constructor(
-        host: string = "localhost",
-        port: number = 8080,
-        secure: boolean = false
-    ) {
-        this.host = host;
-        this.port = port;
-    }
-
-    connect(
-        timeout: number = 5000,
-        retries: number = 3,
-        onError?: (err: Error) => void
-    ): Promise<void> {
-        return Promise.resolve();
-    }
-
-    static create(
-        config: Partial<ServerConfig> = {},
-        defaults: { host?: string; port?: number } = { host: "0.0.0.0", port: 3000 }
-    ): ServerConfig {
-        return new ServerConfig();
-    }
-}
-"#;
-
-        let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class ServerConfig {
-    host: string;
-    port: number;
-
-    constructor(
-        host: string = "localhost",
-        port: number = 8080,
-        secure: boolean = false
-    );
-
-    connect(
-        timeout: number = 5000,
-        retries: number = 3,
-        onError?: (err: Error) => void
-    ): Promise<void>;
-
-    static create(
-        config: Partial<ServerConfig> = {},
-        defaults: { host?: string; port?: number } = { host: "0.0.0.0", port: 3000 }
-    ): ServerConfig;
-
-    toString(): string;
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed);
-            let type_output = result.type_output.expect("should have type output");
-
-            assert_eq!(
-                type_output.replace_whitespace(),
-                expected_dts.replace_whitespace()
-            );
-        });
-    }
-
-    #[test]
-    fn test_rest_parameters_and_destructuring() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive(Clone)
-class EventEmitter {
-    listeners: Map<string, Function[]>;
-
-    constructor() {
-        this.listeners = new Map();
-    }
-
-    on(event: string, ...callbacks: Array<(...args: any[]) => void>): void {
-        const existing = this.listeners.get(event) || [];
-        this.listeners.set(event, [...existing, ...callbacks]);
-    }
-
-    emit(event: string, ...args: any[]): void {
-        const callbacks = this.listeners.get(event) || [];
-        callbacks.forEach(cb => cb(...args));
-    }
-}
-"#;
-
-        let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class EventEmitter {
-    listeners: Map<string, Function[]>;
-
-    constructor();
-
-    on(event: string, ...callbacks: Array<(...args: any[]) => void>): void;
-
-    emit(event: string, ...args: any[]): void;
-
-    clone(): EventEmitter;
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed);
-            let type_output = result.type_output.expect("should have type output");
-
-            assert_eq!(
-                type_output.replace_whitespace(),
-                expected_dts.replace_whitespace()
-            );
-        });
-    }
-
-    #[test]
-    fn test_source_mapping_produced() {
-        let source = r#"
-import { Derive } from "@macro/derive";
-
-@Derive(Debug)
-class User {
-    name: string;
-}
-"#;
-
-        GLOBALS.set(&Default::default(), || {
-            let program = parse_module(source);
-            let host = MacroHostIntegration::new().unwrap();
-            let result = host.expand(source, &program, "test.ts").unwrap();
-
-            assert!(result.changed, "Expansion should report changes");
-
-            // Source mapping should be produced
-            let mapping = result
-                .source_mapping
-                .expect("Source mapping should be produced");
-
-            // Should have segments for unchanged regions
-            assert!(!mapping.segments.is_empty(), "Should have mapping segments");
-
-            // Should have a generated region for the toString implementation
-            assert!(
-                !mapping.generated_regions.is_empty(),
-                "Should have generated regions"
-            );
-
-            // Print mapping for debugging
-            println!("Source mapping segments: {:?}", mapping.segments);
-            println!(
-                "Source mapping generated regions: {:?}",
-                mapping.generated_regions
-            );
-        });
+"#,
+        );
+
+        let loader = ExternalMacroLoader::new(root.to_path_buf());
+        let ctx = MacroContextIR::new_derive_class(
+            "Debug".into(),
+            "@ext/macro".into(),
+            SpanIR::new(0, 1),
+            SpanIR::new(0, 1),
+            "file.ts".into(),
+            test_class(),
+            "class Temp {}".into(),
+        );
+
+        let result = loader
+            .run_macro(&ctx)
+            .expect("should load ESM macro via dynamic import");
+
+        assert!(result.diagnostics.is_empty());
     }
 }
