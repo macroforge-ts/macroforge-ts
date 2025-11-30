@@ -113,7 +113,6 @@ fn expand_inner(
     filepath: &str,
     options: Option<ExpandOptions>,
 ) -> Result<ExpandResult> {
-    println!("[ts-macros-rust] expand_inner: Creating MacroHostIntegration");
     let mut macro_host = MacroHostIntegration::new_with_env(Some(&env)).map_err(|err| {
         Error::new(
             Status::GenericFailure,
@@ -300,10 +299,8 @@ fn handle_macro_diagnostics(diags: &[Diagnostic], file: &str) -> Result<()> {
                 ));
             }
             DiagnosticLevel::Warning => {
-                // eprintln!("[ts-macros] warning: {}", diag.message);
             }
             DiagnosticLevel::Info => {
-                // eprintln!("[ts-macros] info: {}", diag.message);
             }
         }
     }

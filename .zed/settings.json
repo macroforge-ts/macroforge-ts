@@ -51,6 +51,8 @@
 					"tsdk": "/Users/jakoblochinski/Softworks/GitHub/ts-macros/node_modules/typescript/lib"
 				},
 				"tsserver": {
+				    "maxTsServerMemory": 8192,
+                    "nodePath": "/Users/jakoblochinski/.pixi/envs/nodejs/bin/node",
 					"logDirectory": "/Users/jakoblochinski/Softworks/GitHub/ts-macros/.tsserver-logs",
 					"logVerbosity": "verbose",
 					"globalPlugins": [

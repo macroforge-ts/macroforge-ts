@@ -68,13 +68,6 @@ pub fn register_module(module: &str, registry: &MacroRegistry) -> Result<bool> {
         .map(|entry| entry.descriptor)
         .collect();
 
-    #[cfg(debug_assertions)]
-    eprintln!(
-        "[derived] register_module({}) found {} descriptors",
-        module,
-        descriptors.len()
-    );
-
     if descriptors.is_empty() {
         return Ok(false);
     }
@@ -89,8 +82,6 @@ pub fn register_module(module: &str, registry: &MacroRegistry) -> Result<bool> {
 
     // Register all macros - the registry will catch duplicate names
     for descriptor in descriptors {
-        #[cfg(debug_assertions)]
-        eprintln!("[derived] Registering ({}, {})", module, descriptor.name);
         registry.register(module, descriptor.name, (descriptor.constructor)())?;
     }
 
