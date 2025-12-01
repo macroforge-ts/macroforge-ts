@@ -8,6 +8,8 @@ use swc_core::common::{FileName, SourceMap, sync::Lrc};
 #[cfg(feature = "swc")]
 use swc_core::ecma::ast::*;
 #[cfg(feature = "swc")]
+use swc_core::ecma::codegen::{Config, Emitter, text_writer::JsWriter};
+#[cfg(feature = "swc")]
 use swc_core::ecma::parser::{PResult, Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
 
 use crate::TsSynError;
@@ -28,6 +30,87 @@ pub struct TsStream {
     /// Macro context data (decorator span, target span, etc.)
     /// This is populated when TsStream is created by the macro host
     pub ctx: Option<ts_macro_abi::MacroContextIR>,
+}
+
+#[cfg(feature = "swc")]
+pub fn format_ts_source(source: &str) -> String {
+    let cm = Lrc::new(SourceMap::default());
+
+    // 1. Try parsing as a valid module (e.g. full file content or statements)
+    let fm = cm.new_source_file(FileName::Custom("fmt.ts".into()).into(), source.to_string());
+    let syntax = Syntax::Typescript(TsSyntax {
+        tsx: true,
+        decorators: true,
+        ..Default::default()
+    });
+
+    let lexer = Lexer::new(syntax, EsVersion::latest(), StringInput::from(&*fm), None);
+    let mut parser = Parser::new_from(lexer);
+
+    if let Ok(module) = parser.parse_module() {
+        let mut buf = vec![];
+        {
+            let mut emitter = Emitter {
+                cfg: Config::default().with_minify(false),
+                cm: cm.clone(),
+                comments: None,
+                wr: JsWriter::new(cm.clone(), "\n", &mut buf, None),
+            };
+
+            if emitter.emit_module(&module).is_ok() {
+                return String::from_utf8(buf).unwrap_or_else(|_| source.to_string());
+            }
+        }
+    }
+
+    // 2. If failed, try wrapping in a class (common for macro output generating methods/fields)
+    let wrapped_source = format!("class __FmtWrapper {{ {} }}", source);
+    let fm_wrapped = cm.new_source_file(
+        FileName::Custom("fmt_wrapped.ts".into()).into(),
+        wrapped_source,
+    );
+
+    let lexer = Lexer::new(
+        syntax,
+        EsVersion::latest(),
+        StringInput::from(&*fm_wrapped),
+        None,
+    );
+    let mut parser = Parser::new_from(lexer);
+
+    if let Ok(module) = parser.parse_module() {
+        let mut buf = vec![];
+        {
+            let mut emitter = Emitter {
+                cfg: Config::default().with_minify(false),
+                cm: cm.clone(),
+                comments: None,
+                wr: JsWriter::new(cm.clone(), "\n", &mut buf, None),
+            };
+
+            if emitter.emit_module(&module).is_ok() {
+                let full_output = String::from_utf8(buf).unwrap_or_default();
+                // Extract content between class braces
+                // Output format: class __FmtWrapper {\n    content...\n}
+                if let (Some(start), Some(end)) = (full_output.find('{'), full_output.rfind('}')) {
+                    let content = &full_output[start + 1..end];
+                    // Simple unindent: remove first newline and 4 spaces of indentation if present
+                    let lines: Vec<&str> = content.lines().collect();
+                    let mut result = String::new();
+                    for line in lines {
+                        // Naive unindent
+                        let trimmed = line.strip_prefix("    ").unwrap_or(line);
+                        if !trimmed.trim().is_empty() {
+                            result.push_str(trimmed);
+                            result.push('\n');
+                        }
+                    }
+                    return result.trim().to_string();
+                }
+            }
+        }
+    }
+    source.to_string()
 }
 
 #[cfg(feature = "swc")]

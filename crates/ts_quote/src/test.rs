@@ -1,23 +1,15 @@
 use crate::template::*;
-use proc_macro2::{TokenStream as TokenStream2, Span};
+use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use std::str::FromStr;
-use syn::{Ident, Type};
 
 // Helper for 'capitalize' function for test setup
-fn capitalize(s: &str) -> String {
-    let mut chars = s.chars();
-    match chars.next() {
-        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
-        None => String::new(),
-    }
-}
+// Removed unused capitalize function
 
 #[test]
 fn test_at_interpolation_glue() {
     // Rust allows `make@{Name}` naturally without spaces.
     // We verify that `make@{Name}` results in "make" + value (no space).
-    let name_ident = Ident::new("MyName", Span::call_site());
     let input = quote! {
         make@{name_ident}
     };
@@ -27,7 +19,10 @@ fn test_at_interpolation_glue() {
     // Should generate code that pushes "make"
     assert!(s.contains("\"make\""));
     // Should generate code that pushes the interpolated value
-    assert!(s.contains("name_ident . to_string ()"), "Expected generated code to include name_ident.to_string()");
+    assert!(
+        s.contains("name_ident . to_string ()"),
+        "Expected generated code to include name_ident.to_string()"
+    );
 
     // The concatenation assertion is based on the logic of template.rs
     // which tries to avoid spaces when not needed.
@@ -65,7 +60,6 @@ fn test_at_interpolation_glue() {
 
 #[test]
 fn test_let_scope() {
-    let val = "hello".to_string();
     let input = TokenStream2::from_str(
         r###"            {%let val_local = val}
             @{val_local}
@@ -84,7 +78,6 @@ fn test_let_scope() {
 
 #[test]
 fn test_for_loop() {
-    let items = vec!["item1", "item2"];
     let input = TokenStream2::from_str(
         r###"            {#for item in items}
                 @{item}
@@ -102,7 +95,6 @@ fn test_for_loop() {
 
 #[test]
 fn test_if_else() {
-    let condition = quote! { true };
     let input = TokenStream2::from_str(
         r###"            {#if condition}
                 "true"
@@ -122,8 +114,6 @@ fn test_if_else() {
 
 #[test]
 fn test_if_else_if() {
-    let a = quote! { a_val };
-    let b = quote! { b_val };
     let input = TokenStream2::from_str(
         r###"            {#if a}
                 "a"
@@ -147,9 +137,8 @@ fn test_if_else_if() {
 #[test]
 fn test_string_interpolation_simple() {
     // Test that @{expr} inside strings gets interpolated
-    let name = Ident::new("MyName", Span::call_site());
     let input = quote! {
-        "Hello @{name}!"
+        Hello @{name}!
     };
     let output = parse_template(input);
     let s = output.unwrap().to_string();
@@ -183,8 +172,7 @@ fn test_string_no_interpolation() {
 #[test]
 fn test_string_interpolation_multiple() {
     // Test multiple interpolations in one string
-    let greeting = "Hi".to_string();
-    let name = Ident::new("User", Span::call_site());
+
     let input = quote! {
         "@{greeting}, @{name}!"
     };
@@ -202,7 +190,6 @@ fn test_string_interpolation_multiple() {
 #[test]
 fn test_string_interpolation_with_method_call() {
     // Test that expressions with method calls work
-    let name = Ident::new("User", Span::call_site());
     let input = quote! {
         "Name: @{name.to_uppercase()}"
     };
@@ -216,7 +203,6 @@ fn test_string_interpolation_with_method_call() {
 #[test]
 fn test_backtick_template_simple() {
     // Test that "'^...^'" outputs backtick template literals
-    let name = Ident::new("MyName", Span::call_site());
     let input = quote! {
         "'^hello ${name}^'"
     };
@@ -235,7 +221,6 @@ fn test_backtick_template_simple() {
 #[test]
 fn test_backtick_template_with_rust_interpolation() {
     // Test that @{} works inside backtick templates for Rust expressions
-    let rust_var = Ident::new("myVar", Span::call_site());
     let input = quote! {
         "'^hello @{rust_var}^'"
     };
@@ -254,21 +239,22 @@ fn test_backtick_template_with_rust_interpolation() {
 #[test]
 fn test_backtick_template_mixed() {
     // Test mixing JS ${} and Rust @{} in backtick templates
-    let jsVar = Ident::new("jsVar", Span::call_site());
-    let rustVar = Ident::new("rustVar", Span::call_site());
     let input = quote! {
-        "'^${jsVar} and @{rustVar}^'"
+        "'^${js_var} and @{rust_var}^'"
     };
     let output = parse_template(input);
     let s = output.unwrap().to_string();
 
     // Should contain JS interpolation passed through
     assert!(
-        s.contains("${jsVar}"),
+        s.contains("${js_var}"),
         "Should pass through JS interpolation"
     );
     // Should interpolate Rust variable
-    assert!(s.contains("rustVar . to_string"), "Should interpolate Rust var");
+    assert!(
+        s.contains("rust_var . to_string"),
+        "Should interpolate Rust var"
+    );
 }
 
 #[test]
@@ -328,7 +314,6 @@ fn test_escape_at_before_brace() {
 
 #[test]
 fn test_if_let_simple() {
-    let option = quote! { Some(1) };
     let input = TokenStream2::from_str(
         r###"            {#if let Some(value) = option}
                 @{value}
@@ -349,7 +334,6 @@ fn test_if_let_simple() {
 
 #[test]
 fn test_if_let_with_else() {
-    let maybe = quote! { None::<i32> };
     let input = TokenStream2::from_str(
         r###"            {#if let Some(x) = maybe}
                 "found"
@@ -369,7 +353,6 @@ fn test_if_let_with_else() {
 
 #[test]
 fn test_match_simple() {
-    let value = quote! { Some(42) };
     let input = TokenStream2::from_str(
         r###"            {#match value}
                 {:case Some(x)}
@@ -391,7 +374,6 @@ fn test_match_simple() {
 
 #[test]
 fn test_match_with_wildcard() {
-    let num = quote! { 3 };
     let input = TokenStream2::from_str(
         r###"            {#match num}
                 {:case 1}
@@ -416,7 +398,6 @@ fn test_match_with_wildcard() {
 
 #[test]
 fn test_match_with_interpolation() {
-    let result = quote! { Ok("success_value") };
     let input = TokenStream2::from_str(
         r###"            {#match result}
                 {:case Ok(val)}

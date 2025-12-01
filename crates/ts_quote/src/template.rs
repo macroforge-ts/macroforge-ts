@@ -352,6 +352,18 @@ fn parse_match_arms(
     })
 }
 
+/// Check if a string is a TypeScript keyword that usually requires a space
+fn is_ts_keyword(s: &str) -> bool {
+    let s = s.trim_matches('r').trim_matches('"').trim_matches('\'');
+    [
+        "return", "throw", "await", "yield", "typeof", "void", "new", 
+        "case", "else", "var", "let", "const", "import", "export", 
+        "default", "extends", "implements", "interface", "class", 
+        "enum", "function", "in", "instanceof", "of", "as", "is", 
+        "from", "keyof", "unique", "readonly"
+    ].contains(&s)
+}
+
 /// Recursive function to parse tokens until a terminator is found
 fn parse_fragment(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
@@ -382,6 +394,43 @@ fn parse_fragment(
                     // It is just a literal '@'
                     let s = p_clone.to_string();
                     output.extend(quote! { __out.push_str(#s); });
+                }
+                
+                // Spacing logic after interpolation
+                let next = iter.peek();
+                let next_char = match next {
+                     Some(TokenTree::Punct(p)) => Some(p.as_char()),
+                     _ => None,
+                };
+                
+                let mut add_space = true;
+                if matches!(next_char, Some(c) if ".,;:?()[]{}<>!".contains(c)) {
+                    add_space = false;
+                } else if let Some(TokenTree::Group(g)) = next {
+                    match g.delimiter() {
+                        Delimiter::Parenthesis | Delimiter::Bracket => add_space = false,
+                        _ => {}
+                    }
+                }
+                
+                // No space if followed by @ (concatenation)
+                if matches!(next, Some(TokenTree::Punct(p)) if p.as_char() == '@') {
+                    add_space = false;
+                }
+                
+                // But FORCE space if next is a Keyword (e.g. @{val} as Type)
+                // Otherwise default to concatenation for identifiers (make@{Name} -> makeName)
+                if let Some(TokenTree::Ident(i)) = next {
+                    if is_ts_keyword(&i.to_string()) {
+                        add_space = true;
+                    } else {
+                        // If next is regular identifier, assume concatenation
+                        add_space = false; 
+                    }
+                }
+
+                if add_space {
+                    output.extend(quote! { __out.push_str(" "); });
                 }
             }
 
@@ -533,28 +582,99 @@ fn parse_fragment(
                 let t = iter.next().unwrap();
                 let s = t.to_string();
 
-                // Check if this is an identifier (includes keywords like `instanceof`, `return`, etc.)
+                // Analyze current token
                 let is_ident = matches!(&t, TokenTree::Ident(_));
+                let punct_char = if let TokenTree::Punct(p) = &t {
+                    Some(p.as_char())
+                } else {
+                    None
+                };
+                let is_joint = if let TokenTree::Punct(p) = &t {
+                    p.spacing() == proc_macro2::Spacing::Joint
+                } else {
+                    false
+                };
 
-                // Check if next token is '@' (start of interpolation)
-                let next_is_at =
-                    matches!(iter.peek(), Some(TokenTree::Punct(p)) if p.as_char() == '@');
-
-                // Check if this is a punctuation token with Joint spacing
-                // (e.g., first two chars of `===` should not have spaces)
-                let is_joint_punct =
-                    matches!(&t, TokenTree::Punct(p) if p.spacing() == proc_macro2::Spacing::Joint);
-
+                // Analyze next token
+                let next = iter.peek();
+                let next_is_at = matches!(next, Some(TokenTree::Punct(p)) if p.as_char() == '@');
+                let next_char = match next {
+                    Some(TokenTree::Punct(p)) => Some(p.as_char()),
+                    _ => None,
+                };
+                
+                // Emit token string
                 output.extend(quote! {
                     __out.push_str(#s);
                 });
 
-                // Add space after:
-                // - Identifiers (always need space before next token for keywords like `instanceof`, `return`)
-                // - Non-joint punctuation when not followed by @ (allows `make@{Name}` but spaces around operators)
-                let should_add_space = is_ident || (!is_joint_punct && !next_is_at);
+                // Decide whether to append a space
+                let mut add_space = true;
 
-                if should_add_space {
+                if is_joint {
+                    add_space = false;
+                } else if next_is_at {
+                    // Interpolation logic:
+                    // `make@{name}` (concatenation) -> No space
+                    // `obj.@{prop}` (member access) -> No space
+                    // `val = @{expr}` (assignment) -> Space
+                    if is_ident {
+                        add_space = false;
+                    }
+                    if let Some('.') = punct_char {
+                        add_space = false;
+                    }
+                } else if is_ident {
+                    // Identifiers usually need space, EXCEPT when followed by:
+                    // - Member access (.)
+                    // - Function calls ( () )
+                    // - Indexing ( [] )
+                    // - Generics ( < )
+                    // - Punctuation delimiters ( , ; : ? )
+                    // - End of expression/block ( ) ] } )
+                    // - Unary/Post-fix operators ( ! )
+                    
+                    if matches!(next_char, Some(c) if ".,;:?()[]{}<>!".contains(c)) {
+                        add_space = false;
+                    } else if let Some(TokenTree::Group(g)) = next {
+                        match g.delimiter() {
+                            Delimiter::Parenthesis | Delimiter::Bracket => add_space = false,
+                            _ => {}
+                        }
+                    }
+                    
+                    // Special handling for interpolation @
+                    if next_is_at {
+                        // Check if this identifier is a keyword that requires a space
+                        // e.g. `return @{val}` vs `make@{Name}`
+                        if !is_ts_keyword(&s) {
+                             add_space = false;
+                        }
+                    }
+                } else if let Some(c) = punct_char {
+                    // Punctuation specific rules
+                    match c {
+                        '.' => add_space = false,         // obj.prop
+                        '!' => add_space = false,         // !unary or non-null!
+                        '(' | '[' | '{' => add_space = false, // Openers: (expr)
+                        '<' => add_space = false,         // Generics: Type<T>, or x<y (compact)
+                        '@' => add_space = false,         // Decorator: @Dec
+                        _ => {}
+                    }
+
+                    // Never add space if next is a closing delimiter or separator
+                    if matches!(next_char, Some(nc) if ".,;)]}>".contains(nc)) {
+                        add_space = false;
+                    }
+                } else {
+                    // Groups/Literals
+                    // Prevent space if next is punctuation like . , ; ) ] >
+                    if matches!(next_char, Some(nc) if ".,;)]}>".contains(nc)) {
+                        add_space = false;
+                    }
+                }
+
+                if add_space {
                     output.extend(quote! { __out.push_str(" "); });
                 }
             }

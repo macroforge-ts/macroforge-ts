@@ -16,6 +16,7 @@ swc_core = { version = "48", optional = true, default-features = false, features
   "ecma_parser",
   "ecma_visit",
   "ecma_quote",
+  "ecma_codegen",
 ] }
 
 thiserror = "1"
