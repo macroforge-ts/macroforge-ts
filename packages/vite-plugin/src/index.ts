@@ -41,6 +41,34 @@ export interface NapiMacrosPluginOptions {
   metadataOutputDir?: string // Where to output metadata JSON (defaults to types dir)
 }
 
+interface MacroConfig {
+  keepDecorators: boolean
+}
+
+function loadMacroConfig(projectRoot: string): MacroConfig {
+  let current = projectRoot
+  const fallback: MacroConfig = { keepDecorators: false }
+
+  while (true) {
+    const candidate = path.join(current, 'ts-macros.json')
+    if (fs.existsSync(candidate)) {
+      try {
+        const raw = fs.readFileSync(candidate, 'utf8')
+        const parsed = JSON.parse(raw)
+        return { keepDecorators: Boolean(parsed.keepDecorators) }
+      } catch {
+        return fallback
+      }
+    }
+
+    const parent = path.dirname(current)
+    if (parent === current) break
+    current = parent
+  }
+
+  return fallback
+}
+
 function getCompilerOptions(projectRoot: string): ts.CompilerOptions | undefined {
   if (!tsModule) {
     return undefined
@@ -166,9 +194,10 @@ function emitDeclarationsFromCode(code: string, fileName: string, projectRoot: s
 
 function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
   let rustTransformer: {
-    expandSync: (code: string, filepath: string) => ExpandResult
+    expandSync: (code: string, filepath: string, options?: { keepDecorators?: boolean }) => ExpandResult
   } | undefined
   let projectRoot: string
+  let macroConfig: MacroConfig = { keepDecorators: false }
   const generateTypes = options.generateTypes !== false // Default to true
   const typesOutputDir = options.typesOutputDir || 'src/macros/generated'
   const emitMetadata = options.emitMetadata !== false
@@ -237,6 +266,7 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
 
     configResolved(config) {
       projectRoot = config.root
+      macroConfig = loadMacroConfig(projectRoot)
 
       // Load the Rust binary
       try {
@@ -267,7 +297,9 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
       }
 
       try {
-        const result: ExpandResult = rustTransformer.expandSync(code, id)
+        const result: ExpandResult = rustTransformer.expandSync(code, id, {
+          keepDecorators: macroConfig.keepDecorators
+        })
 
         // Report diagnostics
         for (const diag of result.diagnostics) {
@@ -281,12 +313,19 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
         }
 
         if (result && result.code) {
+          if (!macroConfig.keepDecorators) {
+            result.code = result.code
+              .replace(/\/\*\*\s*@derive[\s\S]*?\*\/\s*/gi, '')
+              .replace(/\/\*\*\s*@debug[\s\S]*?\*\/\s*/gi, '')
+              .replace(/^\s*@derive[^\n]*\n?/gm, '')
+              .replace(/^\s*@debug[^\n]*\n?/gm, '')
+          }
+
           // Remove macro-only imports so SSR output doesn't load native bindings
           result.code = result.code
             .replace(/^import\s+\{[^}]*\}\s+from ["']@ts-macros\/swc-napi["'];?\n?/m, '')
             .replace(/^import\s+\{[^}]*\}\s+from ["']@playground\/macro["'];?\n?/m, '')
-            .replace(/^\s*@Derive[^\n]*\n?/gm, '')
-            .replace(/^\s*@debug[^\n]*\n?/gm, '')
+            .replace(/\/\*\*\s*import\s+macro[\s\S]*?\*\/\s*/gi, '')
 
           if (generateTypes) {
             const emitted = emitDeclarationsFromCode(result.code, id, projectRoot)
