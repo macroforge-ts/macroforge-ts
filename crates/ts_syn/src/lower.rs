@@ -81,7 +81,7 @@ fn lower_members(body: &[ClassMember], source: &str) -> (Vec<FieldIR>, Vec<Metho
                 let ts_type = p
                     .type_ann
                     .as_ref()
-                    .map(|t| snippet(source, t.span()))
+                    .map(|t| snippet(source, t.type_ann.span()))
                     .unwrap_or_else(|| "any".into());
 
                 fields.push(FieldIR {
@@ -274,9 +274,19 @@ fn snippet(source: &str, sp: Span) -> String {
     if sp.is_dummy() {
         return String::new();
     }
-    let lo = sp.lo.0 as usize;
-    let hi = sp.hi.0 as usize;
-    source.get(lo..hi).unwrap_or("").to_string()
+    // SWC BytePos is 1-based by default for the first file.
+    // We subtract 1 to map to 0-based string index.
+    // TODO: This assumes the span is from a file starting at 1. 
+    // For robust multi-file support, lower_classes needs the file start position.
+    let lo = (sp.lo.0 as usize).saturating_sub(1);
+    let hi = (sp.hi.0 as usize).saturating_sub(1);
+    
+    if lo >= source.len() {
+        return String::new();
+    }
+    let end = std::cmp::min(hi, source.len());
+    
+    source.get(lo..end).unwrap_or("").to_string()
 }
 
 #[cfg(feature = "swc")]

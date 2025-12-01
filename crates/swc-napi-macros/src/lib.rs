@@ -351,16 +351,14 @@ impl NativePlugin {
 
     #[napi]
     pub fn log(&self, message: String) {
-        if let Ok(log_guard) = self.log_file.lock() {
-            if let Some(log_path) = log_guard.as_ref() {
-                use std::io::Write;
-                if let Ok(mut file) = std::fs::OpenOptions::new()
-                    .append(true)
-                    .create(true)
-                    .open(log_path)
-                {
-                    let _ = writeln!(file, "{}", message);
-                }
+        if let Ok(log_guard) = self.log_file.lock() && let Some(log_path) = log_guard.as_ref() {
+            use std::io::Write;
+            if let Ok(mut file) = std::fs::OpenOptions::new()
+                .append(true)
+                .create(true)
+                .open(log_path)
+            {
+                let _ = writeln!(file, "{}", message);
             }
         }
     }

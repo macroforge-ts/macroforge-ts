@@ -7,7 +7,7 @@ publish = false
 [dependencies]
 ts_quote = { path = "../../../crates/ts_quote" }
 ts_syn = { path = "../../../crates/ts_syn" }
-swc_core = { version = "48", features = ["common", "ecma_ast"] }
+swc_core = { version = "48", features = ["common", "ecma_ast", "ecma_parser"] }
 ts_macro_abi = { path = "../../../crates/ts_macro_abi" }
 ts_macro_derive = { path = "../../../crates/ts_macro_derive" }
 ts_macro_host = { path = "../../../crates/ts_macro_host" }
