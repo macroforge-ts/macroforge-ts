@@ -1,6 +1,6 @@
 import { Derive, Debug } from "./macros";
 
-@Derive(Debug)
+/** @derive(Debug) */
 class User {
   id: string;
 }

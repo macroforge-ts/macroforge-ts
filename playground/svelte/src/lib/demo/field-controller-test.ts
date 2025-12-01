@@ -1,30 +1,24 @@
-import { Derive } from "@ts-macros/swc-napi";
-import {
-  FieldController,
-  fieldController,
-  textAreaController,
-} from "@playground/macro";
+/** import macro { FieldController } from '@playground/macro'; */
 
-/**
- * Example class using the FieldController macro
- *
- * Usage:
- * @Derive(FieldController) on the class
- * @FieldController(TextAreaController) on fields you want to generate controllers for
- */
-@Derive(FieldController)
-export class FormModel {
-  @fieldController(textAreaController)
+/** @derive(FieldController) */
+export interface FormModel {
+  /** @fieldController(textAreaController)*/
   memo: string | null;
-
   username: string;
-
-  @fieldController(textAreaController)
+  /** @fieldController(textAreaController)*/
   description: string;
+}
 
-  constructor(memo: string | null, username: string, description: string) {
-    this.memo = memo;
-    this.username = username;
-    this.description = description;
+export namespace FormModel {
+  export function make(
+    memo: string | null,
+    username: string,
+    description: string,
+  ) {
+    return {
+      memo,
+      username,
+      description,
+    };
   }
 }

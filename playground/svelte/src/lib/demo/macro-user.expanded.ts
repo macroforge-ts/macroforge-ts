@@ -1,4 +1,3 @@
-import { Derive, Debug, debug } from "@ts-macros/swc-napi";
 import { Schema } from "effect";
 import {
   TaxRate,
@@ -12,16 +11,17 @@ import {
   Email,
   Colors,
 } from "../types/bindings";
-import { JSON } from "@playground/macro";
+/** import macro { JSON } from "@playground/macro"; */
 
+/**  */
 export class MacroUser {
+  
   id: string;
-
   name: string;
   role: string;
   favoriteMacro: "Derive" | "JsonNative";
   since: string;
-
+  
   apiToken: string;
 
   constructor(

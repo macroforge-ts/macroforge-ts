@@ -26,6 +26,11 @@ pub struct MacroConfig {
     /// Resource limits for macro execution
     #[serde(default)]
     pub limits: ResourceLimits,
+
+    /// Whether to keep decorator syntax (derive/debug/etc.) in expanded output
+    /// Defaults to false to strip macro markers from emitted code.
+    #[serde(default)]
+    pub keep_decorators: bool,
 }
 
 /// Runtime mode for macro execution
@@ -159,6 +164,7 @@ mod tests {
             allow_native_macros: false,
             macro_runtime_overrides: Default::default(),
             limits: Default::default(),
+            keep_decorators: false,
         };
 
         let json = serde_json::to_string(&config).unwrap();

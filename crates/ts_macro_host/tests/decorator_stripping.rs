@@ -6,18 +6,20 @@ fn strips_class_and_field_decorators_by_default() {
     let code = r#"
 import { Derive } from "@ts-macros/swc-napi";
 
-@Derive(Debug)
+/** @derive(Debug) */
 export class Example {
   @debug() foo: string;
 }
 "#;
 
-    let expander = MacroExpander::with_config(MacroConfig::default(), std::env::current_dir().unwrap()).unwrap();
+    let expander =
+        MacroExpander::with_config(MacroConfig::default(), std::env::current_dir().unwrap())
+            .unwrap();
     let expanded = expander.expand(code, "example.ts").unwrap();
 
     assert!(
-        !expanded.code.contains("@Derive"),
-        "expected class-level @Derive decorator to be stripped",
+        !expanded.code.contains("@derive"),
+        "expected class-level @derive decorator to be stripped",
     );
     assert!(
         !expanded.code.contains("@debug"),

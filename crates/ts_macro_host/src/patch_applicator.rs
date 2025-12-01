@@ -44,21 +44,41 @@ impl<'a> PatchApplicator<'a> {
             match patch {
                 Patch::Insert { at, code } => {
                     let rendered = render_patch_code(code)?;
-                    let formatted = self.format_insertion(&rendered, at.start as usize, code);
-                    result.insert_str(at.start as usize, &formatted);
+                    let formatted =
+                        self.format_insertion(&rendered, at.start.saturating_sub(1) as usize, code);
+                    // Safety: ensure index is within bounds
+                    let idx = at.start.saturating_sub(1) as usize;
+                    if idx <= result.len() {
+                        result.insert_str(idx, &formatted);
+                    }
                 }
                 Patch::InsertRaw { at, code, .. } => {
-                    result.insert_str(at.start as usize, code);
+                    let idx = at.start.saturating_sub(1) as usize;
+                    if idx <= result.len() {
+                        result.insert_str(idx, code);
+                    }
                 }
                 Patch::Replace { span, code } => {
                     let rendered = render_patch_code(code)?;
-                    result.replace_range(span.start as usize..span.end as usize, &rendered);
+                    let start = span.start.saturating_sub(1) as usize;
+                    let end = span.end.saturating_sub(1) as usize;
+                    if start <= end && end <= result.len() {
+                        result.replace_range(start..end, &rendered);
+                    }
                 }
                 Patch::ReplaceRaw { span, code, .. } => {
-                    result.replace_range(span.start as usize..span.end as usize, code);
+                    let start = span.start.saturating_sub(1) as usize;
+                    let end = span.end.saturating_sub(1) as usize;
+                    if start <= end && end <= result.len() {
+                        result.replace_range(start..end, code);
+                    }
                 }
                 Patch::Delete { span } => {
-                    result.replace_range(span.start as usize..span.end as usize, "");
+                    let start = span.start.saturating_sub(1) as usize;
+                    let end = span.end.saturating_sub(1) as usize;
+                    if start <= end && end <= result.len() {
+                        result.replace_range(start..end, "");
+                    }
                 }
             }
         }
@@ -67,12 +87,6 @@ impl<'a> PatchApplicator<'a> {
     }
 
     /// Apply all patches and return both the modified source code and source mapping.
-    ///
-    /// The source mapping enables bidirectional position translation between
-    /// original source positions and expanded source positions.
-    ///
-    /// # Arguments
-    /// * `macro_name` - Optional name of the macro generating the patches (for attribution)
     pub fn apply_with_mapping(mut self, macro_name: Option<&str>) -> Result<ApplyResult> {
         // Sort patches by position (forward order for mapping generation)
         self.sort_patches();
@@ -80,11 +94,12 @@ impl<'a> PatchApplicator<'a> {
         // Validate patches don't overlap
         self.validate_no_overlaps()?;
 
-        // If no patches, return identity mapping
+        // If no patches, return identity mapping (0-based positions for TS API)
         if self.patches.is_empty() {
             let source_len = self.source.len() as u32;
             let mut mapping = SourceMapping::new();
             if source_len > 0 {
+                // 0-based: position 0 to source_len (exclusive end)
                 mapping.add_segment(MappingSegment::new(0, source_len, 0, source_len));
             }
             return Ok(ApplyResult {
@@ -96,146 +111,102 @@ impl<'a> PatchApplicator<'a> {
         let mut result = String::new();
         let mut mapping = SourceMapping::with_capacity(self.patches.len() + 1, self.patches.len());
 
-        let mut original_pos: u32 = 0;
-        let mut expanded_pos: u32 = 0;
+        // Track positions: internally use 1-based (matching SWC spans),
+        // but convert to 0-based when creating MappingSegments (matching TS API)
+        let mut original_pos: u32 = 1; // 1-based position (start of file)
+        let mut expanded_pos: u32 = 1; // 1-based position
         let source_len = self.source.len() as u32;
+        let source_end_pos = source_len + 1; // 1-based position after last char
         let macro_attribution = macro_name.unwrap_or("macro");
 
         for patch in &self.patches {
-            match patch {
-                Patch::Insert { at, code } => {
-                    // Copy unchanged content before insertion point
-                    if at.start > original_pos {
-                        let len = at.start - original_pos;
-                        let unchanged = &self.source[original_pos as usize..at.start as usize];
+            // Helper closure to copy unchanged content
+            let mut copy_unchanged = |upto: u32| {
+                if upto > original_pos {
+                    let len = upto - original_pos;
+                    let start = original_pos.saturating_sub(1) as usize;
+                    let end = upto.saturating_sub(1) as usize;
+
+                    if end <= self.source.len() {
+                        let unchanged = &self.source[start..end];
                         result.push_str(unchanged);
 
+                        // Create 0-based segment for SourceMapping API
                         mapping.add_segment(MappingSegment::new(
-                            original_pos,
-                            at.start,
-                            expanded_pos,
-                            expanded_pos + len,
+                            original_pos - 1,  // Convert to 0-based
+                            upto - 1,          // Convert to 0-based
+                            expanded_pos - 1,  // Convert to 0-based
+                            expanded_pos + len - 1, // Convert to 0-based
                         ));
 
                         expanded_pos += len;
-                        original_pos = at.start;
+                        original_pos = upto;
                     }
+                }
+            };
 
-                    // Insert generated code
+            match patch {
+                Patch::Insert { at, code } => {
+                    copy_unchanged(at.start);
+
                     let rendered = render_patch_code(code)?;
-                    let formatted = self.format_insertion(&rendered, at.start as usize, code);
+                    let formatted =
+                        self.format_insertion(&rendered, at.start.saturating_sub(1) as usize, code);
                     let gen_len = formatted.len() as u32;
 
                     result.push_str(&formatted);
-
+                    // Create 0-based generated region
                     mapping.add_generated(GeneratedRegion::new(
-                        expanded_pos,
-                        expanded_pos + gen_len,
+                        expanded_pos - 1,
+                        expanded_pos - 1 + gen_len,
                         macro_attribution,
                     ));
-
                     expanded_pos += gen_len;
-                    // original_pos stays the same (we didn't consume any original content)
                 }
-                Patch::InsertRaw { at, code, context: _ } => {
-                    if at.start > original_pos {
-                        let len = at.start - original_pos;
-                        let unchanged = &self.source[original_pos as usize..at.start as usize];
-                        result.push_str(unchanged);
-
-                        mapping.add_segment(MappingSegment::new(
-                            original_pos,
-                            at.start,
-                            expanded_pos,
-                            expanded_pos + len,
-                        ));
-
-                        expanded_pos += len;
-                        original_pos = at.start;
-                    }
+                Patch::InsertRaw { at, code, .. } => {
+                    copy_unchanged(at.start);
 
                     let gen_len = code.len() as u32;
                     result.push_str(code);
+                    // Create 0-based generated region
                     mapping.add_generated(GeneratedRegion::new(
-                        expanded_pos,
-                        expanded_pos + gen_len,
+                        expanded_pos - 1,
+                        expanded_pos - 1 + gen_len,
                         macro_attribution,
                     ));
                     expanded_pos += gen_len;
                 }
                 Patch::Replace { span, code } => {
-                    // Copy unchanged content before replacement
-                    if span.start > original_pos {
-                        let len = span.start - original_pos;
-                        let unchanged = &self.source[original_pos as usize..span.start as usize];
-                        result.push_str(unchanged);
+                    copy_unchanged(span.start);
 
-                        mapping.add_segment(MappingSegment::new(
-                            original_pos,
-                            span.start,
-                            expanded_pos,
-                            expanded_pos + len,
-                        ));
-
-                        expanded_pos += len;
-                    }
-
-                    // Insert replacement code (this is generated)
                     let rendered = render_patch_code(code)?;
                     let gen_len = rendered.len() as u32;
 
                     result.push_str(&rendered);
-
+                    // Create 0-based generated region
                     mapping.add_generated(GeneratedRegion::new(
-                        expanded_pos,
-                        expanded_pos + gen_len,
+                        expanded_pos - 1,
+                        expanded_pos - 1 + gen_len,
                         macro_attribution,
                     ));
 
                     expanded_pos += gen_len;
-                    original_pos = span.end; // Skip the replaced content
-                }
-                Patch::Delete { span } => {
-                    // Copy unchanged content before deletion
-                    if span.start > original_pos {
-                        let len = span.start - original_pos;
-                        let unchanged = &self.source[original_pos as usize..span.start as usize];
-                        result.push_str(unchanged);
-
-                        mapping.add_segment(MappingSegment::new(
-                            original_pos,
-                            span.start,
-                            expanded_pos,
-                            expanded_pos + len,
-                        ));
-
-                        expanded_pos += len;
-                    }
-
-                    // Skip deleted content (no output, no generated region)
                     original_pos = span.end;
                 }
-                Patch::ReplaceRaw { span, code, context: _ } => {
-                    if span.start > original_pos {
-                        let len = span.start - original_pos;
-                        let unchanged = &self.source[original_pos as usize..span.start as usize];
-                        result.push_str(unchanged);
-
-                        mapping.add_segment(MappingSegment::new(
-                            original_pos,
-                            span.start,
-                            expanded_pos,
-                            expanded_pos + len,
-                        ));
-
-                        expanded_pos += len;
-                    }
+                Patch::Delete { span } => {
+                    copy_unchanged(span.start);
+                    // Skip content
+                    original_pos = span.end;
+                }
+                Patch::ReplaceRaw { span, code, .. } => {
+                    copy_unchanged(span.start);
 
                     let gen_len = code.len() as u32;
                     result.push_str(code);
+                    // Create 0-based generated region
                     mapping.add_generated(GeneratedRegion::new(
-                        expanded_pos,
-                        expanded_pos + gen_len,
+                        expanded_pos - 1,
+                        expanded_pos - 1 + gen_len,
                         macro_attribution,
                     ));
                     expanded_pos += gen_len;
@@ -245,16 +216,18 @@ impl<'a> PatchApplicator<'a> {
         }
 
         // Copy any remaining unchanged content after the last patch
-        if original_pos < source_len {
-            let len = source_len - original_pos;
-            let remaining = &self.source[original_pos as usize..];
+        if original_pos < source_end_pos {
+            let len = source_end_pos - original_pos;
+            let start = original_pos.saturating_sub(1) as usize;
+            let remaining = &self.source[start..]; // safe slice to end
             result.push_str(remaining);
 
+            // Create 0-based segment
             mapping.add_segment(MappingSegment::new(
-                original_pos,
-                source_len,
-                expanded_pos,
-                expanded_pos + len,
+                original_pos - 1,
+                source_end_pos - 1,
+                expanded_pos - 1,
+                expanded_pos - 1 + len,
             ));
         }
 
@@ -266,35 +239,22 @@ impl<'a> PatchApplicator<'a> {
 
     /// Format an insertion with proper indentation and newlines
     fn format_insertion(&self, rendered: &str, position: usize, code: &PatchCode) -> String {
-        // Only add formatting for ClassMembers (methods, constructors, etc.)
         if !matches!(code, PatchCode::ClassMember(_)) {
             return rendered.to_string();
         }
 
-        // Detect indentation from the surrounding context
         let indent = self.detect_indentation(position);
-
-        // For class members, we want:
-        // 1. A newline before the member
-        // 2. Proper indentation
-        // 3. The rendered member
-        // 4. A newline after (the closing brace should be on its own line)
         format!("\n{}{}\n", indent, rendered.trim())
     }
 
     /// Detect indentation level at a given position by looking backwards
     fn detect_indentation(&self, position: usize) -> String {
         let bytes = self.source.as_bytes();
-
-        // Look backwards to find a class member or property to match its indentation
-        // We search for lines that contain class members (like "  name:" or "  method()")
         let mut search_pos = position.saturating_sub(1);
         let mut found_indent: Option<String> = None;
-
-        // Search backwards up to 500 chars for a properly indented line
         let search_limit = position.saturating_sub(500);
 
-        while search_pos > search_limit {
+        while search_pos > search_limit && search_pos < bytes.len() {
             // Find the start of this line
             let mut line_start = search_pos;
             while line_start > 0 && bytes[line_start - 1] != b'\n' {
@@ -307,18 +267,24 @@ impl<'a> PatchApplicator<'a> {
                 line_end += 1;
             }
 
-            // Get the line content
-            let line = &self.source[line_start..line_end];
+            if line_start >= line_end {
+                if line_start == 0 {
+                    break;
+                }
+                search_pos = line_start - 1;
+                continue;
+            }
 
-            // Look for lines that are class members (have some content after whitespace)
-            // Skip empty lines and lines that are just braces
+            let line = &self.source[line_start..line_end];
             let trimmed = line.trim();
+
             if !trimmed.is_empty()
                 && !trimmed.starts_with('}')
-                && !trimmed.starts_with('@')  // Skip decorators
-                && (trimmed.contains(':') || trimmed.contains('(') || trimmed.starts_with("constructor"))
+                && !trimmed.starts_with('@')
+                && (trimmed.contains(':')
+                    || trimmed.contains('(')
+                    || trimmed.starts_with("constructor"))
             {
-                // Count leading whitespace
                 let indent_count = line.chars().take_while(|c| c.is_whitespace()).count();
                 if indent_count > 0 {
                     found_indent = Some(line.chars().take(indent_count).collect());
@@ -326,18 +292,15 @@ impl<'a> PatchApplicator<'a> {
                 }
             }
 
-            // Move to previous line
             if line_start == 0 {
                 break;
             }
             search_pos = line_start - 1;
         }
 
-        // Return the found indentation, or default to 2 spaces
         found_indent.unwrap_or_else(|| "  ".to_string())
     }
 
-    /// Sort patches by their position (start offset)
     fn sort_patches(&mut self) {
         self.patches.sort_by_key(|patch| match patch {
             Patch::Insert { at, .. } => at.start,
@@ -348,7 +311,6 @@ impl<'a> PatchApplicator<'a> {
         });
     }
 
-    /// Validate that patches don't overlap
     fn validate_no_overlaps(&self) -> Result<()> {
         for i in 0..self.patches.len() {
             for j in i + 1..self.patches.len() {
@@ -362,16 +324,12 @@ impl<'a> PatchApplicator<'a> {
         Ok(())
     }
 
-    /// Check if two patches overlap
     fn patches_overlap(&self, a: &Patch, b: &Patch) -> bool {
         let a_span = self.get_patch_span(a);
         let b_span = self.get_patch_span(b);
-
-        // Check if spans overlap
         !(a_span.end <= b_span.start || b_span.end <= a_span.start)
     }
 
-    /// Get the span affected by a patch
     fn get_patch_span(&self, patch: &Patch) -> SpanIR {
         match patch {
             Patch::Insert { at, .. } => *at,
@@ -397,12 +355,10 @@ impl PatchCollector {
         }
     }
 
-    /// Add runtime patches from a macro result
     pub fn add_runtime_patches(&mut self, patches: Vec<Patch>) {
         self.runtime_patches.extend(patches);
     }
 
-    /// Add type patches from a macro result
     pub fn add_type_patches(&mut self, patches: Vec<Patch>) {
         self.type_patches.extend(patches);
     }
@@ -411,7 +367,6 @@ impl PatchCollector {
         !self.type_patches.is_empty()
     }
 
-    /// Apply runtime patches to source code
     pub fn apply_runtime_patches(&self, source: &str) -> Result<String> {
         if self.runtime_patches.is_empty() {
             return Ok(source.to_string());
@@ -422,7 +377,6 @@ impl PatchCollector {
         applicator.apply()
     }
 
-    /// Apply type patches to type declaration source
     pub fn apply_type_patches(&self, source: &str) -> Result<String> {
         if self.type_patches.is_empty() {
             return Ok(source.to_string());
@@ -433,13 +387,13 @@ impl PatchCollector {
         applicator.apply()
     }
 
-    /// Apply runtime patches and return result with source mapping
     pub fn apply_runtime_patches_with_mapping(
         &self,
         source: &str,
         macro_name: Option<&str>,
     ) -> Result<ApplyResult> {
         if self.runtime_patches.is_empty() {
+            // ... (Empty logic same as before)
             let source_len = source.len() as u32;
             let mut mapping = SourceMapping::new();
             if source_len > 0 {
@@ -456,7 +410,6 @@ impl PatchCollector {
         applicator.apply_with_mapping(macro_name)
     }
 
-    /// Apply type patches and return result with source mapping
     pub fn apply_type_patches_with_mapping(
         &self,
         source: &str,
@@ -490,24 +443,37 @@ impl Default for PatchCollector {
     }
 }
 
+/// Fixed dedupe logic: Separate key generation from filtering
 fn dedupe_patches(patches: &mut Vec<Patch>) -> Result<()> {
     let mut seen: HashSet<(u8, u32, u32, Option<String>)> = HashSet::new();
-    patches.retain(|patch| {
+    let mut indices_to_keep = Vec::new();
+
+    for (i, patch) in patches.iter().enumerate() {
+        // We calculate the key here. If rendering fails, we can either error out
+        // or choose to keep the patch. Here we propagate the error.
         let key = match patch {
-            Patch::Insert { at, code } => match render_patch_code(code) {
-                Ok(rendered) => (0, at.start, at.end, Some(rendered)),
-                Err(_) => return true,
-            },
+            Patch::Insert { at, code } => (0, at.start, at.end, Some(render_patch_code(code)?)),
             Patch::InsertRaw { at, code, .. } => (3, at.start, at.end, Some(code.clone())),
-            Patch::Replace { span, code } => match render_patch_code(code) {
-                Ok(rendered) => (1, span.start, span.end, Some(rendered)),
-                Err(_) => return true,
-            },
+            Patch::Replace { span, code } => {
+                (1, span.start, span.end, Some(render_patch_code(code)?))
+            }
             Patch::ReplaceRaw { span, code, .. } => (4, span.start, span.end, Some(code.clone())),
             Patch::Delete { span } => (2, span.start, span.end, None),
         };
-        seen.insert(key)
-    });
+
+        if seen.insert(key) {
+            indices_to_keep.push(i);
+        }
+    }
+
+    // Reconstruct the vector using only the unique indices
+    // This is more efficient than remove() in a loop for large vectors
+    let old_patches = std::mem::take(patches);
+    *patches = indices_to_keep
+        .into_iter()
+        .map(|i| old_patches[i].clone())
+        .collect();
+
     Ok(())
 }
 
@@ -532,13 +498,12 @@ fn emit_node<N: Node>(node: &N) -> Result<String> {
             wr: writer,
         };
         node.emit_with(&mut emitter)
-            .map_err(|err| MacroError::Other(anyhow::anyhow!(err)))?;
+            .map_err(|err| anyhow::anyhow!(err))?;
     }
-    let output = String::from_utf8(buf).map_err(|err| MacroError::Other(anyhow::anyhow!(err)))?;
+    let output = String::from_utf8(buf).map_err(|err| anyhow::anyhow!(err))?;
     // Trim trailing whitespace and newlines from the emitted code
     Ok(output.trim_end().to_string())
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -546,9 +511,9 @@ mod tests {
     #[test]
     fn test_insert_patch() {
         let source = "class Foo {}";
-        // Inserting at position 11 (just before the closing brace)
+        // Inserting at position 12 (1-based, just before the closing brace at index 11)
         let patch = Patch::Insert {
-            at: SpanIR { start: 11, end: 11 },
+            at: SpanIR { start: 12, end: 12 },
             code: " bar: string; ".to_string().into(),
         };
 
@@ -560,9 +525,9 @@ mod tests {
     #[test]
     fn test_replace_patch() {
         let source = "class Foo { old: number; }";
-        // Replace "old: number;" with "new: string;"
+        // Replace "old: number;" with "new: string;" (1-based spans)
         let patch = Patch::Replace {
-            span: SpanIR { start: 12, end: 25 },
+            span: SpanIR { start: 13, end: 26 },
             code: "new: string;".to_string().into(),
         };
 
@@ -574,9 +539,9 @@ mod tests {
     #[test]
     fn test_delete_patch() {
         let source = "class Foo { unnecessary: any; }";
-        // Delete "unnecessary: any;"
+        // Delete "unnecessary: any;" (1-based spans)
         let patch = Patch::Delete {
-            span: SpanIR { start: 12, end: 30 },
+            span: SpanIR { start: 13, end: 31 },
         };
 
         let applicator = PatchApplicator::new(source, vec![patch]);
@@ -589,11 +554,11 @@ mod tests {
         let source = "class Foo {}";
         let patches = vec![
             Patch::Insert {
-                at: SpanIR { start: 11, end: 11 },
+                at: SpanIR { start: 12, end: 12 },
                 code: " bar: string;".to_string().into(),
             },
             Patch::Insert {
-                at: SpanIR { start: 11, end: 11 },
+                at: SpanIR { start: 12, end: 12 },
                 code: " baz: number;".to_string().into(),
             },
         ];
@@ -610,10 +575,11 @@ mod tests {
         let constructor_start = source.find("constructor").unwrap();
         let constructor_end = source.find("} }").unwrap() + 1;
 
+        // Convert 0-based indices to 1-based spans
         let patch = Patch::Replace {
             span: SpanIR {
-                start: constructor_start as u32,
-                end: constructor_end as u32,
+                start: constructor_start as u32 + 1,
+                end: constructor_end as u32 + 1,
             },
             code: "constructor();".to_string().into(),
         };
@@ -676,14 +642,15 @@ mod tests {
   id: number;
   name: string;
 }"#;
-        // Find position just before closing brace
+        // Find position just before closing brace (0-based index)
         let closing_brace_pos = source.rfind('}').unwrap();
 
         // Create a text patch that simulates what emit_node would produce
+        // Convert to 1-based span
         let patch = Patch::Insert {
             at: SpanIR {
-                start: closing_brace_pos as u32,
-                end: closing_brace_pos as u32,
+                start: closing_brace_pos as u32 + 1,
+                end: closing_brace_pos as u32 + 1,
             },
             code: "toString(): string;".to_string().into(),
         };
@@ -704,18 +671,19 @@ mod tests {
 }"#;
         let closing_brace_pos = source.rfind('}').unwrap();
 
+        // Convert to 1-based spans
         let patches = vec![
             Patch::Insert {
                 at: SpanIR {
-                    start: closing_brace_pos as u32,
-                    end: closing_brace_pos as u32,
+                    start: closing_brace_pos as u32 + 1,
+                    end: closing_brace_pos as u32 + 1,
                 },
                 code: "toString(): string;".to_string().into(),
             },
             Patch::Insert {
                 at: SpanIR {
-                    start: closing_brace_pos as u32,
-                    end: closing_brace_pos as u32,
+                    start: closing_brace_pos as u32 + 1,
+                    end: closing_brace_pos as u32 + 1,
                 },
                 code: "toJSON(): Record<string, unknown>;".to_string().into(),
             },
@@ -745,7 +713,7 @@ mod tests {
     #[test]
     fn test_no_formatting_for_text_patches() {
         let source = "class User {}";
-        let pos = 11;
+        let pos = 11; // 0-based index for format_insertion (internal use)
         let applicator = PatchApplicator::new(source, vec![]);
         let formatted =
             applicator.format_insertion("test", pos, &PatchCode::Text("test".to_string()));
@@ -755,17 +723,18 @@ mod tests {
 
     #[test]
     fn test_dedupe_patches_removes_identical_inserts() {
+        // Using 1-based spans
         let mut patches = vec![
             Patch::Insert {
-                at: SpanIR { start: 10, end: 10 },
+                at: SpanIR { start: 11, end: 11 },
                 code: "console.log('a');".to_string().into(),
             },
             Patch::Insert {
-                at: SpanIR { start: 10, end: 10 },
+                at: SpanIR { start: 11, end: 11 },
                 code: "console.log('a');".to_string().into(),
             },
             Patch::Insert {
-                at: SpanIR { start: 20, end: 20 },
+                at: SpanIR { start: 21, end: 21 },
                 code: "console.log('b');".to_string().into(),
             },
         ];
@@ -779,7 +748,7 @@ mod tests {
         assert!(
             patches
                 .iter()
-                .any(|patch| matches!(patch, Patch::Insert { at, .. } if at.start == 20)),
+                .any(|patch| matches!(patch, Patch::Insert { at, .. } if at.start == 21)),
             "dedupe should retain distinct spans"
         );
     }
@@ -807,9 +776,9 @@ mod tests {
     #[test]
     fn test_apply_with_mapping_simple_insert() {
         let source = "class Foo {}";
-        // Insert at position 11 (just before closing brace)
+        // Insert at position 12 (1-based span, just before closing brace at index 11)
         let patch = Patch::Insert {
-            at: SpanIR { start: 11, end: 11 },
+            at: SpanIR { start: 12, end: 12 },
             code: " bar;".to_string().into(),
         };
 
@@ -825,27 +794,27 @@ mod tests {
         assert_eq!(result.mapping.segments.len(), 2);
         assert_eq!(result.mapping.generated_regions.len(), 1);
 
-        // First segment: "class Foo {" (0-11)
+        // First segment: "class Foo {" (0-based: 0-11)
         let seg1 = &result.mapping.segments[0];
         assert_eq!(seg1.original_start, 0);
         assert_eq!(seg1.original_end, 11);
         assert_eq!(seg1.expanded_start, 0);
         assert_eq!(seg1.expanded_end, 11);
 
-        // Generated region: " bar;" (11-16 in expanded)
+        // Generated region: " bar;" (0-based: 11-16 in expanded)
         let generated = &result.mapping.generated_regions[0];
         assert_eq!(generated.start, 11);
         assert_eq!(generated.end, 16);
         assert_eq!(generated.source_macro, "Test");
 
-        // Second segment: "}" (11-12 original -> 16-17 expanded)
+        // Second segment: "}" (0-based: 11-12 original -> 16-17 expanded)
         let seg2 = &result.mapping.segments[1];
         assert_eq!(seg2.original_start, 11);
         assert_eq!(seg2.original_end, 12);
         assert_eq!(seg2.expanded_start, 16);
         assert_eq!(seg2.expanded_end, 17);
 
-        // Test position mappings
+        // Test position mappings (0-based positions)
         assert_eq!(result.mapping.original_to_expanded(0), 0);
         assert_eq!(result.mapping.original_to_expanded(10), 10);
         assert_eq!(result.mapping.original_to_expanded(11), 16); // After insert
@@ -858,9 +827,9 @@ mod tests {
     #[test]
     fn test_apply_with_mapping_replace() {
         let source = "let x = old;";
-        // Replace "old" (8-11) with "new"
+        // Replace "old" (1-based span: 9-12) with "new"
         let patch = Patch::Replace {
-            span: SpanIR { start: 8, end: 11 },
+            span: SpanIR { start: 9, end: 12 },
             code: "new".to_string().into(),
         };
 
@@ -873,17 +842,17 @@ mod tests {
         assert_eq!(result.mapping.segments.len(), 2);
         assert_eq!(result.mapping.generated_regions.len(), 1);
 
-        // "let x = " unchanged (0-8)
+        // "let x = " unchanged (0-based: 0-8)
         let seg1 = &result.mapping.segments[0];
         assert_eq!(seg1.original_start, 0);
         assert_eq!(seg1.original_end, 8);
 
-        // "new" is generated (8-11 in expanded)
+        // "new" is generated (0-based: 8-11 in expanded)
         let generated = &result.mapping.generated_regions[0];
         assert_eq!(generated.start, 8);
         assert_eq!(generated.end, 11);
 
-        // ";" unchanged (11-12 original -> 11-12 expanded, same length replacement)
+        // ";" unchanged (0-based: 11-12 original -> 11-12 expanded, same length replacement)
         let seg2 = &result.mapping.segments[1];
         assert_eq!(seg2.original_start, 11);
         assert_eq!(seg2.original_end, 12);
@@ -897,9 +866,9 @@ mod tests {
     #[test]
     fn test_apply_with_mapping_delete() {
         let source = "let x = 1; let y = 2;";
-        // Delete " let y = 2" (10-20)
+        // Delete " let y = 2" (1-based: 11-21)
         let patch = Patch::Delete {
-            span: SpanIR { start: 10, end: 20 },
+            span: SpanIR { start: 11, end: 21 },
         };
 
         let applicator = PatchApplicator::new(source, vec![patch]);
@@ -911,7 +880,8 @@ mod tests {
         assert_eq!(result.mapping.segments.len(), 2);
         assert_eq!(result.mapping.generated_regions.len(), 0);
 
-        // Position after deletion maps correctly
+        // Position after deletion maps correctly (0-based for SourceMapping API)
+        // Original position 20 (final ";") -> expanded position 10
         assert_eq!(result.mapping.original_to_expanded(20), 10);
         assert_eq!(result.mapping.expanded_to_original(10), Some(20));
     }
@@ -919,14 +889,14 @@ mod tests {
     #[test]
     fn test_apply_with_mapping_multiple_inserts() {
         let source = "a;b;c;";
-        // Insert "X" after "a;" (position 2) and "Y" after "b;" (position 4)
+        // Insert "X" after "a;" (1-based: 3) and "Y" after "b;" (1-based: 5)
         let patches = vec![
             Patch::Insert {
-                at: SpanIR { start: 2, end: 2 },
+                at: SpanIR { start: 3, end: 3 },
                 code: "X".to_string().into(),
             },
             Patch::Insert {
-                at: SpanIR { start: 4, end: 4 },
+                at: SpanIR { start: 5, end: 5 },
                 code: "Y".to_string().into(),
             },
         ];
@@ -941,12 +911,14 @@ mod tests {
         assert_eq!(result.mapping.segments.len(), 3);
         assert_eq!(result.mapping.generated_regions.len(), 2);
 
-        // Verify position mappings
-        assert_eq!(result.mapping.original_to_expanded(0), 0); // 'a'
-        assert_eq!(result.mapping.original_to_expanded(2), 3); // 'b' (shifted by 1)
-        assert_eq!(result.mapping.original_to_expanded(4), 6); // 'c' (shifted by 2)
+        // Verify position mappings (0-based for SourceMapping API)
+        // Original: "a;b;c;" -> Expanded: "a;Xb;Yc;"
+        assert_eq!(result.mapping.original_to_expanded(0), 0); // 'a' at 0 -> 0
+        assert_eq!(result.mapping.original_to_expanded(2), 3); // 'b' at 2 -> 3 (shifted by 1)
+        assert_eq!(result.mapping.original_to_expanded(4), 6); // 'c' at 4 -> 6 (shifted by 2)
 
-        // Verify generated regions
+        // Verify generated regions (0-based for SourceMapping API)
+        // "a;Xb;Yc;" - X is at position 2, Y is at position 5
         assert!(result.mapping.is_in_generated(2)); // 'X'
         assert!(result.mapping.is_in_generated(5)); // 'Y'
         assert!(!result.mapping.is_in_generated(0)); // 'a'
@@ -957,23 +929,24 @@ mod tests {
     fn test_apply_with_mapping_span_mapping() {
         let source = "class Foo {}";
         let patch = Patch::Insert {
-            at: SpanIR { start: 11, end: 11 },
+            at: SpanIR { start: 12, end: 12 },
             code: " bar();".to_string().into(),
         };
 
         let applicator = PatchApplicator::new(source, vec![patch]);
         let result = applicator.apply_with_mapping(None).unwrap();
 
-        // Map span from original to expanded
+        // Map span from original to expanded (0-based for SourceMapping API)
         let (exp_start, exp_len) = result.mapping.map_span_to_expanded(0, 5);
         assert_eq!(exp_start, 0);
         assert_eq!(exp_len, 5);
 
-        // Map span from expanded to original (in unchanged region)
+        // Map span from expanded to original (in unchanged region, 0-based)
         let orig = result.mapping.map_span_to_original(0, 5);
         assert_eq!(orig, Some((0, 5)));
 
-        // Map span in generated region returns None
+        // Map span in generated region returns None (0-based)
+        // Generated region is at positions 11-18 in expanded (7 chars: " bar();")
         let gen_span = result.mapping.map_span_to_original(12, 3);
         assert_eq!(gen_span, None);
     }
@@ -984,7 +957,7 @@ mod tests {
 
         let mut collector = PatchCollector::new();
         collector.add_runtime_patches(vec![Patch::Insert {
-            at: SpanIR { start: 11, end: 11 },
+            at: SpanIR { start: 12, end: 12 },
             code: " toString() {}".to_string().into(),
         }]);
 

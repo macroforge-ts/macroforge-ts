@@ -138,13 +138,14 @@ fn test_if_else_if() {
 fn test_string_interpolation_simple() {
     // Test that @{expr} inside strings gets interpolated
     let input = quote! {
-        Hello @{name}!
+        "Hello @{name}!"
     };
     let output = parse_template(input);
     let s = output.unwrap().to_string();
 
     // Should push the opening quote
-    assert!(s.contains("\"\\\"\""), "Should push opening quote");
+    // The generated code will look something like: __out . push_str ("\"") ;
+    assert!(s.contains("push_str (\"\\\"\")"), "Should push opening quote");
     // Should push "Hello "
     assert!(s.contains("\"Hello \""), "Should push 'Hello '");
     // Should interpolate name

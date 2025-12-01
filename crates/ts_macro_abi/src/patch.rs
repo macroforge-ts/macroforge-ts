@@ -8,11 +8,27 @@ use swc_common::{SyntaxContext, DUMMY_SP};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug, PartialEq)]
 pub enum Patch {
-    Insert { at: SpanIR, code: PatchCode },
-    Replace { span: SpanIR, code: PatchCode },
-    Delete { span: SpanIR },
-    InsertRaw { at: SpanIR, code: String, context: Option<String> },
-    ReplaceRaw { span: SpanIR, code: String, context: Option<String> },
+    Insert {
+        at: SpanIR,
+        code: PatchCode,
+    },
+    Replace {
+        span: SpanIR,
+        code: PatchCode,
+    },
+    Delete {
+        span: SpanIR,
+    },
+    InsertRaw {
+        at: SpanIR,
+        code: String,
+        context: Option<String>,
+    },
+    ReplaceRaw {
+        span: SpanIR,
+        code: String,
+        context: Option<String>,
+    },
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]

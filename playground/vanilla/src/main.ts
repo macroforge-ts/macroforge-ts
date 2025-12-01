@@ -9,7 +9,7 @@ function testMacros() {
   const derivedSummary = user.toString();
   const derivedJson = user.toJSON();
 
-  // These methods will be injected by the @Derive macro
+  // These methods will be injected by the @derive macro
   console.log("Derived summary:", derivedSummary);
   console.log("Derived JSON:", derivedJson);
 
@@ -21,7 +21,7 @@ function testMacros() {
 
       <h2>Features:</h2>
       <ul>
-        <li><code>@Derive</code> - Auto-generate methods like toString() and toJSON()</li>
+        <li><code>@derive</code> - Auto-generate methods like toString() and toJSON()</li>
         <li><code>@Debug(...)</code> - Per-field rename / skip controls inside derives</li>
       </ul>
 

@@ -35,7 +35,7 @@ pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> 
         }
         Data::Enum(_) => Err(TsMacroError::new(
             input.decorator_span(),
-            "@Derive(JSON) can only target classes",
+            "/** @derive(JSON) */ can only target classes",
         )),
     }
 }
@@ -71,11 +71,11 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
                 .map(|field| {
                     let field_name = &field.name;
                     (
-                        format!("\"{}\"", capitalize(field_name)), // label_text
-                        format!("\"{}\"", field_name),             // field_path_literal
-                        format!("{}FieldPath", field_name),        // field_path_prop
-                        format!("{}FieldController", field_name),  // field_controller_prop
-                        &field.ts_type,
+                        capitalize(field_name),                   // label_text
+                        format!("\"{}\"", field_name),            // field_path_literal
+                        format!("{}FieldPath", field_name),       // field_path_prop
+                        format!("{}FieldController", field_name), // field_controller_prop
+                        field.ts_type.trim_end_matches(';').trim(),
                     )
                 })
                 .collect();
@@ -83,7 +83,7 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
             // ===== Generate All Runtime Code in Single Template =====
 
             let stream = ts_template! {
-                make@{class_name}BaseProps<D extends number, const P extends DeepPath<@{class_name}, D>, V = DeepValue<@{class_name}, P, never, D>>(
+                @{base_props_method}<D extends number, const P extends DeepPath<@{class_name}, D>, V = DeepValue<@{class_name}, P, never, D>>(
                     superForm: SuperForm<@{class_name}>,
                     path: P,
                     overrides?: BasePropsOverrides<@{class_name}, V, D>
@@ -102,9 +102,8 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
                 {#for (label_text, field_path_literal, field_path_prop, field_controller_prop, field_type) in field_data}
                     {%let controller_type = format!("{}FieldController", label_text)}
 
-                    static {
-                        this.prototype.@{field_path_prop} = [@{field_path_literal}];
-                    }
+                    @{field_path_prop} = [@{field_path_literal}];
+
 
                     @{field_controller_prop}(superForm: SuperForm<@{class_name}>): @{controller_type}<@{class_name}, @{field_type}, 1> {
                         const fieldPath = this.@{field_path_prop};
@@ -115,7 +114,7 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
                                 superForm,
                                 fieldPath,
                                 {
-                                    labelText: @{label_text}
+                                    labelText: "@{label_text}"
                                 }
                             )
                         };
@@ -126,7 +125,7 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
         }
         Data::Enum(_) => Err(TsMacroError::new(
             input.decorator_span(),
-            "@Derive(FieldController) can only target classes",
+            "/** @derive(FieldController) */ can only target classes",
         )),
     }
 }

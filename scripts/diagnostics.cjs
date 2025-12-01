@@ -560,8 +560,8 @@ async function getMacroDiagnostics(projectDir) {
             try {
                 const content = await fs.readFile(filePath, 'utf-8');
 
-                // Skip files without @Derive (quick check)
-                if (!content.includes('@Derive')) {
+                // Skip files without @derive (quick check)
+                if (!content.includes('@derive')) {
                     continue;
                 }
 
@@ -660,7 +660,7 @@ async function generateMacroTypes(tsConfigPaths) {
                 continue;
             }
 
-            if (!content.includes('@Derive')) {
+            if (!content.includes('@derive')) {
                 continue;
             }
 
@@ -815,7 +815,7 @@ async function main() {
     console.log('\nRunning ts-macros expansion checks...');
     const macroModule = getTsMacrosModule();
     if (macroModule) {
-        // Check playground directories and any other directories with @Derive usage
+        // Check playground directories and any other directories with @derive usage
         const dirsToCheck = [
             path.join(ROOT_DIR, 'playground'),
             ...tsConfigPaths.map(p => path.dirname(p))

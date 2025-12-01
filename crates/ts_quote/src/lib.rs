@@ -474,3 +474,51 @@ pub fn ts_template(input: TokenStream) -> TokenStream {
 
     TokenStream::from(output)
 }
+
+#[proc_macro]
+pub fn above(input: TokenStream) -> TokenStream {
+    let input = TokenStream2::from(input);
+    generate_scoped_template(input, "/* @ts-macro:above */")
+}
+
+#[proc_macro]
+pub fn below(input: TokenStream) -> TokenStream {
+    let input = TokenStream2::from(input);
+    generate_scoped_template(input, "/* @ts-macro:below */")
+}
+
+#[proc_macro]
+pub fn body(input: TokenStream) -> TokenStream {
+    let input = TokenStream2::from(input);
+    generate_scoped_template(input, "/* @ts-macro:body */")
+}
+
+#[proc_macro]
+pub fn signature(input: TokenStream) -> TokenStream {
+    let input = TokenStream2::from(input);
+    generate_scoped_template(input, "/* @ts-macro:signature */")
+}
+
+fn generate_scoped_template(input: TokenStream2, marker: &str) -> TokenStream {
+    let string_builder = match template::parse_template(input) {
+        Ok(s) => s,
+        Err(e) => return e.to_compile_error().into(),
+    };
+
+    // Inject the marker at the start of the string building block
+    // parse_template returns: { let mut __out = String::new(); ... __out }
+    // We want to inject __out.push_str(marker); right after String::new();
+
+    // Since parse_template returns a block, we can't easily inject inside it without parsing it.
+    // However, we can just prepend the marker to the result string.
+
+    let output = quote::quote! {
+        {
+            let mut __ts_code = String::from(#marker);
+            __ts_code.push_str(&#string_builder);
+            ts_syn::TsStream::from_string(__ts_code)
+        }
+    };
+
+    TokenStream::from(output)
+}

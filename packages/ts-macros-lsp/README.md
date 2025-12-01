@@ -1,11 +1,11 @@
 # ts-macros Language Server
 
-Minimal Language Server Protocol (LSP) implementation that augments IntelliSense for classes decorated with `@Derive(...)`.
+Minimal Language Server Protocol (LSP) implementation that augments IntelliSense for classes decorated with `/** @derive(...) */`.
 
 ## Features
 
 - Parses open TypeScript/TSX documents with the TypeScript compiler API
-- Detects classes decorated with `@Derive`
+- Detects classes decorated with `@derive`
 - Tracks identifiers that reference decorated classes (constructor calls, type annotations, class fields, and parameters)
 - Injects completion items for macro-generated methods like `toString()` and `toJSON()`
 

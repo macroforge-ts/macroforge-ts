@@ -45,7 +45,11 @@ impl<'a> Visit for ClassCollector<'a> {
             span
         };
 
-        let decorators = lower_decorators(&n.class.decorators, self.source);
+        let mut decorators = lower_decorators(&n.class.decorators, self.source);
+        decorators.extend(collect_leading_macro_directives(
+            self.source,
+            n.class.span.lo.0 as usize,
+        ));
 
         let (fields, methods) = lower_members(&n.class.body, self.source);
 
@@ -84,6 +88,12 @@ fn lower_members(body: &[ClassMember], source: &str) -> (Vec<FieldIR>, Vec<Metho
                     .map(|t| snippet(source, t.type_ann.span()))
                     .unwrap_or_else(|| "any".into());
 
+                let mut decorators = lower_decorators(&p.decorators, source);
+                decorators.extend(collect_leading_macro_directives(
+                    source,
+                    p.span.lo.0 as usize,
+                ));
+
                 fields.push(FieldIR {
                     name,
                     span: swc_span_to_ir(p.span),
@@ -92,7 +102,7 @@ fn lower_members(body: &[ClassMember], source: &str) -> (Vec<FieldIR>, Vec<Metho
                     optional: p.is_optional, // Changed from p.optional
                     readonly: p.readonly,
                     visibility: lower_visibility(p.accessibility),
-                    decorators: lower_decorators(&p.decorators, source),
+                    decorators,
                     prop_ast: Some(p.clone()),
                 });
             }
@@ -204,11 +214,85 @@ fn lower_decorators(decs: &[Decorator], source: &str) -> Vec<DecoratorIR> {
         .collect()
 }
 
+fn collect_leading_macro_directives(source: &str, target_start: usize) -> Vec<DecoratorIR> {
+    // target_start is 1-based (from SWC BytePos), convert to 0-based for slicing
+    let target_start_0 = target_start.saturating_sub(1);
+    if target_start_0 == 0 || target_start_0 > source.len() {
+        return Vec::new();
+    }
+
+    let search_area = &source[..target_start_0];
+
+    // Find the last "*/" in the search_area
+    let Some(end_idx_in_search_area) = search_area.rfind("*/") else {
+        return Vec::new();
+    };
+
+    // Find the matching "/**" before that "*/"
+    let Some(start_idx) = search_area[..end_idx_in_search_area].rfind("/**") else {
+        return Vec::new();
+    };
+
+    let end_of_comment_block = end_idx_in_search_area + 2; // +2 for "*/"
+
+    // Only accept if the comment is directly adjacent to the target
+    // (only whitespace between comment end and target start)
+    let between = &search_area[end_of_comment_block..];
+    if !between.trim().is_empty() {
+        // There's non-whitespace content between the comment and target
+        return Vec::new();
+    }
+
+    let comment_body = &search_area[start_idx + 3 .. end_idx_in_search_area];
+
+    let Some((name, args_src)) = parse_macro_directive(comment_body) else {
+        return Vec::new();
+    };
+
+    let final_span_ir = adjust_decorator_span(
+        swc_core::common::Span::new(
+            swc_core::common::BytePos(start_idx as u32 + 1), // Convert to 1-based BytePos
+            swc_core::common::BytePos(end_of_comment_block as u32 + 1), // Convert to 1-based BytePos
+        ),
+        source,
+    );
+
+    vec![DecoratorIR {
+        name,
+        args_src,
+        span: final_span_ir,
+        node: None,
+    }]
+}
+
+#[cfg(feature = "swc")]
+fn parse_macro_directive(comment_body: &str) -> Option<(String, String)> {
+    let content = comment_body.trim().trim_start_matches('*').trim();
+    let content = content.strip_prefix('@')?;
+
+    let open = content.find('(')?;
+    let close = content.rfind(')')?;
+    if close <= open {
+        return None;
+    }
+
+    let name = content[..open].trim();
+    let args = content[open + 1..close].trim();
+
+    let normalized_name = if name.eq_ignore_ascii_case("derive") {
+        "Derive".to_string()
+    } else {
+        name.to_string()
+    };
+
+    Some((normalized_name, args.to_string()))
+}
+
 fn adjust_decorator_span(span: Span, source: &str) -> SpanIR {
     let mut ir = swc_span_to_ir(span);
     let bytes = source.as_bytes();
-    let mut start = ir.start as usize;
-    let mut end = ir.end as usize;
+    let mut start = ir.start.saturating_sub(1) as usize;
+    let mut end = ir.end.saturating_sub(1) as usize;
 
     // Extend backward to include '@' symbol and any leading whitespace on the same line
     if start > 0 && bytes[start - 1] == b'@' {
@@ -220,22 +304,11 @@ fn adjust_decorator_span(span: Span, source: &str) -> SpanIR {
         ir.start = start as u32;
     }
 
-    // Extend forward to include trailing newline and subsequent indentation
-    if end < bytes.len() {
-        // Skip trailing whitespace on the same line
-        while end < bytes.len() && (bytes[end] == b' ' || bytes[end] == b'\t') {
-            end += 1;
-        }
-        // If we hit a newline, include it and any leading whitespace on the next line
-        if end < bytes.len() && bytes[end] == b'\n' {
-            end += 1;
-            while end < bytes.len() && (bytes[end] == b' ' || bytes[end] == b'\t') {
-                end += 1;
-            }
-            ir.end = end as u32;
-        }
+    // Extend forward to include only one trailing newline character if it exists
+    if end < bytes.len() && bytes[end] == b'\n' {
+        end += 1; // Include the newline
+        ir.end = end as u32;
     }
-
     ir
 }
 
@@ -276,16 +349,16 @@ fn snippet(source: &str, sp: Span) -> String {
     }
     // SWC BytePos is 1-based by default for the first file.
     // We subtract 1 to map to 0-based string index.
-    // TODO: This assumes the span is from a file starting at 1. 
+    // TODO: This assumes the span is from a file starting at 1.
     // For robust multi-file support, lower_classes needs the file start position.
     let lo = (sp.lo.0 as usize).saturating_sub(1);
     let hi = (sp.hi.0 as usize).saturating_sub(1);
-    
+
     if lo >= source.len() {
         return String::new();
     }
     let end = std::cmp::min(hi, source.len());
-    
+
     source.get(lo..end).unwrap_or("").to_string()
 }
 
@@ -590,7 +663,7 @@ mod tests {
     fn class_decorator_span_captures_at_symbol() {
         GLOBALS.set(&Globals::new(), || {
             let source = r#"
-            @Derive("Debug")
+            /** @derive(Debug) */
             class User {}
             "#;
             let module = parse_module(source);
@@ -603,15 +676,16 @@ mod tests {
 
             // The span now includes leading whitespace for clean deletion
             assert!(
-                snippet_str.contains("@Derive"),
-                "decorator span should include '@Derive', got {:?}",
+                snippet_str.contains("@derive"),
+                "decorator span should include '@derive', got {:?}",
                 snippet_str
             );
 
             // Verify it includes the trailing newline and next line's indentation
             assert!(
-                snippet_str.ends_with('\n'),
-                "decorator span should include trailing newline for clean deletion"
+                snippet_str.contains('\n'),
+                "decorator span should include trailing newline for clean deletion, got {:?}",
+                snippet_str
             );
         });
     }

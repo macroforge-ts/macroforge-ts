@@ -356,12 +356,38 @@ fn parse_match_arms(
 fn is_ts_keyword(s: &str) -> bool {
     let s = s.trim_matches('r').trim_matches('"').trim_matches('\'');
     [
-        "return", "throw", "await", "yield", "typeof", "void", "new", 
-        "case", "else", "var", "let", "const", "import", "export", 
-        "default", "extends", "implements", "interface", "class", 
-        "enum", "function", "in", "instanceof", "of", "as", "is", 
-        "from", "keyof", "unique", "readonly"
-    ].contains(&s)
+        "return",
+        "throw",
+        "await",
+        "yield",
+        "typeof",
+        "void",
+        "new",
+        "case",
+        "else",
+        "var",
+        "let",
+        "const",
+        "import",
+        "export",
+        "default",
+        "extends",
+        "implements",
+        "interface",
+        "class",
+        "enum",
+        "function",
+        "in",
+        "instanceof",
+        "of",
+        "as",
+        "is",
+        "from",
+        "keyof",
+        "unique",
+        "readonly",
+    ]
+    .contains(&s)
 }
 
 /// Recursive function to parse tokens until a terminator is found
@@ -395,14 +421,14 @@ fn parse_fragment(
                     let s = p_clone.to_string();
                     output.extend(quote! { __out.push_str(#s); });
                 }
-                
+
                 // Spacing logic after interpolation
                 let next = iter.peek();
                 let next_char = match next {
-                     Some(TokenTree::Punct(p)) => Some(p.as_char()),
-                     _ => None,
+                    Some(TokenTree::Punct(p)) => Some(p.as_char()),
+                    _ => None,
                 };
-                
+
                 let mut add_space = true;
                 if matches!(next_char, Some(c) if ".,;:?()[]{}<>!".contains(c)) {
                     add_space = false;
@@ -412,12 +438,12 @@ fn parse_fragment(
                         _ => {}
                     }
                 }
-                
+
                 // No space if followed by @ (concatenation)
                 if matches!(next, Some(TokenTree::Punct(p)) if p.as_char() == '@') {
                     add_space = false;
                 }
-                
+
                 // But FORCE space if next is a Keyword (e.g. @{val} as Type)
                 // Otherwise default to concatenation for identifiers (make@{Name} -> makeName)
                 if let Some(TokenTree::Ident(i)) = next {
@@ -425,7 +451,7 @@ fn parse_fragment(
                         add_space = true;
                     } else {
                         // If next is regular identifier, assume concatenation
-                        add_space = false; 
+                        add_space = false;
                     }
                 }
 
@@ -602,7 +628,7 @@ fn parse_fragment(
                     Some(TokenTree::Punct(p)) => Some(p.as_char()),
                     _ => None,
                 };
-                
+
                 // Emit token string
                 output.extend(quote! {
                     __out.push_str(#s);
@@ -619,7 +645,9 @@ fn parse_fragment(
                     // `obj.@{prop}` (member access) -> No space
                     // `val = @{expr}` (assignment) -> Space
                     if is_ident {
-                        add_space = false;
+                        // If it's a keyword (e.g. "as @{Type}", "instanceof @{Type}"), we MUST keep the space.
+                        // If it's a regular ident (e.g. "get@{Prop}"), we assume concatenation.
+                        add_space = is_ts_keyword(&s);
                     }
                     if let Some('.') = punct_char {
                         add_space = false;
@@ -633,7 +661,7 @@ fn parse_fragment(
                     // - Punctuation delimiters ( , ; : ? )
                     // - End of expression/block ( ) ] } )
                     // - Unary/Post-fix operators ( ! )
-                    
+
                     if matches!(next_char, Some(c) if ".,;:?()[]{}<>!".contains(c)) {
                         add_space = false;
                     } else if let Some(TokenTree::Group(g)) = next {
@@ -642,23 +670,23 @@ fn parse_fragment(
                             _ => {}
                         }
                     }
-                    
+
                     // Special handling for interpolation @
                     if next_is_at {
                         // Check if this identifier is a keyword that requires a space
                         // e.g. `return @{val}` vs `make@{Name}`
                         if !is_ts_keyword(&s) {
-                             add_space = false;
+                            add_space = false;
                         }
                     }
                 } else if let Some(c) = punct_char {
                     // Punctuation specific rules
                     match c {
-                        '.' => add_space = false,         // obj.prop
-                        '!' => add_space = false,         // !unary or non-null!
+                        '.' => add_space = false,             // obj.prop
+                        '!' => add_space = false,             // !unary or non-null!
                         '(' | '[' | '{' => add_space = false, // Openers: (expr)
-                        '<' => add_space = false,         // Generics: Type<T>, or x<y (compact)
-                        '@' => add_space = false,         // Decorator: @Dec
+                        '<' => add_space = false,             // Generics: Type<T>, or x<y (compact)
+                        '@' => add_space = false,             // Decorator: @Dec
                         _ => {}
                     }
 

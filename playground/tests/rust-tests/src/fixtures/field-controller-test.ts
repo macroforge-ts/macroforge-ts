@@ -9,10 +9,10 @@ import {
  * Example class using the FieldController macro
  *
  * Usage:
- * @Derive(FieldController) on the class
- * @FieldController(TextAreaController) on fields you want to generate controllers for
+ * Use a `@derive(FieldController)` macro comment above the class
+ * Use `@fieldController(textAreaController)` on fields you want to generate controllers for
  */
-@Derive(FieldController)
+/** @derive(FieldController) */
 export class FormModel {
   @fieldController(textAreaController)
   memo: string | null;

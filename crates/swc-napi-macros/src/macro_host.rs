@@ -2,13 +2,7 @@ use anyhow::{Context, Result};
 use napi::Status;
 use napi::bindgen_prelude::Env;
 use std::{collections::HashMap, path::Path, process::Command};
-use swc_core::{
-    common::Span,
-    ecma::ast::{
-        Class, ClassMember, Decl, Decorator, ExportDecl, Module, ModuleDecl, ModuleItem, Program,
-        Stmt,
-    },
-};
+use swc_core::{common::Span, ecma::ast::{ClassMember, Module, Program}};
 use ts_macro_abi::{
     ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode,
     SourceMapping, SpanIR, TargetIR,
@@ -86,10 +80,12 @@ impl MacroHostIntegration {
             "Built-in @macro/derive::Eq macro should be registered"
         );
 
+        let keep_decorators = config.keep_decorators;
+
         Ok(Self {
             dispatcher: MacroDispatcher::new(registry),
             config,
-            keep_decorators: false,
+            keep_decorators,
             external_loader: Some(ExternalMacroLoader::new(root_dir.clone())),
         })
     }
@@ -105,17 +101,6 @@ impl MacroHostIntegration {
         program: &Program,
         file_name: &str,
     ) -> Result<MacroExpansion> {
-        if !source.contains("@Derive") {
-            return Ok(MacroExpansion {
-                code: source.to_string(),
-                diagnostics: Vec::new(),
-                changed: false,
-                type_output: None,
-                classes: Vec::new(),
-                source_mapping: None,
-            });
-        }
-
         let (module, classes) = match self.prepare_expansion_context(program, source)? {
             Some(context) => context,
             None => {
@@ -170,6 +155,11 @@ impl MacroHostIntegration {
         // Add patches to remove method bodies from type output
         for class_ir in classes.iter() {
             for method in &class_ir.methods {
+                let return_type = method
+                    .return_type_src
+                    .trim_start()
+                    .trim_start_matches(':')
+                    .trim_start();
                 let method_signature = if method.name == "constructor" {
                     let visibility = match method.visibility {
                         ts_macro_abi::Visibility::Private => "private ",
@@ -191,14 +181,14 @@ impl MacroHostIntegration {
                     let async_kw = if method.is_async { "async " } else { "" };
 
                     format!(
-                        "{visibility}{static_kw}{async_kw}{method_name}{type_params}({params_src}): {return_type_src};",
+                        "{visibility}{static_kw}{async_kw}{method_name}{type_params}({params_src}): {return_type};",
                         visibility = visibility,
                         static_kw = static_kw,
                         async_kw = async_kw,
                         method_name = method.name,
                         type_params = method.type_params_src,
                         params_src = method.params_src,
-                        return_type_src = method.return_type_src
+                        return_type = return_type
                     )
                 };
 
@@ -238,6 +228,14 @@ impl MacroHostIntegration {
                         };
                         collector.add_runtime_patches(vec![field_dec_removal.clone()]);
                         collector.add_type_patches(vec![field_dec_removal]);
+                    }
+
+                    // find_macro_comment_span now only returns comments directly adjacent
+                    // to the field, so this won't accidentally find class-level decorators
+                    if let Some(span) = find_macro_comment_span(source, field.span.start) {
+                        let removal = Patch::Delete { span };
+                        collector.add_runtime_patches(vec![removal.clone()]);
+                        collector.add_type_patches(vec![removal]);
                     }
                 }
             }
@@ -296,7 +294,7 @@ impl MacroHostIntegration {
                                     "Failed to load external macro '{}::{}': {}",
                                     ctx.macro_name, ctx.module_path, err
                                 ),
-                                span: Some(ctx.decorator_span),
+                                span: Some(diagnostic_span_for_derive(ctx.decorator_span, source)),
                                 notes: vec![],
                                 help: None,
                             });
@@ -305,12 +303,20 @@ impl MacroHostIntegration {
                 }
 
                 // Process potential token stream result
-                if let Ok((runtime, type_def)) = self.process_macro_output(&mut result, &ctx) {
+                if let Ok((runtime, type_def)) =
+                    self.process_macro_output(&mut result, &ctx, source)
+                {
                     result.runtime_patches.extend(runtime);
                     result.type_patches.extend(type_def);
                 }
 
                 if !result.diagnostics.is_empty() {
+                    // Adjust diagnostic spans to point to @derive(...) for better error display
+                    for diag in &mut result.diagnostics {
+                        if let Some(span) = diag.span {
+                            diag.span = Some(diagnostic_span_for_derive(span, source));
+                        }
+                    }
                     diagnostics.extend(result.diagnostics.clone());
                 }
 
@@ -325,6 +331,7 @@ impl MacroHostIntegration {
         &self,
         result: &mut MacroResult,
         ctx: &MacroContextIR,
+        source: &str,
     ) -> Result<(Vec<Patch>, Vec<Patch>)> {
         let mut runtime_patches = Vec::new();
         let mut type_patches = Vec::new();
@@ -335,11 +342,10 @@ impl MacroHostIntegration {
         {
             // It's a derive on a class.
             // Wrap tokens in a class to parse members
-            let insert_pos = class_ir.body_span.end - 1;
-            let wrapped_src = format!("class __Temp {{ {} }}", tokens);
-            match ts_syn::parse_ts_stmt(&wrapped_src) {
-                Ok(Stmt::Decl(Decl::Class(class_decl))) => {
-                    for member in class_decl.class.body {
+            let insert_pos = derive_insert_pos(class_ir, source);
+            match parse_members_from_tokens(tokens) {
+                Ok(members) => {
+                    for member in members {
                         runtime_patches.push(Patch::Insert {
                             at: SpanIR {
                                 start: insert_pos,
@@ -365,30 +371,6 @@ impl MacroHostIntegration {
                         });
                     }
                 }
-                Ok(_) => {
-                    let warning = format!(
-                        "/** ts-macros warning: {}::{} output could not be mapped precisely */\n",
-                        ctx.module_path, ctx.macro_name
-                    );
-                    let payload = format!("{warning}{tokens}");
-
-                    runtime_patches.push(Patch::InsertRaw {
-                        at: SpanIR {
-                            start: insert_pos,
-                            end: insert_pos,
-                        },
-                        code: payload.clone(),
-                        context: Some(format!("Macro {}::{} output (unparsed)", ctx.module_path, ctx.macro_name)),
-                    });
-                    type_patches.push(Patch::ReplaceRaw {
-                        span: SpanIR {
-                            start: insert_pos,
-                            end: insert_pos,
-                        },
-                        code: payload,
-                        context: Some(format!("Macro {}::{} output (unparsed)", ctx.module_path, ctx.macro_name)),
-                    });
-                }
                 Err(err) => {
                     // Fallback: inject raw tokens to avoid losing macro output, with visible warning.
                     let warning = format!(
@@ -403,7 +385,10 @@ impl MacroHostIntegration {
                             end: insert_pos,
                         },
                         code: payload.clone(),
-                        context: Some(format!("Macro {}::{} output (unparsed)", ctx.module_path, ctx.macro_name)),
+                        context: Some(format!(
+                            "Macro {}::{} output (unparsed)",
+                            ctx.module_path, ctx.macro_name
+                        )),
                     });
                     type_patches.push(Patch::ReplaceRaw {
                         span: SpanIR {
@@ -411,13 +396,18 @@ impl MacroHostIntegration {
                             end: insert_pos,
                         },
                         code: payload,
-                        context: Some(format!("Macro {}::{} output (unparsed)", ctx.module_path, ctx.macro_name)),
+                        context: Some(format!(
+                            "Macro {}::{} output (unparsed)",
+                            ctx.module_path, ctx.macro_name
+                        )),
                     });
 
                     result.diagnostics.push(Diagnostic {
                         level: DiagnosticLevel::Warning,
-                        message: format!("Failed to parse macro output, inserted raw tokens: {err:?}"),
-                        span: Some(ctx.decorator_span),
+                        message: format!(
+                            "Failed to parse macro output, inserted raw tokens: {err:?}"
+                        ),
+                        span: Some(diagnostic_span_for_derive(ctx.decorator_span, source)),
                         notes: vec![],
                         help: None,
                     });
@@ -478,7 +468,7 @@ impl MacroHostIntegration {
         Ok(expansion)
     }
 
-fn enforce_diagnostic_limit(&self, diagnostics: &mut Vec<Diagnostic>) {
+    fn enforce_diagnostic_limit(&self, diagnostics: &mut Vec<Diagnostic>) {
         let max = self.config.limits.max_diagnostics;
         if max == 0 {
             diagnostics.clear();
@@ -711,7 +701,6 @@ const tryImport = async (id) => {
             debug: host_result.debug,
         })
     }
-
 }
 
 /// Internal span key for matching lowered IR to SWC nodes.
@@ -740,10 +729,12 @@ struct DeriveTarget {
 }
 
 /// Collect a map of identifier name -> module source from import statements
-pub(crate) fn collect_import_sources(module: &Module) -> HashMap<String, String> {
-    use swc_core::ecma::ast::{ImportDecl, ImportSpecifier};
+pub(crate) fn collect_import_sources(module: &Module, source: &str) -> HashMap<String, String> {
+    use swc_core::ecma::ast::{ImportDecl, ImportSpecifier, ModuleDecl, ModuleItem};
 
     let mut import_map = HashMap::new();
+
+    import_map.extend(collect_macro_import_comments(source));
 
     for item in &module.body {
         if let ModuleItem::ModuleDecl(ModuleDecl::Import(ImportDecl {
@@ -777,6 +768,47 @@ pub(crate) fn collect_import_sources(module: &Module) -> HashMap<String, String>
     import_map
 }
 
+fn collect_macro_import_comments(source: &str) -> HashMap<String, String> {
+    let mut out = HashMap::new();
+    let mut search_start = 0usize;
+
+    while let Some(idx) = source[search_start..].find("/** import macro") {
+        let abs_idx = search_start + idx;
+        let remaining = &source[abs_idx..];
+        let Some(end_idx) = remaining.find("*/") else {
+            break;
+        };
+        let block = &remaining[..end_idx];
+
+        if let Some(open_brace) = block.find('{')
+            && let Some(close_brace) = block.find('}')
+            && close_brace > open_brace
+            && let Some(from_idx) = block[close_brace..].find("from")
+        {
+            let names_src = &block[open_brace + 1..close_brace];
+            let from_section = &block[close_brace + from_idx + "from".len()..];
+            let module_src = from_section
+                .split(['"', '\''])
+                .nth(1)
+                .map(str::trim)
+                .unwrap_or("");
+
+            if !module_src.is_empty() {
+                for name in names_src.split(',') {
+                    let trimmed = name.trim();
+                    if !trimmed.is_empty() {
+                        out.insert(trimmed.to_string(), module_src.to_string());
+                    }
+                }
+            }
+        }
+
+        search_start = abs_idx + end_idx + 2;
+    }
+
+    out
+}
+
 fn collect_derive_targets(
     module: &Module,
     class_map: &HashMap<SpanKey, ClassIR>,
@@ -785,81 +817,52 @@ fn collect_derive_targets(
     let mut targets = Vec::new();
 
     // Build import source map
-    let import_sources = collect_import_sources(module);
+    let import_sources = collect_import_sources(module, source);
 
-    for item in &module.body {
-        match item {
-            ModuleItem::Stmt(Stmt::Decl(Decl::Class(class_decl))) => {
-                collect_from_class(
-                    &class_decl.class,
-                    class_map,
-                    source,
-                    &import_sources,
-                    &mut targets,
-                );
-            }
-            ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(ExportDecl {
-                decl: Decl::Class(class_decl),
-                ..
-            })) => {
-                collect_from_class(
-                    &class_decl.class,
-                    class_map,
-                    source,
-                    &import_sources,
-                    &mut targets,
-                );
-            }
-            _ => {}
-        }
+    for class_ir in class_map.values() {
+        collect_from_class(class_ir, source, &import_sources, &mut targets);
     }
 
     targets
 }
 
 fn collect_from_class(
-    class: &Class,
-    class_map: &HashMap<SpanKey, ClassIR>,
+    class_ir: &ClassIR,
     source: &str,
     import_sources: &HashMap<String, String>,
     out: &mut Vec<DeriveTarget>,
 ) {
-    if class.decorators.is_empty() {
-        return;
-    }
-
-    let key = SpanKey::from(class.span);
-    let Some(class_ir) = class_map.get(&key) else {
-        return;
-    };
-
-    for decorator in &class.decorators {
-        if let Some(macro_names) = parse_derive_decorator(decorator, import_sources) {
+    // Prefer decorators (legacy and comment-lowered)
+    for decorator in &class_ir.decorators {
+        if let Some(macro_names) = parse_derive_decorator(&decorator.args_src, import_sources) {
             if macro_names.is_empty() {
                 continue;
             }
 
             out.push(DeriveTarget {
                 macro_names,
-                decorator_span: decorator_span_with_at(decorator.span, source),
+                decorator_span: span_ir_with_at(decorator.span, source),
                 class_ir: class_ir.clone(),
             });
+            return;
         }
+    }
+
+    // Fallback: detect leading /** @derive(...) */ comment directly
+    if let Some((span, args_src)) = find_leading_derive_comment(source, class_ir.span.start)
+        && let Some(macro_names) = parse_derive_decorator(&args_src, import_sources)
+        && !macro_names.is_empty()
+    {
+        out.push(DeriveTarget {
+            macro_names,
+            decorator_span: span,
+            class_ir: class_ir.clone(),
+        });
     }
 }
 
-fn decorator_span_with_at(span: Span, source: &str) -> SpanIR {
-    let mut ir = span_to_ir(span);
-    let start = ir.start as usize;
-    if start > 0 && start <= source.len() {
-        let bytes = source.as_bytes();
-        if bytes[start - 1] == b'@' {
-            ir.start -= 1;
-        }
-    }
-    ir
-}
-
+/// Adjusts span to include the @ prefix if present (for actual decorators).
+/// Used for deletion spans - keeps the whole JSDoc comment intact.
 fn span_ir_with_at(span: SpanIR, source: &str) -> SpanIR {
     let mut ir = span;
     let start = ir.start as usize;
@@ -872,59 +875,173 @@ fn span_ir_with_at(span: SpanIR, source: &str) -> SpanIR {
     ir
 }
 
-fn parse_derive_decorator(
-    decorator: &Decorator,
-    import_sources: &HashMap<String, String>,
-) -> Option<Vec<(String, String)>> {
-    let call = match decorator.expr.as_ref() {
-        swc_core::ecma::ast::Expr::Call(call) => call,
-        _ => return None,
-    };
+/// Returns a span pointing to @derive(...) for better diagnostic display.
+/// If the span is a JSDoc comment, finds @derive inside it.
+/// Note: Input is 1-based (SWC convention), but output is 0-based for JS API compatibility.
+fn diagnostic_span_for_derive(span: SpanIR, source: &str) -> SpanIR {
+    let start = span.start.saturating_sub(1) as usize; // Convert to 0-based for indexing
+    let end = span.end.saturating_sub(1) as usize;
 
-    let callee = match &call.callee {
-        swc_core::ecma::ast::Callee::Expr(expr) => match expr.as_ref() {
-            swc_core::ecma::ast::Expr::Ident(ident) => ident.sym.to_string(),
-            _ => return None,
-        },
-        _ => return None,
-    };
-
-    if callee != "Derive" {
-        return None;
+    if start >= source.len() {
+        // Return 0-based span
+        return SpanIR::new(span.start.saturating_sub(1), span.end.saturating_sub(1));
     }
 
+    // Check if span starts with JSDoc comment "/**"
+    if source[start..].starts_with("/**") {
+        // Find @derive or @Derive within the comment
+        let comment_slice = &source[start..end.min(source.len())];
+        if let Some(at_pos) = comment_slice
+            .find("@derive")
+            .or_else(|| comment_slice.find("@Derive"))
+        {
+            // Find the closing paren
+            if let Some(close_pos) = comment_slice[at_pos..].find(')') {
+                // Return span pointing to @derive(...) in 0-based coordinates for JS API
+                let derive_start = start + at_pos;
+                let derive_end = derive_start + close_pos + 1;
+                return SpanIR::new(derive_start as u32, derive_end as u32);
+            }
+        }
+    }
+
+    // For actual @ decorators, return 0-based span
+    SpanIR::new(span.start.saturating_sub(1), span.end.saturating_sub(1))
+}
+
+fn parse_derive_decorator(
+    args_src: &str,
+    import_sources: &HashMap<String, String>,
+) -> Option<Vec<(String, String)>> {
+    let args = args_src.split(',');
     let mut macros = Vec::new();
-    for arg in &call.args {
-        if arg.spread.is_some() {
+    for arg in args {
+        let name = arg.trim();
+        if name.is_empty() {
             continue;
         }
-
-        if let Some(name) = derive_name_from_expr(arg.expr.as_ref()) {
-            // Look up the import source for this macro identifier
-            // Default to @macro/derive if not found in imports
-            let module_path = import_sources
-                .get(&name)
-                .cloned()
-                .unwrap_or_else(|| DERIVE_MODULE_PATH.to_string());
-            macros.push((name, module_path));
+        let name = name.trim_matches(|c| c == '"' || c == '\'').to_string();
+        if name.is_empty() {
+            continue;
         }
+        // Look up the import source for this macro identifier
+        // Default to @macro/derive if not found in imports
+        let module_path = import_sources
+            .get(&name)
+            .cloned()
+            .unwrap_or_else(|| DERIVE_MODULE_PATH.to_string());
+        macros.push((name, module_path));
     }
 
     Some(macros)
 }
 
-fn derive_name_from_expr(expr: &swc_core::ecma::ast::Expr) -> Option<String> {
-    use swc_core::ecma::ast::{Expr, Lit};
-
-    match expr {
-        Expr::Ident(ident) => Some(ident.sym.to_string()),
-        Expr::Lit(Lit::Str(str_lit)) => Some(str_lit.value.to_string_lossy().to_string()),
-        _ => None,
+fn find_leading_derive_comment(source: &str, class_start: u32) -> Option<(SpanIR, String)> {
+    // SWC spans are 1-based, so class_start of N means byte index N-1 (0-based)
+    let start = class_start.saturating_sub(1) as usize;
+    if start == 0 || start > source.len() {
+        return None;
     }
+
+    let search_area = &source[..start];
+    let comment_start_idx = search_area.rfind("/**")?;
+    let rest = &search_area[comment_start_idx..];
+    let end_rel = rest.find("*/")?;
+    let comment_end_idx = comment_start_idx + end_rel + 2;
+
+    // Find @derive within the comment for diagnostic span
+    let at_derive_rel = rest.find("@derive").or_else(|| rest.find("@Derive"))?;
+    let derive_start_idx = comment_start_idx + at_derive_rel;
+
+    // Find the closing paren for the derive span end
+    let derive_close_rel = rest[at_derive_rel..].find(')')?;
+    let derive_end_idx = derive_start_idx + derive_close_rel + 1;
+
+    let comment_body = &search_area[comment_start_idx + 3..comment_end_idx - 2];
+
+    let content = comment_body.trim().trim_start_matches('*').trim();
+    let content = content.strip_prefix('@')?;
+
+    let open = content.find('(')?;
+    let close = content.rfind(')')?;
+    if close <= open {
+        return None;
+    }
+
+    let name = content[..open].trim();
+    if !name.eq_ignore_ascii_case("derive") {
+        return None;
+    }
+
+    let args_src = content[open + 1..close].trim().to_string();
+    // Return 1-based span pointing to @derive(...) for better diagnostics
+    Some((
+        SpanIR::new(derive_start_idx as u32 + 1, derive_end_idx as u32 + 1),
+        args_src,
+    ))
 }
 
-fn span_to_ir(span: Span) -> SpanIR {
-    SpanIR::new(span.lo.0, span.hi.0)
+fn derive_insert_pos(class_ir: &ClassIR, source: &str) -> u32 {
+    // class_ir.span.end is 1-based, so we can use it directly for exclusive slice end
+    let end = class_ir.span.end as usize;
+    let search = &source[..end.min(source.len())];
+    // rfind returns 0-based index, add 1 to convert to 1-based for SpanIR
+    search
+        .rfind('}')
+        .map(|idx| idx as u32 + 1)
+        .unwrap_or_else(|| {
+            // Fallback: use body_span.end (already 1-based)
+            class_ir.body_span.end.max(class_ir.span.start)
+        })
+}
+
+fn find_macro_comment_span(source: &str, target_start: u32) -> Option<SpanIR> {
+    // SWC spans are 1-based, so target_start of 17 means byte index 16 (0-based)
+    // We want to search in the source up to but NOT including the target
+    let start = target_start.saturating_sub(1) as usize;
+    if start == 0 || start > source.len() {
+        return None;
+    }
+    let search_area = &source[..start];
+    let start_idx = search_area.rfind("/**")?;
+    let rest = &search_area[start_idx..];
+    let end_rel = rest.find("*/")?;
+    let end_idx = start_idx + end_rel + 2;
+
+    // Only return the comment if it's directly adjacent to the target
+    // (only whitespace between comment end and target start)
+    let between = &search_area[end_idx..];
+    if !between.trim().is_empty() {
+        // There's non-whitespace content between the comment and target
+        return None;
+    }
+
+    // Return 1-based span to match SWC conventions
+    Some(SpanIR::new(start_idx as u32 + 1, end_idx as u32 + 1))
+}
+
+fn parse_members_from_tokens(tokens: &str) -> Result<Vec<swc_core::ecma::ast::ClassMember>> {
+    let wrapped_stmt = format!("class __Temp {{ {} }}", tokens);
+    if let Ok(swc_core::ecma::ast::Stmt::Decl(swc_core::ecma::ast::Decl::Class(class_decl))) =
+        ts_syn::parse_ts_stmt(&wrapped_stmt)
+    {
+        return Ok(class_decl.class.body);
+    }
+
+    if let Ok(module) = ts_syn::parse_ts_module(&wrapped_stmt) {
+        for item in module.body {
+            if let swc_core::ecma::ast::ModuleItem::Stmt(swc_core::ecma::ast::Stmt::Decl(
+                swc_core::ecma::ast::Decl::Class(class_decl),
+            )) = item
+            {
+                return Ok(class_decl.class.body);
+            }
+        }
+    }
+
+    Err(anyhow::anyhow!(
+        "Failed to parse macro output into class members"
+    ))
 }
 
 type PackageRegistrar = fn(&MacroRegistry) -> ts_macro_host::Result<()>;

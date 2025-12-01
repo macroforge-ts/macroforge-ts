@@ -1,4 +1,4 @@
-//! @Derive(Debug) macro implementation
+//! /** @derive(Debug) */ macro implementation
 
 use ts_macro_derive::ts_macro_derive;
 use ts_quote::ts_template;
@@ -147,7 +147,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, TsMacroError>
         }
         Data::Enum(_) => Err(TsMacroError::new(
             input.decorator_span(),
-            "@Derive(Debug) can only be applied to classes",
+            "/** @derive(Debug) */ can only be applied to classes",
         )),
     }
 }

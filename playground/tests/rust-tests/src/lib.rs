@@ -310,10 +310,7 @@ mod tests {
 
         // Assert that 'this.prototype.' and 'field_path_prop' are concatenated
         assert!(
-            s.contains(&format!(
-                "this.prototype.{}FieldPath",
-                field_name_str
-            )),
+            s.contains(&format!("this.prototype.{}FieldPath", field_name_str)),
             "Expected 'this.prototype.' and field_path_prop to be concatenated, but found: {}",
             s
         );

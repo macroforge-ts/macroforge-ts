@@ -1,30 +1,31 @@
-import { test } from 'node:test';
-import assert from 'node:assert/strict';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { createServer } from 'vite';
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { createServer } from "vite";
 
-import { createRequire } from 'node:module';
+import { createRequire } from "node:module";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const playgroundRoot = path.resolve(__dirname, '..');
-const repoRoot = path.resolve(playgroundRoot, '..');
-const vanillaRoot = path.join(playgroundRoot, 'vanilla');
-const svelteRoot = path.join(playgroundRoot, 'svelte');
-const rootConfigPath = path.join(repoRoot, 'ts-macros.json');
+const playgroundRoot = path.resolve(__dirname, "..");
+const repoRoot = path.resolve(playgroundRoot, "..");
+const vanillaRoot = path.join(playgroundRoot, "vanilla");
+const svelteRoot = path.join(playgroundRoot, "svelte");
+const rootConfigPath = path.join(repoRoot, "ts-macros.json");
 
 async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
-  const options = typeof optionsOrRunner === 'function' ? {} : optionsOrRunner;
-  const runner = typeof optionsOrRunner === 'function' ? optionsOrRunner : maybeRunner;
+  const options = typeof optionsOrRunner === "function" ? {} : optionsOrRunner;
+  const runner =
+    typeof optionsOrRunner === "function" ? optionsOrRunner : maybeRunner;
   const { useProjectCwd = false } = options ?? {};
 
-  const configFile = path.join(rootDir, 'vite.config.ts');
+  const configFile = path.join(rootDir, "vite.config.ts");
   const previousCwd = process.cwd();
   let server;
   let copiedConfig = false;
-  const localConfigPath = path.join(rootDir, 'ts-macros.json');
+  const localConfigPath = path.join(rootDir, "ts-macros.json");
 
   try {
     if (useProjectCwd) {
@@ -39,15 +40,15 @@ async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
     server = await createServer({
       root: rootDir,
       configFile,
-      logLevel: 'error',
-      appType: 'custom',
+      logLevel: "error",
+      appType: "custom",
       server: {
         middlewareMode: true,
-        hmr: false
+        hmr: false,
       },
       optimizeDeps: {
-        disabled: true
-      }
+        disabled: true,
+      },
     });
 
     return await runner(server);
@@ -84,7 +85,12 @@ function createMockLanguageService(ts) {
     getDocumentHighlights: () => undefined,
     getImplementationAtPosition: () => undefined,
     getCodeFixesAtPosition: () => [],
-    getNavigationTree: () => ({ text: '', kind: '', spans: [], childItems: [] }),
+    getNavigationTree: () => ({
+      text: "",
+      kind: "",
+      spans: [],
+      childItems: [],
+    }),
     getOutliningSpans: () => [],
     getProgram: () => ({
       getSourceFile: () => undefined,
@@ -92,25 +98,31 @@ function createMockLanguageService(ts) {
   };
 }
 
-test('TS Language Plugin augments types', async () => {
-  const pluginPath = path.resolve(repoRoot, 'packages/ts-derive-plugin/dist/index.js');
+test("TS Language Plugin augments types", async () => {
+  const pluginPath = path.resolve(
+    repoRoot,
+    "packages/ts-derive-plugin/dist/index.js",
+  );
   const require = createRequire(import.meta.url);
   const tsPluginInit = require(pluginPath);
-  const ts = require('typescript');
+  const ts = require("typescript");
 
   // Mock Info for TS Server Plugin with all required methods
   const mockHost = {
     getScriptSnapshot: (fileName) => {
-      if (fileName.endsWith('user.ts')) {
-        const content = fs.readFileSync(path.join(vanillaRoot, 'src/user.ts'), 'utf-8');
+      if (fileName.endsWith("user.ts")) {
+        const content = fs.readFileSync(
+          path.join(vanillaRoot, "src/user.ts"),
+          "utf-8",
+        );
         return ts.ScriptSnapshot.fromString(content);
       }
       return undefined;
     },
-    getScriptVersion: () => '1',
+    getScriptVersion: () => "1",
     getScriptFileNames: () => [],
     fileExists: (fileName) => {
-      if (fileName.endsWith('user.ts')) return true;
+      if (fileName.endsWith("user.ts")) return true;
       return ts.sys.fileExists(fileName);
     },
   };
@@ -119,7 +131,7 @@ test('TS Language Plugin augments types', async () => {
     project: { projectService: { logger: { info: () => {} } } },
     languageService: createMockLanguageService(ts),
     languageServiceHost: mockHost,
-    config: {}
+    config: {},
   };
 
   const pluginFactory = tsPluginInit({ typescript: ts });
@@ -127,36 +139,48 @@ test('TS Language Plugin augments types', async () => {
   pluginFactory.create(mockInfo);
 
   // Test getScriptSnapshot via the modified host
-  const snapshot = mockHost.getScriptSnapshot('playground/vanilla/src/user.ts');
+  const snapshot = mockHost.getScriptSnapshot("playground/vanilla/src/user.ts");
   const text = snapshot.getText(0, snapshot.getLength());
 
   // The plugin returns expanded code (implementation), not type stubs
   // Check for the generated toString method implementation
-  if (!text.includes('toString(): string')) {
-      console.log('Snapshot text content:', text);
+  if (!text.includes("toString(): string")) {
+    console.log("Snapshot text content:", text);
   }
 
-  assert.ok(text.includes('toString(): string'), 'Should include toString() method');
+  assert.ok(
+    text.includes("toString(): string"),
+    "Should include toString() method",
+  );
   // The @Debug decorator generates toString(), not toJSON()
-  // @Derive(Debug) => toString()
-  // @Derive(JSON) => toJSON()
-  assert.ok(text.includes('toString()'), 'Should include generated toString method');
-  // The @Derive decorator should be removed from the expanded output
-  assert.ok(!text.includes('@Derive(Debug)'), 'Should remove @Derive decorator from output');
+  // /** @derive(Debug) */ => toString()
+  // /** @derive(JSON) */ => toJSON()
+  assert.ok(
+    text.includes("toString()"),
+    "Should include generated toString method",
+  );
+  // The @derive decorator should be removed from the expanded output
+  assert.ok(
+    !text.includes("/** @derive(Debug) */"),
+    "Should remove @derive decorator from output",
+  );
 });
 
-test('TS Language Plugin detects external macro packages', async () => {
-  const pluginPath = path.resolve(repoRoot, 'packages/ts-derive-plugin/dist/index.js');
+test("TS Language Plugin detects external macro packages", async () => {
+  const pluginPath = path.resolve(
+    repoRoot,
+    "packages/ts-derive-plugin/dist/index.js",
+  );
   const require = createRequire(import.meta.url);
   const tsPluginInit = require(pluginPath);
-  const ts = require('typescript');
+  const ts = require("typescript");
 
   // Code that imports from an external macro package
   const codeWithExternalMacro = `
 import { Derive } from "@ts-macros/swc-napi";
 import { FieldController, fieldController } from "@playground/macro";
 
-@Derive(FieldController)
+/** @derive(FieldController) */
 class TestForm {
   @fieldController()
   name: string;
@@ -169,15 +193,15 @@ class TestForm {
 
   const mockHost = {
     getScriptSnapshot: (fileName) => {
-      if (fileName.endsWith('test-external.ts')) {
+      if (fileName.endsWith("test-external.ts")) {
         return ts.ScriptSnapshot.fromString(codeWithExternalMacro);
       }
       return undefined;
     },
-    getScriptVersion: () => '1',
+    getScriptVersion: () => "1",
     getScriptFileNames: () => [],
     fileExists: (fileName) => {
-      if (fileName.endsWith('test-external.ts')) return true;
+      if (fileName.endsWith("test-external.ts")) return true;
       return ts.sys.fileExists(fileName);
     },
   };
@@ -187,32 +211,36 @@ class TestForm {
     project: { projectService: { logger: { info: (msg) => logs.push(msg) } } },
     languageService: createMockLanguageService(ts),
     languageServiceHost: mockHost,
-    config: {}
+    config: {},
   };
 
   const pluginFactory = tsPluginInit({ typescript: ts });
   pluginFactory.create(mockInfo);
 
   // Trigger the plugin by getting a snapshot
-  const snapshot = mockHost.getScriptSnapshot('test-external.ts');
-  assert.ok(snapshot, 'Should return a snapshot');
+  const snapshot = mockHost.getScriptSnapshot("test-external.ts");
+  assert.ok(snapshot, "Should return a snapshot");
 
   // The plugin should detect the external macro package import
   // Check logs for external macro detection (the plugin logs when it finds external macros)
-  const hasExternalMacroLog = logs.some(log =>
-    log.includes('external macro') ||
-    log.includes('FieldController') ||
-    log.includes('@playground/macro')
+  const hasExternalMacroLog = logs.some(
+    (log) =>
+      log.includes("external macro") ||
+      log.includes("FieldController") ||
+      log.includes("@playground/macro"),
   );
 
   // Note: The plugin filters out "macro not found" diagnostics for external macros
   // This test verifies the plugin processes files with external macro imports without crashing
   const text = snapshot.getText(0, snapshot.getLength());
-  assert.ok(text.includes('class TestForm'), 'Should process the file content');
+  assert.ok(text.includes("class TestForm"), "Should process the file content");
 });
 
-test('TS Language Plugin filters diagnostics for available external macros', async () => {
-  const pluginPath = path.resolve(repoRoot, 'packages/ts-derive-plugin/dist/index.js');
+test("TS Language Plugin filters diagnostics for available external macros", async () => {
+  const pluginPath = path.resolve(
+    repoRoot,
+    "packages/ts-derive-plugin/dist/index.js",
+  );
   const require = createRequire(import.meta.url);
 
   // Test the internal helper functions exported for testing
@@ -221,40 +249,46 @@ test('TS Language Plugin filters diagnostics for available external macros', asy
 
   // The plugin exports these for the language service
   const tsPluginInit = pluginModule.default || pluginModule;
-  const ts = require('typescript');
+  const ts = require("typescript");
 
   // Verify the plugin initializes without errors
   const pluginFactory = tsPluginInit({ typescript: ts });
-  assert.ok(typeof pluginFactory.create === 'function', 'Plugin should have create method');
+  assert.ok(
+    typeof pluginFactory.create === "function",
+    "Plugin should have create method",
+  );
 });
 
-test('Macro expansion formats code correctly', async () => {
+test("Macro expansion formats code correctly", async () => {
   const require = createRequire(import.meta.url);
-  const swcMacrosPath = path.join(repoRoot, 'crates/swc-napi-macros/index.js');
+  const swcMacrosPath = path.join(repoRoot, "crates/swc-napi-macros/index.js");
   const { expandSync } = require(swcMacrosPath);
 
-  const userContent = fs.readFileSync(path.join(vanillaRoot, 'src/user.ts'), 'utf8');
-  const result = expandSync(userContent, 'user.ts');
+  const userContent = fs.readFileSync(
+    path.join(vanillaRoot, "src/user.ts"),
+    "utf8",
+  );
+  const result = expandSync(userContent, "user.ts");
 
-  assert.ok(result.types, 'Should generate type output');
+  assert.ok(result.types, "Should generate type output");
 
-  const lines = result.types.split('\n');
+  const lines = result.types.split("\n");
 
   // Check for methods on same line as other code (the bug we fixed)
   lines.forEach((line, i) => {
     const methodMatches = line.match(/\(\):/g);
     assert.ok(
       !methodMatches || methodMatches.length <= 1,
-      `Line ${i + 1} should not have multiple methods: "${line}"`
+      `Line ${i + 1} should not have multiple methods: "${line}"`,
     );
   });
 
   // Check each method is on its own line
-  const toStringLine = lines.find(l => l.includes('toString()'));
-  const toJSONLine = lines.find(l => l.includes('toJSON()'));
+  const toStringLine = lines.find((l) => l.includes("toString()"));
+  const toJSONLine = lines.find((l) => l.includes("toJSON()"));
 
-  assert.ok(toStringLine, 'Should have toString() method');
-  assert.ok(toJSONLine, 'Should have toJSON() method');
+  assert.ok(toStringLine, "Should have toString() method");
+  assert.ok(toJSONLine, "Should have toJSON() method");
 
   const toStringIndex = lines.indexOf(toStringLine);
   const toJSONIndex = lines.indexOf(toJSONLine);
@@ -262,97 +296,125 @@ test('Macro expansion formats code correctly', async () => {
   assert.notEqual(
     toStringIndex,
     toJSONIndex,
-    'toString() and toJSON() should be on separate lines'
+    "toString() and toJSON() should be on separate lines",
   );
 });
 
-test('Macro Host reports diagnostics for invalid usage', async () => {
-    // Test the core macro host logic used by both plugins and language server
-    const require = createRequire(import.meta.url);
-    const swcMacrosPath = path.join(repoRoot, 'crates/swc-napi-macros/index.js');
-    const { expandSync } = require(swcMacrosPath);
-    
-    const code = `
+test("Macro Host reports diagnostics for invalid usage", async () => {
+  // Test the core macro host logic used by both plugins and language server
+  const require = createRequire(import.meta.url);
+  const swcMacrosPath = path.join(repoRoot, "crates/swc-napi-macros/index.js");
+  const { expandSync } = require(swcMacrosPath);
+
+  const code = `
         import { Derive } from "@ts-macros/macros";
-        @Derive("UnknownMacro")
+        /** @derive(UnknownMacro) */
         class Foo {}
     `;
-    
-    // The host will look for ts-macros.json in CWD. 
-    // We are running from root so it should find the root config which allows native macros.
-    const result = expandSync(code, 'test.ts');
-    
-    assert.ok(result.diagnostics.length > 0, 'Should report diagnostics');
-    assert.ok(result.diagnostics.some(d => d.message.includes("UnknownMacro")), 'Should report unknown macro error');
-});
 
-test('vanilla playground macros emit runtime helpers', { timeout: 30000 }, async () => {
-  await withViteServer(vanillaRoot, async (server) => {
-    const mod = await server.ssrLoadModule('/src/user.ts');
-    assert.ok(
-      mod && typeof mod.User === 'function',
-      'User class should be exported from vanilla playground'
-    );
+  // The host will look for ts-macros.json in CWD.
+  // We are running from root so it should find the root config which allows native macros.
+  const result = expandSync(code, "test.ts");
 
-    const vanillaUser = new mod.User(9, 'Integration Tester', 'qa@example.com', 'tok_live_secret');
-
-    assert.equal(typeof vanillaUser.toString, 'function', 'Debug derive should add toString');
-    const summary = vanillaUser.toString();
-    assert.ok(summary.startsWith('User {'), 'Derived toString() should include class label');
-    assert.ok(
-      summary.includes('identifier: 9'),
-      'Derived toString() should respect rename option'
-    );
-    assert.ok(
-      !summary.includes('authToken'),
-      'Derived toString() should skip sensitive fields'
-    );
-  });
+  assert.ok(result.diagnostics.length > 0, "Should report diagnostics");
+  assert.ok(
+    result.diagnostics.some((d) => d.message.includes("UnknownMacro")),
+    "Should report unknown macro error",
+  );
 });
 
 test(
-  'svelte playground macros inline markdown and derive helpers',
+  "vanilla playground macros emit runtime helpers",
+  { timeout: 30000 },
+  async () => {
+    await withViteServer(vanillaRoot, async (server) => {
+      const mod = await server.ssrLoadModule("/src/user.ts");
+      assert.ok(
+        mod && typeof mod.User === "function",
+        "User class should be exported from vanilla playground",
+      );
+
+      const vanillaUser = new mod.User(
+        9,
+        "Integration Tester",
+        "qa@example.com",
+        "tok_live_secret",
+      );
+
+      assert.equal(
+        typeof vanillaUser.toString,
+        "function",
+        "Debug derive should add toString",
+      );
+      const summary = vanillaUser.toString();
+      assert.ok(
+        summary.startsWith("User {"),
+        "Derived toString() should include class label",
+      );
+      assert.ok(
+        summary.includes("identifier: 9"),
+        "Derived toString() should respect rename option",
+      );
+      assert.ok(
+        !summary.includes("authToken"),
+        "Derived toString() should skip sensitive fields",
+      );
+    });
+  },
+);
+
+test(
+  "svelte playground macros inline markdown and derive helpers",
   { timeout: 30000 },
   async () => {
     await withViteServer(
       svelteRoot,
       { useProjectCwd: true },
       async (server) => {
-        const mod = await server.ssrLoadModule('/src/lib/demo/macro-user.ts');
+        const mod = await server.ssrLoadModule("/src/lib/demo/macro-user.ts");
         const { MacroUser, showcaseUserJson, showcaseUserSummary } = mod;
 
-    assert.ok(MacroUser, 'MacroUser export should exist');
+        assert.ok(MacroUser, "MacroUser export should exist");
         const svelteUser = new MacroUser(
-          'usr_55',
-          'Rin Tester',
-          'Macro QA',
-          'Derive',
-          '2025-02-01',
-          'token_qa'
+          "usr_55",
+          "Rin Tester",
+          "Macro QA",
+          "Derive",
+          "2025-02-01",
+          "token_qa",
         );
         assert.deepEqual(svelteUser.toJSON(), {
-          id: 'usr_55',
-          name: 'Rin Tester',
-          role: 'Macro QA',
-          favoriteMacro: 'Derive',
-          since: '2025-02-01',
-          apiToken: 'token_qa'
+          id: "usr_55",
+          name: "Rin Tester",
+          role: "Macro QA",
+          favoriteMacro: "Derive",
+          since: "2025-02-01",
+          apiToken: "token_qa",
         });
 
-        assert.equal(typeof showcaseUserSummary, 'string', 'Derived summary should be a string');
+        assert.equal(
+          typeof showcaseUserSummary,
+          "string",
+          "Derived summary should be a string",
+        );
         assert.equal(
           showcaseUserJson.favoriteMacro,
-          'Derive',
-          'Showcase JSON should include derived helpers'
+          "Derive",
+          "Showcase JSON should include derived helpers",
         );
         assert.ok(
-          showcaseUserSummary.includes('userId'),
-          'Showcase summary should use renamed field label'
+          showcaseUserSummary.includes("userId"),
+          "Showcase summary should use renamed field label",
         );
 
-        const transformed = await server.transformRequest('/src/lib/demo/macro-user.ts');
-        assert.ok(transformed?.code.includes('toJSON()'), 'Derived methods should appear in transformed code');
-      }
+        const transformed = await server.transformRequest(
+          "/src/lib/demo/macro-user.ts",
+        );
+        assert.ok(
+          transformed?.code.includes("toJSON()"),
+          "Derived methods should appear in transformed code",
+        );
+      },
     );
-  }
+  },
 );

@@ -2,6 +2,7 @@ import type ts from "typescript/lib/tsserverlibrary";
 import type { ExpandResult } from "@ts-macros/swc-napi";
 import { NativePlugin, PositionMapper } from "@ts-macros/swc-napi";
 import path from "path";
+import fs from "fs";
 
 const FILE_EXTENSIONS = [".ts", ".tsx", ".svelte"];
 
@@ -11,6 +12,42 @@ function shouldProcess(fileName: string) {
   if (lower.endsWith(".d.ts")) return false;
   if (fileName.includes(`${path.sep}.ts-macros${path.sep}`)) return false;
   return FILE_EXTENSIONS.some((ext) => lower.endsWith(ext));
+}
+
+function hasMacroDirectives(text: string) {
+  return (
+    text.includes("@derive") ||
+    /\/\*\*\s*@derive\s*\(/i.test(text) ||
+    /\/\*\*\s*import\s+macro\b/i.test(text)
+  );
+}
+
+type MacroConfig = {
+  keepDecorators: boolean;
+};
+
+function loadMacroConfig(startDir: string): MacroConfig {
+  let current = startDir;
+  const fallback: MacroConfig = { keepDecorators: false };
+
+  while (true) {
+    const candidate = path.join(current, "ts-macros.json");
+    if (fs.existsSync(candidate)) {
+      try {
+        const raw = fs.readFileSync(candidate, "utf8");
+        const parsed = JSON.parse(raw);
+        return { keepDecorators: Boolean(parsed.keepDecorators) };
+      } catch {
+        return fallback;
+      }
+    }
+
+    const parent = path.dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+
+  return fallback;
 }
 
 function init(modules: { typescript: typeof ts }) {
@@ -33,6 +70,9 @@ function init(modules: { typescript: typeof ts }) {
       info.project.getCurrentDirectory?.() ??
       info.languageServiceHost.getCurrentDirectory?.() ??
       process.cwd();
+
+    const macroConfig = loadMacroConfig(getCurrentDirectory());
+    const keepDecorators = macroConfig.keepDecorators;
 
     // Log helper - delegates to Rust
     const log = (msg: string) => {
@@ -78,7 +118,10 @@ function init(modules: { typescript: typeof ts }) {
         if (!scriptInfo) return;
 
         scriptInfo.detachFromProject?.(info.project);
-        if (!scriptInfo.isScriptOpen?.() && scriptInfo.containingProjects?.length === 0) {
+        if (
+          !scriptInfo.isScriptOpen?.() &&
+          scriptInfo.containingProjects?.length === 0
+        ) {
           projectService.deleteScriptInfo?.(scriptInfo);
         }
       } catch (error) {
@@ -148,7 +191,7 @@ function init(modules: { typescript: typeof ts }) {
         log(`Processing ${fileName}`);
 
         const result = nativePlugin.processFile(fileName, content, {
-          keepDecorators: true,
+          keepDecorators,
           version,
         });
 
@@ -275,19 +318,21 @@ function init(modules: { typescript: typeof ts }) {
         const snapshot = originalGetScriptSnapshot(fileName);
         if (!snapshot) {
           // Avoid tsserver crashes when a file was reported but no snapshot exists
-          log(`  -> no snapshot available for ${fileName}, returning empty snapshot`);
+          log(
+            `  -> no snapshot available for ${fileName}, returning empty snapshot`,
+          );
           return tsModule.ScriptSnapshot.fromString("");
         }
 
         const text = snapshot.getText(0, snapshot.getLength());
 
-        // Only process files with @Derive decorator
-        if (!text.includes("@Derive")) {
-          log(`  -> no @Derive, returning original`);
+        // Only process files with macro directives
+        if (!hasMacroDirectives(text)) {
+          log(`  -> no macro directives, returning original`);
           return snapshot;
         }
 
-        log(`  -> has @Derive, expanding...`);
+        log(`  -> has @derive, expanding...`);
         // Mark as processing to prevent reentrancy
         processingFiles.add(fileName);
         try {

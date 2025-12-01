@@ -301,7 +301,7 @@ Enable document highlight support. Requires a restart. _Default_: `true`
 
 Some projects rely on the `@ts-macros/ts-derive-plugin` TypeScript plugin to
 inject macro-generated APIs (for example `toJSON()` or `toString()` for classes
-decorated with `@Derive`). tsserver plugins are not guaranteed to load when the
+decorated with `@derive`). tsserver plugins are not guaranteed to load when the
 Svelte language server runs inside sandboxed editor runtimes (Zed, WASM, etc.),
 so we mirrored the plugin’s logic in the language server itself.
 

@@ -1,4 +1,4 @@
-//! @Derive(Eq) macro implementation
+//! /** @derive(Eq) */ macro implementation
 
 use ts_macro_derive::ts_macro_derive;
 use ts_quote::ts_template;
@@ -48,7 +48,7 @@ pub fn derive_eq_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> {
         }
         Data::Enum(_) => Err(TsMacroError::new(
             input.decorator_span(),
-            "@Derive(Eq) can only be applied to classes",
+            "/** @derive(Eq) */ can only be applied to classes",
         )),
     }
 }

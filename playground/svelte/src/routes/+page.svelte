@@ -25,9 +25,9 @@
 	</section>
 
 	<section>
-		<h2>@Derive decorator example</h2>
+		<h2>@derive decorator example</h2>
 		<p>
-			A <code>MacroUser</code> class is decorated with <code>@Derive('Debug', 'JSON')</code>. The macro
+			A <code>MacroUser</code> class is decorated with <code>/** @derive(Debug, JSON) */</code>. The macro
 			injects <code>toString()</code> and <code>toJSON()</code>, so we can hydrate typed data without
 			manually writing serializers.
 		</p>

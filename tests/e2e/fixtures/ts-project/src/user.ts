@@ -1,6 +1,6 @@
 import { Derive, Debug } from "@ts-macros/macros";
 
-@Derive(Debug)
+/** @derive(Debug) */
 export class User {
   id: string;
   name: string;

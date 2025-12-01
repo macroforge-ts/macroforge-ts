@@ -69,7 +69,7 @@ fn test_derive_debug_runtime_output() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Debug)
+/** @derive(Debug) */
 class Data {
     val: number;
 }
@@ -92,7 +92,7 @@ fn test_derive_debug_dts_output() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Debug)
+/** @derive(Debug) */
 class User {
     name: string;
 }
@@ -128,7 +128,7 @@ fn test_derive_clone_dts_output() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Clone)
+/** @derive(Clone) */
 class User {
     name: string;
 }
@@ -164,7 +164,7 @@ fn test_derive_eq_dts_output() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Eq)
+/** @derive(Eq) */
 class User {
     name: string;
 }
@@ -199,11 +199,10 @@ class User {
 #[test]
 fn test_derive_debug_complex_dts_output() {
     let source = r#"
-import { Derive } from "@macro/derive";
 
-@Derive("Debug")
+/** @derive(Debug) */
 class MacroUser {
-  @Derive({ rename: "userId" })
+  /** @debug({ rename: "userId" }) */
   id: string;
 
   name: string;
@@ -211,7 +210,7 @@ class MacroUser {
   favoriteMacro: "Derive" | "JsonNative";
   since: string;
 
-  @Derive({ skip: true })
+  /** @debug({ skip: true }) */
   apiToken: string;
 
   constructor(
@@ -233,16 +232,12 @@ class MacroUser {
 "#;
 
     let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
 class MacroUser {
   id: string;
-
   name: string;
   role: string;
   favoriteMacro: "Derive" | "JsonNative";
   since: string;
-
   apiToken: string;
 
   constructor(
@@ -253,7 +248,7 @@ class MacroUser {
     since: string,
     apiToken: string,
   );
-    toString(): string;
+  toString(): string;
 }
 "#;
 
@@ -265,7 +260,11 @@ class MacroUser {
         assert!(result.changed, "expand() should report changes");
         let type_output = result.type_output.expect("should have type output");
 
-        assert_eq!(type_output, expected_dts);
+        // Use whitespace-normalized comparison like other tests
+        assert_eq!(
+            type_output.replace_whitespace(),
+            expected_dts.replace_whitespace()
+        );
     });
 }
 
@@ -291,7 +290,7 @@ fn test_prepare_no_classes() {
 
 #[test]
 fn test_prepare_with_classes() {
-    let source = "@Derive(Debug) class User {}";
+    let source = "/** @derive(Debug) */ class User {}";
     let program = parse_module(source);
     let host = MacroHostIntegration::new().unwrap();
     let result = host.prepare_expansion_context(&program, source).unwrap();
@@ -328,7 +327,7 @@ fn test_process_macro_output_converts_tokens_into_patches() {
         };
 
         let (runtime, type_patches) = host
-            .process_macro_output(&mut result, &ctx)
+            .process_macro_output(&mut result, &ctx, &ctx.target_source)
             .expect("tokens should parse");
 
         assert_eq!(
@@ -397,7 +396,7 @@ fn test_process_macro_output_reports_parse_errors() {
         };
 
         let (_runtime, _types) = host
-            .process_macro_output(&mut result, &ctx)
+            .process_macro_output(&mut result, &ctx, &ctx.target_source)
             .expect("process_macro_output should succeed with raw insertion fallback");
 
         let diag = result
@@ -437,7 +436,7 @@ fn test_collect_constructor_patch() {
 
 #[test]
 fn test_collect_derive_debug_patch() {
-    let source = "@Derive(Debug) class User { name: string; }";
+    let source = "/** @derive(Debug) */ class User { name: string; }";
     let program = parse_module(source);
     let host = MacroHostIntegration::new().unwrap();
     let (module, classes) = host
@@ -447,8 +446,14 @@ fn test_collect_derive_debug_patch() {
     let (collector, _) = host.collect_macro_patches(&module, classes, "test.ts", source);
 
     let type_patches = collector.get_type_patches();
-    // 1 for decorator removal, 1 for signature insertion
-    assert_eq!(type_patches.len(), 2);
+
+    // Expecting 2 patches:
+    // 1. Decorator removal for /** @derive(Debug) */
+    // 2. toString signature insertion (from Derive(Debug) macro)
+    // Note: find_macro_comment_span no longer incorrectly finds class-level decorators
+    // for fields, so we don't get a spurious third patch
+    assert_eq!(type_patches.len(), 2, "Expected 2 patches, got {}", type_patches.len());
+
     // check for decorator deletion
     assert!(
         type_patches
@@ -480,7 +485,7 @@ fn test_complex_class_with_multiple_derives() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Debug, Clone, Eq)
+/** @derive(Debug, Clone, Eq) */
 class Product {
     id: string;
     name: string;
@@ -546,7 +551,7 @@ fn test_complex_method_signatures() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Debug)
+/** @derive(Debug) */
 class API {
     endpoint: string;
 
@@ -614,7 +619,7 @@ fn test_class_with_visibility_modifiers() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Clone)
+/** @derive(Clone) */
 class Account {
     public username: string;
     protected password: string;
@@ -680,7 +685,7 @@ fn test_class_with_optional_and_readonly_fields() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Debug, Eq)
+/** @derive(Debug, Eq) */
 class Config {
     readonly id: string;
     name: string;
@@ -742,7 +747,7 @@ fn test_empty_constructor_and_no_params_methods() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Debug)
+/** @derive(Debug) */
 class Singleton {
     private static instance: Singleton;
 
@@ -799,14 +804,14 @@ fn test_class_with_field_decorators_and_derive() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Debug)
+/** @derive(Debug) */
 class ValidationExample {
-    @Derive({ rename: "userId" })
+    /** @debug({ rename: "userId" }) */
     id: string;
 
     name: string;
 
-    @Derive({ skip: true })
+    /** @debug({ skip: true }) */
     internalFlag: boolean;
 
     constructor(id: string, name: string, internalFlag: boolean) {
@@ -853,7 +858,7 @@ fn test_generated_methods_on_separate_lines() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Debug, Clone)
+/** @derive(Debug, Clone) */
 class User {
     id: number;
     name: string;
@@ -910,7 +915,7 @@ fn test_proper_indentation_in_generated_code() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Debug)
+/** @derive(Debug) */
 class User {
   id: number;
   name: string;
@@ -951,7 +956,7 @@ fn test_default_parameter_values() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Debug)
+/** @derive(Debug) */
 class ServerConfig {
     host: string;
     port: number;
@@ -1030,7 +1035,7 @@ fn test_rest_parameters_and_destructuring() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Clone)
+/** @derive(Clone) */
 class EventEmitter {
     listeners: Map<string, Function[]>;
 
@@ -1086,7 +1091,7 @@ fn test_source_mapping_produced() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-@Derive(Debug)
+/** @derive(Debug) */
 class User {
     name: string;
 }

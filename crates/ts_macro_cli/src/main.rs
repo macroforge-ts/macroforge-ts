@@ -283,7 +283,7 @@ host.getSourceFile = (fileName, languageVersion, ...rest) => {
       !fileName.endsWith('.d.ts')
     ) {
       const sourceText = ts.sys.readFile(fileName);
-      if (sourceText && sourceText.includes('@Derive')) {
+      if (sourceText && sourceText.includes('@derive')) {
         const expanded = macros.expandSync(sourceText, fileName);
         const text = expanded.code || sourceText;
         return ts.createSourceFile(fileName, text, languageVersion, true);

@@ -5,6 +5,7 @@
 ## 🚀 Project Status
 
 ### Current Status
+
 - ✅ Core ABI and macro model defined
 - ✅ `ts_macro_host` registry/dispatch, derive macros Debug/Clone/Eq
 - ✅ SWC integration + N-API bindings compile clean
@@ -13,6 +14,7 @@
 - 🔄 CLI + docs + WASM sandbox not done
 
 ### Recent Progress
+
 - Added workspace macro runtime loader and SSR `require` shim
 - Case-insensitive debug decorator handling for field options
 - Fixed native binding load path for external macros; patched Vite plugin to strip macro-only imports in SSR
@@ -20,7 +22,7 @@
 
 ## Project Overview
 
-This project aims to create a Rust-like procedural macro system for TypeScript, using SWC for transformations and Rust for macro implementations. The goal is to achieve Rust-level DX with `@Derive(Debug)`-style syntax and reusable macro crates.
+This project aims to create a Rust-like procedural macro system for TypeScript, using SWC for transformations and Rust for macro implementations. The goal is to achieve Rust-level DX with `/** @derive(Debug) */`-style syntax and reusable macro crates.
 
 ---
 
@@ -30,24 +32,24 @@ This project aims to create a Rust-like procedural macro system for TypeScript, 
 
 Design the three kinds of macros (mirroring Rust's macro types):
 
-- [x] **Derive macros**: `@Derive(Debug, Clone, …)` on classes ~~interfaces/enums~~
+- [x] **Derive macros**: `/** @derive(Debug, Clone, ...) */` on classes ~~interfaces/enums~~
 - [ ] **Attribute macros**: `@log`, `@sqlTable`, etc.
 - [ ] **Call macros** (later): `macro.sql` / tagged templates / `Foo!()` equivalents
 
 #### Derive Dispatch Model (lock early)
 
-- [x] `@Derive(...)` is a **built-in dispatcher** (Rust `#[derive]` analog).
+- [x] `/** @derive(...) */` is a **built-in dispatcher** (Rust `#[derive]` analog).
 
   - Example:
 
     ```ts
     import { Derive, Debug, Clone } from "@macro/derive";
 
-    @Derive(Debug, Clone)
+    /** @derive(Debug, Clone) */
     class User { ... }
     ```
 
-- [x] Each name inside `@Derive(...)` resolves to a registered **derive macro** by `(module, derive_name)`.
+- [x] Each name inside `/** @derive(...) */` resolves to a registered **derive macro** by `(module, derive_name)`.
 
 #### Stable ABI Between SWC and Macro Crates
 
@@ -63,7 +65,7 @@ Design the three kinds of macros (mirroring Rust's macro types):
       pub macro_kind: MacroKind,     // Derive | Attr | Call
       pub macro_name: String,        // e.g. "Debug"
       pub module_path: String,       // e.g. "@macro/derive"
-      pub decorator_span: SpanIR,    // span of @Derive(Debug)
+      pub decorator_span: SpanIR,    // span of /** @derive(Debug) */
       pub target_span: SpanIR,       // span of class/enum/etc
       pub file_name: String,
       pub target: TargetIR,          // Class(ClassIR) | Enum(EnumIR) | ...
@@ -103,6 +105,7 @@ Design the three kinds of macros (mirroring Rust's macro types):
 - [x] ABI version handshake between host and macro crates
 
 ### Security & Sandboxing (not started)
+
 - Macro sandboxing (WASM default)
 - Resource limits: execution time, memory, output size, diagnostics
 - Code injection: validate outputs, sanitize identifiers, audit packages
@@ -156,8 +159,8 @@ How the system knows which macro to call:
     "macroPackages": ["@macro/derive"],
     "allowNativeMacros": false,
     "macroRuntimeOverrides": {
-      "@bar/big-schema-macro": "native"
-    }
+      "@bar/big-schema-macro": "native",
+    },
   }
   ```
 
@@ -173,6 +176,7 @@ How the system knows which macro to call:
 ---
 
 ### 3. Macro Loading Strategy (open)
+
 - WASM-first modules (sandboxed), identical ABI
 - Native (N-API) modules opt-in for heavy compute
 - Workspace/package discovery for external macros (e.g., `@playground/macro`)
@@ -180,18 +184,19 @@ How the system knows which macro to call:
 ---
 
 ## Current Gaps / Next Steps
+
 - ESM-safe loader: remove `module/require` assumptions in SSR; ship a small loader to resolve native bindings and external macro packages.
 - Type patches: emit `toJSON()` (and other derives) into `.d.ts` via macro result patches, drop manual post-processing.
 - Playground SSR stability: address native binding resolution and avoid HMR port conflicts (set fixed HMR port or disable HMR in middleware tests).
 - Security: implement WASM sandbox path with resource limits; audit macro package loading.
 - Tooling: CLI, docs for third-party macro authors, and package allowlist/validation.
 
-    ```rust
-    pub trait TsMacro {
-        fn name(&self) -> &str;
-        fn run(&self, ctx: MacroContextIR) -> MacroResult;
-    }
-    ```
+  ```rust
+  pub trait TsMacro {
+      fn name(&self) -> &str;
+      fn run(&self, ctx: MacroContextIR) -> MacroResult;
+  }
+  ```
 
   - Pros: Cross-platform, sandboxed, flexible ecosystem
 
@@ -264,7 +269,7 @@ How the system knows which macro to call:
 
 ### [x] Implement Core Derives ✅ COMPLETED
 
-#### `@Derive(Debug)` ✅
+#### `/** @derive(Debug) */` ✅
 
 - [x] Design output format:
 
@@ -303,12 +308,12 @@ How the system knows which macro to call:
 
 #### Additional Basic Derives
 
-- [x] `@Derive(Clone)` ✅
-- [x] `@Derive(Eq)` ✅
+- [x] `/** @derive(Clone) */` ✅
+- [x] `/** @derive(Eq) */` ✅
 - [ ] Design multi-derive support:
 
   ```ts
-  @Derive(Debug, Eq, Clone)
+  /** @derive(Debug, Eq, Clone) */
   class User { ... }
   ```
 
@@ -320,17 +325,17 @@ How the system knows which macro to call:
 
 - [x] Span tracking:
 
-  - [x] Capture decorator span (`@Derive(Debug)`)
+  - [x] Capture decorator span (`/** @derive(Debug) */`)
   - [x] Capture annotated node span (`class User`)
   - [ ] Preserve source locations through transformations
 
 - [ ] Error message format (Rust-like):
 
   ```
-  error: `@Derive(Debug)` on `User` is invalid
+  error: `/** @derive(Debug) */` on `User` is invalid
     --> src/user.ts:12:1
      |
-  12 | @Derive(Debug)
+  12 | /** @derive(Debug) */
      | ^^^^^^^^^^^^^^ computed properties are not supported yet
   13 | class User {
      | ---------- on this class
@@ -381,7 +386,7 @@ How the system knows which macro to call:
 Implement per-field attribute support:
 
 ```ts
-@Derive(Debug)
+/** @derive(Debug) */
 class User {
   @Debug(skip)
   password: string;
@@ -811,18 +816,21 @@ Workarounds:
 ## 🎯 Next Steps
 
 ### Immediate Priorities
+
 1. **Implement Patch Application Engine** - Apply generated patches to source code ✅
 2. **Refactor MacroTransformer** - Use new `ts_macro_host` instead of hardcoded macros ✅
 3. **Create CLI Tool** - For testing macro expansion and debugging ✅ (`cargo run -p ts_macro_cli -- expand`)
 4. **Complete ts_quote** - Implement actual quote! functionality for code generation
 
 ### To Make It Usable
+
 1. **Integration** - Connect `ts_macro_host` with `swc-napi-macros` ✅
 2. **Configuration Loading** - Actually load and use `ts-macros.json` ✅
 3. **Playground Testing** - Verify the new system works with playground apps ✅
 4. **Documentation** - Write getting started guide for macro authors
 
 ### Current Blockers
+
 - Need CLI/dev tooling to exercise macros outside the Vite pipeline ✅
 - Dynamic macro loading is limited to packages compiled into the workspace (no WASM sandbox or npm distribution yet)
 

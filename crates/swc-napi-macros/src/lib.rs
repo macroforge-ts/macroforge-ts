@@ -173,7 +173,8 @@ impl NativePositionMapper {
         let idx = self.segments.partition_point(|seg| seg.expanded_end <= pos);
 
         if let Some(seg) = self.segments.get(idx)
-            && pos >= seg.expanded_start && pos < seg.expanded_end
+            && pos >= seg.expanded_start
+            && pos < seg.expanded_end
         {
             let offset = pos - seg.expanded_start;
             return Some(seg.original_start + offset);
@@ -336,10 +337,7 @@ impl NativePlugin {
             let log_path = std::path::PathBuf::from("/tmp/ts-macros-plugin.log");
 
             // Clear/create log file
-            if let Err(e) = std::fs::write(
-                &log_path,
-                "=== ts-macros plugin loaded ===\n",
-            ) {
+            if let Err(e) = std::fs::write(&log_path, "=== ts-macros plugin loaded ===\n") {
                 eprintln!("[ts-macros] Failed to initialize log file: {}", e);
             } else {
                 *log_guard = Some(log_path);
@@ -351,7 +349,9 @@ impl NativePlugin {
 
     #[napi]
     pub fn log(&self, message: String) {
-        if let Ok(log_guard) = self.log_file.lock() && let Some(log_path) = log_guard.as_ref() {
+        if let Ok(log_guard) = self.log_file.lock()
+            && let Some(log_path) = log_guard.as_ref()
+        {
             use std::io::Write;
             if let Ok(mut file) = std::fs::OpenOptions::new()
                 .append(true)
@@ -494,7 +494,7 @@ pub fn parse_import_sources(code: String, filepath: String) -> Result<Vec<Import
         Program::Script(_) => return Ok(vec![]),
     };
 
-    let import_map = crate::macro_host::collect_import_sources(&module);
+    let import_map = crate::macro_host::collect_import_sources(&module, &code);
     let mut imports = Vec::with_capacity(import_map.len());
     for (local, module) in import_map {
         imports.push(ImportSourceResult { local, module });

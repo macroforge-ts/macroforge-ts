@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 /// The kind of macro being executed
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MacroKind {
-    /// Derive macro: @Derive(Debug, Clone)
+    /// Derive macro: /** @derive(Debug, Clone) */
     Derive,
     /// Attribute macro: @log, @sqlTable
     Attribute,
