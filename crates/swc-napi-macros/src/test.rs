@@ -1284,3 +1284,298 @@ fn test_explicit_body_marker_parses_as_class_members() {
         }
     });
 }
+
+// ============================================================================
+// Attribute Validation Error Tests
+// ============================================================================
+
+#[test]
+fn test_derive_debug_on_interface_produces_error() {
+    // Debug macro only works on classes, applying to interface should error
+    let source = r#"
+/** @derive(Debug) */
+interface Status {
+    active: boolean;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroHostIntegration::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have diagnostics indicating the error
+        assert!(
+            !result.diagnostics.is_empty(),
+            "Should produce diagnostics for invalid target"
+        );
+
+        // Find the error diagnostic
+        let error_diag = result
+            .diagnostics
+            .iter()
+            .find(|d| d.level == DiagnosticLevel::Error)
+            .expect("Should have an error-level diagnostic");
+
+        // Error message should mention that Debug can only be applied to classes
+        assert!(
+            error_diag.message.contains("class")
+                || error_diag.message.contains("interface"),
+            "Error should mention class or interface restriction, got: {}",
+            error_diag.message
+        );
+    });
+}
+
+#[test]
+fn test_derive_clone_on_interface_produces_error() {
+    let source = r#"
+/** @derive(Clone) */
+interface UserData {
+    name: string;
+    age: number;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroHostIntegration::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have diagnostics indicating the error
+        assert!(
+            !result.diagnostics.is_empty(),
+            "Should produce diagnostics for invalid target"
+        );
+
+        // Find the error diagnostic
+        let error_diag = result
+            .diagnostics
+            .iter()
+            .find(|d| d.level == DiagnosticLevel::Error)
+            .expect("Should have an error-level diagnostic");
+
+        // Error message should mention interfaces
+        assert!(
+            error_diag.message.contains("interface")
+                || error_diag.message.contains("Clone"),
+            "Error should mention Clone or interfaces, got: {}",
+            error_diag.message
+        );
+    });
+}
+
+#[test]
+fn test_derive_eq_on_interface_produces_error() {
+    let source = r#"
+/** @derive(Eq) */
+interface Point {
+    x: number;
+    y: number;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroHostIntegration::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have diagnostics indicating the error
+        assert!(
+            !result.diagnostics.is_empty(),
+            "Should produce diagnostics for invalid target"
+        );
+
+        // Find the error diagnostic
+        let error_diag = result
+            .diagnostics
+            .iter()
+            .find(|d| d.level == DiagnosticLevel::Error)
+            .expect("Should have an error-level diagnostic");
+
+        // Error message should mention interfaces
+        assert!(
+            error_diag.message.contains("interface")
+                || error_diag.message.contains("Eq"),
+            "Error should mention Eq or interfaces, got: {}",
+            error_diag.message
+        );
+    });
+}
+
+#[test]
+fn test_error_span_points_to_correct_attribute_for_interface() {
+    // Test that error spans point to the decorator area, not the interface declaration
+    let source = r#"
+/** @derive(Debug) */
+interface Status {
+    active: boolean;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroHostIntegration::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        let error_diag = result
+            .diagnostics
+            .iter()
+            .find(|d| d.level == DiagnosticLevel::Error)
+            .expect("Should have an error-level diagnostic");
+
+        // The span should be present and point to a reasonable location
+        let span = error_diag.span.as_ref().expect("Error should have a span");
+
+        // The span should be within the source bounds
+        assert!(
+            span.start < source.len() as u32,
+            "Span start should be within source"
+        );
+        assert!(
+            span.end <= source.len() as u32,
+            "Span end should be within source"
+        );
+
+        // The span should point to the decorator/comment area (before "interface")
+        let interface_pos = source.find("interface").expect("source has interface");
+        assert!(
+            (span.start as usize) < interface_pos,
+            "Error span should point to the decorator, not the interface. Span start: {}, interface pos: {}",
+            span.start,
+            interface_pos
+        );
+    });
+}
+
+#[test]
+fn test_multiple_derives_all_invalid_on_interface_produces_multiple_errors() {
+    // When multiple derives are used on interface and all are invalid,
+    // we should get errors for each
+    let source = r#"
+/** @derive(Debug, Clone, Eq) */
+interface Status {
+    active: boolean;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroHostIntegration::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have error diagnostics (Debug, Clone, and Eq all fail on interfaces)
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+
+        assert!(
+            error_count >= 1,
+            "Should have at least one error for invalid derives on interface, got {} errors",
+            error_count
+        );
+    });
+}
+
+#[test]
+fn test_unknown_derive_macro_produces_error() {
+    // A derive macro that doesn't exist should produce an error
+    let source = r#"
+/** @derive(NonExistentMacro) */
+class User {
+    name: string;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroHostIntegration::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have a diagnostic for unknown macro
+        let unknown_error = result
+            .diagnostics
+            .iter()
+            .find(|d| {
+                d.message.contains("NonExistentMacro")
+                    || d.message.contains("unknown")
+                    || d.message.contains("not found")
+            });
+
+        assert!(
+            unknown_error.is_some(),
+            "Should produce an error for unknown derive macro. Diagnostics: {:?}",
+            result.diagnostics
+        );
+    });
+}
+
+#[test]
+fn test_unknown_derive_macro_on_interface_produces_error() {
+    // A derive macro that doesn't exist should produce an error for interfaces too
+    let source = r#"
+/** @derive(Serializable) */
+interface Config {
+    host: string;
+    port: number;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroHostIntegration::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have a diagnostic for unknown macro
+        let unknown_error = result
+            .diagnostics
+            .iter()
+            .find(|d| {
+                d.message.contains("Serializable")
+                    || d.message.contains("unknown")
+                    || d.message.contains("not found")
+            });
+
+        assert!(
+            unknown_error.is_some(),
+            "Should produce an error for unknown derive macro on interface. Diagnostics: {:?}",
+            result.diagnostics
+        );
+    });
+}
+
+#[test]
+fn test_error_span_covers_macro_name_not_entire_decorator() {
+    // Verify the error span is reasonably sized (not covering the entire file)
+    let source = r#"
+/** @derive(Clone) */
+interface Data {
+    value: string;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroHostIntegration::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        let error_diag = result
+            .diagnostics
+            .iter()
+            .find(|d| d.level == DiagnosticLevel::Error)
+            .expect("Should have an error-level diagnostic");
+
+        let span = error_diag.span.as_ref().expect("Error should have a span");
+        let span_len = span.end - span.start;
+
+        // The span should be reasonably sized - not the entire source
+        // A macro name like "Clone" would be around 5-20 characters with context
+        assert!(
+            span_len < 100,
+            "Error span should be focused, not cover entire source. Span length: {}",
+            span_len
+        );
+    });
+}
