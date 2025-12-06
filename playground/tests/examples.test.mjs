@@ -13,7 +13,7 @@ const playgroundRoot = path.resolve(__dirname, "..");
 const repoRoot = path.resolve(playgroundRoot, "..");
 const vanillaRoot = path.join(playgroundRoot, "vanilla");
 const svelteRoot = path.join(playgroundRoot, "svelte");
-const rootConfigPath = path.join(repoRoot, "ts-macros.json");
+const rootConfigPath = path.join(repoRoot, "macroforge.json");
 
 async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
   const options = typeof optionsOrRunner === "function" ? {} : optionsOrRunner;
@@ -25,7 +25,7 @@ async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
   const previousCwd = process.cwd();
   let server;
   let copiedConfig = false;
-  const localConfigPath = path.join(rootDir, "ts-macros.json");
+  const localConfigPath = path.join(rootDir, "macroforge.json");
 
   try {
     if (useProjectCwd) {
@@ -177,7 +177,7 @@ test("TS Language Plugin detects external macro packages", async () => {
 
   // Code that imports from an external macro package
   const codeWithExternalMacro = `
-import { Derive } from "@ts-macros/swc-napi";
+import { Derive } from "@macroforge/swc-napi";
 import { FieldController, fieldController } from "@playground/macro";
 
 /** @derive(FieldController) */
@@ -307,12 +307,12 @@ test("Macro Host reports diagnostics for invalid usage", async () => {
   const { expandSync } = require(swcMacrosPath);
 
   const code = `
-        import { Derive } from "@ts-macros/macros";
+        import { Derive } from "@macroforge/macros";
         /** @derive(UnknownMacro) */
         class Foo {}
     `;
 
-  // The host will look for ts-macros.json in CWD.
+  // The host will look for macroforge.json in CWD.
   // We are running from root so it should find the root config which allows native macros.
   const result = expandSync(code, "test.ts");
 

@@ -1349,6 +1349,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "macroforge-ts"
+version = "0.1.0"
+dependencies = [
+ "zed_extension_api",
+]
+
+[[package]]
 name = "memchr"
 version = "2.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2621,13 +2628,6 @@ dependencies = [
 
 [[package]]
 name = "ts-derive-svelte"
-version = "0.1.0"
-dependencies = [
- "zed_extension_api",
-]
-
-[[package]]
-name = "ts-macros-ts"
 version = "0.1.0"
 dependencies = [
  "zed_extension_api",

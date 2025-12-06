@@ -1,4 +1,4 @@
-import { Derive, Debug } from "@ts-macros/macros";
+import { Derive, Debug } from "@macroforge/macros";
 
 /** @derive(Debug) */
 export class User {

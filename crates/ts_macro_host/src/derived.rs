@@ -1,4 +1,4 @@
-use crate::{MacroRegistry, Result, TsMacro};
+use crate::{MacroRegistry, Result, Macroforge};
 use serde::Serialize;
 use std::{collections::BTreeSet, sync::Arc};
 use ts_macro_abi::MacroKind;
@@ -15,7 +15,7 @@ pub struct DerivedMacroDescriptor {
     pub name: &'static str,
     pub kind: MacroKind,
     pub description: &'static str,
-    pub constructor: fn() -> Arc<dyn TsMacro>,
+    pub constructor: fn() -> Arc<dyn Macroforge>,
     pub decorators: &'static [DecoratorDescriptor],
 }
 

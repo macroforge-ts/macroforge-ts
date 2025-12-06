@@ -20,7 +20,7 @@
 		<h1>Rust-Powered TypeScript Macros in SvelteKit</h1>
 		<p>
 			This page is rendered by <code>test-macros-svelte</code> and showcases the local
-			<code>@ts-macros/swc-napi</code> transformer running inside Vite via <code>vite-plugin-napi</code>.
+			<code>@macroforge/swc-napi</code> transformer running inside Vite via <code>vite-plugin-napi</code>.
 		</p>
 	</section>
 

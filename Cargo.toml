@@ -17,6 +17,6 @@ resolver = "2"
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
-authors = ["ts-macros contributors"]
+authors = ["macroforge contributors"]
 license = "MIT"
-repository = "https://github.com/rymskip/ts-macros"
+repository = "https://github.com/rymskip/macroforge"

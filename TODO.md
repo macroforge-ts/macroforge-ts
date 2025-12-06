@@ -152,7 +152,7 @@ How the system knows which macro to call:
   kind = "derive"
   ```
 
-- [x] Optional root config (`ts-macros.json`):
+- [x] Optional root config (`macroforge.json`):
 
   ```jsonc
   {
@@ -168,7 +168,7 @@ How the system knows which macro to call:
 
 #### Macro Package Metadata (ecosystem safety)
 
-- [x] Macro packages advertise their metadata via `ts_macro_derive`/`TsMacro::abi_version`
+- [x] Macro packages advertise their metadata via `ts_macro_derive`/`Macroforge::abi_version`
 
 - [x] Host registers macro packages via compile-time registrars
 - [ ] Validate that package exports match registration metadata
@@ -192,7 +192,7 @@ How the system knows which macro to call:
 - Tooling: CLI, docs for third-party macro authors, and package allowlist/validation.
 
   ```rust
-  pub trait TsMacro {
+  pub trait Macroforge {
       fn name(&self) -> &str;
       fn run(&self, ctx: MacroContextIR) -> MacroResult;
   }
@@ -277,7 +277,7 @@ How the system knows which macro to call:
   class User {
     // ... existing fields ...
 
-    static DEBUG_SYM = Symbol.for("ts-macro.debug");
+    static DEBUG_SYM = Symbol.for("macroforge.debug");
 
     [User.DEBUG_SYM](): string {
       return `User { id: ${this.id}, age: ${this.age} }`;
@@ -291,7 +291,7 @@ How the system knows which macro to call:
 
 - [x] Decide naming conventions:
 
-  - [x] Internal helpers: `Symbol.for("ts-macro.debug")`
+  - [x] Internal helpers: `Symbol.for("macroforge.debug")`
   - [ ] Document and stabilize
 
 - [x] Define compatibility rules:
@@ -351,7 +351,7 @@ How the system knows which macro to call:
   - [x] Compatibility errors (unsupported patterns)
   - [x] Generation errors (macro implementation failures)
 
-### [ ] CLI Tool (`ts-derive` / `ts-macro`)
+### [ ] CLI Tool (`ts-derive` / `macroforge`)
 
 - [ ] Create CLI crate
 
@@ -494,7 +494,7 @@ Choose and implement approach:
 - [ ] Create plugin package structure:
 
   ```
-  ts-macro-tsserver-plugin/
+  macroforge-tsserver-plugin/
   ├── src/
   │   ├── index.ts          # Plugin entry point
   │   ├── macro-resolver.ts # Import resolution
@@ -684,7 +684,7 @@ Choose and implement approach:
 
 #### Vite Plugin
 
-- [ ] Create `vite-plugin-ts-macros`
+- [ ] Create `vite-plugin-macroforge`
 - [ ] Hook into SWC transformation
 - [ ] Load macro config
 - [ ] Handle HMR for macro changes
@@ -825,7 +825,7 @@ Workarounds:
 ### To Make It Usable
 
 1. **Integration** - Connect `ts_macro_host` with `swc-napi-macros` ✅
-2. **Configuration Loading** - Actually load and use `ts-macros.json` ✅
+2. **Configuration Loading** - Actually load and use `macroforge.json` ✅
 3. **Playground Testing** - Verify the new system works with playground apps ✅
 4. **Documentation** - Write getting started guide for macro authors
 

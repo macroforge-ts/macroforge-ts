@@ -3,8 +3,8 @@ import { defineConfig, type PluginOption } from 'vite';
 import napiMacros from 'vite-plugin-napi';
 
 const macrosPlugin = napiMacros({
-	typesOutputDir: '.ts-macros/types',
-	metadataOutputDir: '.ts-macros/meta'
+	typesOutputDir: '.macroforge/types',
+	metadataOutputDir: '.macroforge/meta'
 }) as PluginOption;
 
 export default defineConfig({

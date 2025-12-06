@@ -1,0 +1,17 @@
+{
+  "name": "@macroforge/swc-napi",
+  "version": "0.0.1",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "napi": {
+    "binaryName": "swc-napi-macros",
+    "triples": {}
+  },
+  "files": [
+    "index.d.ts",
+    "index.js"
+  ],
+  "engines": {
+    "node": ">= 18"
+  }
+}

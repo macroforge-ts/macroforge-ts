@@ -1,10 +1,10 @@
-# Gemini Workspace Context: `ts-macros`
+# Gemini Workspace Context: `macroforge`
 
-This document provides an overview of the `ts-macros` project, its structure, and key commands to get you started with development.
+This document provides an overview of the `macroforge` project, its structure, and key commands to get you started with development.
 
 ## Project Overview
 
-`ts-macros` is a high-performance, Rust-powered macro system for TypeScript. It integrates with Vite and uses SWC for AST manipulation and NAPI-RS to bridge the gap between the Rust backend and the Node.js environment.
+`macroforge` is a high-performance, Rust-powered macro system for TypeScript. It integrates with Vite and uses SWC for AST manipulation and NAPI-RS to bridge the gap between the Rust backend and the Node.js environment.
 
 The project is a monorepo containing both the Rust macro execution engine and the TypeScript/JavaScript packages that form the user-facing plugins and language server.
 
@@ -21,7 +21,7 @@ The project is a monorepo containing both the Rust macro execution engine and th
     *   `vite-plugin`: The Vite plugin that integrates the macro expansion into the build process.
     *   `language-server`: A language server implementation for providing IDE features like autocompletion and diagnostics for macros.
 
-*   **Configuration (`ts-macros.json`):**
+*   **Configuration (`macroforge.json`):**
     *   A project-specific configuration file that controls which macro packages are loaded and sets execution limits for the macro engine.
 
 ## Building and Running

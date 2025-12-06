@@ -1,6 +1,6 @@
 //! Macro registry for managing and looking up macros
 
-use crate::{MacroError, TsMacro, error::Result};
+use crate::{MacroError, Macroforge, error::Result};
 use dashmap::DashMap;
 use std::sync::Arc;
 
@@ -25,7 +25,7 @@ impl MacroKey {
 /// Registry for all available macros
 pub struct MacroRegistry {
     /// Map from (module, name) to macro implementation
-    macros: DashMap<MacroKey, Arc<dyn TsMacro>>,
+    macros: DashMap<MacroKey, Arc<dyn Macroforge>>,
 }
 
 impl MacroRegistry {
@@ -41,7 +41,7 @@ impl MacroRegistry {
         &self,
         module: impl Into<String>,
         name: impl Into<String>,
-        macro_impl: Arc<dyn TsMacro>,
+        macro_impl: Arc<dyn Macroforge>,
     ) -> Result<()> {
         let key = MacroKey::new(module, name);
 
@@ -58,7 +58,7 @@ impl MacroRegistry {
     }
 
     /// Look up a macro by module and name
-    pub fn lookup(&self, module: &str, name: &str) -> Result<Arc<dyn TsMacro>> {
+    pub fn lookup(&self, module: &str, name: &str) -> Result<Arc<dyn Macroforge>> {
         let key = MacroKey::new(module, name);
 
         self.macros
@@ -71,7 +71,7 @@ impl MacroRegistry {
     }
 
     /// Get all registered macros
-    pub fn all_macros(&self) -> Vec<(MacroKey, Arc<dyn TsMacro>)> {
+    pub fn all_macros(&self) -> Vec<(MacroKey, Arc<dyn Macroforge>)> {
         self.macros
             .iter()
             .map(|entry| (entry.key().clone(), Arc::clone(entry.value())))
@@ -87,7 +87,7 @@ impl MacroRegistry {
     /// Look up a macro by name only, ignoring module path
     /// This is used for fallback resolution when exact module match fails
     /// Returns the first matching macro found
-    pub fn lookup_by_name(&self, name: &str) -> Result<Arc<dyn TsMacro>> {
+    pub fn lookup_by_name(&self, name: &str) -> Result<Arc<dyn Macroforge>> {
         for entry in self.macros.iter() {
             if entry.key().name == name {
                 return Ok(Arc::clone(&entry));
@@ -101,7 +101,7 @@ impl MacroRegistry {
     }
 
     /// Look up a macro, falling back to name-only lookup if module doesn't match
-    pub fn lookup_with_fallback(&self, module: &str, name: &str) -> Result<Arc<dyn TsMacro>> {
+    pub fn lookup_with_fallback(&self, module: &str, name: &str) -> Result<Arc<dyn Macroforge>> {
         // First try exact match
         if let Ok(m) = self.lookup(module, name) {
             return Ok(m);

@@ -48,17 +48,17 @@
 			"initialization_options": {
 				"autoUseWorkspaceTsdk": true,
 				"typescript": {
-					"tsdk": "~/ts-macros/node_modules/typescript/lib"
+					"tsdk": "~/macroforge/node_modules/typescript/lib"
 				},
 				"tsserver": {
 				    "maxTsServerMemory": 8192,
                     "nodePath": "~/.pixi/envs/nodejs/bin/node",
-					"logDirectory": "~/ts-macros/.tsserver-logs",
+					"logDirectory": "~/macroforge/.tsserver-logs",
 					"logVerbosity": "verbose",
 					"globalPlugins": [
 						{
 							"name": "ts-derive-plugin",
-							"location": "~/ts-macros/packages/ts-derive-plugin",
+							"location": "~/macroforge/packages/ts-derive-plugin",
 							"enableForWorkspaceTypeScriptVersions": true
 						}
 					]

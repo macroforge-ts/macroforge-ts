@@ -9,13 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ts-macros/swc-napi": "file:../crates/swc-napi-macros"
+    "@macroforge/swc-napi": "file:../crates/swc-napi-macros"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "typescript": "^5.9.3",
     "vite": "^7.2.4",
     "vite-plugin-napi": "file:../../packages/vite-plugin",
-    "@ts-macros/ts-derive-plugin": "file:../../packages/ts-derive-plugin"
+    "@macroforge/ts-derive-plugin": "file:../../packages/ts-derive-plugin"
   }
 }

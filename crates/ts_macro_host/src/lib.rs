@@ -21,7 +21,7 @@ pub use expand::{MacroExpander, MacroExpansion};
 pub use package_registry::MacroPackageRegistration;
 pub use patch_applicator::{PatchApplicator, PatchCollector};
 pub use registry::MacroRegistry;
-pub use traits::TsMacro;
+pub use traits::Macroforge;
 
 // Re-export commonly used types from ts_macro_abi
 pub use ts_macro_abi::{Diagnostic, DiagnosticLevel, MacroKind, MacroResult, Patch};

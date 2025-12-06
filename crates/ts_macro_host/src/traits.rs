@@ -4,7 +4,7 @@ use ts_macro_abi::{MacroKind, MacroResult};
 use ts_syn::TsStream;
 
 /// Core trait that all TypeScript macros must implement
-pub trait TsMacro: Send + Sync {
+pub trait Macroforge: Send + Sync {
     /// Returns the name of this macro
     fn name(&self) -> &str;
 
@@ -31,7 +31,7 @@ pub trait MacroPackage: Send + Sync {
     fn package_name(&self) -> &str;
 
     /// Returns all macros provided by this package
-    fn macros(&self) -> Vec<Box<dyn TsMacro>>;
+    fn macros(&self) -> Vec<Box<dyn Macroforge>>;
 
     /// Returns the package version
     fn version(&self) -> &str {

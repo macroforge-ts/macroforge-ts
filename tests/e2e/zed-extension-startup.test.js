@@ -2,7 +2,7 @@
 /**
  * E2E Test: Zed Extension Startup
  *
- * This test verifies that the ts-macros Zed extensions start successfully
+ * This test verifies that the macroforge Zed extensions start successfully
  * by launching Zed with a test TypeScript project and monitoring logs.
  *
  * Requirements:

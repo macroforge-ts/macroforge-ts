@@ -1,0 +1,7 @@
+id = "macroforge"
+name = "Macroforge"
+version = "0.1.0"
+schema_version = 1
+authors = ["macroforge contributors"]
+description = "Injects @macroforge/tsserver-plugin-macroforge settings into the built-in VTSLS."
+repository = "https://github.com/rymskip/macroforge"

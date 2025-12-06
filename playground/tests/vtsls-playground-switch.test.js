@@ -151,7 +151,7 @@ test('vtsls playground switch', async (t) => {
             pluginPaths: [PLUGIN_PATH],
             globalPlugins: [
               {
-                name: '@ts-macros/ts-derive-plugin',
+                name: '@macroforge/ts-derive-plugin',
                 location: PLUGIN_PATH,
                 languages: ['typescript', 'typescriptreact'],
                 enableForWorkspaceTypeScriptVersions: true,

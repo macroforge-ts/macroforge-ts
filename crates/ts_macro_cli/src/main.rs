@@ -7,7 +7,7 @@ use std::{
 use ts_macro_host::{MacroExpander, MacroExpansion};
 
 #[derive(Parser)]
-#[command(name = "ts-macro", about = "TypeScript macro development utilities")]
+#[command(name = "macroforge", about = "TypeScript macro development utilities")]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -94,7 +94,7 @@ const path = require('path');
 
 // Create require from the cwd to resolve modules properly
 const cwdRequire = createRequire(process.cwd() + '/package.json');
-const { expandSync } = cwdRequire('@ts-macros/swc-napi');
+const { expandSync } = cwdRequire('@macroforge/swc-napi');
 
 const inputPath = process.argv[2];
 const code = fs.readFileSync(inputPath, 'utf8');
@@ -115,7 +115,7 @@ try {
 "#;
 
     let mut temp_dir = std::env::temp_dir();
-    temp_dir.push("ts-macro-cli");
+    temp_dir.push("macroforge-cli");
     fs::create_dir_all(&temp_dir)?;
     let script_path = temp_dir.join("expand-wrapper.js");
     fs::write(&script_path, script)?;
@@ -145,7 +145,7 @@ try {
     if let Some(out_path) = out {
         write_file(&out_path, code)?;
         println!(
-            "[ts-macro] wrote expanded output for {} to {}",
+            "[macroforge] wrote expanded output for {} to {}",
             input.display(),
             out_path.display()
         );
@@ -160,7 +160,7 @@ try {
         if let Some(types_path) = types_out {
             write_file(&types_path, types_str)?;
             println!(
-                "[ts-macro] wrote type output for {} to {}",
+                "[macroforge] wrote type output for {} to {}",
                 input.display(),
                 types_path.display()
             );
@@ -175,7 +175,7 @@ try {
         for diag in diags {
             if let (Some(level), Some(message)) = (diag["level"].as_str(), diag["message"].as_str())
             {
-                eprintln!("[ts-macro] {} at {}: {}", level, input.display(), message);
+                eprintln!("[macroforge] {} at {}: {}", level, input.display(), message);
             }
         }
     }
@@ -193,7 +193,7 @@ fn emit_runtime_output(
     if let Some(path) = explicit_out {
         write_file(path, code)?;
         println!(
-            "[ts-macro] wrote expanded output for {} to {}",
+            "[macroforge] wrote expanded output for {} to {}",
             input.display(),
             path.display()
         );
@@ -217,7 +217,7 @@ fn emit_type_output(
     if let Some(path) = explicit_out {
         write_file(path, types)?;
         println!(
-            "[ts-macro] wrote type output for {} to {}",
+            "[macroforge] wrote type output for {} to {}",
             input.display(),
             path.display()
         );
@@ -241,13 +241,13 @@ fn run_tsc_wrapper(project: Option<PathBuf>) -> Result<()> {
     // Write a temporary Node.js script that wraps tsc and expands macros on file load
     let script = r#"
 const ts = require('typescript');
-const macros = require('@ts-macros/swc-napi');
+const macros = require('@macroforge/swc-napi');
 const path = require('path');
 
 const projectArg = process.argv[2] || 'tsconfig.json';
 const configPath = ts.findConfigFile(process.cwd(), ts.sys.fileExists, projectArg);
 if (!configPath) {
-  console.error(`[ts-macro] tsconfig not found: ${projectArg}`);
+  console.error(`[macroforge] tsconfig not found: ${projectArg}`);
   process.exit(1);
 }
 
@@ -308,7 +308,7 @@ process.exit(hasError ? 1 : 0);
 "#;
 
     let mut temp_dir = std::env::temp_dir();
-    temp_dir.push("ts-macro-cli");
+    temp_dir.push("macroforge-cli");
     fs::create_dir_all(&temp_dir)?;
     let script_path = temp_dir.join("tsc-wrapper.js");
     fs::write(&script_path, script)?;
@@ -342,7 +342,7 @@ fn emit_diagnostics(expansion: &MacroExpansion, source: &str, input: &Path) {
             .map(|s| offset_to_line_col(source, s.start as usize))
             .unwrap_or((1, 1));
         eprintln!(
-            "[ts-macro] {} at {}:{}:{}: {}",
+            "[macroforge] {} at {}:{}:{}: {}",
             format!("{:?}", diag.level).to_lowercase(),
             input.display(),
             line,

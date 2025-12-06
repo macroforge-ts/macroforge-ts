@@ -1,5 +1,5 @@
 {
-	"name": "ts-macros",
+	"name": "macroforge",
 	"version": "0.0.1",
 	"description": "High-performance Rust-powered macro system for TypeScript using Vite, NAPI-RS, and SWC",
 	"private": true,

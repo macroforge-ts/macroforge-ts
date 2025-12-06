@@ -4,8 +4,8 @@ use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
-const DEFAULT_CONFIG_FILENAME: &str = "ts-macros.json";
-const LEGACY_CONFIG_FILENAME: &str = "ts-macro.config.json";
+const DEFAULT_CONFIG_FILENAME: &str = "macroforge.json";
+const LEGACY_CONFIG_FILENAME: &str = "macroforge.config.json";
 
 /// Configuration for the macro host system
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -99,7 +99,7 @@ impl MacroConfig {
     }
 
     /// Try to find and load configuration file, returning both config and its directory
-    /// Looks for ts-macros.json (preferred) or legacy ts-macro.config.json in current directory and ancestors
+    /// Looks for macroforge.json (preferred) or legacy macroforge.config.json in current directory and ancestors
     pub fn find_with_root() -> Result<Option<(Self, std::path::PathBuf)>> {
         let current_dir = std::env::current_dir()?;
         Self::find_config_in_ancestors(&current_dir)

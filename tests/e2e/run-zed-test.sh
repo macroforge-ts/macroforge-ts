@@ -314,7 +314,7 @@ main() {
         ts_macro_errors="${ts_macro_errors:-0}"
 
         if [[ "$ts_macro_errors" -gt 0 ]]; then
-            log_warn "ts-macros extension manifest not found (extension may not be installed)"
+            log_warn "macroforge extension manifest not found (extension may not be installed)"
         fi
 
         # Check for vtsls crashes - this indicates the ts-derive-plugin crashed vtsls

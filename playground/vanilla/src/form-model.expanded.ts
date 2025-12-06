@@ -1,4 +1,4 @@
-import { Derive } from "@ts-macros/swc-napi";
+import { Derive } from "@macroforge/swc-napi";
 import {
   FieldController,
   fieldController,

@@ -4,8 +4,8 @@ import napiMacrosPlugin from 'vite-plugin-napi'
 export default defineConfig({
   plugins: [
     napiMacrosPlugin({
-      typesOutputDir: '.ts-macros/types',
-      metadataOutputDir: '.ts-macros/meta'
+      typesOutputDir: '.macroforge/types',
+      metadataOutputDir: '.macroforge/meta'
     })
   ],
   server: {

@@ -1,7 +1,7 @@
 [workspace]
 authors = ["rymskip <17lochinskij@protonmail.com>"]
 channels = ["conda-forge"]
-name = "ts-macros"
+name = "macroforge"
 platforms = ["osx-64"]
 version = "0.1.0"
 

@@ -15,7 +15,7 @@
     "moduleDetection": "force",
     "noEmit": true,
     "paths": {
-      "*": [".ts-macros/types/*", "./*"]
+      "*": [".macroforge/types/*", "./*"]
     },
 
     /* Linting */
@@ -27,15 +27,15 @@
     /* Decorators */
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "rootDirs": ["src", ".ts-macros/types"],
+    "rootDirs": ["src", ".macroforge/types"],
         "plugins": [
             {
-                "name": "@ts-macros/ts-derive-plugin",
+                "name": "@macroforge/ts-derive-plugin",
                 "macroNames": ["Derive"],
-                "mixinModule": "@ts-macros/macros",
+                "mixinModule": "@macroforge/macros",
                 "mixinTypes": ["MacroDebug", "MacroJSON"]
             }
         ]
   },
-  "include": ["src", ".ts-macros/types/**/*.d.ts"]
+  "include": ["src", ".macroforge/types/**/*.d.ts"]
 }

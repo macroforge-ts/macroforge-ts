@@ -1,6 +1,6 @@
 use ts_macro_derive::ts_macro_derive;
 use ts_quote::{body, ts_template};
-use ts_syn::{Data, DataInterface, DeriveInput, TsMacroError, TsStream, parse_ts_macro_input};
+use ts_syn::{Data, DataInterface, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 fn capitalize(s: &str) -> String {
     let mut chars = s.chars();
@@ -14,7 +14,7 @@ fn capitalize(s: &str) -> String {
     JSON,
     description = "Generates a toJSON() implementation that returns a plain object with all fields"
 )]
-pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> {
+pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
 
     match &input.data {
@@ -34,11 +34,11 @@ pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> 
                 }
             })
         }
-        Data::Enum(_) => Err(TsMacroError::new(
+        Data::Enum(_) => Err(MacroforgeError::new(
             input.decorator_span(),
             "/** @derive(JSON) */ can only target classes",
         )),
-        Data::Interface(_) => Err(TsMacroError::new(
+        Data::Interface(_) => Err(MacroforgeError::new(
             input.decorator_span(),
             "/** @derive(JSON) */ can only target classes, not interfaces",
         )),
@@ -50,7 +50,7 @@ pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> 
     description = "Generates depth-aware field controller helpers for reactive forms",
     attributes(fieldController, textAreaController)
 )]
-pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> {
+pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
 
     match &input.data {
@@ -129,7 +129,7 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
             };
             Ok(stream)
         }
-        Data::Enum(_) => Err(TsMacroError::new(
+        Data::Enum(_) => Err(MacroforgeError::new(
             input.decorator_span(),
             "/** @derive(FieldController) */ can only target classes or interfaces",
         )),
@@ -143,7 +143,7 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
 fn generate_field_controller_for_interface(
     interface: &DataInterface,
     input: &DeriveInput,
-) -> Result<TsStream, TsMacroError> {
+) -> Result<TsStream, MacroforgeError> {
     // Collect decorated fields from interface
     let decorated_fields: Vec<_> = interface
         .fields()

@@ -12,7 +12,7 @@
     "rootDir": "./src",
     "plugins": [
       {
-        "name": "@ts-macros/ts-derive-plugin"
+        "name": "@macroforge/ts-derive-plugin"
       }
     ]
   },

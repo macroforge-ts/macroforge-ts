@@ -1,4 +1,4 @@
-import { Derive, Debug, debug } from "@ts-macros/swc-napi";
+import { Derive, Debug, debug } from "@macroforge/swc-napi";
 import { JSON } from "@playground/macro";
 
 // Example of using Derive decorator and dynamic macro

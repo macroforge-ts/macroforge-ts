@@ -2,7 +2,7 @@
 // Run this before starting your editor to see if the native module is crashing
 
 const fs = require("fs");
-const logFile = "/tmp/ts-macros-crash.log";
+const logFile = "/tmp/macroforge-crash.log";
 
 function log(msg) {
   const timestamp = new Date().toISOString();
@@ -36,7 +36,7 @@ process.on("SIGSEGV", () => {
 log("Loading native module...");
 
 try {
-  const { expandSync } = require("@ts-macros/swc-napi");
+  const { expandSync } = require("@macroforge/swc-napi");
   log("Native module loaded successfully");
 
   // Test basic expansion

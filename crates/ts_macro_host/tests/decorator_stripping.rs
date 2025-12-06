@@ -4,7 +4,7 @@ use ts_macro_host::{MacroConfig, MacroExpander};
 #[test]
 fn strips_class_and_field_decorators_by_default() {
     let code = r#"
-import { Derive } from "@ts-macros/swc-napi";
+import { Derive } from "@macroforge/swc-napi";
 
 /** @derive(Debug) */
 export class Example {

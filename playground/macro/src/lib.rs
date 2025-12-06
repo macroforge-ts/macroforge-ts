@@ -33,7 +33,7 @@ pub struct MacroManifest {
 }
 
 /// Get the manifest of all macros available in this package
-#[napi(js_name = "__tsMacrosGetManifest")]
+#[napi(js_name = "__macroforgeGetManifest")]
 pub fn get_macro_manifest() -> MacroManifest {
     let manifest = derived::get_manifest();
 
@@ -63,13 +63,13 @@ pub fn get_macro_manifest() -> MacroManifest {
 }
 
 /// Check if this package exports macros
-#[napi(js_name = "__tsMacrosIsMacroPackage")]
+#[napi(js_name = "__macroforgeIsMacroPackage")]
 pub fn is_macro_package() -> bool {
     !derived::macro_names().is_empty()
 }
 
 /// Get the names of all macros in this package
-#[napi(js_name = "__tsMacrosGetMacroNames")]
+#[napi(js_name = "__macroforgeGetMacroNames")]
 pub fn get_macro_names() -> Vec<String> {
     derived::macro_names()
         .into_iter()

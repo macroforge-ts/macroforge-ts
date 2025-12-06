@@ -129,7 +129,7 @@ impl MacroDispatcher {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::traits::TsMacro;
+    use crate::traits::Macroforge;
     use std::sync::Arc;
     use ts_macro_abi::{ClassIR, MacroKind, SpanIR, TargetIR};
 
@@ -137,7 +137,7 @@ mod tests {
         name: String,
     }
 
-    impl TsMacro for TestMacro {
+    impl Macroforge for TestMacro {
         fn name(&self) -> &str {
             &self.name
         }

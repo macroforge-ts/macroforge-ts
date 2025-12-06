@@ -1,4 +1,4 @@
-import { Derive, Debug, debug } from "@ts-macros/swc-napi";
+import { Derive, Debug, debug } from "@macroforge/swc-napi";
 import { Schema } from "effect";
 import {
   TaxRate,

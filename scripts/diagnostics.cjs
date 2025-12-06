@@ -18,21 +18,21 @@ function getTypeScript() {
     return ts;
 }
 
-// Lazy-loaded ts-macros native module
-let tsMacrosModule = null;
-function getTsMacrosModule() {
-    if (tsMacrosModule === undefined) {
-        return tsMacrosModule;
+// Lazy-loaded macroforge native module
+let macroforgeModule = null;
+function getMacroforgesModule() {
+    if (macroforgeModule === undefined) {
+        return macroforgeModule;
     }
-    if (tsMacrosModule === null) {
+    if (macroforgeModule === null) {
         try {
-            tsMacrosModule = require('@ts-macros/swc-napi');
+            macroforgeModule = require('@macroforge/swc-napi');
         } catch {
-            tsMacrosModule = undefined;
-            console.warn('ts-macros native module not found, macro diagnostics will be skipped');
+            macroforgeModule = undefined;
+            console.warn('macroforge native module not found, macro diagnostics will be skipped');
         }
     }
-    return tsMacrosModule;
+    return macroforgeModule;
 }
 
 // Parse command line arguments
@@ -465,7 +465,7 @@ async function getLanguageServiceDiagnostics(tsConfigPath) {
                     // Skip diagnostics that tsc would already catch (non-plugin diagnostics)
                     // Plugin diagnostics typically have:
                     // - codes >= 100000
-                    // - code 9999 (ts-macros)
+                    // - code 9999 (macroforge)
                     // - source containing 'plugin' or 'macros'
                     // - source that's not 'ts' (standard TypeScript)
                     const isPluginDiagnostic =
@@ -473,7 +473,7 @@ async function getLanguageServiceDiagnostics(tsConfigPath) {
                         diagnostic.code === 9999 ||
                         diagnostic.source?.includes('plugin') ||
                         diagnostic.source?.includes('macros') ||
-                        diagnostic.source === 'ts-macros' ||
+                        diagnostic.source === 'macroforge' ||
                         (diagnostic.source && diagnostic.source !== 'ts');
 
                     if (!isPluginDiagnostic) {
@@ -529,11 +529,11 @@ async function getLanguageServiceDiagnostics(tsConfigPath) {
 }
 
 /**
- * Get macro diagnostics by running the ts-macros expansion directly.
+ * Get macro diagnostics by running the macroforge expansion directly.
  * This catches errors like "Macro X not found in module Y".
  */
 async function getMacroDiagnostics(projectDir) {
-    const macroModule = getTsMacrosModule();
+    const macroModule = getMacroforgesModule();
     if (!macroModule || !macroModule.expandSync) {
         return [];
     }
@@ -585,7 +585,7 @@ async function getMacroDiagnostics(projectDir) {
                             column = (lines[lines.length - 1]?.length || 0) + 1;
                         }
 
-                        const code = 'ts-macros(9999)';
+                        const code = 'macroforge(9999)';
                         const raw = `${level}[${code}]: ${message}\n  --> ${path.relative(ROOT_DIR, filePath)}:${line}:${column}`;
 
                         errors.push({
@@ -595,7 +595,7 @@ async function getMacroDiagnostics(projectDir) {
                             code,
                             message,
                             raw,
-                            tool: 'ts-macros'
+                            tool: 'macroforge'
                         });
                     }
                 }
@@ -611,7 +611,7 @@ async function getMacroDiagnostics(projectDir) {
 }
 
 async function generateMacroTypes(tsConfigPaths) {
-    const macroModule = getTsMacrosModule();
+    const macroModule = getMacroforgesModule();
     const ts = getTypeScript();
     if (!macroModule || !macroModule.expandSync || !ts) {
         return;
@@ -619,7 +619,7 @@ async function generateMacroTypes(tsConfigPaths) {
 
     for (const tsConfigPath of tsConfigPaths) {
         const projectRoot = path.dirname(tsConfigPath);
-        const typesRoot = path.join(projectRoot, '.ts-macros', 'types');
+        const typesRoot = path.join(projectRoot, '.macroforge', 'types');
         const { options } = loadCompilerOptions(ts, tsConfigPath);
 
         try {
@@ -644,7 +644,7 @@ async function generateMacroTypes(tsConfigPaths) {
                 relPath.endsWith('.d.ts') ||
                 (!relPath.endsWith('.ts') && !relPath.endsWith('.tsx')) ||
                 relPath.includes('node_modules') ||
-                relPath.includes('.ts-macros/types')
+                relPath.includes('.macroforge/types')
             ) {
                 continue;
             }
@@ -694,12 +694,12 @@ async function getTsConfigPaths() {
             trackedTsConfigs.push(configPath);
         }
     }
-    
+
     // Filter out test-related tsconfig files
-    const primaryTsConfigs = trackedTsConfigs.filter(configPath => 
-        !configPath.includes('test/') && 
+    const primaryTsConfigs = trackedTsConfigs.filter(configPath =>
+        !configPath.includes('test/') &&
         (
-            configPath.includes('packages/') || 
+            configPath.includes('packages/') ||
             configPath.includes('playground/')
         )
     );
@@ -761,7 +761,7 @@ async function main() {
 
     for (const tsConfigPath of tsConfigPaths) {
         console.log(`  Checking project: ${path.relative(ROOT_DIR, tsConfigPath)}`);
-        const tsResult = await runCommand(`npx ts-macro tsc -p ${tsConfigPath}`);
+        const tsResult = await runCommand(`npx macroforge tsc -p ${tsConfigPath}`);
         if (tsResult.stdout || tsResult.stderr) {
             console.log('    TypeScript output detected. Parsing...');
             const tsErrors = await parseTypeScriptErrors(tsResult.stdout + tsResult.stderr);
@@ -811,9 +811,9 @@ async function main() {
         }
     }
 
-    // --- ts-macros Diagnostics ---
-    console.log('\nRunning ts-macros expansion checks...');
-    const macroModule = getTsMacrosModule();
+    // --- macroforge Diagnostics ---
+    console.log('\nRunning macroforge expansion checks...');
+    const macroModule = getMacroforgesModule();
     if (macroModule) {
         // Check playground directories and any other directories with @derive usage
         const dirsToCheck = [
@@ -845,7 +845,7 @@ async function main() {
             }
         }
     } else {
-        console.log('  Skipping (ts-macros module not available)');
+        console.log('  Skipping (macroforge module not available)');
     }
 
     // --- Deduplicate Errors ---

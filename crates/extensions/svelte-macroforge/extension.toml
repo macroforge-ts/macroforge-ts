@@ -1,0 +1,15 @@
+id = "svelte-macroforge"
+name = "Svelte Language Server Macroforge"
+version = "0.1.0"
+schema_version = 1
+authors = ["macroforge contributors"]
+description = "Builds and launches the forked svelte-language-server with macroforge integration."
+repository = "https://github.com/rymskip/macroforge"
+
+[language_servers.ts-derive-svelte]
+name = "Svelte Macroforge"
+language = "Svelte"
+languages = ["Svelte"]
+
+[language_servers.ts-derive-svelte.language_ids]
+"Svelte" = "svelte"

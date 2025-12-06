@@ -11,12 +11,12 @@ pub enum TsSynError {
 }
 
 #[derive(Debug)]
-pub struct TsMacroError {
+pub struct MacroforgeError {
     message: String,
     span: Option<SpanIR>,
 }
 
-impl TsMacroError {
+impl MacroforgeError {
     pub fn new(span: SpanIR, message: impl Into<String>) -> Self {
         Self {
             message: message.into(),
@@ -42,8 +42,8 @@ impl TsMacroError {
     }
 }
 
-impl From<TsMacroError> for MacroResult {
-    fn from(err: TsMacroError) -> Self {
+impl From<MacroforgeError> for MacroResult {
+    fn from(err: MacroforgeError) -> Self {
         MacroResult {
             diagnostics: vec![err.to_diagnostic()],
             ..Default::default()
@@ -51,10 +51,10 @@ impl From<TsMacroError> for MacroResult {
     }
 }
 
-impl std::fmt::Display for TsMacroError {
+impl std::fmt::Display for MacroforgeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.message)
     }
 }
 
-impl std::error::Error for TsMacroError {}
+impl std::error::Error for MacroforgeError {}

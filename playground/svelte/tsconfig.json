@@ -15,9 +15,9 @@
 		"moduleResolution": "bundler",
 		"plugins": [
 			{
-				"name": "@ts-macros/ts-derive-plugin",
+				"name": "@macroforge/ts-derive-plugin",
 				"macroNames": ["Derive"],
-				"mixinModule": "@ts-macros/macros",
+				"mixinModule": "@macroforge/macros",
 				"mixinTypes": ["MacroDebug", "MacroJSON"]
 			}
 		]
@@ -30,7 +30,7 @@
 		"src/**/*.js",
 		"src/**/*.ts",
 		"src/**/*.svelte",
-		".ts-macros/types/**/*.d.ts"
+		".macroforge/types/**/*.d.ts"
 	]
 	// Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias
 	// except $lib which is handled by https://svelte.dev/docs/kit/configuration#files

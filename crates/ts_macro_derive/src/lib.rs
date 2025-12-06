@@ -83,7 +83,7 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         "__ts_macro_run_{}",
         options.name.to_string().to_case(Case::Snake)
     );
-    let run_macro_js_name = format!("__tsMacrosRun{}", options.name);
+    let run_macro_js_name = format!("__macroforgeRun{}", options.name);
     let run_macro_js_name_lit = LitStr::new(&run_macro_js_name, Span::call_site());
 
     let run_macro_napi = quote! {
@@ -91,7 +91,7 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         /// Called by the TS plugin to execute macro expansion
         #[::napi_derive::napi(js_name = #run_macro_js_name_lit)]
         pub fn #run_macro_fn_ident(context_json: String) -> ::napi::Result<String> {
-            use ts_macro_host::TsMacro;
+            use ts_macro_host::Macroforge;
 
             // Parse the context from JSON
             let ctx: ts_macro_abi::MacroContextIR = serde_json::from_str(&context_json)
@@ -116,7 +116,7 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
 
         pub struct #struct_ident;
 
-        impl ts_macro_host::TsMacro for #struct_ident {
+        impl ts_macro_host::Macroforge for #struct_ident {
             fn name(&self) -> &str {
                 #macro_name
             }
@@ -138,7 +138,7 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         }
 
         #[allow(non_upper_case_globals)]
-        const #ctor_ident: fn() -> std::sync::Arc<dyn ts_macro_host::TsMacro> = || {
+        const #ctor_ident: fn() -> std::sync::Arc<dyn ts_macro_host::Macroforge> = || {
             std::sync::Arc::new(#struct_ident)
         };
 

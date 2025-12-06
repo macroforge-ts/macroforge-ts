@@ -404,7 +404,7 @@ impl MacroExpander {
                 span: None,
                 notes: vec![],
                 help: Some(
-                    "Adjust `limits.maxDiagnostics` in ts-macros.json to see all diagnostics"
+                    "Adjust `limits.maxDiagnostics` in macroforge.json to see all diagnostics"
                         .to_string(),
                 ),
             });
@@ -701,10 +701,10 @@ fn find_macro_comment_span(source: &str, target_start: u32) -> Option<SpanIR> {
 
 fn split_by_markers(source: &str) -> Vec<(&str, String)> {
     let markers = [
-        ("above", "/* @ts-macro:above */"),
-        ("below", "/* @ts-macro:below */"),
-        ("body", "/* @ts-macro:body */"),
-        ("signature", "/* @ts-macro:signature */"),
+        ("above", "/* @macroforge:above */"),
+        ("below", "/* @macroforge:below */"),
+        ("body", "/* @macroforge:body */"),
+        ("signature", "/* @macroforge:signature */"),
     ];
 
     // Find all occurrences

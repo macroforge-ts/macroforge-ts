@@ -1,4 +1,4 @@
-//! Thin wrappers around SWC's `quote!` machinery tailored for ts-macros.
+//! Thin wrappers around SWC's `quote!` machinery tailored for macroforge.
 //!
 //! Macro authors can depend on this crate to access the familiar `quote!`
 //! macro (re-exported from `swc_core`) plus a couple of helpers for creating
@@ -478,25 +478,25 @@ pub fn ts_template(input: TokenStream) -> TokenStream {
 #[proc_macro]
 pub fn above(input: TokenStream) -> TokenStream {
     let input = TokenStream2::from(input);
-    generate_scoped_template(input, "/* @ts-macro:above */")
+    generate_scoped_template(input, "/* @macroforge:above */")
 }
 
 #[proc_macro]
 pub fn below(input: TokenStream) -> TokenStream {
     let input = TokenStream2::from(input);
-    generate_scoped_template(input, "/* @ts-macro:below */")
+    generate_scoped_template(input, "/* @macroforge:below */")
 }
 
 #[proc_macro]
 pub fn body(input: TokenStream) -> TokenStream {
     let input = TokenStream2::from(input);
-    generate_scoped_template(input, "/* @ts-macro:body */")
+    generate_scoped_template(input, "/* @macroforge:body */")
 }
 
 #[proc_macro]
 pub fn signature(input: TokenStream) -> TokenStream {
     let input = TokenStream2::from(input);
-    generate_scoped_template(input, "/* @ts-macro:signature */")
+    generate_scoped_template(input, "/* @macroforge:signature */")
 }
 
 fn generate_scoped_template(input: TokenStream2, marker: &str) -> TokenStream {
