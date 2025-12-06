@@ -6,6 +6,10 @@ edition = "2024"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[[bin]]
+name = "macroforge"
+path = "src/bin/cli.rs"
+
 [dependencies]
 # NAPI-RS for Node.js bindings
 napi = { version = "3.5.2", features = ["napi8", "compat-mode"] }
@@ -35,6 +39,9 @@ inventory = "0.3.21"
 # Error handling
 anyhow = "1.0"
 thiserror = "2.0"
+
+# CLI
+clap = { version = "4.5", features = ["derive"] }
 
 # Concurrency
 dashmap = "6.1"

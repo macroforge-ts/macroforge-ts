@@ -100,7 +100,7 @@ mod tests {
         // The source now includes the body marker, strip it for parsing test
         let body_content = source
             .strip_prefix("/* @macroforge:body */")
-            .unwrap_or(&source);
+            .unwrap_or(source);
 
         // Try to parse as class members
         let wrapped = format!("class __Temp {{ {} }}", body_content);
