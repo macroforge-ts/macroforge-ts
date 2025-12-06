@@ -3,11 +3,11 @@ use std::path::{Path, PathBuf};
 use zed_extension_api as zed;
 
 const VTSLS_BIN: &str = "node_modules/@vtsls/language-server/bin/vtsls.js";
-const PLUGIN_NAME: &str = "@ts-macros/ts-derive-plugin";
+const PLUGIN_NAME: &str = "@macroforge/ts-derive-plugin";
 
-struct TsMacrosExtension;
+struct MacroforgesExtension;
 
-impl TsMacrosExtension {
+impl MacroforgesExtension {
     fn ensure_vtsls(worktree: &zed::Worktree) -> zed::Result<String> {
         let path = PathBuf::from(worktree.root_path()).join(VTSLS_BIN);
         if !path.exists() {
@@ -50,7 +50,7 @@ impl TsMacrosExtension {
     }
 }
 
-impl zed::Extension for TsMacrosExtension {
+impl zed::Extension for MacroforgesExtension {
     fn new() -> Self {
         Self
     }
@@ -77,4 +77,4 @@ impl zed::Extension for TsMacrosExtension {
     }
 }
 
-zed::register_extension!(TsMacrosExtension);
+zed::register_extension!(MacroforgesExtension);

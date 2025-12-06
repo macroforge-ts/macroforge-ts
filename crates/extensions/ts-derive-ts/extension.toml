@@ -1,7 +1,0 @@
-id = "ts-derive-ts"
-name = "TS Derive TypeScript Config"
-version = "0.1.0"
-schema_version = 1
-authors = ["ts-macros contributors"]
-description = "Injects @ts-macros/ts-derive-plugin settings into the built-in VTSLS."
-repository = "https://github.com/rymskip/ts-macros"
