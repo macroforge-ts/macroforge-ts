@@ -1,5 +1,6 @@
 import { Derive, Debug, debug } from "macroforge";
 import { JSON } from "@playground/macro";
+/** import macro { JSON } from "@playground/macro"; */
 
 // Example of using Derive decorator and dynamic macro
 /** @derive(Debug, JSON) */

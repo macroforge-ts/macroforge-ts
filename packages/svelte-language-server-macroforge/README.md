@@ -299,7 +299,7 @@ Enable document highlight support. Requires a restart. _Default_: `true`
 
 ## TS Macros Integration Overview
 
-Some projects rely on the `@macroforge/macroforge-derive-plugin` TypeScript plugin to
+Some projects rely on the `@macroforge/tsserver-plugin-macroforge` TypeScript plugin to
 inject macro-generated APIs (for example `toJSON()` or `toString()` for classes
 decorated with `@derive`). tsserver plugins are not guaranteed to load when the
 Svelte language server runs inside sandboxed editor runtimes (Zed, WASM, etc.),
@@ -313,7 +313,7 @@ Implementation outline:
    `augmentWithMacroforges` helper that rewrites source text when decorated classes
    are found.
 2. During TypeScript service boot (`src/plugins/typescript/service.ts`) we read
-   any `@macroforge/macroforge-derive-plugin` entry from the workspace tsconfig and build
+   any `@macroforge/tsserver-plugin-macroforge` entry from the workspace tsconfig and build
    the augmentation config from it. The config travels with the parsed compiler
    options and is passed to every snapshot factory.
 3. `DocumentSnapshot` applies the augmentation for both Svelte snapshots and

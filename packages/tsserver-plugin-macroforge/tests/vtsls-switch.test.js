@@ -151,7 +151,7 @@ test("vtsls + tsserver-plugin-macroforge survives file switching", async (t) => 
             pluginPaths: [PLUGIN_PATH],
             globalPlugins: [
               {
-                name: "@macroforge/macroforge-derive-plugin",
+                name: "@macroforge/tsserver-plugin-macroforge",
                 location: PLUGIN_PATH,
                 languages: ["typescript", "typescriptreact"],
                 enableForWorkspaceTypeScriptVersions: true,

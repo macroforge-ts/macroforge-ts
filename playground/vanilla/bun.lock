@@ -5,6 +5,7 @@
     "": {
       "name": "playground",
       "dependencies": {
+        "@playground/macro": "file:../macro",
         "macroforge": "file:../../crates/macroforge_ts",
       },
       "devDependencies": {
@@ -70,6 +71,8 @@
     "@esbuild/win32-x64": ["@esbuild/win32-x64@0.25.12", "", { "os": "win32", "cpu": "x64" }, "sha512-alJC0uCZpTFrSL0CCDjcgleBXPnCrEAhTBILpeAp7M/OFgoqtAetfBzX0xM00MUsVVPpVjlPuMbREqnZCXaTnA=="],
 
     "@macroforge/tsserver-plugin-macroforge": ["@macroforge/tsserver-plugin-macroforge@file:../../packages/tsserver-plugin-macroforge", { "dependencies": { "macroforge": "file:../../crates/macroforge_ts" }, "devDependencies": { "typescript": "^5.9.3" }, "peerDependencies": { "typescript": ">=5.0.0" } }],
+
+    "@playground/macro": ["@playground/macro@file:../macro", {}],
 
     "@rollup/rollup-android-arm-eabi": ["@rollup/rollup-android-arm-eabi@4.53.3", "", { "os": "android", "cpu": "arm" }, "sha512-mRSi+4cBjrRLoaal2PnqH82Wqyb+d3HsPUN/W+WslCXsZsyHa9ZeQQX/pQsZaVIWDkPcpV6jJ+3KLbTbgnwv8w=="],
 

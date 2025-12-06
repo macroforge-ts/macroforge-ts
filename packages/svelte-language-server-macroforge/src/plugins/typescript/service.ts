@@ -114,7 +114,7 @@ enum TsconfigSvelteDiagnostics {
 }
 
 const maxProgramSizeForNonTsFiles = 20 * 1024 * 1024; // 20 MB
-const TS_MACROS_PLUGIN_NAME = '@macroforge/macroforge-derive-plugin';
+const TS_MACROS_PLUGIN_NAME = '@macroforge/tsserver-plugin-macroforge';
 const services = new FileMap<Promise<LanguageServiceContainer>>();
 const serviceSizeMap = new FileMap<number>();
 const configWatchers = new FileMap<ts.FileWatcher>();
@@ -348,9 +348,11 @@ async function createLanguageService(
         raw?.compilerOptions?.plugins?.find(
             (plugin: { name?: string }) => plugin?.name === TS_MACROS_PLUGIN_NAME
         ) ?? {};
-        const macroforgeConfig: MacroforgeAugmentationConfig = createMacroforgeAugmentationConfig(
-            config.raw?.['macroforge-derive-plugin']
-        macroforge);
+    const macroforgeConfig: MacroforgeAugmentationConfig = createMacroforgeAugmentationConfig(
+        macroforgePluginSettings && Object.keys(macroforgePluginSettings).length > 0
+            ? macroforgePluginSettings
+            : (raw as Record<string, unknown>)?.['tsserver-plugin-macroforge']
+    );
     ensureMacroforgesPlugin(
         compilerOptions,
         tsconfigPath ? dirname(tsconfigPath) : workspacePath || process.cwd()

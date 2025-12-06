@@ -13,10 +13,10 @@
 		"index.js"
 	],
 	"scripts": {
-		"build": "napi build --platform --release -p playground-macros",
-		"prepare": "npm run build",
+		"build": "bun x @napi-rs/cli build --platform --release -p playground-macros",
+		"prepare": "bun run build",
 		"clean": "rm -rf *.node",
-		"cleanbuild": "rm -rf *.node && napi build --platform --release -p playground-macros"
+		"cleanbuild": "rm -rf *.node && bun x @napi-rs/cli build --platform --release -p playground-macros"
 	},
 	"engines": {
 		"node": ">= 18"

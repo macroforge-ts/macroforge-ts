@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist",
-    "test": "bun run build --silent && node --test tests/**/*.test.js",
+    "test": "bun run build && node --test tests/**/*.test.js",
     "prepublishOnly": "bun run clean && bun run build"
   },
   "dependencies": {

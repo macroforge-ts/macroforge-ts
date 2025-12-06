@@ -1,6 +1,3 @@
-// Import macro functions (these will be transformed by our Rust plugin)
-import "./test-intellisense"; // Trigger type generation for Product class
-import "./demo-intellisense"; // Trigger type generation for Customer class
 import { User } from "./user";
 
 // Test the generated methods

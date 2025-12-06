@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite'
-import napiMacrosPlugin from 'vite-plugin-napi'
+import macroforge from 'vite-plugin-macroforge'
 
 export default defineConfig({
   plugins: [
-    napiMacrosPlugin({
+    macroforge({
       typesOutputDir: '.macroforge/types',
       metadataOutputDir: '.macroforge/meta'
     })

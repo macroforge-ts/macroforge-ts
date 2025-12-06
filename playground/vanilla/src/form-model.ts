@@ -4,13 +4,14 @@ import {
   fieldController,
   textAreaController,
 } from "@playground/macro";
+/** import macro { FieldController } from "@playground/macro"; */
 
 /**
  * Example class using the FieldController macro
  *
  * Usage:
- * /** @derive(FieldController) */ on the class
- * @FieldController(TextAreaController) on fields you want to generate controllers for
+ * - Add @derive(FieldController) on the class
+ * - Add @FieldController(TextAreaController) on fields you want to generate controllers for
  */
 /** @derive(FieldController) */
 export class FormModel {

@@ -43,8 +43,8 @@ import { URI } from "vscode-uri";
 import { surroundWithIgnoreComments } from "./features/utils";
 import { configLoader } from "../../lib/documents/configLoader";
 import {
-  augmentWithMacroforges,
-  MacroforgesAugmentationConfig,
+  augmentWithMacroforge,
+  MacroforgeAugmentationConfig,
   MacroDiagnostic,
 } from "./macroforgeAugmenter";
 
@@ -107,7 +107,7 @@ export namespace DocumentSnapshot {
   export function fromDocument(
     document: Document,
     options: SvelteSnapshotOptions,
-    macroforgeConfig?: MacroforgesAugmentationConfig,
+    macroforgeConfig?: MacroforgeAugmentationConfig,
   ) {
     const {
       tsxMap,
@@ -144,7 +144,7 @@ export namespace DocumentSnapshot {
     createDocument: (filePath: string, text: string) => Document,
     options: SvelteSnapshotOptions,
     tsSystem: ts.System,
-    macroforgeConfig?: MacroforgesAugmentationConfig,
+    macroforgeConfig?: MacroforgeAugmentationConfig,
   ) {
     if (isSvelteFilePath(filePath)) {
       return DocumentSnapshot.fromSvelteFilePath(
@@ -171,7 +171,7 @@ export namespace DocumentSnapshot {
   export function fromNonSvelteFilePath(
     filePath: string,
     tsSystem: ts.System,
-    macroforgeConfig?: MacroforgesAugmentationConfig,
+    macroforgeConfig?: MacroforgeAugmentationConfig,
   ) {
     // The following (very hacky) code makes sure that the ambient module definitions
     // that tell TS "every import ending with .svelte is a valid module" are removed.
@@ -239,7 +239,7 @@ export namespace DocumentSnapshot {
     createDocument: (filePath: string, text: string) => Document,
     options: SvelteSnapshotOptions,
     tsSystem: ts.System,
-    macroforgeConfig?: MacroforgesAugmentationConfig,
+    macroforgeConfig?: MacroforgeAugmentationConfig,
   ) {
     const originalText = tsSystem.readFile(filePath) ?? "";
     return fromDocument(
@@ -355,9 +355,9 @@ export class SvelteDocumentSnapshot implements DocumentSnapshot {
     private readonly exportedNames: IExportedNames,
     private readonly tsxMap?: EncodedSourceMap,
     private readonly htmlAst?: TemplateNode,
-    private readonly macroforgeConfig?: MacroforgesAugmentationConfig,
+    private readonly macroforgeConfig?: MacroforgeAugmentationConfig,
   ) {
-    this.applyMacroforgesAugmentation();
+    this.applyMacroforgeAugmentation();
   }
 
   get filePath() {
@@ -366,12 +366,12 @@ export class SvelteDocumentSnapshot implements DocumentSnapshot {
 
   public macroDiagnostics: MacroDiagnostic[] = [];
 
-  private applyMacroforgesAugmentation() {
+  private applyMacroforgeAugmentation() {
     if (!this.macroforgeConfig) {
       return;
     }
 
-    const augmented = augmentWithMacroforges(
+    const augmented = augmentWithMacroforge(
       ts,
       this.filePath,
       this.text,
@@ -559,7 +559,7 @@ export class JSOrTSDocumentSnapshot
     public version: number,
     public readonly filePath: string,
     private text: string,
-    private readonly macroforgeConfig?: MacroforgesAugmentationConfig,
+    private readonly macroforgeConfig?: MacroforgeAugmentationConfig,
   ) {
     super(pathToUrl(filePath));
     this.adjustText();
@@ -714,17 +714,17 @@ export class JSOrTSDocumentSnapshot
       this.text = text;
     }
 
-    this.applyMacroforgesAugmentation();
+    this.applyMacroforgeAugmentation();
   }
 
   public macroDiagnostics: MacroDiagnostic[] = [];
 
-  private applyMacroforgesAugmentation() {
+  private applyMacroforgeAugmentation() {
     if (!this.macroforgeConfig) {
       return;
     }
 
-    const augmented = augmentWithMacroforges(
+    const augmented = augmentWithMacroforge(
       ts,
       this.filePath,
       this.text,
@@ -765,7 +765,7 @@ export class DtsDocumentSnapshot
     filePath: string,
     text: string,
     private tsSys: ts.System,
-    macroforgeConfig?: MacroforgesAugmentationConfig,
+    macroforgeConfig?: MacroforgeAugmentationConfig,
   ) {
     super(version, filePath, text, macroforgeConfig);
   }
