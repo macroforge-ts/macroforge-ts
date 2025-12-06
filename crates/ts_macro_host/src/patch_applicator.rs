@@ -42,7 +42,7 @@ impl<'a> PatchApplicator<'a> {
 
         for patch in self.patches.iter().rev() {
             match patch {
-                Patch::Insert { at, code } => {
+                Patch::Insert { at, code, .. } => {
                     let rendered = render_patch_code(code)?;
                     let formatted =
                         self.format_insertion(&rendered, at.start.saturating_sub(1) as usize, code);
@@ -58,7 +58,7 @@ impl<'a> PatchApplicator<'a> {
                         result.insert_str(idx, code);
                     }
                 }
-                Patch::Replace { span, code } => {
+                Patch::Replace { span, code, .. } => {
                     let rendered = render_patch_code(code)?;
                     let start = span.start.saturating_sub(1) as usize;
                     let end = span.end.saturating_sub(1) as usize;
@@ -87,7 +87,9 @@ impl<'a> PatchApplicator<'a> {
     }
 
     /// Apply all patches and return both the modified source code and source mapping.
-    pub fn apply_with_mapping(mut self, macro_name: Option<&str>) -> Result<ApplyResult> {
+    ///
+    /// The `fallback_macro_name` is used when a patch doesn't have its own `source_macro` set.
+    pub fn apply_with_mapping(mut self, fallback_macro_name: Option<&str>) -> Result<ApplyResult> {
         // Sort patches by position (forward order for mapping generation)
         self.sort_patches();
 
@@ -117,7 +119,7 @@ impl<'a> PatchApplicator<'a> {
         let mut expanded_pos: u32 = 1; // 1-based position
         let source_len = self.source.len() as u32;
         let source_end_pos = source_len + 1; // 1-based position after last char
-        let macro_attribution = macro_name.unwrap_or("macro");
+        let default_macro_name = fallback_macro_name.unwrap_or("macro");
 
         for patch in &self.patches {
             // Helper closure to copy unchanged content
@@ -145,8 +147,11 @@ impl<'a> PatchApplicator<'a> {
                 }
             };
 
+            // Get the macro name for this patch (use per-patch source_macro if available, else fallback)
+            let macro_attribution = patch.source_macro().unwrap_or(default_macro_name);
+
             match patch {
-                Patch::Insert { at, code } => {
+                Patch::Insert { at, code, .. } => {
                     copy_unchanged(at.start);
 
                     let rendered = render_patch_code(code)?;
@@ -176,7 +181,7 @@ impl<'a> PatchApplicator<'a> {
                     ));
                     expanded_pos += gen_len;
                 }
-                Patch::Replace { span, code } => {
+                Patch::Replace { span, code, .. } => {
                     copy_unchanged(span.start);
 
                     let rendered = render_patch_code(code)?;
@@ -452,9 +457,9 @@ fn dedupe_patches(patches: &mut Vec<Patch>) -> Result<()> {
         // We calculate the key here. If rendering fails, we can either error out
         // or choose to keep the patch. Here we propagate the error.
         let key = match patch {
-            Patch::Insert { at, code } => (0, at.start, at.end, Some(render_patch_code(code)?)),
+            Patch::Insert { at, code, .. } => (0, at.start, at.end, Some(render_patch_code(code)?)),
             Patch::InsertRaw { at, code, .. } => (3, at.start, at.end, Some(code.clone())),
-            Patch::Replace { span, code } => {
+            Patch::Replace { span, code, .. } => {
                 (1, span.start, span.end, Some(render_patch_code(code)?))
             }
             Patch::ReplaceRaw { span, code, .. } => (4, span.start, span.end, Some(code.clone())),
@@ -515,6 +520,7 @@ mod tests {
         let patch = Patch::Insert {
             at: SpanIR { start: 12, end: 12 },
             code: " bar: string; ".to_string().into(),
+            source_macro: None,
         };
 
         let applicator = PatchApplicator::new(source, vec![patch]);
@@ -529,6 +535,7 @@ mod tests {
         let patch = Patch::Replace {
             span: SpanIR { start: 13, end: 26 },
             code: "new: string;".to_string().into(),
+            source_macro: None,
         };
 
         let applicator = PatchApplicator::new(source, vec![patch]);
@@ -556,10 +563,12 @@ mod tests {
             Patch::Insert {
                 at: SpanIR { start: 12, end: 12 },
                 code: " bar: string;".to_string().into(),
+                source_macro: None,
             },
             Patch::Insert {
                 at: SpanIR { start: 12, end: 12 },
                 code: " baz: number;".to_string().into(),
+                source_macro: None,
             },
         ];
 
@@ -582,6 +591,7 @@ mod tests {
                 end: constructor_end as u32 + 1,
             },
             code: "constructor();".to_string().into(),
+            source_macro: None,
         };
 
         let applicator = PatchApplicator::new(source, vec![patch]);
@@ -653,6 +663,7 @@ mod tests {
                 end: closing_brace_pos as u32 + 1,
             },
             code: "toString(): string;".to_string().into(),
+            source_macro: None,
         };
 
         let applicator = PatchApplicator::new(source, vec![patch]);
@@ -679,6 +690,7 @@ mod tests {
                     end: closing_brace_pos as u32 + 1,
                 },
                 code: "toString(): string;".to_string().into(),
+                source_macro: None,
             },
             Patch::Insert {
                 at: SpanIR {
@@ -686,6 +698,7 @@ mod tests {
                     end: closing_brace_pos as u32 + 1,
                 },
                 code: "toJSON(): Record<string, unknown>;".to_string().into(),
+                source_macro: None,
             },
         ];
 
@@ -728,14 +741,17 @@ mod tests {
             Patch::Insert {
                 at: SpanIR { start: 11, end: 11 },
                 code: "console.log('a');".to_string().into(),
+                source_macro: None,
             },
             Patch::Insert {
                 at: SpanIR { start: 11, end: 11 },
                 code: "console.log('a');".to_string().into(),
+                source_macro: None,
             },
             Patch::Insert {
                 at: SpanIR { start: 21, end: 21 },
                 code: "console.log('b');".to_string().into(),
+                source_macro: None,
             },
         ];
 
@@ -780,10 +796,11 @@ mod tests {
         let patch = Patch::Insert {
             at: SpanIR { start: 12, end: 12 },
             code: " bar;".to_string().into(),
+            source_macro: Some("Test".to_string()),
         };
 
         let applicator = PatchApplicator::new(source, vec![patch]);
-        let result = applicator.apply_with_mapping(Some("Test")).unwrap();
+        let result = applicator.apply_with_mapping(None).unwrap();
 
         // Original: "class Foo {}" (12 chars)
         // Expanded: "class Foo { bar;}" (17 chars)
@@ -831,6 +848,7 @@ mod tests {
         let patch = Patch::Replace {
             span: SpanIR { start: 9, end: 12 },
             code: "new".to_string().into(),
+            source_macro: None,
         };
 
         let applicator = PatchApplicator::new(source, vec![patch]);
@@ -894,15 +912,17 @@ mod tests {
             Patch::Insert {
                 at: SpanIR { start: 3, end: 3 },
                 code: "X".to_string().into(),
+                source_macro: Some("multi".to_string()),
             },
             Patch::Insert {
                 at: SpanIR { start: 5, end: 5 },
                 code: "Y".to_string().into(),
+                source_macro: Some("multi".to_string()),
             },
         ];
 
         let applicator = PatchApplicator::new(source, patches);
-        let result = applicator.apply_with_mapping(Some("multi")).unwrap();
+        let result = applicator.apply_with_mapping(None).unwrap();
 
         // "a;Xb;Yc;"
         assert_eq!(result.code, "a;Xb;Yc;");
@@ -931,6 +951,7 @@ mod tests {
         let patch = Patch::Insert {
             at: SpanIR { start: 12, end: 12 },
             code: " bar();".to_string().into(),
+            source_macro: None,
         };
 
         let applicator = PatchApplicator::new(source, vec![patch]);
@@ -959,10 +980,11 @@ mod tests {
         collector.add_runtime_patches(vec![Patch::Insert {
             at: SpanIR { start: 12, end: 12 },
             code: " toString() {}".to_string().into(),
+            source_macro: Some("Debug".to_string()),
         }]);
 
         let result = collector
-            .apply_runtime_patches_with_mapping(source, Some("Debug"))
+            .apply_runtime_patches_with_mapping(source, None)
             .unwrap();
 
         assert!(result.code.contains("toString()"));

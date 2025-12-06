@@ -1,6 +1,6 @@
 //! Macro execution context
 
-use crate::{ClassIR, EnumIR, SpanIR};
+use crate::{ClassIR, EnumIR, InterfaceIR, SpanIR};
 use serde::{Deserialize, Serialize};
 
 /// The kind of macro being executed
@@ -21,8 +21,8 @@ pub enum TargetIR {
     Class(ClassIR),
     /// Macro applied to an enum
     Enum(EnumIR),
-    /// Macro applied to an interface (future)
-    Interface,
+    /// Macro applied to an interface
+    Interface(InterfaceIR),
     /// Macro applied to a function (future)
     Function,
     /// Macro applied to other construct
@@ -44,8 +44,13 @@ pub struct MacroContextIR {
     /// The module path the macro comes from (e.g., "@macro/derive")
     pub module_path: String,
 
-    /// Span of the decorator/macro invocation
+    /// Span of the decorator/macro invocation (entire @derive(...))
     pub decorator_span: SpanIR,
+
+    /// Span of just the macro name within the decorator (e.g., "Debug" in @derive(Debug))
+    /// Used for error reporting to point to the specific macro that caused the error
+    #[serde(default)]
+    pub macro_name_span: Option<SpanIR>,
 
     /// Span of the target (class, enum, etc.)
     pub target_span: SpanIR,
@@ -78,11 +83,23 @@ impl MacroContextIR {
             macro_name,
             module_path,
             decorator_span,
+            macro_name_span: None,
             target_span,
             file_name,
             target: TargetIR::Class(class),
             target_source,
         }
+    }
+
+    /// Set the macro name span (builder pattern)
+    pub fn with_macro_name_span(mut self, span: SpanIR) -> Self {
+        self.macro_name_span = Some(span);
+        self
+    }
+
+    /// Get the best span for error reporting - prefers macro_name_span if available
+    pub fn error_span(&self) -> SpanIR {
+        self.macro_name_span.unwrap_or(self.decorator_span)
     }
 
     /// Get the class IR if the target is a class
@@ -98,6 +115,38 @@ impl MacroContextIR {
         match &self.target {
             TargetIR::Enum(enum_ir) => Some(enum_ir),
             _ => None,
+        }
+    }
+
+    /// Get the interface IR if the target is an interface
+    pub fn as_interface(&self) -> Option<&InterfaceIR> {
+        match &self.target {
+            TargetIR::Interface(interface_ir) => Some(interface_ir),
+            _ => None,
+        }
+    }
+
+    /// Create a new macro context for a derive macro on an interface
+    pub fn new_derive_interface(
+        macro_name: String,
+        module_path: String,
+        decorator_span: SpanIR,
+        target_span: SpanIR,
+        file_name: String,
+        interface: InterfaceIR,
+        target_source: String,
+    ) -> Self {
+        Self {
+            abi_version: 1,
+            macro_kind: MacroKind::Derive,
+            macro_name,
+            module_path,
+            decorator_span,
+            macro_name_span: None,
+            target_span,
+            file_name,
+            target: TargetIR::Interface(interface),
+            target_source,
         }
     }
 }

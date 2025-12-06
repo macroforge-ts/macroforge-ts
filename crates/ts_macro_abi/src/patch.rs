@@ -11,10 +11,16 @@ pub enum Patch {
     Insert {
         at: SpanIR,
         code: PatchCode,
+        /// Which macro generated this patch (e.g., "Debug", "Clone")
+        #[cfg_attr(feature = "serde", serde(default))]
+        source_macro: Option<String>,
     },
     Replace {
         span: SpanIR,
         code: PatchCode,
+        /// Which macro generated this patch (e.g., "Debug", "Clone")
+        #[cfg_attr(feature = "serde", serde(default))]
+        source_macro: Option<String>,
     },
     Delete {
         span: SpanIR,
@@ -23,12 +29,60 @@ pub enum Patch {
         at: SpanIR,
         code: String,
         context: Option<String>,
+        /// Which macro generated this patch (e.g., "Debug", "Clone")
+        #[cfg_attr(feature = "serde", serde(default))]
+        source_macro: Option<String>,
     },
     ReplaceRaw {
         span: SpanIR,
         code: String,
         context: Option<String>,
+        /// Which macro generated this patch (e.g., "Debug", "Clone")
+        #[cfg_attr(feature = "serde", serde(default))]
+        source_macro: Option<String>,
     },
+}
+
+impl Patch {
+    /// Get the source macro name for this patch, if set
+    pub fn source_macro(&self) -> Option<&str> {
+        match self {
+            Patch::Insert { source_macro, .. } => source_macro.as_deref(),
+            Patch::Replace { source_macro, .. } => source_macro.as_deref(),
+            Patch::Delete { .. } => None,
+            Patch::InsertRaw { source_macro, .. } => source_macro.as_deref(),
+            Patch::ReplaceRaw { source_macro, .. } => source_macro.as_deref(),
+        }
+    }
+
+    /// Set the source macro name for this patch
+    pub fn with_source_macro(self, macro_name: &str) -> Self {
+        match self {
+            Patch::Insert { at, code, .. } => Patch::Insert {
+                at,
+                code,
+                source_macro: Some(macro_name.to_string()),
+            },
+            Patch::Replace { span, code, .. } => Patch::Replace {
+                span,
+                code,
+                source_macro: Some(macro_name.to_string()),
+            },
+            Patch::Delete { span } => Patch::Delete { span },
+            Patch::InsertRaw { at, code, context, .. } => Patch::InsertRaw {
+                at,
+                code,
+                context,
+                source_macro: Some(macro_name.to_string()),
+            },
+            Patch::ReplaceRaw { span, code, context, .. } => Patch::ReplaceRaw {
+                span,
+                code,
+                context,
+                source_macro: Some(macro_name.to_string()),
+            },
+        }
+    }
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]

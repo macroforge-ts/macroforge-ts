@@ -1,6 +1,6 @@
 /** import macro { FieldController } from '@playground/macro'; */
 
-/** @derive(FieldController) */
+/** @derive(FieldController, Debug) */
 export interface FormModel {
   /** @fieldController(textAreaController)*/
   memo: string | null;

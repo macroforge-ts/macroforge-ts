@@ -16,6 +16,7 @@ pub fn insert_into_class(class_span: SpanIR, code: impl Into<PatchCode>) -> Patc
     Patch::Insert {
         at: SpanIR::new(insert_at, insert_at),
         code: code.into(),
+        source_macro: None,
     }
 }
 

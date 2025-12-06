@@ -146,8 +146,12 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, TsMacroError>
             })
         }
         Data::Enum(_) => Err(TsMacroError::new(
-            input.decorator_span(),
+            input.error_span(),
             "/** @derive(Debug) */ can only be applied to classes",
+        )),
+        Data::Interface(_) => Err(TsMacroError::new(
+            input.error_span(),
+            "/** @derive(Debug) */ can only be applied to classes, not interfaces",
         )),
     }
 }

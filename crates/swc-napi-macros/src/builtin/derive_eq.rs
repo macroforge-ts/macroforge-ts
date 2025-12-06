@@ -47,8 +47,12 @@ pub fn derive_eq_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> {
             })
         }
         Data::Enum(_) => Err(TsMacroError::new(
-            input.decorator_span(),
+            input.error_span(),
             "/** @derive(Eq) */ can only be applied to classes",
+        )),
+        Data::Interface(_) => Err(TsMacroError::new(
+            input.error_span(),
+            "/** @derive(Eq) */ can only be applied to classes, not interfaces",
         )),
     }
 }

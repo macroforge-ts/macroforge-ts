@@ -453,25 +453,41 @@ function init(modules: { typescript: typeof ts }) {
         const effectiveMapper = nativePlugin.getMapper(fileName);
         let mappedDiagnostics: ts.Diagnostic[];
 
+        // Collect diagnostics in generated code to report them at decorator positions
+        const generatedCodeDiagnostics: ts.Diagnostic[] = [];
+
         if (effectiveMapper && !effectiveMapper.isEmpty()) {
           log(`  -> mapping diagnostics with mapper`);
-          mappedDiagnostics = expandedDiagnostics.map((diag) => {
-            if (diag.start === undefined || diag.length === undefined) {
-              return diag;
-            }
-            const mapped = effectiveMapper!.mapSpanToOriginal(
-              diag.start,
-              diag.length,
-            );
-            if (!mapped) {
-              return diag;
-            }
-            return {
-              ...diag,
-              start: mapped.start,
-              length: mapped.length,
-            };
-          });
+          mappedDiagnostics = expandedDiagnostics
+            .map((diag) => {
+              if (diag.start === undefined || diag.length === undefined) {
+                return diag;
+              }
+              const mapped = effectiveMapper!.mapSpanToOriginal(
+                diag.start,
+                diag.length,
+              );
+              if (!mapped) {
+                // Diagnostic is in generated code - check if we should convert it
+                if (effectiveMapper!.isInGenerated(diag.start)) {
+                  // This is an error in macro-generated code
+                  // Collect it to report at decorator position
+                  const macroName = effectiveMapper!.generatedBy(diag.start);
+                  log(
+                    `  -> collecting diagnostic in generated code (macro: ${macroName}): "${diag.messageText}"`,
+                  );
+                  generatedCodeDiagnostics.push(diag);
+                  return null;
+                }
+                return diag;
+              }
+              return {
+                ...diag,
+                start: mapped.start,
+                length: mapped.length,
+              };
+            })
+            .filter((diag): diag is ts.Diagnostic => diag !== null);
         } else {
           // Native plugin is guaranteed to exist after early return check
           log(`  -> mapping diagnostics in native plugin`);
@@ -494,8 +510,184 @@ function init(modules: { typescript: typeof ts }) {
         const version = info.languageServiceHost.getScriptVersion(fileName);
         const { result } = processFile(fileName, text, version);
 
+        // Convert diagnostics from generated code to macro diagnostics
+        // pointing to the specific macro name within the decorator
+        const generatedDiagsAsMacro: ts.Diagnostic[] = [];
+        if (generatedCodeDiagnostics.length > 0 && result.sourceMapping) {
+          // Find all @derive decorators with their macro arguments
+          const deriveRegex = /@derive\s*\(([^)]*)\)/g;
+          const deriveDecorators: Array<{
+            fullStart: number;
+            fullLength: number;
+            macros: Array<{ name: string; start: number; length: number }>;
+          }> = [];
+
+          let match;
+          while ((match = deriveRegex.exec(text)) !== null) {
+            const fullStart = match.index;
+            const fullLength = match[0].length;
+            const argsStart = match.index + match[0].indexOf("(") + 1;
+            const argsText = match[1];
+
+            // Parse individual macro names from the arguments
+            const macros: Array<{
+              name: string;
+              start: number;
+              length: number;
+            }> = [];
+            const macroNameRegex = /([A-Za-z_][A-Za-z0-9_]*)/g;
+            let macroMatch;
+            while ((macroMatch = macroNameRegex.exec(argsText)) !== null) {
+              macros.push({
+                name: macroMatch[1],
+                start: argsStart + macroMatch.index,
+                length: macroMatch[1].length,
+              });
+            }
+
+            deriveDecorators.push({ fullStart, fullLength, macros });
+          }
+
+          // Helper to find the specific macro position for a given expanded position
+          const findMacroPosition = (
+            expandedPos: number,
+            macroName: string,
+          ): { start: number; length: number } => {
+            // Find the generated region containing this position
+            const region = result.sourceMapping!.generatedRegions.find(
+              (r) => expandedPos >= r.start && expandedPos < r.end,
+            );
+
+            if (!region) {
+              // Fallback to first decorator
+              const firstDec = deriveDecorators[0];
+              if (firstDec) {
+                const macro = firstDec.macros.find((m) => m.name === macroName);
+                if (macro) return { start: macro.start, length: macro.length };
+                return { start: firstDec.fullStart, length: firstDec.fullLength };
+              }
+              return { start: 0, length: 7 };
+            }
+
+            // Find the segment that ends right before this generated region
+            const segments = result.sourceMapping!.segments;
+            let insertionPointInOriginal = 0;
+
+            for (const seg of segments) {
+              if (seg.expandedEnd <= region.start) {
+                insertionPointInOriginal = seg.originalEnd;
+              }
+            }
+
+            // Find the nearest @derive decorator before this insertion point
+            let nearestDecorator = deriveDecorators[0];
+            for (const dec of deriveDecorators) {
+              if (dec.fullStart < insertionPointInOriginal) {
+                nearestDecorator = dec;
+              } else {
+                break;
+              }
+            }
+
+            if (nearestDecorator) {
+              // Find the specific macro within this decorator
+              const macro = nearestDecorator.macros.find(
+                (m) => m.name === macroName,
+              );
+              if (macro) {
+                return { start: macro.start, length: macro.length };
+              }
+              // If macro name is "macro" (generic fallback) and there's exactly one macro,
+              // use that macro's position
+              if (
+                (macroName === "macro" || macroName === "") &&
+                nearestDecorator.macros.length === 1
+              ) {
+                const onlyMacro = nearestDecorator.macros[0];
+                return { start: onlyMacro.start, length: onlyMacro.length };
+              }
+              // Fallback to full decorator if macro not found
+              return {
+                start: nearestDecorator.fullStart,
+                length: nearestDecorator.fullLength,
+              };
+            }
+
+            return { start: 0, length: 7 };
+          };
+
+          for (const diag of generatedCodeDiagnostics) {
+            const diagStart = diag.start ?? 0;
+
+            // Try to get the macro name from the mapper or from the generated region
+            let macroName =
+              effectiveMapper?.generatedBy(diagStart) ?? null;
+
+            // If mapper didn't return a name, try to get it from the generated region
+            if (!macroName) {
+              const region = result.sourceMapping!.generatedRegions.find(
+                (r) => diagStart >= r.start && diagStart < r.end,
+              );
+              macroName = region?.sourceMacro ?? "macro";
+            }
+
+            // Extract just the macro name if it contains a path (e.g., "derive::Debug" -> "Debug")
+            const simpleMacroName = macroName.includes("::")
+              ? macroName.split("::").pop() ?? macroName
+              : macroName;
+
+            log(
+              `  -> diagnostic at ${diagStart}, macroName="${macroName}", simpleMacroName="${simpleMacroName}"`,
+            );
+            log(
+              `  -> generatedRegions: ${JSON.stringify(result.sourceMapping!.generatedRegions)}`,
+            );
+            log(
+              `  -> deriveDecorators: ${JSON.stringify(deriveDecorators.map((d) => ({ fullStart: d.fullStart, macros: d.macros })))}`,
+            );
+
+            const position = findMacroPosition(diagStart, simpleMacroName);
+            log(`  -> resolved position: ${JSON.stringify(position)}`);
+
+            generatedDiagsAsMacro.push({
+              file: info.languageService.getProgram()?.getSourceFile(fileName),
+              start: position.start,
+              length: position.length,
+              messageText: `[${simpleMacroName}] ${typeof diag.messageText === "string" ? diag.messageText : diag.messageText.messageText}`,
+              category: diag.category,
+              code: 9998, // Different code for generated code errors
+              source: "ts-macros-generated",
+            });
+          }
+          log(
+            `  -> converted ${generatedDiagsAsMacro.length} generated code diagnostics`,
+          );
+        } else if (generatedCodeDiagnostics.length > 0) {
+          // Fallback when no source mapping available
+          const deriveMatch = text.match(/@derive\s*\(/);
+          const decoratorStart = deriveMatch?.index ?? 0;
+          const decoratorLength = deriveMatch?.[0].length ?? 7;
+
+          for (const diag of generatedCodeDiagnostics) {
+            const macroName =
+              effectiveMapper?.generatedBy(diag.start ?? 0) ?? "macro";
+            generatedDiagsAsMacro.push({
+              file: info.languageService.getProgram()?.getSourceFile(fileName),
+              start: decoratorStart,
+              length: decoratorLength,
+              messageText: `[${macroName}] ${typeof diag.messageText === "string" ? diag.messageText : diag.messageText.messageText}`,
+              category: diag.category,
+              code: 9998, // Different code for generated code errors
+              source: "ts-macros-generated",
+            });
+          }
+          log(
+            `  -> converted ${generatedDiagsAsMacro.length} generated code diagnostics (fallback)`,
+          );
+        }
+
         if (!result.diagnostics || result.diagnostics.length === 0) {
-          return mappedDiagnostics;
+          return [...mappedDiagnostics, ...generatedDiagsAsMacro];
         }
 
         const macroDiagnostics: ts.Diagnostic[] = result.diagnostics.map(
@@ -519,7 +711,11 @@ function init(modules: { typescript: typeof ts }) {
           },
         );
 
-        return [...mappedDiagnostics, ...macroDiagnostics];
+        return [
+          ...mappedDiagnostics,
+          ...macroDiagnostics,
+          ...generatedDiagsAsMacro,
+        ];
       } catch (e) {
         log(
           `Error in getSemanticDiagnostics for ${fileName}: ${e instanceof Error ? e.stack || e.message : String(e)}`,
