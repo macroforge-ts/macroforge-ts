@@ -6,5 +6,19 @@ platforms = ["osx-64"]
 version = "0.1.0"
 
 [tasks]
+build = { cmd = "pixi run build:rust && pixi run build:plugin" }
+"build:rust" = { cmd = "cd crates/macroforge_ts && bun x napi build --platform --release" }
+"build:plugin" = { cmd = "bun run --cwd packages/vite-plugin-macroforge build" }
+"build:@playground/macro" = { cmd = "cd playground/macro && bun x napi build --platform --release -p playground-macros" }
+"test:rust" = { cmd = "cargo test --workspace" }
+"test:playground" = { cmd = "node --test playground/tests/examples.test.mjs" }
+"test:e2e:zed" = { cmd = "./tests/e2e/run-zed-test.sh" }
+"test:e2e:zed:verbose" = { cmd = "./tests/e2e/run-zed-test.sh --verbose" }
+"test:e2e:zed:node" = { cmd = "node --test tests/e2e/zed-extension-startup.test.js" }
+diagnostics = { cmd = "bun ./scripts/diagnostics.cjs" }
+"diagnostics:log" = { cmd = "bun ./scripts/diagnostics.cjs --log" }
+"macro:expand" = { cmd = "cargo run -p ts_macro_cli -- expand --use-node" }
+"macro:tsc" = { cmd = "cargo run -p ts_macro_cli -- tsc" }
+"expand:playground" = { cmd = "bun ./scripts/expand-playground.cjs" }
 
 [dependencies]

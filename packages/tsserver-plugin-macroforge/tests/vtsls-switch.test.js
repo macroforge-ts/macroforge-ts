@@ -15,7 +15,7 @@ const VTSLS_BIN = path.resolve(
   __dirname,
   "../../../node_modules/@vtsls/language-server/bin/vtsls.js",
 );
-const PLUGIN_PATH = path.resolve(__dirname, ".."); // packages/ts-derive-plugin
+const PLUGIN_PATH = path.resolve(__dirname, ".."); // packages/tsserver-plugin-macroforge
 
 function lspMessage(id, method, params) {
   return { jsonrpc: "2.0", id, method, params };
@@ -126,7 +126,7 @@ function startVtsls(cwd) {
   };
 }
 
-test("vtsls + ts-derive-plugin survives file switching", async (t) => {
+test("vtsls + tsserver-plugin-macroforge survives file switching", async (t) => {
   // Skip if vtsls is not installed
   if (!fs.existsSync(VTSLS_BIN)) {
     t.skip("vtsls binary missing - run npm install");

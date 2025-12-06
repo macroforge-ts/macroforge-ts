@@ -101,7 +101,7 @@ function createMockLanguageService(ts) {
 test("TS Language Plugin augments types", async () => {
   const pluginPath = path.resolve(
     repoRoot,
-    "packages/ts-derive-plugin/dist/index.js",
+    "packages/tsserver-plugin-macroforge/dist/index.js",
   );
   const require = createRequire(import.meta.url);
   const tsPluginInit = require(pluginPath);
@@ -169,7 +169,7 @@ test("TS Language Plugin augments types", async () => {
 test("TS Language Plugin detects external macro packages", async () => {
   const pluginPath = path.resolve(
     repoRoot,
-    "packages/ts-derive-plugin/dist/index.js",
+    "packages/tsserver-plugin-macroforge/dist/index.js",
   );
   const require = createRequire(import.meta.url);
   const tsPluginInit = require(pluginPath);
@@ -239,7 +239,7 @@ class TestForm {
 test("TS Language Plugin filters diagnostics for available external macros", async () => {
   const pluginPath = path.resolve(
     repoRoot,
-    "packages/ts-derive-plugin/dist/index.js",
+    "packages/tsserver-plugin-macroforge/dist/index.js",
   );
   const require = createRequire(import.meta.url);
 

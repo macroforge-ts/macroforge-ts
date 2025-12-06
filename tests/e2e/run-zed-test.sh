@@ -317,7 +317,7 @@ main() {
             log_warn "macroforge extension manifest not found (extension may not be installed)"
         fi
 
-        # Check for vtsls crashes - this indicates the ts-derive-plugin crashed vtsls
+        # Check for vtsls crashes - this indicates the tsserver-plugin-macroforge crashed vtsls
         local vtsls_crashes
         vtsls_crashes=$(echo "$new_logs" | grep -c "Server reset the connection" 2>/dev/null || echo "0")
         vtsls_crashes="${vtsls_crashes//[^0-9]/}"
@@ -330,7 +330,7 @@ main() {
 
         if [[ "$vtsls_crashes" -gt 0 ]] || [[ "$lsp_header_errors" -gt 0 ]]; then
             log_error "vtsls crashed! ($vtsls_crashes connection resets, $lsp_header_errors header errors)"
-            log_error "This indicates the ts-derive-plugin is crashing vtsls"
+            log_error "This indicates the tsserver-plugin-macroforge is crashing vtsls"
             if [[ "$VERBOSE" == "true" ]]; then
                 echo ""
                 echo "=== vtsls crash details ==="

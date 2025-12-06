@@ -9,14 +9,14 @@
       "version": "1.0.0",
       "dependencies": {
         "@macroforge/macros": "file:../../../../packages/macros",
-        "macroforge": "file:../../../../crates/swc-napi-macros",
-        "@macroforge/ts-derive-plugin": "file:../../../../packages/ts-derive-plugin"
+        "macroforge": "file:../../../../crates/macroforge_ts",
+        "@macroforge/tsserver-plugin-macroforge": "file:../../../../packages/tsserver-plugin-macroforge"
       },
       "devDependencies": {
         "typescript": "^5.0.0"
       }
     },
-    "../../../../crates/swc-napi-macros": {
+    "../../../../crates/macroforge_ts": {
       "name": "macroforge",
       "version": "0.0.1",
       "engines": {
@@ -27,11 +27,11 @@
       "name": "@macroforge/macros",
       "version": "0.0.1"
     },
-    "../../../../packages/ts-derive-plugin": {
-      "name": "@macroforge/ts-derive-plugin",
+    "../../../../packages/tsserver-plugin-macroforge": {
+      "name": "@macroforge/tsserver-plugin-macroforge",
       "version": "0.0.1",
       "dependencies": {
-        "macroforge": "file:../../crates/swc-napi-macros"
+        "macroforge": "file:../../crates/macroforge_ts"
       },
       "devDependencies": {
         "typescript": "^5.9.3"
@@ -45,11 +45,11 @@
       "link": true
     },
     "node_modules/macroforge": {
-      "resolved": "../../../../crates/swc-napi-macros",
+      "resolved": "../../../../crates/macroforge_ts",
       "link": true
     },
-    "node_modules/@macroforge/ts-derive-plugin": {
-      "resolved": "../../../../packages/ts-derive-plugin",
+    "node_modules/@macroforge/tsserver-plugin-macroforge": {
+      "resolved": "../../../../packages/tsserver-plugin-macroforge",
       "link": true
     },
     "node_modules/typescript": {

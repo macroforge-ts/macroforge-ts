@@ -1,0 +1,18 @@
+{
+  "name": "packages",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "vite-plugin-macroforge",
+    "tsserver-plugin-macroforge",
+    "svelte-language-server-macroforge"
+  ],
+  "devDependencies": {
+    "@napi-rs/cli": "^3.4.1",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

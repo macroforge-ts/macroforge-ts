@@ -12,8 +12,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist",
-    "test": "npm run build --silent && node --test tests/**/*.test.js",
-    "prepublishOnly": "npm run clean && npm run build"
+    "test": "bun run build --silent && node --test tests/**/*.test.js",
+    "prepublishOnly": "bun run clean && bun run build"
   },
   "dependencies": {
     "macroforge": "file:../../crates/macroforge_ts"

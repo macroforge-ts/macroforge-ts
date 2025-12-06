@@ -4,7 +4,7 @@
   "type": "module",
   "dependencies": {
     "@macroforge/macros": "file:../../../../packages/macros",
-    "@macroforge/ts-derive-plugin": "file:../../../../packages/ts-derive-plugin",
+    "@macroforge/tsserver-plugin-macroforge": "file:../../../../packages/tsserver-plugin-macroforge",
     "macroforge": "file:../../../../crates/macroforge_ts"
   },
   "devDependencies": {

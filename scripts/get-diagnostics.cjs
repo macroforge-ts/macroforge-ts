@@ -1,5 +1,5 @@
 /**
- * Get TypeScript diagnostics using the ts-derive-plugin
+ * Get TypeScript diagnostics using the tsserver-plugin-macroforge
  * Usage: node scripts/get-diagnostics.cjs [file-path]
  */
 

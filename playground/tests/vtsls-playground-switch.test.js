@@ -18,7 +18,7 @@ const VTSLS_BIN = path.resolve(
   REPO_ROOT,
   'node_modules/@vtsls/language-server/bin/vtsls.js',
 );
-const PLUGIN_PATH = path.resolve(REPO_ROOT, 'packages/ts-derive-plugin');
+const PLUGIN_PATH = path.resolve(REPO_ROOT, 'packages/tsserver-plugin-macroforge');
 
 const FILES = [
   path.resolve(REPO_ROOT, 'playground/svelte/src/lib/demo/macro-user.ts'),
@@ -151,7 +151,7 @@ test('vtsls playground switch', async (t) => {
             pluginPaths: [PLUGIN_PATH],
             globalPlugins: [
               {
-                name: '@macroforge/ts-derive-plugin',
+                name: '@macroforge/tsserver-plugin-macroforge',
                 location: PLUGIN_PATH,
                 languages: ['typescript', 'typescriptreact'],
                 enableForWorkspaceTypeScriptVersions: true,

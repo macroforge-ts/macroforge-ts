@@ -1,12 +1,24 @@
 use zed_extension_api::{self as zed, serde_json};
 
-const TS_PLUGIN: &str = "@macroforge/ts-derive-plugin";
+const TS_PLUGIN: &str = "@macroforge/tsserver-plugin-macroforge";
 
 struct MacroforgesTsExtension;
 
 impl MacroforgesTsExtension {
     fn plugin_config(worktree: &zed::Worktree) -> serde_json::Value {
-        let plugin_path = format!("{}/packages/ts-derive-plugin", worktree.root_path());
+        let root = worktree.root_path();
+        let node_modules_path = format!("node_modules/{}/package.json", TS_PLUGIN);
+        let packages_path = "packages/tsserver-plugin-macroforge/package.json";
+
+        let plugin_path = if worktree.read_text_file(&node_modules_path).is_ok() {
+            format!("{}/node_modules/{}", root, TS_PLUGIN)
+        } else if worktree.read_text_file(packages_path).is_ok() {
+            format!("{}/packages/tsserver-plugin-macroforge", root)
+        } else {
+            // Default to node_modules if neither found (standard user case)
+            format!("{}/node_modules/{}", root, TS_PLUGIN)
+        };
+
         serde_json::json!({
             "vtsls": {
                 "tsserver": {
@@ -55,9 +67,9 @@ zed::register_extension!(MacroforgesTsExtension);
 mod tests {
     use super::*;
 
-    /// Generate plugin config using the same logic as the extension
+    /// Generate plugin config mimicking the default (node_modules) path
     fn generate_plugin_config(root_path: &str) -> serde_json::Value {
-        let plugin_path = format!("{}/packages/ts-derive-plugin", root_path);
+        let plugin_path = format!("{}/node_modules/{}", root_path, TS_PLUGIN);
         serde_json::json!({
             "vtsls": {
                 "tsserver": {
@@ -104,7 +116,7 @@ mod tests {
         assert_eq!(plugin.get("name").unwrap(), TS_PLUGIN);
         assert_eq!(
             plugin.get("location").unwrap(),
-            "/workspace/macroforge/packages/ts-derive-plugin"
+            "/workspace/macroforge/node_modules/@macroforge/tsserver-plugin-macroforge"
         );
         assert_eq!(
             plugin.get("enableForWorkspaceTypeScriptVersions").unwrap(),
@@ -137,7 +149,10 @@ mod tests {
             .expect("pluginPaths should be an array");
 
         assert_eq!(plugin_paths.len(), 1);
-        assert_eq!(plugin_paths[0], "/my/project/packages/ts-derive-plugin");
+        assert_eq!(
+            plugin_paths[0],
+            "/my/project/node_modules/@macroforge/tsserver-plugin-macroforge"
+        );
     }
 
     #[test]
@@ -151,7 +166,7 @@ mod tests {
 
         for root in test_cases {
             let config = generate_plugin_config(root);
-            let expected_path = format!("{}/packages/ts-derive-plugin", root);
+            let expected_path = format!("{}/node_modules/{}", root, TS_PLUGIN);
 
             let vtsls_plugin_location = config["vtsls"]["tsserver"]["globalPlugins"][0]["location"]
                 .as_str()
@@ -175,6 +190,6 @@ mod tests {
 
     #[test]
     fn test_ts_plugin_constant() {
-        assert_eq!(TS_PLUGIN, "@macroforge/ts-derive-plugin");
+        assert_eq!(TS_PLUGIN, "@macroforge/tsserver-plugin-macroforge");
     }
 }

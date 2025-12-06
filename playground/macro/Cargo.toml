@@ -1,10 +1,8 @@
 [package]
 name = "playground-macros"
-version.workspace = true
-edition.workspace = true
-authors.workspace = true
-license.workspace = true
-repository.workspace = true
+version = "0.0.0"
+edition = "2024"
+publish = false
 
 [lib]
 name = "playground_macros"

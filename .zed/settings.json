@@ -57,8 +57,8 @@
 					"logVerbosity": "verbose",
 					"globalPlugins": [
 						{
-							"name": "ts-derive-plugin",
-							"location": "~/macroforge/packages/ts-derive-plugin",
+							"name": "tsserver-plugin-macroforge",
+							"location": "~/macroforge/packages/tsserver-plugin-macroforge",
 							"enableForWorkspaceTypeScriptVersions": true
 						}
 					]

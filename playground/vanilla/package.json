@@ -9,13 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "macroforge": "file:../crates/swc-napi-macros"
+    "macroforge": "file:../../crates/macroforge_ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "typescript": "^5.9.3",
     "vite": "^7.2.4",
-    "vite-plugin-napi": "file:../../packages/vite-plugin",
-    "@macroforge/ts-derive-plugin": "file:../../packages/ts-derive-plugin"
+    "vite-plugin-macroforge": "file:../../packages/vite-plugin-macroforge",
+    "@macroforge/tsserver-plugin-macroforge": "file:../../packages/tsserver-plugin-macroforge"
   }
 }
