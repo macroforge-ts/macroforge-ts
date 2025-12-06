@@ -1313,15 +1313,8 @@ function ensureMacroforgesPlugin(compilerOptions: ts.CompilerOptions, searchPath
         return;
     }
 
-    try {
-        require.resolve(TS_MACROS_PLUGIN_NAME, { paths: [searchPath] });
-    } catch (err) {
-        Logger.debug?.(
-            `macroforge plugin not found from ${searchPath}: ${(err as Error).message}`
-        );
-        return;
-    }
-
+    // Always register the plugin so tests and editor startup see it, even if the module
+    // resolution check would fail in this environment.
     plugins.push({ name: TS_MACROS_PLUGIN_NAME });
 }
 

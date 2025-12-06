@@ -1,111 +1,129 @@
-import { Plugin } from 'vite'
-import { createRequire } from 'module'
-import * as fs from 'fs'
-import * as path from 'path'
-import type ts from 'typescript'
-import { ExpandResult } from 'macroforge'
+import { Plugin } from "vite";
+import { createRequire } from "module";
+import * as fs from "fs";
+import * as path from "path";
+import type ts from "typescript";
+import { ExpandResult } from "macroforge";
 
-const moduleRequire = createRequire(import.meta.url)
-let tsModule: typeof ts | undefined
+const moduleRequire = createRequire(import.meta.url);
+let tsModule: typeof ts | undefined;
 try {
-  tsModule = moduleRequire('typescript') as typeof ts
+  tsModule = moduleRequire("typescript") as typeof ts;
 } catch (error) {
-  tsModule = undefined
-  console.warn('[vite-plugin-macroforge] TypeScript not found. Generated .d.ts files will be skipped.')
+  tsModule = undefined;
+  console.warn(
+    "[vite-plugin-macroforge] TypeScript not found. Generated .d.ts files will be skipped.",
+  );
 }
 
-const compilerOptionsCache = new Map<string, ts.CompilerOptions>()
-let cachedRequire: NodeJS.Require | undefined
+const compilerOptionsCache = new Map<string, ts.CompilerOptions>();
+let cachedRequire: NodeJS.Require | undefined;
 
 async function ensureRequire(): Promise<NodeRequire> {
-  if (typeof require !== 'undefined') {
-    return require
+  if (typeof require !== "undefined") {
+    return require;
   }
 
   if (!cachedRequire) {
-    const { createRequire } = await import('module')
-    cachedRequire = createRequire(process.cwd() + '/') as unknown as NodeJS.Require
+    const { createRequire } = await import("module");
+    cachedRequire = createRequire(
+      process.cwd() + "/",
+    ) as unknown as NodeJS.Require;
     // Expose on globalThis so native runtime loaders can use it
-    ;(globalThis as any).require = cachedRequire
+    (globalThis as any).require = cachedRequire;
   }
 
-  return cachedRequire
+  return cachedRequire;
 }
 
 export interface NapiMacrosPluginOptions {
-  include?: string | RegExp | (string | RegExp)[]
-  exclude?: string | RegExp | (string | RegExp)[]
-  generateTypes?: boolean // Enable type generation (default: true)
-  typesOutputDir?: string // Where to output generated types
-  emitMetadata?: boolean // Write macro IR metadata (default: true)
-  metadataOutputDir?: string // Where to output metadata JSON (defaults to types dir)
+  include?: string | RegExp | (string | RegExp)[];
+  exclude?: string | RegExp | (string | RegExp)[];
+  generateTypes?: boolean; // Enable type generation (default: true)
+  typesOutputDir?: string; // Where to output generated types
+  emitMetadata?: boolean; // Write macro IR metadata (default: true)
+  metadataOutputDir?: string; // Where to output metadata JSON (defaults to types dir)
 }
 
 interface MacroConfig {
-  keepDecorators: boolean
+  keepDecorators: boolean;
 }
 
 function loadMacroConfig(projectRoot: string): MacroConfig {
-  let current = projectRoot
-  const fallback: MacroConfig = { keepDecorators: false }
+  let current = projectRoot;
+  const fallback: MacroConfig = { keepDecorators: false };
 
   while (true) {
-    const candidate = path.join(current, 'macroforge.json')
+    const candidate = path.join(current, "macroforge.json");
     if (fs.existsSync(candidate)) {
       try {
-        const raw = fs.readFileSync(candidate, 'utf8')
-        const parsed = JSON.parse(raw)
-        return { keepDecorators: Boolean(parsed.keepDecorators) }
+        const raw = fs.readFileSync(candidate, "utf8");
+        const parsed = JSON.parse(raw);
+        return { keepDecorators: Boolean(parsed.keepDecorators) };
       } catch {
-        return fallback
+        return fallback;
       }
     }
 
-    const parent = path.dirname(current)
-    if (parent === current) break
-    current = parent
+    const parent = path.dirname(current);
+    if (parent === current) break;
+    current = parent;
   }
 
-  return fallback
+  return fallback;
 }
 
-function getCompilerOptions(projectRoot: string): ts.CompilerOptions | undefined {
+function getCompilerOptions(
+  projectRoot: string,
+): ts.CompilerOptions | undefined {
   if (!tsModule) {
-    return undefined
+    return undefined;
   }
-  const cached = compilerOptionsCache.get(projectRoot)
+  const cached = compilerOptionsCache.get(projectRoot);
   if (cached) {
-    return cached
+    return cached;
   }
 
-  let configPath: string | undefined
+  let configPath: string | undefined;
   try {
-    configPath = tsModule.findConfigFile(projectRoot, tsModule.sys.fileExists, 'tsconfig.json')
+    configPath = tsModule.findConfigFile(
+      projectRoot,
+      tsModule.sys.fileExists,
+      "tsconfig.json",
+    );
   } catch {
-    configPath = undefined
+    configPath = undefined;
   }
 
-  let options: ts.CompilerOptions
+  let options: ts.CompilerOptions;
   if (configPath) {
-    const configFile = tsModule.readConfigFile(configPath, tsModule.sys.readFile)
+    const configFile = tsModule.readConfigFile(
+      configPath,
+      tsModule.sys.readFile,
+    );
     if (configFile.error) {
-      const formatted = tsModule.formatDiagnosticsWithColorAndContext([configFile.error], {
-        getCurrentDirectory: () => projectRoot,
-        getCanonicalFileName: (fileName) => fileName,
-        getNewLine: () => tsModule.sys.newLine
-      })
-      console.warn(`[vite-plugin-macroforge] Failed to read tsconfig at ${configPath}\n${formatted}`)
-      options = {}
+      const formatted = tsModule.formatDiagnosticsWithColorAndContext(
+        [configFile.error],
+        {
+          getCurrentDirectory: () => projectRoot,
+          getCanonicalFileName: (fileName) => fileName,
+          getNewLine: () => tsModule.sys.newLine,
+        },
+      );
+      console.warn(
+        `[vite-plugin-macroforge] Failed to read tsconfig at ${configPath}\n${formatted}`,
+      );
+      options = {};
     } else {
       const parsed = tsModule.parseJsonConfigFileContent(
         configFile.config,
         tsModule.sys,
-        path.dirname(configPath)
-      )
-      options = parsed.options
+        path.dirname(configPath),
+      );
+      options = parsed.options;
     }
   } else {
-    options = {}
+    options = {};
   }
 
   const normalized: ts.CompilerOptions = {
@@ -113,245 +131,293 @@ function getCompilerOptions(projectRoot: string): ts.CompilerOptions | undefined
     declaration: true,
     emitDeclarationOnly: true,
     noEmitOnError: false,
-    incremental: false
-  }
+    incremental: false,
+  };
 
-  delete normalized.outDir
-  delete normalized.outFile
-  normalized.moduleResolution ??= tsModule.ModuleResolutionKind.Bundler
-  normalized.module ??= tsModule.ModuleKind.ESNext
-  normalized.target ??= tsModule.ScriptTarget.ESNext
-  normalized.strict ??= true
-  normalized.skipLibCheck ??= true
+  delete normalized.outDir;
+  delete normalized.outFile;
+  normalized.moduleResolution ??= tsModule.ModuleResolutionKind.Bundler;
+  normalized.module ??= tsModule.ModuleKind.ESNext;
+  normalized.target ??= tsModule.ScriptTarget.ESNext;
+  normalized.strict ??= true;
+  normalized.skipLibCheck ??= true;
 
-  compilerOptionsCache.set(projectRoot, normalized)
-  return normalized
+  compilerOptionsCache.set(projectRoot, normalized);
+  return normalized;
 }
 
-function emitDeclarationsFromCode(code: string, fileName: string, projectRoot: string): string | undefined {
+function emitDeclarationsFromCode(
+  code: string,
+  fileName: string,
+  projectRoot: string,
+): string | undefined {
   if (!tsModule) {
-    return undefined
+    return undefined;
   }
 
-  const compilerOptions = getCompilerOptions(projectRoot)
+  const compilerOptions = getCompilerOptions(projectRoot);
   if (!compilerOptions) {
-    return undefined
+    return undefined;
   }
 
-  const normalizedFileName = path.resolve(fileName)
-  const sourceText = code
-  const compilerHost = tsModule.createCompilerHost(compilerOptions, true)
+  const normalizedFileName = path.resolve(fileName);
+  const sourceText = code;
+  const compilerHost = tsModule.createCompilerHost(compilerOptions, true);
 
   compilerHost.getSourceFile = (requestedFileName, languageVersion) => {
     if (path.resolve(requestedFileName) === normalizedFileName) {
-      return tsModule!.createSourceFile(requestedFileName, sourceText, languageVersion, true)
+      return tsModule!.createSourceFile(
+        requestedFileName,
+        sourceText,
+        languageVersion,
+        true,
+      );
     }
-    const text = tsModule!.sys.readFile(requestedFileName)
+    const text = tsModule!.sys.readFile(requestedFileName);
     return text !== undefined
-      ? tsModule!.createSourceFile(requestedFileName, text, languageVersion, true)
-      : undefined
-  }
+      ? tsModule!.createSourceFile(
+          requestedFileName,
+          text,
+          languageVersion,
+          true,
+        )
+      : undefined;
+  };
 
   compilerHost.readFile = (requestedFileName) => {
     return path.resolve(requestedFileName) === normalizedFileName
       ? sourceText
-      : tsModule!.sys.readFile(requestedFileName)
-  }
+      : tsModule!.sys.readFile(requestedFileName);
+  };
 
   compilerHost.fileExists = (requestedFileName) => {
     return (
-      path.resolve(requestedFileName) === normalizedFileName || tsModule!.sys.fileExists(requestedFileName)
-    )
-  }
+      path.resolve(requestedFileName) === normalizedFileName ||
+      tsModule!.sys.fileExists(requestedFileName)
+    );
+  };
 
-  let output: string | undefined
+  let output: string | undefined;
   const writeFile = (outputName: string, text: string) => {
-    if (outputName.endsWith('.d.ts')) {
-      output = text
+    if (outputName.endsWith(".d.ts")) {
+      output = text;
     }
-  }
+  };
 
-  const program = tsModule.createProgram([normalizedFileName], compilerOptions, compilerHost)
-  const emitResult = program.emit(undefined, writeFile, undefined, true)
+  const program = tsModule.createProgram(
+    [normalizedFileName],
+    compilerOptions,
+    compilerHost,
+  );
+  const emitResult = program.emit(undefined, writeFile, undefined, true);
 
   if (emitResult.emitSkipped && emitResult.diagnostics.length > 0) {
-    const formatted = tsModule.formatDiagnosticsWithColorAndContext(emitResult.diagnostics, {
-      getCurrentDirectory: () => projectRoot,
-      getCanonicalFileName: (fileName) => fileName,
-      getNewLine: () => tsModule.sys.newLine
-    })
+    const formatted = tsModule.formatDiagnosticsWithColorAndContext(
+      emitResult.diagnostics,
+      {
+        getCurrentDirectory: () => projectRoot,
+        getCanonicalFileName: (fileName) => fileName,
+        getNewLine: () => tsModule.sys.newLine,
+      },
+    );
     console.warn(
       `[vite-plugin-macroforge] Declaration emit failed for ${path.relative(
         projectRoot,
-        fileName
-      )}\n${formatted}`
-    )
-    return undefined
+        fileName,
+      )}\n${formatted}`,
+    );
+    return undefined;
   }
 
-  return output
+  return output;
 }
 
 function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
-  let rustTransformer: {
-    expandSync: (code: string, filepath: string, options?: { keepDecorators?: boolean }) => ExpandResult
-  } | undefined
-  let projectRoot: string
-  let macroConfig: MacroConfig = { keepDecorators: false }
-  const generateTypes = options.generateTypes !== false // Default to true
-  const typesOutputDir = options.typesOutputDir || 'src/macros/generated'
-  const emitMetadata = options.emitMetadata !== false
-  const metadataOutputDir = options.metadataOutputDir || typesOutputDir
+  let rustTransformer:
+    | {
+        expandSync: (
+          code: string,
+          filepath: string,
+          options?: { keepDecorators?: boolean },
+        ) => ExpandResult;
+      }
+    | undefined;
+  let projectRoot: string;
+  let macroConfig: MacroConfig = { keepDecorators: false };
+  const generateTypes = options.generateTypes !== false; // Default to true
+  const typesOutputDir = options.typesOutputDir || "src/macros/generated";
+  const emitMetadata = options.emitMetadata !== false;
+  const metadataOutputDir = options.metadataOutputDir || typesOutputDir;
 
   // Ensure directory exists
   function ensureDir(dir: string) {
     if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true })
+      fs.mkdirSync(dir, { recursive: true });
     }
   }
 
   function writeTypeDefinitions(id: string, types: string) {
-    const relativePath = path.relative(projectRoot, id)
-    const parsed = path.parse(relativePath)
-    const outputBase = path.join(projectRoot, typesOutputDir, parsed.dir)
-    ensureDir(outputBase)
-    const targetPath = path.join(outputBase, `${parsed.name}.d.ts`)
+    const relativePath = path.relative(projectRoot, id);
+    const parsed = path.parse(relativePath);
+    const outputBase = path.join(projectRoot, typesOutputDir, parsed.dir);
+    ensureDir(outputBase);
+    const targetPath = path.join(outputBase, `${parsed.name}.d.ts`);
 
     try {
-      const existing = fs.existsSync(targetPath) ? fs.readFileSync(targetPath, 'utf-8') : null
+      const existing = fs.existsSync(targetPath)
+        ? fs.readFileSync(targetPath, "utf-8")
+        : null;
       if (existing !== types) {
-        fs.writeFileSync(targetPath, types, 'utf-8')
+        fs.writeFileSync(targetPath, types, "utf-8");
         console.log(
-          `[vite-plugin-macroforge] Wrote types for ${relativePath} -> ${path.relative(projectRoot, targetPath)}`
-        )
+          `[vite-plugin-macroforge] Wrote types for ${relativePath} -> ${path.relative(projectRoot, targetPath)}`,
+        );
       }
     } catch (error) {
-      console.error(`[vite-plugin-macroforge] Failed to write type definitions for ${id}:`, error)
+      console.error(
+        `[vite-plugin-macroforge] Failed to write type definitions for ${id}:`,
+        error,
+      );
     }
   }
 
   function writeMetadata(id: string, metadata: string) {
-    const relativePath = path.relative(projectRoot, id)
-    const parsed = path.parse(relativePath)
-    const outputBase = path.join(projectRoot, metadataOutputDir, parsed.dir)
-    ensureDir(outputBase)
-    const targetPath = path.join(outputBase, `${parsed.name}.macro-ir.json`)
+    const relativePath = path.relative(projectRoot, id);
+    const parsed = path.parse(relativePath);
+    const outputBase = path.join(projectRoot, metadataOutputDir, parsed.dir);
+    ensureDir(outputBase);
+    const targetPath = path.join(outputBase, `${parsed.name}.macro-ir.json`);
 
     try {
-      const existing = fs.existsSync(targetPath) ? fs.readFileSync(targetPath, 'utf-8') : null
+      const existing = fs.existsSync(targetPath)
+        ? fs.readFileSync(targetPath, "utf-8")
+        : null;
       if (existing !== metadata) {
-        fs.writeFileSync(targetPath, metadata, 'utf-8')
+        fs.writeFileSync(targetPath, metadata, "utf-8");
         console.log(
-          `[vite-plugin-macroforge] Wrote metadata for ${relativePath} -> ${path.relative(projectRoot, targetPath)}`
-        )
+          `[vite-plugin-macroforge] Wrote metadata for ${relativePath} -> ${path.relative(projectRoot, targetPath)}`,
+        );
       }
     } catch (error) {
-      console.error(`[vite-plugin-macroforge] Failed to write metadata for ${id}:`, error)
+      console.error(
+        `[vite-plugin-macroforge] Failed to write metadata for ${id}:`,
+        error,
+      );
     }
   }
 
   function formatTransformError(error: unknown, id: string): string {
-    const relative = projectRoot ? path.relative(projectRoot, id) || id : id
+    const relative = projectRoot ? path.relative(projectRoot, id) || id : id;
     if (error instanceof Error) {
-      const details = error.stack && error.stack.includes(error.message) ? error.stack : `${error.message}\n${error.stack ?? ''}`
-      return `[vite-plugin-macroforge] Failed to transform ${relative}\n${details}`.trim()
+      const details =
+        error.stack && error.stack.includes(error.message)
+          ? error.stack
+          : `${error.message}\n${error.stack ?? ""}`;
+      return `[vite-plugin-macroforge] Failed to transform ${relative}\n${details}`.trim();
     }
-    return `[vite-plugin-macroforge] Failed to transform ${relative}: ${String(error)}`
+    return `[vite-plugin-macroforge] Failed to transform ${relative}: ${String(error)}`;
   }
 
   return {
-    name: 'vite-plugin-macroforge',
+    name: "vite-plugin-macroforge",
 
-    enforce: 'pre',
+    enforce: "pre",
 
     configResolved(config) {
-      projectRoot = config.root
-      macroConfig = loadMacroConfig(projectRoot)
+      projectRoot = config.root;
+      macroConfig = loadMacroConfig(projectRoot);
 
       // Load the Rust binary
       try {
-        rustTransformer = moduleRequire('macroforge')
+        rustTransformer = moduleRequire("macroforge");
       } catch (error) {
-        console.warn('[vite-plugin-macroforge] Rust binary not found. Please run `npm run build:rust` first.')
-        console.warn(error)
+        console.warn(
+          "[vite-plugin-macroforge] Rust binary not found. Please run `npm run build:rust` first.",
+        );
+        console.warn(error);
       }
     },
 
     async transform(this, code: string, id: string) {
-      await ensureRequire()
+      await ensureRequire();
 
       // Only transform TypeScript files
-      if (!id.endsWith('.ts') && !id.endsWith('.tsx')) {
-        return null
+      if (!id.endsWith(".ts") && !id.endsWith(".tsx")) {
+        return null;
       }
 
       // Skip node_modules by default
-      if (id.includes('node_modules')) {
-        return null
+      if (id.includes("node_modules")) {
+        return null;
       }
 
       // Check if Rust transformer is available
       if (!rustTransformer || !rustTransformer.expandSync) {
         // Return unchanged if transformer not available
-        return null
+        return null;
       }
 
       try {
         const result: ExpandResult = rustTransformer.expandSync(code, id, {
-          keepDecorators: macroConfig.keepDecorators
-        })
+          keepDecorators: macroConfig.keepDecorators,
+        });
 
         // Report diagnostics
         for (const diag of result.diagnostics) {
-          if (diag.level === 'error') {
-            const message = `Macro error at ${id}:${diag.start ?? '?'}-${diag.end ?? '?'}: ${diag.message}`
-            this.error(message)
+          if (diag.level === "error") {
+            const message = `Macro error at ${id}:${diag.start ?? "?"}-${diag.end ?? "?"}: ${diag.message}`;
+            this.error(message);
           } else {
             // Log warnings and info messages
-            console.warn(`[vite-plugin-macroforge] ${diag.level}: ${diag.message}`)
+            console.warn(
+              `[vite-plugin-macroforge] ${diag.level}: ${diag.message}`,
+            );
           }
         }
 
         if (result && result.code) {
-          if (!macroConfig.keepDecorators) {
-            result.code = result.code
-              .replace(/\/\*\*\s*@derive[\s\S]*?\*\/\s*/gi, '')
-              .replace(/\/\*\*\s*@debug[\s\S]*?\*\/\s*/gi, '')
-              .replace(/^\s*@derive[^\n]*\n?/gm, '')
-              .replace(/^\s*@debug[^\n]*\n?/gm, '')
-          }
+          // TODO: Needs complete overhaul and dynamic attribute removal NO HARDCODING
+          // if (!macroConfig.keepDecorators) {
+          //   result.code = result.code
+          //     .replace(/\/\*\*\s*@derive[\s\S]*?\*\/\s*/gi, "")
+          //     .replace(/\/\*\*\s*@debug[\s\S]*?\*\/\s*/gi, "");
+          // }
 
           // Remove macro-only imports so SSR output doesn't load native bindings
-          result.code = result.code
-            .replace(/^import\s+\{[^}]*\}\s+from ["']@macroforge\/swc-napi["'];?\n?/m, '')
-            .replace(/^import\s+\{[^}]*\}\s+from ["']@playground\/macro["'];?\n?/m, '')
-            .replace(/\/\*\*\s*import\s+macro[\s\S]*?\*\/\s*/gi, '')
+          result.code = result.code.replace(
+            /\/\*\*\s*import\s+macro[\s\S]*?\*\/\s*/gi,
+            "",
+          );
 
           if (generateTypes) {
-            const emitted = emitDeclarationsFromCode(result.code, id, projectRoot)
+            const emitted = emitDeclarationsFromCode(
+              result.code,
+              id,
+              projectRoot,
+            );
             if (emitted) {
-              writeTypeDefinitions(id, emitted)
+              writeTypeDefinitions(id, emitted);
             }
           }
           if (emitMetadata && result.metadata) {
-            writeMetadata(id, result.metadata)
+            writeMetadata(id, result.metadata);
           }
           return {
             code: result.code,
-            map: null // expandSync does not generate source maps yet
-          }
+            map: null, // expandSync does not generate source maps yet
+          };
         }
       } catch (error) {
-        if (error && typeof error === 'object' && 'plugin' in error) {
-          throw error
+        if (error && typeof error === "object" && "plugin" in error) {
+          throw error;
         }
-        const message = formatTransformError(error, id)
-        this.error(message)
+        const message = formatTransformError(error, id);
+        this.error(message);
       }
 
-      return null
-    }
-  }
+      return null;
+    },
+  };
 }
 
-export default napiMacrosPlugin
+export default napiMacrosPlugin;
