@@ -20,6 +20,7 @@
       },
       "dependencies": {
         "@jridgewell/trace-mapping": "^0.3.25",
+        "@macroforge/tsserver-plugin-macroforge": "file:../tsserver-plugin-macroforge",
         "@vscode/emmet-helper": "2.8.4",
         "chokidar": "^4.0.1",
         "estree-walker": "^2.0.1",
@@ -717,6 +718,8 @@
 
     "@inquirer/core/wrap-ansi": ["wrap-ansi@9.0.2", "", { "dependencies": { "ansi-styles": "^6.2.1", "string-width": "^7.0.0", "strip-ansi": "^7.1.0" } }, "sha512-42AtmgqjV+X1VpdOfyTGOYRi0/zsoLqtXQckTmqTeybT+BDIbM/Guxo7x3pE2vtpr1ok6xRqM9OpBe+Jyoqyww=="],
 
+    "@macroforge/svelte-language-server/@macroforge/tsserver-plugin-macroforge": ["@macroforge/tsserver-plugin-macroforge@file:tsserver-plugin-macroforge", { "dependencies": { "macroforge": "file:../../crates/macroforge_ts" }, "devDependencies": { "typescript": "^5.9.3" }, "peerDependencies": { "typescript": ">=5.0.0" } }],
+
     "@macroforge/svelte-language-server/macroforge": ["macroforge@file:../crates/macroforge_ts", {}],
 
     "@macroforge/tsserver-plugin-macroforge/macroforge": ["macroforge@file:../crates/macroforge_ts", {}],
@@ -772,6 +775,8 @@
     "@inquirer/core/wrap-ansi/string-width": ["string-width@7.2.0", "", { "dependencies": { "emoji-regex": "^10.3.0", "get-east-asian-width": "^1.0.0", "strip-ansi": "^7.1.0" } }, "sha512-tsaTIkKW9b4N+AEj+SVA+WhJzV7/zMhcSu78mLKWSk7cXMOSHsBKFWUs0fWwq8QyK3MgJBQRX6Gbi4kYbdvGkQ=="],
 
     "@inquirer/core/wrap-ansi/strip-ansi": ["strip-ansi@7.1.2", "", { "dependencies": { "ansi-regex": "^6.0.1" } }, "sha512-gmBGslpoQJtgnMAvOVqGZpEz9dyoKTCzy2nfz/n8aIFhN/jCE/rCmcxabB6jOOHV+0WNnylOxaxBQPSvcWklhA=="],
+
+    "@macroforge/svelte-language-server/@macroforge/tsserver-plugin-macroforge/macroforge": ["macroforge@file:../crates/macroforge_ts", {}],
 
     "bun-types/@types/node/undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
 

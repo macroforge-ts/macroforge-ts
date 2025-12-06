@@ -1,4 +1,3 @@
-import { Derive, Debug } from "./macros";
 
 /** @derive(Debug) */
 class User {

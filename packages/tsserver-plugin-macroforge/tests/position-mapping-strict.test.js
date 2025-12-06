@@ -122,8 +122,7 @@ test.describe("STRICT: Error Position Validation", () => {
      * EXPECTED: This test should FAIL until source mapping is implemented.
      */
 
-    const original = `import { Derive, Debug } from "./macros";
-
+    const original = `
 /** @derive(Debug) */
 class User {
   id: string;
@@ -133,8 +132,7 @@ const u = new User();
 u.BAD_METHOD();`;
 
     // Expansion adds toString method, shifting all subsequent positions
-    const expanded = `import { Derive, Debug } from "./macros";
-
+    const expanded = `
 /** @derive(Debug) */
 class User {
   id: string;
@@ -299,16 +297,14 @@ test.describe("STRICT: Hover Position Validation", () => {
      * the plugin should map that to the correct expanded position.
      */
 
-    const original = `import { Derive, Debug } from "./macros";
-
+    const original = `
 /** @derive(Debug) */
 class User {
   id: string;
   name: string;
 }`;
 
-    const expanded = `import { Derive, Debug } from "./macros";
-
+    const expanded = `
 /** @derive(Debug) */
 class User {
   id: string;
@@ -377,8 +373,7 @@ class User {
      * requires position mapping.
      */
 
-    const original = `import { Derive, Debug } from "./macros";
-
+    const original = `
 /** @derive(Debug) */
 class User {
   id: string;
@@ -390,8 +385,7 @@ function helper() {
 }`;
 
     // Expansion inserts method before helper function
-    const expanded = `import { Derive, Debug } from "./macros";
-
+    const expanded = `
 /** @derive(Debug) */
 class User {
   id: string;
@@ -606,8 +600,7 @@ test.describe("STRICT: Go-to-Definition Position Validation", () => {
 
 test.describe("Diagnostic Position Accuracy", () => {
   test("macro diagnostic byte offset should be correct", (t) => {
-    const source = `import { Derive, Debug } from "./macros";
-
+    const source = `
 /** @derive(BogusMacro) */
 class User {
   badField: unknown;
@@ -631,8 +624,7 @@ class User {
   });
 
   test("diagnostic category should be correct", (t) => {
-    const source = `import { Derive, Debug } from "./macros";
-
+    const source = `
 /** @derive(BogusMacro) */
 class User {
   field: string;

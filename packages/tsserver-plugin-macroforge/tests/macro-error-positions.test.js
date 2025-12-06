@@ -97,8 +97,7 @@ export declare const FieldController: any;
 `;
 
 test("unknown macro error appears at @derive position", () => {
-  const source = `import { Derive, Debug } from "./macros";
-
+  const source = `
 /** @derive(BogusMacro) */
 class User {
   id: string;
@@ -128,8 +127,7 @@ class User {
 });
 
 test("multiple macros with one unknown - error at decorator start", () => {
-  const source = `import { Derive, Debug } from "./macros";
-
+  const source = `
 /** @derive(Debug, UnknownMacro) */
 class User {
   id: string;
@@ -163,8 +161,7 @@ class User {
 });
 
 test("unknown macro on interface - error at @derive position", () => {
-  const source = `import { Derive } from "./macros";
-
+  const source = `
 /** @derive(NonExistentMacro) */
 interface Config {
   name: string;
@@ -195,8 +192,7 @@ interface Config {
 });
 
 test("multiple classes - error only on the class with bad macro", () => {
-  const source = `import { Derive, Debug } from "./macros";
-
+  const source = `
 /** @derive(Debug) */
 class ValidClass {
   id: string;
@@ -246,8 +242,7 @@ class InvalidClass {
 });
 
 test("generic class with unknown macro - error at decorator position", () => {
-  const source = `import { Derive } from "./macros";
-
+  const source = `
 /** @derive(NonExistent) */
 class Container<T, U = string> {
   items: T[];
@@ -279,8 +274,7 @@ class Container<T, U = string> {
 
 test("decorator with extra whitespace - error at @derive position", () => {
   // Test with extra whitespace after /** but still on same line
-  const source = `import { Derive } from "./macros";
-
+  const source = `
 /**   @derive(UnknownMacroWithSpaces)   */
 class User {
   id: string;
@@ -310,8 +304,7 @@ class User {
 });
 
 test("error diagnostic has correct length spanning the decorator", () => {
-  const source = `import { Derive } from "./macros";
-
+  const source = `
 /** @derive(UnknownMacro) */
 class Test {
   val: number;
@@ -344,8 +337,7 @@ class Test {
 });
 
 test("syntax error in class - graceful fallback with diagnostic", () => {
-  const source = `import { Derive, Debug } from "./macros";
-
+  const source = `
 /** @derive(Debug) */
 class User {
   // Intentional syntax error
@@ -378,8 +370,7 @@ class User {
 });
 
 test("exported class with unknown macro - error at decorator", () => {
-  const source = `import { Derive } from "./macros";
-
+  const source = `
 /** @derive(UndefinedMacro) */
 export class PublicAPI {
   endpoint: string;
@@ -410,8 +401,7 @@ export class PublicAPI {
 });
 
 test("abstract class with unknown macro - error at decorator", () => {
-  const source = `import { Derive } from "./macros";
-
+  const source = `
 /** @derive(FakeMacro) */
 abstract class BaseEntity {
   abstract id: string;
@@ -450,8 +440,7 @@ abstract class BaseEntity {
 test("TS errors from expanded code should not have positions beyond original source length", () => {
   // Debug macro generates toString() method which increases code length
   // Any TS errors in generated regions should map back to valid original positions
-  const source = `import { Derive, Debug } from "./macros";
-
+  const source = `
 /** @derive(Debug) */
 class User {
   id: string;
@@ -504,8 +493,7 @@ class User {
 test("expanded code diagnostics should map to valid original positions", () => {
   // When macro expansion adds code, TypeScript may report errors
   // These errors should be mapped to positions that exist in the original source
-  const source = `import { Derive, Debug } from "./macros";
-
+  const source = `
 /** @derive(Debug) */
 class Account {
   balance: number;
@@ -571,8 +559,7 @@ a.toString();`;
 
 test("all diagnostics have valid positions within original source bounds", () => {
   // Comprehensive test: multiple classes, some with errors
-  const source = `import { Derive, Debug } from "./macros";
-
+  const source = `
 /** @derive(Debug) */
 class First {
   a: string;
@@ -633,8 +620,7 @@ const s = new Second();`;
 test("generated code errors point to their specific macro name, not entire decorator", () => {
   // When @derive(Debug) generates code with errors, the error should
   // highlight only "Debug", not the entire "@derive(Debug)"
-  const source = `import { Derive, Debug } from "./macros";
-
+  const source = `
 /** @derive(Debug) */
 class First {
   a: string;
@@ -691,7 +677,7 @@ test("interface with multiple macros - error on Debug points to Debug, not Field
   // - Interface with @derive(FieldController, Debug)
   // - FieldController supports interfaces, Debug does not
   // - The Debug error should point to "Debug", not the entire decorator or "FieldController"
-  const source = `import { Derive, FieldController, Debug } from "./macros";
+  const source = `/** import macro { FieldController } from "./macros"; */
 
 /** @derive(FieldController, Debug) */
 export interface FormModel {
@@ -741,8 +727,7 @@ export interface FormModel {
 
 test("interface with single macro error points to the macro name", () => {
   // Simpler case: just Debug on an interface
-  const source = `import { Derive, Debug } from "./macros";
-
+  const source = `
 /** @derive(Debug) */
 export interface SimpleModel {
   id: number;

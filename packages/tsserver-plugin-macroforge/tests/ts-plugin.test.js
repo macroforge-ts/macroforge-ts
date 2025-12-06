@@ -84,7 +84,6 @@ function createPluginEnvironment(source, fileName = "/virtual/MacroUser.ts") {
 
 test("expands macro-enabled files through script snapshots", (t) => {
   const source = `
-    import { Derive } from "@macro/derive";
     /** @derive(Debug) */
     class User {}
   `;
@@ -108,7 +107,6 @@ test("skips expansion for files without macros", (t) => {
 
 test("merges macro diagnostics with TypeScript diagnostics preserving locations", (t) => {
   const source = `
-    import { Derive } from "@macro/derive";
     /** @derive(BogusMacro) */
     class Broken {
       id: string;
@@ -130,7 +128,6 @@ test("merges macro diagnostics with TypeScript diagnostics preserving locations"
 
 test("falls back gracefully when expansion throws", (t) => {
   const env = createPluginEnvironment(`
-    import { Derive } from "@macro/derive";
     /** @derive(Debug) */
     class User {
       // Intentional syntax error to force expansion failure

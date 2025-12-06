@@ -96,8 +96,7 @@ export declare const Clone: any;
 `;
 
 test("macro diagnostics surface at decorator positions", () => {
-  const source = `import { Derive, Debug } from "./macros";
-
+  const source = `
 /** @derive(BogusMacro) */
 class User {
   id: string;
@@ -123,8 +122,7 @@ class User {
 });
 
 test("TypeScript diagnostics map back to original positions", () => {
-  const source = `import { Derive, Debug } from "./macros";
-
+  const source = `
 /** @derive(Debug) */
 class User {
   id: string;
@@ -157,8 +155,7 @@ u.missingMethod();`;
 });
 
 test("hover works at original positions after expansion", () => {
-  const source = `import { Derive, Debug } from "./macros";
-
+  const source = `
 /** @derive(Debug) */
 class User {
   id: string;
@@ -188,8 +185,7 @@ u.id;`;
 });
 
 test("completions at original position include generated methods", () => {
-  const source = `import { Derive, Debug } from "./macros";
-
+  const source = `
 /** @derive(Debug) */
 class User {
   id: string;
@@ -220,8 +216,7 @@ obj.`;
 });
 
 test("definition for generated method reports original coordinates", () => {
-  const source = `import { Derive, Debug } from "./macros";
-
+  const source = `
 /** @derive(Debug) */
 class User {
   id: string;

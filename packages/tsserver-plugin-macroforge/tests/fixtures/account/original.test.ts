@@ -11,14 +11,9 @@ import {
   Email,
   Colors,
 } from "../types/bindings";
-import {
-  FieldController,
-  fieldController,
-  textAreaController,
-} from "@playground/macro";
-import { Derive } from "macroforge";
+/** import macro { FieldController} from "@playground/macro"; */
 
-@fieldController({ field: "memo", controller: textAreaController })
+/** @fieldController({ field: "memo", controller: textAreaController }) */
 export class Account extends Schema.Class<Account>("Account")({
   id: Schema.propertySignature(Schema.String).annotations({
     missingMessage: () => `'Id' is required`,

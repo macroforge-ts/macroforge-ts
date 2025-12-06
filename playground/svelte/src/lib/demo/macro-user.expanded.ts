@@ -49,17 +49,6 @@ export class MacroUser {
     parts.push("since: " + this.since);
     return "MacroUser { " + parts.join(", ") + " }";
 }
-
-    toJSON(): Record<string, unknown> {
-    const result: Record<string, unknown> = {};
-    result.id = this.id;
-    result.name = this.name;
-    result.role = this.role;
-    result.favoriteMacro = this.favoriteMacro;
-    result.since = this.since;
-    result.apiToken = this.apiToken;
-    return result;
-}
 }
 
 const showcaseUser = new MacroUser(

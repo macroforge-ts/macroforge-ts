@@ -1,6 +1,5 @@
-import { Derive, Debug } from "@macroforge/macros";
 import { Schema } from "effect";
-import { JSON } from "@playground/macro";
+/** import macro { JSON } from "@playground/macro"; */
 
 export class MacroUser {
   id: string;

@@ -19,7 +19,7 @@ async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
   const options = typeof optionsOrRunner === "function" ? {} : optionsOrRunner;
   const runner =
     typeof optionsOrRunner === "function" ? optionsOrRunner : maybeRunner;
-  const { useProjectCwd = false } = options ?? {};
+  const { useProjectCwd = true } = options ?? {};
 
   const configFile = path.join(rootDir, "vite.config.ts");
   const previousCwd = process.cwd();

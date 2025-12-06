@@ -1,0 +1,34 @@
+/** import macro { JSON } from "@playground/macro"; */
+
+// Example of using Derive decorator and dynamic macro
+/**  */
+export class User {
+  
+  id: number;
+
+  name: string;
+  email: string;
+
+  
+  authToken: string;
+
+  constructor(id: number, name: string, email: string, authToken: string) {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+    this.authToken = authToken;
+  }
+
+  toString(): string {
+    const parts: string[] = [];
+    parts.push("identifier: " + this.id);
+    parts.push("name: " + this.name);
+    parts.push("email: " + this.email);
+    return "User { " + parts.join(", ") + " }";
+}
+}
+
+const user = new User(1, "John Doe", "john@example.com", "tok_live_secret");
+
+export const derivedSummary = user.toString();
+export const derivedJson = user.toJSON();
