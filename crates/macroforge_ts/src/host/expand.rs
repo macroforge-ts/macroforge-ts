@@ -1,21 +1,29 @@
-//! Reusable macro expansion logic
+//! Macro expansion engine
 //!
-//! This module provides the core expansion functionality that can be used by any
-//! macro package to implement its own `expandSync` NAPI function.
+//! This module provides the core expansion functionality for TypeScript macros.
+//! It handles both classes and interfaces, supports external macro loading via Node.js,
+//! and provides source mapping for IDE integration.
 
 use std::collections::HashMap;
+use std::path::Path;
+use std::process::Command;
 
-use swc_core::{common::Span, ecma::ast::Module};
+use anyhow::Context;
+use napi::Status;
+use swc_core::{common::Span, ecma::ast::{ClassMember, Module, Program}};
 use ts_syn::abi::{
-    ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode,
-    SourceMapping, SpanIR, TargetIR,
+    ClassIR, Diagnostic, DiagnosticLevel, InterfaceIR, MacroContextIR, MacroResult, Patch,
+    PatchCode, SourceMapping, SpanIR, TargetIR,
 };
-use ts_syn::{lower_classes, parse_ts_module};
+use ts_syn::{lower_classes, lower_interfaces};
 
 use super::{MacroConfig, MacroDispatcher, MacroError, MacroRegistry, PatchCollector, Result, derived};
 
 /// Default module path for built-in derive macros
 const DERIVE_MODULE_PATH: &str = "@macro/derive";
+
+/// Special marker for dynamic module resolution
+const DYNAMIC_MODULE_MARKER: &str = "__DYNAMIC_MODULE__";
 
 /// Result of macro expansion
 #[derive(Debug, Clone)]
@@ -25,6 +33,8 @@ pub struct MacroExpansion {
     pub changed: bool,
     pub type_output: Option<String>,
     pub classes: Vec<ClassIR>,
+    pub interfaces: Vec<InterfaceIR>,
+    /// Source mapping between original and expanded code positions
     pub source_mapping: Option<SourceMapping>,
 }
 
@@ -38,26 +48,58 @@ pub struct MacroExpander {
     config: MacroConfig,
     /// Whether to keep decorators in emitted output (used only by host integrations that need mapping)
     keep_decorators: bool,
+    external_loader: Option<ExternalMacroLoader>,
 }
+
+/// Alias for backward compatibility with NAPI integration code
+pub type MacroHostIntegration = MacroExpander;
 
 impl MacroExpander {
     /// Create a new expander with the local registry populated from inventory
-    pub fn new() -> Result<Self> {
+    pub fn new() -> anyhow::Result<Self> {
+        Self::new_with_env(None)
+    }
+
+    /// Create a new expander, optionally with a NAPI environment
+    pub fn new_with_env(_env: Option<&napi::Env>) -> anyhow::Result<Self> {
         let (config, root_dir) = MacroConfig::find_with_root()
-            .map_err(|e| MacroError::InvalidConfig(format!("{:?}", e)))?
+            .context("failed to discover macro configuration")?
             .unwrap_or_else(|| {
                 (
                     MacroConfig::default(),
                     std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from(".")),
                 )
             });
-        Self::with_config(config, root_dir)
+        Self::with_config_and_env(config, root_dir, _env)
     }
 
     /// Create an expander with a specific config
-    pub fn with_config(config: MacroConfig, root_dir: std::path::PathBuf) -> Result<Self> {
+    #[allow(dead_code)]
+    pub fn with_config(config: MacroConfig, root_dir: std::path::PathBuf) -> anyhow::Result<Self> {
+        Self::with_config_and_env(config, root_dir, None)
+    }
+
+    /// Create an expander with a specific config and optional NAPI environment
+    pub fn with_config_and_env(
+        config: MacroConfig,
+        root_dir: std::path::PathBuf,
+        _env: Option<&napi::Env>,
+    ) -> anyhow::Result<Self> {
         let registry = MacroRegistry::new();
         register_packages(&registry, &config, &root_dir)?;
+
+        debug_assert!(
+            registry.contains("@macro/derive", "Debug"),
+            "Built-in @macro/derive::Debug macro should be registered"
+        );
+        debug_assert!(
+            registry.contains("@macro/derive", "Clone"),
+            "Built-in @macro/derive::Clone macro should be registered"
+        );
+        debug_assert!(
+            registry.contains("@macro/derive", "Eq"),
+            "Built-in @macro/derive::Eq macro should be registered"
+        );
 
         let keep_decorators = config.keep_decorators;
 
@@ -65,6 +107,7 @@ impl MacroExpander {
             dispatcher: MacroDispatcher::new(registry),
             config,
             keep_decorators,
+            external_loader: Some(ExternalMacroLoader::new(root_dir)),
         })
     }
 
@@ -73,46 +116,119 @@ impl MacroExpander {
         self.keep_decorators = keep;
     }
 
-    /// Expand all macros in the source code
-    pub fn expand(&self, source: &str, file_name: &str) -> Result<MacroExpansion> {
-        // Parse the module
+    /// Expand all macros in the source code (simple API for CLI usage)
+    pub fn expand_source(&self, source: &str, file_name: &str) -> Result<MacroExpansion> {
+        use ts_syn::parse_ts_module;
+
         let module = parse_ts_module(source)
             .map_err(|e| MacroError::InvalidConfig(format!("Parse error: {:?}", e)))?;
 
-        // Lower classes to IR
         let classes = lower_classes(&module, source)
             .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
 
-        if classes.is_empty() {
+        let interfaces = lower_interfaces(&module, source)
+            .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
+
+        if classes.is_empty() && interfaces.is_empty() {
             return Ok(MacroExpansion {
                 code: source.to_string(),
                 diagnostics: Vec::new(),
                 changed: false,
                 type_output: None,
                 classes: Vec::new(),
+                interfaces: Vec::new(),
                 source_mapping: None,
             });
         }
 
         let classes_clone = classes.clone();
+        let interfaces_clone = interfaces.clone();
 
         let (mut collector, mut diagnostics) =
-            self.collect_macro_patches(&module, classes, file_name, source);
+            self.collect_macro_patches(&module, classes, interfaces, file_name, source);
 
-        self.apply_and_finalize_expansion(source, &mut collector, &mut diagnostics, classes_clone)
+        self.apply_and_finalize_expansion(
+            source,
+            &mut collector,
+            &mut diagnostics,
+            classes_clone,
+            interfaces_clone,
+        )
     }
 
-    fn collect_macro_patches(
+    /// Expand all macros found in the parsed program and return the updated source code.
+    pub fn expand(
+        &self,
+        source: &str,
+        program: &Program,
+        file_name: &str,
+    ) -> anyhow::Result<MacroExpansion> {
+        let (module, classes, interfaces) =
+            match self.prepare_expansion_context(program, source)? {
+                Some(context) => context,
+                None => {
+                    return Ok(MacroExpansion {
+                        code: source.to_string(),
+                        diagnostics: Vec::new(),
+                        changed: false,
+                        type_output: None,
+                        classes: Vec::new(),
+                        interfaces: Vec::new(),
+                        source_mapping: None,
+                    });
+                }
+            };
+
+        let classes_clone = classes.clone();
+        let interfaces_clone = interfaces.clone();
+
+        let (mut collector, mut diagnostics) =
+            self.collect_macro_patches(&module, classes, interfaces, file_name, source);
+        self.apply_and_finalize_expansion(
+            source,
+            &mut collector,
+            &mut diagnostics,
+            classes_clone,
+            interfaces_clone,
+        )
+        .map_err(anyhow::Error::from)
+    }
+
+    pub(crate) fn prepare_expansion_context(
+        &self,
+        program: &Program,
+        source: &str,
+    ) -> anyhow::Result<Option<(Module, Vec<ClassIR>, Vec<InterfaceIR>)>> {
+        let module = match program {
+            Program::Module(module) => module.clone(),
+            Program::Script(_) => return Ok(None),
+        };
+
+        let classes = lower_classes(&module, source)
+            .context("failed to lower classes for macro processing")?;
+
+        let interfaces = lower_interfaces(&module, source)
+            .context("failed to lower interfaces for macro processing")?;
+
+        if classes.is_empty() && interfaces.is_empty() {
+            return Ok(None);
+        }
+
+        Ok(Some((module, classes, interfaces)))
+    }
+
+    pub(crate) fn collect_macro_patches(
         &self,
         module: &Module,
         classes: Vec<ClassIR>,
+        interfaces: Vec<InterfaceIR>,
         file_name: &str,
         source: &str,
     ) -> (PatchCollector, Vec<Diagnostic>) {
         let mut collector = PatchCollector::new();
         let mut diagnostics = Vec::new();
 
-        // Add patches to remove method bodies from type output
+        // Add patches to remove method bodies from type output (classes only)
         for class_ir in classes.iter() {
             for method in &class_ir.methods {
                 let return_type = method
@@ -155,7 +271,7 @@ impl MacroExpander {
                 collector.add_type_patches(vec![Patch::Replace {
                     span: method.span,
                     code: method_signature.into(),
-                    source_macro: None, // Method body stripping is internal, not macro-generated
+                    source_macro: None,
                 }]);
             }
         }
@@ -165,7 +281,12 @@ impl MacroExpander {
             .map(|class| (SpanKey::from(class.span), class))
             .collect();
 
-        let derive_targets = collect_derive_targets(module, &class_map, source);
+        let interface_map: HashMap<SpanKey, InterfaceIR> = interfaces
+            .into_iter()
+            .map(|iface| (SpanKey::from(iface.span), iface))
+            .collect();
+
+        let derive_targets = collect_derive_targets(module, &class_map, &interface_map, source);
 
         if derive_targets.is_empty() {
             return (collector, diagnostics);
@@ -182,42 +303,150 @@ impl MacroExpander {
 
             // Remove all field decorators when not keeping decorators
             if !self.keep_decorators {
-                for field in &target.class_ir.fields {
-                    for decorator in &field.decorators {
-                        let field_dec_removal = Patch::Delete {
-                            span: span_ir_with_at(decorator.span, source),
-                        };
-                        collector.add_runtime_patches(vec![field_dec_removal.clone()]);
-                        collector.add_type_patches(vec![field_dec_removal]);
-                    }
+                match &target.target_ir {
+                    DeriveTargetIR::Class(class_ir) => {
+                        for field in &class_ir.fields {
+                            for decorator in &field.decorators {
+                                let field_dec_removal = Patch::Delete {
+                                    span: span_ir_with_at(decorator.span, source),
+                                };
+                                collector.add_runtime_patches(vec![field_dec_removal.clone()]);
+                                collector.add_type_patches(vec![field_dec_removal]);
+                            }
 
-                    // find_macro_comment_span now only returns comments directly adjacent
-                    // to the field, so this won't accidentally find class-level decorators
-                    if let Some(span) = find_macro_comment_span(source, field.span.start) {
-                        let removal = Patch::Delete { span };
-                        collector.add_runtime_patches(vec![removal.clone()]);
-                        collector.add_type_patches(vec![removal]);
+                            if let Some(span) = find_macro_comment_span(source, field.span.start) {
+                                let removal = Patch::Delete { span };
+                                collector.add_runtime_patches(vec![removal.clone()]);
+                                collector.add_type_patches(vec![removal]);
+                            }
+                        }
+                    }
+                    DeriveTargetIR::Interface(interface_ir) => {
+                        for field in &interface_ir.fields {
+                            for decorator in &field.decorators {
+                                let field_dec_removal = Patch::Delete {
+                                    span: span_ir_with_at(decorator.span, source),
+                                };
+                                collector.add_runtime_patches(vec![field_dec_removal.clone()]);
+                                collector.add_type_patches(vec![field_dec_removal]);
+                            }
+
+                            if let Some(span) = find_macro_comment_span(source, field.span.start) {
+                                let removal = Patch::Delete { span };
+                                collector.add_runtime_patches(vec![removal.clone()]);
+                                collector.add_type_patches(vec![removal]);
+                            }
+                        }
                     }
                 }
             }
 
-            let target_source = source
-                .get(target.class_ir.span.start as usize..target.class_ir.span.end as usize)
-                .unwrap_or("")
-                .to_string();
+            // Extract the source code for this target
+            let (_target_span, _target_source, ctx_factory): (
+                SpanIR,
+                String,
+                Box<dyn Fn(String, String) -> MacroContextIR>,
+            ) = match &target.target_ir {
+                DeriveTargetIR::Class(class_ir) => {
+                    let span = class_ir.span;
+                    let src = source
+                        .get(span.start as usize..span.end as usize)
+                        .unwrap_or("")
+                        .to_string();
+                    let class_ir_clone = class_ir.clone();
+                    let decorator_span = target.decorator_span;
+                    let file = file_name.to_string();
+                    let src_clone = src.clone();
+                    (
+                        span,
+                        src,
+                        Box::new(move |macro_name, module_path| {
+                            MacroContextIR::new_derive_class(
+                                macro_name,
+                                module_path,
+                                decorator_span,
+                                span,
+                                file.clone(),
+                                class_ir_clone.clone(),
+                                src_clone.clone(),
+                            )
+                        }),
+                    )
+                }
+                DeriveTargetIR::Interface(interface_ir) => {
+                    let span = interface_ir.span;
+                    let src = source
+                        .get(span.start as usize..span.end as usize)
+                        .unwrap_or("")
+                        .to_string();
+                    let interface_ir_clone = interface_ir.clone();
+                    let decorator_span = target.decorator_span;
+                    let file = file_name.to_string();
+                    let src_clone = src.clone();
+                    (
+                        span,
+                        src,
+                        Box::new(move |macro_name, module_path| {
+                            MacroContextIR::new_derive_interface(
+                                macro_name,
+                                module_path,
+                                decorator_span,
+                                span,
+                                file.clone(),
+                                interface_ir_clone.clone(),
+                                src_clone.clone(),
+                            )
+                        }),
+                    )
+                }
+            };
 
             for (macro_name, module_path) in target.macro_names {
-                let ctx = MacroContextIR::new_derive_class(
-                    macro_name.clone(),
-                    module_path.clone(),
-                    target.decorator_span,
-                    target.class_ir.span,
-                    file_name.to_string(),
-                    target.class_ir.clone(),
-                    target_source.clone(),
-                );
+                let mut ctx = ctx_factory(macro_name.clone(), module_path.clone());
+
+                // Calculate macro_name_span
+                if let Some(macro_name_span) =
+                    find_macro_name_span(source, target.decorator_span, &macro_name)
+                {
+                    ctx = ctx.with_macro_name_span(macro_name_span);
+                }
 
                 let mut result = self.dispatcher.dispatch(ctx.clone());
+
+                if is_macro_not_found(&result)
+                    && ctx.module_path != DERIVE_MODULE_PATH
+                    && ctx.module_path.starts_with('.')
+                {
+                    let fallback_ctx = ctx_factory(macro_name.clone(), DERIVE_MODULE_PATH.to_string());
+                    result = self.dispatcher.dispatch(fallback_ctx);
+                }
+
+                let no_output = result.runtime_patches.is_empty()
+                    && result.type_patches.is_empty()
+                    && result.tokens.is_none();
+
+                if ctx.module_path != DERIVE_MODULE_PATH
+                    && (is_macro_not_found(&result) || no_output)
+                    && let Some(loader) = &self.external_loader
+                {
+                    match loader.run_macro(&ctx) {
+                        Ok(external_result) => {
+                            result = external_result;
+                        }
+                        Err(err) => {
+                            result.diagnostics.push(Diagnostic {
+                                level: DiagnosticLevel::Error,
+                                message: format!(
+                                    "Failed to load external macro '{}::{}': {}",
+                                    ctx.macro_name, ctx.module_path, err
+                                ),
+                                span: Some(diagnostic_span_for_derive(ctx.decorator_span, source)),
+                                notes: vec![],
+                                help: None,
+                            });
+                        }
+                    }
+                }
 
                 // Process potential token stream result
                 if let Ok((runtime, type_def)) =
@@ -228,6 +457,11 @@ impl MacroExpander {
                 }
 
                 if !result.diagnostics.is_empty() {
+                    for diag in &mut result.diagnostics {
+                        if let Some(span) = diag.span {
+                            diag.span = Some(diagnostic_span_for_derive(span, source));
+                        }
+                    }
                     diagnostics.extend(result.diagnostics.clone());
                 }
 
@@ -238,116 +472,193 @@ impl MacroExpander {
         (collector, diagnostics)
     }
 
-    fn process_macro_output(
+    pub(crate) fn process_macro_output(
         &self,
         result: &mut MacroResult,
         ctx: &MacroContextIR,
         source: &str,
-    ) -> Result<(Vec<Patch>, Vec<Patch>)> {
-        use swc_core::ecma::ast::ClassMember;
-
+    ) -> anyhow::Result<(Vec<Patch>, Vec<Patch>)> {
         let mut runtime_patches = Vec::new();
         let mut type_patches = Vec::new();
 
         if let Some(tokens) = &result.tokens
             && ctx.macro_kind == ts_syn::abi::MacroKind::Derive
-            && let TargetIR::Class(class_ir) = &ctx.target
         {
-            let chunks = split_by_markers(tokens);
-
             let macro_name = Some(ctx.macro_name.clone());
 
-            for (location, code) in chunks {
-                match location {
-                    "above" => {
-                        let patch = Patch::Insert {
-                            at: SpanIR {
-                                start: class_ir.span.start,
-                                end: class_ir.span.start,
-                            },
-                            code: PatchCode::Text(code.clone()),
-                            source_macro: macro_name.clone(),
-                        };
-                        runtime_patches.push(patch.clone());
-                        type_patches.push(patch);
-                    }
-                    "below" => {
-                        let patch = Patch::Insert {
-                            at: SpanIR {
-                                start: class_ir.span.end,
-                                end: class_ir.span.end,
-                            },
-                            code: PatchCode::Text(code.clone()),
-                            source_macro: macro_name.clone(),
-                        };
-                        runtime_patches.push(patch.clone());
-                        type_patches.push(patch);
-                    }
-                    "signature" => {
-                        let patch = Patch::Insert {
-                            at: SpanIR {
-                                start: class_ir.body_span.start,
-                                end: class_ir.body_span.start,
-                            },
-                            code: PatchCode::Text(code.clone()),
-                            source_macro: macro_name.clone(),
-                        };
-                        runtime_patches.push(patch.clone());
-                        type_patches.push(patch);
-                    }
-                    "body" => {
-                        let insert_pos = derive_insert_pos(class_ir, source);
-                        match parse_members_from_tokens(&code) {
-                            Ok(members) => {
-                                for member in members {
-                                    runtime_patches.push(Patch::Insert {
-                                        at: SpanIR {
-                                            start: insert_pos,
-                                            end: insert_pos,
-                                        },
-                                        code: PatchCode::ClassMember(member.clone()),
-                                        source_macro: macro_name.clone(),
-                                    });
+            match &ctx.target {
+                TargetIR::Class(class_ir) => {
+                    let chunks = split_by_markers(tokens);
 
-                                    let mut signature_member = member.clone();
-                                    match &mut signature_member {
-                                        ClassMember::Method(m) => m.function.body = None,
-                                        ClassMember::Constructor(c) => c.body = None,
-                                        ClassMember::PrivateMethod(m) => m.function.body = None,
-                                        _ => {}
+                    for (location, code) in chunks {
+                        match location {
+                            "above" => {
+                                let patch = Patch::Insert {
+                                    at: SpanIR {
+                                        start: class_ir.span.start,
+                                        end: class_ir.span.start,
+                                    },
+                                    code: PatchCode::Text(code.clone()),
+                                    source_macro: macro_name.clone(),
+                                };
+                                runtime_patches.push(patch.clone());
+                                type_patches.push(patch);
+                            }
+                            "below" => {
+                                let patch = Patch::Insert {
+                                    at: SpanIR {
+                                        start: class_ir.span.end,
+                                        end: class_ir.span.end,
+                                    },
+                                    code: PatchCode::Text(format!("\n\n{}", code.trim())),
+                                    source_macro: macro_name.clone(),
+                                };
+                                runtime_patches.push(patch.clone());
+                                type_patches.push(patch);
+                            }
+                            "signature" => {
+                                let patch = Patch::Insert {
+                                    at: SpanIR {
+                                        start: class_ir.body_span.start,
+                                        end: class_ir.body_span.start,
+                                    },
+                                    code: PatchCode::Text(code.clone()),
+                                    source_macro: macro_name.clone(),
+                                };
+                                runtime_patches.push(patch.clone());
+                                type_patches.push(patch);
+                            }
+                            "body" => {
+                                let insert_pos = derive_insert_pos(class_ir, source);
+                                match parse_members_from_tokens(&code) {
+                                    Ok(members) => {
+                                        for member in members {
+                                            runtime_patches.push(Patch::Insert {
+                                                at: SpanIR {
+                                                    start: insert_pos,
+                                                    end: insert_pos,
+                                                },
+                                                code: PatchCode::ClassMember(member.clone()),
+                                                source_macro: macro_name.clone(),
+                                            });
+
+                                            let mut signature_member = member.clone();
+                                            match &mut signature_member {
+                                                ClassMember::Method(m) => m.function.body = None,
+                                                ClassMember::Constructor(c) => c.body = None,
+                                                ClassMember::PrivateMethod(m) => {
+                                                    m.function.body = None
+                                                }
+                                                _ => {}
+                                            }
+
+                                            type_patches.push(Patch::Insert {
+                                                at: SpanIR {
+                                                    start: insert_pos,
+                                                    end: insert_pos,
+                                                },
+                                                code: PatchCode::ClassMember(signature_member),
+                                                source_macro: macro_name.clone(),
+                                            });
+                                        }
                                     }
+                                    Err(err) => {
+                                        let warning = format!(
+                                            "/** macroforge warning: Failed to parse macro output for {}::{}: {:?} */\n",
+                                            ctx.module_path, ctx.macro_name, err
+                                        );
+                                        let payload = format!("{warning}{code}");
 
-                                    type_patches.push(Patch::Insert {
-                                        at: SpanIR {
-                                            start: insert_pos,
-                                            end: insert_pos,
-                                        },
-                                        code: PatchCode::ClassMember(signature_member),
-                                        source_macro: macro_name.clone(),
-                                    });
+                                        runtime_patches.push(Patch::InsertRaw {
+                                            at: SpanIR {
+                                                start: insert_pos,
+                                                end: insert_pos,
+                                            },
+                                            code: payload.clone(),
+                                            context: Some(format!(
+                                                "Macro {}::{} output (unparsed)",
+                                                ctx.module_path, ctx.macro_name
+                                            )),
+                                            source_macro: macro_name.clone(),
+                                        });
+                                        type_patches.push(Patch::ReplaceRaw {
+                                            span: SpanIR {
+                                                start: insert_pos,
+                                                end: insert_pos,
+                                            },
+                                            code: payload,
+                                            context: Some(format!(
+                                                "Macro {}::{} output (unparsed)",
+                                                ctx.module_path, ctx.macro_name
+                                            )),
+                                            source_macro: macro_name.clone(),
+                                        });
+
+                                        result.diagnostics.push(Diagnostic {
+                                            level: DiagnosticLevel::Warning,
+                                            message: format!(
+                                                "Failed to parse macro output, inserted raw tokens: {err:?}"
+                                            ),
+                                            span: Some(diagnostic_span_for_derive(
+                                                ctx.decorator_span,
+                                                source,
+                                            )),
+                                            notes: vec![],
+                                            help: None,
+                                        });
+                                    }
                                 }
                             }
-                            Err(err) => {
-                                return Err(MacroError::InvalidConfig(format!(
-                                    "Failed to parse macro output: {:?}",
-                                    err
-                                )));
-                            }
+                            _ => {}
                         }
                     }
-                    _ => {}
                 }
+                TargetIR::Interface(interface_ir) => {
+                    let chunks = split_by_markers(tokens);
+
+                    for (location, code) in chunks {
+                        match location {
+                            "above" => {
+                                let patch = Patch::Insert {
+                                    at: SpanIR {
+                                        start: interface_ir.span.start,
+                                        end: interface_ir.span.start,
+                                    },
+                                    code: PatchCode::Text(code.clone()),
+                                    source_macro: macro_name.clone(),
+                                };
+                                runtime_patches.push(patch.clone());
+                                type_patches.push(patch);
+                            }
+                            "below" | "body" | "signature" => {
+                                let patch = Patch::Insert {
+                                    at: SpanIR {
+                                        start: interface_ir.span.end,
+                                        end: interface_ir.span.end,
+                                    },
+                                    code: PatchCode::Text(format!("\n\n{}", code.trim())),
+                                    source_macro: macro_name.clone(),
+                                };
+                                runtime_patches.push(patch.clone());
+                                type_patches.push(patch);
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+                _ => {}
             }
         }
         Ok((runtime_patches, type_patches))
     }
 
-    fn apply_and_finalize_expansion(
+    pub(crate) fn apply_and_finalize_expansion(
         &self,
         source: &str,
         collector: &mut PatchCollector,
         diagnostics: &mut Vec<Diagnostic>,
         classes: Vec<ClassIR>,
+        interfaces: Vec<InterfaceIR>,
     ) -> Result<MacroExpansion> {
         let runtime_result = collector
             .apply_runtime_patches_with_mapping(source, None)
@@ -378,6 +689,7 @@ impl MacroExpander {
             changed: true,
             type_output,
             classes,
+            interfaces,
             source_mapping,
         };
 
@@ -418,11 +730,217 @@ impl Default for MacroExpander {
     }
 }
 
+fn is_macro_not_found(result: &MacroResult) -> bool {
+    result
+        .diagnostics
+        .iter()
+        .any(|d| d.message.contains("Macro") && d.message.contains("not found"))
+}
+
 fn strip_decorators(code: &str) -> String {
     code.lines()
         .filter(|line| !line.trim_start().starts_with('@'))
         .collect::<Vec<_>>()
         .join("\n")
+}
+
+// ============================================================================
+// External Macro Loader
+// ============================================================================
+
+struct ExternalMacroLoader {
+    root_dir: std::path::PathBuf,
+}
+
+impl ExternalMacroLoader {
+    fn new(root_dir: std::path::PathBuf) -> Self {
+        Self { root_dir }
+    }
+
+    fn run_macro(&self, ctx: &MacroContextIR) -> napi::Result<MacroResult> {
+        let fn_name = format!("__macroforgeRun{}", ctx.macro_name);
+        let ctx_json =
+            serde_json::to_string(ctx).map_err(|e| napi::Error::new(Status::InvalidArg, e))?;
+
+        let script = r#"
+const [modulePath, fnName, ctxJson, rootDir] = process.argv.slice(1);
+const path = require('path');
+const fs = require('fs');
+const { pathToFileURL } = require('url');
+
+const normalizeWorkspaces = (val) =>
+  Array.isArray(val) ? val : (val && Array.isArray(val.packages) ? val.packages : []);
+
+const toImportSpecifier = (id) => {
+  if (id.startsWith('.') || id.startsWith('/')) {
+    return pathToFileURL(path.resolve(rootDir, id)).href;
+  }
+  return id;
+};
+
+const expandWorkspace = (pattern) => {
+  if (typeof pattern !== 'string') return [];
+  const absolute = path.resolve(rootDir, pattern);
+  if (!pattern.includes('*')) {
+    return [absolute];
+  }
+
+  const starIdx = pattern.indexOf('*');
+  const baseDir = path.resolve(rootDir, pattern.slice(0, starIdx));
+  const suffix = pattern.slice(starIdx + 1);
+  if (!fs.existsSync(baseDir)) return [];
+
+  return fs
+    .readdirSync(baseDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(baseDir, entry.name + suffix));
+};
+
+const candidates = [];
+const seen = new Set();
+const addCandidate = (id) => {
+  if (!id) return;
+  const key = id.startsWith('.') || id.startsWith('/') ? path.resolve(rootDir, id) : id;
+  if (seen.has(key)) return;
+  seen.add(key);
+  candidates.push(id);
+};
+
+addCandidate(modulePath);
+
+try {
+  const rootPkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
+  const workspaces = normalizeWorkspaces(rootPkg.workspaces);
+
+  for (const ws of workspaces) {
+    for (const pkgDir of expandWorkspace(ws)) {
+      try {
+        const pkgJsonPath = path.join(pkgDir, 'package.json');
+        if (!fs.existsSync(pkgJsonPath)) continue;
+
+        const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
+        addCandidate(pkgJson.name || pkgDir);
+        addCandidate(pkgDir);
+      } catch {}
+    }
+  }
+} catch {}
+
+const tryRequire = (id) => {
+  try {
+    return { module: require(id), loader: 'require' };
+  } catch (error) {
+    return { error };
+  }
+};
+
+const tryImport = async (id) => {
+  try {
+    return { module: await import(toImportSpecifier(id)), loader: 'import' };
+  } catch (error) {
+    return { error };
+  }
+};
+
+(async () => {
+  const errors = [];
+
+  for (const id of candidates) {
+    let loaded = tryRequire(id);
+
+    if (!loaded.module) {
+      const imported = await tryImport(id);
+      if (imported.module) {
+        loaded = imported;
+      } else {
+        errors.push(
+          `Failed to load '${id}' via require/import: ${
+            imported.error?.message || loaded.error?.message || 'unknown error'
+          }`
+        );
+        continue;
+      }
+    }
+
+    const mod = loaded.module;
+    const fn =
+      mod?.[fnName] ||
+      mod?.default?.[fnName] ||
+      (typeof mod?.default === 'object' ? mod.default[fnName] : undefined);
+
+    if (typeof fn !== 'function') {
+      errors.push(`Module '${id}' loaded via ${loaded.loader} but missing export '${fnName}'`);
+      continue;
+    }
+
+    const out = await fn(ctxJson);
+    if (typeof out === 'string') {
+      process.stdout.write(out);
+      process.exit(0);
+    }
+
+    errors.push(`Macro '${fnName}' in '${id}' returned ${typeof out}, expected string`);
+  }
+
+  if (errors.length === 0) {
+    errors.push('Macro not found in any workspace candidate');
+  }
+
+  console.error(errors.join('\n'));
+  process.exit(2);
+})().catch((err) => {
+  console.error(err?.stack || String(err));
+  process.exit(1);
+});
+"#;
+
+        let child = Command::new("node")
+            .current_dir(&self.root_dir)
+            .arg("-e")
+            .arg(script)
+            .arg(&ctx.module_path)
+            .arg(&fn_name)
+            .arg(&ctx_json)
+            .arg(self.root_dir.to_string_lossy().as_ref())
+            .output()
+            .map_err(|e| {
+                napi::Error::new(
+                    Status::GenericFailure,
+                    format!("Failed to spawn node for external macro: {e}"),
+                )
+            })?;
+
+        if !child.status.success() {
+            let stderr = String::from_utf8_lossy(&child.stderr);
+            return Err(napi::Error::new(
+                Status::GenericFailure,
+                format!("External macro runner failed: {stderr}"),
+            ));
+        }
+
+        let result_json = String::from_utf8(child.stdout).map_err(|e| {
+            napi::Error::new(
+                Status::InvalidArg,
+                format!("Macro runner returned non-UTF8 output: {e}"),
+            )
+        })?;
+
+        let host_result: ts_syn::abi::MacroResult =
+            serde_json::from_str(&result_json).map_err(|e| {
+                napi::Error::new(
+                    Status::InvalidArg,
+                    format!("Failed to parse macro result: {e}"),
+                )
+            })?;
+
+        Ok(MacroResult {
+            runtime_patches: host_result.runtime_patches,
+            type_patches: host_result.type_patches,
+            diagnostics: host_result.diagnostics,
+            tokens: host_result.tokens,
+            debug: host_result.debug,
+        })
+    }
 }
 
 // ============================================================================
@@ -444,14 +962,22 @@ impl From<Span> for SpanKey {
     }
 }
 
+/// The IR for a derive target - either a class or interface
+#[derive(Clone)]
+enum DeriveTargetIR {
+    Class(ClassIR),
+    Interface(InterfaceIR),
+}
+
 #[derive(Clone)]
 struct DeriveTarget {
     macro_names: Vec<(String, String)>,
     decorator_span: SpanIR,
-    class_ir: ClassIR,
+    target_ir: DeriveTargetIR,
 }
 
-fn collect_import_sources(module: &Module, source: &str) -> HashMap<String, String> {
+/// Collect a map of identifier name -> module source from import statements
+pub fn collect_import_sources(module: &Module, source: &str) -> HashMap<String, String> {
     use swc_core::ecma::ast::{ImportDecl, ImportSpecifier, ModuleDecl, ModuleItem};
 
     let mut import_map = HashMap::new();
@@ -531,13 +1057,19 @@ fn collect_macro_import_comments(source: &str) -> HashMap<String, String> {
 fn collect_derive_targets(
     module: &Module,
     class_map: &HashMap<SpanKey, ClassIR>,
+    interface_map: &HashMap<SpanKey, InterfaceIR>,
     source: &str,
 ) -> Vec<DeriveTarget> {
     let mut targets = Vec::new();
+
     let import_sources = collect_import_sources(module, source);
 
     for class_ir in class_map.values() {
         collect_from_class(class_ir, source, &import_sources, &mut targets);
+    }
+
+    for interface_ir in interface_map.values() {
+        collect_from_interface(interface_ir, source, &import_sources, &mut targets);
     }
 
     targets
@@ -549,7 +1081,6 @@ fn collect_from_class(
     import_sources: &HashMap<String, String>,
     out: &mut Vec<DeriveTarget>,
 ) {
-    // Prefer decorators (legacy and comment-lowered)
     for decorator in &class_ir.decorators {
         if let Some(macro_names) = parse_derive_decorator(&decorator.args_src, import_sources) {
             if macro_names.is_empty() {
@@ -559,13 +1090,12 @@ fn collect_from_class(
             out.push(DeriveTarget {
                 macro_names,
                 decorator_span: span_ir_with_at(decorator.span, source),
-                class_ir: class_ir.clone(),
+                target_ir: DeriveTargetIR::Class(class_ir.clone()),
             });
             return;
         }
     }
 
-    // Fallback: detect leading /** @derive(...) */ comment directly
     if let Some((span, args_src)) = find_leading_derive_comment(source, class_ir.span.start)
         && let Some(macro_names) = parse_derive_decorator(&args_src, import_sources)
         && !macro_names.is_empty()
@@ -573,7 +1103,40 @@ fn collect_from_class(
         out.push(DeriveTarget {
             macro_names,
             decorator_span: span,
-            class_ir: class_ir.clone(),
+            target_ir: DeriveTargetIR::Class(class_ir.clone()),
+        });
+    }
+}
+
+fn collect_from_interface(
+    interface_ir: &InterfaceIR,
+    source: &str,
+    import_sources: &HashMap<String, String>,
+    out: &mut Vec<DeriveTarget>,
+) {
+    for decorator in &interface_ir.decorators {
+        if let Some(macro_names) = parse_derive_decorator(&decorator.args_src, import_sources) {
+            if macro_names.is_empty() {
+                continue;
+            }
+
+            out.push(DeriveTarget {
+                macro_names,
+                decorator_span: span_ir_with_at(decorator.span, source),
+                target_ir: DeriveTargetIR::Interface(interface_ir.clone()),
+            });
+            return;
+        }
+    }
+
+    if let Some((span, args_src)) = find_leading_derive_comment(source, interface_ir.span.start)
+        && let Some(macro_names) = parse_derive_decorator(&args_src, import_sources)
+        && !macro_names.is_empty()
+    {
+        out.push(DeriveTarget {
+            macro_names,
+            decorator_span: span,
+            target_ir: DeriveTargetIR::Interface(interface_ir.clone()),
         });
     }
 }
@@ -588,6 +1151,71 @@ fn span_ir_with_at(span: SpanIR, source: &str) -> SpanIR {
         }
     }
     ir
+}
+
+fn find_macro_name_span(source: &str, decorator_span: SpanIR, macro_name: &str) -> Option<SpanIR> {
+    let start = decorator_span.start.saturating_sub(1) as usize;
+    let end = decorator_span.end.saturating_sub(1) as usize;
+
+    if start >= source.len() || end > source.len() {
+        return None;
+    }
+
+    let decorator_source = &source[start..end];
+
+    let paren_start = decorator_source.find('(')?;
+    let args_slice = &decorator_source[paren_start + 1..];
+
+    let mut search_start = 0;
+    while let Some(pos) = args_slice[search_start..].find(macro_name) {
+        let abs_pos = search_start + pos;
+
+        let before_ok = abs_pos == 0
+            || !args_slice
+                .chars()
+                .nth(abs_pos - 1)
+                .is_some_and(|c| c.is_alphanumeric() || c == '_');
+        let after_ok = abs_pos + macro_name.len() >= args_slice.len()
+            || !args_slice
+                .chars()
+                .nth(abs_pos + macro_name.len())
+                .is_some_and(|c| c.is_alphanumeric() || c == '_');
+
+        if before_ok && after_ok {
+            let macro_start = start + paren_start + 1 + abs_pos;
+            let macro_end = macro_start + macro_name.len();
+            return Some(SpanIR::new(macro_start as u32 + 1, macro_end as u32 + 1));
+        }
+
+        search_start = abs_pos + 1;
+    }
+
+    None
+}
+
+fn diagnostic_span_for_derive(span: SpanIR, source: &str) -> SpanIR {
+    let start = span.start.saturating_sub(1) as usize;
+    let end = span.end.saturating_sub(1) as usize;
+
+    if start >= source.len() {
+        return SpanIR::new(span.start.saturating_sub(1), span.end.saturating_sub(1));
+    }
+
+    if source[start..].starts_with("/**") {
+        let comment_slice = &source[start..end.min(source.len())];
+        if let Some(at_pos) = comment_slice
+            .find("@derive")
+            .or_else(|| comment_slice.find("@Derive"))
+        {
+            if let Some(close_pos) = comment_slice[at_pos..].find(')') {
+                let derive_start = start + at_pos;
+                let derive_end = derive_start + close_pos + 1;
+                return SpanIR::new(derive_start as u32, derive_end as u32);
+            }
+        }
+    }
+
+    SpanIR::new(span.start.saturating_sub(1), span.end.saturating_sub(1))
 }
 
 fn parse_derive_decorator(
@@ -616,7 +1244,6 @@ fn parse_derive_decorator(
 }
 
 fn find_leading_derive_comment(source: &str, class_start: u32) -> Option<(SpanIR, String)> {
-    // SWC spans are 1-based, so class_start of N means byte index N-1 (0-based)
     let start = class_start.saturating_sub(1) as usize;
     if start == 0 || start > source.len() {
         return None;
@@ -628,11 +1255,9 @@ fn find_leading_derive_comment(source: &str, class_start: u32) -> Option<(SpanIR
     let end_rel = rest.find("*/")?;
     let comment_end_idx = comment_start_idx + end_rel + 2;
 
-    // Find @derive within the comment for diagnostic span
     let at_derive_rel = rest.find("@derive").or_else(|| rest.find("@Derive"))?;
     let derive_start_idx = comment_start_idx + at_derive_rel;
 
-    // Find the closing paren for the derive span end
     let derive_close_rel = rest[at_derive_rel..].find(')')?;
     let derive_end_idx = derive_start_idx + derive_close_rel + 1;
 
@@ -653,7 +1278,6 @@ fn find_leading_derive_comment(source: &str, class_start: u32) -> Option<(SpanIR
     }
 
     let args_src = content[open + 1..close].trim().to_string();
-    // Return 1-based span pointing to @derive(...) for better diagnostics
     Some((
         SpanIR::new(derive_start_idx as u32 + 1, derive_end_idx as u32 + 1),
         args_src,
@@ -661,22 +1285,15 @@ fn find_leading_derive_comment(source: &str, class_start: u32) -> Option<(SpanIR
 }
 
 fn derive_insert_pos(class_ir: &ClassIR, source: &str) -> u32 {
-    // class_ir.span.end is 1-based, so we can use it directly for exclusive slice end
     let end = class_ir.span.end as usize;
     let search = &source[..end.min(source.len())];
-    // rfind returns 0-based index, add 1 to convert to 1-based for SpanIR
     search
         .rfind('}')
         .map(|idx| idx as u32 + 1)
-        .unwrap_or_else(|| {
-            // Fallback: use body_span.end (already 1-based)
-            class_ir.body_span.end.max(class_ir.span.start)
-        })
+        .unwrap_or_else(|| class_ir.body_span.end.max(class_ir.span.start))
 }
 
 fn find_macro_comment_span(source: &str, target_start: u32) -> Option<SpanIR> {
-    // SWC spans are 1-based, so target_start of 17 means byte index 16 (0-based)
-    // We want to search in the source up to but NOT including the target
     let start = target_start.saturating_sub(1) as usize;
     if start == 0 || start > source.len() {
         return None;
@@ -687,15 +1304,11 @@ fn find_macro_comment_span(source: &str, target_start: u32) -> Option<SpanIR> {
     let end_rel = rest.find("*/")?;
     let end_idx = start_idx + end_rel + 2;
 
-    // Only return the comment if it's directly adjacent to the target
-    // (only whitespace between comment end and target start)
     let between = &search_area[end_idx..];
     if !between.trim().is_empty() {
-        // There's non-whitespace content between the comment and target
         return None;
     }
 
-    // Return 1-based span to match SWC conventions
     Some(SpanIR::new(start_idx as u32 + 1, end_idx as u32 + 1))
 }
 
@@ -707,7 +1320,6 @@ fn split_by_markers(source: &str) -> Vec<(&str, String)> {
         ("signature", "/* @macroforge:signature */"),
     ];
 
-    // Find all occurrences
     let mut occurrences = Vec::new();
     for (name, pattern) in markers {
         for (idx, _) in source.match_indices(pattern) {
@@ -722,7 +1334,6 @@ fn split_by_markers(source: &str) -> Vec<(&str, String)> {
 
     let mut chunks = Vec::new();
 
-    // Handle text before first marker (default to below)
     if occurrences[0].0 > 0 {
         let text = &source[0..occurrences[0].0];
         if !text.trim().is_empty() {
@@ -746,7 +1357,7 @@ fn split_by_markers(source: &str) -> Vec<(&str, String)> {
     chunks
 }
 
-fn parse_members_from_tokens(tokens: &str) -> Result<Vec<swc_core::ecma::ast::ClassMember>> {
+fn parse_members_from_tokens(tokens: &str) -> anyhow::Result<Vec<swc_core::ecma::ast::ClassMember>> {
     let wrapped_stmt = format!("class __Temp {{ {} }}", tokens);
     if let Ok(swc_core::ecma::ast::Stmt::Decl(swc_core::ecma::ast::Decl::Class(class_decl))) =
         ts_syn::parse_ts_stmt(&wrapped_stmt)
@@ -754,7 +1365,6 @@ fn parse_members_from_tokens(tokens: &str) -> Result<Vec<swc_core::ecma::ast::Cl
         return Ok(class_decl.class.body);
     }
 
-    // Fallback: parse as module and grab first class
     if let Ok(module) = ts_syn::parse_ts_module(&wrapped_stmt) {
         for item in module.body {
             if let swc_core::ecma::ast::ModuleItem::Stmt(swc_core::ecma::ast::Stmt::Decl(
@@ -766,8 +1376,8 @@ fn parse_members_from_tokens(tokens: &str) -> Result<Vec<swc_core::ecma::ast::Cl
         }
     }
 
-    Err(MacroError::InvalidConfig(
-        "Failed to parse macro output into class members".into(),
+    Err(anyhow::anyhow!(
+        "Failed to parse macro output into class members"
     ))
 }
 
@@ -775,20 +1385,20 @@ fn parse_members_from_tokens(tokens: &str) -> Result<Vec<swc_core::ecma::ast::Cl
 // Package registration
 // ============================================================================
 
-/// Special marker for dynamic module resolution
-const DYNAMIC_MODULE_MARKER: &str = "__DYNAMIC_MODULE__";
+type PackageRegistrar = fn(&MacroRegistry) -> Result<()>;
+
+fn available_package_registrars() -> Vec<(&'static str, PackageRegistrar)> {
+    vec![]
+}
 
 fn register_packages(
     registry: &MacroRegistry,
     config: &MacroConfig,
-    _config_root: &std::path::Path,
-) -> Result<()> {
-    use super::package_registry;
-
-    let mut embedded_map: HashMap<&'static str, fn(&MacroRegistry) -> Result<()>> =
-        HashMap::new();
-
-    for pkg in package_registry::registrars() {
+    _config_root: &Path,
+) -> anyhow::Result<()> {
+    let mut embedded_map: HashMap<&'static str, PackageRegistrar> =
+        available_package_registrars().into_iter().collect();
+    for pkg in super::package_registry::registrars() {
         embedded_map.entry(pkg.module).or_insert(pkg.registrar);
     }
 
@@ -817,7 +1427,9 @@ fn register_packages(
         let mut found = false;
 
         if let Some(registrar) = embedded_map.get(module) {
-            registrar(registry)?;
+            registrar(registry)
+                .map_err(anyhow::Error::from)
+                .with_context(|| format!("failed to register macro package {module}"))?;
             found = true;
         }
 
@@ -831,7 +1443,6 @@ fn register_packages(
         }
     }
 
-    // Register dynamic-module macros under the default derive path
     if derived_set.contains(DYNAMIC_MODULE_MARKER) {
         let _ = derived::register_module(DYNAMIC_MODULE_MARKER, registry);
     }
@@ -848,4 +1459,85 @@ fn register_packages(
     }
 
     Ok(())
+}
+
+// ============================================================================
+// Tests
+// ============================================================================
+
+#[cfg(test)]
+mod external_macro_loader_tests {
+    use super::ExternalMacroLoader;
+    use std::{fs, path::Path};
+    use tempfile::tempdir;
+    use ts_syn::abi::{ClassIR, MacroContextIR, SpanIR};
+
+    fn write(path: &Path, contents: &str) {
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent).unwrap();
+        }
+        fs::write(path, contents).unwrap();
+    }
+
+    fn test_class() -> ClassIR {
+        ClassIR {
+            name: "Temp".into(),
+            span: SpanIR::new(0, 10),
+            body_span: SpanIR::new(1, 9),
+            is_abstract: false,
+            type_params: vec![],
+            heritage: vec![],
+            decorators: vec![],
+            decorators_ast: vec![],
+            fields: vec![],
+            methods: vec![],
+            members: vec![],
+        }
+    }
+
+    #[test]
+    fn loads_esm_workspace_macro_via_dynamic_import() {
+        let dir = tempdir().unwrap();
+        let root = dir.path();
+
+        write(
+            &root.join("package.json"),
+            r#"{"name":"root","type":"module","workspaces":["packages/*"]}"#,
+        );
+        write(
+            &root.join("packages/macro/package.json"),
+            r#"{"name":"@ext/macro","type":"module","main":"index.js"}"#,
+        );
+        write(
+            &root.join("packages/macro/index.js"),
+            r#"
+export function __macroforgeRunDebug(ctxJson) {
+  return JSON.stringify({
+    runtime_patches: [],
+    type_patches: [],
+    diagnostics: [],
+    tokens: null,
+    debug: null
+  });
+}
+"#,
+        );
+
+        let loader = ExternalMacroLoader::new(root.to_path_buf());
+        let ctx = MacroContextIR::new_derive_class(
+            "Debug".into(),
+            "@ext/macro".into(),
+            SpanIR::new(0, 1),
+            SpanIR::new(0, 1),
+            "file.ts".into(),
+            test_class(),
+            "class Temp {}".into(),
+        );
+
+        let result = loader
+            .run_macro(&ctx)
+            .expect("should load ESM macro via dynamic import");
+
+        assert!(result.diagnostics.is_empty());
+    }
 }

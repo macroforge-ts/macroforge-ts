@@ -1,5 +1,5 @@
 use crate::{
-    macro_host::MacroHostIntegration, parse_import_sources, GeneratedRegionResult,
+    host::MacroHostIntegration, parse_import_sources, GeneratedRegionResult,
     MappingSegmentResult, NativePositionMapper, SourceMappingResult,
 };
 use swc_core::ecma::ast::{ClassMember, Program};
