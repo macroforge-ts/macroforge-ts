@@ -4,7 +4,7 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
-use crate::host::{MacroExpander, MacroExpansion};
+use macroforge_ts::host::{MacroExpander, MacroExpansion};
 
 #[derive(Parser)]
 #[command(name = "macroforge", about = "TypeScript macro development utilities")]
