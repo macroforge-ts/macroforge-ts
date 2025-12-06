@@ -23,12 +23,11 @@ use ts_syn::{Diagnostic, DiagnosticLevel};
 use host::derived;
 
 mod builtin;
-mod macro_host;
 
 #[cfg(test)]
 mod test;
 
-use crate::macro_host::MacroHostIntegration;
+use crate::host::MacroHostIntegration;
 
 // ============================================================================
 // Data Structures
@@ -505,7 +504,7 @@ pub fn parse_import_sources(code: String, filepath: String) -> Result<Vec<Import
         Program::Script(_) => return Ok(vec![]),
     };
 
-    let import_map = crate::macro_host::collect_import_sources(&module, &code);
+    let import_map = crate::host::collect_import_sources(&module, &code);
     let mut imports = Vec::with_capacity(import_map.len());
     for (local, module) in import_map {
         imports.push(ImportSourceResult { local, module });

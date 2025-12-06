@@ -4,15 +4,13 @@
 //! bidirectional mapping to translate positions between original source
 //! and macro-expanded output.
 
-
 use serde::{Deserialize, Serialize};
 
 /// A segment mapping a contiguous region from original to expanded positions.
 ///
 /// Represents an unchanged region of code that exists in both original
 /// and expanded source at different byte offsets.
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct MappingSegment {
     /// Start position in original source (byte offset)
     pub original_start: u32,
@@ -64,8 +62,7 @@ impl MappingSegment {
 ///
 /// This is code that was inserted by a macro and does not map back
 /// to any position in the original source file.
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct GeneratedRegion {
     /// Start position in expanded source (byte offset)
     pub start: u32,
@@ -113,8 +110,7 @@ impl GeneratedRegion {
 ///                        ^-- position 12 (same)
 ///                                        ^-- position 24 (generated, no original)
 /// ```
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
 pub struct SourceMapping {
     /// Ordered list of mapped segments (sorted by original_start)
     pub segments: Vec<MappingSegment>,
@@ -165,11 +161,11 @@ impl SourceMapping {
         }
 
         // Position after last segment - calculate delta from last known mapping
-        if let Some(last) = self.segments.last() {
-            if pos >= last.original_end {
-                let delta = pos - last.original_end;
-                return last.expanded_end + delta;
-            }
+        if let Some(last) = self.segments.last()
+            && pos >= last.original_end
+        {
+            let delta = pos - last.original_end;
+            return last.expanded_end + delta;
         }
 
         // No mapping found, return as-is (identity)
@@ -196,11 +192,11 @@ impl SourceMapping {
         }
 
         // Position after last segment
-        if let Some(last) = self.segments.last() {
-            if pos >= last.expanded_end {
-                let delta = pos - last.expanded_end;
-                return Some(last.original_end + delta);
-            }
+        if let Some(last) = self.segments.last()
+            && pos >= last.expanded_end
+        {
+            let delta = pos - last.expanded_end;
+            return Some(last.original_end + delta);
         }
 
         None

@@ -17,7 +17,7 @@ pub mod traits;
 pub use config::MacroConfig;
 pub use dispatch::MacroDispatcher;
 pub use error::{MacroError, Result};
-pub use expand::{MacroExpander, MacroExpansion};
+pub use expand::{MacroExpander, MacroExpansion, MacroHostIntegration, collect_import_sources};
 pub use package_registry::MacroPackageRegistration;
 pub use patch_applicator::{PatchApplicator, PatchCollector};
 pub use registry::MacroRegistry;
