@@ -10,14 +10,19 @@ use std::process::Command;
 
 use anyhow::Context;
 use napi::Status;
-use swc_core::{common::Span, ecma::ast::{ClassMember, Module, Program}};
+use swc_core::{
+    common::Span,
+    ecma::ast::{ClassMember, Module, Program},
+};
 use ts_syn::abi::{
     ClassIR, Diagnostic, DiagnosticLevel, InterfaceIR, MacroContextIR, MacroResult, Patch,
     PatchCode, SourceMapping, SpanIR, TargetIR,
 };
 use ts_syn::{lower_classes, lower_interfaces};
 
-use super::{MacroConfig, MacroDispatcher, MacroError, MacroRegistry, PatchCollector, Result, derived};
+use super::{
+    MacroConfig, MacroDispatcher, MacroError, MacroRegistry, PatchCollector, Result, derived,
+};
 
 /// Default module path for built-in derive macros
 const DERIVE_MODULE_PATH: &str = "@macro/derive";
@@ -51,8 +56,9 @@ pub struct MacroExpander {
     external_loader: Option<ExternalMacroLoader>,
 }
 
-/// Alias for backward compatibility with NAPI integration code
-pub type MacroHostIntegration = MacroExpander;
+type Classes = Vec<ClassIR>;
+type Interfaces = Vec<InterfaceIR>;
+type ContextFactory = Box<dyn Fn(String, String) -> MacroContextIR>;
 
 impl MacroExpander {
     /// Create a new expander with the local registry populated from inventory
@@ -163,21 +169,20 @@ impl MacroExpander {
         program: &Program,
         file_name: &str,
     ) -> anyhow::Result<MacroExpansion> {
-        let (module, classes, interfaces) =
-            match self.prepare_expansion_context(program, source)? {
-                Some(context) => context,
-                None => {
-                    return Ok(MacroExpansion {
-                        code: source.to_string(),
-                        diagnostics: Vec::new(),
-                        changed: false,
-                        type_output: None,
-                        classes: Vec::new(),
-                        interfaces: Vec::new(),
-                        source_mapping: None,
-                    });
-                }
-            };
+        let (module, classes, interfaces) = match self.prepare_expansion_context(program, source)? {
+            Some(context) => context,
+            None => {
+                return Ok(MacroExpansion {
+                    code: source.to_string(),
+                    diagnostics: Vec::new(),
+                    changed: false,
+                    type_output: None,
+                    classes: Vec::new(),
+                    interfaces: Vec::new(),
+                    source_mapping: None,
+                });
+            }
+        };
 
         let classes_clone = classes.clone();
         let interfaces_clone = interfaces.clone();
@@ -198,7 +203,7 @@ impl MacroExpander {
         &self,
         program: &Program,
         source: &str,
-    ) -> anyhow::Result<Option<(Module, Vec<ClassIR>, Vec<InterfaceIR>)>> {
+    ) -> anyhow::Result<Option<(Module, Classes, Interfaces)>> {
         let module = match program {
             Program::Module(module) => module.clone(),
             Program::Script(_) => return Ok(None),
@@ -342,64 +347,61 @@ impl MacroExpander {
             }
 
             // Extract the source code for this target
-            let (_target_span, _target_source, ctx_factory): (
-                SpanIR,
-                String,
-                Box<dyn Fn(String, String) -> MacroContextIR>,
-            ) = match &target.target_ir {
-                DeriveTargetIR::Class(class_ir) => {
-                    let span = class_ir.span;
-                    let src = source
-                        .get(span.start as usize..span.end as usize)
-                        .unwrap_or("")
-                        .to_string();
-                    let class_ir_clone = class_ir.clone();
-                    let decorator_span = target.decorator_span;
-                    let file = file_name.to_string();
-                    let src_clone = src.clone();
-                    (
-                        span,
-                        src,
-                        Box::new(move |macro_name, module_path| {
-                            MacroContextIR::new_derive_class(
-                                macro_name,
-                                module_path,
-                                decorator_span,
-                                span,
-                                file.clone(),
-                                class_ir_clone.clone(),
-                                src_clone.clone(),
-                            )
-                        }),
-                    )
-                }
-                DeriveTargetIR::Interface(interface_ir) => {
-                    let span = interface_ir.span;
-                    let src = source
-                        .get(span.start as usize..span.end as usize)
-                        .unwrap_or("")
-                        .to_string();
-                    let interface_ir_clone = interface_ir.clone();
-                    let decorator_span = target.decorator_span;
-                    let file = file_name.to_string();
-                    let src_clone = src.clone();
-                    (
-                        span,
-                        src,
-                        Box::new(move |macro_name, module_path| {
-                            MacroContextIR::new_derive_interface(
-                                macro_name,
-                                module_path,
-                                decorator_span,
-                                span,
-                                file.clone(),
-                                interface_ir_clone.clone(),
-                                src_clone.clone(),
-                            )
-                        }),
-                    )
-                }
-            };
+            let (_target_span, _target_source, ctx_factory): (SpanIR, String, ContextFactory) =
+                match &target.target_ir {
+                    DeriveTargetIR::Class(class_ir) => {
+                        let span = class_ir.span;
+                        let src = source
+                            .get(span.start as usize..span.end as usize)
+                            .unwrap_or("")
+                            .to_string();
+                        let class_ir_clone = class_ir.clone();
+                        let decorator_span = target.decorator_span;
+                        let file = file_name.to_string();
+                        let src_clone = src.clone();
+                        (
+                            span,
+                            src,
+                            Box::new(move |macro_name, module_path| {
+                                MacroContextIR::new_derive_class(
+                                    macro_name,
+                                    module_path,
+                                    decorator_span,
+                                    span,
+                                    file.clone(),
+                                    class_ir_clone.clone(),
+                                    src_clone.clone(),
+                                )
+                            }),
+                        )
+                    }
+                    DeriveTargetIR::Interface(interface_ir) => {
+                        let span = interface_ir.span;
+                        let src = source
+                            .get(span.start as usize..span.end as usize)
+                            .unwrap_or("")
+                            .to_string();
+                        let interface_ir_clone = interface_ir.clone();
+                        let decorator_span = target.decorator_span;
+                        let file = file_name.to_string();
+                        let src_clone = src.clone();
+                        (
+                            span,
+                            src,
+                            Box::new(move |macro_name, module_path| {
+                                MacroContextIR::new_derive_interface(
+                                    macro_name,
+                                    module_path,
+                                    decorator_span,
+                                    span,
+                                    file.clone(),
+                                    interface_ir_clone.clone(),
+                                    src_clone.clone(),
+                                )
+                            }),
+                        )
+                    }
+                };
 
             for (macro_name, module_path) in target.macro_names {
                 let mut ctx = ctx_factory(macro_name.clone(), module_path.clone());
@@ -417,7 +419,8 @@ impl MacroExpander {
                     && ctx.module_path != DERIVE_MODULE_PATH
                     && ctx.module_path.starts_with('.')
                 {
-                    let fallback_ctx = ctx_factory(macro_name.clone(), DERIVE_MODULE_PATH.to_string());
+                    let fallback_ctx =
+                        ctx_factory(macro_name.clone(), DERIVE_MODULE_PATH.to_string());
                     result = self.dispatcher.dispatch(fallback_ctx);
                 }
 
@@ -665,9 +668,11 @@ impl MacroExpander {
             .map_err(|e| MacroError::InvalidConfig(format!("Patch error: {:?}", e)))?;
 
         let type_output = if collector.has_type_patches() {
-            Some(collector.apply_type_patches(source).map_err(|e| {
-                MacroError::InvalidConfig(format!("Type patch error: {:?}", e))
-            })?)
+            Some(
+                collector
+                    .apply_type_patches(source)
+                    .map_err(|e| MacroError::InvalidConfig(format!("Type patch error: {:?}", e)))?,
+            )
         } else {
             None
         };
@@ -1206,12 +1211,11 @@ fn diagnostic_span_for_derive(span: SpanIR, source: &str) -> SpanIR {
         if let Some(at_pos) = comment_slice
             .find("@derive")
             .or_else(|| comment_slice.find("@Derive"))
+            && let Some(close_pos) = comment_slice[at_pos..].find(')')
         {
-            if let Some(close_pos) = comment_slice[at_pos..].find(')') {
-                let derive_start = start + at_pos;
-                let derive_end = derive_start + close_pos + 1;
-                return SpanIR::new(derive_start as u32, derive_end as u32);
-            }
+            let derive_start = start + at_pos;
+            let derive_end = derive_start + close_pos + 1;
+            return SpanIR::new(derive_start as u32, derive_end as u32);
         }
     }
 
@@ -1357,7 +1361,9 @@ fn split_by_markers(source: &str) -> Vec<(&str, String)> {
     chunks
 }
 
-fn parse_members_from_tokens(tokens: &str) -> anyhow::Result<Vec<swc_core::ecma::ast::ClassMember>> {
+fn parse_members_from_tokens(
+    tokens: &str,
+) -> anyhow::Result<Vec<swc_core::ecma::ast::ClassMember>> {
     let wrapped_stmt = format!("class __Temp {{ {} }}", tokens);
     if let Ok(swc_core::ecma::ast::Stmt::Decl(swc_core::ecma::ast::Decl::Class(class_decl))) =
         ts_syn::parse_ts_stmt(&wrapped_stmt)

@@ -1,16 +1,16 @@
+use crate::host::PatchCollector;
 use crate::{
-    host::MacroHostIntegration, parse_import_sources, GeneratedRegionResult,
-    MappingSegmentResult, NativePositionMapper, SourceMappingResult,
+    GeneratedRegionResult, MappingSegmentResult, NativePositionMapper, SourceMappingResult,
+    host::MacroExpander, parse_import_sources,
 };
 use swc_core::ecma::ast::{ClassMember, Program};
 use swc_core::{
-    common::{sync::Lrc, FileName, SourceMap, GLOBALS},
+    common::{FileName, GLOBALS, SourceMap, sync::Lrc},
     ecma::parser::{Lexer, Parser, StringInput, Syntax, TsSyntax},
 };
 use ts_syn::abi::{
     ClassIR, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode, SpanIR,
 };
-use crate::host::PatchCollector;
 
 const DERIVE_MODULE_PATH: &str = "@macro/derive";
 
@@ -77,7 +77,7 @@ class Data {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed, "expand() should report changes");
@@ -110,7 +110,7 @@ class User {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed, "expand() should report changes");
@@ -146,7 +146,7 @@ class User {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed, "expand() should report changes");
@@ -183,7 +183,7 @@ class User {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed, "expand() should report changes");
@@ -254,7 +254,7 @@ class MacroUser {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed, "expand() should report changes");
@@ -272,7 +272,7 @@ class MacroUser {
 fn test_prepare_no_derive() {
     let source = "class User { name: string; }";
     let program = parse_module(source);
-    let host = MacroHostIntegration::new().unwrap();
+    let host = MacroExpander::new().unwrap();
     let result = host.prepare_expansion_context(&program, source).unwrap();
     // Even without decorators, we return Some because we still need to
     // generate method signatures for type output
@@ -283,7 +283,7 @@ fn test_prepare_no_derive() {
 fn test_prepare_no_classes() {
     let source = "const x = 1;";
     let program = parse_module(source);
-    let host = MacroHostIntegration::new().unwrap();
+    let host = MacroExpander::new().unwrap();
     let result = host.prepare_expansion_context(&program, source).unwrap();
     assert!(result.is_none());
 }
@@ -292,7 +292,7 @@ fn test_prepare_no_classes() {
 fn test_prepare_with_classes() {
     let source = "/** @derive(Debug) */ class User {}";
     let program = parse_module(source);
-    let host = MacroHostIntegration::new().unwrap();
+    let host = MacroExpander::new().unwrap();
     let result = host.prepare_expansion_context(&program, source).unwrap();
     assert!(result.is_some());
     let (_module, classes, _interfaces) = result.unwrap();
@@ -303,7 +303,7 @@ fn test_prepare_with_classes() {
 #[test]
 fn test_process_macro_output_converts_tokens_into_patches() {
     GLOBALS.set(&Default::default(), || {
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let class_ir = base_class("TokenDriven");
         let ctx = MacroContextIR::new_derive_class(
             "Debug".into(),
@@ -379,7 +379,7 @@ fn test_process_macro_output_converts_tokens_into_patches() {
 #[test]
 fn test_process_macro_output_reports_parse_errors() {
     GLOBALS.set(&Default::default(), || {
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let class_ir = base_class("Broken");
         let ctx = MacroContextIR::new_derive_class(
             "Debug".into(),
@@ -414,7 +414,7 @@ fn test_process_macro_output_reports_parse_errors() {
 fn test_collect_constructor_patch() {
     let source = "class User { constructor(id: string) { this.id = id; } }";
     let program = parse_module(source);
-    let host = MacroHostIntegration::new().unwrap();
+    let host = MacroExpander::new().unwrap();
     let (module, classes, interfaces) = host
         .prepare_expansion_context(&program, source)
         .unwrap()
@@ -441,7 +441,7 @@ fn test_collect_constructor_patch() {
 fn test_collect_derive_debug_patch() {
     let source = "/** @derive(Debug) */ class User { name: string; }";
     let program = parse_module(source);
-    let host = MacroHostIntegration::new().unwrap();
+    let host = MacroExpander::new().unwrap();
     let (module, classes, interfaces) = host
         .prepare_expansion_context(&program, source)
         .unwrap()
@@ -464,13 +464,17 @@ fn test_collect_derive_debug_patch() {
     );
 
     // check for decorator deletion
-    assert!(type_patches
-        .iter()
-        .any(|p| matches!(p, Patch::Delete { .. })));
+    assert!(
+        type_patches
+            .iter()
+            .any(|p| matches!(p, Patch::Delete { .. }))
+    );
     // check for method signature insertion
-    assert!(type_patches
-        .iter()
-        .any(|p| matches!(p, Patch::Insert { .. })));
+    assert!(
+        type_patches
+            .iter()
+            .any(|p| matches!(p, Patch::Insert { .. }))
+    );
 }
 
 #[test]
@@ -478,7 +482,7 @@ fn test_apply_and_finalize_expansion_no_type_patches() {
     let source = "class User {}";
     let mut collector = PatchCollector::new();
     let mut diagnostics = Vec::new();
-    let host = MacroHostIntegration::new().unwrap();
+    let host = MacroExpander::new().unwrap();
     let result = host
         .apply_and_finalize_expansion(
             source,
@@ -544,7 +548,7 @@ class Product {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed, "expand() should report changes");
@@ -612,7 +616,7 @@ class API {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed);
@@ -678,7 +682,7 @@ class Account {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed);
@@ -740,7 +744,7 @@ class Config {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed);
@@ -797,7 +801,7 @@ class Singleton {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed);
@@ -851,7 +855,7 @@ class ValidationExample {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed);
@@ -883,7 +887,7 @@ class User {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed);
@@ -940,7 +944,7 @@ class User {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed);
@@ -1028,7 +1032,7 @@ class ServerConfig {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed);
@@ -1084,7 +1088,7 @@ class EventEmitter {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed);
@@ -1110,7 +1114,7 @@ class User {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed, "Expansion should report changes");
@@ -1210,7 +1214,7 @@ fn native_position_mapper_matches_js_logic() {
 #[test]
 fn test_default_below_location_for_unmarked_tokens() {
     GLOBALS.set(&Default::default(), || {
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let class_ir = base_class("BelowTest");
         let ctx = MacroContextIR::new_derive_class(
             "Custom".into(),
@@ -1256,7 +1260,7 @@ fn test_default_below_location_for_unmarked_tokens() {
 #[test]
 fn test_explicit_body_marker_parses_as_class_members() {
     GLOBALS.set(&Default::default(), || {
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let class_ir = base_class("BodyTest");
         let ctx = MacroContextIR::new_derive_class(
             "Custom".into(),
@@ -1310,7 +1314,7 @@ interface Status {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         // Should have diagnostics indicating the error
@@ -1347,7 +1351,7 @@ interface UserData {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         // Should have diagnostics indicating the error
@@ -1384,7 +1388,7 @@ interface Point {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         // Should have diagnostics indicating the error
@@ -1421,7 +1425,7 @@ interface Status {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         let error_diag = result
@@ -1467,7 +1471,7 @@ interface Status {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         // Should have error diagnostics (Debug, Clone, and Eq all fail on interfaces)
@@ -1497,7 +1501,7 @@ class User {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         // Should have a diagnostic for unknown macro
@@ -1528,7 +1532,7 @@ interface Config {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         // Should have a diagnostic for unknown macro
@@ -1558,7 +1562,7 @@ interface Data {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let host = MacroHostIntegration::new().unwrap();
+        let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         let error_diag = result

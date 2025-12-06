@@ -19,15 +19,15 @@ pub mod host;
 // Re-export abi types from ts_syn
 pub use ts_syn::abi;
 
-use ts_syn::{Diagnostic, DiagnosticLevel};
 use host::derived;
+use ts_syn::{Diagnostic, DiagnosticLevel};
 
 mod builtin;
 
 #[cfg(test)]
 mod test;
 
-use crate::host::MacroHostIntegration;
+use crate::host::MacroExpander;
 
 // ============================================================================
 // Data Structures
@@ -412,9 +412,9 @@ impl NativePlugin {
                     std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                         // We need a dummy Env here or refactor expand_inner to not take Env
                         // since Env cannot be sent across threads.
-                        // However, expand_inner only uses Env for MacroHostIntegration which likely needs it.
+                        // However, expand_inner only uses Env for MacroExpander which likely needs it.
                         // IMPORTANT: NAPI Env is NOT thread safe. We cannot pass it.
-                        // We must initialize MacroHostIntegration without Env or create a temporary scope if possible.
+                        // We must initialize MacroExpander without Env or create a temporary scope if possible.
                         // Assuming expand_inner logic handles mostly pure Rust AST operations:
                         expand_inner(&code, &filepath_for_thread, opts_clone)
                     }))
@@ -588,9 +588,9 @@ fn expand_inner(
     options: Option<ExpandOptions>,
 ) -> Result<ExpandResult> {
     // We create a NEW macro host for this thread.
-    // Note: If MacroHostIntegration requires NAPI Env for calling back into JS,
+    // Note: If MacroExpander requires NAPI Env for calling back into JS,
     // that part will fail in a threaded context. Assuming pure-Rust expansion here.
-    let mut macro_host = MacroHostIntegration::new().map_err(|err| {
+    let mut macro_host = MacroExpander::new().map_err(|err| {
         Error::new(
             Status::GenericFailure,
             format!("Failed to initialize macro host: {err:?}"),
@@ -695,7 +695,7 @@ fn expand_inner(
 }
 
 fn transform_inner(code: &str, filepath: &str) -> Result<TransformResult> {
-    let macro_host = MacroHostIntegration::new().map_err(|err| {
+    let macro_host = MacroExpander::new().map_err(|err| {
         Error::new(
             Status::GenericFailure,
             format!("Failed to init host: {err:?}"),
@@ -871,7 +871,7 @@ pub fn debug_get_modules() -> Vec<String> {
 
 #[napi(js_name = "__macroforgeDebugLookup")]
 pub fn debug_lookup(module: String, name: String) -> String {
-    match MacroHostIntegration::new() {
+    match MacroExpander::new() {
         Ok(host) => match host.dispatcher.registry().lookup(&module, &name) {
             Ok(_) => format!("Found: ({}, {})", module, name),
             Err(_) => format!("Not found: ({}, {})", module, name),
