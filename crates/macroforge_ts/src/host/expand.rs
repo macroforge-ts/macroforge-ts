@@ -206,7 +206,18 @@ impl MacroExpander {
     ) -> anyhow::Result<Option<(Module, Classes, Interfaces)>> {
         let module = match program {
             Program::Module(module) => module.clone(),
-            Program::Script(_) => return Ok(None),
+            Program::Script(script) => {
+                use swc_core::ecma::ast::{Module as SwcModule, ModuleItem};
+                SwcModule {
+                    span: script.span,
+                    body: script
+                        .body
+                        .iter()
+                        .map(|stmt| ModuleItem::Stmt(stmt.clone()))
+                        .collect(),
+                    shebang: script.shebang.clone(),
+                }
+            }
         };
 
         let classes = lower_classes(&module, source)
