@@ -78,11 +78,11 @@ describe("service", () => {
       moduleResolution: ts.ModuleResolutionKind.Node10,
       plugins: [
         {
-          name: "@macroforge/macroforge-derive-plugin",
+          name: "@macroforge/tsserver-plugin-macroforge",
         },
       ],
       target: ts.ScriptTarget.ESNext,
-tsserver-plugin-macroforge    });
+    });
   });
 
   it("errors if tsconfig matches no svelte files", async () => {
@@ -245,7 +245,7 @@ tsserver-plugin-macroforge    });
       noEmit: true,
       plugins: [
         {
-          name: "@macroforge/macroforge-derive-plugin",
+          name: "@macroforge/tsserver-plugin-macroforge",
         },
       ],
       skipLibCheck: true,

@@ -64,7 +64,7 @@ fn base_class(name: &str) -> ClassIR {
 
 #[test]
 fn test_derive_debug_runtime_output() {
-    // Note: JSON macro is in playground-macros, not swc-napi-macros
+    // Note: JSON macro is in playground-macros, not macroforge
     // Testing Debug macro which generates toString() implementation
     let source = r#"
 import { Derive } from "@macro/derive";

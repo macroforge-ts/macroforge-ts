@@ -12,6 +12,7 @@ function shouldProcess(fileName: string) {
   if (fileName.includes(`${path.sep}.macroforge${path.sep}`)) return false;
   // Skip generated .d.ts files
   if (fileName.endsWith(".macroforge.d.ts")) return false;
+  return FILE_EXTENSIONS.some((ext) => lower.endsWith(ext));
 }
 
 function hasMacroDirectives(text: string) {

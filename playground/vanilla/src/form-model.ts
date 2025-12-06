@@ -1,9 +1,3 @@
-import { Derive } from "macroforge";
-import {
-  FieldController,
-  fieldController,
-  textAreaController,
-} from "@playground/macro";
 /** import macro { FieldController } from "@playground/macro"; */
 
 /**
@@ -15,12 +9,12 @@ import {
  */
 /** @derive(FieldController) */
 export class FormModel {
-  @fieldController(textAreaController)
+  /** @fieldController(textAreaController) */
   memo: string | null;
 
   username: string;
 
-  @fieldController(textAreaController)
+  /** @fieldController(textAreaController) */
   description: string;
 
   constructor(memo: string | null, username: string, description: string) {
@@ -32,4 +26,4 @@ export class FormModel {
 
 let formy = new FormModel("sdfsdf", "dfsdf", "sdfsdf");
 
-//let controller = formy.memoFieldController;
+let controller = formy.memoFieldController;

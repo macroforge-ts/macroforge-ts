@@ -261,7 +261,7 @@ test("TS Language Plugin filters diagnostics for available external macros", asy
 
 test("Macro expansion formats code correctly", async () => {
   const require = createRequire(import.meta.url);
-  const swcMacrosPath = path.join(repoRoot, "crates/swc-napi-macros/index.js");
+  const swcMacrosPath = path.join(repoRoot, "crates/macroforge_ts/index.js");
   const { expandSync } = require(swcMacrosPath);
 
   const userContent = fs.readFileSync(
@@ -303,7 +303,7 @@ test("Macro expansion formats code correctly", async () => {
 test("Macro Host reports diagnostics for invalid usage", async () => {
   // Test the core macro host logic used by both plugins and language server
   const require = createRequire(import.meta.url);
-  const swcMacrosPath = path.join(repoRoot, "crates/swc-napi-macros/index.js");
+  const swcMacrosPath = path.join(repoRoot, "crates/macroforge_ts/index.js");
   const { expandSync } = require(swcMacrosPath);
 
   const code = `

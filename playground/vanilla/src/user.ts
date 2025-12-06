@@ -1,5 +1,3 @@
-import { Derive, Debug, debug } from "macroforge";
-import { JSON } from "@playground/macro";
 /** import macro { JSON } from "@playground/macro"; */
 
 // Example of using Derive decorator and dynamic macro
@@ -24,5 +22,5 @@ export class User {
 
 const user = new User(1, "John Doe", "john@example.com", "tok_live_secret");
 
-const derivedSummary = user.toString();
-const derivedJson = user.toJSON();
+export const derivedSummary = user.toString();
+export const derivedJson = user.toJSON();
