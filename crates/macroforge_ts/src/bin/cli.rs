@@ -71,7 +71,7 @@ fn expand_file(
         .with_context(|| format!("failed to read {}", input.display()))?;
 
     let expansion = expander
-        .expand(&source, &input.display().to_string())
+        .expand_source(&source, &input.display().to_string())
         .map_err(|err| anyhow!(format!("{err:?}")))?;
 
     emit_diagnostics(&expansion, &source, &input);
