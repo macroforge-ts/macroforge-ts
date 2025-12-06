@@ -1,10 +1,10 @@
 use zed_extension_api::{self as zed, serde_json};
 
-const TS_PLUGIN: &str = "@ts-macros/ts-derive-plugin";
+const TS_PLUGIN: &str = "@macroforge/ts-derive-plugin";
 
-struct TsMacrosTsExtension;
+struct MacroforgesTsExtension;
 
-impl TsMacrosTsExtension {
+impl MacroforgesTsExtension {
     fn plugin_config(worktree: &zed::Worktree) -> serde_json::Value {
         let plugin_path = format!("{}/packages/ts-derive-plugin", worktree.root_path());
         serde_json::json!({
@@ -30,7 +30,7 @@ impl TsMacrosTsExtension {
     }
 }
 
-impl zed::Extension for TsMacrosTsExtension {
+impl zed::Extension for MacroforgesTsExtension {
     fn new() -> Self {
         Self
     }
@@ -49,7 +49,7 @@ impl zed::Extension for TsMacrosTsExtension {
     }
 }
 
-zed::register_extension!(TsMacrosTsExtension);
+zed::register_extension!(MacroforgesTsExtension);
 
 #[cfg(test)]
 mod tests {
@@ -82,12 +82,12 @@ mod tests {
 
     #[test]
     fn test_extension_can_be_instantiated() {
-        let _ext = TsMacrosTsExtension;
+        let _ext = MacroforgesTsExtension;
     }
 
     #[test]
     fn test_plugin_config_structure() {
-        let config = generate_plugin_config("/workspace/ts-macros");
+        let config = generate_plugin_config("/workspace/macroforge");
 
         // Verify vtsls config structure
         let vtsls = config.get("vtsls").expect("vtsls config should exist");
@@ -104,7 +104,7 @@ mod tests {
         assert_eq!(plugin.get("name").unwrap(), TS_PLUGIN);
         assert_eq!(
             plugin.get("location").unwrap(),
-            "/workspace/ts-macros/packages/ts-derive-plugin"
+            "/workspace/macroforge/packages/ts-derive-plugin"
         );
         assert_eq!(
             plugin.get("enableForWorkspaceTypeScriptVersions").unwrap(),
@@ -143,9 +143,9 @@ mod tests {
     #[test]
     fn test_plugin_config_with_different_roots() {
         let test_cases = vec![
-            "/home/user/projects/ts-macros",
-            "/Users/dev/code/ts-macros",
-            "C:\\Users\\dev\\ts-macros",
+            "/home/user/projects/macroforge",
+            "/Users/dev/code/macroforge",
+            "C:\\Users\\dev\\macroforge",
             "/workspace",
         ];
 
@@ -175,6 +175,6 @@ mod tests {
 
     #[test]
     fn test_ts_plugin_constant() {
-        assert_eq!(TS_PLUGIN, "@ts-macros/ts-derive-plugin");
+        assert_eq!(TS_PLUGIN, "@macroforge/ts-derive-plugin");
     }
 }
