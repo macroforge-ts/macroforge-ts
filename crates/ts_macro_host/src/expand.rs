@@ -155,6 +155,7 @@ impl MacroExpander {
                 collector.add_type_patches(vec![Patch::Replace {
                     span: method.span,
                     code: method_signature.into(),
+                    source_macro: None, // Method body stripping is internal, not macro-generated
                 }]);
             }
         }
@@ -254,6 +255,8 @@ impl MacroExpander {
         {
             let chunks = split_by_markers(tokens);
 
+            let macro_name = Some(ctx.macro_name.clone());
+
             for (location, code) in chunks {
                 match location {
                     "above" => {
@@ -263,6 +266,7 @@ impl MacroExpander {
                                 end: class_ir.span.start,
                             },
                             code: PatchCode::Text(code.clone()),
+                            source_macro: macro_name.clone(),
                         };
                         runtime_patches.push(patch.clone());
                         type_patches.push(patch);
@@ -274,6 +278,7 @@ impl MacroExpander {
                                 end: class_ir.span.end,
                             },
                             code: PatchCode::Text(code.clone()),
+                            source_macro: macro_name.clone(),
                         };
                         runtime_patches.push(patch.clone());
                         type_patches.push(patch);
@@ -285,6 +290,7 @@ impl MacroExpander {
                                 end: class_ir.body_span.start,
                             },
                             code: PatchCode::Text(code.clone()),
+                            source_macro: macro_name.clone(),
                         };
                         runtime_patches.push(patch.clone());
                         type_patches.push(patch);
@@ -300,6 +306,7 @@ impl MacroExpander {
                                             end: insert_pos,
                                         },
                                         code: PatchCode::ClassMember(member.clone()),
+                                        source_macro: macro_name.clone(),
                                     });
 
                                     let mut signature_member = member.clone();
@@ -316,6 +323,7 @@ impl MacroExpander {
                                             end: insert_pos,
                                         },
                                         code: PatchCode::ClassMember(signature_member),
+                                        source_macro: macro_name.clone(),
                                     });
                                 }
                             }

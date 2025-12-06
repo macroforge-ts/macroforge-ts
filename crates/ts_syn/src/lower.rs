@@ -2,6 +2,13 @@ use ts_macro_abi::*;
 
 use crate::TsSynError;
 
+/// A lowered target that can be either a class or interface
+#[derive(Clone, Debug)]
+pub enum LoweredTarget {
+    Class(ClassIR),
+    Interface(InterfaceIR),
+}
+
 #[cfg(feature = "swc")]
 use swc_core::common::{Span, Spanned};
 #[cfg(feature = "swc")]
@@ -13,6 +20,28 @@ use swc_core::ecma::visit::{Visit, VisitWith};
 #[cfg(feature = "swc")]
 pub fn lower_classes(module: &Module, source: &str) -> Result<Vec<ClassIR>, TsSynError> {
     let mut v = ClassCollector {
+        out: vec![],
+        source,
+    };
+    module.visit_with(&mut v);
+    Ok(v.out)
+}
+
+/// Lower a module into InterfaceIR list (derive targets).
+#[cfg(feature = "swc")]
+pub fn lower_interfaces(module: &Module, source: &str) -> Result<Vec<InterfaceIR>, TsSynError> {
+    let mut v = InterfaceCollector {
+        out: vec![],
+        source,
+    };
+    module.visit_with(&mut v);
+    Ok(v.out)
+}
+
+/// Lower a module into all derive targets (classes and interfaces).
+#[cfg(feature = "swc")]
+pub fn lower_targets(module: &Module, source: &str) -> Result<Vec<LoweredTarget>, TsSynError> {
+    let mut v = TargetCollector {
         out: vec![],
         source,
     };
@@ -67,6 +96,178 @@ impl<'a> Visit for ClassCollector<'a> {
             members: n.class.body.clone(),
         });
     }
+}
+
+#[cfg(feature = "swc")]
+struct InterfaceCollector<'a> {
+    out: Vec<InterfaceIR>,
+    source: &'a str,
+}
+
+#[cfg(feature = "swc")]
+impl<'a> Visit for InterfaceCollector<'a> {
+    fn visit_ts_interface_decl(&mut self, n: &TsInterfaceDecl) {
+        if let Some(ir) = lower_interface(n, self.source) {
+            self.out.push(ir);
+        }
+    }
+}
+
+#[cfg(feature = "swc")]
+struct TargetCollector<'a> {
+    out: Vec<LoweredTarget>,
+    source: &'a str,
+}
+
+#[cfg(feature = "swc")]
+impl<'a> Visit for TargetCollector<'a> {
+    fn visit_class_decl(&mut self, n: &ClassDecl) {
+        let name = n.ident.sym.to_string();
+        let span = swc_span_to_ir(n.class.span);
+
+        let class_source = snippet(self.source, n.class.span);
+        let body_span = if let (Some(open_brace), Some(close_brace)) =
+            (class_source.find('{'), class_source.rfind('}'))
+        {
+            SpanIR::new(
+                n.class.span.lo.0 + open_brace as u32,
+                n.class.span.lo.0 + close_brace as u32 + 1,
+            )
+        } else {
+            span
+        };
+
+        let mut decorators = lower_decorators(&n.class.decorators, self.source);
+        decorators.extend(collect_leading_macro_directives(
+            self.source,
+            n.class.span.lo.0 as usize,
+        ));
+
+        let (fields, methods) = lower_members(&n.class.body, self.source);
+
+        self.out.push(LoweredTarget::Class(ClassIR {
+            name,
+            span,
+            body_span,
+            is_abstract: n.class.is_abstract,
+            type_params: vec![],
+            heritage: vec![],
+            decorators,
+            decorators_ast: n.class.decorators.clone(),
+            fields,
+            methods,
+            members: n.class.body.clone(),
+        }));
+    }
+
+    fn visit_ts_interface_decl(&mut self, n: &TsInterfaceDecl) {
+        if let Some(ir) = lower_interface(n, self.source) {
+            self.out.push(LoweredTarget::Interface(ir));
+        }
+    }
+}
+
+#[cfg(feature = "swc")]
+fn lower_interface(n: &TsInterfaceDecl, source: &str) -> Option<InterfaceIR> {
+    let name = n.id.sym.to_string();
+    let span = swc_span_to_ir(n.span);
+
+    let interface_source = snippet(source, n.span);
+    let body_span = if let (Some(open_brace), Some(close_brace)) =
+        (interface_source.find('{'), interface_source.rfind('}'))
+    {
+        SpanIR::new(
+            n.span.lo.0 + open_brace as u32,
+            n.span.lo.0 + close_brace as u32 + 1,
+        )
+    } else {
+        span
+    };
+
+    // Collect decorators from leading JSDoc comments
+    let decorators = collect_leading_macro_directives(source, n.span.lo.0 as usize);
+
+    let (fields, methods) = lower_interface_members(&n.body.body, source);
+
+    Some(InterfaceIR {
+        name,
+        span,
+        body_span,
+        type_params: vec![], // TODO: extract type params
+        heritage: vec![],    // TODO: extract extends
+        decorators,
+        fields,
+        methods,
+    })
+}
+
+#[cfg(feature = "swc")]
+fn lower_interface_members(
+    body: &[TsTypeElement],
+    source: &str,
+) -> (Vec<InterfaceFieldIR>, Vec<InterfaceMethodIR>) {
+    let mut fields = vec![];
+    let mut methods = vec![];
+
+    for elem in body {
+        match elem {
+            TsTypeElement::TsPropertySignature(prop) => {
+                let name = match &*prop.key {
+                    Expr::Ident(i) => i.sym.to_string(),
+                    _ => continue,
+                };
+
+                let ts_type = prop
+                    .type_ann
+                    .as_ref()
+                    .map(|t| snippet(source, t.type_ann.span()))
+                    .unwrap_or_else(|| "any".into());
+
+                // Collect decorators from leading JSDoc comments
+                let decorators = collect_leading_macro_directives(source, prop.span.lo.0 as usize);
+
+                fields.push(InterfaceFieldIR {
+                    name,
+                    span: swc_span_to_ir(prop.span),
+                    ts_type,
+                    optional: prop.optional,
+                    readonly: prop.readonly,
+                    decorators,
+                });
+            }
+            TsTypeElement::TsMethodSignature(meth) => {
+                let name = match &*meth.key {
+                    Expr::Ident(i) => i.sym.to_string(),
+                    _ => continue,
+                };
+
+                let method_src = snippet(source, meth.span);
+                let params_src = extract_params_from_source(&method_src);
+                let type_params_src = extract_type_params_from_source(&method_src, &name);
+
+                let return_type_src = meth
+                    .type_ann
+                    .as_ref()
+                    .map(|t| snippet(source, t.type_ann.span()).trim().to_string())
+                    .unwrap_or_else(|| "void".into());
+
+                let decorators = collect_leading_macro_directives(source, meth.span.lo.0 as usize);
+
+                methods.push(InterfaceMethodIR {
+                    name,
+                    span: swc_span_to_ir(meth.span),
+                    type_params_src,
+                    params_src,
+                    return_type_src,
+                    optional: meth.optional,
+                    decorators,
+                });
+            }
+            _ => {}
+        }
+    }
+
+    (fields, methods)
 }
 
 #[cfg(feature = "swc")]

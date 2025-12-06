@@ -23,8 +23,8 @@
 //! ```
 
 use ts_macro_abi::{
-    ClassIR, DecoratorIR, EnumIR, EnumVariantIR, FieldIR, MacroContextIR, MethodSigIR, SpanIR,
-    TargetIR,
+    ClassIR, DecoratorIR, EnumIR, EnumVariantIR, FieldIR, InterfaceFieldIR, InterfaceIR,
+    InterfaceMethodIR, MacroContextIR, MethodSigIR, SpanIR, TargetIR,
 };
 
 use crate::TsSynError;
@@ -124,6 +124,8 @@ pub enum Data {
     Class(DataClass),
     /// A TypeScript enum
     Enum(DataEnum),
+    /// A TypeScript interface
+    Interface(DataInterface),
 }
 
 /// Data for a class, analogous to `syn::DataStruct`
@@ -204,6 +206,55 @@ impl DataEnum {
     }
 }
 
+/// Data for an interface
+#[derive(Debug, Clone)]
+pub struct DataInterface {
+    /// The interface IR with full details
+    pub inner: InterfaceIR,
+}
+
+impl DataInterface {
+    /// Get the fields of the interface
+    pub fn fields(&self) -> &[InterfaceFieldIR] {
+        &self.inner.fields
+    }
+
+    /// Get the methods of the interface
+    pub fn methods(&self) -> &[InterfaceMethodIR] {
+        &self.inner.methods
+    }
+
+    /// Get the interface body span (for inserting code)
+    pub fn body_span(&self) -> SpanIR {
+        self.inner.body_span
+    }
+
+    /// Get type parameters
+    pub fn type_params(&self) -> &[String] {
+        &self.inner.type_params
+    }
+
+    /// Get heritage clauses (extends)
+    pub fn heritage(&self) -> &[String] {
+        &self.inner.heritage
+    }
+
+    /// Iterate over field names
+    pub fn field_names(&self) -> impl Iterator<Item = &str> {
+        self.inner.fields.iter().map(|f| f.name.as_str())
+    }
+
+    /// Get a field by name
+    pub fn field(&self, name: &str) -> Option<&InterfaceFieldIR> {
+        self.inner.fields.iter().find(|f| f.name == name)
+    }
+
+    /// Get a method by name
+    pub fn method(&self, name: &str) -> Option<&InterfaceMethodIR> {
+        self.inner.methods.iter().find(|m| m.name == name)
+    }
+}
+
 impl DeriveInput {
     /// Create a DeriveInput from a MacroContextIR
     pub fn from_context(ctx: MacroContextIR) -> Result<Self, TsSynError> {
@@ -236,10 +287,19 @@ impl DeriveInput {
                 });
                 (ident, enum_.span, attrs, data)
             }
-            TargetIR::Interface => {
-                return Err(TsSynError::Unsupported(
-                    "Interface derive macros not yet supported".into(),
-                ));
+            TargetIR::Interface(interface) => {
+                let ident = Ident::new(&interface.name, interface.span);
+                let attrs = interface
+                    .decorators
+                    .iter()
+                    .filter(|d| d.name != "Derive")
+                    .cloned()
+                    .map(|d| Attribute { inner: d })
+                    .collect();
+                let data = Data::Interface(DataInterface {
+                    inner: interface.clone(),
+                });
+                (ident, interface.span, attrs, data)
             }
             TargetIR::Function => {
                 return Err(TsSynError::Unsupported(
@@ -283,9 +343,29 @@ impl DeriveInput {
         }
     }
 
+    /// Get the interface data, if this is an interface
+    pub fn as_interface(&self) -> Option<&DataInterface> {
+        match &self.data {
+            Data::Interface(i) => Some(i),
+            _ => None,
+        }
+    }
+
     /// Get the decorator span (for deletion/replacement)
     pub fn decorator_span(&self) -> SpanIR {
         self.context.decorator_span
+    }
+
+    /// Get the macro name span (just the macro name within the decorator)
+    /// Returns None if not available
+    pub fn macro_name_span(&self) -> Option<SpanIR> {
+        self.context.macro_name_span
+    }
+
+    /// Get the best span for error reporting - prefers macro_name_span if available,
+    /// falls back to decorator_span
+    pub fn error_span(&self) -> SpanIR {
+        self.context.error_span()
     }
 
     /// Get the target span (for inserting after)
@@ -293,12 +373,13 @@ impl DeriveInput {
         self.context.target_span
     }
 
-    /// Get the class body span for inserting type signatures
-    /// Returns None if this is not a class
+    /// Get the class or interface body span for inserting type signatures
+    /// Returns None if this is an enum
     pub fn body_span(&self) -> Option<SpanIR> {
         match &self.data {
             Data::Class(c) => Some(c.body_span()),
-            _ => None,
+            Data::Interface(i) => Some(i.body_span()),
+            Data::Enum(_) => None,
         }
     }
 }

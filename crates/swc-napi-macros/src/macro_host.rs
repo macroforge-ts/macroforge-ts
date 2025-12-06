@@ -4,12 +4,12 @@ use napi::bindgen_prelude::Env;
 use std::{collections::HashMap, path::Path, process::Command};
 use swc_core::{common::Span, ecma::ast::{ClassMember, Module, Program}};
 use ts_macro_abi::{
-    ClassIR, Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode,
-    SourceMapping, SpanIR, TargetIR,
+    ClassIR, Diagnostic, DiagnosticLevel, InterfaceIR, MacroContextIR, MacroResult, Patch,
+    PatchCode, SourceMapping, SpanIR, TargetIR,
 };
 use ts_macro_host::{MacroConfig, MacroDispatcher, MacroRegistry, PatchCollector, derived};
 
-use ts_syn::lower_classes;
+use ts_syn::{lower_classes, lower_interfaces};
 
 /// Default module path for built-in derive macros
 const DERIVE_MODULE_PATH: &str = "@macro/derive";
@@ -33,6 +33,7 @@ pub struct MacroExpansion {
     pub changed: bool,
     pub type_output: Option<String>,
     pub classes: Vec<ClassIR>,
+    pub interfaces: Vec<InterfaceIR>,
     /// Source mapping between original and expanded code positions
     pub source_mapping: Option<SourceMapping>,
 }
@@ -101,32 +102,41 @@ impl MacroHostIntegration {
         program: &Program,
         file_name: &str,
     ) -> Result<MacroExpansion> {
-        let (module, classes) = match self.prepare_expansion_context(program, source)? {
-            Some(context) => context,
-            None => {
-                return Ok(MacroExpansion {
-                    code: source.to_string(),
-                    diagnostics: Vec::new(),
-                    changed: false,
-                    type_output: None,
-                    classes: Vec::new(),
-                    source_mapping: None,
-                });
-            }
-        };
+        let (module, classes, interfaces) =
+            match self.prepare_expansion_context(program, source)? {
+                Some(context) => context,
+                None => {
+                    return Ok(MacroExpansion {
+                        code: source.to_string(),
+                        diagnostics: Vec::new(),
+                        changed: false,
+                        type_output: None,
+                        classes: Vec::new(),
+                        interfaces: Vec::new(),
+                        source_mapping: None,
+                    });
+                }
+            };
 
         let classes_clone = classes.clone();
+        let interfaces_clone = interfaces.clone();
 
         let (mut collector, mut diagnostics) =
-            self.collect_macro_patches(&module, classes, file_name, source);
-        self.apply_and_finalize_expansion(source, &mut collector, &mut diagnostics, classes_clone)
+            self.collect_macro_patches(&module, classes, interfaces, file_name, source);
+        self.apply_and_finalize_expansion(
+            source,
+            &mut collector,
+            &mut diagnostics,
+            classes_clone,
+            interfaces_clone,
+        )
     }
 
     pub(crate) fn prepare_expansion_context(
         &self,
         program: &Program,
         source: &str,
-    ) -> Result<Option<(Module, Vec<ClassIR>)>> {
+    ) -> Result<Option<(Module, Vec<ClassIR>, Vec<InterfaceIR>)>> {
         let module = match program {
             Program::Module(module) => module.clone(),
             Program::Script(_) => return Ok(None),
@@ -135,24 +145,28 @@ impl MacroHostIntegration {
         let classes = lower_classes(&module, source)
             .context("failed to lower classes for macro processing")?;
 
-        if classes.is_empty() {
+        let interfaces = lower_interfaces(&module, source)
+            .context("failed to lower interfaces for macro processing")?;
+
+        if classes.is_empty() && interfaces.is_empty() {
             return Ok(None);
         }
 
-        Ok(Some((module, classes)))
+        Ok(Some((module, classes, interfaces)))
     }
 
     pub(crate) fn collect_macro_patches(
         &self,
         module: &Module,
         classes: Vec<ClassIR>,
+        interfaces: Vec<InterfaceIR>,
         file_name: &str,
         source: &str,
     ) -> (PatchCollector, Vec<Diagnostic>) {
         let mut collector = PatchCollector::new();
         let mut diagnostics = Vec::new();
 
-        // Add patches to remove method bodies from type output
+        // Add patches to remove method bodies from type output (classes only)
         for class_ir in classes.iter() {
             for method in &class_ir.methods {
                 let return_type = method
@@ -195,6 +209,7 @@ impl MacroHostIntegration {
                 collector.add_type_patches(vec![Patch::Replace {
                     span: method.span,
                     code: method_signature.into(),
+                    source_macro: None, // Method body stripping is internal, not macro-generated
                 }]);
             }
         }
@@ -204,7 +219,12 @@ impl MacroHostIntegration {
             .map(|class| (SpanKey::from(class.span), class))
             .collect();
 
-        let derive_targets = collect_derive_targets(module, &class_map, source);
+        let interface_map: HashMap<SpanKey, InterfaceIR> = interfaces
+            .into_iter()
+            .map(|iface| (SpanKey::from(iface.span), iface))
+            .collect();
+
+        let derive_targets = collect_derive_targets(module, &class_map, &interface_map, source);
 
         if derive_targets.is_empty() {
             return (collector, diagnostics);
@@ -221,41 +241,113 @@ impl MacroHostIntegration {
 
             // Remove all field decorators when not keeping decorators
             if !self.keep_decorators {
-                for field in &target.class_ir.fields {
-                    for decorator in &field.decorators {
-                        let field_dec_removal = Patch::Delete {
-                            span: span_ir_with_at(decorator.span, source),
-                        };
-                        collector.add_runtime_patches(vec![field_dec_removal.clone()]);
-                        collector.add_type_patches(vec![field_dec_removal]);
-                    }
+                match &target.target_ir {
+                    DeriveTargetIR::Class(class_ir) => {
+                        for field in &class_ir.fields {
+                            for decorator in &field.decorators {
+                                let field_dec_removal = Patch::Delete {
+                                    span: span_ir_with_at(decorator.span, source),
+                                };
+                                collector.add_runtime_patches(vec![field_dec_removal.clone()]);
+                                collector.add_type_patches(vec![field_dec_removal]);
+                            }
 
-                    // find_macro_comment_span now only returns comments directly adjacent
-                    // to the field, so this won't accidentally find class-level decorators
-                    if let Some(span) = find_macro_comment_span(source, field.span.start) {
-                        let removal = Patch::Delete { span };
-                        collector.add_runtime_patches(vec![removal.clone()]);
-                        collector.add_type_patches(vec![removal]);
+                            if let Some(span) = find_macro_comment_span(source, field.span.start) {
+                                let removal = Patch::Delete { span };
+                                collector.add_runtime_patches(vec![removal.clone()]);
+                                collector.add_type_patches(vec![removal]);
+                            }
+                        }
+                    }
+                    DeriveTargetIR::Interface(interface_ir) => {
+                        for field in &interface_ir.fields {
+                            for decorator in &field.decorators {
+                                let field_dec_removal = Patch::Delete {
+                                    span: span_ir_with_at(decorator.span, source),
+                                };
+                                collector.add_runtime_patches(vec![field_dec_removal.clone()]);
+                                collector.add_type_patches(vec![field_dec_removal]);
+                            }
+
+                            if let Some(span) = find_macro_comment_span(source, field.span.start) {
+                                let removal = Patch::Delete { span };
+                                collector.add_runtime_patches(vec![removal.clone()]);
+                                collector.add_type_patches(vec![removal]);
+                            }
+                        }
                     }
                 }
             }
 
-            // Extract the source code for this class
-            let target_source = source
-                .get(target.class_ir.span.start as usize..target.class_ir.span.end as usize)
-                .unwrap_or("")
-                .to_string();
+            // Extract the source code for this target
+            let (_target_span, _target_source, ctx_factory): (
+                SpanIR,
+                String,
+                Box<dyn Fn(String, String) -> MacroContextIR>,
+            ) = match &target.target_ir {
+                DeriveTargetIR::Class(class_ir) => {
+                    let span = class_ir.span;
+                    let src = source
+                        .get(span.start as usize..span.end as usize)
+                        .unwrap_or("")
+                        .to_string();
+                    let class_ir_clone = class_ir.clone();
+                    let decorator_span = target.decorator_span;
+                    let file = file_name.to_string();
+                    let src_clone = src.clone();
+                    (
+                        span,
+                        src,
+                        Box::new(move |macro_name, module_path| {
+                            MacroContextIR::new_derive_class(
+                                macro_name,
+                                module_path,
+                                decorator_span,
+                                span,
+                                file.clone(),
+                                class_ir_clone.clone(),
+                                src_clone.clone(),
+                            )
+                        }),
+                    )
+                }
+                DeriveTargetIR::Interface(interface_ir) => {
+                    let span = interface_ir.span;
+                    let src = source
+                        .get(span.start as usize..span.end as usize)
+                        .unwrap_or("")
+                        .to_string();
+                    let interface_ir_clone = interface_ir.clone();
+                    let decorator_span = target.decorator_span;
+                    let file = file_name.to_string();
+                    let src_clone = src.clone();
+                    (
+                        span,
+                        src,
+                        Box::new(move |macro_name, module_path| {
+                            MacroContextIR::new_derive_interface(
+                                macro_name,
+                                module_path,
+                                decorator_span,
+                                span,
+                                file.clone(),
+                                interface_ir_clone.clone(),
+                                src_clone.clone(),
+                            )
+                        }),
+                    )
+                }
+            };
 
             for (macro_name, module_path) in target.macro_names {
-                let ctx = MacroContextIR::new_derive_class(
-                    macro_name.clone(),
-                    module_path.clone(),
-                    target.decorator_span,
-                    target.class_ir.span,
-                    file_name.to_string(),
-                    target.class_ir.clone(),
-                    target_source.clone(),
-                );
+                let mut ctx = ctx_factory(macro_name.clone(), module_path.clone());
+
+                // Calculate macro_name_span by finding the macro name within the decorator source
+                if let Some(macro_name_span) =
+                    find_macro_name_span(source, target.decorator_span, &macro_name)
+                {
+                    ctx = ctx.with_macro_name_span(macro_name_span);
+                }
 
                 let mut result = self.dispatcher.dispatch(ctx.clone());
 
@@ -263,15 +355,7 @@ impl MacroHostIntegration {
                     && ctx.module_path != DERIVE_MODULE_PATH
                     && ctx.module_path.starts_with('.')
                 {
-                    let fallback_ctx = MacroContextIR::new_derive_class(
-                        macro_name.clone(),
-                        DERIVE_MODULE_PATH.to_string(),
-                        target.decorator_span,
-                        target.class_ir.span,
-                        file_name.to_string(),
-                        target.class_ir.clone(),
-                        target_source.clone(),
-                    );
+                    let fallback_ctx = ctx_factory(macro_name.clone(), DERIVE_MODULE_PATH.to_string());
                     result = self.dispatcher.dispatch(fallback_ctx);
                 }
 
@@ -338,80 +422,127 @@ impl MacroHostIntegration {
 
         if let Some(tokens) = &result.tokens
             && ctx.macro_kind == ts_macro_abi::MacroKind::Derive
-            && let TargetIR::Class(class_ir) = &ctx.target
         {
-            // It's a derive on a class.
-            // Wrap tokens in a class to parse members
-            let insert_pos = derive_insert_pos(class_ir, source);
-            match parse_members_from_tokens(tokens) {
-                Ok(members) => {
-                    for member in members {
-                        runtime_patches.push(Patch::Insert {
-                            at: SpanIR {
-                                start: insert_pos,
-                                end: insert_pos,
-                            },
-                            code: PatchCode::ClassMember(member.clone()),
-                        });
+            // Track which macro generated these patches
+            let macro_name = Some(ctx.macro_name.clone());
 
-                        let mut signature_member = member.clone();
-                        match &mut signature_member {
-                            ClassMember::Method(m) => m.function.body = None,
-                            ClassMember::Constructor(c) => c.body = None,
-                            ClassMember::PrivateMethod(m) => m.function.body = None,
-                            _ => {}
+            match &ctx.target {
+                TargetIR::Class(class_ir) => {
+                    // It's a derive on a class.
+                    // Wrap tokens in a class to parse members
+                    let insert_pos = derive_insert_pos(class_ir, source);
+                    match parse_members_from_tokens(tokens) {
+                        Ok(members) => {
+                            for member in members {
+                                runtime_patches.push(Patch::Insert {
+                                    at: SpanIR {
+                                        start: insert_pos,
+                                        end: insert_pos,
+                                    },
+                                    code: PatchCode::ClassMember(member.clone()),
+                                    source_macro: macro_name.clone(),
+                                });
+
+                                let mut signature_member = member.clone();
+                                match &mut signature_member {
+                                    ClassMember::Method(m) => m.function.body = None,
+                                    ClassMember::Constructor(c) => c.body = None,
+                                    ClassMember::PrivateMethod(m) => m.function.body = None,
+                                    _ => {}
+                                }
+
+                                type_patches.push(Patch::Insert {
+                                    at: SpanIR {
+                                        start: insert_pos,
+                                        end: insert_pos,
+                                    },
+                                    code: PatchCode::ClassMember(signature_member),
+                                    source_macro: macro_name.clone(),
+                                });
+                            }
                         }
+                        Err(err) => {
+                            // Fallback: inject raw tokens to avoid losing macro output
+                            let warning = format!(
+                                "/** ts-macros warning: Failed to parse macro output for {}::{}: {:?} */\n",
+                                ctx.module_path, ctx.macro_name, err
+                            );
+                            let payload = format!("{warning}{tokens}");
 
-                        type_patches.push(Patch::Insert {
-                            at: SpanIR {
-                                start: insert_pos,
-                                end: insert_pos,
-                            },
-                            code: PatchCode::ClassMember(signature_member),
-                        });
+                            runtime_patches.push(Patch::InsertRaw {
+                                at: SpanIR {
+                                    start: insert_pos,
+                                    end: insert_pos,
+                                },
+                                code: payload.clone(),
+                                context: Some(format!(
+                                    "Macro {}::{} output (unparsed)",
+                                    ctx.module_path, ctx.macro_name
+                                )),
+                                source_macro: macro_name.clone(),
+                            });
+                            type_patches.push(Patch::ReplaceRaw {
+                                span: SpanIR {
+                                    start: insert_pos,
+                                    end: insert_pos,
+                                },
+                                code: payload,
+                                context: Some(format!(
+                                    "Macro {}::{} output (unparsed)",
+                                    ctx.module_path, ctx.macro_name
+                                )),
+                                source_macro: macro_name.clone(),
+                            });
+
+                            result.diagnostics.push(Diagnostic {
+                                level: DiagnosticLevel::Warning,
+                                message: format!(
+                                    "Failed to parse macro output, inserted raw tokens: {err:?}"
+                                ),
+                                span: Some(diagnostic_span_for_derive(ctx.decorator_span, source)),
+                                notes: vec![],
+                                help: None,
+                            });
+                        }
                     }
                 }
-                Err(err) => {
-                    // Fallback: inject raw tokens to avoid losing macro output, with visible warning.
-                    let warning = format!(
-                        "/** ts-macros warning: Failed to parse macro output for {}::{}: {:?} */\n",
-                        ctx.module_path, ctx.macro_name, err
-                    );
-                    let payload = format!("{warning}{tokens}");
+                TargetIR::Interface(interface_ir) => {
+                    // It's a derive on an interface.
+                    // For interfaces, we generate a companion namespace after the interface.
+                    // The tokens should be namespace body content.
+                    let insert_pos = interface_ir.span.end;
+                    let namespace_name = &interface_ir.name;
+
+                    // Wrap the tokens in a namespace declaration
+                    let namespace_code =
+                        format!("\n\nexport namespace {} {{\n{}\n}}", namespace_name, tokens);
 
                     runtime_patches.push(Patch::InsertRaw {
                         at: SpanIR {
                             start: insert_pos,
                             end: insert_pos,
                         },
-                        code: payload.clone(),
+                        code: namespace_code.clone(),
                         context: Some(format!(
-                            "Macro {}::{} output (unparsed)",
-                            ctx.module_path, ctx.macro_name
+                            "Macro {}::{} output for interface {}",
+                            ctx.module_path, ctx.macro_name, namespace_name
                         )),
+                        source_macro: macro_name.clone(),
                     });
-                    type_patches.push(Patch::ReplaceRaw {
-                        span: SpanIR {
+                    type_patches.push(Patch::InsertRaw {
+                        at: SpanIR {
                             start: insert_pos,
                             end: insert_pos,
                         },
-                        code: payload,
+                        code: namespace_code,
                         context: Some(format!(
-                            "Macro {}::{} output (unparsed)",
-                            ctx.module_path, ctx.macro_name
+                            "Macro {}::{} type output for interface {}",
+                            ctx.module_path, ctx.macro_name, namespace_name
                         )),
-                    });
-
-                    result.diagnostics.push(Diagnostic {
-                        level: DiagnosticLevel::Warning,
-                        message: format!(
-                            "Failed to parse macro output, inserted raw tokens: {err:?}"
-                        ),
-                        span: Some(diagnostic_span_for_derive(ctx.decorator_span, source)),
-                        notes: vec![],
-                        help: None,
+                        source_macro: macro_name.clone(),
                     });
                 }
+                _ => {}
             }
         }
         Ok((runtime_patches, type_patches))
@@ -423,6 +554,7 @@ impl MacroHostIntegration {
         collector: &mut PatchCollector,
         diagnostics: &mut Vec<Diagnostic>,
         classes: Vec<ClassIR>,
+        interfaces: Vec<InterfaceIR>,
     ) -> Result<MacroExpansion> {
         // Apply runtime patches with source mapping
         // Note: macro_name is passed as None here since patches come from multiple macros
@@ -460,6 +592,7 @@ impl MacroHostIntegration {
             changed: true,
             type_output,
             classes,
+            interfaces,
             source_mapping,
         };
 
@@ -719,13 +852,20 @@ impl From<Span> for SpanKey {
     }
 }
 
+/// The IR for a derive target - either a class or interface
+#[derive(Clone)]
+enum DeriveTargetIR {
+    Class(ClassIR),
+    Interface(InterfaceIR),
+}
+
 #[derive(Clone)]
 struct DeriveTarget {
     /// List of (macro_name, module_path) pairs
     /// module_path is the import source (e.g., "@playground/macro")
     macro_names: Vec<(String, String)>,
     decorator_span: SpanIR,
-    class_ir: ClassIR,
+    target_ir: DeriveTargetIR,
 }
 
 /// Collect a map of identifier name -> module source from import statements
@@ -812,6 +952,7 @@ fn collect_macro_import_comments(source: &str) -> HashMap<String, String> {
 fn collect_derive_targets(
     module: &Module,
     class_map: &HashMap<SpanKey, ClassIR>,
+    interface_map: &HashMap<SpanKey, InterfaceIR>,
     source: &str,
 ) -> Vec<DeriveTarget> {
     let mut targets = Vec::new();
@@ -821,6 +962,10 @@ fn collect_derive_targets(
 
     for class_ir in class_map.values() {
         collect_from_class(class_ir, source, &import_sources, &mut targets);
+    }
+
+    for interface_ir in interface_map.values() {
+        collect_from_interface(interface_ir, source, &import_sources, &mut targets);
     }
 
     targets
@@ -842,7 +987,7 @@ fn collect_from_class(
             out.push(DeriveTarget {
                 macro_names,
                 decorator_span: span_ir_with_at(decorator.span, source),
-                class_ir: class_ir.clone(),
+                target_ir: DeriveTargetIR::Class(class_ir.clone()),
             });
             return;
         }
@@ -856,7 +1001,42 @@ fn collect_from_class(
         out.push(DeriveTarget {
             macro_names,
             decorator_span: span,
-            class_ir: class_ir.clone(),
+            target_ir: DeriveTargetIR::Class(class_ir.clone()),
+        });
+    }
+}
+
+fn collect_from_interface(
+    interface_ir: &InterfaceIR,
+    source: &str,
+    import_sources: &HashMap<String, String>,
+    out: &mut Vec<DeriveTarget>,
+) {
+    // Check decorators from JSDoc comments
+    for decorator in &interface_ir.decorators {
+        if let Some(macro_names) = parse_derive_decorator(&decorator.args_src, import_sources) {
+            if macro_names.is_empty() {
+                continue;
+            }
+
+            out.push(DeriveTarget {
+                macro_names,
+                decorator_span: span_ir_with_at(decorator.span, source),
+                target_ir: DeriveTargetIR::Interface(interface_ir.clone()),
+            });
+            return;
+        }
+    }
+
+    // Fallback: detect leading /** @derive(...) */ comment directly
+    if let Some((span, args_src)) = find_leading_derive_comment(source, interface_ir.span.start)
+        && let Some(macro_names) = parse_derive_decorator(&args_src, import_sources)
+        && !macro_names.is_empty()
+    {
+        out.push(DeriveTarget {
+            macro_names,
+            decorator_span: span,
+            target_ir: DeriveTargetIR::Interface(interface_ir.clone()),
         });
     }
 }
@@ -873,6 +1053,59 @@ fn span_ir_with_at(span: SpanIR, source: &str) -> SpanIR {
         }
     }
     ir
+}
+
+/// Find the span of a specific macro name within the decorator source.
+/// For example, given `@derive(FieldController, Debug)` and macro_name "Debug",
+/// returns the span of "Debug" within the source.
+/// Input decorator_span is 1-based (SWC convention), output is also 1-based.
+fn find_macro_name_span(source: &str, decorator_span: SpanIR, macro_name: &str) -> Option<SpanIR> {
+    let start = decorator_span.start.saturating_sub(1) as usize;
+    let end = decorator_span.end.saturating_sub(1) as usize;
+
+    if start >= source.len() || end > source.len() {
+        return None;
+    }
+
+    let decorator_source = &source[start..end];
+
+    // Find the opening paren after @derive
+    let paren_start = decorator_source.find('(')?;
+    let args_slice = &decorator_source[paren_start + 1..];
+
+    // Find the macro name within the arguments
+    // We need to find the exact macro name, not a substring
+    let mut search_start = 0;
+    while let Some(pos) = args_slice[search_start..].find(macro_name) {
+        let abs_pos = search_start + pos;
+
+        // Check that this is a whole word match (not part of another identifier)
+        let before_ok = abs_pos == 0
+            || !args_slice
+                .chars()
+                .nth(abs_pos - 1)
+                .map(|c| c.is_alphanumeric() || c == '_')
+                .unwrap_or(false);
+        let after_ok = abs_pos + macro_name.len() >= args_slice.len()
+            || !args_slice
+                .chars()
+                .nth(abs_pos + macro_name.len())
+                .map(|c| c.is_alphanumeric() || c == '_')
+                .unwrap_or(false);
+
+        if before_ok && after_ok {
+            // Found the macro name - calculate the absolute position
+            // Position in source: start + paren_start + 1 + abs_pos
+            let macro_start = start + paren_start + 1 + abs_pos;
+            let macro_end = macro_start + macro_name.len();
+            // Return 1-based span
+            return Some(SpanIR::new(macro_start as u32 + 1, macro_end as u32 + 1));
+        }
+
+        search_start = abs_pos + 1;
+    }
+
+    None
 }
 
 /// Returns a span pointing to @derive(...) for better diagnostic display.

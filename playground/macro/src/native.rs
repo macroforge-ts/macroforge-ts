@@ -1,6 +1,6 @@
 use ts_macro_derive::ts_macro_derive;
 use ts_quote::ts_template;
-use ts_syn::{Data, DeriveInput, TsMacroError, TsStream, parse_ts_macro_input};
+use ts_syn::{Data, DataInterface, DeriveInput, TsMacroError, TsStream, parse_ts_macro_input};
 
 fn capitalize(s: &str) -> String {
     let mut chars = s.chars();
@@ -36,6 +36,10 @@ pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> 
         Data::Enum(_) => Err(TsMacroError::new(
             input.decorator_span(),
             "/** @derive(JSON) */ can only target classes",
+        )),
+        Data::Interface(_) => Err(TsMacroError::new(
+            input.decorator_span(),
+            "/** @derive(JSON) */ can only target classes, not interfaces",
         )),
     }
 }
@@ -125,7 +129,87 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
         }
         Data::Enum(_) => Err(TsMacroError::new(
             input.decorator_span(),
-            "/** @derive(FieldController) */ can only target classes",
+            "/** @derive(FieldController) */ can only target classes or interfaces",
         )),
+        Data::Interface(interface) => {
+            // For interfaces, we generate a companion namespace with functions
+            generate_field_controller_for_interface(interface, &input)
+        }
     }
+}
+
+fn generate_field_controller_for_interface(
+    interface: &DataInterface,
+    input: &DeriveInput,
+) -> Result<TsStream, TsMacroError> {
+    // Collect decorated fields from interface
+    let decorated_fields: Vec<_> = interface
+        .fields()
+        .iter()
+        .filter(|field| {
+            field
+                .decorators
+                .iter()
+                .any(|d| d.name == "fieldController" || d.name == "textAreaController")
+        })
+        .collect();
+
+    let interface_name = input.name();
+    let base_props_fn = format!("make{}BaseProps", interface_name);
+
+    // Prepare field data for template
+    let field_data: Vec<_> = decorated_fields
+        .iter()
+        .map(|field| {
+            let field_name = &field.name;
+            (
+                capitalize(field_name),                   // label_text
+                format!("\"{}\"", field_name),            // field_path_literal
+                format!("{}FieldPath", field_name),       // field_path_const
+                format!("{}FieldController", field_name), // field_controller_fn
+                field.ts_type.trim_end_matches(';').trim(),
+            )
+        })
+        .collect();
+
+    // Generate namespace body content (raw tokens that get wrapped in namespace)
+    let stream = ts_template! {
+        export function @{base_props_fn}<D extends number, const P extends DeepPath<@{interface_name}, D>, V = DeepValue<@{interface_name}, P, never, D>>(
+            superForm: SuperForm<@{interface_name}>,
+            path: P,
+            overrides?: BasePropsOverrides<@{interface_name}, V, D>
+        ): BaseFieldProps<@{interface_name}, V, D> {
+            const proxy = formFieldProxy(superForm, path);
+            const baseProps = {
+                fieldPath: path,
+                ...(overrides ?? {}),
+                value: proxy.value,
+                errors: proxy.errors,
+                superForm
+            };
+            return baseProps;
+        }
+
+        {#for (label_text, field_path_literal, field_path_const, field_controller_fn, field_type) in field_data}
+            {%let controller_type = format!("{}FieldController", label_text)}
+
+            export const @{field_path_const} = [@{field_path_literal}] as const;
+
+            export function @{field_controller_fn}(superForm: SuperForm<@{interface_name}>): @{controller_type}<@{interface_name}, @{field_type}, 1> {
+                const fieldPath = @{field_path_const};
+
+                return {
+                    fieldPath,
+                    baseProps: @{base_props_fn}(
+                        superForm,
+                        fieldPath,
+                        {
+                            labelText: "@{label_text}"
+                        }
+                    )
+                };
+            }
+        {/for}
+    };
+    Ok(stream)
 }

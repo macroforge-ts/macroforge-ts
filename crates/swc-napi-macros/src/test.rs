@@ -295,7 +295,7 @@ fn test_prepare_with_classes() {
     let host = MacroHostIntegration::new().unwrap();
     let result = host.prepare_expansion_context(&program, source).unwrap();
     assert!(result.is_some());
-    let (_module, classes) = result.unwrap();
+    let (_module, classes, _interfaces) = result.unwrap();
     assert_eq!(classes.len(), 1);
     assert_eq!(classes[0].name, "User");
 }
@@ -413,12 +413,12 @@ fn test_collect_constructor_patch() {
     let source = "class User { constructor(id: string) { this.id = id; } }";
     let program = parse_module(source);
     let host = MacroHostIntegration::new().unwrap();
-    let (module, classes) = host
+    let (module, classes, interfaces) = host
         .prepare_expansion_context(&program, source)
         .unwrap()
         .unwrap();
 
-    let (collector, _) = host.collect_macro_patches(&module, classes, "test.ts", source);
+    let (collector, _) = host.collect_macro_patches(&module, classes, interfaces, "test.ts", source);
 
     let type_patches = collector.get_type_patches();
     assert_eq!(type_patches.len(), 1);
@@ -439,11 +439,11 @@ fn test_collect_derive_debug_patch() {
     let source = "/** @derive(Debug) */ class User { name: string; }";
     let program = parse_module(source);
     let host = MacroHostIntegration::new().unwrap();
-    let (module, classes) = host
+    let (module, classes, interfaces) = host
         .prepare_expansion_context(&program, source)
         .unwrap()
         .unwrap();
-    let (collector, _) = host.collect_macro_patches(&module, classes, "test.ts", source);
+    let (collector, _) = host.collect_macro_patches(&module, classes, interfaces, "test.ts", source);
 
     let type_patches = collector.get_type_patches();
 
@@ -475,7 +475,7 @@ fn test_apply_and_finalize_expansion_no_type_patches() {
     let mut diagnostics = Vec::new();
     let host = MacroHostIntegration::new().unwrap();
     let result = host
-        .apply_and_finalize_expansion(source, &mut collector, &mut diagnostics, Vec::new())
+        .apply_and_finalize_expansion(source, &mut collector, &mut diagnostics, Vec::new(), Vec::new())
         .unwrap();
     assert!(result.type_output.is_none());
 }
