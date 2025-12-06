@@ -1,6 +1,6 @@
 import type ts from "typescript/lib/tsserverlibrary";
-import type { ExpandResult } from "@macroforge/swc-napi";
-import { NativePlugin, PositionMapper } from "@macroforge/swc-napi";
+import type { ExpandResult } from "macroforge";
+import { NativePlugin, PositionMapper } from "macroforge";
 import path from "path";
 import fs from "fs";
 
@@ -564,7 +564,10 @@ function init(modules: { typescript: typeof ts }) {
               if (firstDec) {
                 const macro = firstDec.macros.find((m) => m.name === macroName);
                 if (macro) return { start: macro.start, length: macro.length };
-                return { start: firstDec.fullStart, length: firstDec.fullLength };
+                return {
+                  start: firstDec.fullStart,
+                  length: firstDec.fullLength,
+                };
               }
               return { start: 0, length: 7 };
             }
@@ -620,8 +623,7 @@ function init(modules: { typescript: typeof ts }) {
             const diagStart = diag.start ?? 0;
 
             // Try to get the macro name from the mapper or from the generated region
-            let macroName =
-              effectiveMapper?.generatedBy(diagStart) ?? null;
+            let macroName = effectiveMapper?.generatedBy(diagStart) ?? null;
 
             // If mapper didn't return a name, try to get it from the generated region
             if (!macroName) {
@@ -633,7 +635,7 @@ function init(modules: { typescript: typeof ts }) {
 
             // Extract just the macro name if it contains a path (e.g., "derive::Debug" -> "Debug")
             const simpleMacroName = macroName.includes("::")
-              ? macroName.split("::").pop() ?? macroName
+              ? (macroName.split("::").pop() ?? macroName)
               : macroName;
 
             log(

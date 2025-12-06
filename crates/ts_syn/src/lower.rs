@@ -1,4 +1,4 @@
-use ts_macro_abi::*;
+use crate::abi::*;
 
 use crate::TsSynError;
 

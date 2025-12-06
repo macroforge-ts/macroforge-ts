@@ -1,4 +1,4 @@
-import type { SourceMappingResult } from "@macroforge/swc-napi";
+import type { SourceMappingResult } from "macroforge";
 
 export type SourceMapping = SourceMappingResult;
 

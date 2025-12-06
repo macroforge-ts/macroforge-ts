@@ -4,7 +4,7 @@ pub mod native;
 // This allows the TS plugin to discover macros from @playground/macro
 
 use napi_derive::napi;
-use ts_macro_host::derived;
+use macroforge_ts::host::derived;
 
 /// Entry for a single macro in the manifest
 #[napi(object)]

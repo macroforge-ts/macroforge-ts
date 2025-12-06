@@ -1,5 +1,5 @@
 use thiserror::Error;
-use ts_macro_abi::{Diagnostic, DiagnosticLevel, MacroResult, SpanIR};
+use crate::abi::{Diagnostic, DiagnosticLevel, MacroResult, SpanIR};
 
 #[derive(Error, Debug)]
 pub enum TsSynError {

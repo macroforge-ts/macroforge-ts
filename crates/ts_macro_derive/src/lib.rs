@@ -91,10 +91,10 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         /// Called by the TS plugin to execute macro expansion
         #[::napi_derive::napi(js_name = #run_macro_js_name_lit)]
         pub fn #run_macro_fn_ident(context_json: String) -> ::napi::Result<String> {
-            use ts_macro_host::Macroforge;
+            use macroforge_ts::host::Macroforge;
 
             // Parse the context from JSON
-            let ctx: ts_macro_abi::MacroContextIR = serde_json::from_str(&context_json)
+            let ctx: ts_syn::MacroContextIR = serde_json::from_str(&context_json)
                 .map_err(|e| ::napi::Error::new(::napi::Status::InvalidArg, format!("Invalid context JSON: {}", e)))?;
 
             // Create TsStream from context
@@ -116,16 +116,16 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
 
         pub struct #struct_ident;
 
-        impl ts_macro_host::Macroforge for #struct_ident {
+        impl macroforge_ts::host::Macroforge for #struct_ident {
             fn name(&self) -> &str {
                 #macro_name
             }
 
-            fn kind(&self) -> ts_macro_abi::MacroKind {
+            fn kind(&self) -> ts_syn::MacroKind {
                 #kind_expr
             }
 
-            fn run(&self, input: ts_syn::TsStream) -> ts_macro_abi::MacroResult {
+            fn run(&self, input: ts_syn::TsStream) -> ts_syn::MacroResult {
                 match #fn_ident(input) {
                     Ok(stream) => ts_syn::TsStream::into_result(stream),
                     Err(err) => err.into(),
@@ -138,18 +138,18 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         }
 
         #[allow(non_upper_case_globals)]
-        const #ctor_ident: fn() -> std::sync::Arc<dyn ts_macro_host::Macroforge> = || {
+        const #ctor_ident: fn() -> std::sync::Arc<dyn macroforge_ts::host::Macroforge> = || {
             std::sync::Arc::new(#struct_ident)
         };
 
         #[allow(non_upper_case_globals)]
-        static #decorator_array_ident: &[ts_macro_host::derived::DecoratorDescriptor] = &[
+        static #decorator_array_ident: &[macroforge_ts::host::derived::DecoratorDescriptor] = &[
             #(#decorator_exprs),*
         ];
 
         #[allow(non_upper_case_globals)]
-        static #descriptor_ident: ts_macro_host::derived::DerivedMacroDescriptor =
-            ts_macro_host::derived::DerivedMacroDescriptor {
+        static #descriptor_ident: macroforge_ts::host::derived::DerivedMacroDescriptor =
+            macroforge_ts::host::derived::DerivedMacroDescriptor {
                 package: #package_expr,
                 module: #module_expr,
                 runtime: &[#(#runtime_exprs),*],
@@ -161,7 +161,7 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
             };
 
         inventory::submit! {
-            ts_macro_host::derived::DerivedMacroRegistration {
+            macroforge_ts::host::derived::DerivedMacroRegistration {
                 descriptor: &#descriptor_ident
             }
         }
@@ -282,11 +282,11 @@ fn features_args_type_literal() -> LitStr {
 // Helper function to generate a decorator descriptor from an attribute identifier
 fn generate_decorator_descriptor(attr_name: &Ident, package_expr: &TokenStream2) -> TokenStream2 {
     let attr_str = LitStr::new(&attr_name.to_string(), attr_name.span());
-    let kind = quote! { ts_macro_host::derived::DecoratorKind::Property };
+    let kind = quote! { macroforge_ts::host::derived::DecoratorKind::Property };
     let docs = LitStr::new("", Span::call_site());
 
     quote! {
-        ts_macro_host::derived::DecoratorDescriptor {
+        macroforge_ts::host::derived::DecoratorDescriptor {
             module: #package_expr,
             export: #attr_str,
             kind: #kind,
@@ -339,9 +339,9 @@ enum MacroKindOption {
 impl MacroKindOption {
     fn as_tokens(&self) -> TokenStream2 {
         match self {
-            MacroKindOption::Derive => quote! { ts_macro_abi::MacroKind::Derive },
-            MacroKindOption::Attribute => quote! { ts_macro_abi::MacroKind::Attribute },
-            MacroKindOption::Call => quote! { ts_macro_abi::MacroKind::Call },
+            MacroKindOption::Derive => quote! { ts_syn::MacroKind::Derive },
+            MacroKindOption::Attribute => quote! { ts_syn::MacroKind::Attribute },
+            MacroKindOption::Call => quote! { ts_syn::MacroKind::Call },
         }
     }
 

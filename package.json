@@ -13,8 +13,8 @@
 	"scripts": {
 		"dev": "npm run dev -w svelte",
 		"build": "npm run build:rust && npm run build:plugin",
-		"build:rust": "cd crates/swc-napi-macros && napi build --platform --release",
-		"build:plugin": "npm run build -w vite-plugin-napi-macros",
+		"build:rust": "cd crates/macroforge_ts && napi build --platform --release",
+		"build:plugin": "npm run build -w vite-plugin-macroforge",
 		"build:@playground/macro": "cd playground/macro && npm run build",
 		"test": "npm run test:rust && npm test --workspaces --if-present && node --test playground/tests/examples.test.mjs",
 		"test:rust": "cargo test --workspace",
@@ -34,7 +34,7 @@
 		"@sveltejs/kit": "^2.49.0",
 		"@types/node": "^22.10.2",
 		"@vtsls/language-server": "^0.2.9",
-		"svelte-language-server": "file:packages/language-server",
+		"@macroforge/svelte-language-server": "file:packages/svelte-language-server-macroforge",
 		"typescript": "^5.9.3",
 		"vite": "^7.2.4"
 	},

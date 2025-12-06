@@ -6,10 +6,10 @@ authors = ["macroforge contributors"]
 description = "Builds and launches the forked svelte-language-server with macroforge integration."
 repository = "https://github.com/rymskip/macroforge"
 
-[language_servers.ts-derive-svelte]
+[language_servers.svelte-macroforge]
 name = "Svelte Macroforge"
 language = "Svelte"
 languages = ["Svelte"]
 
-[language_servers.ts-derive-svelte.language_ids]
+[language_servers.svelte-macroforge.language_ids]
 "Svelte" = "svelte"

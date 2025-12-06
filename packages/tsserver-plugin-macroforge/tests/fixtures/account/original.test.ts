@@ -16,7 +16,7 @@ import {
   fieldController,
   textAreaController,
 } from "@playground/macro";
-import { Derive } from "@macroforge/swc-napi";
+import { Derive } from "macroforge";
 
 @fieldController({ field: "memo", controller: textAreaController })
 export class Account extends Schema.Class<Account>("Account")({

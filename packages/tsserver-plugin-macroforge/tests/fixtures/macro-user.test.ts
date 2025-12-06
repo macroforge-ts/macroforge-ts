@@ -1,4 +1,4 @@
-import { Derive, Debug, debug } from "@macroforge/swc-napi";
+import { Derive, Debug, debug } from "macroforge";
 import { Schema } from "effect";
 import { JSON } from "@playground/macro";
 

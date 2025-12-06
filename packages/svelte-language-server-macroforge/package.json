@@ -1,5 +1,5 @@
 {
-	"name": "svelte-language-server",
+	"name": "@macroforge/svelte-language-server",
 	"version": "0.17.22",
 	"description": "A language server for Svelte",
 	"main": "dist/src/index.js",
@@ -52,7 +52,7 @@
 	},
 	        "dependencies": {
 	                "@jridgewell/trace-mapping": "^0.3.25",
-	                "@macroforge/swc-napi": "file:../../crates/swc-napi-macros",
+	                "macroforge": "file:../../crates/macroforge_ts",
 	                "@vscode/emmet-helper": "2.8.4",		"chokidar": "^4.0.1",
 		"estree-walker": "^2.0.1",
 		"fdir": "^6.2.0",

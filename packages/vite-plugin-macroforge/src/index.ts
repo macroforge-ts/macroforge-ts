@@ -3,7 +3,7 @@ import { createRequire } from 'module'
 import * as fs from 'fs'
 import * as path from 'path'
 import type ts from 'typescript'
-import { ExpandResult } from '@macroforge/swc-napi'
+import { ExpandResult } from 'macroforge'
 
 const moduleRequire = createRequire(import.meta.url)
 let tsModule: typeof ts | undefined
@@ -260,7 +260,7 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
   }
 
   return {
-    name: 'vite-plugin-napi-macros',
+    name: 'vite-plugin-macroforge',
 
     enforce: 'pre',
 
@@ -270,7 +270,7 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
 
       // Load the Rust binary
       try {
-        rustTransformer = moduleRequire('@macroforge/swc-napi')
+        rustTransformer = moduleRequire('macroforge')
       } catch (error) {
         console.warn('[vite-plugin-macroforge] Rust binary not found. Please run `npm run build:rust` first.')
         console.warn(error)

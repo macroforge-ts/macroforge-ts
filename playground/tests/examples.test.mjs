@@ -177,7 +177,7 @@ test("TS Language Plugin detects external macro packages", async () => {
 
   // Code that imports from an external macro package
   const codeWithExternalMacro = `
-import { Derive } from "@macroforge/swc-napi";
+import { Derive } from "macroforge";
 import { FieldController, fieldController } from "@playground/macro";
 
 /** @derive(FieldController) */

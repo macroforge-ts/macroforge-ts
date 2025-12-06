@@ -1,5 +1,5 @@
 {
-  "name": "@macroforge/macroforge-derive-plugin",
+  "name": "@macroforge/tsserver-plugin-macroforge",
   "private": true,
   "version": "0.0.1",
   "description": "TypeScript language service plugin that augments classes decorated with @derive to include macro-generated methods.",
@@ -16,7 +16,7 @@
     "prepublishOnly": "npm run clean && npm run build"
   },
   "dependencies": {
-    "@macroforge/swc-napi": "file:../../crates/swc-napi-macros"
+    "macroforge": "file:../../crates/macroforge_ts"
   },
   "peerDependencies": {
     "typescript": ">=5.0.0"

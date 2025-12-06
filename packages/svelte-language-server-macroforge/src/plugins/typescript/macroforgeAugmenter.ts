@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { expandSync } from '@macroforge/swc-napi';
+import { expandSync } from 'macroforge';
 
 const DEFAULT_MACRO_NAMES = ['Derive'];
 const DEFAULT_MIXIN_TYPES = ['MacroDebug', 'MacroJSON'];
