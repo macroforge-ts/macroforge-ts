@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@macroforge/swc-napi": "file:../crates/swc-napi-macros"
+    "macroforge": "file:../crates/swc-napi-macros"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

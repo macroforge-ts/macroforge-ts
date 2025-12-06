@@ -29,7 +29,7 @@ pub struct TsStream {
     file_name: String,
     /// Macro context data (decorator span, target span, etc.)
     /// This is populated when TsStream is created by the macro host
-    pub ctx: Option<ts_macro_abi::MacroContextIR>,
+    pub ctx: Option<crate::abi::MacroContextIR>,
 }
 
 #[cfg(feature = "swc")]
@@ -145,7 +145,7 @@ impl TsStream {
     pub fn with_context(
         source: &str,
         file_name: &str,
-        ctx: ts_macro_abi::MacroContextIR,
+        ctx: crate::abi::MacroContextIR,
     ) -> Result<Self, TsSynError> {
         Ok(TsStream {
             source_map: Lrc::new(Default::default()),
@@ -156,13 +156,13 @@ impl TsStream {
     }
 
     /// Get the macro context if available
-    pub fn context(&self) -> Option<&ts_macro_abi::MacroContextIR> {
+    pub fn context(&self) -> Option<&crate::abi::MacroContextIR> {
         self.ctx.as_ref()
     }
 
     /// Convert the stream into a MacroResult
-    pub fn into_result(self) -> ts_macro_abi::MacroResult {
-        ts_macro_abi::MacroResult {
+    pub fn into_result(self) -> crate::abi::MacroResult {
+        crate::abi::MacroResult {
             runtime_patches: vec![],
             type_patches: vec![],
             diagnostics: vec![],

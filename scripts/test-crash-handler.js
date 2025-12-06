@@ -36,7 +36,7 @@ process.on("SIGSEGV", () => {
 log("Loading native module...");
 
 try {
-  const { expandSync } = require("@macroforge/swc-napi");
+  const { expandSync } = require("macroforge");
   log("Native module loaded successfully");
 
   // Test basic expansion

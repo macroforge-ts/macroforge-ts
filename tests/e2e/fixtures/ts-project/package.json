@@ -5,7 +5,7 @@
   "dependencies": {
     "@macroforge/macros": "file:../../../../packages/macros",
     "@macroforge/ts-derive-plugin": "file:../../../../packages/ts-derive-plugin",
-    "@macroforge/swc-napi": "file:../../../../crates/swc-napi-macros"
+    "macroforge": "file:../../../../crates/macroforge_ts"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

@@ -2,7 +2,7 @@
 mod tests {
     use swc_core::common::{FileName, GLOBALS, Globals, SourceMap, sync::Lrc};
     use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
-    use ts_macro_abi::{MacroContextIR, SpanIR};
+    use ts_syn::abi::{MacroContextIR, SpanIR};
     use ts_quote::ts_template;
     use ts_syn::{Data, DeriveInput, ParseTs, TsStream, lower_classes};
 

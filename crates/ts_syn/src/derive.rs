@@ -22,7 +22,7 @@
 //! }
 //! ```
 
-use ts_macro_abi::{
+use crate::abi::{
     ClassIR, DecoratorIR, EnumIR, EnumVariantIR, FieldIR, InterfaceFieldIR, InterfaceIR,
     InterfaceMethodIR, MacroContextIR, MethodSigIR, SpanIR, TargetIR,
 };
@@ -404,7 +404,7 @@ impl crate::ParseTs for DeriveInput {
 /// # Example
 /// ```ignore
 /// use ts_syn::{parse_ts_macro_input, DeriveInput};
-/// use ts_macro_abi::MacroResult;
+/// use ts_syn::MacroResult;
 ///
 /// #[ts_macro_derive(MyMacro)]
 /// pub fn my_macro(mut input: TsStream) -> MacroResult {
@@ -440,7 +440,7 @@ macro_rules! parse_ts_macro_input {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ts_macro_abi::{MacroKind, SpanIR};
+    use crate::abi::{MacroKind, SpanIR};
 
     fn make_test_class_context() -> MacroContextIR {
         MacroContextIR {
@@ -468,7 +468,7 @@ mod tests {
                         type_ann: None,
                         optional: false,
                         readonly: false,
-                        visibility: ts_macro_abi::Visibility::Public,
+                        visibility: crate::abi::Visibility::Public,
                         decorators: vec![],
                         prop_ast: None,
                     },
@@ -479,7 +479,7 @@ mod tests {
                         type_ann: None,
                         optional: false,
                         readonly: false,
-                        visibility: ts_macro_abi::Visibility::Public,
+                        visibility: crate::abi::Visibility::Public,
                         decorators: vec![],
                         prop_ast: None,
                     },

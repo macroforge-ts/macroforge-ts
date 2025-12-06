@@ -1,14 +1,11 @@
 [workspace]
 members = [
-    "crates/swc-napi-macros",
-    "crates/extensions/ts-derive-ts",
-    "crates/extensions/ts-derive-svelte",
-    "crates/ts_macro_abi",
+    "crates/macroforge_ts",
+    "crates/extensions/macroforge",
+    "crates/extensions/svelte-macroforge",
     "crates/ts_syn",
     "crates/ts_quote",
     "playground/macro",
-    "crates/ts_macro_host",
-    "crates/ts_macro_cli",
     "crates/ts_macro_derive",
     "playground/tests/rust-tests",
 ]

@@ -4,15 +4,15 @@ use std::{
 };
 use zed_extension_api as zed;
 
-const EXTENSION_ID: &str = "ts-derive-svelte";
-const LANGUAGE_SERVER_RELATIVE_PATH: &str = "packages/language-server";
-const NODE_MODULES_PATH: &str = "node_modules/svelte-language-server";
+const EXTENSION_ID: &str = "svelte-macroforge";
+const LANGUAGE_SERVER_RELATIVE_PATH: &str = "packages/svelte-language-server-macroforge";
+const NODE_MODULES_PATH: &str = "node_modules/@macroforge/svelte-language-server";
 const LANGUAGE_SERVER_BIN_RELATIVE: &str = "bin/server.js";
 const LANGUAGE_SERVER_BUILD_ARTIFACT: &str = "dist/src/server.js";
 
-struct TsDeriveSvelteExtension;
+struct SvelteMacroforgeExtension;
 
-impl TsDeriveSvelteExtension {
+impl SvelteMacroforgeExtension {
     fn fallback_roots() -> Vec<PathBuf> {
         let mut roots = Vec::new();
 
@@ -132,7 +132,7 @@ impl TsDeriveSvelteExtension {
     }
 }
 
-impl zed::Extension for TsDeriveSvelteExtension {
+impl zed::Extension for SvelteMacroforgeExtension {
     fn new() -> Self {
         Self
     }
@@ -152,7 +152,7 @@ impl zed::Extension for TsDeriveSvelteExtension {
     }
 }
 
-zed::register_extension!(TsDeriveSvelteExtension);
+zed::register_extension!(SvelteMacroforgeExtension);
 
 #[cfg(test)]
 mod tests {
@@ -161,22 +161,22 @@ mod tests {
 
     #[test]
     fn test_extension_can_be_instantiated() {
-        let _ext = TsDeriveSvelteExtension;
+        let _ext = SvelteMacroforgeExtension;
     }
 
     #[test]
     fn test_extension_id_constant() {
-        assert_eq!(EXTENSION_ID, "ts-derive-svelte");
+        assert_eq!(EXTENSION_ID, "svelte-macroforge");
     }
 
     #[test]
     fn test_language_server_relative_path_constant() {
-        assert_eq!(LANGUAGE_SERVER_RELATIVE_PATH, "packages/language-server");
+        assert_eq!(LANGUAGE_SERVER_RELATIVE_PATH, "packages/svelte-language-server-macroforge");
     }
 
     #[test]
     fn test_node_modules_path_constant() {
-        assert_eq!(NODE_MODULES_PATH, "node_modules/svelte-language-server");
+        assert_eq!(NODE_MODULES_PATH, "node_modules/@macroforge/svelte-language-server");
     }
 
     #[test]
@@ -191,7 +191,7 @@ mod tests {
 
     #[test]
     fn test_fallback_roots_returns_non_empty() {
-        let roots = TsDeriveSvelteExtension::fallback_roots();
+        let roots = SvelteMacroforgeExtension::fallback_roots();
         // Should always have at least one entry (CARGO_MANIFEST_DIR)
         assert!(
             !roots.is_empty(),
@@ -201,7 +201,7 @@ mod tests {
 
     #[test]
     fn test_fallback_roots_contains_cargo_manifest_dir() {
-        let roots = TsDeriveSvelteExtension::fallback_roots();
+        let roots = SvelteMacroforgeExtension::fallback_roots();
         let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         assert!(
             roots.contains(&manifest_dir),
@@ -212,21 +212,21 @@ mod tests {
 
     #[test]
     fn test_language_server_bin_path() {
-        let server_dir = Path::new("/workspace/node_modules/svelte-language-server");
-        let bin_path = TsDeriveSvelteExtension::language_server_bin(server_dir);
+        let server_dir = Path::new("/workspace/node_modules/@macroforge/svelte-language-server");
+        let bin_path = SvelteMacroforgeExtension::language_server_bin(server_dir);
         assert_eq!(
             bin_path,
-            PathBuf::from("/workspace/node_modules/svelte-language-server/bin/server.js")
+            PathBuf::from("/workspace/node_modules/@macroforge/svelte-language-server/bin/server.js")
         );
     }
 
     #[test]
     fn test_language_server_bin_with_packages_path() {
-        let server_dir = Path::new("/workspace/packages/language-server");
-        let bin_path = TsDeriveSvelteExtension::language_server_bin(server_dir);
+        let server_dir = Path::new("/workspace/packages/svelte-language-server-macroforge");
+        let bin_path = SvelteMacroforgeExtension::language_server_bin(server_dir);
         assert_eq!(
             bin_path,
-            PathBuf::from("/workspace/packages/language-server/bin/server.js")
+            PathBuf::from("/workspace/packages/svelte-language-server-macroforge/bin/server.js")
         );
     }
 
@@ -234,9 +234,9 @@ mod tests {
     fn test_language_server_ready_within_workspace() {
         // When server dir is within workspace, it should return true (assume ready)
         let workspace_root = Path::new("/workspace");
-        let server_dir = Path::new("/workspace/node_modules/svelte-language-server");
+        let server_dir = Path::new("/workspace/node_modules/@macroforge/svelte-language-server");
 
-        let ready = TsDeriveSvelteExtension::language_server_ready(server_dir, workspace_root);
+        let ready = SvelteMacroforgeExtension::language_server_ready(server_dir, workspace_root);
         assert!(ready, "Should be ready when server is within workspace");
     }
 
@@ -246,7 +246,7 @@ mod tests {
         let workspace_root = Path::new("/workspace");
         let server_dir = Path::new("/other/path/svelte-language-server");
 
-        let ready = TsDeriveSvelteExtension::language_server_ready(server_dir, workspace_root);
+        let ready = SvelteMacroforgeExtension::language_server_ready(server_dir, workspace_root);
         // Since /other/path doesn't exist, this should be false
         assert!(
             !ready,
@@ -257,7 +257,7 @@ mod tests {
     #[test]
     fn test_path_to_string_valid_utf8() {
         let path = Path::new("/valid/utf8/path");
-        let result = TsDeriveSvelteExtension::path_to_string(path);
+        let result = SvelteMacroforgeExtension::path_to_string(path);
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "/valid/utf8/path");
     }
@@ -265,7 +265,7 @@ mod tests {
     #[test]
     fn test_path_to_string_with_spaces() {
         let path = Path::new("/path/with spaces/file.js");
-        let result = TsDeriveSvelteExtension::path_to_string(path);
+        let result = SvelteMacroforgeExtension::path_to_string(path);
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "/path/with spaces/file.js");
     }
@@ -273,7 +273,7 @@ mod tests {
     #[test]
     fn test_path_to_string_with_unicode() {
         let path = Path::new("/path/with/ünïcödé/file.js");
-        let result = TsDeriveSvelteExtension::path_to_string(path);
+        let result = SvelteMacroforgeExtension::path_to_string(path);
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "/path/with/ünïcödé/file.js");
     }
@@ -284,26 +284,26 @@ mod tests {
         let node_modules_dir = PathBuf::from("/workspace").join(NODE_MODULES_PATH);
         let packages_dir = PathBuf::from("/workspace").join(LANGUAGE_SERVER_RELATIVE_PATH);
 
-        let node_modules_bin = TsDeriveSvelteExtension::language_server_bin(&node_modules_dir);
-        let packages_bin = TsDeriveSvelteExtension::language_server_bin(&packages_dir);
+        let node_modules_bin = SvelteMacroforgeExtension::language_server_bin(&node_modules_dir);
+        let packages_bin = SvelteMacroforgeExtension::language_server_bin(&packages_dir);
 
         assert_eq!(
             node_modules_bin,
-            PathBuf::from("/workspace/node_modules/svelte-language-server/bin/server.js")
+            PathBuf::from("/workspace/node_modules/@macroforge/svelte-language-server/bin/server.js")
         );
         assert_eq!(
             packages_bin,
-            PathBuf::from("/workspace/packages/language-server/bin/server.js")
+            PathBuf::from("/workspace/packages/svelte-language-server-macroforge/bin/server.js")
         );
     }
 
     #[test]
     fn test_build_artifact_path() {
-        let server_dir = Path::new("/workspace/packages/language-server");
+        let server_dir = Path::new("/workspace/packages/svelte-language-server-macroforge");
         let artifact_path = server_dir.join(LANGUAGE_SERVER_BUILD_ARTIFACT);
         assert_eq!(
             artifact_path,
-            PathBuf::from("/workspace/packages/language-server/dist/src/server.js")
+            PathBuf::from("/workspace/packages/svelte-language-server-macroforge/dist/src/server.js")
         );
     }
 }

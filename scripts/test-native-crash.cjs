@@ -12,7 +12,7 @@ console.log("=== Native Module Crash Test ===\n");
 console.log("1. Loading native module...");
 let expand;
 try {
-  const nativeModule = require("@macroforge/swc-napi");
+  const nativeModule = require("macroforge");
   expand = nativeModule.expandSync;
   console.log("   ✓ Native module loaded\n");
 } catch (e) {

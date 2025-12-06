@@ -1,5 +1,5 @@
 {
-  "name": "vite-plugin-napi-macros",
+  "name": "vite-plugin-macroforge",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "prepublishOnly": "npm run clean && npm run build"
   },
   "dependencies": {
-    "@macroforge/swc-napi": "file:../../crates/swc-napi-macros"
+    "macroforge": "file:../../crates/macroforge_ts"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

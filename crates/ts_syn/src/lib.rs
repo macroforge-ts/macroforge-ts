@@ -1,3 +1,4 @@
+pub mod abi;
 pub mod derive;
 pub mod errors;
 pub mod lower;
@@ -5,6 +6,7 @@ pub mod parse;
 pub mod quote_helpers;
 pub mod stream;
 
+pub use abi::*;
 pub use derive::*;
 pub use errors::*;
 pub use lower::*;

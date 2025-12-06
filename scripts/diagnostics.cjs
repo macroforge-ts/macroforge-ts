@@ -26,7 +26,7 @@ function getMacroforgesModule() {
     }
     if (macroforgeModule === null) {
         try {
-            macroforgeModule = require('@macroforge/swc-napi');
+            macroforgeModule = require('macroforge');
         } catch {
             macroforgeModule = undefined;
             console.warn('macroforge native module not found, macro diagnostics will be skipped');
