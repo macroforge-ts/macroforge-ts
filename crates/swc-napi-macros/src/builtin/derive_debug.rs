@@ -1,7 +1,7 @@
 //! /** @derive(Debug) */ macro implementation
 
 use ts_macro_derive::ts_macro_derive;
-use ts_quote::ts_template;
+use ts_quote::body;
 use ts_syn::{Data, DeriveInput, TsMacroError, TsStream, parse_ts_macro_input};
 
 /// Options parsed from @Debug decorator on fields
@@ -131,7 +131,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, TsMacroError>
 
             let has_fields = !debug_fields.is_empty();
 
-            Ok(ts_template! {
+            Ok(body! {
                 toString(): string {
                     {#if has_fields}
                         const parts: string[] = [];

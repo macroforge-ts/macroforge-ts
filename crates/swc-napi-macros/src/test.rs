@@ -315,9 +315,10 @@ fn test_process_macro_output_converts_tokens_into_patches() {
             "class TokenDriven {}".into(),
         );
 
+        // Use body marker since default is now "below"
         let mut result = MacroResult {
             tokens: Some(
-                r#"
+                r#"/* @ts-macro:body */
                         toString() { return `${this.value}`; }
                         constructor(value: string) { this.value = value; }
                     "#
@@ -390,8 +391,9 @@ fn test_process_macro_output_reports_parse_errors() {
             "class Broken {}".into(),
         );
 
+        // Use body marker to trigger class member parsing, which will fail
         let mut result = MacroResult {
-            tokens: Some("this is not valid class member syntax".into()),
+            tokens: Some("/* @ts-macro:body */this is not valid class member syntax".into()),
             ..Default::default()
         };
 
@@ -1194,4 +1196,91 @@ fn native_position_mapper_matches_js_logic() {
     assert_eq!(expanded_span.length, 6);
 
     assert!(!mapper.is_empty());
+}
+
+#[test]
+fn test_default_below_location_for_unmarked_tokens() {
+    GLOBALS.set(&Default::default(), || {
+        let host = MacroHostIntegration::new().unwrap();
+        let class_ir = base_class("BelowTest");
+        let ctx = MacroContextIR::new_derive_class(
+            "Custom".into(),
+            DERIVE_MODULE_PATH.into(),
+            SpanIR::new(0, 5),
+            class_ir.span,
+            "below.ts".into(),
+            class_ir.clone(),
+            "class BelowTest {}".into(),
+        );
+
+        // Tokens without a marker should default to "below" location
+        let mut result = MacroResult {
+            tokens: Some("const helper = () => {};".into()),
+            ..Default::default()
+        };
+
+        let (runtime, type_patches) = host
+            .process_macro_output(&mut result, &ctx, &ctx.target_source)
+            .expect("unmarked tokens should be inserted as text below class");
+
+        // Should have 1 runtime and 1 type patch for "below" insertion
+        assert_eq!(runtime.len(), 1, "should have 1 runtime patch for below");
+        assert_eq!(type_patches.len(), 1, "should have 1 type patch for below");
+
+        // Verify it's a text patch, not a class member patch
+        for patch in runtime {
+            match patch {
+                Patch::Insert {
+                    code: PatchCode::Text(_),
+                    at,
+                    ..
+                } => {
+                    // Below location should insert at class span end
+                    assert_eq!(at.start, class_ir.span.end, "should insert at class end");
+                }
+                other => panic!("expected text insert for below, got {:?}", other),
+            }
+        }
+    });
+}
+
+#[test]
+fn test_explicit_body_marker_parses_as_class_members() {
+    GLOBALS.set(&Default::default(), || {
+        let host = MacroHostIntegration::new().unwrap();
+        let class_ir = base_class("BodyTest");
+        let ctx = MacroContextIR::new_derive_class(
+            "Custom".into(),
+            DERIVE_MODULE_PATH.into(),
+            SpanIR::new(0, 5),
+            class_ir.span,
+            "body.ts".into(),
+            class_ir.clone(),
+            "class BodyTest {}".into(),
+        );
+
+        // Tokens WITH body marker should be parsed as class members
+        let mut result = MacroResult {
+            tokens: Some("/* @ts-macro:body */getValue(): string { return \"test\"; }".into()),
+            ..Default::default()
+        };
+
+        let (runtime, type_patches) = host
+            .process_macro_output(&mut result, &ctx, &ctx.target_source)
+            .expect("body-marked tokens should parse as class members");
+
+        // Should have class member patches
+        assert_eq!(runtime.len(), 1, "should have 1 runtime patch for body");
+        assert_eq!(type_patches.len(), 1, "should have 1 type patch for body");
+
+        for patch in runtime {
+            match patch {
+                Patch::Insert {
+                    code: PatchCode::ClassMember(_),
+                    ..
+                } => {}
+                other => panic!("expected class member insert for body, got {:?}", other),
+            }
+        }
+    });
 }

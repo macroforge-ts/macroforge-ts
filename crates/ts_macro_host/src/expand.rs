@@ -717,16 +717,16 @@ fn split_by_markers(source: &str) -> Vec<(&str, String)> {
     occurrences.sort_by_key(|k| k.0);
 
     if occurrences.is_empty() {
-        return vec![("body", source.to_string())];
+        return vec![("below", source.to_string())];
     }
 
     let mut chunks = Vec::new();
 
-    // Handle text before first marker (default to body)
+    // Handle text before first marker (default to below)
     if occurrences[0].0 > 0 {
         let text = &source[0..occurrences[0].0];
         if !text.trim().is_empty() {
-            chunks.push(("body", text.to_string()));
+            chunks.push(("below", text.to_string()));
         }
     }
 

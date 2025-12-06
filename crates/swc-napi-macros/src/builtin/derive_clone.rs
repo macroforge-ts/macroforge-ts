@@ -1,7 +1,7 @@
 //! /** @derive(Clone) */ macro implementation
 
 use ts_macro_derive::ts_macro_derive;
-use ts_quote::ts_template;
+use ts_quote::body;
 use ts_syn::{Data, DeriveInput, TsMacroError, TsStream, parse_ts_macro_input};
 
 #[ts_macro_derive(Clone, description = "Generates a clone() method for deep cloning")]
@@ -14,7 +14,7 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, TsMacroError>
             let field_names: Vec<&str> = class.field_names().collect();
             let has_fields = !field_names.is_empty();
 
-            Ok(ts_template! {
+            Ok(body! {
                 clone(): @{class_name} {
                     const cloned = Object.create(Object.getPrototypeOf(this));
 

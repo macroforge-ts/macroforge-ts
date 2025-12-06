@@ -1,5 +1,5 @@
 use ts_macro_derive::ts_macro_derive;
-use ts_quote::ts_template;
+use ts_quote::{body, ts_template};
 use ts_syn::{Data, DataInterface, DeriveInput, TsMacroError, TsStream, parse_ts_macro_input};
 
 fn capitalize(s: &str) -> String {
@@ -20,7 +20,8 @@ pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> 
     match &input.data {
         Data::Class(class) => {
             // Use Rust-style templating for clean code generation!
-            Ok(ts_template! {
+            // body! wrapper ensures this gets inserted as class members
+            Ok(body! {
                 toJSON(): Record<string, unknown> {
 
                     const result: Record<string, unknown> = {};
@@ -85,8 +86,9 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, TsMacroEr
                 .collect();
 
             // ===== Generate All Runtime Code in Single Template =====
+            // body! wrapper ensures this gets inserted as class members
 
-            let stream = ts_template! {
+            let stream = body! {
                 @{base_props_method}<D extends number, const P extends DeepPath<@{class_name}, D>, V = DeepValue<@{class_name}, P, never, D>>(
                     superForm: SuperForm<@{class_name}>,
                     path: P,
@@ -172,7 +174,8 @@ fn generate_field_controller_for_interface(
         })
         .collect();
 
-    // Generate namespace body content (raw tokens that get wrapped in namespace)
+    // Generate code that will be inserted after the interface (default "below" location).
+    // Macro authors have full control over the output structure.
     let stream = ts_template! {
         export function @{base_props_fn}<D extends number, const P extends DeepPath<@{interface_name}, D>, V = DeepValue<@{interface_name}, P, never, D>>(
             superForm: SuperForm<@{interface_name}>,

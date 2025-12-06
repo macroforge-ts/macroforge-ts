@@ -449,6 +449,7 @@ mod tests {
             macro_name: "Debug".into(),
             module_path: "@test/macro".into(),
             decorator_span: SpanIR::new(0, 10),
+            macro_name_span: None,
             target_span: SpanIR::new(11, 100),
             file_name: "test.ts".into(),
             target: TargetIR::Class(ClassIR {
@@ -518,6 +519,7 @@ mod tests {
             macro_name: "Debug".into(),
             module_path: "@test/macro".into(),
             decorator_span: SpanIR::new(0, 10),
+            macro_name_span: None,
             target_span: SpanIR::new(11, 100),
             file_name: "test.ts".into(),
             target: TargetIR::Enum(EnumIR {

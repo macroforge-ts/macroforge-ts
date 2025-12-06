@@ -1,7 +1,7 @@
 //! /** @derive(Eq) */ macro implementation
 
 use ts_macro_derive::ts_macro_derive;
-use ts_quote::ts_template;
+use ts_quote::body;
 use ts_syn::{Data, DeriveInput, TsMacroError, TsStream, parse_ts_macro_input};
 
 #[ts_macro_derive(Eq, description = "Generates equals() and hashCode() methods")]
@@ -25,7 +25,7 @@ pub fn derive_eq_macro(mut input: TsStream) -> Result<TsStream, TsMacroError> {
                     .join(" && ")
             };
 
-            Ok(ts_template! {
+            Ok(body! {
                 equals(other: unknown): boolean {
                     if (this === other) return true;
                     if (!(other instanceof @{class_name})) return false;
@@ -74,7 +74,7 @@ mod tests {
             .collect::<Vec<_>>()
             .join(" && ");
 
-        let output = ts_template! {
+        let output = body! {
             equals(other: unknown): boolean {
                 if (this === other) return true;
                 if (!(other instanceof @{class_name})) return false;
@@ -97,8 +97,13 @@ mod tests {
 
         let source = output.source();
 
+        // The source now includes the body marker, strip it for parsing test
+        let body_content = source
+            .strip_prefix("/* @ts-macro:body */")
+            .unwrap_or(&source);
+
         // Try to parse as class members
-        let wrapped = format!("class __Temp {{ {} }}", source);
+        let wrapped = format!("class __Temp {{ {} }}", body_content);
 
         assert!(
             ts_syn::parse_ts_stmt(&wrapped).is_ok(),

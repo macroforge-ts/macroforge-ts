@@ -429,118 +429,175 @@ impl MacroHostIntegration {
             match &ctx.target {
                 TargetIR::Class(class_ir) => {
                     // It's a derive on a class.
-                    // Wrap tokens in a class to parse members
-                    let insert_pos = derive_insert_pos(class_ir, source);
-                    match parse_members_from_tokens(tokens) {
-                        Ok(members) => {
-                            for member in members {
-                                runtime_patches.push(Patch::Insert {
-                                    at: SpanIR {
-                                        start: insert_pos,
-                                        end: insert_pos,
-                                    },
-                                    code: PatchCode::ClassMember(member.clone()),
-                                    source_macro: macro_name.clone(),
-                                });
+                    // Split tokens by location markers (default is "below")
+                    let chunks = split_by_markers(tokens);
 
-                                let mut signature_member = member.clone();
-                                match &mut signature_member {
-                                    ClassMember::Method(m) => m.function.body = None,
-                                    ClassMember::Constructor(c) => c.body = None,
-                                    ClassMember::PrivateMethod(m) => m.function.body = None,
-                                    _ => {}
-                                }
-
-                                type_patches.push(Patch::Insert {
+                    for (location, code) in chunks {
+                        match location {
+                            "above" => {
+                                // Insert before class declaration
+                                let patch = Patch::Insert {
                                     at: SpanIR {
-                                        start: insert_pos,
-                                        end: insert_pos,
+                                        start: class_ir.span.start,
+                                        end: class_ir.span.start,
                                     },
-                                    code: PatchCode::ClassMember(signature_member),
+                                    code: PatchCode::Text(code.clone()),
                                     source_macro: macro_name.clone(),
-                                });
+                                };
+                                runtime_patches.push(patch.clone());
+                                type_patches.push(patch);
                             }
-                        }
-                        Err(err) => {
-                            // Fallback: inject raw tokens to avoid losing macro output
-                            let warning = format!(
-                                "/** ts-macros warning: Failed to parse macro output for {}::{}: {:?} */\n",
-                                ctx.module_path, ctx.macro_name, err
-                            );
-                            let payload = format!("{warning}{tokens}");
+                            "below" => {
+                                // Insert after class declaration (new default)
+                                let patch = Patch::Insert {
+                                    at: SpanIR {
+                                        start: class_ir.span.end,
+                                        end: class_ir.span.end,
+                                    },
+                                    code: PatchCode::Text(format!("\n\n{}", code.trim())),
+                                    source_macro: macro_name.clone(),
+                                };
+                                runtime_patches.push(patch.clone());
+                                type_patches.push(patch);
+                            }
+                            "signature" => {
+                                // Insert after opening brace
+                                let patch = Patch::Insert {
+                                    at: SpanIR {
+                                        start: class_ir.body_span.start,
+                                        end: class_ir.body_span.start,
+                                    },
+                                    code: PatchCode::Text(code.clone()),
+                                    source_macro: macro_name.clone(),
+                                };
+                                runtime_patches.push(patch.clone());
+                                type_patches.push(patch);
+                            }
+                            "body" => {
+                                // Parse as class members and insert before closing brace
+                                let insert_pos = derive_insert_pos(class_ir, source);
+                                match parse_members_from_tokens(&code) {
+                                    Ok(members) => {
+                                        for member in members {
+                                            runtime_patches.push(Patch::Insert {
+                                                at: SpanIR {
+                                                    start: insert_pos,
+                                                    end: insert_pos,
+                                                },
+                                                code: PatchCode::ClassMember(member.clone()),
+                                                source_macro: macro_name.clone(),
+                                            });
 
-                            runtime_patches.push(Patch::InsertRaw {
-                                at: SpanIR {
-                                    start: insert_pos,
-                                    end: insert_pos,
-                                },
-                                code: payload.clone(),
-                                context: Some(format!(
-                                    "Macro {}::{} output (unparsed)",
-                                    ctx.module_path, ctx.macro_name
-                                )),
-                                source_macro: macro_name.clone(),
-                            });
-                            type_patches.push(Patch::ReplaceRaw {
-                                span: SpanIR {
-                                    start: insert_pos,
-                                    end: insert_pos,
-                                },
-                                code: payload,
-                                context: Some(format!(
-                                    "Macro {}::{} output (unparsed)",
-                                    ctx.module_path, ctx.macro_name
-                                )),
-                                source_macro: macro_name.clone(),
-                            });
+                                            let mut signature_member = member.clone();
+                                            match &mut signature_member {
+                                                ClassMember::Method(m) => m.function.body = None,
+                                                ClassMember::Constructor(c) => c.body = None,
+                                                ClassMember::PrivateMethod(m) => {
+                                                    m.function.body = None
+                                                }
+                                                _ => {}
+                                            }
 
-                            result.diagnostics.push(Diagnostic {
-                                level: DiagnosticLevel::Warning,
-                                message: format!(
-                                    "Failed to parse macro output, inserted raw tokens: {err:?}"
-                                ),
-                                span: Some(diagnostic_span_for_derive(ctx.decorator_span, source)),
-                                notes: vec![],
-                                help: None,
-                            });
+                                            type_patches.push(Patch::Insert {
+                                                at: SpanIR {
+                                                    start: insert_pos,
+                                                    end: insert_pos,
+                                                },
+                                                code: PatchCode::ClassMember(signature_member),
+                                                source_macro: macro_name.clone(),
+                                            });
+                                        }
+                                    }
+                                    Err(err) => {
+                                        // Fallback: inject raw tokens to avoid losing macro output
+                                        let warning = format!(
+                                            "/** ts-macros warning: Failed to parse macro output for {}::{}: {:?} */\n",
+                                            ctx.module_path, ctx.macro_name, err
+                                        );
+                                        let payload = format!("{warning}{code}");
+
+                                        runtime_patches.push(Patch::InsertRaw {
+                                            at: SpanIR {
+                                                start: insert_pos,
+                                                end: insert_pos,
+                                            },
+                                            code: payload.clone(),
+                                            context: Some(format!(
+                                                "Macro {}::{} output (unparsed)",
+                                                ctx.module_path, ctx.macro_name
+                                            )),
+                                            source_macro: macro_name.clone(),
+                                        });
+                                        type_patches.push(Patch::ReplaceRaw {
+                                            span: SpanIR {
+                                                start: insert_pos,
+                                                end: insert_pos,
+                                            },
+                                            code: payload,
+                                            context: Some(format!(
+                                                "Macro {}::{} output (unparsed)",
+                                                ctx.module_path, ctx.macro_name
+                                            )),
+                                            source_macro: macro_name.clone(),
+                                        });
+
+                                        result.diagnostics.push(Diagnostic {
+                                            level: DiagnosticLevel::Warning,
+                                            message: format!(
+                                                "Failed to parse macro output, inserted raw tokens: {err:?}"
+                                            ),
+                                            span: Some(diagnostic_span_for_derive(
+                                                ctx.decorator_span,
+                                                source,
+                                            )),
+                                            notes: vec![],
+                                            help: None,
+                                        });
+                                    }
+                                }
+                            }
+                            _ => {} // Unknown location, ignore
                         }
                     }
                 }
                 TargetIR::Interface(interface_ir) => {
                     // It's a derive on an interface.
-                    // For interfaces, we generate a companion namespace after the interface.
-                    // The tokens should be namespace body content.
-                    let insert_pos = interface_ir.span.end;
-                    let namespace_name = &interface_ir.name;
+                    // Use the same marker-based system as classes (default is "below").
+                    // Macro authors must explicitly structure their output.
+                    let chunks = split_by_markers(tokens);
 
-                    // Wrap the tokens in a namespace declaration
-                    let namespace_code =
-                        format!("\n\nexport namespace {} {{\n{}\n}}", namespace_name, tokens);
-
-                    runtime_patches.push(Patch::InsertRaw {
-                        at: SpanIR {
-                            start: insert_pos,
-                            end: insert_pos,
-                        },
-                        code: namespace_code.clone(),
-                        context: Some(format!(
-                            "Macro {}::{} output for interface {}",
-                            ctx.module_path, ctx.macro_name, namespace_name
-                        )),
-                        source_macro: macro_name.clone(),
-                    });
-                    type_patches.push(Patch::InsertRaw {
-                        at: SpanIR {
-                            start: insert_pos,
-                            end: insert_pos,
-                        },
-                        code: namespace_code,
-                        context: Some(format!(
-                            "Macro {}::{} type output for interface {}",
-                            ctx.module_path, ctx.macro_name, namespace_name
-                        )),
-                        source_macro: macro_name.clone(),
-                    });
+                    for (location, code) in chunks {
+                        match location {
+                            "above" => {
+                                // Insert before interface declaration
+                                let patch = Patch::Insert {
+                                    at: SpanIR {
+                                        start: interface_ir.span.start,
+                                        end: interface_ir.span.start,
+                                    },
+                                    code: PatchCode::Text(code.clone()),
+                                    source_macro: macro_name.clone(),
+                                };
+                                runtime_patches.push(patch.clone());
+                                type_patches.push(patch);
+                            }
+                            "below" | "body" | "signature" => {
+                                // For interfaces, body/signature also insert below since
+                                // interfaces don't have a body to insert into
+                                let patch = Patch::Insert {
+                                    at: SpanIR {
+                                        start: interface_ir.span.end,
+                                        end: interface_ir.span.end,
+                                    },
+                                    code: PatchCode::Text(format!("\n\n{}", code.trim())),
+                                    source_macro: macro_name.clone(),
+                                };
+                                runtime_patches.push(patch.clone());
+                                type_patches.push(patch);
+                            }
+                            _ => {} // Unknown location, ignore
+                        }
+                    }
                 }
                 _ => {}
             }
@@ -1226,6 +1283,55 @@ fn derive_insert_pos(class_ir: &ClassIR, source: &str) -> u32 {
             // Fallback: use body_span.end (already 1-based)
             class_ir.body_span.end.max(class_ir.span.start)
         })
+}
+
+/// Splits macro output by location markers.
+/// Default is "below" when no markers are present.
+fn split_by_markers(source: &str) -> Vec<(&str, String)> {
+    let markers = [
+        ("above", "/* @ts-macro:above */"),
+        ("below", "/* @ts-macro:below */"),
+        ("body", "/* @ts-macro:body */"),
+        ("signature", "/* @ts-macro:signature */"),
+    ];
+
+    // Find all occurrences
+    let mut occurrences = Vec::new();
+    for (name, pattern) in markers {
+        for (idx, _) in source.match_indices(pattern) {
+            occurrences.push((idx, pattern.len(), name));
+        }
+    }
+    occurrences.sort_by_key(|k| k.0);
+
+    if occurrences.is_empty() {
+        return vec![("below", source.to_string())];
+    }
+
+    let mut chunks = Vec::new();
+
+    // Handle text before first marker (default to below)
+    if occurrences[0].0 > 0 {
+        let text = &source[0..occurrences[0].0];
+        if !text.trim().is_empty() {
+            chunks.push(("below", text.to_string()));
+        }
+    }
+
+    for i in 0..occurrences.len() {
+        let (start, len, name) = occurrences[i];
+        let content_start = start + len;
+        let content_end = if i + 1 < occurrences.len() {
+            occurrences[i + 1].0
+        } else {
+            source.len()
+        };
+
+        let content = &source[content_start..content_end];
+        chunks.push((name, content.to_string()));
+    }
+
+    chunks
 }
 
 fn find_macro_comment_span(source: &str, target_start: u32) -> Option<SpanIR> {

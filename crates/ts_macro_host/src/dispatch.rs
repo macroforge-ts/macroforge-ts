@@ -170,6 +170,7 @@ mod tests {
             macro_name: "Debug".to_string(),
             module_path: "@macro/derive".to_string(),
             decorator_span: SpanIR { start: 0, end: 10 },
+            macro_name_span: None,
             target_span: SpanIR {
                 start: 10,
                 end: 100,
