@@ -96,9 +96,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
@@ -114,10 +111,10 @@ jobs:
           npm link
           cd ../../packages/tsserver-plugin-macroforge
           npm link macroforge
-          bun install --ignore-scripts
+          npm install --ignore-scripts
 
       - name: Build plugin
-        run: bun run build
+        run: npm run build
         working-directory: packages/tsserver-plugin-macroforge
 
       - name: Run Rust tests
