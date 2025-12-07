@@ -105,6 +105,12 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: crates
+          shared-key: test
+
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
@@ -184,12 +190,12 @@ jobs:
 
       - name: Install plugin dependencies
         run: npm install
-        working-directory: packages/tsserver-plugin-macroforge
+        working-directory: packages/typescript-plugin
 
       - name: Build and publish @macroforge/typescript-plugin
         run: |
           npm run build
           npm publish --provenance --access public
-        working-directory: packages/tsserver-plugin-macroforge
+        working-directory: packages/typescript-plugin
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_SECRET }}
