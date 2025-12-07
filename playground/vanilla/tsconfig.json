@@ -30,7 +30,7 @@
     "rootDirs": ["src", ".macroforge/types"],
     "plugins": [
       {
-        "name": "@macroforge/tsserver-plugin-macroforge",
+        "name": "@macroforge/typescript-plugin",
         "macroNames": ["Derive"],
         "mixinModule": "@macroforge/macros",
         "mixinTypes": ["MacroDebug", "MacroJSON"]

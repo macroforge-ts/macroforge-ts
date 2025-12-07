@@ -19,9 +19,9 @@ const VTSLS_BIN_CANDIDATES = [
   path.resolve(__dirname, 'node_modules/@vtsls/language-server/bin/vtsls.js'),
 ];
 const VTSLS_BIN = VTSLS_BIN_CANDIDATES.find((p) => fs.existsSync(p));
-const PLUGIN_DIR = path.resolve(REPO_ROOT, 'packages/tsserver-plugin-macroforge');
+const PLUGIN_DIR = path.resolve(REPO_ROOT, 'packages/typescript-plugin');
 const PLUGIN_DIST = path.resolve(PLUGIN_DIR, 'dist');
-const PLUGIN_NAME = '@macroforge/tsserver-plugin-macroforge';
+const PLUGIN_NAME = '@macroforge/typescript-plugin';
 const PLUGIN_PATH = path.join(PLUGIN_DIST, 'index.js');
 
 const FILES = [

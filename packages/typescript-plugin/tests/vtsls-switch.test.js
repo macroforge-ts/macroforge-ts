@@ -15,7 +15,7 @@ const VTSLS_BIN = path.resolve(
   __dirname,
   "../../../node_modules/@vtsls/language-server/bin/vtsls.js",
 );
-const PLUGIN_PATH = path.resolve(__dirname, ".."); // packages/tsserver-plugin-macroforge
+const PLUGIN_PATH = path.resolve(__dirname, ".."); // packages/typescript-plugin
 
 function lspMessage(id, method, params) {
   return { jsonrpc: "2.0", id, method, params };
@@ -126,7 +126,7 @@ function startVtsls(cwd) {
   };
 }
 
-test("vtsls + tsserver-plugin-macroforge survives file switching", async (t) => {
+test("vtsls + typescript-plugin survives file switching", async (t) => {
   // Skip if vtsls is not installed
   if (!fs.existsSync(VTSLS_BIN)) {
     t.skip("vtsls binary missing - run npm install");
@@ -151,7 +151,7 @@ test("vtsls + tsserver-plugin-macroforge survives file switching", async (t) => 
             pluginPaths: [PLUGIN_PATH],
             globalPlugins: [
               {
-                name: "@macroforge/tsserver-plugin-macroforge",
+                name: "@macroforge/typescript-plugin",
                 location: PLUGIN_PATH,
                 languages: ["typescript", "typescriptreact"],
                 enableForWorkspaceTypeScriptVersions: true,

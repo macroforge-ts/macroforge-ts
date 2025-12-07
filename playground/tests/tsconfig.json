@@ -29,8 +29,8 @@
     // Macroforge plugin for playground e2e
     "plugins": [
       {
-        "name": "@macroforge/tsserver-plugin-macroforge",
-        "path": "../../packages/tsserver-plugin-macroforge",
+        "name": "@macroforge/typescript-plugin",
+        "path": "../../packages/typescript-plugin",
         "macroNames": ["Derive"],
         "mixinModule": "@macroforge/macros",
         "mixinTypes": ["MacroDebug", "MacroJSON"]

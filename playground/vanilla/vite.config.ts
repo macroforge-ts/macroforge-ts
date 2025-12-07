@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import macroforge from 'vite-plugin-macroforge'
+import macroforge from '@macroforge/vite-plugin'
 
 export default defineConfig({
   plugins: [

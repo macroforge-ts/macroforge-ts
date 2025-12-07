@@ -12,7 +12,7 @@ try {
 } catch (error) {
   tsModule = undefined;
   console.warn(
-    "[vite-plugin-macroforge] TypeScript not found. Generated .d.ts files will be skipped.",
+    "[@macroforge/vite-plugin] TypeScript not found. Generated .d.ts files will be skipped.",
   );
 }
 
@@ -111,7 +111,7 @@ function getCompilerOptions(
         },
       );
       console.warn(
-        `[vite-plugin-macroforge] Failed to read tsconfig at ${configPath}\n${formatted}`,
+        `[@macroforge/vite-plugin] Failed to read tsconfig at ${configPath}\n${formatted}`,
       );
       options = {};
     } else {
@@ -221,7 +221,7 @@ function emitDeclarationsFromCode(
       },
     );
     console.warn(
-      `[vite-plugin-macroforge] Declaration emit failed for ${path.relative(
+      `[@macroforge/vite-plugin] Declaration emit failed for ${path.relative(
         projectRoot,
         fileName,
       )}\n${formatted}`,
@@ -270,12 +270,12 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
       if (existing !== types) {
         fs.writeFileSync(targetPath, types, "utf-8");
         console.log(
-          `[vite-plugin-macroforge] Wrote types for ${relativePath} -> ${path.relative(projectRoot, targetPath)}`,
+          `[@macroforge/vite-plugin] Wrote types for ${relativePath} -> ${path.relative(projectRoot, targetPath)}`,
         );
       }
     } catch (error) {
       console.error(
-        `[vite-plugin-macroforge] Failed to write type definitions for ${id}:`,
+        `[@macroforge/vite-plugin] Failed to write type definitions for ${id}:`,
         error,
       );
     }
@@ -295,12 +295,12 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
       if (existing !== metadata) {
         fs.writeFileSync(targetPath, metadata, "utf-8");
         console.log(
-          `[vite-plugin-macroforge] Wrote metadata for ${relativePath} -> ${path.relative(projectRoot, targetPath)}`,
+          `[@macroforge/vite-plugin] Wrote metadata for ${relativePath} -> ${path.relative(projectRoot, targetPath)}`,
         );
       }
     } catch (error) {
       console.error(
-        `[vite-plugin-macroforge] Failed to write metadata for ${id}:`,
+        `[@macroforge/vite-plugin] Failed to write metadata for ${id}:`,
         error,
       );
     }
@@ -313,13 +313,13 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
         error.stack && error.stack.includes(error.message)
           ? error.stack
           : `${error.message}\n${error.stack ?? ""}`;
-      return `[vite-plugin-macroforge] Failed to transform ${relative}\n${details}`.trim();
+      return `[@macroforge/vite-plugin] Failed to transform ${relative}\n${details}`.trim();
     }
-    return `[vite-plugin-macroforge] Failed to transform ${relative}: ${String(error)}`;
+    return `[@macroforge/vite-plugin] Failed to transform ${relative}: ${String(error)}`;
   }
 
   return {
-    name: "vite-plugin-macroforge",
+    name: "@macroforge/vite-plugin",
 
     enforce: "pre",
 
@@ -332,7 +332,7 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
         rustTransformer = moduleRequire("macroforge");
       } catch (error) {
         console.warn(
-          "[vite-plugin-macroforge] Rust binary not found. Please run `npm run build:rust` first.",
+          "[@macroforge/vite-plugin] Rust binary not found. Please run `npm run build:rust` first.",
         );
         console.warn(error);
       }
@@ -370,7 +370,7 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
           } else {
             // Log warnings and info messages
             console.warn(
-              `[vite-plugin-macroforge] ${diag.level}: ${diag.message}`,
+              `[@macroforge/vite-plugin] ${diag.level}: ${diag.message}`,
             );
           }
         }

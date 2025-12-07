@@ -55,17 +55,17 @@
 						"logVerbosity": "verbose",
 						"allowLocalPluginLoads": true,
 						"pluginProbeLocations": [
-							"~/macroforge-ts/packages/tsserver-plugin-macroforge/dist",
-							"~/macroforge-ts/packages/tsserver-plugin-macroforge"
+							"~/macroforge-ts/packages/typescript-plugin/dist",
+							"~/macroforge-ts/packages/typescript-plugin"
 						],
 						"plugins": [
 							{
-								"name": "~/macroforge-ts/packages/tsserver-plugin-macroforge/dist/index.js"
+								"name": "~/macroforge-ts/packages/typescript-plugin/dist/index.js"
 							}
 						],
 						"globalPlugins": [
 							{
-								"name": "~/macroforge-ts/packages/tsserver-plugin-macroforge/dist/index.js",
+								"name": "~/macroforge-ts/packages/typescript-plugin/dist/index.js",
 								"enableForWorkspaceTypeScriptVersions": true,
 								"languages": ["typescript", "typescriptreact", "javascript", "javascriptreact"]
 							}
