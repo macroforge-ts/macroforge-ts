@@ -1,7 +1,15 @@
 [package]
 name = "ts_syn"
-version = "0.1.0"
-edition = "2024"
+description = "TypeScript syntax types for compile-time macro code generation"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "README.md"
 
 [features]
 default = ["swc"]

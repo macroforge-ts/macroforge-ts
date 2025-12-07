@@ -1,10 +1,15 @@
 [package]
 name = "ts_quote"
+description = "Quote macro for generating TypeScript code at compile time"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "README.md"
 
 [lib]
 proc-macro = true

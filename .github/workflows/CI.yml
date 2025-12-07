@@ -193,3 +193,35 @@ jobs:
           npm run build
           npm publish --access public
         working-directory: packages/typescript-plugin
+
+      - name: Install svelte-language-server dependencies
+        run: npm install
+        working-directory: packages/svelte-language-server
+
+      - name: Build and publish @macroforge/svelte-language-server
+        run: |
+          npm run build
+          npm publish --access public
+        working-directory: packages/svelte-language-server
+
+      # Publish Rust crates to crates.io
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Publish ts_syn to crates.io
+        run: cargo publish -p ts_syn --allow-dirty || true
+        working-directory: crates
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Publish ts_quote to crates.io
+        run: cargo publish -p ts_quote --allow-dirty || true
+        working-directory: crates
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Publish ts_macro_derive to crates.io
+        run: cargo publish -p ts_macro_derive --allow-dirty || true
+        working-directory: crates
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

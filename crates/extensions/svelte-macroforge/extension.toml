@@ -3,8 +3,8 @@ name = "Svelte Language Server Macroforge"
 version = "0.1.0"
 schema_version = 1
 authors = ["macroforge contributors"]
-description = "Builds and launches the forked svelte-language-server with macroforge integration."
-repository = "https://github.com/rymskip/macroforge"
+description = "Svelte language server with macroforge integration for compile-time macros."
+repository = "https://github.com/rymskip/macroforge-ts"
 
 [language_servers.svelte-macroforge]
 name = "Svelte Macroforge"
@@ -13,3 +13,40 @@ languages = ["Svelte"]
 
 [language_servers.svelte-macroforge.language_ids]
 "Svelte" = "svelte"
+
+# Permissions for npm package installation
+[[permissions]]
+kind = "npm:install"
+package = "@macroforge/svelte-language-server"
+
+[[permissions]]
+kind = "npm:install"
+package = "macroforge"
+
+[[permissions]]
+kind = "npm:install"
+package = "@macroforge/typescript-plugin"
+
+[[permissions]]
+kind = "npm:install"
+package = "@macroforge/bin-darwin-x64"
+
+[[permissions]]
+kind = "npm:install"
+package = "@macroforge/bin-darwin-arm64"
+
+[[permissions]]
+kind = "npm:install"
+package = "@macroforge/bin-linux-x64-gnu"
+
+[[permissions]]
+kind = "npm:install"
+package = "@macroforge/bin-linux-arm64-gnu"
+
+[[permissions]]
+kind = "npm:install"
+package = "@macroforge/bin-win32-x64-msvc"
+
+[[permissions]]
+kind = "npm:install"
+package = "@macroforge/bin-win32-arm64-msvc"

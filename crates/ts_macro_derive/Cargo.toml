@@ -1,10 +1,15 @@
 [package]
 name = "ts_macro_derive"
+description = "Derive macros for TypeScript compile-time code generation"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "README.md"
 
 [lib]
 proc-macro = true
