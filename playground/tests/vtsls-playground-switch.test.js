@@ -13,7 +13,7 @@ import { spawn } from 'node:child_process';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const LOG_DIR = path.join(REPO_ROOT, 'tmp-vtsls-logs');
+const LOG_DIR = path.join(REPO_ROOT, '.tmp', 'vtsls-logs');
 const VTSLS_BIN_CANDIDATES = [
   path.resolve(REPO_ROOT, 'node_modules/@vtsls/language-server/bin/vtsls.js'),
   path.resolve(__dirname, 'node_modules/@vtsls/language-server/bin/vtsls.js'),
