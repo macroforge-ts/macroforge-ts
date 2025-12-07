@@ -144,6 +144,13 @@ jobs:
       - name: Install napi-cli
         run: npm install -g @napi-rs/cli
 
+      - name: Setup npm auth
+        run: |
+          npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> $GITHUB_WORKSPACE/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_SECRET }}
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -162,20 +169,18 @@ jobs:
           for dir in npm/*/; do
             if [ -d "$dir" ]; then
               echo "Publishing $dir"
-              cd "$dir"
-              npm publish --provenance --access public || true
-              cd ../..
+              npm publish "$dir" --provenance --access public || true
             fi
           done
         working-directory: crates/macroforge_ts
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_SECRET }}
 
       - name: Publish macroforge
         run: npm publish --provenance --access public
         working-directory: crates/macroforge_ts
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_SECRET }}
 
       - name: Install plugin dependencies
         run: npm install
@@ -187,4 +192,4 @@ jobs:
           npm publish --provenance --access public
         working-directory: packages/tsserver-plugin-macroforge
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_SECRET }}
