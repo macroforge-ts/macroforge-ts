@@ -3,14 +3,14 @@ members = [
     "macroforge_ts",
     "extensions/macroforge",
     "extensions/svelte-macroforge",
-    "ts_syn",
-    "ts_quote",
-    "ts_macro_derive",
+    "macroforge_ts_syn",
+    "macroforge_ts_quote",
+    "macroforge_ts_macros",
 ]
 resolver = "2"
 
 [workspace.package]
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 authors = ["macroforge contributors"]
 license = "MIT"

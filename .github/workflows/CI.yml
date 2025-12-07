@@ -208,20 +208,26 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Publish ts_syn to crates.io
-        run: cargo publish -p ts_syn --allow-dirty || true
+      - name: Publish macroforge_ts_syn to crates.io
+        run: cargo publish -p macroforge_ts_syn --allow-dirty || true
         working-directory: crates
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
-      - name: Publish ts_quote to crates.io
-        run: cargo publish -p ts_quote --allow-dirty || true
+      - name: Publish macroforge_ts_quote to crates.io
+        run: cargo publish -p macroforge_ts_quote --allow-dirty || true
         working-directory: crates
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
-      - name: Publish ts_macro_derive to crates.io
-        run: cargo publish -p ts_macro_derive --allow-dirty || true
+      - name: Publish macroforge_ts_macros to crates.io
+        run: cargo publish -p macroforge_ts_macros --allow-dirty || true
+        working-directory: crates
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Publish macroforge_ts to crates.io
+        run: cargo publish -p macroforge_ts --allow-dirty || true
         working-directory: crates
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

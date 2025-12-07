@@ -1,8 +1,7 @@
 //! /** @derive(Debug) */ macro implementation
 
-use ts_macro_derive::ts_macro_derive;
-use ts_quote::body;
-use ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use crate::macros::{ts_macro_derive, body};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 /// Options parsed from @Debug decorator on fields
 #[derive(Default)]
@@ -12,7 +11,7 @@ struct DebugFieldOptions {
 }
 
 impl DebugFieldOptions {
-    fn from_decorators(decorators: &[ts_syn::abi::DecoratorIR]) -> Self {
+    fn from_decorators(decorators: &[crate::ts_syn::abi::DecoratorIR]) -> Self {
         let mut opts = DebugFieldOptions::default();
         for decorator in decorators {
             if !decorator.name.eq_ignore_ascii_case("debug") {
@@ -159,7 +158,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ts_syn::abi::{DecoratorIR, SpanIR};
+    use crate::ts_syn::abi::{DecoratorIR, SpanIR};
 
     fn span() -> SpanIR {
         SpanIR::new(0, 0)

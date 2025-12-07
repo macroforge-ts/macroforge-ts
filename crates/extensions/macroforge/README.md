@@ -1,5 +1,7 @@
 # Macroforge TypeScript Extension
 
+> **Warning:** This is a work in progress and probably won't work for you. Use at your own risk!
+
 A Zed extension that provides TypeScript language server support with the `@macroforge/typescript-plugin` pre-configured for compile-time macros.
 
 ## How it works

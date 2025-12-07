@@ -1,4 +1,6 @@
-# ts_macro_derive
+# macroforge_ts_macros
+
+> **Warning:** This is a work in progress and probably won't work for you. Use at your own risk!
 
 Derive macros for TypeScript compile-time code generation.
 
@@ -8,7 +10,7 @@ Part of the [macroforge](https://github.com/rymskip/macroforge-ts) project.
 
 ```toml
 [dependencies]
-ts_macro_derive = "0.1"
+macroforge_ts_macros = "0.1"
 ```
 
 ## License

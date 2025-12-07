@@ -1,4 +1,6 @@
-# TS Derive Svelte Language Server
+# Macroforge Svelte Extension
+
+> **Warning:** This is a work in progress and probably won't work for you. Use at your own risk!
 
 Builds and runs the forked `svelte-language-server` found in `node_modules/svelte-language-server` (after a repo-wide `npm install`) or under `packages/language-server` in the current workspace so `.svelte` files inherit the macroforge TypeScript plugin fix.
 

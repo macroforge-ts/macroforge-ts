@@ -1,5 +1,5 @@
 [package]
-name = "ts_syn"
+name = "macroforge_ts_syn"
 description = "TypeScript syntax types for compile-time macro code generation"
 version.workspace = true
 edition.workspace = true

@@ -1,4 +1,12 @@
-# `ts_template!` - Rust-Style TypeScript Code Generation
+# macroforge_ts_quote
+
+> **Warning:** This is a work in progress and probably won't work for you. Use at your own risk!
+
+Quote macro for generating TypeScript code at compile time.
+
+Part of the [macroforge](https://github.com/rymskip/macroforge-ts) project.
+
+## `ts_template!` - Rust-Style TypeScript Code Generation
 
 The `ts_template!` macro provides an intuitive, template-based way to generate TypeScript code in your macros. It uses Rust-inspired syntax for control flow and interpolation.
 
