@@ -1,5 +1,7 @@
 # macroforge
 
+> **Warning:** This is a work in progress and probably won't work for you. Use at your own risk!
+
 TypeScript macro expansion engine powered by Rust and SWC.
 
 ## Overview
@@ -214,8 +216,7 @@ napi-build = "2.3.1"
 
 **src/lib.rs:**
 ```rust
-use macroforge_ts::ts_macro_derive::ts_macro_derive;
-use macroforge_ts::ts_quote::body;
+use macroforge_ts::macros::{ts_macro_derive, body};
 use macroforge_ts::ts_syn::{
     Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
 };
@@ -263,19 +264,16 @@ The `ts_template!` and `body!` macros support:
 `macroforge_ts` re-exports everything needed for macro development:
 
 ```rust
-// All available via macroforge_ts::*
-pub extern crate ts_syn;         // AST types, parsing
-pub extern crate ts_quote;       // Code generation templates
-pub extern crate ts_macro_derive; // #[ts_macro_derive] attribute
-pub extern crate inventory;       // Macro registration
-pub extern crate serde_json;      // Serialization
-pub extern crate napi;            // Node.js bindings
-pub extern crate napi_derive;     // NAPI proc-macros
+// TypeScript syntax types
+use macroforge_ts::ts_syn::*;
 
-// SWC modules
-pub use ts_syn::swc_core;
-pub use ts_syn::swc_common;
-pub use ts_syn::swc_ecma_ast;
+// Macro attributes and quote templates
+use macroforge_ts::macros::{ts_macro_derive, body, ts_template, above, below};
+
+// SWC modules (for advanced use)
+use macroforge_ts::swc_core;
+use macroforge_ts::swc_common;
+use macroforge_ts::swc_ecma_ast;
 ```
 
 ## Integration

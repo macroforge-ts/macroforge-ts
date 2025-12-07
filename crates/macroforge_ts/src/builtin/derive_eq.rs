@@ -1,8 +1,7 @@
 //! /** @derive(Eq) */ macro implementation
 
-use ts_macro_derive::ts_macro_derive;
-use ts_quote::body;
-use ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use crate::macros::{ts_macro_derive, body};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 #[ts_macro_derive(Eq, description = "Generates equals() and hashCode() methods")]
 pub fn derive_eq_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
@@ -106,7 +105,7 @@ mod tests {
         let wrapped = format!("class __Temp {{ {} }}", body_content);
 
         assert!(
-            ts_syn::parse_ts_stmt(&wrapped).is_ok(),
+            macroforge_ts_syn::parse_ts_stmt(&wrapped).is_ok(),
             "Generated Eq macro output should parse as class members"
         );
 

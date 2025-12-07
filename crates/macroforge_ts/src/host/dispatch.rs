@@ -1,8 +1,8 @@
 //! Macro dispatch and execution
 
 use crate::host::MacroRegistry;
-use ts_syn::TsStream;
-use ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult};
+use crate::ts_syn::TsStream;
+use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult};
 
 /// Dispatches macro calls to registered macro implementations
 pub struct MacroDispatcher {
@@ -131,7 +131,7 @@ mod tests {
     use super::*;
     use crate::host::traits::Macroforge;
     use std::sync::Arc;
-    use ts_syn::abi::{ClassIR, MacroKind, SpanIR, TargetIR};
+    use crate::ts_syn::abi::{ClassIR, MacroKind, SpanIR, TargetIR};
 
     struct TestMacro {
         name: String,

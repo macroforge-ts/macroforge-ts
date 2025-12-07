@@ -8,7 +8,7 @@ use swc_core::{
     common::{FileName, GLOBALS, SourceMap, sync::Lrc},
     ecma::parser::{Lexer, Parser, StringInput, Syntax, TsSyntax},
 };
-use ts_syn::abi::{
+use crate::ts_syn::abi::{
     ClassIR, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode, SpanIR,
 };
 

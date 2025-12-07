@@ -10,7 +10,7 @@ use swc_core::{
 };
 
 // Allow the crate to reference itself as `macroforge_ts`
-// This is needed for the ts_macro_derive generated code
+// This is needed for the macroforge_ts_macros generated code
 extern crate self as macroforge_ts;
 
 // ============================================================================
@@ -19,19 +19,33 @@ extern crate self as macroforge_ts;
 // These re-exports allow users to only depend on `macroforge_ts` in their
 // Cargo.toml instead of needing to add multiple dependencies.
 
-// Re-export crates using extern crate to avoid import conflicts
-pub extern crate ts_syn;
-pub extern crate ts_quote;
-pub extern crate ts_macro_derive;
+// Re-export internal crates (needed for generated code)
+pub extern crate macroforge_ts_syn;
+pub extern crate macroforge_ts_quote;
+pub extern crate macroforge_ts_macros;
 pub extern crate inventory;
 pub extern crate serde_json;
 pub extern crate napi;
 pub extern crate napi_derive;
 
+/// TypeScript syntax types for macro development
+/// Use: `use macroforge_ts::ts_syn::*;`
+pub use macroforge_ts_syn as ts_syn;
+
+/// Macro attributes and quote templates
+/// Use: `use macroforge_ts::macros::*;`
+pub mod macros {
+    // Re-export the ts_macro_derive attribute
+    pub use macroforge_ts_macros::ts_macro_derive;
+
+    // Re-export all quote macros
+    pub use macroforge_ts_quote::{ts_template, body, above, below, signature};
+}
+
 // Re-export swc_core and common modules (via ts_syn for version consistency)
-pub use ts_syn::swc_core;
-pub use ts_syn::swc_common;
-pub use ts_syn::swc_ecma_ast;
+pub use macroforge_ts_syn::swc_core;
+pub use macroforge_ts_syn::swc_common;
+pub use macroforge_ts_syn::swc_ecma_ast;
 
 // ============================================================================
 // Internal modules

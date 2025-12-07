@@ -14,11 +14,11 @@ use swc_core::{
     common::Span,
     ecma::ast::{ClassMember, Module, Program},
 };
-use ts_syn::abi::{
+use crate::ts_syn::abi::{
     ClassIR, Diagnostic, DiagnosticLevel, InterfaceIR, MacroContextIR, MacroResult, Patch,
     PatchCode, SourceMapping, SpanIR, TargetIR,
 };
-use ts_syn::{lower_classes, lower_interfaces};
+use crate::ts_syn::{lower_classes, lower_interfaces};
 
 use super::{
     MacroConfig, MacroDispatcher, MacroError, MacroRegistry, PatchCollector, Result, derived,
@@ -124,7 +124,7 @@ impl MacroExpander {
 
     /// Expand all macros in the source code (simple API for CLI usage)
     pub fn expand_source(&self, source: &str, file_name: &str) -> Result<MacroExpansion> {
-        use ts_syn::parse_ts_module;
+        use crate::ts_syn::parse_ts_module;
 
         let module = parse_ts_module(source)
             .map_err(|e| MacroError::InvalidConfig(format!("Parse error: {:?}", e)))?;
@@ -254,9 +254,9 @@ impl MacroExpander {
                     .trim_start();
                 let method_signature = if method.name == "constructor" {
                     let visibility = match method.visibility {
-                        ts_syn::abi::Visibility::Private => "private ",
-                        ts_syn::abi::Visibility::Protected => "protected ",
-                        ts_syn::abi::Visibility::Public => "",
+                        crate::ts_syn::abi::Visibility::Private => "private ",
+                        crate::ts_syn::abi::Visibility::Protected => "protected ",
+                        crate::ts_syn::abi::Visibility::Public => "",
                     };
                     format!(
                         "{visibility}constructor({params_src});",
@@ -265,9 +265,9 @@ impl MacroExpander {
                     )
                 } else {
                     let visibility = match method.visibility {
-                        ts_syn::abi::Visibility::Private => "private ",
-                        ts_syn::abi::Visibility::Protected => "protected ",
-                        ts_syn::abi::Visibility::Public => "",
+                        crate::ts_syn::abi::Visibility::Private => "private ",
+                        crate::ts_syn::abi::Visibility::Protected => "protected ",
+                        crate::ts_syn::abi::Visibility::Public => "",
                     };
                     let static_kw = if method.is_static { "static " } else { "" };
                     let async_kw = if method.is_async { "async " } else { "" };
@@ -496,7 +496,7 @@ impl MacroExpander {
         let mut type_patches = Vec::new();
 
         if let Some(tokens) = &result.tokens
-            && ctx.macro_kind == ts_syn::abi::MacroKind::Derive
+            && ctx.macro_kind == crate::ts_syn::abi::MacroKind::Derive
         {
             let macro_name = Some(ctx.macro_name.clone());
 
@@ -980,7 +980,7 @@ const tryImport = async (id) => {
             )
         })?;
 
-        let host_result: ts_syn::abi::MacroResult =
+        let host_result: crate::ts_syn::abi::MacroResult =
             serde_json::from_str(&result_json).map_err(|e| {
                 napi::Error::new(
                     Status::InvalidArg,
@@ -1416,12 +1416,12 @@ fn parse_members_from_tokens(
 ) -> anyhow::Result<Vec<swc_core::ecma::ast::ClassMember>> {
     let wrapped_stmt = format!("class __Temp {{ {} }}", tokens);
     if let Ok(swc_core::ecma::ast::Stmt::Decl(swc_core::ecma::ast::Decl::Class(class_decl))) =
-        ts_syn::parse_ts_stmt(&wrapped_stmt)
+        crate::ts_syn::parse_ts_stmt(&wrapped_stmt)
     {
         return Ok(class_decl.class.body);
     }
 
-    if let Ok(module) = ts_syn::parse_ts_module(&wrapped_stmt) {
+    if let Ok(module) = crate::ts_syn::parse_ts_module(&wrapped_stmt) {
         for item in module.body {
             if let swc_core::ecma::ast::ModuleItem::Stmt(swc_core::ecma::ast::Stmt::Decl(
                 swc_core::ecma::ast::Decl::Class(class_decl),
@@ -1526,7 +1526,7 @@ mod external_macro_loader_tests {
     use super::ExternalMacroLoader;
     use std::{fs, path::Path};
     use tempfile::tempdir;
-    use ts_syn::abi::{ClassIR, MacroContextIR, SpanIR};
+    use crate::ts_syn::abi::{ClassIR, MacroContextIR, SpanIR};
 
     fn write(path: &Path, contents: &str) {
         if let Some(parent) = path.parent() {
