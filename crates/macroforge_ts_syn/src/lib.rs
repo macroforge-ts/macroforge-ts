@@ -73,7 +73,7 @@ pub struct StmtVec(pub Vec<swc_core::ecma::ast::Stmt>);
 #[macro_export]
 macro_rules! stmt_vec {
     ($stmts:expr) => {
-        ts_syn::StmtVec($stmts)
+        macroforge_ts_syn::StmtVec($stmts)
     };
 }
 

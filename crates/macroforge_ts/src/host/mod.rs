@@ -24,4 +24,4 @@ pub use registry::MacroRegistry;
 pub use traits::Macroforge;
 
 // Re-export commonly used types from abi
-pub use ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroKind, MacroResult, Patch};
+pub use crate::ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroKind, MacroResult, Patch};

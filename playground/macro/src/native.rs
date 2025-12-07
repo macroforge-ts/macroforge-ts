@@ -1,6 +1,5 @@
 // All dependencies are re-exported from macroforge_ts - no need for separate crate imports!
-use macroforge_ts::ts_macro_derive::ts_macro_derive;
-use macroforge_ts::ts_quote::{body, ts_template};
+use macroforge_ts::macros::{ts_macro_derive, body, ts_template};
 use macroforge_ts::ts_syn::{
     Data, DataInterface, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
 };

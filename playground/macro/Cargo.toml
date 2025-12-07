@@ -13,7 +13,7 @@ name = "playground_macros"
 crate-type = ["rlib", "cdylib"]
 
 [dependencies]
-# Core macro framework - re-exports ts_syn, ts_quote, ts_macro_derive, inventory, serde_json
+# Core macro framework - re-exports macroforge_ts_syn, macroforge_ts_quote, macroforge_ts_macros, inventory, serde_json
 macroforge_ts = { path = "../../crates/macroforge_ts" }
 # NAPI deps required directly (napi_derive generates ::napi references)
 napi = { version = "3.5.2", features = ["napi8", "compat-mode"] }

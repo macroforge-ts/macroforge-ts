@@ -6,7 +6,7 @@ use swc_core::{
     common::{SourceMap, sync::Lrc},
     ecma::codegen::{Config, Emitter, Node, text_writer::JsWriter},
 };
-use ts_syn::abi::{GeneratedRegion, MappingSegment, Patch, PatchCode, SourceMapping, SpanIR};
+use crate::ts_syn::abi::{GeneratedRegion, MappingSegment, Patch, PatchCode, SourceMapping, SpanIR};
 
 /// Result of applying patches with source mapping
 #[derive(Clone, Debug)]
