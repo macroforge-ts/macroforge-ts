@@ -2,12 +2,15 @@
   "name": "tests",
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@vtsls/language-server": "^0.2.9"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
-    "vite": "^7.2.6"
+    "vite": "^7.2.6",
+    "macroforge": "file:../../crates/macroforge_ts",
+    "@playground/macro": "file:../macro"
   }
 }

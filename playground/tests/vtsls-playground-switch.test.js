@@ -14,17 +14,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const LOG_DIR = path.join(REPO_ROOT, 'tmp-vtsls-logs');
-const VTSLS_BIN = path.resolve(
-  REPO_ROOT,
-  'node_modules/@vtsls/language-server/bin/vtsls.js',
-);
+const VTSLS_BIN_CANDIDATES = [
+  path.resolve(REPO_ROOT, 'node_modules/@vtsls/language-server/bin/vtsls.js'),
+  path.resolve(__dirname, 'node_modules/@vtsls/language-server/bin/vtsls.js'),
+];
+const VTSLS_BIN = VTSLS_BIN_CANDIDATES.find((p) => fs.existsSync(p));
 const PLUGIN_PATH = path.resolve(REPO_ROOT, 'packages/tsserver-plugin-macroforge');
+const PLUGIN_NAME = '@macroforge/tsserver-plugin-macroforge';
 
 const FILES = [
   path.resolve(REPO_ROOT, 'playground/svelte/src/lib/demo/macro-user.ts'),
   path.resolve(
     REPO_ROOT,
-    'playground/svelte/src/lib/demo/field-controller-test.ts',
+    'playground/svelte/src/lib/demo/field-controller.ts',
   ),
 ];
 
@@ -43,9 +45,31 @@ function lspNotification(method, params) {
   return { jsonrpc: '2.0', method, params };
 }
 
+function waitForResponse(messages, id, timeout = 4000) {
+  const start = Date.now();
+  return new Promise((resolve, reject) => {
+    const timer = setInterval(() => {
+      const hit = messages.find((m) => m && m.id === id);
+      if (hit) {
+        clearInterval(timer);
+        resolve(hit);
+      } else if (Date.now() - start > timeout) {
+        clearInterval(timer);
+        reject(new Error(`timeout waiting for response ${id}`));
+      }
+    }, 50);
+  });
+}
+
 function startServer() {
   fs.mkdirSync(LOG_DIR, { recursive: true });
   const tsLogFile = path.join(LOG_DIR, 'tsserver.log');
+  const NODE_PATHS = [
+    path.join(REPO_ROOT, 'node_modules'),
+    path.join(__dirname, 'node_modules'),
+    path.join(REPO_ROOT, 'playground', 'macro', 'node_modules'),
+  ].filter(fs.existsSync);
+  const NODE_PATH = NODE_PATHS.join(path.delimiter);
 
   const child = spawn('node', [VTSLS_BIN, '--stdio'], {
     cwd: REPO_ROOT,
@@ -53,6 +77,7 @@ function startServer() {
     env: {
       ...process.env,
       TSS_LOG: `-logToFile true -file ${tsLogFile} -level verbose`,
+      NODE_PATH,
     },
   });
 
@@ -121,8 +146,8 @@ function toPosition(text, needle) {
 }
 
 test('vtsls playground switch', async (t) => {
-  if (!fs.existsSync(VTSLS_BIN)) {
-    t.skip('vtsls binary missing - run npm install');
+  if (!VTSLS_BIN || !fs.existsSync(VTSLS_BIN)) {
+    t.skip('vtsls binary missing - run npm install (root or playground/tests)');
     return;
   }
 
@@ -145,15 +170,22 @@ test('vtsls playground switch', async (t) => {
       },
       initializationOptions: {
         typescript: {
-          tsserver: {
-            logDirectory: LOG_DIR,
-            logVerbosity: 'verbose',
-            pluginPaths: [PLUGIN_PATH],
-            globalPlugins: [
-              {
-                name: '@macroforge/tsserver-plugin-macroforge',
-                location: PLUGIN_PATH,
-                languages: ['typescript', 'typescriptreact'],
+            tsserver: {
+              logDirectory: LOG_DIR,
+              logVerbosity: 'verbose',
+              allowLocalPluginLoads: true,
+              pluginPaths: [PLUGIN_PATH],
+              plugins: [
+                {
+                  name: PLUGIN_NAME,
+                  location: PLUGIN_PATH,
+                },
+              ],
+              globalPlugins: [
+                {
+                  name: PLUGIN_NAME,
+                  location: PLUGIN_PATH,
+                  languages: ['typescript', 'typescriptreact'],
                 enableForWorkspaceTypeScriptVersions: true,
               },
             ],
@@ -213,17 +245,33 @@ test('vtsls playground switch', async (t) => {
 
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
+  // Explicit IDs we can await
+  const defIds = {
+    macroUserToJSON: Math.random(),
+    formModelMakeProps: Math.random(),
+  };
+
   // Open first file, hover/definition
   sendOpen(first, firstText, 1);
   await wait(200);
   sendHover(first, firstText, 'MacroUser');
-  sendDefinition(first, firstText, 'MacroUser');
+  server.send(
+    lspMessage(defIds.macroUserToJSON, 'textDocument/definition', {
+      textDocument: { uri: fileUri(first) },
+      position: toPosition(firstText, 'toJSON'),
+    }),
+  );
 
   // Open second file, hover/definition
   sendOpen(second, secondText, 1);
   await wait(200);
   sendHover(second, secondText, 'FormModel');
-  sendDefinition(second, secondText, 'FormModel');
+  server.send(
+    lspMessage(defIds.formModelMakeProps, 'textDocument/definition', {
+      textDocument: { uri: fileUri(second) },
+      position: toPosition(secondText, 'makeFormModelBaseProps'),
+    }),
+  );
 
   // Apply a change to force re-parse on second
   sendChange(second, secondText + '\n// change', 2);
@@ -240,11 +288,32 @@ test('vtsls playground switch', async (t) => {
   // Give the server time to process background work and crash if unstable
   await wait(2000);
 
+  // Capture stderr early for debugging assertions
+  const stderrOutput = server.stderr();
+
+  // Validate definitions came back (proves plugin expanded macros)
+  const defToJSON = await waitForResponse(server.messages, defIds.macroUserToJSON).catch(
+    (err) => ({ error: err.message }),
+  );
+  const defMakeProps = await waitForResponse(server.messages, defIds.formModelMakeProps).catch(
+    (err) => ({ error: err.message }),
+  );
+
+  assert.ok(
+    Array.isArray(defToJSON.result) && defToJSON.result.length > 0,
+    `definition for toJSON should resolve, got ${JSON.stringify(defToJSON)}`
+      + `\nstderr:\n${stderrOutput}`,
+  );
+  assert.ok(
+    Array.isArray(defMakeProps.result) && defMakeProps.result.length > 0,
+    `definition for makeFormModelBaseProps should resolve, got ${JSON.stringify(defMakeProps)}`
+      + `\nstderr:\n${stderrOutput}`,
+  );
+
   // Check if server died on its own before we stop it
   const exitedEarly = server.isClosed();
   const exitCode = server.exitCode();
   const exitSignal = server.exitSignal();
-  const stderrOutput = server.stderr();
 
   const errorResponses = server.messages.filter(
     (m) => m && m.error && m.error !== null,

@@ -28,12 +28,12 @@ function assertDecoratorsStripped(output, fileLabel) {
 
 function assertMethodsGenerated(output, fileLabel) {
   assert.ok(
-    /toString\s*\(/.test(output),
-    `${fileLabel}: expected generated toString()`,
+    /toString\s*\(\).*?\{/.test(output),
+    `${fileLabel}: expected generated toString() implementation`,
   );
   assert.ok(
-    /toJSON\s*\(/.test(output),
-    `${fileLabel}: expected generated toJSON()`,
+    /toJSON\s*\(\).*?\{/.test(output),
+    `${fileLabel}: expected generated toJSON() implementation`,
   );
 }
 

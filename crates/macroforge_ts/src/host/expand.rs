@@ -822,7 +822,46 @@ const addCandidate = (id) => {
   candidates.push(id);
 };
 
+const addPackageDir = (dir) => {
+  try {
+    const pkgJsonPath = path.join(dir, 'package.json');
+    if (!fs.existsSync(pkgJsonPath)) return;
+    const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
+    addCandidate(pkgJson.name || dir);
+    addCandidate(dir);
+  } catch {}
+};
+
+let ctx;
+try {
+  ctx = JSON.parse(ctxJson);
+} catch {}
+
+// Prefer node_modules near the file being processed (walk upward toward rootDir)
+if (ctx?.file_name) {
+  let current = path.dirname(ctx.file_name);
+  const rootResolved = path.resolve(rootDir);
+  while (true) {
+    addCandidate(path.join(current, 'node_modules', modulePath));
+    const parent = path.dirname(current);
+    if (parent === current || !path.resolve(parent).startsWith(rootResolved)) break;
+    current = parent;
+  }
+}
+
+// Fallbacks: requested specifier and its absolute form
 addCandidate(modulePath);
+addCandidate(path.resolve(rootDir, modulePath));
+
+// Heuristic: check monorepo subpaths even without a root package.json
+addPackageDir(path.join(rootDir, 'playground', 'macro'));
+const packagesDir = path.join(rootDir, 'packages');
+if (fs.existsSync(packagesDir)) {
+  for (const entry of fs.readdirSync(packagesDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    addPackageDir(path.join(packagesDir, entry.name));
+  }
+}
 
 try {
   const rootPkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
@@ -1554,6 +1593,56 @@ export function __macroforgeRunDebug(ctxJson) {
         let result = loader
             .run_macro(&ctx)
             .expect("should load ESM macro via dynamic import");
+
+        assert!(result.diagnostics.is_empty());
+    }
+
+    #[test]
+    fn prefers_nearest_node_modules_relative_to_file() {
+        let dir = tempdir().unwrap();
+        let root = dir.path();
+
+        // Create a nested project with its own node_modules containing the macro
+        let nested_root = root.join("apps/app");
+        let node_modules_macro = nested_root.join("node_modules/@ext/macro");
+        fs::create_dir_all(&node_modules_macro).unwrap();
+
+        write(
+            &node_modules_macro.join("package.json"),
+            r#"{"name":"@ext/macro","type":"module","main":"index.js"}"#,
+        );
+        write(
+            &node_modules_macro.join("index.js"),
+            r#"
+export function __macroforgeRunDebug(ctxJson) {
+  return JSON.stringify({
+    runtime_patches: [],
+    type_patches: [],
+    diagnostics: [],
+    tokens: null,
+    debug: null
+  });
+}
+"#,
+        );
+
+        let file_path = nested_root.join("src/file.ts");
+        fs::create_dir_all(file_path.parent().unwrap()).unwrap();
+
+        let loader = ExternalMacroLoader::new(root.to_path_buf());
+        let ctx = MacroContextIR::new_derive_class(
+            "Debug".into(),
+            "@ext/macro".into(),
+            SpanIR::new(0, 1),
+            SpanIR::new(0, 1),
+            file_path.to_string_lossy().to_string(),
+            test_class(),
+            "class Temp {}".into(),
+        );
+
+        let result = loader
+            .run_macro(&ctx)
+            .expect("should load macro from nearest node_modules");
 
         assert!(result.diagnostics.is_empty());
     }

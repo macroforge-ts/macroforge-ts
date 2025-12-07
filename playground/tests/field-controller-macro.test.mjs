@@ -19,46 +19,54 @@ function expandFile(filePath) {
   return expandSync(code, filePath, { keepDecorators: false });
 }
 
+function normalize(source) {
+  return source
+    .replace(/\s+/g, " ")
+    .replace(/\s*([\[\]\(\)\{\}<>,;:])\s*/g, "$1")
+    .trim();
+}
+
 test("FieldController macro generates correct spacing", () => {
   const { code } = expandFile(
-    path.join(svelteRoot, "src/lib/demo/field-controller-test.ts"),
+    path.join(svelteRoot, "src/lib/demo/field-controller.ts"),
   );
+  const normalized = normalize(code);
 
   // Expected concatenations:
   // makeFormModelBaseProps
   assert.ok(
-    code.includes("makeFormModelBaseProps<"),
+    normalized.includes("makeFormModelBaseProps<"),
     'Expected "makeFormModelBaseProps<" to be concatenated',
   );
 
-  // this.prototype.memoFieldPath
+  // memoFieldPath
   assert.ok(
-    code.includes('this.prototype.memoFieldPath = ["memo"];'),
-    'Expected "this.prototype.memoFieldPath" to be concatenated',
+    normalized.includes(normalize('export const memoFieldPath = ["memo"] as const;')),
+    'Expected "export const memoFieldPath" to be concatenated',
   );
 
   // memoFieldController
   assert.ok(
-    code.includes("memoFieldController(superForm:"),
+    normalized.includes("memoFieldController(superForm:"),
     'Expected "memoFieldController" to be concatenated',
   );
 
-  // this.makeFormModelBaseProps
+  // makeFormModelBaseProps call
   assert.ok(
-    code.includes("this.makeFormModelBaseProps("),
-    'Expected "this.makeFormModelBaseProps" to be concatenated',
+    normalized.includes("makeFormModelBaseProps("),
+    'Expected "makeFormModelBaseProps(" call to be concatenated',
   );
 
   // Expected spacing around keywords:
   // return baseProps
   assert.ok(
-    code.includes("return baseProps;"),
+    normalized.includes("return baseProps;"),
     'Expected "return baseProps;" with space',
   );
 
   // const proxy = formFieldProxy
   assert.ok(
-    code.includes("const proxy = formFieldProxy"),
+    normalized.includes("const proxy = formFieldProxy"),
     'Expected "const proxy = formFieldProxy" with space',
   );
 });

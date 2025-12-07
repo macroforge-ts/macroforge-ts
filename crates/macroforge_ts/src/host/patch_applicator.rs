@@ -135,9 +135,9 @@ impl<'a> PatchApplicator<'a> {
 
                         // Create 0-based segment for SourceMapping API
                         mapping.add_segment(MappingSegment::new(
-                            original_pos - 1,  // Convert to 0-based
-                            upto - 1,          // Convert to 0-based
-                            expanded_pos - 1,  // Convert to 0-based
+                            original_pos - 1,       // Convert to 0-based
+                            upto - 1,               // Convert to 0-based
+                            expanded_pos - 1,       // Convert to 0-based
                             expanded_pos + len - 1, // Convert to 0-based
                         ));
 

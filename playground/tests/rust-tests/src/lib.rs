@@ -95,7 +95,7 @@ mod tests {
 
     #[test]
     pub fn field_controller_macro() {
-        let raw = include_str!("./fixtures/field-controller-test.ts");
+        let raw = include_str!("./fixtures/field-controller.fixture.ts");
         let mut stream = create_test_stream(raw);
 
         let input = DeriveInput::parse(&mut stream).unwrap();
@@ -191,7 +191,7 @@ mod tests {
                 assert!(source.contains("this.prototype.memoFieldPath = ["));
                 assert!(source.contains("\"memo\""));
             }
-            _ => panic!("Expected class data in field-controller-test.ts"),
+            _ => panic!("Expected class data in field-controller.fixture.ts"),
         }
     }
 

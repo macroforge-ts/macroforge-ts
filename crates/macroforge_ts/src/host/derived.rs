@@ -1,7 +1,7 @@
-use super::{MacroRegistry, Result, Macroforge};
-use ts_syn::abi::MacroKind;
+use super::{MacroRegistry, Macroforge, Result};
 use serde::Serialize;
 use std::{collections::BTreeSet, sync::Arc};
+use ts_syn::abi::MacroKind;
 
 /// Special marker module path that indicates dynamic resolution
 /// When a macro is registered with this module, the host will accept

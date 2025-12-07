@@ -9,8 +9,12 @@ impl MacroforgesTsExtension {
         let root = worktree.root_path();
         let node_modules_path = format!("node_modules/{}/package.json", TS_PLUGIN);
         let packages_path = "packages/tsserver-plugin-macroforge/package.json";
+        let packages_dist_path = "packages/tsserver-plugin-macroforge/dist/index.js";
 
-        let plugin_path = if worktree.read_text_file(&node_modules_path).is_ok() {
+        // Prefer a built dist/ if present in the monorepo; otherwise fall back to package roots
+        let plugin_path = if worktree.read_text_file(packages_dist_path).is_ok() {
+            format!("{}/packages/tsserver-plugin-macroforge/dist", root)
+        } else if worktree.read_text_file(&node_modules_path).is_ok() {
             format!("{}/node_modules/{}", root, TS_PLUGIN)
         } else if worktree.read_text_file(packages_path).is_ok() {
             format!("{}/packages/tsserver-plugin-macroforge", root)
@@ -28,7 +32,11 @@ impl MacroforgesTsExtension {
                         "enableForWorkspaceTypeScriptVersions": true,
                         "languages": [
                             "typescript",
-                            "typescriptreact"
+                            "typescriptreact",
+                            "javascript",
+                            "javascriptreact",
+                            "vue",
+                            "svelte"
                         ]
                     }]
                 }
@@ -79,7 +87,11 @@ mod tests {
                         "enableForWorkspaceTypeScriptVersions": true,
                         "languages": [
                             "typescript",
-                            "typescriptreact"
+                            "typescriptreact",
+                            "javascript",
+                            "javascriptreact",
+                            "vue",
+                            "svelte"
                         ]
                     }]
                 }
@@ -130,6 +142,10 @@ mod tests {
             .expect("languages should be array");
         assert!(languages.contains(&serde_json::json!("typescript")));
         assert!(languages.contains(&serde_json::json!("typescriptreact")));
+        assert!(languages.contains(&serde_json::json!("javascript")));
+        assert!(languages.contains(&serde_json::json!("javascriptreact")));
+        assert!(languages.contains(&serde_json::json!("vue")));
+        assert!(languages.contains(&serde_json::json!("svelte")));
     }
 
     #[test]

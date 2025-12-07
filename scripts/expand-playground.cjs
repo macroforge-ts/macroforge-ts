@@ -2,6 +2,19 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { expandSync } = require("../crates/macroforge_ts");
+const Module = require("node:module");
+
+// Ensure external macros resolve (e.g. @playground/macro used by demos)
+const extraNodePaths = [
+  path.join(__dirname, "..", "playground", "tests", "node_modules"),
+  path.join(__dirname, "..", "playground", "macro", "node_modules"),
+].filter(fs.existsSync);
+
+if (extraNodePaths.length > 0) {
+  const existing = process.env.NODE_PATH ? process.env.NODE_PATH.split(path.delimiter) : [];
+  process.env.NODE_PATH = [...extraNodePaths, ...existing].join(path.delimiter);
+  Module._initPaths();
+}
 
 const roots = [
   path.join(__dirname, "..", "playground", "svelte", "src", "lib", "demo"),
