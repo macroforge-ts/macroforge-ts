@@ -2,7 +2,8 @@ use std::env;
 use zed_extension_api::{self as zed, Command, LanguageServerId, Result, Worktree};
 
 const SVELTE_LS_PACKAGE: &str = "@macroforge/svelte-language-server";
-const SVELTE_LS_VERSION: &str = "0.1.5";
+const SVELTE_LS_VERSION: &str = "0.1.6";
+const MACROFORGE_PACKAGE: &str = "macroforge";
 
 struct SvelteMacroforgeExtension {
     cached_server_path: Option<String>,
@@ -40,6 +41,13 @@ impl SvelteMacroforgeExtension {
         let binary_installed = zed::npm_package_installed_version(binary_package)?;
         if binary_installed.is_none() {
             zed::npm_install_package(binary_package, SVELTE_LS_VERSION)?;
+        }
+
+        // Install macroforge explicitly at the root level so it can find the binary
+        // (npm may not properly install optionalDependencies when macroforge is a transitive dep)
+        let macroforge_installed = zed::npm_package_installed_version(MACROFORGE_PACKAGE)?;
+        if macroforge_installed.is_none() {
+            zed::npm_install_package(MACROFORGE_PACKAGE, SVELTE_LS_VERSION)?;
         }
 
         // Install the svelte language server (which depends on macroforge + typescript-plugin)
@@ -116,6 +124,6 @@ mod tests {
 
     #[test]
     fn test_svelte_ls_version_constant() {
-        assert_eq!(SVELTE_LS_VERSION, "0.1.5");
+        assert_eq!(SVELTE_LS_VERSION, "0.1.6");
     }
 }
