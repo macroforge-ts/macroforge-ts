@@ -1,14 +1,14 @@
-id = "macroforge"
-name = "Macroforge"
+id = "vtsls-macroforge"
+name = "VTSLS Macroforge"
 version = "0.1.0"
 schema_version = 1
 authors = ["macroforge contributors"]
-description = "TypeScript language server with @macroforge/typescript-plugin for compile-time macros."
-repository = "https://github.com/rymskip/macroforge"
+description = "VTSLS (VS Code TypeScript Language Server) with @macroforge/typescript-plugin for compile-time macros."
+repository = "https://github.com/rymskip/macroforge-ts"
 
 # Language server definition - wraps vtsls with macroforge plugin
-[language_servers.macroforge-ts]
-name = "Macroforge TypeScript"
+[language_servers.vtsls-macroforge]
+name = "VTSLS Macroforge"
 languages = ["TypeScript", "TSX", "JavaScript"]
 
 # Permissions

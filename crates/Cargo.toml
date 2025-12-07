@@ -1,7 +1,7 @@
 [workspace]
 members = [
     "macroforge_ts",
-    "extensions/macroforge",
+    "extensions/vtsls-macroforge",
     "extensions/svelte-macroforge",
     "macroforge_ts_syn",
     "macroforge_ts_quote",
@@ -10,7 +10,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.1.6"
+version = "0.1.7"
 edition = "2024"
 authors = ["macroforge contributors"]
 license = "MIT"

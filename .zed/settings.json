@@ -8,7 +8,7 @@
 					"arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
 				}
 			},
-			"language_servers": ["macroforge-ts", "eslint", "!biome"],
+			"language_servers": ["vtsls-macroforge", "eslint", "!biome"],
 			"code_actions_on_format": {
 				"source.fixAll.eslint": true
 			}
@@ -20,7 +20,7 @@
 					"arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
 				}
 			},
-			"language_servers": ["macroforge-ts", "!vtsls", "!typescript-language-server"],
+			"language_servers": ["vtsls-macroforge", "!vtsls", "!typescript-language-server"],
 			"code_actions_on_format": {
 				"source.fixAll.eslint": true
 			}
