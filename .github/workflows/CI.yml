@@ -204,6 +204,16 @@ jobs:
           npm publish --access public
         working-directory: packages/svelte-language-server
 
+      - name: Install vite-plugin dependencies
+        run: npm install
+        working-directory: packages/vite-plugin
+
+      - name: Build and publish @macroforge/vite-plugin
+        run: |
+          npm run build
+          npm publish --access public
+        working-directory: packages/vite-plugin
+
       # Publish Rust crates to crates.io
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
