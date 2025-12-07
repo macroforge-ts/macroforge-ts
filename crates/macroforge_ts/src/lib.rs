@@ -13,7 +13,29 @@ use swc_core::{
 // This is needed for the ts_macro_derive generated code
 extern crate self as macroforge_ts;
 
+// ============================================================================
+// Re-exports for Macro Authors
+// ============================================================================
+// These re-exports allow users to only depend on `macroforge_ts` in their
+// Cargo.toml instead of needing to add multiple dependencies.
+
+// Re-export crates using extern crate to avoid import conflicts
+pub extern crate ts_syn;
+pub extern crate ts_quote;
+pub extern crate ts_macro_derive;
+pub extern crate inventory;
+pub extern crate serde_json;
+pub extern crate napi;
+pub extern crate napi_derive;
+
+// Re-export swc_core and common modules (via ts_syn for version consistency)
+pub use ts_syn::swc_core;
+pub use ts_syn::swc_common;
+pub use ts_syn::swc_ecma_ast;
+
+// ============================================================================
 // Internal modules
+// ============================================================================
 pub mod host;
 
 // Re-export abi types from ts_syn
