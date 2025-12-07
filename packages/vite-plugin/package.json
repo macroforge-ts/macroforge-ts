@@ -1,19 +1,23 @@
 {
   "name": "@macroforge/vite-plugin",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.1.6",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rymskip/macroforge-ts.git"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "npm run build && node --test tests/**/*.test.js"
   },
   "dependencies": {
-    "macroforge": "file:../../crates/macroforge_ts"
+    "macroforge": "^0.1.6"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

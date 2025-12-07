@@ -78,6 +78,12 @@ updatePackageJson("packages/svelte-language-server/package.json", {
   "dependencies.@macroforge/typescript-plugin": `^${version}`,
 });
 
+// Update vite-plugin
+updatePackageJson("packages/vite-plugin/package.json", {
+  version,
+  "dependencies.macroforge": `^${version}`,
+});
+
 // Update macroforge Zed extension lib.rs
 const macroforgeLibRsPath = path.join(root, "crates/extensions/macroforge/src/lib.rs");
 let macroforgeLibRs = fs.readFileSync(macroforgeLibRsPath, "utf8");
