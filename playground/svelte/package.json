@@ -22,11 +22,11 @@
     "@sveltejs/adapter-auto": "^7.0.0",
     "@sveltejs/kit": "^2.49.0",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
-    "@macroforge/tsserver-plugin-macroforge": "file:../../packages/tsserver-plugin-macroforge",
+    "@macroforge/typescript-plugin": "file:../../packages/typescript-plugin",
     "svelte": "^5.43.8",
     "svelte-check": "^4.3.4",
     "typescript": "^5.9.3",
     "vite": "^7.2.2",
-    "vite-plugin-macroforge": "file:../../packages/vite-plugin-macroforge"
+    "@macroforge/vite-plugin": "file:../../packages/vite-plugin"
   }
 }

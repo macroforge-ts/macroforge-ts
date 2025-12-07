@@ -78,7 +78,7 @@ describe("service", () => {
       moduleResolution: ts.ModuleResolutionKind.Node10,
       plugins: [
         {
-          name: "@macroforge/tsserver-plugin-macroforge",
+          name: "@macroforge/typescript-plugin",
         },
       ],
       target: ts.ScriptTarget.ESNext,
@@ -245,7 +245,7 @@ describe("service", () => {
       noEmit: true,
       plugins: [
         {
-          name: "@macroforge/tsserver-plugin-macroforge",
+          name: "@macroforge/typescript-plugin",
         },
       ],
       skipLibCheck: true,
@@ -446,7 +446,7 @@ describe("service", () => {
       );
 
       return true;
-tsserver-plugin-macroforge    }
+    }
   });
 
   it("can watch extended tsconfig", async () => {

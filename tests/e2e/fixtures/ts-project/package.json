@@ -4,7 +4,7 @@
   "type": "module",
   "dependencies": {
     "@macroforge/macros": "file:../../../../packages/macros",
-    "@macroforge/tsserver-plugin-macroforge": "file:../../../../packages/tsserver-plugin-macroforge",
+    "@macroforge/typescript-plugin": "file:../../../../packages/typescript-plugin",
     "macroforge": "file:../../../../crates/macroforge_ts"
   },
   "devDependencies": {

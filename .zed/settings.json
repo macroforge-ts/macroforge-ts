@@ -55,17 +55,17 @@
 						"logVerbosity": "verbose",
 						"allowLocalPluginLoads": true,
 						"pluginProbeLocations": [
-							"/Users/jakoblochinski/Softworks/GitHub/macroforge-ts/packages/tsserver-plugin-macroforge/dist",
-							"/Users/jakoblochinski/Softworks/GitHub/macroforge-ts/packages/tsserver-plugin-macroforge"
+							"/Users/jakoblochinski/Softworks/GitHub/macroforge-ts/packages/typescript-plugin/dist",
+							"/Users/jakoblochinski/Softworks/GitHub/macroforge-ts/packages/typescript-plugin"
 						],
 						"plugins": [
 							{
-								"name": "/Users/jakoblochinski/Softworks/GitHub/macroforge-ts/packages/tsserver-plugin-macroforge/dist/index.js"
+								"name": "/Users/jakoblochinski/Softworks/GitHub/macroforge-ts/packages/typescript-plugin/dist/index.js"
 							}
 						],
 						"globalPlugins": [
 							{
-								"name": "/Users/jakoblochinski/Softworks/GitHub/macroforge-ts/packages/tsserver-plugin-macroforge/dist/index.js",
+								"name": "/Users/jakoblochinski/Softworks/GitHub/macroforge-ts/packages/typescript-plugin/dist/index.js",
 								"enableForWorkspaceTypeScriptVersions": true,
 								"languages": ["typescript", "typescriptreact", "javascript", "javascriptreact"]
 							}

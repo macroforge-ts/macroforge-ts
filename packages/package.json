@@ -4,9 +4,9 @@
   "type": "module",
   "private": true,
   "workspaces": [
-    "vite-plugin-macroforge",
-    "tsserver-plugin-macroforge",
-    "svelte-language-server-macroforge"
+    "vite-plugin",
+    "typescript-plugin",
+    "svelte-language-server"
   ],
   "devDependencies": {
     "@napi-rs/cli": "^3.4.1",

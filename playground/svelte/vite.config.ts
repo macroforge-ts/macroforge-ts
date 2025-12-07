@@ -1,6 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig, type PluginOption } from 'vite';
-import napiMacros from 'vite-plugin-macroforge';
+import napiMacros from '@macroforge/vite-plugin';
 
 const macrosPlugin = napiMacros({
 	typesOutputDir: '.macroforge/types',

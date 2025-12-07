@@ -114,7 +114,7 @@ enum TsconfigSvelteDiagnostics {
 }
 
 const maxProgramSizeForNonTsFiles = 20 * 1024 * 1024; // 20 MB
-const TS_MACROS_PLUGIN_NAME = '@macroforge/tsserver-plugin-macroforge';
+const TS_MACROS_PLUGIN_NAME = '@macroforge/typescript-plugin';
 const services = new FileMap<Promise<LanguageServiceContainer>>();
 const serviceSizeMap = new FileMap<number>();
 const configWatchers = new FileMap<ts.FileWatcher>();
@@ -351,7 +351,7 @@ async function createLanguageService(
     const macroforgeConfig: MacroforgeAugmentationConfig = createMacroforgeAugmentationConfig(
         macroforgePluginSettings && Object.keys(macroforgePluginSettings).length > 0
             ? macroforgePluginSettings
-            : (raw as Record<string, unknown>)?.['tsserver-plugin-macroforge']
+            : (raw as Record<string, unknown>)?.['typescript-plugin']
     );
     ensureMacroforgesPlugin(
         compilerOptions,

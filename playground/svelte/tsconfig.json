@@ -15,8 +15,8 @@
 		"moduleResolution": "bundler",
 		"plugins": [
 			{
-				"name": "@macroforge/tsserver-plugin-macroforge",
-				"path": "../../packages/tsserver-plugin-macroforge",
+				"name": "@macroforge/typescript-plugin",
+				"path": "../../packages/typescript-plugin",
 				"macroNames": ["Derive"],
 				"mixinModule": "@macroforge/macros",
 			}

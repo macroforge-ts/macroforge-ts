@@ -7,7 +7,7 @@ import fs from 'node:fs';
 
 const ZED_VTSLS = '/Users/jakoblochinski/Library/Application Support/Zed/languages/vtsls/node_modules/@vtsls/language-server/bin/vtsls.js';
 const REPO_ROOT = path.resolve(import.meta.dirname, '../..');
-const PLUGIN_PATH = path.join(REPO_ROOT, 'packages', 'tsserver-plugin-macroforge', 'dist', 'index.js');
+const PLUGIN_PATH = path.join(REPO_ROOT, 'packages', 'typescript-plugin', 'dist', 'index.js');
 const LOG_DIR = path.join(REPO_ROOT, 'tmp-zed-vtsls-logs');
 
 // Create log directory
@@ -49,8 +49,8 @@ const initParams = {
         logDirectory: LOG_DIR,
         logVerbosity: 'verbose',
         globalPlugins: [{
-          name: '@macroforge/tsserver-plugin-macroforge',
-          location: path.join(REPO_ROOT, 'packages', 'tsserver-plugin-macroforge'),
+          name: '@macroforge/typescript-plugin',
+          location: path.join(REPO_ROOT, 'packages', 'typescript-plugin'),
           languages: ['typescript', 'typescriptreact'],
           enableForWorkspaceTypeScriptVersions: true,
         }],
@@ -86,8 +86,8 @@ server.stdout.on('data', (data) => {
               logDirectory: LOG_DIR,
               logVerbosity: 'verbose',
               globalPlugins: [{
-                name: '@macroforge/tsserver-plugin-macroforge',
-                location: path.join(REPO_ROOT, 'packages', 'tsserver-plugin-macroforge'),
+                name: '@macroforge/typescript-plugin',
+                location: path.join(REPO_ROOT, 'packages', 'typescript-plugin'),
                 languages: ['typescript', 'typescriptreact'],
                 enableForWorkspaceTypeScriptVersions: true,
               }],
