@@ -141,9 +141,6 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-
       - name: Install napi-cli
         run: npm install -g @napi-rs/cli
 
@@ -160,17 +157,11 @@ jobs:
         run: ls -laR npm/
         working-directory: crates/macroforge_ts
 
-      - name: Publish macroforge
-        run: npm publish --provenance --access public
-        working-directory: crates/macroforge_ts
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish platform packages
+      - name: Publish platform packages first
         run: |
-          napi prepublish --npm-dir npm
           for dir in npm/*/; do
             if [ -d "$dir" ]; then
+              echo "Publishing $dir"
               cd "$dir"
               npm publish --provenance --access public || true
               cd ../..
@@ -180,14 +171,20 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Publish macroforge
+        run: npm publish --provenance --access public
+        working-directory: crates/macroforge_ts
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Install plugin dependencies
-        run: bun install
-        working-directory: packages/typescript-plugin
+        run: npm install
+        working-directory: packages/tsserver-plugin-macroforge
 
       - name: Build and publish @macroforge/typescript-plugin
         run: |
-          bun run build
+          npm run build
           npm publish --provenance --access public
-        working-directory: packages/typescript-plugin
+        working-directory: packages/tsserver-plugin-macroforge
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
