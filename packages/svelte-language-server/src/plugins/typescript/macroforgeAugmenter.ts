@@ -1,5 +1,16 @@
 import ts from 'typescript';
-import { expandSync } from 'macroforge';
+import { Logger } from '../../logger';
+
+let expandSync: typeof import('macroforge').expandSync | undefined;
+let macroforgeLoadError: Error | undefined;
+
+try {
+    expandSync = require('macroforge').expandSync;
+    Logger.log('macroforge native module loaded successfully');
+} catch (e) {
+    macroforgeLoadError = e as Error;
+    Logger.error('Failed to load macroforge native module:', e);
+}
 
 const DEFAULT_MACRO_NAMES = ['Derive'];
 const DEFAULT_MIXIN_TYPES = ['MacroDebug', 'MacroJSON'];
@@ -49,6 +60,16 @@ export function augmentWithMacroforge(
         return { types: null, diagnostics: [] };
     }
 
+    // Check if macroforge module loaded successfully
+    if (!expandSync) {
+        if (macroforgeLoadError) {
+            Logger.debug(
+                `Skipping macroforge expansion for ${fileName}: native module not loaded (${macroforgeLoadError.message})`
+            );
+        }
+        return { types: null, diagnostics: [] };
+    }
+
     // Basic check if macro is used to avoid invoking rust for every file
     // This is a heuristic, but expand_sync parses anyway so it's safe
     if (!sourceText.includes('@')) {
@@ -62,12 +83,25 @@ export function augmentWithMacroforge(
             diagnostics: result.diagnostics
         };
     } catch (e) {
-        // Handle generic failures (e.g. host initialization failed)
-        // We could create a diagnostic here if critical
+        Logger.error(`macroforge expansion failed for ${fileName}:`, e);
         return { types: null, diagnostics: [] };
     }
 }
 
 function shouldProcess(fileName: string) {
     return FILE_EXTENSIONS.some((ext) => fileName.endsWith(ext));
+}
+
+/**
+ * Check if macroforge native module is available
+ */
+export function isMacroforgeAvailable(): boolean {
+    return expandSync !== undefined;
+}
+
+/**
+ * Get the macroforge load error if any
+ */
+export function getMacroforgeLoadError(): Error | undefined {
+    return macroforgeLoadError;
 }
