@@ -31,30 +31,22 @@ jobs:
         settings:
           - host: macos-latest
             target: x86_64-apple-darwin
-            build: npx napi build --platform --release --manifest-path crates/macroforge_ts/Cargo.toml --js crates/macroforge_ts/index.js --dts crates/macroforge_ts/index.d.ts --target x86_64-apple-darwin
           - host: macos-latest
             target: aarch64-apple-darwin
-            build: npx napi build --platform --release --manifest-path crates/macroforge_ts/Cargo.toml --js crates/macroforge_ts/index.js --dts crates/macroforge_ts/index.d.ts --target aarch64-apple-darwin
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            build: npx napi build --platform --release --manifest-path crates/macroforge_ts/Cargo.toml --js crates/macroforge_ts/index.js --dts crates/macroforge_ts/index.d.ts --target x86_64-unknown-linux-gnu
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            build: |
-              sudo apt-get update
-              sudo apt-get install -y gcc-aarch64-linux-gnu
-              export CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc
-              export CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++
-              npx napi build --platform --release --manifest-path crates/macroforge_ts/Cargo.toml --js crates/macroforge_ts/index.js --dts crates/macroforge_ts/index.d.ts --target aarch64-unknown-linux-gnu
           - host: windows-latest
             target: x86_64-pc-windows-msvc
-            build: npx napi build --platform --release --manifest-path crates/macroforge_ts/Cargo.toml --js crates/macroforge_ts/index.js --dts crates/macroforge_ts/index.d.ts --target x86_64-pc-windows-msvc
           - host: windows-latest
             target: aarch64-pc-windows-msvc
-            build: npx napi build --platform --release --manifest-path crates/macroforge_ts/Cargo.toml --js crates/macroforge_ts/index.js --dts crates/macroforge_ts/index.d.ts --target aarch64-pc-windows-msvc
 
     name: Build - ${{ matrix.settings.target }}
     runs-on: ${{ matrix.settings.host }}
+    defaults:
+      run:
+        working-directory: crates/macroforge_ts
     steps:
       - uses: actions/checkout@v4
 
@@ -68,12 +60,21 @@ jobs:
         with:
           targets: ${{ matrix.settings.target }}
 
+      - name: Install cross-compile tools (Linux arm64)
+        if: matrix.settings.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+        working-directory: .
+
       - name: Install napi-cli
         run: npm install -g @napi-rs/cli
 
       - name: Build native module
-        run: ${{ matrix.settings.build }}
-        shell: bash
+        run: napi build --platform --release --target ${{ matrix.settings.target }}
+        env:
+          CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
+          CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -144,22 +145,22 @@ jobs:
           path: artifacts
 
       - name: Move artifacts to npm packages
-        run: npx napi artifacts --cwd crates/macroforge_ts --npm-dir npm
+        run: napi artifacts --npm-dir npm
+        working-directory: crates/macroforge_ts
 
       - name: List packages
-        run: ls -laR crates/macroforge_ts/npm/
+        run: ls -laR npm/
+        working-directory: crates/macroforge_ts
 
       - name: Publish macroforge
-        run: |
-          cd crates/macroforge_ts
-          npm publish --provenance --access public
+        run: npm publish --provenance --access public
+        working-directory: crates/macroforge_ts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish platform packages
         run: |
-          cd crates/macroforge_ts
-          npx napi prepublish --npm-dir npm
+          napi prepublish --npm-dir npm
           for dir in npm/*/; do
             if [ -d "$dir" ]; then
               cd "$dir"
@@ -167,6 +168,7 @@ jobs:
               cd ../..
             fi
           done
+        working-directory: crates/macroforge_ts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -176,8 +178,8 @@ jobs:
 
       - name: Build and publish @macroforge/typescript-plugin
         run: |
-          cd packages/tsserver-plugin-macroforge
           bun run build
           npm publish --provenance --access public
+        working-directory: packages/tsserver-plugin-macroforge
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
