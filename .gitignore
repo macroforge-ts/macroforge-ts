@@ -27,5 +27,6 @@ src/macros/generated/
 
 *.node
 *.wasm
+*.zip
 
 tmp-vtsls-logs

@@ -168,7 +168,7 @@ jobs:
         working-directory: crates/macroforge_ts
 
       - name: Move artifacts to npm packages
-        run: napi artifacts --npm-dir npm --artifacts-dir artifacts
+        run: napi artifacts --npm-dir npm --build-output-dir artifacts
         working-directory: crates/macroforge_ts
 
       - name: List packages
