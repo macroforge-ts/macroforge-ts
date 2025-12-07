@@ -109,13 +109,13 @@ jobs:
         run: |
           cd crates/macroforge_ts
           npm link
-          cd ../../packages/tsserver-plugin-macroforge
+          cd ../../packages/typescript-plugin
           npm link macroforge
           npm install --ignore-scripts
 
       - name: Build plugin
         run: npm run build
-        working-directory: packages/tsserver-plugin-macroforge
+        working-directory: packages/typescript-plugin
 
       - name: Run Rust tests
         run: cargo test --workspace
@@ -144,7 +144,7 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
+          path: crates/macroforge_ts/artifacts
 
       - name: Move artifacts to npm packages
         run: napi artifacts --npm-dir npm
@@ -176,12 +176,12 @@ jobs:
 
       - name: Install plugin dependencies
         run: bun install
-        working-directory: packages/tsserver-plugin-macroforge
+        working-directory: packages/typescript-plugin
 
       - name: Build and publish @macroforge/typescript-plugin
         run: |
           bun run build
           npm publish --provenance --access public
-        working-directory: packages/tsserver-plugin-macroforge
+        working-directory: packages/typescript-plugin
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
