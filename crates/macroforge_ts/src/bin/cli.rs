@@ -1,10 +1,10 @@
 use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
+use macroforge_ts::host::{MacroExpander, MacroExpansion};
 use std::{
     fs,
     path::{Path, PathBuf},
 };
-use macroforge_ts::host::{MacroExpander, MacroExpansion};
 
 #[derive(Parser)]
 #[command(name = "macroforge", about = "TypeScript macro development utilities")]

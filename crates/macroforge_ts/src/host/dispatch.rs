@@ -1,8 +1,8 @@
 //! Macro dispatch and execution
 
 use crate::host::MacroRegistry;
-use ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult};
 use ts_syn::TsStream;
+use ts_syn::abi::{Diagnostic, DiagnosticLevel, MacroContextIR, MacroResult};
 
 /// Dispatches macro calls to registered macro implementations
 pub struct MacroDispatcher {
