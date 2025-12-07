@@ -35,8 +35,8 @@ tmp/
 temp/
 *.tmp
 
-# Diagnostics
-diagnostics_logs/
+# Temporary/diagnostics
+.tmp/
 
 # Generated types
 .macroforge/
