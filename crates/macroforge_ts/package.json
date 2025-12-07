@@ -1,15 +1,34 @@
 {
   "name": "macroforge",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "description": "TypeScript macro expansion engine powered by Rust and SWC",
   "main": "index.js",
   "types": "index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rymskip/macroforge.git"
+  },
+  "keywords": [
+    "typescript",
+    "macros",
+    "derive",
+    "codegen",
+    "swc"
+  ],
+  "author": "macroforge contributors",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rymskip/macroforge/issues"
+  },
+  "homepage": "https://github.com/rymskip/macroforge#readme",
   "napi": {
     "binaryName": "macroforge",
     "triples": {}
   },
   "files": [
     "index.d.ts",
-    "index.js"
+    "index.js",
+    "*.node"
   ],
   "engines": {
     "node": ">= 18"
