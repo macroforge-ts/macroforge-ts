@@ -6,7 +6,7 @@
   "types": "index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rymskip/macroforge.git"
+    "url": "git+https://github.com/rymskip/macroforge-ts.git"
   },
   "keywords": [
     "typescript",
@@ -18,9 +18,9 @@
   "author": "macroforge contributors",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rymskip/macroforge/issues"
+    "url": "https://github.com/rymskip/macroforge-ts/issues"
   },
-  "homepage": "https://github.com/rymskip/macroforge#readme",
+  "homepage": "https://github.com/rymskip/macroforge-ts#readme",
   "napi": {
     "binaryName": "macroforge",
     "packageName": "@macroforge/bin",
