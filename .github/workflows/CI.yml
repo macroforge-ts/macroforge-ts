@@ -144,8 +144,10 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org
+          node-version: 24
+
+      - name: Verify npm version
+        run: npm --version
 
       - name: Install napi-cli
         run: npm install -g @napi-rs/cli
@@ -173,13 +175,13 @@ jobs:
           for dir in npm/*/; do
             if [ -d "$dir" ]; then
               echo "Publishing $dir"
-              npm publish "$dir" --provenance --access public || true
+              npm publish "$dir" --access public || true
             fi
           done
         working-directory: crates/macroforge_ts
 
       - name: Publish macroforge
-        run: npm publish --provenance --access public
+        run: npm publish --access public
         working-directory: crates/macroforge_ts
 
       - name: Install plugin dependencies
@@ -189,5 +191,5 @@ jobs:
       - name: Build and publish @macroforge/typescript-plugin
         run: |
           npm run build
-          npm publish --provenance --access public
+          npm publish --access public
         working-directory: packages/typescript-plugin
