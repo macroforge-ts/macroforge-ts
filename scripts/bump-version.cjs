@@ -84,19 +84,19 @@ updatePackageJson("packages/vite-plugin/package.json", {
   "dependencies.macroforge": `^${version}`,
 });
 
-// Update macroforge Zed extension lib.rs
-const macroforgeLibRsPath = path.join(root, "crates/extensions/macroforge/src/lib.rs");
-let macroforgeLibRs = fs.readFileSync(macroforgeLibRsPath, "utf8");
-macroforgeLibRs = macroforgeLibRs.replace(
+// Update vtsls-macroforge Zed extension lib.rs
+const vtslsLibRsPath = path.join(root, "crates/extensions/vtsls-macroforge/src/lib.rs");
+let vtslsLibRs = fs.readFileSync(vtslsLibRsPath, "utf8");
+vtslsLibRs = vtslsLibRs.replace(
   /const TS_PLUGIN_VERSION: &str = ".*";/,
   `const TS_PLUGIN_VERSION: &str = "${version}";`
 );
-macroforgeLibRs = macroforgeLibRs.replace(
+vtslsLibRs = vtslsLibRs.replace(
   /const MACROFORGE_VERSION: &str = ".*";/,
   `const MACROFORGE_VERSION: &str = "${version}";`
 );
-fs.writeFileSync(macroforgeLibRsPath, macroforgeLibRs);
-console.log(`  Updated crates/extensions/macroforge/src/lib.rs`);
+fs.writeFileSync(vtslsLibRsPath, vtslsLibRs);
+console.log(`  Updated crates/extensions/vtsls-macroforge/src/lib.rs`);
 
 // Update svelte-macroforge Zed extension lib.rs
 const svelteLibRsPath = path.join(root, "crates/extensions/svelte-macroforge/src/lib.rs");

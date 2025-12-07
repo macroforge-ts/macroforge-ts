@@ -2,17 +2,17 @@ use std::env;
 use zed_extension_api::{self as zed, serde_json, Command, LanguageServerId, Result, Worktree};
 
 const TS_PLUGIN: &str = "@macroforge/typescript-plugin";
-const TS_PLUGIN_VERSION: &str = "0.1.6";
+const TS_PLUGIN_VERSION: &str = "0.1.7";
 const VTSLS_PACKAGE: &str = "@vtsls/language-server";
 const VTSLS_VERSION: &str = "0.2.6";
-const MACROFORGE_VERSION: &str = "0.1.6";
+const MACROFORGE_VERSION: &str = "0.1.7";
 
-struct MacroforgeExtension {
+struct VtslsMacroforgeExtension {
     cached_vtsls_path: Option<String>,
     cached_plugin_path: Option<String>,
 }
 
-impl MacroforgeExtension {
+impl VtslsMacroforgeExtension {
     /// Ensure vtsls is installed and return the path to the binary
     fn ensure_vtsls_installed(&mut self) -> Result<String> {
         if let Some(path) = &self.cached_vtsls_path {
@@ -93,7 +93,7 @@ impl MacroforgeExtension {
     }
 }
 
-impl zed::Extension for MacroforgeExtension {
+impl zed::Extension for VtslsMacroforgeExtension {
     fn new() -> Self {
         Self {
             cached_vtsls_path: None,
@@ -106,17 +106,7 @@ impl zed::Extension for MacroforgeExtension {
         language_server_id: &LanguageServerId,
         _worktree: &Worktree,
     ) -> Result<Command> {
-        // Debug: write to file to confirm this function is called
-        if let Ok(dir) = env::current_dir() {
-            let debug_file = dir.join("command_called.txt");
-            let _ = std::fs::write(&debug_file, format!(
-                "language_server_command called for: {}\nTime: {:?}\n",
-                language_server_id.as_ref(),
-                std::time::SystemTime::now()
-            ));
-        }
-
-        if language_server_id.as_ref() != "macroforge-ts" {
+        if language_server_id.as_ref() != "vtsls-macroforge" {
             return Err(format!("Unknown language server: {}", language_server_id.as_ref()));
         }
 
@@ -134,36 +124,13 @@ impl zed::Extension for MacroforgeExtension {
         language_server_id: &LanguageServerId,
         _worktree: &Worktree,
     ) -> Result<Option<serde_json::Value>> {
-        // Debug: write to a file to confirm this function is called
-        let ext_dir = env::current_dir().ok();
-        if let Some(dir) = &ext_dir {
-            let debug_file = dir.join("init_options_called.txt");
-            let _ = std::fs::write(&debug_file, format!(
-                "Called for: {}\nTime: {:?}\n",
-                language_server_id.as_ref(),
-                std::time::SystemTime::now()
-            ));
-        }
-
-        if language_server_id.as_ref() != "macroforge-ts" {
+        if language_server_id.as_ref() != "vtsls-macroforge" {
             return Ok(None);
         }
 
         let plugin_location = self.ensure_plugin_installed()?;
 
-        // Get the log directory path (in extension work dir)
-        let ext_dir = env::current_dir()
-            .map_err(|e| format!("Failed to get current directory: {}", e))?;
-        let log_dir = ext_dir.join("tsserver-logs");
-        let log_dir_str = log_dir.to_str().unwrap_or("/tmp/tsserver-logs");
-
         let init_options = serde_json::json!({
-            "typescript": {
-                "tsserver": {
-                    "logDirectory": log_dir_str,
-                    "logVerbosity": "verbose"
-                }
-            },
             "vtsls": {
                 "tsserver": {
                     "globalPlugins": [{
@@ -182,20 +149,15 @@ impl zed::Extension for MacroforgeExtension {
             }
         });
 
-        // Debug: write the init options to a file
-        let debug_file = ext_dir.join("init_options_value.json");
-        let _ = std::fs::write(&debug_file, serde_json::to_string_pretty(&init_options).unwrap_or_default());
-
         Ok(Some(init_options))
     }
 
     fn language_server_workspace_configuration(
         &mut self,
         language_server_id: &LanguageServerId,
-        worktree: &Worktree,
+        _worktree: &Worktree,
     ) -> Result<Option<serde_json::Value>> {
-        // vtsls might need settings via workspace configuration too
-        if language_server_id.as_ref() != "macroforge-ts" {
+        if language_server_id.as_ref() != "vtsls-macroforge" {
             return Ok(None);
         }
 
@@ -222,7 +184,7 @@ impl zed::Extension for MacroforgeExtension {
     }
 }
 
-zed::register_extension!(MacroforgeExtension);
+zed::register_extension!(VtslsMacroforgeExtension);
 
 #[cfg(test)]
 mod tests {
@@ -231,7 +193,7 @@ mod tests {
 
     #[test]
     fn test_extension_can_be_instantiated() {
-        let _ext = MacroforgeExtension::new();
+        let _ext = VtslsMacroforgeExtension::new();
     }
 
     #[test]

@@ -917,15 +917,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "34080505efa8e45a4b816c349525ebe327ceaa8559756f0356cba97ef3bf7432"
 
 [[package]]
-name = "macroforge"
-version = "0.1.0"
-dependencies = [
- "zed_extension_api",
-]
-
-[[package]]
 name = "macroforge_ts"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "anyhow",
  "clap",
@@ -946,7 +939,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_macros"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "convert_case 0.6.0",
  "proc-macro2",
@@ -956,7 +949,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_quote"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "convert_case 0.6.0",
  "proc-macro2",
@@ -966,7 +959,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_syn"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "serde",
  "swc_core",
@@ -1998,6 +1991,13 @@ name = "vsimd"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c3082ca00d5a5ef149bb8b555a72ae84c9c59f7250f013ac822ac2e49b19c64"
+
+[[package]]
+name = "vtsls-macroforge"
+version = "0.1.0"
+dependencies = [
+ "zed_extension_api",
+]
 
 [[package]]
 name = "wasip2"
