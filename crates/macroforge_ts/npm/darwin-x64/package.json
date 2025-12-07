@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/bin-darwin-x64",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "cpu": [
     "x64"
   ],
@@ -17,17 +17,17 @@
     "swc"
   ],
   "author": "macroforge contributors",
-  "homepage": "https://github.com/rymskip/macroforge#readme",
+  "homepage": "https://github.com/rymskip/macroforge-ts#readme",
   "license": "MIT",
   "engines": {
     "node": ">= 18"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rymskip/macroforge.git"
+    "url": "git+https://github.com/rymskip/macroforge-ts.git"
   },
   "bugs": {
-    "url": "https://github.com/rymskip/macroforge/issues"
+    "url": "https://github.com/rymskip/macroforge-ts/issues"
   },
   "os": [
     "darwin"
