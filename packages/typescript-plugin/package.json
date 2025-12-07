@@ -29,8 +29,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist",
-    "test": "bun run build && node --test tests/**/*.test.js",
-    "prepublishOnly": "bun run clean && bun run build"
+    "test": "bun run build && node --test tests/**/*.test.js"
   },
   "dependencies": {
     "macroforge": "^0.1.1"
