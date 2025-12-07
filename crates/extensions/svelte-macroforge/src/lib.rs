@@ -2,7 +2,7 @@ use std::env;
 use zed_extension_api::{self as zed, Command, LanguageServerId, Result, Worktree};
 
 const SVELTE_LS_PACKAGE: &str = "@macroforge/svelte-language-server";
-const SVELTE_LS_VERSION: &str = "0.1.3";
+const SVELTE_LS_VERSION: &str = "0.1.4";
 
 struct SvelteMacroforgeExtension {
     cached_server_path: Option<String>,
