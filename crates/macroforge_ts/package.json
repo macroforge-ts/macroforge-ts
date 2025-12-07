@@ -23,14 +23,33 @@
   "homepage": "https://github.com/rymskip/macroforge#readme",
   "napi": {
     "binaryName": "macroforge",
-    "triples": {}
+    "packageName": "@macroforge/bin",
+    "targets": [
+      "x86_64-apple-darwin",
+      "aarch64-apple-darwin",
+      "x86_64-unknown-linux-gnu",
+      "aarch64-unknown-linux-gnu",
+      "x86_64-pc-windows-msvc",
+      "aarch64-pc-windows-msvc"
+    ]
   },
   "files": [
     "index.d.ts",
-    "index.js",
-    "*.node"
+    "index.js"
   ],
   "engines": {
     "node": ">= 18"
+  },
+  "optionalDependencies": {
+    "@macroforge/bin-darwin-x64": "0.1.0",
+    "@macroforge/bin-darwin-arm64": "0.1.0",
+    "@macroforge/bin-linux-x64-gnu": "0.1.0",
+    "@macroforge/bin-linux-arm64-gnu": "0.1.0",
+    "@macroforge/bin-win32-x64-msvc": "0.1.0",
+    "@macroforge/bin-win32-arm64-msvc": "0.1.0"
+  },
+  "scripts": {
+    "artifacts": "napi artifacts --npm-dir npm",
+    "prepublishOnly": "napi prepublish -t npm --npm-dir npm"
   }
 }
