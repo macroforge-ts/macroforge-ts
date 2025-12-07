@@ -60,6 +60,12 @@ jobs:
         with:
           targets: ${{ matrix.settings.target }}
 
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: crates
+          shared-key: ${{ matrix.settings.target }}
+
       - name: Install cross-compile tools (Linux arm64)
         if: matrix.settings.target == 'aarch64-unknown-linux-gnu'
         run: |
