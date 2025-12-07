@@ -4,23 +4,20 @@ version = "0.0.0"
 edition = "2024"
 publish = false
 
+[package.metadata.cargo-machete]
+# napi is required: napi_derive::napi generates code referencing ::napi
+ignored = ["napi"]
+
 [lib]
 name = "playground_macros"
 crate-type = ["rlib", "cdylib"]
 
 [dependencies]
-napi = { version = "3.5.2", features = ["napi8", "compat-mode", "napi5"] }
-napi-derive = { version = "3.3.3", features = ["compat-mode"] }
+# Core macro framework - re-exports ts_syn, ts_quote, ts_macro_derive, inventory, serde_json
 macroforge_ts = { path = "../../crates/macroforge_ts" }
-ts_syn = { path = "../../crates/ts_syn" }
-ts_quote = { path = "../../crates/ts_quote" }
-swc_core = { version = "48", default-features = false, features = [
-  "common",
-  "ecma_ast",
-] }
-inventory = "0.3"
-serde_json = "1.0"
-ts_macro_derive = { path = "../../crates/ts_macro_derive" }
+# NAPI deps required directly (napi_derive generates ::napi references)
+napi = { version = "3.5.2", features = ["napi8", "compat-mode"] }
+napi-derive = "3.3.3"
 
 [build-dependencies]
 napi-build = "2.3.1"

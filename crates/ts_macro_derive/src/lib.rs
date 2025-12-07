@@ -66,12 +66,12 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
     );
     let features_args_type = features_args_type_literal();
     let main_macro_napi_stub = quote! {
-        #[::napi_derive::napi(
+        #[macroforge_ts::napi_derive::napi(
             js_name = #macro_name,
             ts_return_type = "ClassDecorator",
             ts_args_type = #features_args_type
         )]
-        pub fn #main_macro_stub_fn_ident() -> ::napi::Result<()> {
+        pub fn #main_macro_stub_fn_ident() -> macroforge_ts::napi::Result<()> {
             // This stub function does nothing at runtime; its purpose is purely for TypeScript import resolution.
             Ok(())
         }
@@ -89,25 +89,25 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
     let run_macro_napi = quote! {
         /// Run this macro with the given context
         /// Called by the TS plugin to execute macro expansion
-        #[::napi_derive::napi(js_name = #run_macro_js_name_lit)]
-        pub fn #run_macro_fn_ident(context_json: String) -> ::napi::Result<String> {
+        #[macroforge_ts::napi_derive::napi(js_name = #run_macro_js_name_lit)]
+        pub fn #run_macro_fn_ident(context_json: String) -> macroforge_ts::napi::Result<String> {
             use macroforge_ts::host::Macroforge;
 
             // Parse the context from JSON
-            let ctx: ts_syn::MacroContextIR = serde_json::from_str(&context_json)
-                .map_err(|e| ::napi::Error::new(::napi::Status::InvalidArg, format!("Invalid context JSON: {}", e)))?;
+            let ctx: macroforge_ts::ts_syn::MacroContextIR = macroforge_ts::serde_json::from_str(&context_json)
+                .map_err(|e| macroforge_ts::napi::Error::new(macroforge_ts::napi::Status::InvalidArg, format!("Invalid context JSON: {}", e)))?;
 
             // Create TsStream from context
-            let input = ts_syn::TsStream::with_context(&ctx.target_source, &ctx.file_name, ctx.clone())
-                .map_err(|e| ::napi::Error::new(::napi::Status::GenericFailure, format!("Failed to create TsStream: {:?}", e)))?;
+            let input = macroforge_ts::ts_syn::TsStream::with_context(&ctx.target_source, &ctx.file_name, ctx.clone())
+                .map_err(|e| macroforge_ts::napi::Error::new(macroforge_ts::napi::Status::GenericFailure, format!("Failed to create TsStream: {:?}", e)))?;
 
             // Run the macro
             let macro_impl = #struct_ident;
             let result = macro_impl.run(input);
 
             // Serialize result to JSON
-            serde_json::to_string(&result)
-                .map_err(|e| ::napi::Error::new(::napi::Status::GenericFailure, format!("Failed to serialize result: {}", e)))
+            macroforge_ts::serde_json::to_string(&result)
+                .map_err(|e| macroforge_ts::napi::Error::new(macroforge_ts::napi::Status::GenericFailure, format!("Failed to serialize result: {}", e)))
         }
     };
 
@@ -121,13 +121,13 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
                 #macro_name
             }
 
-            fn kind(&self) -> ts_syn::MacroKind {
+            fn kind(&self) -> macroforge_ts::ts_syn::MacroKind {
                 #kind_expr
             }
 
-            fn run(&self, input: ts_syn::TsStream) -> ts_syn::MacroResult {
+            fn run(&self, input: macroforge_ts::ts_syn::TsStream) -> macroforge_ts::ts_syn::MacroResult {
                 match #fn_ident(input) {
-                    Ok(stream) => ts_syn::TsStream::into_result(stream),
+                    Ok(stream) => macroforge_ts::ts_syn::TsStream::into_result(stream),
                     Err(err) => err.into(),
                 }
             }
@@ -160,7 +160,7 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
                 decorators: #decorator_array_ident,
             };
 
-        inventory::submit! {
+        macroforge_ts::inventory::submit! {
             macroforge_ts::host::derived::DerivedMacroRegistration {
                 descriptor: &#descriptor_ident
             }
@@ -317,12 +317,12 @@ fn generate_decorator_stub(
 
     quote! {
         #doc_comment
-        #[::napi_derive::napi(
+        #[macroforge_ts::napi_derive::napi(
             js_name = #js_name,
             ts_args_type = #decorator_args_type,
             ts_return_type = "PropertyDecorator"
         )]
-        pub fn #fn_ident() -> ::napi::Result<()> {
+        pub fn #fn_ident() -> macroforge_ts::napi::Result<()> {
             Ok(())
         }
     }
@@ -339,9 +339,9 @@ enum MacroKindOption {
 impl MacroKindOption {
     fn as_tokens(&self) -> TokenStream2 {
         match self {
-            MacroKindOption::Derive => quote! { ts_syn::MacroKind::Derive },
-            MacroKindOption::Attribute => quote! { ts_syn::MacroKind::Attribute },
-            MacroKindOption::Call => quote! { ts_syn::MacroKind::Call },
+            MacroKindOption::Derive => quote! { macroforge_ts::ts_syn::MacroKind::Derive },
+            MacroKindOption::Attribute => quote! { macroforge_ts::ts_syn::MacroKind::Attribute },
+            MacroKindOption::Call => quote! { macroforge_ts::ts_syn::MacroKind::Call },
         }
     }
 

@@ -468,7 +468,7 @@ pub fn ts_template(input: TokenStream) -> TokenStream {
     let output = quote::quote! {
         {
             let __ts_code = #string_builder;
-            ts_syn::TsStream::from_string(__ts_code)
+            macroforge_ts::ts_syn::TsStream::from_string(__ts_code)
         }
     };
 
@@ -516,7 +516,7 @@ fn generate_scoped_template(input: TokenStream2, marker: &str) -> TokenStream {
         {
             let mut __ts_code = String::from(#marker);
             __ts_code.push_str(&#string_builder);
-            ts_syn::TsStream::from_string(__ts_code)
+            macroforge_ts::ts_syn::TsStream::from_string(__ts_code)
         }
     };
 
