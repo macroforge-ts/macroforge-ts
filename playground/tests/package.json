@@ -1,5 +1,6 @@
 {
   "name": "tests",
+  "type": "module",
   "private": true,
   "devDependencies": {
     "@types/bun": "latest",
@@ -11,6 +12,7 @@
   "dependencies": {
     "vite": "^7.2.6",
     "macroforge": "file:../../crates/macroforge_ts",
-    "@playground/macro": "file:../macro"
+    "@playground/macro": "file:../macro",
+    "@macroforge/tsserver-plugin-macroforge": "file:../../packages/tsserver-plugin-macroforge"
   }
 }

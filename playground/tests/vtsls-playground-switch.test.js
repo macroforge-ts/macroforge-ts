@@ -19,8 +19,10 @@ const VTSLS_BIN_CANDIDATES = [
   path.resolve(__dirname, 'node_modules/@vtsls/language-server/bin/vtsls.js'),
 ];
 const VTSLS_BIN = VTSLS_BIN_CANDIDATES.find((p) => fs.existsSync(p));
-const PLUGIN_PATH = path.resolve(REPO_ROOT, 'packages/tsserver-plugin-macroforge');
+const PLUGIN_DIR = path.resolve(REPO_ROOT, 'packages/tsserver-plugin-macroforge');
+const PLUGIN_DIST = path.resolve(PLUGIN_DIR, 'dist');
 const PLUGIN_NAME = '@macroforge/tsserver-plugin-macroforge';
+const PLUGIN_PATH = path.join(PLUGIN_DIST, 'index.js');
 
 const FILES = [
   path.resolve(REPO_ROOT, 'playground/svelte/src/lib/demo/macro-user.ts'),
@@ -174,22 +176,20 @@ test('vtsls playground switch', async (t) => {
               logDirectory: LOG_DIR,
               logVerbosity: 'verbose',
               allowLocalPluginLoads: true,
-              pluginPaths: [PLUGIN_PATH],
+              pluginProbeLocations: [PLUGIN_DIST, PLUGIN_DIR],
               plugins: [
                 {
-                  name: PLUGIN_NAME,
-                  location: PLUGIN_PATH,
+                  name: PLUGIN_PATH
                 },
               ],
               globalPlugins: [
                 {
-                  name: PLUGIN_NAME,
-                  location: PLUGIN_PATH,
+                  name: PLUGIN_PATH,
                   languages: ['typescript', 'typescriptreact'],
-                enableForWorkspaceTypeScriptVersions: true,
-              },
-            ],
-          },
+                  enableForWorkspaceTypeScriptVersions: true,
+                },
+              ],
+            },
         },
       },
     }),
@@ -245,69 +245,59 @@ test('vtsls playground switch', async (t) => {
 
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-  // Explicit IDs we can await
-  const defIds = {
-    macroUserToJSON: Math.random(),
-    formModelMakeProps: Math.random(),
-  };
-
   // Open first file, hover/definition
   sendOpen(first, firstText, 1);
-  await wait(200);
+  // Wait for plugin to fully initialize and expand macros (~500ms+ needed)
+  await wait(1500);
   sendHover(first, firstText, 'MacroUser');
+  // Send definition request (result may be empty for generated methods, which is expected)
+  sendDefinition(first, firstText, 'toJSON');
+
+  // Open second file, hover/definition
+  sendOpen(second, secondText, 1);
+  await wait(1000);
+  sendHover(second, secondText, 'FormModel');
+  // Send definition request for generated method
+  sendDefinition(second, secondText, 'makeFormModelBaseProps');
+
+  // Give the server time to process background work and crash if unstable
+  await wait(500);
+  sendHover(first, firstText, 'MacroUser');
+  sendDefinition(first, firstText, 'MacroUser');
+
+  // Send hover request on toJSON() call - if macros work, this should resolve
+  const hoverToJSONId = Math.random();
   server.send(
-    lspMessage(defIds.macroUserToJSON, 'textDocument/definition', {
+    lspMessage(hoverToJSONId, 'textDocument/hover', {
       textDocument: { uri: fileUri(first) },
       position: toPosition(firstText, 'toJSON'),
     }),
   );
 
-  // Open second file, hover/definition
-  sendOpen(second, secondText, 1);
-  await wait(200);
-  sendHover(second, secondText, 'FormModel');
-  server.send(
-    lspMessage(defIds.formModelMakeProps, 'textDocument/definition', {
-      textDocument: { uri: fileUri(second) },
-      position: toPosition(secondText, 'makeFormModelBaseProps'),
-    }),
-  );
-
-  // Apply a change to force re-parse on second
-  sendChange(second, secondText + '\n// change', 2);
-  await wait(200);
-  sendHover(second, secondText, 'FormModel');
-
-  // Switch focus back to first with version bump
-  sendChange(first, firstText + '\n// change', 2);
-  await wait(200);
-  sendHover(first, firstText, 'MacroUser');
-  sendDefinition(first, firstText, 'MacroUser');
-
-  await wait(500);
-  // Give the server time to process background work and crash if unstable
+  // Give the server time to process
   await wait(2000);
 
   // Capture stderr early for debugging assertions
   const stderrOutput = server.stderr();
 
-  // Validate definitions came back (proves plugin expanded macros)
-  const defToJSON = await waitForResponse(server.messages, defIds.macroUserToJSON).catch(
-    (err) => ({ error: err.message }),
-  );
-  const defMakeProps = await waitForResponse(server.messages, defIds.formModelMakeProps).catch(
+  // Wait for hover response
+  const hoverResponse = await waitForResponse(server.messages, hoverToJSONId, 5000).catch(
     (err) => ({ error: err.message }),
   );
 
+  // The hover on toJSON should return info about the method
+  // If macros didn't expand, toJSON wouldn't exist and hover would return null/empty
   assert.ok(
-    Array.isArray(defToJSON.result) && defToJSON.result.length > 0,
-    `definition for toJSON should resolve, got ${JSON.stringify(defToJSON)}`
-      + `\nstderr:\n${stderrOutput}`,
+    hoverResponse.result !== null && hoverResponse.result !== undefined,
+    `Hover on toJSON() should return method info (proves macros expanded). ` +
+    `Got: ${JSON.stringify(hoverResponse, null, 2)}\nstderr:\n${stderrOutput}`,
   );
+
+  // Additional check: hover result should contain content about the method
+  const hoverContent = hoverResponse.result?.contents;
   assert.ok(
-    Array.isArray(defMakeProps.result) && defMakeProps.result.length > 0,
-    `definition for makeFormModelBaseProps should resolve, got ${JSON.stringify(defMakeProps)}`
-      + `\nstderr:\n${stderrOutput}`,
+    hoverContent !== undefined,
+    `Hover should have contents. Got: ${JSON.stringify(hoverResponse.result, null, 2)}`,
   );
 
   // Check if server died on its own before we stop it

@@ -28,14 +28,14 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "rootDirs": ["src", ".macroforge/types"],
-            "plugins": [
-                {
-                    "name": "@macroforge/tsserver-plugin-macroforge",
-                    "macroNames": ["Derive"],
-                    "mixinModule": "@macroforge/macros",
-                    "mixinTypes": ["MacroDebug", "MacroJSON"]
-                }
-            ]
-        },
+    "plugins": [
+      {
+        "name": "@macroforge/tsserver-plugin-macroforge",
+        "macroNames": ["Derive"],
+        "mixinModule": "@macroforge/macros",
+        "mixinTypes": ["MacroDebug", "MacroJSON"]
+      }
+    ]
+  },
   "include": ["src", ".macroforge/types/**/*.d.ts"]
 }

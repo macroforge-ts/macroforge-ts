@@ -24,6 +24,18 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
-  }
+    "noPropertyAccessFromIndexSignature": false,
+
+    // Macroforge plugin for playground e2e
+    "plugins": [
+      {
+        "name": "@macroforge/tsserver-plugin-macroforge",
+        "path": "../../packages/tsserver-plugin-macroforge",
+        "macroNames": ["Derive"],
+        "mixinModule": "@macroforge/macros",
+        "mixinTypes": ["MacroDebug", "MacroJSON"]
+      }
+    ]
+  },
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
 }

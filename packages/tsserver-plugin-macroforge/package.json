@@ -1,11 +1,28 @@
 {
-  "name": "@macroforge/tsserver-plugin-macroforge",
-  "private": true,
-  "version": "0.0.1",
+  "name": "@macroforge/typescript-plugin",
+  "version": "0.1.0",
   "description": "TypeScript language service plugin that augments classes decorated with @derive to include macro-generated methods.",
   "type": "commonjs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rymskip/macroforge.git"
+  },
+  "keywords": [
+    "typescript",
+    "tsserver",
+    "plugin",
+    "macros",
+    "derive",
+    "language-service"
+  ],
+  "author": "macroforge contributors",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rymskip/macroforge/issues"
+  },
+  "homepage": "https://github.com/rymskip/macroforge#readme",
   "files": [
     "dist"
   ],
@@ -16,7 +33,7 @@
     "prepublishOnly": "bun run clean && bun run build"
   },
   "dependencies": {
-    "macroforge": "file:../../crates/macroforge_ts"
+    "macroforge": "^0.1.0"
   },
   "peerDependencies": {
     "typescript": ">=5.0.0"

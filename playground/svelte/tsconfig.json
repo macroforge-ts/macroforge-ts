@@ -16,9 +16,9 @@
 		"plugins": [
 			{
 				"name": "@macroforge/tsserver-plugin-macroforge",
+				"path": "../../packages/tsserver-plugin-macroforge",
 				"macroNames": ["Derive"],
 				"mixinModule": "@macroforge/macros",
-				"mixinTypes": ["MacroDebug", "MacroJSON"]
 			}
 		]
 	},

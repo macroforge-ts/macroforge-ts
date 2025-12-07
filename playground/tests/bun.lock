@@ -5,6 +5,7 @@
     "": {
       "name": "tests",
       "dependencies": {
+        "@macroforge/tsserver-plugin-macroforge": "file:../../packages/tsserver-plugin-macroforge",
         "@playground/macro": "file:../macro",
         "macroforge": "file:../../crates/macroforge_ts",
         "vite": "^7.2.6",
@@ -70,6 +71,8 @@
     "@esbuild/win32-ia32": ["@esbuild/win32-ia32@0.25.12", "", { "os": "win32", "cpu": "ia32" }, "sha512-HkqnmmBoCbCwxUKKNPBixiWDGCpQGVsrQfJoVGYLPT41XWF8lHuE5N6WhVia2n4o5QK5M4tYr21827fNhi4byQ=="],
 
     "@esbuild/win32-x64": ["@esbuild/win32-x64@0.25.12", "", { "os": "win32", "cpu": "x64" }, "sha512-alJC0uCZpTFrSL0CCDjcgleBXPnCrEAhTBILpeAp7M/OFgoqtAetfBzX0xM00MUsVVPpVjlPuMbREqnZCXaTnA=="],
+
+    "@macroforge/tsserver-plugin-macroforge": ["@macroforge/tsserver-plugin-macroforge@file:../../packages/tsserver-plugin-macroforge", { "dependencies": { "macroforge": "file:../../crates/macroforge_ts" }, "devDependencies": { "typescript": "^5.9.3" }, "peerDependencies": { "typescript": ">=5.0.0" } }],
 
     "@playground/macro": ["@playground/macro@file:../macro", {}],
 
@@ -180,6 +183,8 @@
     "vscode-uri": ["vscode-uri@3.1.0", "", {}, "sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ=="],
 
     "yallist": ["yallist@4.0.0", "", {}, "sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A=="],
+
+    "@macroforge/tsserver-plugin-macroforge/macroforge": ["macroforge@file:../../crates/macroforge_ts", {}],
 
     "@vtsls/language-service/typescript": ["typescript@5.8.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ=="],
   }

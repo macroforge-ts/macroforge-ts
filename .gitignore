@@ -24,3 +24,8 @@ src/macros/generated/
 
 # Generated WASM package artifacts
 .cargo/
+
+*.node
+*.wasm
+
+tmp-vtsls-logs

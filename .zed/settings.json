@@ -48,20 +48,29 @@
 			"initialization_options": {
 				"autoUseWorkspaceTsdk": true,
 				"typescript": {
-					"tsdk": "~/macroforge/node_modules/typescript/lib"
-				},
-				"tsserver": {
-				    "maxTsServerMemory": 8192,
-                    "nodePath": "~/.pixi/envs/nodejs/bin/node",
-					"logDirectory": "~/macroforge/.tsserver-logs",
-					"logVerbosity": "verbose",
-					"globalPlugins": [
-						{
-							"name": "tsserver-plugin-macroforge",
-							"location": "~/macroforge/packages/tsserver-plugin-macroforge",
-							"enableForWorkspaceTypeScriptVersions": true
-						}
-					]
+					"tsdk": "~/macroforge-ts/node_modules/typescript/lib",
+					"tsserver": {
+						"maxTsServerMemory": 8192,
+						"logDirectory": "~/macroforge-ts/.tsserver-logs",
+						"logVerbosity": "verbose",
+						"allowLocalPluginLoads": true,
+						"pluginProbeLocations": [
+							"~/macroforge-ts/packages/tsserver-plugin-macroforge/dist",
+							"~/macroforge-ts/packages/tsserver-plugin-macroforge"
+						],
+						"plugins": [
+							{
+								"name": "~/macroforge-ts/packages/tsserver-plugin-macroforge/dist/index.js"
+							}
+						],
+						"globalPlugins": [
+							{
+								"name": "~/macroforge-ts/packages/tsserver-plugin-macroforge/dist/index.js",
+								"enableForWorkspaceTypeScriptVersions": true,
+								"languages": ["typescript", "typescriptreact", "javascript", "javascriptreact"]
+							}
+						]
+					}
 				}
 			}
 		}

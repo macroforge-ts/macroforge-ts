@@ -4,7 +4,7 @@ mod tests {
     use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
     use ts_syn::abi::{MacroContextIR, SpanIR};
     use ts_quote::ts_template;
-    use ts_syn::{Data, DeriveInput, ParseTs, TsStream, lower_classes};
+    use ts_syn::{Data, DeriveInput, ParseTs, TsStream, lower_classes, lower_interfaces};
 
     fn capitalize(s: &str) -> String {
         let mut chars = s.chars();
@@ -57,6 +57,49 @@ mod tests {
         })
     }
 
+    // Helper to create a TsStream with valid context for testing derive macros on interfaces
+    fn create_test_stream_interface(source: &str) -> TsStream {
+        GLOBALS.set(&Globals::new(), || {
+            let cm: Lrc<SourceMap> = Default::default();
+            let fm = cm.new_source_file(
+                FileName::Custom("test.ts".into()).into(),
+                source.to_string(),
+            );
+
+            let lexer = Lexer::new(
+                Syntax::Typescript(TsSyntax {
+                    tsx: false,
+                    decorators: true,
+                    ..Default::default()
+                }),
+                Default::default(),
+                StringInput::from(&*fm),
+                None,
+            );
+
+            let mut parser = Parser::new_from(lexer);
+            let module = parser.parse_module().expect("Failed to parse test source");
+
+            let interfaces = lower_interfaces(&module, source).expect("Failed to lower interfaces");
+            let interface = interfaces
+                .first()
+                .expect("Expected at least one interface in test source")
+                .clone();
+
+            let ctx = MacroContextIR::new_derive_interface(
+                "TestMacro".to_string(),
+                "test-macro".to_string(),
+                SpanIR::new(0, 0), // Dummy spans
+                interface.span,
+                "test.ts".to_string(),
+                interface,
+                source.to_string(),
+            );
+
+            TsStream::with_context(source, "test.ts", ctx).unwrap()
+        })
+    }
+
     #[test]
     pub fn derive_json_macro() {
         let raw = include_str!("./fixtures/macro-user.ts");
@@ -96,14 +139,14 @@ mod tests {
     #[test]
     pub fn field_controller_macro() {
         let raw = include_str!("./fixtures/field-controller.fixture.ts");
-        let mut stream = create_test_stream(raw);
+        let mut stream = create_test_stream_interface(raw);
 
         let input = DeriveInput::parse(&mut stream).unwrap();
 
         match &input.data {
-            Data::Class(class) => {
+            Data::Interface(interface) => {
                 // Collect decorated fields
-                let decorated_fields: Vec<_> = class
+                let decorated_fields: Vec<_> = interface
                     .fields()
                     .iter()
                     .filter(|field| {
@@ -191,7 +234,7 @@ mod tests {
                 assert!(source.contains("this.prototype.memoFieldPath = ["));
                 assert!(source.contains("\"memo\""));
             }
-            _ => panic!("Expected class data in field-controller.fixture.ts"),
+            _ => panic!("Expected interface data in field-controller.fixture.ts"),
         }
     }
 
