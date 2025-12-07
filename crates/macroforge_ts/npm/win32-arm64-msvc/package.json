@@ -1,0 +1,35 @@
+{
+  "name": "@macroforge/bin-win32-arm64-msvc",
+  "version": "0.1.0",
+  "cpu": [
+    "arm64"
+  ],
+  "main": "macroforge.win32-arm64-msvc.node",
+  "files": [
+    "macroforge.win32-arm64-msvc.node"
+  ],
+  "description": "TypeScript macro expansion engine powered by Rust and SWC",
+  "keywords": [
+    "typescript",
+    "macros",
+    "derive",
+    "codegen",
+    "swc"
+  ],
+  "author": "macroforge contributors",
+  "homepage": "https://github.com/rymskip/macroforge#readme",
+  "license": "MIT",
+  "engines": {
+    "node": ">= 18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rymskip/macroforge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rymskip/macroforge/issues"
+  },
+  "os": [
+    "win32"
+  ]
+}
