@@ -1,9 +1,27 @@
-# TS Derive TypeScript Language Server
+# Macroforge TypeScript Extension
 
-This extension launches the local `@vtsls/language-server` binary from `node_modules` and injects the `@macroforge/typescript-plugin` so TypeScript/TSX files expose macro APIs.
+A Zed extension that provides TypeScript language server support with the `@macroforge/typescript-plugin` pre-configured for compile-time macros.
 
-Usage:
+## How it works
 
-1. `npm install` at the repo root so `node_modules/@vtsls/language-server/bin/vtsls.js` exists.
-2. `npm run build -w @macroforge/typescript-plugin` whenever the plugin source changes.
-3. Point TypeScript/TSX languages at the `macroforge` server in Zed settings.
+This extension:
+1. Downloads `@vtsls/language-server` and `@macroforge/typescript-plugin` from npm
+2. Launches vtsls as the language server
+3. Configures vtsls with the macroforge plugin via `globalPlugins`
+
+## Usage
+
+1. Install the extension in Zed (or use as a dev extension)
+2. Configure your `.zed/settings.json` to use `macroforge-ts`:
+
+```json
+{
+  "languages": {
+    "TypeScript": {
+      "language_servers": ["macroforge-ts", "!vtsls", "!typescript-language-server"]
+    }
+  }
+}
+```
+
+3. Classes with `@derive` annotations will now have augmented types in the editor.
