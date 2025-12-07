@@ -3,6 +3,7 @@ pub mod native;
 // Re-export the manifest API for this macro package
 // This allows the TS plugin to discover macros from @playground/macro
 
+// napi_derive is used directly (required for NAPI build toolchain)
 use napi_derive::napi;
 use macroforge_ts::host::derived;
 

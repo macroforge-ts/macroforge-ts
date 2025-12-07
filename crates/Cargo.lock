@@ -1886,7 +1886,6 @@ dependencies = [
  "convert_case 0.6.0",
  "proc-macro2",
  "quote",
- "swc_core",
  "syn",
 ]
 
@@ -1895,7 +1894,6 @@ name = "ts_syn"
 version = "0.1.0"
 dependencies = [
  "serde",
- "serde_json",
  "swc_core",
  "thiserror 1.0.69",
 ]
