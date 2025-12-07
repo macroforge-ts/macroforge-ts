@@ -1,7 +1,7 @@
 //! Core macro traits
 
-use ts_syn::abi::{MacroKind, MacroResult};
 use ts_syn::TsStream;
+use ts_syn::abi::{MacroKind, MacroResult};
 
 /// Core trait that all TypeScript macros must implement
 pub trait Macroforge: Send + Sync {
