@@ -3,10 +3,43 @@ name = "Macroforge"
 version = "0.1.0"
 schema_version = 1
 authors = ["macroforge contributors"]
-description = "Injects @macroforge/typescript-plugin settings into the built-in VTSLS."
+description = "TypeScript language server with @macroforge/typescript-plugin for compile-time macros."
 repository = "https://github.com/rymskip/macroforge"
+
+# Language server definition - wraps vtsls with macroforge plugin
+[language_servers.macroforge-ts]
+name = "Macroforge TypeScript"
+languages = ["TypeScript", "TSX", "JavaScript"]
 
 # Permissions
 [[permissions]]
 kind = "npm:install"
 package = "@macroforge/typescript-plugin"
+
+[[permissions]]
+kind = "npm:install"
+package = "@vtsls/language-server"
+
+[[permissions]]
+kind = "npm:install"
+package = "macroforge"
+
+[[permissions]]
+kind = "npm:install"
+package = "@macroforge/bin-darwin-x64"
+
+[[permissions]]
+kind = "npm:install"
+package = "@macroforge/bin-darwin-arm64"
+
+[[permissions]]
+kind = "npm:install"
+package = "@macroforge/bin-linux-x64-gnu"
+
+[[permissions]]
+kind = "npm:install"
+package = "@macroforge/bin-linux-arm64-gnu"
+
+[[permissions]]
+kind = "npm:install"
+package = "@macroforge/bin-win32-x64-msvc"
