@@ -1,0 +1,130 @@
+@import 'tailwindcss';
+
+/* Custom theme for Tailwind v4 */
+@theme {
+	/* Colors */
+	--color-primary-50: oklch(0.97 0.02 250);
+	--color-primary-100: oklch(0.93 0.04 250);
+	--color-primary-200: oklch(0.86 0.08 250);
+	--color-primary-300: oklch(0.76 0.12 250);
+	--color-primary-400: oklch(0.65 0.16 250);
+	--color-primary-500: oklch(0.55 0.18 250);
+	--color-primary-600: oklch(0.48 0.18 250);
+	--color-primary-700: oklch(0.42 0.16 250);
+	--color-primary-800: oklch(0.36 0.12 250);
+	--color-primary-900: oklch(0.30 0.08 250);
+	--color-primary-950: oklch(0.22 0.06 250);
+
+	/* Dark mode surface colors */
+	--color-surface-50: oklch(0.98 0 0);
+	--color-surface-100: oklch(0.96 0 0);
+	--color-surface-200: oklch(0.92 0 0);
+	--color-surface-800: oklch(0.22 0.01 260);
+	--color-surface-900: oklch(0.16 0.01 260);
+	--color-surface-950: oklch(0.12 0.01 260);
+
+	/* Typography */
+	--font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+	--font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+}
+
+/* Base styles */
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	@apply bg-white text-slate-900 antialiased;
+	@apply dark:bg-surface-950 dark:text-slate-100;
+}
+
+/* Typography prose styles for documentation */
+.prose {
+	@apply max-w-none;
+}
+
+.prose h1 {
+	@apply text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4;
+}
+
+.prose h2 {
+	@apply text-2xl font-semibold tracking-tight text-slate-900 dark:text-white mt-10 mb-4;
+	@apply border-b border-slate-200 dark:border-slate-700 pb-2;
+}
+
+.prose h3 {
+	@apply text-xl font-semibold text-slate-900 dark:text-white mt-8 mb-3;
+}
+
+.prose p {
+	@apply text-slate-600 dark:text-slate-300 leading-7 mb-4;
+}
+
+.prose a {
+	@apply text-primary-600 dark:text-primary-400 underline underline-offset-2 hover:text-primary-700 dark:hover:text-primary-300;
+}
+
+.prose strong {
+	@apply font-semibold text-slate-900 dark:text-white;
+}
+
+.prose code:not(pre code) {
+	@apply bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200;
+	@apply px-1.5 py-0.5 rounded text-sm font-mono;
+}
+
+.prose pre {
+	@apply bg-slate-900 dark:bg-slate-800 rounded-lg overflow-x-auto;
+	@apply border border-slate-800 dark:border-slate-700;
+}
+
+.prose ul {
+	@apply list-disc list-inside space-y-2 text-slate-600 dark:text-slate-300 mb-4;
+}
+
+.prose ol {
+	@apply list-decimal list-inside space-y-2 text-slate-600 dark:text-slate-300 mb-4;
+}
+
+.prose li {
+	@apply leading-7;
+}
+
+.prose blockquote {
+	@apply border-l-4 border-primary-500 pl-4 italic text-slate-600 dark:text-slate-400;
+}
+
+.prose table {
+	@apply w-full text-left border-collapse mb-4;
+}
+
+.prose th {
+	@apply border-b border-slate-300 dark:border-slate-600 py-2 px-4 font-semibold text-slate-900 dark:text-white;
+}
+
+.prose td {
+	@apply border-b border-slate-200 dark:border-slate-700 py-2 px-4 text-slate-600 dark:text-slate-300;
+}
+
+/* Lead paragraph style */
+.prose .lead {
+	@apply text-lg text-slate-600 dark:text-slate-300 mb-6;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+::-webkit-scrollbar-track {
+	@apply bg-slate-100 dark:bg-slate-800;
+}
+
+::-webkit-scrollbar-thumb {
+	@apply bg-slate-300 dark:bg-slate-600 rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	@apply bg-slate-400 dark:bg-slate-500;
+}
