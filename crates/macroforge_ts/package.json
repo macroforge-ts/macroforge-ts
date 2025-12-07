@@ -49,7 +49,6 @@
     "@macroforge/bin-win32-arm64-msvc": "0.1.0"
   },
   "scripts": {
-    "artifacts": "napi artifacts --npm-dir npm",
-    "prepublishOnly": "napi prepublish -t npm --npm-dir npm"
+    "artifacts": "napi artifacts --npm-dir npm"
   }
 }
