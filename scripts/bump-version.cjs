@@ -99,6 +99,11 @@ svelteLibRs = svelteLibRs.replace(
   /const SVELTE_LS_VERSION: &str = ".*";/,
   `const SVELTE_LS_VERSION: &str = "${version}";`
 );
+// Also update the test assertion
+svelteLibRs = svelteLibRs.replace(
+  /assert_eq!\(SVELTE_LS_VERSION, ".*"\);/,
+  `assert_eq!(SVELTE_LS_VERSION, "${version}");`
+);
 fs.writeFileSync(svelteLibRsPath, svelteLibRs);
 console.log(`  Updated crates/extensions/svelte-macroforge/src/lib.rs`);
 

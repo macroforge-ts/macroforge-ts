@@ -925,7 +925,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts"
-version = "0.1.0"
+version = "0.1.4"
 dependencies = [
  "anyhow",
  "clap",
@@ -1871,7 +1871,7 @@ dependencies = [
 
 [[package]]
 name = "ts_macro_derive"
-version = "0.1.0"
+version = "0.1.4"
 dependencies = [
  "convert_case 0.6.0",
  "proc-macro2",
@@ -1881,7 +1881,7 @@ dependencies = [
 
 [[package]]
 name = "ts_quote"
-version = "0.1.0"
+version = "0.1.4"
 dependencies = [
  "convert_case 0.6.0",
  "proc-macro2",
@@ -1891,7 +1891,7 @@ dependencies = [
 
 [[package]]
 name = "ts_syn"
-version = "0.1.0"
+version = "0.1.4"
 dependencies = [
  "serde",
  "swc_core",
