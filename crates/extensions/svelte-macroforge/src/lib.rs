@@ -116,6 +116,6 @@ mod tests {
 
     #[test]
     fn test_svelte_ls_version_constant() {
-        assert_eq!(SVELTE_LS_VERSION, "0.1.3");
+        assert_eq!(SVELTE_LS_VERSION, "0.1.4");
     }
 }
