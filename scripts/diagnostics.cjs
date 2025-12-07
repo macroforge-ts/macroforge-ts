@@ -3,7 +3,7 @@ const { promises: fs } = require('node:fs');
 const path = require('node:path');
 
 const ROOT_DIR = process.cwd();
-const LOGS_DIR = path.join(ROOT_DIR, 'diagnostics_logs');
+const LOGS_DIR = path.join(ROOT_DIR, '.tmp', 'diagnostics');
 
 // Lazy-loaded TypeScript for Language Service
 let ts = null;

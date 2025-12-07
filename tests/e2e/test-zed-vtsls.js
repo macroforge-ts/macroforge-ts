@@ -8,7 +8,7 @@ import fs from 'node:fs';
 const ZED_VTSLS = '/Users/jakoblochinski/Library/Application Support/Zed/languages/vtsls/node_modules/@vtsls/language-server/bin/vtsls.js';
 const REPO_ROOT = path.resolve(import.meta.dirname, '../..');
 const PLUGIN_PATH = path.join(REPO_ROOT, 'packages', 'typescript-plugin', 'dist', 'index.js');
-const LOG_DIR = path.join(REPO_ROOT, 'tmp-zed-vtsls-logs');
+const LOG_DIR = path.join(REPO_ROOT, '.tmp', 'zed-vtsls-logs');
 
 // Create log directory
 fs.mkdirSync(LOG_DIR, { recursive: true });
