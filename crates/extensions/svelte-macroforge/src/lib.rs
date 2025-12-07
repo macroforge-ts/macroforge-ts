@@ -5,7 +5,7 @@ use std::{
 use zed_extension_api as zed;
 
 const EXTENSION_ID: &str = "svelte-macroforge";
-const LANGUAGE_SERVER_RELATIVE_PATH: &str = "packages/svelte-language-server-macroforge";
+const LANGUAGE_SERVER_RELATIVE_PATH: &str = "packages/svelte-language-server";
 const NODE_MODULES_PATH: &str = "node_modules/@macroforge/svelte-language-server";
 const LANGUAGE_SERVER_BIN_RELATIVE: &str = "bin/server.js";
 const LANGUAGE_SERVER_BUILD_ARTIFACT: &str = "dist/src/server.js";
@@ -171,7 +171,7 @@ mod tests {
 
     #[test]
     fn test_language_server_relative_path_constant() {
-        assert_eq!(LANGUAGE_SERVER_RELATIVE_PATH, "packages/svelte-language-server-macroforge");
+        assert_eq!(LANGUAGE_SERVER_RELATIVE_PATH, "packages/svelte-language-server");
     }
 
     #[test]
@@ -222,11 +222,11 @@ mod tests {
 
     #[test]
     fn test_language_server_bin_with_packages_path() {
-        let server_dir = Path::new("/workspace/packages/svelte-language-server-macroforge");
+        let server_dir = Path::new("/workspace/packages/svelte-language-server");
         let bin_path = SvelteMacroforgeExtension::language_server_bin(server_dir);
         assert_eq!(
             bin_path,
-            PathBuf::from("/workspace/packages/svelte-language-server-macroforge/bin/server.js")
+            PathBuf::from("/workspace/packages/svelte-language-server/bin/server.js")
         );
     }
 
@@ -293,17 +293,17 @@ mod tests {
         );
         assert_eq!(
             packages_bin,
-            PathBuf::from("/workspace/packages/svelte-language-server-macroforge/bin/server.js")
+            PathBuf::from("/workspace/packages/svelte-language-server/bin/server.js")
         );
     }
 
     #[test]
     fn test_build_artifact_path() {
-        let server_dir = Path::new("/workspace/packages/svelte-language-server-macroforge");
+        let server_dir = Path::new("/workspace/packages/svelte-language-server");
         let artifact_path = server_dir.join(LANGUAGE_SERVER_BUILD_ARTIFACT);
         assert_eq!(
             artifact_path,
-            PathBuf::from("/workspace/packages/svelte-language-server-macroforge/dist/src/server.js")
+            PathBuf::from("/workspace/packages/svelte-language-server/dist/src/server.js")
         );
     }
 }
