@@ -161,9 +161,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: crates/macroforge_ts/artifacts
+          merge-multiple: true
+
+      - name: List downloaded artifacts
+        run: find artifacts -name "*.node" -type f
+        working-directory: crates/macroforge_ts
 
       - name: Move artifacts to npm packages
-        run: napi artifacts --npm-dir npm
+        run: napi artifacts --npm-dir npm --artifacts-dir artifacts
         working-directory: crates/macroforge_ts
 
       - name: List packages

@@ -8,7 +8,7 @@
 					"arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
 				}
 			},
-			"language_servers": ["eslint", "!biome"],
+			"language_servers": ["macroforge-ts", "eslint", "!biome"],
 			"code_actions_on_format": {
 				"source.fixAll.eslint": true
 			}
@@ -20,7 +20,7 @@
 					"arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
 				}
 			},
-			"language_servers": ["vtsls", "!typescript-language-server"],
+			"language_servers": ["macroforge-ts", "!vtsls", "!typescript-language-server"],
 			"code_actions_on_format": {
 				"source.fixAll.eslint": true
 			}
@@ -44,35 +44,5 @@
 		}
 	},
 	"lsp": {
-		"vtsls": {
-			"initialization_options": {
-				"autoUseWorkspaceTsdk": true,
-				"typescript": {
-					"tsdk": "/Users/jakoblochinski/Softworks/GitHub/macroforge-ts/node_modules/typescript/lib",
-					"tsserver": {
-						"maxTsServerMemory": 8192,
-						"logDirectory": "/Users/jakoblochinski/Softworks/GitHub/macroforge-ts/.tsserver-logs",
-						"logVerbosity": "verbose",
-						"allowLocalPluginLoads": true,
-						"pluginProbeLocations": [
-							"/Users/jakoblochinski/Softworks/GitHub/macroforge-ts/packages/typescript-plugin/dist",
-							"/Users/jakoblochinski/Softworks/GitHub/macroforge-ts/packages/typescript-plugin"
-						],
-						"plugins": [
-							{
-								"name": "/Users/jakoblochinski/Softworks/GitHub/macroforge-ts/packages/typescript-plugin/dist/index.js"
-							}
-						],
-						"globalPlugins": [
-							{
-								"name": "/Users/jakoblochinski/Softworks/GitHub/macroforge-ts/packages/typescript-plugin/dist/index.js",
-								"enableForWorkspaceTypeScriptVersions": true,
-								"languages": ["typescript", "typescriptreact", "javascript", "javascriptreact"]
-							}
-						]
-					}
-				}
-			}
-		}
 	}
 }

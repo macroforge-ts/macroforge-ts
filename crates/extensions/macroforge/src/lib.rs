@@ -1,87 +1,228 @@
 use std::env;
-use zed_extension_api::{self as zed, serde_json};
+use zed_extension_api::{self as zed, serde_json, Command, LanguageServerId, Result, Worktree};
 
 const TS_PLUGIN: &str = "@macroforge/typescript-plugin";
-const TS_PLUGIN_VERSION: &str = "0.1.0";
+const TS_PLUGIN_VERSION: &str = "0.1.1";
+const VTSLS_PACKAGE: &str = "@vtsls/language-server";
+const VTSLS_VERSION: &str = "0.2.6";
+const MACROFORGE_VERSION: &str = "0.1.1";
 
-struct MacroforgesTsExtension;
+struct MacroforgeExtension {
+    cached_vtsls_path: Option<String>,
+    cached_plugin_path: Option<String>,
+}
 
-impl MacroforgesTsExtension {
-    /// Ensure the plugin is installed and return the path to it
-    fn ensure_plugin_installed() -> Result<String, String> {
-        // Check if already installed
-        let installed = zed::npm_package_installed_version(TS_PLUGIN)?;
-
-        if installed.is_none() {
-            // Install the plugin
-            zed::npm_install_package(TS_PLUGIN, TS_PLUGIN_VERSION)?;
+impl MacroforgeExtension {
+    /// Ensure vtsls is installed and return the path to the binary
+    fn ensure_vtsls_installed(&mut self) -> Result<String> {
+        if let Some(path) = &self.cached_vtsls_path {
+            return Ok(path.clone());
         }
 
-        // Get the extension's working directory where npm packages are installed
+        let installed = zed::npm_package_installed_version(VTSLS_PACKAGE)?;
+        if installed.is_none() {
+            zed::npm_install_package(VTSLS_PACKAGE, VTSLS_VERSION)?;
+        }
+
         let ext_dir = env::current_dir()
             .map_err(|e| format!("Failed to get current directory: {}", e))?;
 
-        let plugin_dir = ext_dir.join("node_modules").join(TS_PLUGIN);
+        let vtsls_binary = ext_dir
+            .join("node_modules")
+            .join("@vtsls")
+            .join("language-server")
+            .join("bin")
+            .join("vtsls.js");
 
-        plugin_dir
+        let path = vtsls_binary
             .to_str()
-            .map(|s| s.to_owned())
-            .ok_or_else(|| "Plugin path is not valid UTF-8".to_string())
+            .ok_or_else(|| "VTSLS path is not valid UTF-8".to_string())?
+            .to_owned();
+
+        self.cached_vtsls_path = Some(path.clone());
+        Ok(path)
     }
 
-    fn plugin_config(plugin_dir: &str) -> serde_json::Value {
-        let plugin_entry = format!("{}/dist/index.js", plugin_dir);
+    /// Get the platform-specific binary package name based on Zed's platform info
+    fn get_binary_package() -> &'static str {
+        // Get platform from Zed's API
+        let (os, arch) = zed::current_platform();
 
-        // vtsls accepts typescript.tsserver for plugin configuration
-        serde_json::json!({
+        match (os, arch) {
+            (zed::Os::Mac, zed::Architecture::X8664 | zed::Architecture::X86) => "@macroforge/bin-darwin-x64",
+            (zed::Os::Mac, zed::Architecture::Aarch64) => "@macroforge/bin-darwin-arm64",
+            (zed::Os::Linux, zed::Architecture::X8664 | zed::Architecture::X86) => "@macroforge/bin-linux-x64-gnu",
+            (zed::Os::Linux, zed::Architecture::Aarch64) => "@macroforge/bin-linux-arm64-gnu",
+            (zed::Os::Windows, zed::Architecture::X8664 | zed::Architecture::X86) => "@macroforge/bin-win32-x64-msvc",
+            (zed::Os::Windows, zed::Architecture::Aarch64) => "@macroforge/bin-win32-arm64-msvc",
+        }
+    }
+
+    /// Ensure the TypeScript plugin is installed and return the path
+    fn ensure_plugin_installed(&mut self) -> Result<String> {
+        if let Some(path) = &self.cached_plugin_path {
+            return Ok(path.clone());
+        }
+
+        // Install the binary package first (needed by macroforge)
+        let binary_package = Self::get_binary_package();
+        let binary_installed = zed::npm_package_installed_version(binary_package)?;
+        if binary_installed.is_none() {
+            zed::npm_install_package(binary_package, MACROFORGE_VERSION)?;
+        }
+
+        // Install the typescript plugin (which depends on macroforge)
+        let installed = zed::npm_package_installed_version(TS_PLUGIN)?;
+        if installed.is_none() {
+            zed::npm_install_package(TS_PLUGIN, TS_PLUGIN_VERSION)?;
+        }
+
+        let ext_dir = env::current_dir()
+            .map_err(|e| format!("Failed to get current directory: {}", e))?;
+
+        // Return the node_modules directory - vtsls will resolve the package from here
+        let node_modules_dir = ext_dir.join("node_modules");
+
+        let path = node_modules_dir
+            .to_str()
+            .ok_or_else(|| "Plugin path is not valid UTF-8".to_string())?
+            .to_owned();
+
+        self.cached_plugin_path = Some(path.clone());
+        Ok(path)
+    }
+}
+
+impl zed::Extension for MacroforgeExtension {
+    fn new() -> Self {
+        Self {
+            cached_vtsls_path: None,
+            cached_plugin_path: None,
+        }
+    }
+
+    fn language_server_command(
+        &mut self,
+        language_server_id: &LanguageServerId,
+        _worktree: &Worktree,
+    ) -> Result<Command> {
+        // Debug: write to file to confirm this function is called
+        if let Ok(dir) = env::current_dir() {
+            let debug_file = dir.join("command_called.txt");
+            let _ = std::fs::write(&debug_file, format!(
+                "language_server_command called for: {}\nTime: {:?}\n",
+                language_server_id.as_ref(),
+                std::time::SystemTime::now()
+            ));
+        }
+
+        if language_server_id.as_ref() != "macroforge-ts" {
+            return Err(format!("Unknown language server: {}", language_server_id.as_ref()));
+        }
+
+        let vtsls_path = self.ensure_vtsls_installed()?;
+
+        Ok(Command {
+            command: zed::node_binary_path()?,
+            args: vec![vtsls_path, "--stdio".to_string()],
+            env: Default::default(),
+        })
+    }
+
+    fn language_server_initialization_options(
+        &mut self,
+        language_server_id: &LanguageServerId,
+        _worktree: &Worktree,
+    ) -> Result<Option<serde_json::Value>> {
+        // Debug: write to a file to confirm this function is called
+        let ext_dir = env::current_dir().ok();
+        if let Some(dir) = &ext_dir {
+            let debug_file = dir.join("init_options_called.txt");
+            let _ = std::fs::write(&debug_file, format!(
+                "Called for: {}\nTime: {:?}\n",
+                language_server_id.as_ref(),
+                std::time::SystemTime::now()
+            ));
+        }
+
+        if language_server_id.as_ref() != "macroforge-ts" {
+            return Ok(None);
+        }
+
+        let plugin_location = self.ensure_plugin_installed()?;
+
+        // Get the log directory path (in extension work dir)
+        let ext_dir = env::current_dir()
+            .map_err(|e| format!("Failed to get current directory: {}", e))?;
+        let log_dir = ext_dir.join("tsserver-logs");
+        let log_dir_str = log_dir.to_str().unwrap_or("/tmp/tsserver-logs");
+
+        let init_options = serde_json::json!({
             "typescript": {
                 "tsserver": {
-                    "allowLocalPluginLoads": true,
-                    "pluginProbeLocations": [plugin_dir],
-                    "plugins": [{
-                        "name": &plugin_entry
-                    }],
+                    "logDirectory": log_dir_str,
+                    "logVerbosity": "verbose"
+                }
+            },
+            "vtsls": {
+                "tsserver": {
                     "globalPlugins": [{
-                        "name": &plugin_entry,
+                        "name": TS_PLUGIN,
+                        "location": plugin_location,
                         "enableForWorkspaceTypeScriptVersions": true,
                         "languages": [
                             "typescript",
                             "typescriptreact",
                             "javascript",
                             "javascriptreact",
-                            "vue",
                             "svelte"
                         ]
                     }]
                 }
             }
-        })
-    }
-}
+        });
 
-impl zed::Extension for MacroforgesTsExtension {
-    fn new() -> Self {
-        Self
+        // Debug: write the init options to a file
+        let debug_file = ext_dir.join("init_options_value.json");
+        let _ = std::fs::write(&debug_file, serde_json::to_string_pretty(&init_options).unwrap_or_default());
+
+        Ok(Some(init_options))
     }
 
-    fn language_server_additional_initialization_options(
+    fn language_server_workspace_configuration(
         &mut self,
-        _: &zed::LanguageServerId,
-        target_id: &zed::LanguageServerId,
-        _worktree: &zed::Worktree,
-    ) -> zed::Result<Option<serde_json::Value>> {
-        // Inject plugin configuration for vtsls (and typescript-language-server)
-        if target_id.as_ref() == "vtsls" || target_id.as_ref() == "typescript-language-server" {
-            // Ensure the plugin is installed and get its path
-            let plugin_dir = Self::ensure_plugin_installed()?;
-            return Ok(Some(Self::plugin_config(&plugin_dir)));
+        language_server_id: &LanguageServerId,
+        worktree: &Worktree,
+    ) -> Result<Option<serde_json::Value>> {
+        // vtsls might need settings via workspace configuration too
+        if language_server_id.as_ref() != "macroforge-ts" {
+            return Ok(None);
         }
 
-        Ok(None)
+        let plugin_location = self.ensure_plugin_installed()?;
+
+        Ok(Some(serde_json::json!({
+            "vtsls": {
+                "tsserver": {
+                    "globalPlugins": [{
+                        "name": TS_PLUGIN,
+                        "location": plugin_location,
+                        "enableForWorkspaceTypeScriptVersions": true,
+                        "languages": [
+                            "typescript",
+                            "typescriptreact",
+                            "javascript",
+                            "javascriptreact",
+                            "svelte"
+                        ]
+                    }]
+                }
+            }
+        })))
     }
 }
 
-zed::register_extension!(MacroforgesTsExtension);
+zed::register_extension!(MacroforgeExtension);
 
 #[cfg(test)]
 mod tests {
@@ -89,46 +230,7 @@ mod tests {
 
     #[test]
     fn test_extension_can_be_instantiated() {
-        let _ext = MacroforgesTsExtension;
-    }
-
-    #[test]
-    fn test_plugin_config_structure() {
-        let plugin_dir = "/ext/node_modules/@macroforge/typescript-plugin";
-        let config = MacroforgesTsExtension::plugin_config(plugin_dir);
-
-        // Verify typescript.tsserver config structure
-        let typescript = config.get("typescript").expect("typescript config should exist");
-        let tsserver = typescript.get("tsserver").expect("tsserver config should exist");
-
-        // Check allowLocalPluginLoads
-        assert_eq!(tsserver.get("allowLocalPluginLoads").unwrap(), true);
-
-        // Check pluginProbeLocations
-        let probe_locations = tsserver.get("pluginProbeLocations").unwrap().as_array().unwrap();
-        assert_eq!(probe_locations.len(), 1);
-        assert_eq!(probe_locations[0], plugin_dir);
-
-        // Check plugins
-        let plugins = tsserver.get("plugins").unwrap().as_array().unwrap();
-        assert_eq!(plugins.len(), 1);
-        assert!(plugins[0].get("name").unwrap().as_str().unwrap().ends_with("/dist/index.js"));
-
-        // Check globalPlugins
-        let global_plugins = tsserver.get("globalPlugins").unwrap().as_array().unwrap();
-        assert_eq!(global_plugins.len(), 1);
-
-        let plugin = &global_plugins[0];
-        assert!(plugin.get("name").unwrap().as_str().unwrap().ends_with("/dist/index.js"));
-        assert_eq!(plugin.get("enableForWorkspaceTypeScriptVersions").unwrap(), true);
-
-        let languages = plugin.get("languages").unwrap().as_array().unwrap();
-        assert!(languages.contains(&serde_json::json!("typescript")));
-        assert!(languages.contains(&serde_json::json!("typescriptreact")));
-        assert!(languages.contains(&serde_json::json!("javascript")));
-        assert!(languages.contains(&serde_json::json!("javascriptreact")));
-        assert!(languages.contains(&serde_json::json!("vue")));
-        assert!(languages.contains(&serde_json::json!("svelte")));
+        let _ext = MacroforgeExtension::new();
     }
 
     #[test]
@@ -137,7 +239,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ts_plugin_version() {
-        assert_eq!(TS_PLUGIN_VERSION, "0.1.0");
+    fn test_vtsls_package_constant() {
+        assert_eq!(VTSLS_PACKAGE, "@vtsls/language-server");
     }
 }
