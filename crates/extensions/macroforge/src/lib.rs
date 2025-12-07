@@ -227,6 +227,7 @@ zed::register_extension!(MacroforgeExtension);
 #[cfg(test)]
 mod tests {
     use super::*;
+    use zed_extension_api::Extension;
 
     #[test]
     fn test_extension_can_be_instantiated() {
