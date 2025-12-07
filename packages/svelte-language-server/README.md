@@ -1,7 +1,9 @@
-# Svelte Language Server
+# @macroforge/svelte-language-server
+
+> **Warning:** This is a work in progress and probably won't work for you. Use at your own risk!
 
 A language server (implementing the [language server protocol](https://microsoft.github.io/language-server-protocol/))
-for Svelte.
+for Svelte with macroforge TypeScript plugin support.
 
 Requires Node 12 or later.
 
