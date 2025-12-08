@@ -158,6 +158,45 @@ body! {
     {/for}
 }`} lang="rust" />
 
+<h2 id="typescript-injection">TsStream Injection</h2>
+
+<p>Use <code>{'{'}%typescript stream{'}'}</code> to inject another TsStream into your template, preserving both its source code and runtime patches (like imports):</p>
+
+<CodeBlock code={`// Create a helper with its own import
+let mut helper = body! {
+    validateEmail(email: string): boolean {
+        return Result.ok(true);
+    }
+};
+helper.add_import("Result", "macroforge/result");
+
+// Inject into the main template - imports are preserved!
+let result = body! {
+    {%typescript helper}
+
+    process(data: Record<string, unknown>): void {
+        // ...
+    }
+};`} lang="rust" />
+
+<p>This is essential for composing macro outputs while keeping imports intact:</p>
+
+<CodeBlock code={`let extra_methods = if include_validation {
+    Some(body! {
+        validate(): boolean { return true; }
+    })
+} else {
+    None
+};
+
+body! {
+    mainMethod(): void {}
+
+    {#if let Some(methods) = extra_methods}
+        {%typescript methods}
+    {/if}
+}`} lang="rust" />
+
 <h2 id="string-literals">String Literals</h2>
 
 <p>String content is output literally, with interpolation inside:</p>
@@ -226,6 +265,10 @@ fn generate_json_macro(class: &ClassData) -> TsStream {
 		<tr>
 			<td><code>&#123;%let name = expr&#125;</code></td>
 			<td>Local variable binding</td>
+		</tr>
+		<tr>
+			<td><code>&#123;%typescript stream&#125;</code></td>
+			<td>Inject TsStream, preserving source and patches (imports)</td>
 		</tr>
 	</tbody>
 </table>

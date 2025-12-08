@@ -195,3 +195,82 @@ const p3: Point = { x: 5, y: 5 };
 
 console.log(Point.equals(p1, p2)); // true
 console.log(Point.equals(p1, p3)); // false`} lang="typescript" />
+
+<h2 id="enum-support">Enum Support</h2>
+
+<p>
+	Eq also works with enums. For enums, strict equality comparison is used:
+</p>
+
+<CodeBlock code={`/** @derive(Eq) */
+enum Status {
+  Active = "active",
+  Inactive = "inactive",
+  Pending = "pending",
+}
+
+// Generated:
+// export namespace Status {
+//   export function equals(a: Status, b: Status): boolean {
+//     return a === b;
+//   }
+//   export function hashCode(value: Status): number {
+//     // String hash for string enums
+//     if (typeof value === "string") {
+//       let hash = 0;
+//       for (let i = 0; i < value.length; i++) {
+//         hash = (hash * 31 + value.charCodeAt(i)) | 0;
+//       }
+//       return hash;
+//     }
+//     return value | 0;
+//   }
+// }
+
+console.log(Status.equals(Status.Active, Status.Active));   // true
+console.log(Status.equals(Status.Active, Status.Inactive)); // false
+console.log(Status.hashCode(Status.Active)); // consistent hash value`} lang="typescript" />
+
+<h2 id="type-alias-support">Type Alias Support</h2>
+
+<p>
+	Eq works with type aliases. For object types, field-by-field comparison is used:
+</p>
+
+<CodeBlock code={`/** @derive(Eq) */
+type Point = {
+  x: number;
+  y: number;
+};
+
+// Generated:
+// export namespace Point {
+//   export function equals(a: Point, b: Point): boolean {
+//     if (a === b) return true;
+//     return a.x === b.x && a.y === b.y;
+//   }
+//   export function hashCode(value: Point): number {
+//     let hash = 0;
+//     hash = (hash * 31 + (value.x | 0)) | 0;
+//     hash = (hash * 31 + (value.y | 0)) | 0;
+//     return hash;
+//   }
+// }
+
+const p1: Point = { x: 10, y: 20 };
+const p2: Point = { x: 10, y: 20 };
+const p3: Point = { x: 5, y: 5 };
+
+console.log(Point.equals(p1, p2)); // true
+console.log(Point.equals(p1, p3)); // false
+console.log(Point.hashCode(p1) === Point.hashCode(p2)); // true`} lang="typescript" />
+
+<p>
+	For union types, strict equality is used:
+</p>
+
+<CodeBlock code={`/** @derive(Eq) */
+type ApiStatus = "loading" | "success" | "error";
+
+console.log(ApiStatus.equals("success", "success")); // true
+console.log(ApiStatus.equals("success", "error"));   // false`} lang="typescript" />

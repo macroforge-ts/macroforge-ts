@@ -11,7 +11,7 @@
 
 <p class="lead">
 	Macroforge comes with five built-in derive macros that cover the most common code generation needs.
-	All macros work with both classes and interfaces.
+	All macros work with classes, interfaces, enums, and type aliases.
 </p>
 
 <h2 id="overview">Overview</h2>
@@ -97,6 +97,75 @@ const point: Point = { x: 10, y: 20 };
 console.log(Point.toString(point));     // "Point { x: 10, y: 20 }"
 const copy = Point.clone(point);        // { x: 10, y: 20 }
 console.log(Point.equals(point, copy)); // true`} lang="typescript" />
+
+<h2 id="enum-support">Enum Support</h2>
+
+<p>
+	All built-in macros work with enums. For enums, methods are generated as functions
+	in a namespace with the same name:
+</p>
+
+<CodeBlock code={`/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+enum Status {
+  Active = "active",
+  Inactive = "inactive",
+  Pending = "pending",
+}
+
+// Generated namespace:
+// namespace Status {
+//   export function toString(value: Status): string { ... }
+//   export function clone(value: Status): Status { ... }
+//   export function equals(a: Status, b: Status): boolean { ... }
+//   export function hashCode(value: Status): number { ... }
+//   export function toJSON(value: Status): string | number { ... }
+//   export function fromJSON(data: unknown): Status { ... }
+// }
+
+// Use the namespace functions
+console.log(Status.toString(Status.Active));     // "Status.Active"
+console.log(Status.equals(Status.Active, Status.Active)); // true
+const json = Status.toJSON(Status.Pending);      // "pending"
+const parsed = Status.fromJSON("active");        // Status.Active`} lang="typescript" />
+
+<h2 id="type-alias-support">Type Alias Support</h2>
+
+<p>
+	All built-in macros work with type aliases. For object type aliases, field-aware methods
+	are generated in a namespace:
+</p>
+
+<CodeBlock code={`/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+type Point = {
+  x: number;
+  y: number;
+};
+
+// Generated namespace:
+// namespace Point {
+//   export function toString(value: Point): string { ... }
+//   export function clone(value: Point): Point { ... }
+//   export function equals(a: Point, b: Point): boolean { ... }
+//   export function hashCode(value: Point): number { ... }
+//   export function toJSON(value: Point): Record<string, unknown> { ... }
+//   export function fromJSON(data: unknown): Point { ... }
+// }
+
+const point: Point = { x: 10, y: 20 };
+console.log(Point.toString(point));     // "Point { x: 10, y: 20 }"
+const copy = Point.clone(point);        // { x: 10, y: 20 }
+console.log(Point.equals(point, copy)); // true`} lang="typescript" />
+
+<p>
+	Union type aliases also work, using JSON-based implementations:
+</p>
+
+<CodeBlock code={`/** @derive(Debug, Eq) */
+type ApiStatus = "loading" | "success" | "error";
+
+const status: ApiStatus = "success";
+console.log(ApiStatus.toString(status)); // "ApiStatus(\\"success\\")"
+console.log(ApiStatus.equals("success", "success")); // true`} lang="typescript" />
 
 <h2 id="combining-macros">Combining Macros</h2>
 
