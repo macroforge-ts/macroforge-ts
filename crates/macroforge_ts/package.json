@@ -54,7 +54,7 @@
     "result.d.ts"
   ],
   "dependencies": {
-    "@rydshift/mirror": "^0.1.1"
+    "@rydshift/mirror": "^0.1.2"
   },
   "engines": {
     "node": ">= 18"
