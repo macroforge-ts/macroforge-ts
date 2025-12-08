@@ -295,9 +295,9 @@ fn test_prepare_with_classes() {
     let host = MacroExpander::new().unwrap();
     let result = host.prepare_expansion_context(&program, source).unwrap();
     assert!(result.is_some());
-    let (_module, classes, _interfaces, _enums, _type_aliases) = result.unwrap();
-    assert_eq!(classes.len(), 1);
-    assert_eq!(classes[0].name, "User");
+    let (_module, items) = result.unwrap();
+    assert_eq!(items.classes.len(), 1);
+    assert_eq!(items.classes[0].name, "User");
 }
 
 #[test]
@@ -415,13 +415,13 @@ fn test_collect_constructor_patch() {
     let source = "class User { constructor(id: string) { this.id = id; } }";
     let program = parse_module(source);
     let host = MacroExpander::new().unwrap();
-    let (module, classes, interfaces, enums, type_aliases) = host
+    let (module, items) = host
         .prepare_expansion_context(&program, source)
         .unwrap()
         .unwrap();
 
     let (collector, _) =
-        host.collect_macro_patches(&module, classes, interfaces, enums, type_aliases, "test.ts", source);
+        host.collect_macro_patches(&module, items, "test.ts", source);
 
     let type_patches = collector.get_type_patches();
     assert_eq!(type_patches.len(), 1);
@@ -442,12 +442,12 @@ fn test_collect_derive_debug_patch() {
     let source = "/** @derive(Debug) */ class User { name: string; }";
     let program = parse_module(source);
     let host = MacroExpander::new().unwrap();
-    let (module, classes, interfaces, enums, type_aliases) = host
+    let (module, items) = host
         .prepare_expansion_context(&program, source)
         .unwrap()
         .unwrap();
     let (collector, _) =
-        host.collect_macro_patches(&module, classes, interfaces, enums, type_aliases, "test.ts", source);
+        host.collect_macro_patches(&module, items, "test.ts", source);
 
     let type_patches = collector.get_type_patches();
 
@@ -488,10 +488,12 @@ fn test_apply_and_finalize_expansion_no_type_patches() {
             source,
             &mut collector,
             &mut diagnostics,
-            Vec::new(),
-            Vec::new(),
-            Vec::new(),
-            Vec::new(),
+            crate::host::expand::LoweredItems {
+                classes: Vec::new(),
+                interfaces: Vec::new(),
+                enums: Vec::new(),
+                type_aliases: Vec::new(),
+            },
         )
         .unwrap();
     assert!(result.type_output.is_none());
