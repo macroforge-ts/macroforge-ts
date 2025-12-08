@@ -262,6 +262,20 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let class_name = input.name();
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
 
+            // Check for user-defined constructor with parameters
+            if let Some(ctor) = class.method("constructor") {
+                if !ctor.params_src.trim().is_empty() {
+                    return Err(MacroforgeError::new(
+                        ctor.span,
+                        format!(
+                            "@Derive(Deserialize) cannot be used on class '{}' with a custom constructor. \
+                            Remove the constructor or use @Derive(Deserialize) on a class without a constructor.",
+                            class_name
+                        ),
+                    ));
+                }
+            }
+
             // Collect deserializable fields
             let fields: Vec<DeserializeField> = class
                 .fields()
@@ -319,6 +333,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let deny_unknown = container_opts.deny_unknown_fields;
 
             let mut result = body! {
+                constructor() {}
+
                 static fromJSON(data: unknown): Result<@{class_name}, string[]> {
                     if (typeof data !== "object" || data === null || Array.isArray(data)) {
                         return Result.err(["@{class_name}.fromJSON: expected an object, got " + (Array.isArray(data) ? "array" : typeof data)]);
