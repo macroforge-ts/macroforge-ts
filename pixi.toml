@@ -12,7 +12,7 @@ build = { cmd = "pixi run build:rust && pixi run build:plugin" }
 "build:@playground/macro" = { cmd = "cd playground/macro && bun x napi build --platform --release -p playground-macros" }
 "test:rust" = { cmd = "cd crates && cargo test --workspace" }
 "test:packages" = { cmd = "cd packages/typescript-plugin && bun run test && cd ../svelte-language-server && bun run test" }
-"test:playground" = { cmd = "(cd playground/tests && node --test) && (cd playground/tests/rust-tests && cargo test)" }
+"test:playground" = { cmd = "(cd playground/tests && node --test) && (cd playground/tests/rust-tests && cargo test) && (cd playground/tests && npm run test:e2e)" }
 "test:all" = { cmd = "pixi run test:rust && pixi run test:packages && pixi run test:playground" }
 "test:e2e:zed" = { cmd = "./tests/e2e/run-zed-test.sh" }
 "test:e2e:zed:verbose" = { cmd = "./tests/e2e/run-zed-test.sh --verbose" }

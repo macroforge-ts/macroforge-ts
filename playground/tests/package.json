@@ -2,9 +2,16 @@
   "name": "tests",
   "type": "module",
   "private": true,
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:vanilla": "playwright test --config=playwright.config.ts",
+    "test:e2e:svelte": "playwright test --config=playwright.svelte.config.ts",
+    "playwright:install": "playwright install chromium"
+  },
   "devDependencies": {
     "@types/bun": "latest",
-    "@vtsls/language-server": "^0.2.9"
+    "@vtsls/language-server": "^0.2.9",
+    "@playwright/test": "^1.49.0"
   },
   "peerDependencies": {
     "typescript": "^5"
