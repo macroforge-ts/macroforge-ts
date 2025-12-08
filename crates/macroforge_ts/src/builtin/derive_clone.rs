@@ -27,10 +27,17 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 }
             })
         }
-        Data::Enum(_) => Err(MacroforgeError::new(
-            input.error_span(),
-            "/** @derive(Clone) */ can only be applied to classes or interfaces",
-        )),
+        Data::Enum(_) => {
+            // Enums are primitive values, cloning is just returning the value
+            let enum_name = input.name();
+            Ok(ts_template! {
+                export namespace @{enum_name} {
+                    export function clone(value: @{enum_name}): @{enum_name} {
+                        return value;
+                    }
+                }
+            })
+        }
         Data::Interface(interface) => {
             let interface_name = input.name();
             let field_names: Vec<&str> = interface.field_names().collect();
@@ -49,6 +56,46 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                     }
                 }
             })
+        }
+        Data::TypeAlias(type_alias) => {
+            let type_name = input.name();
+
+            if type_alias.is_object() {
+                // Object type: spread copy
+                let field_names: Vec<&str> = type_alias
+                    .as_object()
+                    .unwrap()
+                    .iter()
+                    .map(|f| f.name.as_str())
+                    .collect();
+                let has_fields = !field_names.is_empty();
+
+                Ok(ts_template! {
+                    export namespace @{type_name} {
+                        export function clone(value: @{type_name}): @{type_name} {
+                            return {
+                                {#if has_fields}
+                                    {#for field in field_names}
+                                        @{field}: value.@{field},
+                                    {/for}
+                                {/if}
+                            };
+                        }
+                    }
+                })
+            } else {
+                // Union, tuple, or simple alias: use spread for objects, or return as-is
+                Ok(ts_template! {
+                    export namespace @{type_name} {
+                        export function clone(value: @{type_name}): @{type_name} {
+                            if (typeof value === "object" && value !== null) {
+                                return { ...value } as @{type_name};
+                            }
+                            return value;
+                        }
+                    }
+                })
+            }
         }
     }
 }

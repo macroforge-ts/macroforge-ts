@@ -144,10 +144,28 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 }
             })
         }
-        Data::Enum(_) => Err(MacroforgeError::new(
-            input.error_span(),
-            "/** @derive(Debug) */ can only be applied to classes or interfaces",
-        )),
+        Data::Enum(enum_data) => {
+            let enum_name = input.name();
+            let variants: Vec<String> = enum_data.variants().iter().map(|v| v.name.clone()).collect();
+            let has_variants = !variants.is_empty();
+
+            Ok(ts_template! {
+                export namespace @{enum_name} {
+                    export function toString(value: @{enum_name}): string {
+                        {#if has_variants}
+                            // Use reverse lookup for numeric enums
+                            const key = @{enum_name}[value as unknown as keyof typeof @{enum_name}];
+                            if (key !== undefined) {
+                                return "@{enum_name}." + key;
+                            }
+                            return "@{enum_name}(" + String(value) + ")";
+                        {:else}
+                            return "@{enum_name}(" + String(value) + ")";
+                        {/if}
+                    }
+                }
+            })
+        }
         Data::Interface(interface) => {
             let interface_name = input.name();
 
@@ -182,6 +200,54 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                     }
                 }
             })
+        }
+        Data::TypeAlias(type_alias) => {
+            let type_name = input.name();
+
+            // Generate different output based on type body
+            if type_alias.is_object() {
+                // Object type: show fields
+                let debug_fields: Vec<DebugField> = type_alias
+                    .as_object()
+                    .unwrap()
+                    .iter()
+                    .filter_map(|field| {
+                        let opts = DebugFieldOptions::from_decorators(&field.decorators);
+                        if opts.skip {
+                            return None;
+                        }
+                        let label = opts.rename.unwrap_or_else(|| field.name.clone());
+                        Some((label, field.name.clone()))
+                    })
+                    .collect();
+
+                let has_fields = !debug_fields.is_empty();
+
+                Ok(ts_template! {
+                    export namespace @{type_name} {
+                        export function toString(value: @{type_name}): string {
+                            {#if has_fields}
+                                const parts: string[] = [];
+                                {#for (label, name) in debug_fields}
+                                    parts.push("@{label}: " + value.@{name});
+                                {/for}
+                                return "@{type_name} { " + parts.join(", ") + " }";
+                            {:else}
+                                return "@{type_name} {}";
+                            {/if}
+                        }
+                    }
+                })
+            } else {
+                // Union, intersection, tuple, or simple alias: use JSON.stringify
+                Ok(ts_template! {
+                    export namespace @{type_name} {
+                        export function toString(value: @{type_name}): string {
+                            return "@{type_name}(" + JSON.stringify(value) + ")";
+                        }
+                    }
+                })
+            }
         }
     }
 }

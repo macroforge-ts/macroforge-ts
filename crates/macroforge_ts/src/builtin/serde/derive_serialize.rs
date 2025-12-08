@@ -191,10 +191,17 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 }
             })
         }
-        Data::Enum(_) => Err(MacroforgeError::new(
-            input.decorator_span(),
-            "/** @derive(Serialize) */ can only be applied to classes or interfaces",
-        )),
+        Data::Enum(_) => {
+            // Enums: return the underlying value directly
+            let enum_name = input.name();
+            Ok(ts_template! {
+                export namespace @{enum_name} {
+                    export function toJSON(value: @{enum_name}): string | number {
+                        return value;
+                    }
+                }
+            })
+        }
         Data::Interface(interface) => {
             let interface_name = input.name();
             let container_opts =
@@ -361,6 +368,79 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     }
                 }
             })
+        }
+        Data::TypeAlias(type_alias) => {
+            let type_name = input.name();
+
+            if type_alias.is_object() {
+                // Object type: serialize fields
+                let container_opts =
+                    SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
+
+                let fields: Vec<SerializeField> = type_alias
+                    .as_object()
+                    .unwrap()
+                    .iter()
+                    .filter_map(|field| {
+                        let opts = SerdeFieldOptions::from_decorators(&field.decorators);
+                        if !opts.should_serialize() {
+                            return None;
+                        }
+
+                        let json_key = opts
+                            .rename
+                            .clone()
+                            .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
+
+                        let type_cat = TypeCategory::from_ts_type(&field.ts_type);
+
+                        Some(SerializeField {
+                            json_key,
+                            field_name: field.name.clone(),
+                            type_cat,
+                            optional: field.optional,
+                            flatten: opts.flatten,
+                        })
+                    })
+                    .collect();
+
+                let regular_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
+                let has_regular = !regular_fields.is_empty();
+
+                Ok(ts_template! {
+                    export namespace @{type_name} {
+                        export function toJSON(value: @{type_name}): Record<string, unknown> {
+                            const result: Record<string, unknown> = {};
+
+                            {#if has_regular}
+                                {#for field in regular_fields}
+                                    {#if field.optional}
+                                        if (value.@{field.field_name} !== undefined) {
+                                            result["@{field.json_key}"] = value.@{field.field_name};
+                                        }
+                                    {:else}
+                                        result["@{field.json_key}"] = value.@{field.field_name};
+                                    {/if}
+                                {/for}
+                            {/if}
+
+                            return result;
+                        }
+                    }
+                })
+            } else {
+                // Union, tuple, or simple alias: return as-is or JSON.stringify
+                Ok(ts_template! {
+                    export namespace @{type_name} {
+                        export function toJSON(value: @{type_name}): unknown {
+                            if (typeof value === "object" && value !== null && typeof (value as any).toJSON === "function") {
+                                return (value as any).toJSON();
+                            }
+                            return value;
+                        }
+                    }
+                })
+            }
         }
     }
 }
