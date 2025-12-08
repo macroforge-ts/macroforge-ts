@@ -44,6 +44,10 @@ pub fn derive_json_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
             input.decorator_span(),
             "/** @derive(JSON) */ can only target classes, not interfaces",
         )),
+        Data::TypeAlias(_) => Err(MacroforgeError::new(
+            input.decorator_span(),
+            "/** @derive(JSON) */ can only target classes, not type aliases",
+        )),
     }
 }
 
@@ -139,6 +143,10 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             // For interfaces, we generate a companion namespace with functions
             generate_field_controller_for_interface(interface, &input)
         }
+        Data::TypeAlias(_) => Err(MacroforgeError::new(
+            input.decorator_span(),
+            "/** @derive(FieldController) */ can only target classes or interfaces, not type aliases",
+        )),
     }
 }
 

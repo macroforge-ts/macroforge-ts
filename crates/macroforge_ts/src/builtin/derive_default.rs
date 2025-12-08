@@ -16,7 +16,7 @@ struct DefaultField {
 #[ts_macro_derive(
     Default,
     description = "Generates a static default() factory method",
-    attributes(default)
+    attributes(defaultValue)
 )]
 pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);

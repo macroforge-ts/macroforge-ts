@@ -3,7 +3,7 @@
  * Uses all available macros for Playwright e2e testing.
  */
 
-/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 export interface SvelteAllMacrosTest {
   /** @debug({ rename: "testId" }) */
   id: string;
