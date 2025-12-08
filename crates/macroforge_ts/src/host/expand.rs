@@ -106,6 +106,14 @@ impl MacroExpander {
             registry.contains("@macro/derive", "Eq"),
             "Built-in @macro/derive::Eq macro should be registered"
         );
+        debug_assert!(
+            registry.contains("@macro/derive", "Serialize"),
+            "Built-in @macro/derive::Serialize macro should be registered"
+        );
+        debug_assert!(
+            registry.contains("@macro/derive", "Deserialize"),
+            "Built-in @macro/derive::Deserialize macro should be registered"
+        );
 
         let keep_decorators = config.keep_decorators;
 

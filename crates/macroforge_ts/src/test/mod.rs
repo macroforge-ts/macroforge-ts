@@ -1581,3 +1581,239 @@ interface Data {
         );
     });
 }
+
+#[test]
+fn test_derive_serialize_dts_output() {
+    let source = r#"
+import { Derive } from "@macro/derive";
+
+/** @derive(Serialize) */
+class User {
+    name: string;
+    age: number;
+}
+"#;
+
+    let expected_dts = r#"
+import { Derive } from "@macro/derive";
+
+
+class User {
+    name: string;
+    age: number;
+    toJSON(): Record<string, unknown>;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        assert!(result.changed, "expand() should report changes");
+        let type_output = result.type_output.expect("should have type output");
+
+        assert_eq!(
+            type_output.replace_whitespace(),
+            expected_dts.replace_whitespace()
+        );
+    });
+}
+
+#[test]
+fn test_derive_serialize_runtime_output() {
+    let source = r#"
+import { Derive } from "@macro/derive";
+
+/** @derive(Serialize) */
+class Data {
+    val: number;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        assert!(result.changed, "expand() should report changes");
+        // Serialize macro adds toJSON() method
+        assert!(result.code.contains("toJSON()"));
+        assert!(result.code.contains("Record<string, unknown>"));
+    });
+}
+
+#[test]
+fn test_derive_deserialize_dts_output() {
+    let source = r#"
+import { Derive } from "@macro/derive";
+
+/** @derive(Deserialize) */
+class User {
+    name: string;
+    age: number;
+}
+"#;
+
+    let expected_dts = r#"
+import { Derive } from "@macro/derive";
+
+
+class User {
+    name: string;
+    age: number;
+    static fromJSON(data: unknown): User;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        assert!(result.changed, "expand() should report changes");
+        let type_output = result.type_output.expect("should have type output");
+
+        assert_eq!(
+            type_output.replace_whitespace(),
+            expected_dts.replace_whitespace()
+        );
+    });
+}
+
+#[test]
+fn test_derive_deserialize_runtime_output() {
+    let source = r#"
+import { Derive } from "@macro/derive";
+
+/** @derive(Deserialize) */
+class Data {
+    val: number;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        assert!(result.changed, "expand() should report changes");
+        // Deserialize macro adds static fromJSON() method
+        assert!(result.code.contains("fromJSON"));
+        assert!(result.code.contains("static"));
+    });
+}
+
+#[test]
+fn test_derive_serialize_on_interface_generates_namespace() {
+    let source = r#"
+/** @derive(Serialize) */
+interface Point {
+    x: number;
+    y: number;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
+
+        // Output should contain namespace with toJSON function
+        assert!(
+            result.code.contains("namespace Point"),
+            "Should generate namespace Point"
+        );
+        assert!(
+            result.code.contains("function toJSON(self: Point)"),
+            "Should generate toJSON function with self parameter"
+        );
+    });
+}
+
+#[test]
+fn test_derive_deserialize_on_interface_generates_namespace() {
+    let source = r#"
+/** @derive(Deserialize) */
+interface Point {
+    x: number;
+    y: number;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
+
+        // Output should contain namespace with fromJSON and is functions
+        assert!(
+            result.code.contains("namespace Point"),
+            "Should generate namespace Point"
+        );
+        assert!(
+            result.code.contains("function fromJSON(data: unknown)"),
+            "Should generate fromJSON function"
+        );
+        assert!(
+            result.code.contains("function is(data: unknown)"),
+            "Should generate is type guard function"
+        );
+    });
+}
+
+#[test]
+fn test_multiple_derives_with_serialize_deserialize() {
+    // When Serialize and Deserialize are combined, both should succeed
+    let source = r#"
+/** @derive(Serialize, Deserialize) */
+class Config {
+    host: string;
+    port: number;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors, got {} errors",
+            error_count
+        );
+
+        // Should have both toJSON and fromJSON methods
+        assert!(
+            result.code.contains("toJSON()"),
+            "Should have Serialize's toJSON"
+        );
+        assert!(
+            result.code.contains("static fromJSON"),
+            "Should have Deserialize's fromJSON"
+        );
+    });
+}
