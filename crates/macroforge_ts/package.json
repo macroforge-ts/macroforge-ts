@@ -1,9 +1,22 @@
 {
   "name": "macroforge",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "TypeScript macro expansion engine powered by Rust and SWC",
   "main": "index.js",
   "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./index.js",
+      "default": "./index.js"
+    },
+    "./result": {
+      "types": "./result.d.ts",
+      "import": "./result.mjs",
+      "require": "./result.js",
+      "default": "./result.mjs"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rymskip/macroforge-ts.git"
@@ -37,6 +50,7 @@
     "index.d.ts",
     "index.js",
     "result.js",
+    "result.mjs",
     "result.d.ts"
   ],
   "dependencies": {
@@ -46,12 +60,12 @@
     "node": ">= 18"
   },
   "optionalDependencies": {
-    "@macroforge/bin-darwin-x64": "0.1.11",
-    "@macroforge/bin-darwin-arm64": "0.1.11",
-    "@macroforge/bin-linux-x64-gnu": "0.1.11",
-    "@macroforge/bin-linux-arm64-gnu": "0.1.11",
-    "@macroforge/bin-win32-x64-msvc": "0.1.11",
-    "@macroforge/bin-win32-arm64-msvc": "0.1.11"
+    "@macroforge/bin-darwin-x64": "0.1.12",
+    "@macroforge/bin-darwin-arm64": "0.1.12",
+    "@macroforge/bin-linux-x64-gnu": "0.1.12",
+    "@macroforge/bin-linux-arm64-gnu": "0.1.12",
+    "@macroforge/bin-win32-x64-msvc": "0.1.12",
+    "@macroforge/bin-win32-arm64-msvc": "0.1.12"
   },
   "scripts": {
     "artifacts": "napi artifacts --npm-dir npm"
