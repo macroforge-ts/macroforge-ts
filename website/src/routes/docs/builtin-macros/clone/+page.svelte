@@ -15,9 +15,7 @@
 
 <h2 id="basic-usage">Basic Usage</h2>
 
-<CodeBlock code={`import { Clone } from "macroforge";
-
-/** @derive(Clone) */
+<CodeBlock code={`/** @derive(Clone) */
 class Point {
   x: number;
   y: number;
@@ -89,9 +87,7 @@ console.log(original.address.city); // "LA"`} lang="typescript" />
 	Clone works well with Eq for creating independent copies that compare as equal:
 </p>
 
-<CodeBlock code={`import { Clone, Eq } from "macroforge";
-
-/** @derive(Clone, Eq) */
+<CodeBlock code={`/** @derive(Clone, Eq) */
 class Point {
   x: number;
   y: number;
@@ -107,3 +103,28 @@ const copy = original.clone();
 
 console.log(original === copy);       // false (different instances)
 console.log(original.equals(copy));   // true (same values)`} lang="typescript" />
+
+<h2 id="interface-support">Interface Support</h2>
+
+<p>
+	Clone also works with interfaces. For interfaces, a namespace is generated with a <code>clone</code> function:
+</p>
+
+<CodeBlock code={`/** @derive(Clone) */
+interface Point {
+  x: number;
+  y: number;
+}
+
+// Generated:
+// export namespace Point {
+//   export function clone(self: Point): Point {
+//     return { x: self.x, y: self.y };
+//   }
+// }
+
+const original: Point = { x: 10, y: 20 };
+const copy = Point.clone(original);
+
+console.log(copy.x, copy.y);        // 10, 20
+console.log(original === copy);     // false (different objects)`} lang="typescript" />

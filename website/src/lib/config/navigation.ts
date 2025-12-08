@@ -46,9 +46,18 @@ export const navigation: NavSection[] = [
 		title: 'Integration',
 		items: [
 			{ title: 'Overview', href: '/docs/integration' },
+			{ title: 'CLI', href: '/docs/integration/cli' },
 			{ title: 'TypeScript Plugin', href: '/docs/integration/typescript-plugin' },
 			{ title: 'Vite Plugin', href: '/docs/integration/vite-plugin' },
 			{ title: 'Configuration', href: '/docs/integration/configuration' }
+		]
+	},
+	{
+		title: 'Language Servers',
+		items: [
+			{ title: 'Overview', href: '/docs/language-servers' },
+			{ title: 'Svelte', href: '/docs/language-servers/svelte' },
+			{ title: 'Zed Extensions', href: '/docs/language-servers/zed' }
 		]
 	},
 	{

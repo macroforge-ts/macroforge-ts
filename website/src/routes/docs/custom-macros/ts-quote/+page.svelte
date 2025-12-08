@@ -45,7 +45,7 @@
 let field_name = "name";
 
 body! {
-    get@{field_name}(): string {
+    {|get@{field_name}|}(): string {
         return this.@{field_name};
     }
 }
@@ -55,6 +55,34 @@ body! {
 //     return this.name;
 // }`} lang="rust" />
 
+<h2 id="ident-blocks">Identifier Concatenation</h2>
+
+<p>Use <code>{'{'} | content | {'}'}</code> to concatenate identifiers without spaces. This is essential for building dynamic identifiers like <code>getUser</code>, <code>setName</code>, etc.</p>
+
+<CodeBlock code={`let type_name = "User";
+
+body! {
+    // With ident block - concatenates without spaces
+    function {|get@{type_name}|}() {
+        return this.user;
+    }
+}
+
+// Generates:
+// function getUser() { return this.user; }`} lang="rust" />
+
+<p>By default, <code>@{'{'}expr{'}'}</code> adds a space after for readability. Use ident blocks when you explicitly need concatenation:</p>
+
+<CodeBlock code={`let name = "Status";
+
+// Regular interpolation (space after)
+ts_template! { namespace @{name} }
+// → "namespace Status"
+
+// Ident block (no space)
+ts_template! { {|namespace@{name}|} }
+// → "namespaceStatus"`} lang="rust" />
+
 <h2 id="loops">Loops</h2>
 
 <p>Iterate with <code>{'{'}#for{'}'}</code>:</p>
@@ -63,7 +91,7 @@ body! {
 
 body! {
     {#for field in fields}
-        get@{field}() {
+        {|get@{field}|}() {
             return this.@{field};
         }
     {/for}
@@ -80,7 +108,7 @@ body! {
 
 body! {
     {#for (name, type_name) in fields}
-        get@{name}(): @{type_name} {
+        {|get@{name}|}(): @{type_name} {
             return this.@{name};
         }
     {/for}
@@ -121,10 +149,10 @@ body! {
 
 <CodeBlock code={`body! {
     {#for field in fields}
-        {%let getter_name = format!("get{}", capitalize(field.name))}
+        {%let capitalized = capitalize(field.name)}
         {%let return_type = field.ts_type.clone()}
 
-        @{getter_name}(): @{return_type} {
+        {|get@{capitalized}|}(): @{return_type} {
             return this.@{field.name};
         }
     {/for}
@@ -181,7 +209,11 @@ fn generate_json_macro(class: &ClassData) -> TsStream {
 	<tbody>
 		<tr>
 			<td><code>@&#123;expr&#125;</code></td>
-			<td>Interpolate Rust expression</td>
+			<td>Interpolate Rust expression (adds space after)</td>
+		</tr>
+		<tr>
+			<td><code>&#123;| content |&#125;</code></td>
+			<td>Ident block: concatenates without spaces</td>
 		</tr>
 		<tr>
 			<td><code>&#123;#for x in iter&#125;...&#123;/for&#125;</code></td>
