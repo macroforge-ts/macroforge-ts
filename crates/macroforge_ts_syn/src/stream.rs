@@ -30,6 +30,8 @@ pub struct TsStream {
     /// Macro context data (decorator span, target span, etc.)
     /// This is populated when TsStream is created by the macro host
     pub ctx: Option<crate::abi::MacroContextIR>,
+    /// Runtime patches to apply (e.g., imports at file level)
+    pub runtime_patches: Vec<crate::abi::Patch>,
 }
 
 #[cfg(feature = "swc")]
@@ -122,6 +124,7 @@ impl TsStream {
             source: source.to_string(),
             file_name: file_name.to_string(),
             ctx: None,
+            runtime_patches: vec![],
         })
     }
 
@@ -132,6 +135,7 @@ impl TsStream {
             source,
             file_name: "macro_output.ts".to_string(),
             ctx: None,
+            runtime_patches: vec![],
         }
     }
 
@@ -152,6 +156,7 @@ impl TsStream {
             source: source.to_string(),
             file_name: file_name.to_string(),
             ctx: Some(ctx),
+            runtime_patches: vec![],
         })
     }
 
@@ -163,12 +168,25 @@ impl TsStream {
     /// Convert the stream into a MacroResult
     pub fn into_result(self) -> crate::abi::MacroResult {
         crate::abi::MacroResult {
-            runtime_patches: vec![],
+            runtime_patches: self.runtime_patches,
             type_patches: vec![],
             diagnostics: vec![],
             tokens: Some(self.source),
             debug: None,
         }
+    }
+
+    /// Add an import statement to be inserted at the top of the file.
+    /// The import will be deduplicated if it already exists.
+    pub fn add_import(&mut self, specifier: &str, module: &str) {
+        use crate::abi::{Patch, SpanIR};
+        let import_code = format!("import {{ {specifier} }} from \"{module}\";\n");
+        self.runtime_patches.push(Patch::InsertRaw {
+            at: SpanIR::new(1, 1), // Position 1 = start of file (1-indexed)
+            code: import_code,
+            context: Some("import".to_string()),
+            source_macro: Some("Deserialize".to_string()),
+        });
     }
 
     /// Create a temporary parser for a parsing operation.

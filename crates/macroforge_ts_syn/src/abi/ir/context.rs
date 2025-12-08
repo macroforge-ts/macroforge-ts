@@ -1,6 +1,6 @@
 //! Macro execution context
 
-use crate::abi::{ClassIR, EnumIR, InterfaceIR, SpanIR};
+use crate::abi::{ClassIR, EnumIR, InterfaceIR, SpanIR, TypeAliasIR};
 use serde::{Deserialize, Serialize};
 
 /// The kind of macro being executed
@@ -23,6 +23,8 @@ pub enum TargetIR {
     Enum(EnumIR),
     /// Macro applied to an interface
     Interface(InterfaceIR),
+    /// Macro applied to a type alias
+    TypeAlias(TypeAliasIR),
     /// Macro applied to a function (future)
     Function,
     /// Macro applied to other construct
@@ -126,6 +128,14 @@ impl MacroContextIR {
         }
     }
 
+    /// Get the type alias IR if the target is a type alias
+    pub fn as_type_alias(&self) -> Option<&TypeAliasIR> {
+        match &self.target {
+            TargetIR::TypeAlias(type_alias_ir) => Some(type_alias_ir),
+            _ => None,
+        }
+    }
+
     /// Create a new macro context for a derive macro on an interface
     pub fn new_derive_interface(
         macro_name: String,
@@ -146,6 +156,54 @@ impl MacroContextIR {
             target_span,
             file_name,
             target: TargetIR::Interface(interface),
+            target_source,
+        }
+    }
+
+    /// Create a new macro context for a derive macro on a type alias
+    pub fn new_derive_type_alias(
+        macro_name: String,
+        module_path: String,
+        decorator_span: SpanIR,
+        target_span: SpanIR,
+        file_name: String,
+        type_alias: TypeAliasIR,
+        target_source: String,
+    ) -> Self {
+        Self {
+            abi_version: 1,
+            macro_kind: MacroKind::Derive,
+            macro_name,
+            module_path,
+            decorator_span,
+            macro_name_span: None,
+            target_span,
+            file_name,
+            target: TargetIR::TypeAlias(type_alias),
+            target_source,
+        }
+    }
+
+    /// Create a new macro context for a derive macro on an enum
+    pub fn new_derive_enum(
+        macro_name: String,
+        module_path: String,
+        decorator_span: SpanIR,
+        target_span: SpanIR,
+        file_name: String,
+        enum_ir: EnumIR,
+        target_source: String,
+    ) -> Self {
+        Self {
+            abi_version: 1,
+            macro_kind: MacroKind::Derive,
+            macro_name,
+            module_path,
+            decorator_span,
+            macro_name_span: None,
+            target_span,
+            file_name,
+            target: TargetIR::Enum(enum_ir),
             target_source,
         }
     }
