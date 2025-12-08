@@ -56,15 +56,11 @@ const steps = [
     cmd: "rm -rf node_modules",
     cwd: path.join(root, "tests", "e2e", "fixtures", "ts-project"),
   },
+  // Build crates BEFORE installing packages so they get the fresh native module
   {
-    label: "install packages workspace deps",
-    cmd: "bun install",
-    cwd: path.join(root, "packages"),
-  },
-  {
-    label: "clean extension.wasm (macroforge)",
+    label: "clean extension.wasm (vtsls-macroforge)",
     cmd: "rm -f extension.wasm",
-    cwd: path.join(root, "crates", "extensions", "macroforge"),
+    cwd: path.join(root, "crates", "extensions", "vtsls-macroforge"),
   },
   {
     label: "clean extension.wasm (svelte-macroforge)",
@@ -78,67 +74,73 @@ const steps = [
   },
   {
     label: "build crates/macroforge_ts",
-    cmd: "bun x @napi-rs/cli build --platform --release",
+    cmd: "npx -y -p @napi-rs/cli napi build --platform --release",
     cwd: path.join(root, "crates", "macroforge_ts"),
+  },
+  // Now install packages after crates are built
+  {
+    label: "install packages workspace deps",
+    cmd: "npm install",
+    cwd: path.join(root, "packages"),
   },
   {
     label: "clean packages/vite-plugin",
-    cmd: "bun run clean",
+    cmd: "npm run clean",
     cwd: path.join(root, "packages", "vite-plugin"),
   },
   {
     label: "build packages/vite-plugin",
-    cmd: "bun run build",
+    cmd: "npm run build",
     cwd: path.join(root, "packages", "vite-plugin"),
   },
   {
     label: "clean packages/typescript-plugin",
-    cmd: "bun run clean",
+    cmd: "npm run clean",
     cwd: path.join(root, "packages", "typescript-plugin"),
   },
   {
     label: "build packages/typescript-plugin",
-    cmd: "bun run build",
+    cmd: "npm run build",
     cwd: path.join(root, "packages", "typescript-plugin"),
   },
   {
     label: "clean packages/svelte-language-server",
-    cmd: "bun run clean",
+    cmd: "npm run clean",
     cwd: path.join(root, "packages", "svelte-language-server"),
   },
   {
     label: "build packages/svelte-language-server",
-    cmd: "bun run build",
+    cmd: "npm run build",
     cwd: path.join(root, "packages", "svelte-language-server"),
   },
   {
     label: "install playground/macro deps",
-    cmd: "bun install",
+    cmd: "npm install",
     cwd: path.join(root, "playground", "macro"),
   },
   {
     label: "cleanbuild playground/macro",
-    cmd: "bun run cleanbuild",
+    cmd: "npm run cleanbuild",
     cwd: path.join(root, "playground", "macro"),
   },
   {
     label: "install playground/svelte deps",
-    cmd: "bun install",
+    cmd: "npm install",
     cwd: path.join(root, "playground", "svelte"),
   },
   {
     label: "build playground/svelte",
-    cmd: "bun run build",
+    cmd: "npm run build",
     cwd: path.join(root, "playground", "svelte"),
   },
   {
     label: "install playground/vanilla deps",
-    cmd: "bun install",
+    cmd: "npm install",
     cwd: path.join(root, "playground", "vanilla"),
   },
   {
     label: "build playground/vanilla",
-    cmd: "bun run build",
+    cmd: "npm run build",
     cwd: path.join(root, "playground", "vanilla"),
   },
 ];

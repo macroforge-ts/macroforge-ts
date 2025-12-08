@@ -1,16 +1,3 @@
-import { Schema } from "effect";
-import {
-  TaxRate,
-  Site,
-  Represents,
-  Ordered,
-  Did,
-  AccountName,
-  Sector,
-  PhoneNumber,
-  Email,
-  Colors,
-} from "../types/bindings";
 /** import macro { JSON } from "@playground/macro"; */
 
 /**  */
@@ -52,13 +39,52 @@ export class MacroUser {
 
     toJSON(): Record<string, unknown> {
     const result: Record<string, unknown> = {};
-    result.id = this.id;
-    result.name = this.name;
-    result.role = this.role;
-    result.favoriteMacro = this.favoriteMacro;
-    result.since = this.since;
-    result.apiToken = this.apiToken;
+    result["id"] = this.id;
+    result["name"] = this.name;
+    result["role"] = this.role;
+    result["favoriteMacro"] = this.favoriteMacro;
+    result["since"] = this.since;
+    result["apiToken"] = this.apiToken;
     return result;
+}
+
+    static fromJSON(data: unknown): MacroUser {
+    if (typeof data !== "object" || data === null || Array.isArray(data)) {
+        throw new Error("MacroUser.fromJSON: expected an object, got " + (Array.isArray(data) ? "array" : typeof data));
+    }
+    const obj = data as Record<string, unknown>;
+    if (!("id" in obj)) {
+        throw new Error("MacroUser.fromJSON: missing required field \"id\"");
+    }
+    if (!("name" in obj)) {
+        throw new Error("MacroUser.fromJSON: missing required field \"name\"");
+    }
+    if (!("role" in obj)) {
+        throw new Error("MacroUser.fromJSON: missing required field \"role\"");
+    }
+    if (!("favoriteMacro" in obj)) {
+        throw new Error("MacroUser.fromJSON: missing required field \"favoriteMacro\"");
+    }
+    if (!("since" in obj)) {
+        throw new Error("MacroUser.fromJSON: missing required field \"since\"");
+    }
+    if (!("apiToken" in obj)) {
+        throw new Error("MacroUser.fromJSON: missing required field \"apiToken\"");
+    }
+    const instance = new MacroUser();
+    const __raw_id = obj["id"];
+    instance.id = __raw_id as string;
+    const __raw_name = obj["name"];
+    instance.name = __raw_name as string;
+    const __raw_role = obj["role"];
+    instance.role = __raw_role as string;
+    const __raw_favoriteMacro = obj["favoriteMacro"];
+    instance.favoriteMacro = __raw_favoriteMacro as "Derive" | "JsonNative";
+    const __raw_since = obj["since"];
+    instance.since = __raw_since as string;
+    const __raw_apiToken = obj["apiToken"];
+    instance.apiToken = __raw_apiToken as string;
+    return instance;
 }
 }
 
@@ -73,122 +99,3 @@ const showcaseUser = new MacroUser(
 
 export const showcaseUserSummary = showcaseUser.toString();
 export const showcaseUserJson = showcaseUser.toJSON();
-
-export class Account extends Schema.Class<Account>("Account")({
-  id: Schema.propertySignature(Schema.String).annotations({
-    missingMessage: () => `'Id' is required`,
-  }),
-  taxRate: Schema.propertySignature(
-    Schema.Union(
-      Schema.String.pipe(Schema.nonEmptyString()),
-      TaxRate,
-    ).annotations({
-      message: () => ({
-        message: `Please enter a valid value`,
-        override: true,
-      }),
-    }),
-  ).annotations({ missingMessage: () => `'Tax Rate' is required` }),
-  site: Schema.propertySignature(
-    Schema.Union(Schema.String.pipe(Schema.nonEmptyString()), Site).annotations(
-      {
-        message: () => ({
-          message: `Please enter a valid value`,
-          override: true,
-        }),
-      },
-    ),
-  ).annotations({ missingMessage: () => `'Site' is required` }),
-  salesRep: Schema.OptionFromNullishOr(
-    Schema.Array(Represents).annotations({
-      identifier: `RepresentsRef`,
-    }),
-    null,
-  ),
-  orders: Schema.propertySignature(
-    Schema.Array(
-      Ordered.annotations({
-        identifier: `OrderedRef`,
-      }),
-    ),
-  ).annotations({ missingMessage: () => `'Orders' is required` }),
-  activity: Schema.propertySignature(
-    Schema.Array(
-      Did.annotations({
-        identifier: `DidRef`,
-      }),
-    ),
-  ).annotations({ missingMessage: () => `'Activity' is required` }),
-  customFields: Schema.propertySignature(
-    Schema.Array(
-      Schema.Tuple(
-        Schema.String.pipe(
-          Schema.nonEmptyString({ message: () => `Please enter a value` }),
-        ),
-        Schema.String.pipe(
-          Schema.nonEmptyString({ message: () => `Please enter a value` }),
-        ),
-      ),
-    ),
-  ).annotations({ missingMessage: () => `'Custom Fields' is required` }),
-  accountName: Schema.propertySignature(AccountName).annotations({
-    missingMessage: () => `'Account Name' is required`,
-  }),
-  sector: Schema.propertySignature(Sector).annotations({
-    missingMessage: () => `'Sector' is required`,
-  }),
-  memo: Schema.OptionFromNullishOr(
-    Schema.String.pipe(
-      Schema.nonEmptyString({ message: () => `Please enter a value` }),
-    ),
-    null,
-  ),
-  phones: Schema.propertySignature(Schema.Array(PhoneNumber)).annotations({
-    missingMessage: () => `'Phones' is required`,
-  }),
-  email: Schema.propertySignature(Email).annotations({
-    missingMessage: () => `'Email' is required`,
-  }),
-  leadSource: Schema.propertySignature(
-    Schema.String.pipe(
-      Schema.nonEmptyString({ message: () => `Please enter a value` }),
-    ),
-  ).annotations({ missingMessage: () => `'Lead Source' is required` }),
-  colors: Schema.propertySignature(Colors).annotations({
-    missingMessage: () => `'Colors' is required`,
-  }),
-  needsReview: Schema.propertySignature(Schema.Boolean).annotations({
-    missingMessage: () => `'Needs Review' is required`,
-  }),
-  hasAlert: Schema.propertySignature(Schema.Boolean).annotations({
-    missingMessage: () => `'Has Alert' is required`,
-  }),
-  accountType: Schema.propertySignature(
-    Schema.String.pipe(
-      Schema.nonEmptyString({ message: () => `Please enter a value` }),
-    ),
-  ).annotations({ missingMessage: () => `'Account Type' is required` }),
-  subtype: Schema.propertySignature(
-    Schema.String.pipe(
-      Schema.nonEmptyString({ message: () => `Please enter a value` }),
-    ),
-  ).annotations({ missingMessage: () => `'Subtype' is required` }),
-  isTaxExempt: Schema.propertySignature(Schema.Boolean).annotations({
-    missingMessage: () => `'Is Tax Exempt' is required`,
-  }),
-  paymentTerms: Schema.propertySignature(
-    Schema.String.pipe(
-      Schema.nonEmptyString({ message: () => `Please enter a value` }),
-    ),
-  ).annotations({ missingMessage: () => `'Payment Terms' is required` }),
-  tags: Schema.propertySignature(
-    Schema.Array(
-      Schema.String.pipe(
-        Schema.nonEmptyString({ message: () => `Please enter a value` }),
-      ),
-    ),
-  ).annotations({ missingMessage: () => `'Tags' is required` }),
-  dateAdded: Schema.propertySignature(Schema.DateTimeUtc).annotations({
-    missingMessage: () => `'Date Added' is required`,
-  }),
-}) {}

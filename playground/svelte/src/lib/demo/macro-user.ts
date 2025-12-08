@@ -1,19 +1,6 @@
-import { Schema } from "effect";
-import {
-  TaxRate,
-  Site,
-  Represents,
-  Ordered,
-  Did,
-  AccountName,
-  Sector,
-  PhoneNumber,
-  Email,
-  Colors,
-} from "../types/bindings";
 /** import macro { JSON } from "@playground/macro"; */
 
-/** @derive(Debug, JSON) */
+/** @derive(Debug, Serialize, Deserialize) */
 export class MacroUser {
   /** @debug({ rename: "userId" }) */
   id: string;

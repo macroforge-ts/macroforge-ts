@@ -1299,12 +1299,12 @@ fn test_explicit_body_marker_parses_as_class_members() {
 }
 
 // ============================================================================
-// Attribute Validation Error Tests
+// Interface Derive Macro Tests
 // ============================================================================
 
 #[test]
-fn test_derive_debug_on_interface_produces_error() {
-    // Debug macro only works on classes, applying to interface should error
+fn test_derive_debug_on_interface_generates_namespace() {
+    // Debug macro now works on interfaces, generating a namespace with toString function
     let source = r#"
 /** @derive(Debug) */
 interface Status {
@@ -1317,30 +1317,28 @@ interface Status {
         let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
-        // Should have diagnostics indicating the error
-        assert!(
-            !result.diagnostics.is_empty(),
-            "Should produce diagnostics for invalid target"
-        );
-
-        // Find the error diagnostic
-        let error_diag = result
+        // Should have no error diagnostics
+        let error_count = result
             .diagnostics
             .iter()
-            .find(|d| d.level == DiagnosticLevel::Error)
-            .expect("Should have an error-level diagnostic");
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Error message should mention that Debug can only be applied to classes
+        // Output should contain namespace with toString function
         assert!(
-            error_diag.message.contains("class") || error_diag.message.contains("interface"),
-            "Error should mention class or interface restriction, got: {}",
-            error_diag.message
+            result.code.contains("namespace Status"),
+            "Should generate namespace Status. Got:\n{}", result.code
+        );
+        assert!(
+            result.code.contains("function toString(self: Status)"),
+            "Should generate toString function with self parameter. Got:\n{}", result.code
         );
     });
 }
 
 #[test]
-fn test_derive_clone_on_interface_produces_error() {
+fn test_derive_clone_on_interface_generates_namespace() {
     let source = r#"
 /** @derive(Clone) */
 interface UserData {
@@ -1354,30 +1352,28 @@ interface UserData {
         let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
-        // Should have diagnostics indicating the error
-        assert!(
-            !result.diagnostics.is_empty(),
-            "Should produce diagnostics for invalid target"
-        );
-
-        // Find the error diagnostic
-        let error_diag = result
+        // Should have no error diagnostics
+        let error_count = result
             .diagnostics
             .iter()
-            .find(|d| d.level == DiagnosticLevel::Error)
-            .expect("Should have an error-level diagnostic");
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Error message should mention interfaces
+        // Output should contain namespace with clone function
         assert!(
-            error_diag.message.contains("interface") || error_diag.message.contains("Clone"),
-            "Error should mention Clone or interfaces, got: {}",
-            error_diag.message
+            result.code.contains("namespace UserData"),
+            "Should generate namespace UserData"
+        );
+        assert!(
+            result.code.contains("function clone(self: UserData)"),
+            "Should generate clone function with self parameter"
         );
     });
 }
 
 #[test]
-fn test_derive_eq_on_interface_produces_error() {
+fn test_derive_eq_on_interface_generates_namespace() {
     let source = r#"
 /** @derive(Eq) */
 interface Point {
@@ -1391,31 +1387,33 @@ interface Point {
         let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
-        // Should have diagnostics indicating the error
-        assert!(
-            !result.diagnostics.is_empty(),
-            "Should produce diagnostics for invalid target"
-        );
-
-        // Find the error diagnostic
-        let error_diag = result
+        // Should have no error diagnostics
+        let error_count = result
             .diagnostics
             .iter()
-            .find(|d| d.level == DiagnosticLevel::Error)
-            .expect("Should have an error-level diagnostic");
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Error message should mention interfaces
+        // Output should contain namespace with equals and hashCode functions
         assert!(
-            error_diag.message.contains("interface") || error_diag.message.contains("Eq"),
-            "Error should mention Eq or interfaces, got: {}",
-            error_diag.message
+            result.code.contains("namespace Point"),
+            "Should generate namespace Point"
+        );
+        assert!(
+            result.code.contains("function equals(self: Point, other: Point)"),
+            "Should generate equals function with self and other parameters"
+        );
+        assert!(
+            result.code.contains("function hashCode(self: Point)"),
+            "Should generate hashCode function with self parameter"
         );
     });
 }
 
 #[test]
-fn test_error_span_points_to_correct_attribute_for_interface() {
-    // Test that error spans point to the decorator area, not the interface declaration
+fn test_derive_debug_on_interface_generates_correct_output() {
+    // Test that the generated Debug output is correct for interfaces
     let source = r#"
 /** @derive(Debug) */
 interface Status {
@@ -1428,40 +1426,22 @@ interface Status {
         let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
-        let error_diag = result
+        // Should have no errors
+        let error_count = result
             .diagnostics
             .iter()
-            .find(|d| d.level == DiagnosticLevel::Error)
-            .expect("Should have an error-level diagnostic");
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should succeed without errors");
 
-        // The span should be present and point to a reasonable location
-        let span = error_diag.span.as_ref().expect("Error should have a span");
-
-        // The span should be within the source bounds
-        assert!(
-            span.start < source.len() as u32,
-            "Span start should be within source"
-        );
-        assert!(
-            span.end <= source.len() as u32,
-            "Span end should be within source"
-        );
-
-        // The span should point to the decorator/comment area (before "interface")
-        let interface_pos = source.find("interface").expect("source has interface");
-        assert!(
-            (span.start as usize) < interface_pos,
-            "Error span should point to the decorator, not the interface. Span start: {}, interface pos: {}",
-            span.start,
-            interface_pos
-        );
+        // Verify the output contains expected patterns
+        assert!(result.code.contains("self.active"), "Should reference self.active");
     });
 }
 
 #[test]
-fn test_multiple_derives_all_invalid_on_interface_produces_multiple_errors() {
-    // When multiple derives are used on interface and all are invalid,
-    // we should get errors for each
+fn test_multiple_derives_on_interface_all_succeed() {
+    // When multiple derives are used on interface, all should succeed
     let source = r#"
 /** @derive(Debug, Clone, Eq) */
 interface Status {
@@ -1474,17 +1454,34 @@ interface Status {
         let host = MacroExpander::new().unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 
-        // Should have error diagnostics (Debug, Clone, and Eq all fail on interfaces)
+        // Should have no error diagnostics
         let error_count = result
             .diagnostics
             .iter()
             .filter(|d| d.level == DiagnosticLevel::Error)
             .count();
-
-        assert!(
-            error_count >= 1,
-            "Should have at least one error for invalid derives on interface, got {} errors",
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors for derives on interface, got {} errors",
             error_count
+        );
+
+        // Should have all three namespaces generated
+        assert!(
+            result.code.contains("function toString(self: Status)"),
+            "Should have Debug's toString"
+        );
+        assert!(
+            result.code.contains("function clone(self: Status)"),
+            "Should have Clone's clone"
+        );
+        assert!(
+            result.code.contains("function equals(self: Status"),
+            "Should have Eq's equals"
+        );
+        assert!(
+            result.code.contains("function hashCode(self: Status)"),
+            "Should have Eq's hashCode"
         );
     });
 }
@@ -1553,8 +1550,9 @@ interface Config {
 #[test]
 fn test_error_span_covers_macro_name_not_entire_decorator() {
     // Verify the error span is reasonably sized (not covering the entire file)
+    // Use an unknown macro to trigger an error
     let source = r#"
-/** @derive(Clone) */
+/** @derive(NonExistent) */
 interface Data {
     value: string;
 }
@@ -1575,7 +1573,7 @@ interface Data {
         let span_len = span.end - span.start;
 
         // The span should be reasonably sized - not the entire source
-        // A macro name like "Clone" would be around 5-20 characters with context
+        // A macro name like "NonExistent" would be around 5-20 characters with context
         assert!(
             span_len < 100,
             "Error span should be focused, not cover entire source. Span length: {}",

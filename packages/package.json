@@ -14,5 +14,8 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "overrides": {
+    "macroforge": "../crates/macroforge_ts"
   }
 }

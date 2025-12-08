@@ -5,6 +5,7 @@ edition = "2024"
 publish = false
 
 [dependencies]
+macroforge_ts = { path = "../../../crates/macroforge_ts" }
 macroforge_ts_quote = { path = "../../../crates/macroforge_ts_quote" }
 macroforge_ts_syn = { path = "../../../crates/macroforge_ts_syn" }
 swc_core = { version = "48", features = ["common", "ecma_ast", "ecma_parser"] }

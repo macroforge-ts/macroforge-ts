@@ -14,7 +14,8 @@ The `ts_template!` macro provides an intuitive, template-based way to generate T
 
 | Syntax | Description |
 |--------|-------------|
-| `@{expr}` | Interpolate a Rust expression |
+| `@{expr}` | Interpolate a Rust expression (always adds space after) |
+| `{| content |}` | Ident block: concatenates content without spaces (e.g., `{|get@{name}|}` → `getUser`) |
 | `@@{` | Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`) |
 | `"text @{expr}"` | String interpolation (auto-detected) |
 | `"'^template ${js}^'"` | JS backtick template literal (outputs `` `template ${js}` ``) |
@@ -51,6 +52,49 @@ let code = ts_template! {
 User.prototype.toString = function () {
   return "User instance";
 };
+```
+
+### Identifier Concatenation: `{| content |}`
+
+When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block syntax. Everything inside `{| |}` is concatenated without spaces:
+
+```rust
+let field_name = "User";
+
+let code = ts_template! {
+    function {|get@{field_name}|}() {
+        return this.@{field_name.to_lowercase()};
+    }
+};
+```
+
+**Generates:**
+
+```typescript
+function getUser() {
+  return this.user;
+}
+```
+
+Without ident blocks, `@{}` always adds a space after for readability. Use `{| |}` when you explicitly want concatenation:
+
+```rust
+let name = "Status";
+
+// With space (default behavior)
+ts_template! { namespace @{name} }  // → "namespace Status"
+
+// Without space (ident block)
+ts_template! { {|namespace@{name}|} }  // → "namespaceStatus"
+```
+
+Multiple interpolations can be combined:
+
+```rust
+let entity = "user";
+let action = "create";
+
+ts_template! { {|@{entity}_@{action}|} }  // → "user_create"
 ```
 
 ### String Interpolation: `"text @{expr}"`

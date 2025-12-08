@@ -416,3 +416,70 @@ fn test_match_with_interpolation() {
     assert!(s.contains("val . to_string"), "Should interpolate val");
     assert!(s.contains("e . to_string"), "Should interpolate e");
 }
+
+// ========== Ident Block {| |} Tests ==========
+
+#[test]
+fn test_ident_block_basic() {
+    // {| content |} should concatenate without spaces
+    let input = TokenStream2::from_str(r#"{|namespace@{suffix}|}"#).unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    // Should have interpolation without spacing
+    assert!(s.contains("suffix . to_string"), "Should interpolate suffix");
+    // Should emit "namespace" without trailing space
+    assert!(
+        s.contains(r#"__out . push_str ("namespace")"#),
+        "Should emit namespace without space"
+    );
+}
+
+#[test]
+fn test_ident_block_multiple_parts() {
+    // Multiple consecutive ident blocks should concatenate
+    let input = TokenStream2::from_str(r#"{|@{a}|}{|@{b}|}{|@{c}|}"#).unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    // Should have all three interpolations
+    assert!(s.contains("a . to_string"), "Should interpolate a");
+    assert!(s.contains("b . to_string"), "Should interpolate b");
+    assert!(s.contains("c . to_string"), "Should interpolate c");
+}
+
+#[test]
+fn test_ident_block_with_surrounding_text() {
+    // Ident block within normal template context
+    let input = TokenStream2::from_str(r#"function {|get@{name}|}() { }"#).unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    // Should have the function keyword and interpolation
+    assert!(s.contains(r#""function""#), "Should have function keyword");
+    assert!(s.contains("name . to_string"), "Should interpolate name");
+    assert!(s.contains(r#"__out . push_str ("get")"#), "Should have get prefix");
+}
+
+#[test]
+fn test_ident_block_empty() {
+    // Empty ident block {||} should produce nothing
+    let input = TokenStream2::from_str(r#"prefix{||}suffix"#).unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    // Should have prefix and suffix
+    assert!(s.contains(r#""prefix""#), "Should have prefix");
+    assert!(s.contains(r#""suffix""#), "Should have suffix");
+}
+
+#[test]
+fn test_ident_block_plain_text_only() {
+    // Ident block with just plain text (no interpolation)
+    let input = TokenStream2::from_str(r#"{|hello|}"#).unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    // Should emit "hello" without spaces
+    assert!(s.contains(r#"__out . push_str ("hello")"#), "Should emit hello");
+}

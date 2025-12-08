@@ -2,9 +2,9 @@
 mod tests {
     use swc_core::common::{FileName, GLOBALS, Globals, SourceMap, sync::Lrc};
     use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
-    use ts_syn::abi::{MacroContextIR, SpanIR};
-    use ts_quote::ts_template;
-    use ts_syn::{Data, DeriveInput, ParseTs, TsStream, lower_classes, lower_interfaces};
+    use macroforge_ts_syn::abi::{MacroContextIR, SpanIR};
+    use macroforge_ts_quote::ts_template;
+    use macroforge_ts_syn::{Data, DeriveInput, ParseTs, TsStream, lower_classes, lower_interfaces};
 
     fn capitalize(s: &str) -> String {
         let mut chars = s.chars();
@@ -294,7 +294,7 @@ mod tests {
         let base_props_method = format!("make{}BaseProps", class_name_str);
 
         let stream: TsStream = ts_template! {
-            make@{class_name}BaseProps<D extends number, const P extends DeepPath<@{class_name}, D>, V = DeepValue<@{class_name}, P, never, D>>(
+            {|make@{class_name}BaseProps|}<D extends number, const P extends DeepPath<@{class_name}, D>, V = DeepValue<@{class_name}, P, never, D>>(
                 superForm: SuperForm<@{class_name}>,
                 path: P,
                 overrides?: BasePropsOverrides<@{class_name}, V, D>
@@ -362,6 +362,188 @@ mod tests {
         assert!(
             s.contains(&format!("this.{}(", base_props_method)),
             "Expected 'this.' and base_props_method to be concatenated, but found: {}",
+            s
+        );
+    }
+
+    // ========== Ident Block {| |} Integration Tests ==========
+
+    #[test]
+    fn test_ident_block_basic_concatenation() {
+        // Test that {| |} concatenates content without spaces
+        let suffix = "Status";
+
+        let stream: TsStream = ts_template! {
+            const {|namespace@{suffix}|} = "value";
+        };
+
+        let s = stream.source();
+        println!("Generated Source:\n{}", s);
+
+        // Should produce "namespaceStatus" as a single identifier
+        assert!(
+            s.contains("namespaceStatus"),
+            "Expected 'namespace' and 'Status' to be concatenated without space, but found: {}",
+            s
+        );
+    }
+
+    #[test]
+    fn test_ident_block_function_name() {
+        // Test real-world use case: generating function names
+        let type_name = "User";
+
+        let stream: TsStream = ts_template! {
+            function {|get@{type_name}|}(): @{type_name} {
+                return {} as @{type_name};
+            }
+        };
+
+        let s = stream.source();
+        println!("Generated Source:\n{}", s);
+
+        // Function name should be concatenated
+        assert!(
+            s.contains("getUser()"),
+            "Expected 'get' and 'User' to form 'getUser()', but found: {}",
+            s
+        );
+
+        // Return type should have space before it
+        assert!(
+            s.contains("getUser(): User"),
+            "Expected proper spacing around return type, but found: {}",
+            s
+        );
+    }
+
+    #[test]
+    fn test_ident_block_multiple_interpolations() {
+        // Test multiple @{} inside a single ident block
+        let prefix = "get";
+        let middle = "User";
+        let suffix = "ById";
+
+        let stream: TsStream = ts_template! {
+            function {|@{prefix}@{middle}@{suffix}|}(id: string) { }
+        };
+
+        let s = stream.source();
+        println!("Generated Source:\n{}", s);
+
+        // All three parts should be concatenated
+        assert!(
+            s.contains("getUserById("),
+            "Expected all parts to be concatenated into 'getUserById', but found: {}",
+            s
+        );
+    }
+
+    #[test]
+    fn test_ident_block_preserves_external_spacing() {
+        // Test that space before {| |} is preserved
+        let name = "Handler";
+
+        let stream: TsStream = ts_template! {
+            export class {|Event@{name}|} { }
+        };
+
+        let s = stream.source();
+        println!("Generated Source:\n{}", s);
+
+        // Should have space between "class" and "EventHandler"
+        assert!(
+            s.contains("class EventHandler"),
+            "Expected 'class EventHandler' with space, but found: {}",
+            s
+        );
+    }
+
+    #[test]
+    fn test_ident_block_vs_regular_interpolation() {
+        // Compare ident block to regular interpolation
+        let type_name = "User";
+
+        // With ident block - explicit no space
+        let with_block: TsStream = ts_template! {
+            {|create@{type_name}|}
+        };
+
+        // Regular interpolation - relies on heuristics
+        let regular: TsStream = ts_template! {
+            create@{type_name}
+        };
+
+        let block_s = with_block.source();
+        let regular_s = regular.source();
+
+        println!("With block: {}", block_s);
+        println!("Regular: {}", regular_s);
+
+        // Ident block should always produce concatenated result
+        assert!(
+            block_s.contains("createUser"),
+            "Ident block should produce 'createUser', but found: {}",
+            block_s
+        );
+    }
+
+    #[test]
+    fn test_ident_block_in_method_chain() {
+        // Test ident blocks in method/property access patterns
+        let prop = "Status";
+
+        let stream: TsStream = ts_template! {
+            const value = obj.{|get@{prop}|}();
+        };
+
+        let s = stream.source();
+        println!("Generated Source:\n{}", s);
+
+        // Should produce "obj.getStatus()"
+        assert!(
+            s.contains("obj.getStatus()"),
+            "Expected 'obj.getStatus()', but found: {}",
+            s
+        );
+    }
+
+    #[test]
+    fn test_ident_block_empty() {
+        // Test empty ident block produces empty string
+        let stream: TsStream = ts_template! {
+            const prefix{||}suffix = 1;
+        };
+
+        let s = stream.source();
+        println!("Generated Source:\n{}", s);
+
+        // Should have prefix and suffix (empty block produces nothing)
+        assert!(
+            s.contains("prefix") && s.contains("suffix"),
+            "Expected prefix and suffix in output, but found: {}",
+            s
+        );
+    }
+
+    #[test]
+    fn test_ident_block_with_underscore_separator() {
+        // Test ident blocks with underscores (snake_case generation)
+        // All parts that need concatenation should be inside {| |}
+        let entity = "user";
+        let action = "create";
+
+        let stream: TsStream = ts_template! {
+            function {|@{entity}_@{action}|}() { }
+        };
+
+        let s = stream.source();
+        println!("Generated Source:\n{}", s);
+
+        // Should produce "user_create"
+        assert!(
+            s.contains("user_create()"),
+            "Expected 'user_create()', but found: {}",
             s
         );
     }
