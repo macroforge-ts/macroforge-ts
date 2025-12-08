@@ -2,6 +2,7 @@
 //!
 //! Provides a template syntax with interpolation and control flow:
 //! - `@{expr}` - Interpolate expressions
+//! - `{| content |}` - Ident block: concatenates content without spaces (e.g., `{|get@{name}|}` → `getUser`)
 //! - `@@{` - Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)
 //! - `"string @{expr}"` - String interpolation (auto-detected)
 //! - `"'^template ${expr}^'"` - JS backtick template literal (outputs `` `template ${expr}` ``)
@@ -57,11 +58,23 @@ enum TagType {
     EndFor,
     EndMatch,
     Let(TokenStream2),
-    Block, // Standard TypeScript Block { ... }
+    IdentBlock, // {| ... |} - identifier block with no internal spacing
+    Block,      // Standard TypeScript Block { ... }
 }
 
 fn analyze_tag(g: &Group) -> TagType {
     let tokens: Vec<TokenTree> = g.stream().into_iter().collect();
+
+    // Check for {| ... |} ident block - must have at least | and |
+    if tokens.len() >= 2
+        && let (Some(TokenTree::Punct(first)), Some(TokenTree::Punct(last))) =
+            (tokens.first(), tokens.last())
+        && first.as_char() == '|'
+        && last.as_char() == '|'
+    {
+        return TagType::IdentBlock;
+    }
+
     if tokens.len() < 2 {
         return TagType::Block;
     }
@@ -352,42 +365,58 @@ fn parse_match_arms(
     })
 }
 
-/// Check if a string is a TypeScript keyword that usually requires a space
-fn is_ts_keyword(s: &str) -> bool {
-    let s = s.trim_matches('r').trim_matches('"').trim_matches('\'');
-    [
-        "return",
-        "throw",
-        "await",
-        "yield",
-        "typeof",
-        "void",
-        "new",
-        "case",
-        "else",
-        "var",
-        "let",
-        "const",
-        "import",
-        "export",
-        "default",
-        "extends",
-        "implements",
-        "interface",
-        "class",
-        "enum",
-        "function",
-        "in",
-        "instanceof",
-        "of",
-        "as",
-        "is",
-        "from",
-        "keyof",
-        "unique",
-        "readonly",
-    ]
-    .contains(&s)
+/// Parse tokens without adding any spaces - for {| |} ident blocks
+fn parse_fragment_no_spacing(
+    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
+) -> syn::Result<TokenStream2> {
+    let mut output = TokenStream2::new();
+
+    while let Some(token) = iter.peek().cloned() {
+        match &token {
+            // Handle @{ expr } interpolation
+            TokenTree::Punct(p) if p.as_char() == '@' => {
+                iter.next(); // Consume '@'
+
+                let is_group = matches!(iter.peek(), Some(TokenTree::Group(g)) if g.delimiter() == Delimiter::Brace);
+
+                if is_group {
+                    if let Some(TokenTree::Group(g)) = iter.next() {
+                        let content = g.stream();
+                        output.extend(quote! {
+                            __out.push_str(&#content.to_string());
+                        });
+                    }
+                } else {
+                    output.extend(quote! { __out.push_str("@"); });
+                }
+            }
+
+            // Handle nested groups (but not ident blocks - those are already consumed)
+            TokenTree::Group(g) => {
+                iter.next();
+                let (open, close) = match g.delimiter() {
+                    Delimiter::Parenthesis => ("(", ")"),
+                    Delimiter::Bracket => ("[", "]"),
+                    Delimiter::Brace => ("{", "}"),
+                    Delimiter::None => ("", ""),
+                };
+                output.extend(quote! { __out.push_str(#open); });
+                let inner = parse_fragment_no_spacing(&mut g.stream().into_iter().peekable())?;
+                output.extend(inner);
+                output.extend(quote! { __out.push_str(#close); });
+            }
+
+            // All other tokens - just emit, no spacing
+            _ => {
+                let t = iter.next().unwrap();
+                let s = t.to_string();
+                output.extend(quote! { __out.push_str(#s); });
+                // NO space added - that's the point of ident blocks
+            }
+        }
+    }
+
+    Ok(output)
 }
 
 /// Recursive function to parse tokens until a terminator is found
@@ -422,7 +451,8 @@ fn parse_fragment(
                     output.extend(quote! { __out.push_str(#s); });
                 }
 
-                // Spacing logic after interpolation
+                // Spacing logic after interpolation: always add space unless followed by punctuation
+                // Use {| |} for explicit no-space concatenation
                 let next = iter.peek();
                 let next_char = match next {
                     Some(TokenTree::Punct(p)) => Some(p.as_char()),
@@ -430,29 +460,28 @@ fn parse_fragment(
                 };
 
                 let mut add_space = true;
+
+                // No space at end of stream (group delimiter like ) will follow)
+                if next.is_none() {
+                    add_space = false;
+                }
+
+                // No space before punctuation
                 if matches!(next_char, Some(c) if ".,;:?()[]{}<>!".contains(c)) {
                     add_space = false;
-                } else if let Some(TokenTree::Group(g)) = next {
+                }
+
+                // No space before ( or [ groups (function calls, indexing)
+                if let Some(TokenTree::Group(g)) = next {
                     match g.delimiter() {
                         Delimiter::Parenthesis | Delimiter::Bracket => add_space = false,
                         _ => {}
                     }
                 }
 
-                // No space if followed by @ (concatenation)
+                // No space if followed by @ (for @{a}@{b} patterns inside {| |})
                 if matches!(next, Some(TokenTree::Punct(p)) if p.as_char() == '@') {
                     add_space = false;
-                }
-
-                // But FORCE space if next is a Keyword (e.g. @{val} as Type)
-                // Otherwise default to concatenation for identifiers (make@{Name} -> makeName)
-                if let Some(TokenTree::Ident(i)) = next {
-                    if is_ts_keyword(&i.to_string()) {
-                        add_space = true;
-                    } else {
-                        // If next is regular identifier, assume concatenation
-                        add_space = false;
-                    }
                 }
 
                 if add_space {
@@ -555,6 +584,25 @@ fn parse_fragment(
                             let #body;
                         });
                     }
+                    TagType::IdentBlock => {
+                        iter.next(); // Consume {| ... |}
+
+                        // Get the content between the | markers
+                        let inner_tokens: Vec<TokenTree> = g.stream().into_iter().collect();
+                        // Skip first | and last |, extract content in between
+                        if inner_tokens.len() >= 2 {
+                            let content: TokenStream2 = inner_tokens[1..inner_tokens.len() - 1]
+                                .iter()
+                                .map(|t| t.to_token_stream())
+                                .collect();
+
+                            // Parse with no-spacing mode
+                            let inner_output =
+                                parse_fragment_no_spacing(&mut content.into_iter().peekable())?;
+                            output.extend(inner_output);
+                        }
+                        // No space added after the block - that's the point
+                    }
                     TagType::Block => {
                         // Regular TS Block { ... }
                         // Recurse to allow macros inside standard TS objects
@@ -623,7 +671,6 @@ fn parse_fragment(
 
                 // Analyze next token
                 let next = iter.peek();
-                let next_is_at = matches!(next, Some(TokenTree::Punct(p)) if p.as_char() == '@');
                 let next_char = match next {
                     Some(TokenTree::Punct(p)) => Some(p.as_char()),
                     _ => None,
@@ -635,33 +682,15 @@ fn parse_fragment(
                 });
 
                 // Decide whether to append a space
+                // Simplified: always add space unless followed by punctuation
+                // Use {| |} for explicit no-space concatenation
                 let mut add_space = true;
 
-                if is_joint {
+                // No space at end of stream (group delimiter like ) will follow)
+                if next.is_none() || is_joint {
                     add_space = false;
-                } else if next_is_at {
-                    // Interpolation logic:
-                    // `make@{name}` (concatenation) -> No space
-                    // `obj.@{prop}` (member access) -> No space
-                    // `val = @{expr}` (assignment) -> Space
-                    if is_ident {
-                        // If it's a keyword (e.g. "as @{Type}", "instanceof @{Type}"), we MUST keep the space.
-                        // If it's a regular ident (e.g. "get@{Prop}"), we assume concatenation.
-                        add_space = is_ts_keyword(&s);
-                    }
-                    if let Some('.') = punct_char {
-                        add_space = false;
-                    }
                 } else if is_ident {
-                    // Identifiers usually need space, EXCEPT when followed by:
-                    // - Member access (.)
-                    // - Function calls ( () )
-                    // - Indexing ( [] )
-                    // - Generics ( < )
-                    // - Punctuation delimiters ( , ; : ? )
-                    // - End of expression/block ( ) ] } )
-                    // - Unary/Post-fix operators ( ! )
-
+                    // Identifiers need space, EXCEPT when followed by punctuation or groups
                     if matches!(next_char, Some(c) if ".,;:?()[]{}<>!".contains(c)) {
                         add_space = false;
                     } else if let Some(TokenTree::Group(g)) = next {
@@ -670,15 +699,7 @@ fn parse_fragment(
                             _ => {}
                         }
                     }
-
-                    // Special handling for interpolation @
-                    if next_is_at {
-                        // Check if this identifier is a keyword that requires a space
-                        // e.g. `return @{val}` vs `make@{Name}`
-                        if !is_ts_keyword(&s) {
-                            add_space = false;
-                        }
-                    }
+                    // Always add space before @ interpolation (use {| |} for concatenation)
                 } else if let Some(c) = punct_char {
                     // Punctuation specific rules
                     match c {
