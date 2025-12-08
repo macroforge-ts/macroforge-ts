@@ -4,13 +4,14 @@
 
 <svelte:head>
 	<title>Built-in Macros - Macroforge Documentation</title>
-	<meta name="description" content="Overview of Macroforge's built-in derive macros: Debug, Clone, and Eq." />
+	<meta name="description" content="Overview of Macroforge's built-in derive macros: Debug, Clone, Eq, Serialize, and Deserialize." />
 </svelte:head>
 
 <h1>Built-in Macros</h1>
 
 <p class="lead">
-	Macroforge comes with three built-in derive macros that cover the most common code generation needs.
+	Macroforge comes with five built-in derive macros that cover the most common code generation needs.
+	All macros work with both classes and interfaces.
 </p>
 
 <h2 id="overview">Overview</h2>
@@ -39,18 +40,26 @@
 			<td><code>equals(other: T): boolean</code></td>
 			<td>Value equality comparison</td>
 		</tr>
+		<tr>
+			<td><code>Serialize</code></td>
+			<td><code>toJSON(): Record&lt;string, unknown&gt;</code></td>
+			<td>JSON serialization with type handling</td>
+		</tr>
+		<tr>
+			<td><code>Deserialize</code></td>
+			<td><code>fromJSON(data: unknown): T</code></td>
+			<td>JSON deserialization with validation</td>
+		</tr>
 	</tbody>
 </table>
 
 <h2 id="using-built-in-macros">Using Built-in Macros</h2>
 
 <p>
-	Import the macros you need and use them with <code>@derive</code>:
+	Built-in macros don't require imports. Just use them with <code>@derive</code>:
 </p>
 
-<CodeBlock code={`import { Debug, Clone, Eq } from "macroforge";
-
-/** @derive(Debug, Clone, Eq) */
+<CodeBlock code={`/** @derive(Debug, Clone, Eq) */
 class User {
   name: string;
   age: number;
@@ -61,10 +70,38 @@ class User {
   }
 }`} lang="typescript" />
 
+<h2 id="interface-support">Interface Support</h2>
+
+<p>
+	All built-in macros work with interfaces. For interfaces, methods are generated as functions
+	in a namespace with the same name, using <code>self</code> as the first parameter:
+</p>
+
+<CodeBlock code={`/** @derive(Debug, Clone, Eq) */
+interface Point {
+  x: number;
+  y: number;
+}
+
+// Generated namespace:
+// namespace Point {
+//   export function toString(self: Point): string { ... }
+//   export function clone(self: Point): Point { ... }
+//   export function equals(self: Point, other: Point): boolean { ... }
+//   export function hashCode(self: Point): number { ... }
+// }
+
+const point: Point = { x: 10, y: 20 };
+
+// Use the namespace functions
+console.log(Point.toString(point));     // "Point { x: 10, y: 20 }"
+const copy = Point.clone(point);        // { x: 10, y: 20 }
+console.log(Point.equals(point, copy)); // true`} lang="typescript" />
+
 <h2 id="combining-macros">Combining Macros</h2>
 
 <p>
-	All three macros can be used together. They don't conflict and each generates independent methods:
+	All macros can be used together. They don't conflict and each generates independent methods:
 </p>
 
 <CodeBlock code={`const user = new User("Alice", 30);
@@ -88,6 +125,8 @@ console.log(user.equals(copy)); // true`} lang="typescript" />
 
 <ul>
 	<li><a href="/docs/builtin-macros/debug"><strong>Debug</strong></a> - Customizable field renaming and skipping</li>
-	<li><a href="/docs/builtin-macros/clone"><strong>Clone</strong></a> - Deep copying for all field types</li>
+	<li><a href="/docs/builtin-macros/clone"><strong>Clone</strong></a> - Shallow copying for all field types</li>
 	<li><a href="/docs/builtin-macros/eq"><strong>Eq</strong></a> - Value-based equality comparison</li>
+	<li><a href="/docs/builtin-macros/serialize"><strong>Serialize</strong></a> - JSON serialization with serde-style options</li>
+	<li><a href="/docs/builtin-macros/deserialize"><strong>Deserialize</strong></a> - JSON deserialization with validation</li>
 </ul>

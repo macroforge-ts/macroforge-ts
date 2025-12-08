@@ -15,9 +15,7 @@
 
 <h2 id="basic-usage">Basic Usage</h2>
 
-<CodeBlock code={`import { Eq } from "macroforge";
-
-/** @derive(Eq) */
+<CodeBlock code={`/** @derive(Eq) */
 class Point {
   x: number;
   y: number;
@@ -38,9 +36,31 @@ console.log(p1 === p2);     // false (reference comparison)`} lang="typescript" 
 
 <h2 id="generated-code">Generated Code</h2>
 
+<p>The Eq macro generates two methods:</p>
+
 <CodeBlock code={`equals(other: Point): boolean {
   return this.x === other.x && this.y === other.y;
+}
+
+hashCode(): number {
+  let hash = 17;
+  hash = hash * 31 + (this.x | 0);
+  hash = hash * 31 + (this.y | 0);
+  return hash;
 }`} lang="typescript" />
+
+<h3>hashCode()</h3>
+
+<p>
+	The <code>hashCode()</code> method generates a numeric hash based on field values. Objects with equal values will have the same hash code.
+</p>
+
+<CodeBlock code={`const p1 = new Point(10, 20);
+const p2 = new Point(10, 20);
+
+console.log(p1.hashCode()); // Same hash
+console.log(p2.hashCode()); // Same hash
+console.log(p1.equals(p2)); // true`} lang="typescript" />
 
 <h2 id="how-it-works">How It Works</h2>
 
@@ -124,9 +144,7 @@ console.log(found); // Point { x: 10, y: 20 }`} lang="typescript" />
 
 <h3>Use with Debug and Clone</h3>
 
-<CodeBlock code={`import { Debug, Clone, Eq } from "macroforge";
-
-/** @derive(Debug, Clone, Eq) */
+<CodeBlock code={`/** @derive(Debug, Clone, Eq) */
 class Vector {
   x: number;
   y: number;
@@ -144,3 +162,36 @@ const v2 = v1.clone();
 
 console.log(v1.toString());   // Vector { x: 1, y: 2, z: 3 }
 console.log(v1.equals(v2));   // true`} lang="typescript" />
+
+<h2 id="interface-support">Interface Support</h2>
+
+<p>
+	Eq also works with interfaces. For interfaces, a namespace is generated with <code>equals</code> and <code>hashCode</code> functions:
+</p>
+
+<CodeBlock code={`/** @derive(Eq) */
+interface Point {
+  x: number;
+  y: number;
+}
+
+// Generated:
+// export namespace Point {
+//   export function equals(self: Point, other: Point): boolean {
+//     if (self === other) return true;
+//     return self.x === other.x && self.y === other.y;
+//   }
+//   export function hashCode(self: Point): number {
+//     let hash = 0;
+//     hash = (hash * 31 + (self.x ? self.x.toString().charCodeAt(0) : 0)) | 0;
+//     hash = (hash * 31 + (self.y ? self.y.toString().charCodeAt(0) : 0)) | 0;
+//     return hash;
+//   }
+// }
+
+const p1: Point = { x: 10, y: 20 };
+const p2: Point = { x: 10, y: 20 };
+const p3: Point = { x: 5, y: 5 };
+
+console.log(Point.equals(p1, p2)); // true
+console.log(Point.equals(p1, p3)); // false`} lang="typescript" />
