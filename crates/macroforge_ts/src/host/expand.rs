@@ -120,8 +120,24 @@ impl MacroExpander {
             "Built-in @macro/derive::Clone macro should be registered"
         );
         debug_assert!(
-            registry.contains("@macro/derive", "Eq"),
-            "Built-in @macro/derive::Eq macro should be registered"
+            registry.contains("@macro/derive", "PartialEq"),
+            "Built-in @macro/derive::PartialEq macro should be registered"
+        );
+        debug_assert!(
+            registry.contains("@macro/derive", "Hash"),
+            "Built-in @macro/derive::Hash macro should be registered"
+        );
+        debug_assert!(
+            registry.contains("@macro/derive", "PartialOrd"),
+            "Built-in @macro/derive::PartialOrd macro should be registered"
+        );
+        debug_assert!(
+            registry.contains("@macro/derive", "Ord"),
+            "Built-in @macro/derive::Ord macro should be registered"
+        );
+        debug_assert!(
+            registry.contains("@macro/derive", "Default"),
+            "Built-in @macro/derive::Default macro should be registered"
         );
         debug_assert!(
             registry.contains("@macro/derive", "Serialize"),
