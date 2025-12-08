@@ -72,17 +72,19 @@ export function toValidationResult<T>(result: any): ValidationResult<T> {
 }
 
 // Form validation functions
-export function validateUserRegistration(data: unknown): ValidationResult<UserRegistrationForm> {
-  const result = (UserRegistrationForm as any).fromJSON(data);
+export function validateUserRegistration(
+  data: unknown,
+): ValidationResult<UserRegistrationForm> {
+  const result = UserRegistrationForm.fromJSON(data);
   return toValidationResult(result);
 }
 
 export function validateProduct(data: unknown): ValidationResult<ProductForm> {
-  const result = (ProductForm as any).fromJSON(data);
+  const result = ProductForm.fromJSON(data);
   return toValidationResult(result);
 }
 
 export function validateEvent(data: unknown): ValidationResult<EventForm> {
-  const result = (EventForm as any).fromJSON(data);
+  const result = EventForm.fromJSON(data);
   return toValidationResult(result);
 }
