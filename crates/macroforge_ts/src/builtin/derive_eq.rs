@@ -1,6 +1,6 @@
 //! /** @derive(Eq) */ macro implementation
 
-use crate::macros::{ts_macro_derive, body};
+use crate::macros::{ts_macro_derive, body, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 #[ts_macro_derive(Eq, description = "Generates equals() and hashCode() methods")]
@@ -47,12 +47,45 @@ pub fn derive_eq_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError>
         }
         Data::Enum(_) => Err(MacroforgeError::new(
             input.error_span(),
-            "/** @derive(Eq) */ can only be applied to classes",
+            "/** @derive(Eq) */ can only be applied to classes or interfaces",
         )),
-        Data::Interface(_) => Err(MacroforgeError::new(
-            input.error_span(),
-            "/** @derive(Eq) */ can only be applied to classes, not interfaces",
-        )),
+        Data::Interface(interface) => {
+            let interface_name = input.name();
+            let field_names: Vec<&str> = interface.field_names().collect();
+            let has_fields = !field_names.is_empty();
+
+            // Build comparison expression for interfaces
+            let comparison = if field_names.is_empty() {
+                "true".to_string()
+            } else {
+                field_names
+                    .iter()
+                    .map(|f| format!("self.{f} === other.{f}"))
+                    .collect::<Vec<_>>()
+                    .join(" && ")
+            };
+
+            Ok(ts_template! {
+                export namespace @{interface_name} {
+                    export function equals(self: @{interface_name}, other: @{interface_name}): boolean {
+                        if (self === other) return true;
+                        return @{comparison};
+                    }
+
+                    export function hashCode(self: @{interface_name}): number {
+                        let hash = 0;
+
+                        {#if has_fields}
+                            {#for field in field_names}
+                                hash = (hash * 31 + (self.@{field} ? self.@{field}.toString().charCodeAt(0) : 0)) | 0;
+                            {/for}
+                        {/if}
+
+                        return hash;
+                    }
+                }
+            })
+        }
     }
 }
 
