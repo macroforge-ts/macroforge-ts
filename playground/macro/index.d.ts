@@ -261,15 +261,6 @@ export interface TransformResult {
 }
 
 export declare function transformSync(code: string, filepath: string): TransformResult
-/** Get the names of all macros in this package */
-export declare function __macroforgeGetMacroNames(): Array<string>
-
-/** Get the manifest of all macros available in this package */
-export declare function __macroforgeGetManifest(): MacroManifest
-
-/** Check if this package exports macros */
-export declare function __macroforgeIsMacroPackage(): boolean
-
 /**
  * r" Run this macro with the given context
  * r" Called by the TS plugin to execute macro expansion
@@ -282,14 +273,6 @@ export declare function __macroforgeRunFieldController(contextJson: string): str
  */
 export declare function __macroforgeRunJSON(contextJson: string): string
 
-/** Decorator metadata for TypeScript type stubs */
-export interface DecoratorManifestEntry {
-  module: string
-  export: string
-  kind: string
-  docs: string
-}
-
 /** Generates depth-aware field controller helpers for reactive forms */
 export declare function fieldController(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
 any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
@@ -299,21 +282,6 @@ any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
 export declare function JSON(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
 any[]) => unknown) | Record<string, unknown>>): ClassDecorator
-
-/** Complete manifest for this macro package */
-export interface MacroManifest {
-  version: number
-  macros: Array<MacroManifestEntry>
-  decorators: Array<DecoratorManifestEntry>
-}
-
-/** Entry for a single macro in the manifest */
-export interface MacroManifestEntry {
-  name: string
-  kind: string
-  description: string
-  package: string
-}
 
 /** Generates depth-aware field controller helpers for reactive forms */
 export declare function textAreaController(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:

@@ -3,69 +3,11 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createServer } from "vite";
-
 import { createRequire } from "node:module";
+import { withViteServer, vanillaRoot, svelteRoot, repoRoot, playgroundRoot } from "./test-utils.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const playgroundRoot = path.resolve(__dirname, "..");
-const repoRoot = path.resolve(playgroundRoot, "..");
-const vanillaRoot = path.join(playgroundRoot, "vanilla");
-const svelteRoot = path.join(playgroundRoot, "svelte");
-const rootConfigPath = path.join(repoRoot, "macroforge.json");
-
-async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
-  const options = typeof optionsOrRunner === "function" ? {} : optionsOrRunner;
-  const runner =
-    typeof optionsOrRunner === "function" ? optionsOrRunner : maybeRunner;
-  const { useProjectCwd = true } = options ?? {};
-
-  const configFile = path.join(rootDir, "vite.config.ts");
-  const previousCwd = process.cwd();
-  let server;
-  let copiedConfig = false;
-  const localConfigPath = path.join(rootDir, "macroforge.json");
-
-  try {
-    if (useProjectCwd) {
-      process.chdir(rootDir);
-    }
-
-    // Copy the workspace-level config so the macro host loads the shared macro packages for the vanilla app.
-    if (!fs.existsSync(localConfigPath) && fs.existsSync(rootConfigPath)) {
-      fs.copyFileSync(rootConfigPath, localConfigPath);
-      copiedConfig = true;
-    }
-    server = await createServer({
-      root: rootDir,
-      configFile,
-      logLevel: "error",
-      appType: "custom",
-      server: {
-        middlewareMode: true,
-        hmr: false,
-      },
-      optimizeDeps: {
-        disabled: true,
-      },
-    });
-
-    return await runner(server);
-  } finally {
-    if (server) {
-      // Give a small grace period for pending requests to settle
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      await server.close();
-    }
-    if (copiedConfig && fs.existsSync(localConfigPath)) {
-      fs.rmSync(localConfigPath);
-    }
-    if (useProjectCwd) {
-      process.chdir(previousCwd);
-    }
-  }
-}
 
 /** Create a complete mock languageService with all methods the plugin binds */
 function createMockLanguageService(ts) {
@@ -375,14 +317,14 @@ test(
         const { MacroUser, showcaseUserJson, showcaseUserSummary } = mod;
 
         assert.ok(MacroUser, "MacroUser export should exist");
-        const svelteUser = new MacroUser(
-          "usr_55",
-          "Rin Tester",
-          "Macro QA",
-          "Derive",
-          "2025-02-01",
-          "token_qa",
-        );
+        const svelteUser = new MacroUser({
+          id: "usr_55",
+          name: "Rin Tester",
+          role: "Macro QA",
+          favoriteMacro: "Derive",
+          since: "2025-02-01",
+          apiToken: "token_qa",
+        });
         assert.deepEqual(svelteUser.toJSON(), {
           id: "usr_55",
           name: "Rin Tester",

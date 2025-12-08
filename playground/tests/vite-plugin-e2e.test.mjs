@@ -10,75 +10,16 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createServer, build } from "vite";
+import { build } from "vite";
+import { withViteServer, vanillaRoot, svelteRoot } from "./test-utils.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const playgroundRoot = path.resolve(__dirname, "..");
-const repoRoot = path.resolve(playgroundRoot, "..");
-const vanillaRoot = path.join(playgroundRoot, "vanilla");
-const svelteRoot = path.join(playgroundRoot, "svelte");
-const rootConfigPath = path.join(repoRoot, "macroforge.json");
 
 // Check if Svelte project has dependencies installed
 const svelteNodeModules = path.join(svelteRoot, "node_modules");
 const svelteHasDeps = fs.existsSync(path.join(svelteNodeModules, "@sveltejs/kit"));
-
-/**
- * Helper to create and manage a Vite server for testing.
- * Handles setup, teardown, and config file copying.
- */
-async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
-  const options = typeof optionsOrRunner === "function" ? {} : optionsOrRunner;
-  const runner =
-    typeof optionsOrRunner === "function" ? optionsOrRunner : maybeRunner;
-  const { useProjectCwd = true } = options ?? {};
-
-  const configFile = path.join(rootDir, "vite.config.ts");
-  const previousCwd = process.cwd();
-  let server;
-  let copiedConfig = false;
-  const localConfigPath = path.join(rootDir, "macroforge.json");
-
-  try {
-    if (useProjectCwd) {
-      process.chdir(rootDir);
-    }
-
-    // Copy the workspace-level config so the macro host loads the shared macro packages
-    if (!fs.existsSync(localConfigPath) && fs.existsSync(rootConfigPath)) {
-      fs.copyFileSync(rootConfigPath, localConfigPath);
-      copiedConfig = true;
-    }
-
-    server = await createServer({
-      root: rootDir,
-      configFile,
-      logLevel: "error",
-      appType: "custom",
-      server: {
-        middlewareMode: true,
-        hmr: false,
-      },
-      optimizeDeps: {
-        disabled: true,
-      },
-    });
-
-    return await runner(server);
-  } finally {
-    if (server) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      await server.close();
-    }
-    if (copiedConfig && fs.existsSync(localConfigPath)) {
-      fs.rmSync(localConfigPath);
-    }
-    if (useProjectCwd) {
-      process.chdir(previousCwd);
-    }
-  }
-}
 
 // =============================================================================
 // Plugin Initialization Tests
@@ -236,14 +177,14 @@ describe("SSR Module Loading", () => {
 
       assert.ok(mod.MacroUser, "MacroUser should be exported");
 
-      const user = new mod.MacroUser(
-        "usr_1",
-        "Svelte Tester",
-        "Developer",
-        "Derive",
-        "2025-01-01",
-        "token_secret"
-      );
+      const user = new mod.MacroUser({
+        id: "usr_1",
+        name: "Svelte Tester",
+        role: "Developer",
+        favoriteMacro: "Derive",
+        since: "2025-01-01",
+        apiToken: "token_secret"
+      });
 
       // Verify methods work
       assert.equal(typeof user.toString, "function");
