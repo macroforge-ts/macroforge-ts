@@ -2,7 +2,7 @@ use std::env;
 use zed_extension_api::{self as zed, Command, LanguageServerId, Result, Worktree};
 
 const SVELTE_LS_PACKAGE: &str = "@macroforge/svelte-language-server";
-const SVELTE_LS_VERSION: &str = "0.1.8";
+const SVELTE_LS_VERSION: &str = "0.1.9";
 const MACROFORGE_PACKAGE: &str = "macroforge";
 
 struct SvelteMacroforgeExtension {
@@ -10,6 +10,22 @@ struct SvelteMacroforgeExtension {
 }
 
 impl SvelteMacroforgeExtension {
+    /// Check if installed version matches expected, reinstall if outdated
+    fn ensure_package_version(package: &str, expected_version: &str) -> Result<()> {
+        let installed = zed::npm_package_installed_version(package)?;
+        match installed {
+            Some(version) if version == expected_version => {
+                // Already at correct version
+                Ok(())
+            }
+            Some(_) | None => {
+                // Outdated or not installed - install expected version
+                zed::npm_install_package(package, expected_version)?;
+                Ok(())
+            }
+        }
+    }
+
     /// Get the platform-specific binary package name based on Zed's platform info
     fn get_binary_package() -> &'static str {
         let (os, arch) = zed::current_platform();
@@ -38,23 +54,14 @@ impl SvelteMacroforgeExtension {
 
         // Install the binary package first (needed by macroforge)
         let binary_package = Self::get_binary_package();
-        let binary_installed = zed::npm_package_installed_version(binary_package)?;
-        if binary_installed.is_none() {
-            zed::npm_install_package(binary_package, SVELTE_LS_VERSION)?;
-        }
+        Self::ensure_package_version(binary_package, SVELTE_LS_VERSION)?;
 
         // Install macroforge explicitly at the root level so it can find the binary
         // (npm may not properly install optionalDependencies when macroforge is a transitive dep)
-        let macroforge_installed = zed::npm_package_installed_version(MACROFORGE_PACKAGE)?;
-        if macroforge_installed.is_none() {
-            zed::npm_install_package(MACROFORGE_PACKAGE, SVELTE_LS_VERSION)?;
-        }
+        Self::ensure_package_version(MACROFORGE_PACKAGE, SVELTE_LS_VERSION)?;
 
         // Install the svelte language server (which depends on macroforge + typescript-plugin)
-        let installed = zed::npm_package_installed_version(SVELTE_LS_PACKAGE)?;
-        if installed.is_none() {
-            zed::npm_install_package(SVELTE_LS_PACKAGE, SVELTE_LS_VERSION)?;
-        }
+        Self::ensure_package_version(SVELTE_LS_PACKAGE, SVELTE_LS_VERSION)?;
 
         let ext_dir =
             env::current_dir().map_err(|e| format!("Failed to get current directory: {}", e))?;
@@ -124,6 +131,6 @@ mod tests {
 
     #[test]
     fn test_svelte_ls_version_constant() {
-        assert_eq!(SVELTE_LS_VERSION, "0.1.8");
+        assert_eq!(SVELTE_LS_VERSION, "0.1.9");
     }
 }

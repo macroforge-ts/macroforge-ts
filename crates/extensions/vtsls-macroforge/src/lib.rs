@@ -2,10 +2,10 @@ use std::env;
 use zed_extension_api::{self as zed, serde_json, Command, LanguageServerId, Result, Worktree};
 
 const TS_PLUGIN: &str = "@macroforge/typescript-plugin";
-const TS_PLUGIN_VERSION: &str = "0.1.8";
+const TS_PLUGIN_VERSION: &str = "0.1.9";
 const VTSLS_PACKAGE: &str = "@vtsls/language-server";
 const VTSLS_VERSION: &str = "0.2.6";
-const MACROFORGE_VERSION: &str = "0.1.8";
+const MACROFORGE_VERSION: &str = "0.1.9";
 
 struct VtslsMacroforgeExtension {
     cached_vtsls_path: Option<String>,
@@ -13,16 +13,29 @@ struct VtslsMacroforgeExtension {
 }
 
 impl VtslsMacroforgeExtension {
+    /// Check if installed version matches expected, reinstall if outdated
+    fn ensure_package_version(package: &str, expected_version: &str) -> Result<()> {
+        let installed = zed::npm_package_installed_version(package)?;
+        match installed {
+            Some(version) if version == expected_version => {
+                // Already at correct version
+                Ok(())
+            }
+            Some(_) | None => {
+                // Outdated or not installed - install expected version
+                zed::npm_install_package(package, expected_version)?;
+                Ok(())
+            }
+        }
+    }
+
     /// Ensure vtsls is installed and return the path to the binary
     fn ensure_vtsls_installed(&mut self) -> Result<String> {
         if let Some(path) = &self.cached_vtsls_path {
             return Ok(path.clone());
         }
 
-        let installed = zed::npm_package_installed_version(VTSLS_PACKAGE)?;
-        if installed.is_none() {
-            zed::npm_install_package(VTSLS_PACKAGE, VTSLS_VERSION)?;
-        }
+        Self::ensure_package_version(VTSLS_PACKAGE, VTSLS_VERSION)?;
 
         let ext_dir = env::current_dir()
             .map_err(|e| format!("Failed to get current directory: {}", e))?;
@@ -66,16 +79,10 @@ impl VtslsMacroforgeExtension {
 
         // Install the binary package first (needed by macroforge)
         let binary_package = Self::get_binary_package();
-        let binary_installed = zed::npm_package_installed_version(binary_package)?;
-        if binary_installed.is_none() {
-            zed::npm_install_package(binary_package, MACROFORGE_VERSION)?;
-        }
+        Self::ensure_package_version(binary_package, MACROFORGE_VERSION)?;
 
         // Install the typescript plugin (which depends on macroforge)
-        let installed = zed::npm_package_installed_version(TS_PLUGIN)?;
-        if installed.is_none() {
-            zed::npm_install_package(TS_PLUGIN, TS_PLUGIN_VERSION)?;
-        }
+        Self::ensure_package_version(TS_PLUGIN, TS_PLUGIN_VERSION)?;
 
         let ext_dir = env::current_dir()
             .map_err(|e| format!("Failed to get current directory: {}", e))?;
