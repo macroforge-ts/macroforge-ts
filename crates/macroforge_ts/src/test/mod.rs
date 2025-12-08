@@ -160,11 +160,11 @@ class User {
 }
 
 #[test]
-fn test_derive_eq_dts_output() {
+fn test_derive_partial_eq_hash_dts_output() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-/** @derive(Eq) */
+/** @derive(PartialEq, Hash) */
 class User {
     name: string;
 }
@@ -504,7 +504,7 @@ fn test_complex_class_with_multiple_derives() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-/** @derive(Debug, Clone, Eq) */
+/** @derive(Debug, Clone, PartialEq, Hash) */
 class Product {
     id: string;
     name: string;
@@ -704,7 +704,7 @@ fn test_class_with_optional_and_readonly_fields() {
     let source = r#"
 import { Derive } from "@macro/derive";
 
-/** @derive(Debug, Eq) */
+/** @derive(Debug, PartialEq, Hash) */
 class Config {
     readonly id: string;
     name: string;
@@ -1377,9 +1377,9 @@ interface UserData {
 }
 
 #[test]
-fn test_derive_eq_on_interface_generates_namespace() {
+fn test_derive_partial_eq_hash_on_interface_generates_namespace() {
     let source = r#"
-/** @derive(Eq) */
+/** @derive(PartialEq, Hash) */
 interface Point {
     x: number;
     y: number;
@@ -1447,7 +1447,7 @@ interface Status {
 fn test_multiple_derives_on_interface_all_succeed() {
     // When multiple derives are used on interface, all should succeed
     let source = r#"
-/** @derive(Debug, Clone, Eq) */
+/** @derive(Debug, Clone, PartialEq, Hash) */
 interface Status {
     active: boolean;
 }
@@ -1897,9 +1897,9 @@ enum Priority {
 }
 
 #[test]
-fn test_derive_eq_on_enum_generates_namespace() {
+fn test_derive_partial_eq_hash_on_enum_generates_namespace() {
     let source = r#"
-/** @derive(Eq) */
+/** @derive(PartialEq, Hash) */
 enum Color {
     Red = "red",
     Green = "green",
@@ -1920,7 +1920,7 @@ enum Color {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Eq macro on enum generates namespace with equals and hashCode
+        // PartialEq and Hash macros on enum generate namespace with equals and hashCode
         assert!(
             result.code.contains("namespace Color"),
             "Should generate namespace for enum"
@@ -2006,7 +2006,7 @@ enum Role {
 #[test]
 fn test_multiple_derives_on_enum() {
     let source = r#"
-/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
 enum Status {
     Active = "active",
     Inactive = "inactive"
@@ -2126,9 +2126,9 @@ type Config = {
 }
 
 #[test]
-fn test_derive_eq_on_type_alias_generates_namespace() {
+fn test_derive_partial_eq_hash_on_type_alias_generates_namespace() {
     let source = r#"
-/** @derive(Eq) */
+/** @derive(PartialEq, Hash) */
 type Vector = {
     x: number;
     y: number;
@@ -2149,7 +2149,7 @@ type Vector = {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Eq macro on type alias generates namespace with equals and hashCode
+        // PartialEq and Hash macros on type alias generate namespace with equals and hashCode
         assert!(
             result.code.contains("namespace Vector"),
             "Should generate namespace for type"
@@ -2232,7 +2232,7 @@ type Settings = {
 #[test]
 fn test_multiple_derives_on_type_alias() {
     let source = r#"
-/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
 type Coordinate = {
     lat: number;
     lng: number;
@@ -2285,7 +2285,7 @@ type Coordinate = {
 #[test]
 fn test_derive_on_union_type_alias() {
     let source = r#"
-/** @derive(Debug, Eq) */
+/** @derive(Debug, PartialEq, Hash) */
 type Status = "active" | "inactive" | "pending";
 "#;
 
