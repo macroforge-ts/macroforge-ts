@@ -263,17 +263,17 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
 
             // Check for user-defined constructor with parameters
-            if let Some(ctor) = class.method("constructor") {
-                if !ctor.params_src.trim().is_empty() {
-                    return Err(MacroforgeError::new(
-                        ctor.span,
-                        format!(
-                            "@Derive(Deserialize) cannot be used on class '{}' with a custom constructor. \
+            if let Some(ctor) = class.method("constructor")
+                && !ctor.params_src.trim().is_empty()
+            {
+                return Err(MacroforgeError::new(
+                    ctor.span,
+                    format!(
+                        "@Derive(Deserialize) cannot be used on class '{}' with a custom constructor. \
                             Remove the constructor or use @Derive(Deserialize) on a class without a constructor.",
-                            class_name
-                        ),
-                    ));
-                }
+                        class_name
+                    ),
+                ));
             }
 
             // Collect deserializable fields
@@ -332,8 +332,36 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let has_flatten = !flatten_fields.is_empty();
             let deny_unknown = container_opts.deny_unknown_fields;
 
+            // Build constructor init type and assignments
+            // Include all non-flatten fields in the constructor
+            let ctor_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
+            let has_ctor_fields = !ctor_fields.is_empty();
+
+            // Build init object type: { field1: Type1; field2?: Type2; ... }
+            let init_type = ctor_fields
+                .iter()
+                .map(|f| {
+                    let opt_marker = if f.optional { "?" } else { "" };
+                    format!("{}{}: {}", f.field_name, opt_marker, f.ts_type)
+                })
+                .collect::<Vec<_>>()
+                .join("; ");
+
+            // Build field assignments: this.field1 = init.field1;
+            let field_assignments = ctor_fields
+                .iter()
+                .map(|f| format!("this.{} = init.{};", f.field_name, f.field_name))
+                .collect::<Vec<_>>()
+                .join("\n                ");
+
             let mut result = body! {
-                constructor() {}
+                {#if has_ctor_fields}
+                    constructor(init: { @{init_type} }) {
+                        @{field_assignments}
+                    }
+                {:else}
+                    constructor() {}
+                {/if}
 
                 static fromJSON(data: unknown): Result<@{class_name}, string[]> {
                     if (typeof data !== "object" || data === null || Array.isArray(data)) {
@@ -507,7 +535,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         return Result.err(errors);
                     }
 
-                    const instance = new @{class_name}();
+                    const init: Record<string, unknown> = {};
 
                     {#if has_required}
                         {#for field in &required_fields}
@@ -515,48 +543,48 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             {#match &field.type_cat}
                                 {:case TypeCategory::Primitive}
                                     {%let ts_type = &field.ts_type}
-                                    instance.@{field.field_name} = @{raw_var} as @{ts_type};
+                                    init.@{field.field_name} = @{raw_var} as @{ts_type};
 
                                 {:case TypeCategory::Date}
                                     if (typeof @{raw_var} === "string") {
-                                        instance.@{field.field_name} = new Date(@{raw_var});
+                                        init.@{field.field_name} = new Date(@{raw_var});
                                     } else {
-                                        instance.@{field.field_name} = @{raw_var} as Date;
+                                        init.@{field.field_name} = @{raw_var} as Date;
                                     }
 
                                 {:case TypeCategory::Array(inner)}
-                                    instance.@{field.field_name} = (@{raw_var} as unknown[]).map((item) =>
+                                    init.@{field.field_name} = (@{raw_var} as unknown[]).map((item) =>
                                         typeof (item as any)?.constructor?.fromJSON === "function"
                                             ? (item as any).constructor.fromJSON(item)
                                             : item as @{inner}
                                     );
 
                                 {:case TypeCategory::Map(key_type, value_type)}
-                                    instance.@{field.field_name} = new Map(
+                                    init.@{field.field_name} = new Map(
                                         Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
                                     );
 
                                 {:case TypeCategory::Set(inner)}
-                                    instance.@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
+                                    init.@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
 
                                 {:case TypeCategory::Serializable(type_name)}
                                     if (typeof (@{type_name} as any)?.fromJSON === "function") {
-                                        instance.@{field.field_name} = (@{type_name} as any).fromJSON(@{raw_var});
+                                        init.@{field.field_name} = (@{type_name} as any).fromJSON(@{raw_var});
                                     } else {
-                                        instance.@{field.field_name} = @{raw_var} as @{type_name};
+                                        init.@{field.field_name} = @{raw_var} as @{type_name};
                                     }
 
                                 {:case TypeCategory::Optional(_)}
                                     {%let ts_type = &field.ts_type}
-                                    instance.@{field.field_name} = @{raw_var} as @{ts_type};
+                                    init.@{field.field_name} = @{raw_var} as @{ts_type};
 
                                 {:case TypeCategory::Nullable(_)}
                                     {%let ts_type = &field.ts_type}
-                                    instance.@{field.field_name} = @{raw_var} as @{ts_type};
+                                    init.@{field.field_name} = @{raw_var} as @{ts_type};
 
                                 {:case TypeCategory::Unknown}
                                     {%let ts_type = &field.ts_type}
-                                    instance.@{field.field_name} = @{raw_var} as @{ts_type};
+                                    init.@{field.field_name} = @{raw_var} as @{ts_type};
                             {/match}
                         {/for}
                     {/if}
@@ -570,55 +598,57 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     {#match &field.type_cat}
                                         {:case TypeCategory::Primitive}
                                             {%let ts_type = &field.ts_type}
-                                            instance.@{field.field_name} = @{raw_var} as @{ts_type};
+                                            init.@{field.field_name} = @{raw_var} as @{ts_type};
 
                                         {:case TypeCategory::Date}
                                             if (typeof @{raw_var} === "string") {
-                                                instance.@{field.field_name} = new Date(@{raw_var});
+                                                init.@{field.field_name} = new Date(@{raw_var});
                                             } else if (@{raw_var} instanceof Date) {
-                                                instance.@{field.field_name} = @{raw_var};
+                                                init.@{field.field_name} = @{raw_var};
                                             }
 
                                         {:case TypeCategory::Array(inner)}
                                             if (Array.isArray(@{raw_var})) {
-                                                instance.@{field.field_name} = @{raw_var} as @{inner}[];
+                                                init.@{field.field_name} = @{raw_var} as @{inner}[];
                                             }
 
                                         {:case TypeCategory::Serializable(type_name)}
                                             if (typeof (@{type_name} as any)?.fromJSON === "function") {
-                                                instance.@{field.field_name} = (@{type_name} as any).fromJSON(@{raw_var});
+                                                init.@{field.field_name} = (@{type_name} as any).fromJSON(@{raw_var});
                                             } else {
-                                                instance.@{field.field_name} = @{raw_var} as @{type_name};
+                                                init.@{field.field_name} = @{raw_var} as @{type_name};
                                             }
 
                                         {:case _}
                                             {%let ts_type = &field.ts_type}
-                                            instance.@{field.field_name} = @{raw_var} as @{ts_type};
+                                            init.@{field.field_name} = @{raw_var} as @{ts_type};
                                     {/match}
                                 }
                             }
                             {#if let Some(default_expr) = &field.default_expr}
                                 else {
-                                    instance.@{field.field_name} = @{default_expr};
+                                    init.@{field.field_name} = @{default_expr};
                                 }
                             {/if}
                         {/for}
                     {/if}
 
                     {#if has_flatten}
+                        const __result = new @{class_name}(init as any);
                         {#for field in flatten_fields}
                             {#match &field.type_cat}
                                 {:case TypeCategory::Serializable(type_name)}
                                     if (typeof (@{type_name} as any)?.fromJSON === "function") {
-                                        instance.@{field.field_name} = (@{type_name} as any).fromJSON(obj);
+                                        __result.@{field.field_name} = (@{type_name} as any).fromJSON(obj);
                                     }
                                 {:case _}
-                                    instance.@{field.field_name} = obj as any;
+                                    __result.@{field.field_name} = obj as any;
                             {/match}
                         {/for}
+                        return Result.ok(__result);
+                    {:else}
+                        return Result.ok(new @{class_name}(init as any));
                     {/if}
-
-                    return Result.ok(instance);
                 }
             };
             result.add_import("Result", "macroforge/result");
