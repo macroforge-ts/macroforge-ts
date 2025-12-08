@@ -1,3 +1,4 @@
+import { Result } from "macroforge/result";
 /**
  * Comprehensive test class demonstrating all available macros.
  * Used for Playwright e2e tests to verify macro expansion works at runtime.
@@ -19,23 +20,7 @@ export class AllMacrosTestClass {
 
   score: number;
 
-  constructor(
-    id: number,
-    name: string,
-    email: string,
-    secretToken: string,
-    isActive: boolean,
-    score: number
-  ) {
-    this.id = id;
-    this.name = name;
-    this.email = email;
-    this.secretToken = secretToken;
-    this.isActive = isActive;
-    this.score = score;
-  }
-
-    toString(): string {
+  toString(): string {
     const parts: string[] = [];
     parts.push("identifier: " + this.id);
     parts.push("name: " + this.name);
@@ -45,7 +30,7 @@ export class AllMacrosTestClass {
     return "AllMacrosTestClass { " + parts.join(", ") + " }";
 }
 
-    clone(): AllMacrosTestClass {
+  clone(): AllMacrosTestClass {
     const cloned = Object.create(Object.getPrototypeOf(this));
     cloned.id = this.id;
     cloned.name = this.name;
@@ -56,25 +41,14 @@ export class AllMacrosTestClass {
     return cloned;
 }
 
-    equals(other: unknown): boolean {
+  equals(other: unknown): boolean {
     if (this === other) return true;
     if (!(other instanceof AllMacrosTestClass)) return false;
     const typedOther = other as AllMacrosTestClass;
     return this.id === typedOther.id && this.name === typedOther.name && this.email === typedOther.email && this.secretToken === typedOther.secretToken && this.isActive === typedOther.isActive && this.score === typedOther.score;
 }
 
-    hashCode(): number {
-    let hash = 0;
-    hash = (hash * 31 + (this.id ? this.id.toString().charCodeAt(0) : 0)) | 0;
-    hash = (hash * 31 + (this.name ? this.name.toString().charCodeAt(0) : 0)) | 0;
-    hash = (hash * 31 + (this.email ? this.email.toString().charCodeAt(0) : 0)) | 0;
-    hash = (hash * 31 + (this.secretToken ? this.secretToken.toString().charCodeAt(0) : 0)) | 0;
-    hash = (hash * 31 + (this.isActive ? this.isActive.toString().charCodeAt(0) : 0)) | 0;
-    hash = (hash * 31 + (this.score ? this.score.toString().charCodeAt(0) : 0)) | 0;
-    return hash;
-}
-
-    toJSON(): Record<string, unknown> {
+  toJSON(): Record<string, unknown> {
     const result: Record<string, unknown> = {};
     result["id"] = this.id;
     result["name"] = this.name;
@@ -85,52 +59,74 @@ export class AllMacrosTestClass {
     return result;
 }
 
-    static fromJSON(data: unknown): AllMacrosTestClass {
+  constructor(init: {
+    id: number;
+    name: string;
+    email: string;
+    secretToken: string;
+    isActive: boolean;
+    score: number;
+}){
+    this.id = init.id;
+    this.name = init.name;
+    this.email = init.email;
+    this.secretToken = init.secretToken;
+    this.isActive = init.isActive;
+    this.score = init.score;
+}
+
+  static fromJSON(data: unknown): Result<AllMacrosTestClass, string[]> {
     if (typeof data !== "object" || data === null || Array.isArray(data)) {
-        throw new Error("AllMacrosTestClass.fromJSON: expected an object, got " + (Array.isArray(data) ? "array" : typeof data));
+        return Result.err([
+            "AllMacrosTestClass.fromJSON: expected an object, got " + (Array.isArray(data) ? "array" : typeof data)
+        ]);
     }
     const obj = data as Record<string, unknown>;
+    const errors: string[] = [];
     if (!("id" in obj)) {
-        throw new Error("AllMacrosTestClass.fromJSON: missing required field \"id\"");
+        errors.push("AllMacrosTestClass.fromJSON: missing required field \"id\"");
     }
     if (!("name" in obj)) {
-        throw new Error("AllMacrosTestClass.fromJSON: missing required field \"name\"");
+        errors.push("AllMacrosTestClass.fromJSON: missing required field \"name\"");
     }
     if (!("email" in obj)) {
-        throw new Error("AllMacrosTestClass.fromJSON: missing required field \"email\"");
+        errors.push("AllMacrosTestClass.fromJSON: missing required field \"email\"");
     }
     if (!("secretToken" in obj)) {
-        throw new Error("AllMacrosTestClass.fromJSON: missing required field \"secretToken\"");
+        errors.push("AllMacrosTestClass.fromJSON: missing required field \"secretToken\"");
     }
     if (!("isActive" in obj)) {
-        throw new Error("AllMacrosTestClass.fromJSON: missing required field \"isActive\"");
+        errors.push("AllMacrosTestClass.fromJSON: missing required field \"isActive\"");
     }
     if (!("score" in obj)) {
-        throw new Error("AllMacrosTestClass.fromJSON: missing required field \"score\"");
+        errors.push("AllMacrosTestClass.fromJSON: missing required field \"score\"");
     }
-    const instance = new AllMacrosTestClass();
     const __raw_id = obj["id"];
-    instance.id = __raw_id as number;
     const __raw_name = obj["name"];
-    instance.name = __raw_name as string;
     const __raw_email = obj["email"];
-    instance.email = __raw_email as string;
     const __raw_secretToken = obj["secretToken"];
-    instance.secretToken = __raw_secretToken as string;
     const __raw_isActive = obj["isActive"];
-    instance.isActive = __raw_isActive as boolean;
     const __raw_score = obj["score"];
-    instance.score = __raw_score as number;
-    return instance;
+    if (errors.length > 0) {
+        return Result.err(errors);
+    }
+    const init: Record<string, unknown> = {};
+    init.id = __raw_id as number;
+    init.name = __raw_name as string;
+    init.email = __raw_email as string;
+    init.secretToken = __raw_secretToken as string;
+    init.isActive = __raw_isActive as boolean;
+    init.score = __raw_score as number;
+    return Result.ok(new AllMacrosTestClass(init as any));
 }
 }
 
 // Pre-instantiated test instance for e2e tests
-export const testInstance = new AllMacrosTestClass(
-  42,
-  "Test User",
-  "test@example.com",
-  "secret-token-123",
-  true,
-  100
-);
+export const testInstance = new AllMacrosTestClass({
+  id: 42,
+  name: "Test User",
+  email: "test@example.com",
+  secretToken: "secret-token-123",
+  isActive: true,
+  score: 100,
+});

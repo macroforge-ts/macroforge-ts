@@ -5,14 +5,14 @@
 
 // ==================== ENUM EXAMPLES ====================
 
-/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 export enum Status {
   Active = "active",
   Inactive = "inactive",
   Pending = "pending",
 }
 
-/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 export enum Priority {
   Low = 1,
   Medium = 2,
@@ -20,7 +20,7 @@ export enum Priority {
   Critical = 4,
 }
 
-/** @derive(Debug, Eq) */
+/** @derive(Debug, PartialEq) */
 export enum Color {
   Red,
   Green,
@@ -29,13 +29,13 @@ export enum Color {
 
 // ==================== TYPE ALIAS EXAMPLES ====================
 
-/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 export type Point = {
   x: number;
   y: number;
 };
 
-/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 export type UserProfile = {
   id: string;
   username: string;
@@ -44,14 +44,14 @@ export type UserProfile = {
   isVerified: boolean;
 };
 
-/** @derive(Debug, Clone, Eq) */
+/** @derive(Debug, Clone, PartialEq) */
 export type Coordinate3D = {
   x: number;
   y: number;
   z: number;
 };
 
-/** @derive(Debug, Eq) */
+/** @derive(Debug, PartialEq) */
 export type ApiStatus = "loading" | "success" | "error";
 
 // ==================== USAGE EXAMPLES ====================

@@ -60,13 +60,37 @@ export declare function __macroforgeRunDebug(contextJson: string): string
  * r" Run this macro with the given context
  * r" Called by the TS plugin to execute macro expansion
  */
+export declare function __macroforgeRunDefault(contextJson: string): string
+
+/**
+ * r" Run this macro with the given context
+ * r" Called by the TS plugin to execute macro expansion
+ */
 export declare function __macroforgeRunDeserialize(contextJson: string): string
 
 /**
  * r" Run this macro with the given context
  * r" Called by the TS plugin to execute macro expansion
  */
-export declare function __macroforgeRunEq(contextJson: string): string
+export declare function __macroforgeRunHash(contextJson: string): string
+
+/**
+ * r" Run this macro with the given context
+ * r" Called by the TS plugin to execute macro expansion
+ */
+export declare function __macroforgeRunOrd(contextJson: string): string
+
+/**
+ * r" Run this macro with the given context
+ * r" Called by the TS plugin to execute macro expansion
+ */
+export declare function __macroforgeRunPartialEq(contextJson: string): string
+
+/**
+ * r" Run this macro with the given context
+ * r" Called by the TS plugin to execute macro expansion
+ */
+export declare function __macroforgeRunPartialOrd(contextJson: string): string
 
 /**
  * r" Run this macro with the given context
@@ -93,12 +117,16 @@ export interface DecoratorManifestEntry {
   docs: string
 }
 
+export declare function Default(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): ClassDecorator
+
+/** Generates a static default() factory method */
+export declare function defaultValue(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
+
 export declare function Derive(...features: any[]): ClassDecorator
 
 export declare function Deserialize(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): ClassDecorator
-
-export declare function Eq(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
 any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
 export interface ExpandOptions {
@@ -121,6 +149,13 @@ export interface GeneratedRegionResult {
   end: number
   sourceMacro: string
 }
+
+/** Generates a hashCode() method for hashing */
+export declare function hash(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
+
+export declare function Hash(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
 export interface ImportSourceResult {
   /** Local identifier name in the import statement */
@@ -164,7 +199,28 @@ export interface MappingSegmentResult {
   expandedEnd: number
 }
 
+/** Generates a compareTo() method for total ordering (returns -1, 0, or 1, never null) */
+export declare function ord(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
+
+/** Generates a compareTo() method for partial ordering (returns -1, 0, 1, or null) */
+export declare function ord(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
+
+export declare function Ord(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): ClassDecorator
+
 export declare function parseImportSources(code: string, filepath: string): Array<ImportSourceResult>
+
+/** Generates an equals() method for field-by-field comparison */
+export declare function partialEq(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
+
+export declare function PartialEq(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): ClassDecorator
+
+export declare function PartialOrd(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
 export interface ProcessFileOptions {
   keepDecorators?: boolean
