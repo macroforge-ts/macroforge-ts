@@ -1048,4 +1048,226 @@ mod tests {
             Validator::MaxLength(255)
         ));
     }
+
+    // ========================================================================
+    // Date validator parsing tests
+    // ========================================================================
+
+    #[test]
+    fn test_parse_date_validators() {
+        assert!(matches!(
+            parse_validator_string("validDate"),
+            Some(Validator::ValidDate)
+        ));
+        assert!(matches!(
+            parse_validator_string(r#"greaterThanDate("2020-01-01")"#),
+            Some(Validator::GreaterThanDate(d)) if d == "2020-01-01"
+        ));
+        assert!(matches!(
+            parse_validator_string(r#"greaterThanOrEqualToDate("2020-01-01")"#),
+            Some(Validator::GreaterThanOrEqualToDate(d)) if d == "2020-01-01"
+        ));
+        assert!(matches!(
+            parse_validator_string(r#"lessThanDate("2030-01-01")"#),
+            Some(Validator::LessThanDate(d)) if d == "2030-01-01"
+        ));
+        assert!(matches!(
+            parse_validator_string(r#"lessThanOrEqualToDate("2030-01-01")"#),
+            Some(Validator::LessThanOrEqualToDate(d)) if d == "2030-01-01"
+        ));
+        assert!(matches!(
+            parse_validator_string(r#"betweenDate("2020-01-01", "2030-12-31")"#),
+            Some(Validator::BetweenDate(min, max)) if min == "2020-01-01" && max == "2030-12-31"
+        ));
+    }
+
+    // ========================================================================
+    // BigInt validator parsing tests
+    // ========================================================================
+
+    #[test]
+    fn test_parse_bigint_validators() {
+        assert!(matches!(
+            parse_validator_string("positiveBigInt"),
+            Some(Validator::PositiveBigInt)
+        ));
+        assert!(matches!(
+            parse_validator_string("nonNegativeBigInt"),
+            Some(Validator::NonNegativeBigInt)
+        ));
+        assert!(matches!(
+            parse_validator_string("negativeBigInt"),
+            Some(Validator::NegativeBigInt)
+        ));
+        assert!(matches!(
+            parse_validator_string("nonPositiveBigInt"),
+            Some(Validator::NonPositiveBigInt)
+        ));
+        assert!(matches!(
+            parse_validator_string("greaterThanBigInt(100)"),
+            Some(Validator::GreaterThanBigInt(n)) if n == "100"
+        ));
+        assert!(matches!(
+            parse_validator_string("greaterThanOrEqualToBigInt(0)"),
+            Some(Validator::GreaterThanOrEqualToBigInt(n)) if n == "0"
+        ));
+        assert!(matches!(
+            parse_validator_string("lessThanBigInt(1000)"),
+            Some(Validator::LessThanBigInt(n)) if n == "1000"
+        ));
+        assert!(matches!(
+            parse_validator_string("lessThanOrEqualToBigInt(999)"),
+            Some(Validator::LessThanOrEqualToBigInt(n)) if n == "999"
+        ));
+        assert!(matches!(
+            parse_validator_string("betweenBigInt(0, 100)"),
+            Some(Validator::BetweenBigInt(min, max)) if min == "0" && max == "100"
+        ));
+    }
+
+    // ========================================================================
+    // Array validator parsing tests
+    // ========================================================================
+
+    #[test]
+    fn test_parse_array_validators() {
+        assert!(matches!(
+            parse_validator_string("maxItems(10)"),
+            Some(Validator::MaxItems(10))
+        ));
+        assert!(matches!(
+            parse_validator_string("minItems(1)"),
+            Some(Validator::MinItems(1))
+        ));
+        assert!(matches!(
+            parse_validator_string("itemsCount(5)"),
+            Some(Validator::ItemsCount(5))
+        ));
+    }
+
+    // ========================================================================
+    // Additional number validator parsing tests
+    // ========================================================================
+
+    #[test]
+    fn test_parse_additional_number_validators() {
+        assert!(matches!(
+            parse_validator_string("nonNaN"),
+            Some(Validator::NonNaN)
+        ));
+        assert!(matches!(
+            parse_validator_string("finite"),
+            Some(Validator::Finite)
+        ));
+        assert!(matches!(
+            parse_validator_string("uint8"),
+            Some(Validator::Uint8)
+        ));
+        assert!(matches!(
+            parse_validator_string("multipleOf(5)"),
+            Some(Validator::MultipleOf(n)) if n == 5.0
+        ));
+        assert!(matches!(
+            parse_validator_string("negative"),
+            Some(Validator::Negative)
+        ));
+        assert!(matches!(
+            parse_validator_string("nonNegative"),
+            Some(Validator::NonNegative)
+        ));
+        assert!(matches!(
+            parse_validator_string("nonPositive"),
+            Some(Validator::NonPositive)
+        ));
+    }
+
+    // ========================================================================
+    // Additional string validator parsing tests
+    // ========================================================================
+
+    #[test]
+    fn test_parse_additional_string_validators() {
+        assert!(matches!(
+            parse_validator_string("capitalized"),
+            Some(Validator::Capitalized)
+        ));
+        assert!(matches!(
+            parse_validator_string("uncapitalized"),
+            Some(Validator::Uncapitalized)
+        ));
+        assert!(matches!(
+            parse_validator_string("length(5, 10)"),
+            Some(Validator::LengthRange(5, 10))
+        ));
+    }
+
+    // ========================================================================
+    // Case sensitivity tests
+    // ========================================================================
+
+    #[test]
+    fn test_parse_validators_case_insensitive() {
+        // Validators should be case-insensitive
+        assert!(matches!(
+            parse_validator_string("EMAIL"),
+            Some(Validator::Email)
+        ));
+        assert!(matches!(
+            parse_validator_string("Email"),
+            Some(Validator::Email)
+        ));
+        assert!(matches!(
+            parse_validator_string("NONEMPTY"),
+            Some(Validator::NonEmpty)
+        ));
+        assert!(matches!(
+            parse_validator_string("NonEmpty"),
+            Some(Validator::NonEmpty)
+        ));
+        assert!(matches!(
+            parse_validator_string("MAXLENGTH(10)"),
+            Some(Validator::MaxLength(10))
+        ));
+    }
+
+    // ========================================================================
+    // Pattern validator with special characters
+    // ========================================================================
+
+    #[test]
+    fn test_parse_pattern_with_special_chars() {
+        // Test pattern with various regex special chars
+        assert!(matches!(
+            parse_validator_string(r#"pattern("^[A-Z]{3}$")"#),
+            Some(Validator::Pattern(p)) if p == "^[A-Z]{3}$"
+        ));
+        assert!(matches!(
+            parse_validator_string(r#"pattern("\\d+")"#),
+            Some(Validator::Pattern(p)) if p == "\\d+"
+        ));
+        assert!(matches!(
+            parse_validator_string(r#"pattern("^test\\.json$")"#),
+            Some(Validator::Pattern(p)) if p == "^test\\.json$"
+        ));
+    }
+
+    // ========================================================================
+    // Edge case: validators with whitespace
+    // ========================================================================
+
+    #[test]
+    fn test_parse_validators_with_whitespace() {
+        assert!(matches!(
+            parse_validator_string("  email  "),
+            Some(Validator::Email)
+        ));
+        assert!(matches!(
+            parse_validator_string("between( 1 , 100 )"),
+            Some(Validator::Between(min, max)) if min == 1.0 && max == 100.0
+        ));
+        assert!(matches!(
+            parse_validator_string("maxLength( 50 )"),
+            Some(Validator::MaxLength(50))
+        ));
+    }
 }
