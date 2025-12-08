@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import macroforge from '@macroforge/vite-plugin'
+import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [
@@ -10,5 +11,13 @@ export default defineConfig({
   ],
   server: {
     port: 3000
-  }
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        'validator-form': resolve(__dirname, 'validator-form.html'),
+      },
+    },
+  },
 })

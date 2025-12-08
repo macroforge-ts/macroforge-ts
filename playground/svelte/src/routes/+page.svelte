@@ -2,14 +2,14 @@
 	import { MacroUser, showcaseUserJson, showcaseUserSummary } from '$lib/demo/macro-user'
 	import { SvelteAllMacrosTest, svelteTestInstance } from '$lib/demo/all-macros-test'
 
-	const derivedUser = new MacroUser(
-		'usr_1001',
-		'Cam Solar',
-		'Runtime Tinkerer',
-		'Derive',
-		'2025-01-07',
-		'sk-live-token'
-	)
+	const derivedUser = new MacroUser({
+		id: 'usr_1001',
+		name: 'Cam Solar',
+		role: 'Runtime Tinkerer',
+		favoriteMacro: 'Derive',
+		since: '2025-01-07',
+		apiToken: 'sk-live-token'
+	})
 	const derivedSummary = derivedUser.toString()
 	const derivedUserJson = derivedUser.toJSON()
 	const derivedJsonPretty = JSON.stringify(derivedUserJson, null, 2)
@@ -28,8 +28,10 @@
 	} = $state({});
 
 	function runAllMacroTests() {
-		// Test Debug macro -> toString()
-		testResults.debug = svelteTestInstance.toString()
+		// Test Debug macro -> toString() (static method for interfaces)
+		if (typeof SvelteAllMacrosTest.toString === 'function') {
+			testResults.debug = SvelteAllMacrosTest.toString(svelteTestInstance)
+		}
 
 		// Test Clone macro -> clone()
 		if (typeof SvelteAllMacrosTest.clone === 'function') {
@@ -47,7 +49,9 @@
 		}
 
 		// Test Serialize macro -> toJSON()
-		testResults.serialize = SvelteAllMacrosTest.toJSON(svelteTestInstance)
+		if (typeof SvelteAllMacrosTest.toJSON === 'function') {
+			testResults.serialize = SvelteAllMacrosTest.toJSON(svelteTestInstance)
+		}
 
 		// Test Deserialize macro -> fromJSON()
 		if (typeof SvelteAllMacrosTest.fromJSON === 'function') {
@@ -59,7 +63,13 @@
 				count: 99,
 				enabled: false
 			}
-			testResults.deserialize = SvelteAllMacrosTest.fromJSON(testData)
+			const result = SvelteAllMacrosTest.fromJSON(testData)
+			// fromJSON returns a Result, unwrap it
+			if (result && typeof result.isOk === 'function' && result.isOk()) {
+				testResults.deserialize = result.unwrap()
+			} else {
+				testResults.deserialize = result
+			}
 		}
 
 		// Trigger reactivity

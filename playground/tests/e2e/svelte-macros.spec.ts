@@ -3,7 +3,8 @@ import { test, expect } from "@playwright/test";
 test.describe("Svelte Playground Macro Tests", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    // Wait for Svelte to hydrate
+    // Wait for SvelteKit hydration to complete before interacting
+    await page.waitForSelector("body.hydrated", { timeout: 10000 });
     await page.waitForSelector("main.page");
   });
 
