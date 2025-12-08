@@ -1,0 +1,258 @@
+[
+  {
+    "id": "installation",
+    "title": "Installation",
+    "category": "getting-started",
+    "category_title": "Getting Started",
+    "path": "getting-started/installation.md",
+    "use_cases": "setup, install, npm, getting started, quick start, init"
+  },
+  {
+    "id": "first-macro",
+    "title": "First Macro",
+    "category": "getting-started",
+    "category_title": "Getting Started",
+    "path": "getting-started/first-macro.md",
+    "use_cases": "tutorial, example, hello world, beginner, learn"
+  },
+  {
+    "id": "how-macros-work",
+    "title": "How Macros Work",
+    "category": "concepts",
+    "category_title": "Core Concepts",
+    "path": "concepts/how-macros-work.md",
+    "use_cases": "architecture, overview, understanding, basics, fundamentals"
+  },
+  {
+    "id": "derive-system",
+    "title": "The Derive System",
+    "category": "concepts",
+    "category_title": "Core Concepts",
+    "path": "concepts/derive-system.md",
+    "use_cases": "@derive, decorator, annotation, derive macro"
+  },
+  {
+    "id": "architecture",
+    "title": "Architecture",
+    "category": "concepts",
+    "category_title": "Core Concepts",
+    "path": "concepts/architecture.md",
+    "use_cases": "internals, rust, swc, napi, how it works"
+  },
+  {
+    "id": "macros-overview",
+    "title": "Overview",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/macros-overview.md",
+    "use_cases": "all macros, list, available macros, macro list"
+  },
+  {
+    "id": "debug",
+    "title": "Debug",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/debug.md",
+    "use_cases": "toString, debugging, logging, output, print"
+  },
+  {
+    "id": "clone",
+    "title": "Clone",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/clone.md",
+    "use_cases": "copy, clone, duplicate, shallow copy, immutable"
+  },
+  {
+    "id": "default",
+    "title": "Default",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/default.md",
+    "use_cases": "default values, factory, initialization, constructor"
+  },
+  {
+    "id": "hash",
+    "title": "Hash",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/hash.md",
+    "use_cases": "hashCode, hashing, hash map, equality, hash function"
+  },
+  {
+    "id": "ord",
+    "title": "Ord",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/ord.md",
+    "use_cases": "compareTo, ordering, sorting, comparison, total order"
+  },
+  {
+    "id": "partial-eq",
+    "title": "PartialEq",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/partial-eq.md",
+    "use_cases": "equals, equality, comparison, value equality"
+  },
+  {
+    "id": "partial-ord",
+    "title": "PartialOrd",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/partial-ord.md",
+    "use_cases": "compareTo, partial ordering, sorting, nullable comparison"
+  },
+  {
+    "id": "serialize",
+    "title": "Serialize",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/serialize.md",
+    "use_cases": "toJSON, serialization, json, api, data transfer"
+  },
+  {
+    "id": "deserialize",
+    "title": "Deserialize",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize.md",
+    "use_cases": "fromJSON, deserialization, parsing, validation, json"
+  },
+  {
+    "id": "custom-overview",
+    "title": "Overview",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/custom-overview.md",
+    "use_cases": "custom, extending, creating macros, own macro"
+  },
+  {
+    "id": "rust-setup",
+    "title": "Rust Setup",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/rust-setup.md",
+    "use_cases": "rust, cargo, napi, compilation, building"
+  },
+  {
+    "id": "ts-macro-derive",
+    "title": "ts_macro_derive",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-macro-derive.md",
+    "use_cases": "attribute, proc macro, derive attribute, rust macro"
+  },
+  {
+    "id": "ts-quote",
+    "title": "Template Syntax",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote.md",
+    "use_cases": "ts_quote, template, code generation, interpolation"
+  },
+  {
+    "id": "integration-overview",
+    "title": "Overview",
+    "category": "integration",
+    "category_title": "Integration",
+    "path": "integration/integration-overview.md",
+    "use_cases": "setup, integration, tools, ecosystem"
+  },
+  {
+    "id": "cli",
+    "title": "CLI",
+    "category": "integration",
+    "category_title": "Integration",
+    "path": "integration/cli.md",
+    "use_cases": "command line, macroforge command, expand, terminal"
+  },
+  {
+    "id": "typescript-plugin",
+    "title": "TypeScript Plugin",
+    "category": "integration",
+    "category_title": "Integration",
+    "path": "integration/typescript-plugin.md",
+    "use_cases": "vscode, ide, language server, intellisense, autocomplete"
+  },
+  {
+    "id": "vite-plugin",
+    "title": "Vite Plugin",
+    "category": "integration",
+    "category_title": "Integration",
+    "path": "integration/vite-plugin.md",
+    "use_cases": "vite, build, bundler, react, svelte, sveltekit"
+  },
+  {
+    "id": "configuration",
+    "title": "Configuration",
+    "category": "integration",
+    "category_title": "Integration",
+    "path": "integration/configuration.md",
+    "use_cases": "macroforge.json, config, settings, options"
+  },
+  {
+    "id": "ls-overview",
+    "title": "Overview",
+    "category": "language-servers",
+    "category_title": "Language Servers",
+    "path": "language-servers/ls-overview.md",
+    "use_cases": "lsp, language server, editor support"
+  },
+  {
+    "id": "svelte-ls",
+    "title": "Svelte",
+    "category": "language-servers",
+    "category_title": "Language Servers",
+    "path": "language-servers/svelte-ls.md",
+    "use_cases": "svelte, svelte language server, .svelte files"
+  },
+  {
+    "id": "zed-extensions",
+    "title": "Zed Extensions",
+    "category": "language-servers",
+    "category_title": "Language Servers",
+    "path": "language-servers/zed-extensions.md",
+    "use_cases": "zed, zed editor, extension"
+  },
+  {
+    "id": "api-overview",
+    "title": "Overview",
+    "category": "api",
+    "category_title": "API Reference",
+    "path": "api/api-overview.md",
+    "use_cases": "api, functions, exports, programmatic"
+  },
+  {
+    "id": "expand-sync",
+    "title": "expandSync()",
+    "category": "api",
+    "category_title": "API Reference",
+    "path": "api/expand-sync.md",
+    "use_cases": "expandSync, expand, transform, macro expansion"
+  },
+  {
+    "id": "transform-sync",
+    "title": "transformSync()",
+    "category": "api",
+    "category_title": "API Reference",
+    "path": "api/transform-sync.md",
+    "use_cases": "transformSync, transform, metadata, low-level"
+  },
+  {
+    "id": "native-plugin",
+    "title": "NativePlugin",
+    "category": "api",
+    "category_title": "API Reference",
+    "path": "api/native-plugin.md",
+    "use_cases": "NativePlugin, caching, language server, stateful"
+  },
+  {
+    "id": "position-mapper",
+    "title": "PositionMapper",
+    "category": "api",
+    "category_title": "API Reference",
+    "path": "api/position-mapper.md",
+    "use_cases": "PositionMapper, source map, diagnostics, position"
+  }
+]
