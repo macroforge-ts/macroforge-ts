@@ -1013,4 +1013,282 @@ mod tests {
         assert_eq!(get_js_typeof("boolean"), "boolean");
         assert_eq!(get_js_typeof("User"), "object");
     }
+
+    /// Test that all validators produce non-empty condition strings
+    #[test]
+    fn test_all_validators_have_conditions() {
+        let validators = vec![
+            // String validators
+            Validator::Email,
+            Validator::Url,
+            Validator::Uuid,
+            Validator::MaxLength(100),
+            Validator::MinLength(1),
+            Validator::Length(10),
+            Validator::LengthRange(5, 20),
+            Validator::Pattern(".*".into()),
+            Validator::NonEmpty,
+            Validator::Trimmed,
+            Validator::Lowercase,
+            Validator::Uppercase,
+            Validator::Capitalized,
+            Validator::Uncapitalized,
+            Validator::StartsWith("prefix".into()),
+            Validator::EndsWith("suffix".into()),
+            Validator::Includes("sub".into()),
+            // Number validators
+            Validator::GreaterThan(0.0),
+            Validator::GreaterThanOrEqualTo(0.0),
+            Validator::LessThan(100.0),
+            Validator::LessThanOrEqualTo(100.0),
+            Validator::Between(0.0, 100.0),
+            Validator::Int,
+            Validator::NonNaN,
+            Validator::Finite,
+            Validator::Positive,
+            Validator::NonNegative,
+            Validator::Negative,
+            Validator::NonPositive,
+            Validator::MultipleOf(5.0),
+            Validator::Uint8,
+            // Date validators
+            Validator::ValidDate,
+            Validator::GreaterThanDate("2020-01-01".into()),
+            Validator::GreaterThanOrEqualToDate("2020-01-01".into()),
+            Validator::LessThanDate("2030-01-01".into()),
+            Validator::LessThanOrEqualToDate("2030-01-01".into()),
+            Validator::BetweenDate("2020-01-01".into(), "2030-01-01".into()),
+            // BigInt validators
+            Validator::PositiveBigInt,
+            Validator::NonNegativeBigInt,
+            Validator::NegativeBigInt,
+            Validator::NonPositiveBigInt,
+            Validator::GreaterThanBigInt("100".into()),
+            Validator::GreaterThanOrEqualToBigInt("100".into()),
+            Validator::LessThanBigInt("100".into()),
+            Validator::LessThanOrEqualToBigInt("100".into()),
+            Validator::BetweenBigInt("0".into(), "100".into()),
+            // Array validators
+            Validator::MaxItems(10),
+            Validator::MinItems(1),
+            Validator::ItemsCount(5),
+            // Note: Custom validator is handled specially and generates empty condition
+        ];
+
+        for validator in validators {
+            let condition = generate_validation_condition(&validator, "value");
+            assert!(
+                !condition.is_empty(),
+                "Validator {:?} should generate non-empty condition",
+                validator
+            );
+        }
+
+        // Custom validator is handled specially - it generates an empty condition
+        // because the validation code is generated differently for it
+        let custom_condition = generate_validation_condition(
+            &Validator::Custom("myValidator".into()),
+            "value"
+        );
+        assert!(custom_condition.is_empty(), "Custom validator should return empty condition");
+    }
+
+    /// Test that all validators produce non-empty error messages
+    #[test]
+    fn test_all_validators_have_messages() {
+        let validators = vec![
+            // String validators
+            Validator::Email,
+            Validator::Url,
+            Validator::Uuid,
+            Validator::MaxLength(100),
+            Validator::MinLength(1),
+            Validator::Length(10),
+            Validator::LengthRange(5, 20),
+            Validator::Pattern(".*".into()),
+            Validator::NonEmpty,
+            Validator::Trimmed,
+            Validator::Lowercase,
+            Validator::Uppercase,
+            Validator::Capitalized,
+            Validator::Uncapitalized,
+            Validator::StartsWith("prefix".into()),
+            Validator::EndsWith("suffix".into()),
+            Validator::Includes("sub".into()),
+            // Number validators
+            Validator::GreaterThan(0.0),
+            Validator::GreaterThanOrEqualTo(0.0),
+            Validator::LessThan(100.0),
+            Validator::LessThanOrEqualTo(100.0),
+            Validator::Between(0.0, 100.0),
+            Validator::Int,
+            Validator::NonNaN,
+            Validator::Finite,
+            Validator::Positive,
+            Validator::NonNegative,
+            Validator::Negative,
+            Validator::NonPositive,
+            Validator::MultipleOf(5.0),
+            Validator::Uint8,
+            // Date validators
+            Validator::ValidDate,
+            Validator::GreaterThanDate("2020-01-01".into()),
+            Validator::GreaterThanOrEqualToDate("2020-01-01".into()),
+            Validator::LessThanDate("2030-01-01".into()),
+            Validator::LessThanOrEqualToDate("2030-01-01".into()),
+            Validator::BetweenDate("2020-01-01".into(), "2030-01-01".into()),
+            // BigInt validators
+            Validator::PositiveBigInt,
+            Validator::NonNegativeBigInt,
+            Validator::NegativeBigInt,
+            Validator::NonPositiveBigInt,
+            Validator::GreaterThanBigInt("100".into()),
+            Validator::GreaterThanOrEqualToBigInt("100".into()),
+            Validator::LessThanBigInt("100".into()),
+            Validator::LessThanOrEqualToBigInt("100".into()),
+            Validator::BetweenBigInt("0".into(), "100".into()),
+            // Array validators
+            Validator::MaxItems(10),
+            Validator::MinItems(1),
+            Validator::ItemsCount(5),
+            // Custom validator
+            Validator::Custom("myValidator".into()),
+        ];
+
+        for validator in validators {
+            let message = get_validator_message(&validator);
+            assert!(
+                !message.is_empty(),
+                "Validator {:?} should have non-empty message",
+                validator
+            );
+        }
+    }
+
+    /// Test specific validation condition formats
+    #[test]
+    fn test_specific_validation_conditions() {
+        // String validators
+        assert!(generate_validation_condition(&Validator::Trimmed, "s")
+            .contains("trim()"));
+        assert!(generate_validation_condition(&Validator::Lowercase, "s")
+            .contains("toLowerCase()"));
+        assert!(generate_validation_condition(&Validator::Uppercase, "s")
+            .contains("toUpperCase()"));
+
+        // Number validators
+        assert_eq!(
+            generate_validation_condition(&Validator::Int, "n"),
+            "!Number.isInteger(n)"
+        );
+        assert_eq!(
+            generate_validation_condition(&Validator::NonNaN, "n"),
+            "Number.isNaN(n)"
+        );
+        assert_eq!(
+            generate_validation_condition(&Validator::Finite, "n"),
+            "!Number.isFinite(n)"
+        );
+        assert_eq!(
+            generate_validation_condition(&Validator::Positive, "n"),
+            "n <= 0"
+        );
+        assert_eq!(
+            generate_validation_condition(&Validator::Negative, "n"),
+            "n >= 0"
+        );
+
+        // BigInt validators
+        assert_eq!(
+            generate_validation_condition(&Validator::PositiveBigInt, "b"),
+            "b <= 0n"
+        );
+        assert_eq!(
+            generate_validation_condition(&Validator::NegativeBigInt, "b"),
+            "b >= 0n"
+        );
+
+        // Array validators
+        assert_eq!(
+            generate_validation_condition(&Validator::MaxItems(5), "arr"),
+            "arr.length > 5"
+        );
+        assert_eq!(
+            generate_validation_condition(&Validator::MinItems(2), "arr"),
+            "arr.length < 2"
+        );
+        assert_eq!(
+            generate_validation_condition(&Validator::ItemsCount(3), "arr"),
+            "arr.length !== 3"
+        );
+
+        // Custom validator - handled specially, generates empty condition
+        // (the actual code generation for custom validators uses the function name directly)
+        assert!(
+            generate_validation_condition(&Validator::Custom("isValid".into()), "x").is_empty(),
+            "Custom validator should return empty condition (handled specially)"
+        );
+    }
+
+    /// Test specific validator messages format
+    #[test]
+    fn test_specific_validator_messages() {
+        // String validators with dynamic values
+        assert_eq!(
+            get_validator_message(&Validator::MaxLength(50)),
+            "must have at most 50 characters"
+        );
+        assert_eq!(
+            get_validator_message(&Validator::MinLength(3)),
+            "must have at least 3 characters"
+        );
+        assert_eq!(
+            get_validator_message(&Validator::Length(10)),
+            "must have exactly 10 characters"
+        );
+        assert_eq!(
+            get_validator_message(&Validator::LengthRange(5, 20)),
+            "must have between 5 and 20 characters"
+        );
+
+        // Number validators with dynamic values
+        assert_eq!(
+            get_validator_message(&Validator::GreaterThan(5.0)),
+            "must be greater than 5"
+        );
+        assert_eq!(
+            get_validator_message(&Validator::MultipleOf(7.0)),
+            "must be a multiple of 7"
+        );
+
+        // Array validators with dynamic values
+        assert_eq!(
+            get_validator_message(&Validator::MaxItems(10)),
+            "must have at most 10 items"
+        );
+        assert_eq!(
+            get_validator_message(&Validator::MinItems(2)),
+            "must have at least 2 items"
+        );
+        assert_eq!(
+            get_validator_message(&Validator::ItemsCount(5)),
+            "must have exactly 5 items"
+        );
+
+        // Date validators
+        assert_eq!(
+            get_validator_message(&Validator::GreaterThanDate("2020-01-01".into())),
+            "must be after 2020-01-01"
+        );
+        assert_eq!(
+            get_validator_message(&Validator::BetweenDate("2020-01-01".into(), "2030-12-31".into())),
+            "must be between 2020-01-01 and 2030-12-31"
+        );
+
+        // BigInt validators
+        assert_eq!(
+            get_validator_message(&Validator::GreaterThanBigInt("100".into())),
+            "must be greater than 100"
+        );
+    }
 }
