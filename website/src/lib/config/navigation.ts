@@ -30,7 +30,13 @@ export const navigation: NavSection[] = [
 			{ title: 'Overview', href: '/docs/builtin-macros' },
 			{ title: 'Debug', href: '/docs/builtin-macros/debug' },
 			{ title: 'Clone', href: '/docs/builtin-macros/clone' },
-			{ title: 'Eq', href: '/docs/builtin-macros/eq' }
+			{ title: 'Default', href: '/docs/builtin-macros/default' },
+			{ title: 'Hash', href: '/docs/builtin-macros/hash' },
+			{ title: 'Ord', href: '/docs/builtin-macros/ord' },
+			{ title: 'PartialEq', href: '/docs/builtin-macros/partial-eq' },
+			{ title: 'PartialOrd', href: '/docs/builtin-macros/partial-ord' },
+			{ title: 'Serialize', href: '/docs/builtin-macros/serialize' },
+			{ title: 'Deserialize', href: '/docs/builtin-macros/deserialize' }
 		]
 	},
 	{
