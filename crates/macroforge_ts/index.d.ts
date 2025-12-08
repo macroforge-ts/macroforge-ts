@@ -60,7 +60,19 @@ export declare function __macroforgeRunDebug(contextJson: string): string
  * r" Run this macro with the given context
  * r" Called by the TS plugin to execute macro expansion
  */
+export declare function __macroforgeRunDeserialize(contextJson: string): string
+
+/**
+ * r" Run this macro with the given context
+ * r" Called by the TS plugin to execute macro expansion
+ */
 export declare function __macroforgeRunEq(contextJson: string): string
+
+/**
+ * r" Run this macro with the given context
+ * r" Called by the TS plugin to execute macro expansion
+ */
+export declare function __macroforgeRunSerialize(contextJson: string): string
 
 export declare function checkSyntax(code: string, filepath: string): SyntaxCheckResult
 
@@ -82,6 +94,9 @@ export interface DecoratorManifestEntry {
 }
 
 export declare function Derive(...features: any[]): ClassDecorator
+
+export declare function Deserialize(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
 export declare function Eq(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
 any[]) => unknown) | Record<string, unknown>>): ClassDecorator
@@ -155,6 +170,17 @@ export interface ProcessFileOptions {
   keepDecorators?: boolean
   version?: string
 }
+
+/** Generates a static fromJSON() method for JSON deserialization with runtime validation */
+export declare function serde(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
+
+/** Generates a toJSON() method for JSON serialization */
+export declare function serde(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
+
+export declare function Serialize(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
+any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
 export interface SourceMappingResult {
   segments: Array<MappingSegmentResult>

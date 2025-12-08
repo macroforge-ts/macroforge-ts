@@ -1,6 +1,6 @@
 //! /** @derive(Debug) */ macro implementation
 
-use crate::macros::{ts_macro_derive, body};
+use crate::macros::{ts_macro_derive, body, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 /// Options parsed from @Debug decorator on fields
@@ -146,12 +146,43 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
         }
         Data::Enum(_) => Err(MacroforgeError::new(
             input.error_span(),
-            "/** @derive(Debug) */ can only be applied to classes",
+            "/** @derive(Debug) */ can only be applied to classes or interfaces",
         )),
-        Data::Interface(_) => Err(MacroforgeError::new(
-            input.error_span(),
-            "/** @derive(Debug) */ can only be applied to classes, not interfaces",
-        )),
+        Data::Interface(interface) => {
+            let interface_name = input.name();
+
+            // Collect fields that should be included in debug output
+            let debug_fields: Vec<DebugField> = interface
+                .fields()
+                .iter()
+                .filter_map(|field| {
+                    let opts = DebugFieldOptions::from_decorators(&field.decorators);
+                    if opts.skip {
+                        return None;
+                    }
+                    let label = opts.rename.unwrap_or_else(|| field.name.clone());
+                    Some((label, field.name.clone()))
+                })
+                .collect();
+
+            let has_fields = !debug_fields.is_empty();
+
+            Ok(ts_template! {
+                export namespace @{interface_name} {
+                    export function toString(self: @{interface_name}): string {
+                        {#if has_fields}
+                            const parts: string[] = [];
+                            {#for (label, name) in debug_fields}
+                                parts.push("@{label}: " + self.@{name});
+                            {/for}
+                            return "@{interface_name} { " + parts.join(", ") + " }";
+                        {:else}
+                            return "@{interface_name} {}";
+                        {/if}
+                    }
+                }
+            })
+        }
     }
 }
 
