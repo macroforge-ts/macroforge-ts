@@ -1666,6 +1666,7 @@ import { Derive } from "@macro/derive";
 class User {
     name: string;
     age: number;
+    constructor();
     static fromJSON(data: unknown): Result<User, string[]>;
 }
 "#;
