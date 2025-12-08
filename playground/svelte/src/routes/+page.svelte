@@ -15,8 +15,9 @@
 	const derivedJsonPretty = JSON.stringify(derivedUserJson, null, 2)
 	const showcaseJsonPretty = JSON.stringify(showcaseUserJson, null, 2)
 
+
 	// Test results state
-	let testsComplete = false
+	let testsComplete = $state(false);
 	let testResults: {
 		debug?: string
 		clone?: object
@@ -24,32 +25,32 @@
 		hashCode?: number
 		serialize?: object
 		deserialize?: object
-	} = {}
+	} = $state({});
 
 	function runAllMacroTests() {
 		// Test Debug macro -> toString()
 		testResults.debug = svelteTestInstance.toString()
 
 		// Test Clone macro -> clone()
-		if (typeof (svelteTestInstance as any).clone === 'function') {
-			testResults.clone = (svelteTestInstance as any).clone()
+		if (typeof SvelteAllMacrosTest.clone === 'function') {
+			testResults.clone = SvelteAllMacrosTest.clone(svelteTestInstance);
 		}
 
 		// Test Eq macro -> equals()
-		if (typeof (svelteTestInstance as any).equals === 'function') {
-			testResults.equals = (svelteTestInstance as any).equals(svelteTestInstance)
+		if (typeof SvelteAllMacrosTest.equals === 'function') {
+			testResults.equals = SvelteAllMacrosTest.equals(svelteTestInstance, svelteTestInstance)
 		}
 
 		// Test Eq macro -> hashCode()
-		if (typeof (svelteTestInstance as any).hashCode === 'function') {
-			testResults.hashCode = (svelteTestInstance as any).hashCode()
+		if (typeof SvelteAllMacrosTest.hashCode === 'function') {
+			testResults.hashCode = SvelteAllMacrosTest.hashCode(svelteTestInstance)
 		}
 
 		// Test Serialize macro -> toJSON()
-		testResults.serialize = svelteTestInstance.toJSON()
+		testResults.serialize = SvelteAllMacrosTest.toJSON(svelteTestInstance)
 
 		// Test Deserialize macro -> fromJSON()
-		if (typeof (SvelteAllMacrosTest as any).fromJSON === 'function') {
+		if (typeof SvelteAllMacrosTest.fromJSON === 'function') {
 			const testData = {
 				id: 'deser-001',
 				title: 'Deserialized',
@@ -58,7 +59,7 @@
 				count: 99,
 				enabled: false
 			}
-			testResults.deserialize = (SvelteAllMacrosTest as any).fromJSON(testData)
+			testResults.deserialize = SvelteAllMacrosTest.fromJSON(testData)
 		}
 
 		// Trigger reactivity

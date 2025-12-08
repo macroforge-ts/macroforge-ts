@@ -4,44 +4,36 @@
  */
 
 /** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
-export class SvelteAllMacrosTest {
+export interface SvelteAllMacrosTest {
   /** @debug({ rename: "testId" }) */
   id: string;
-
   title: string;
-
   content: string;
-
   /** @debug({ skip: true }) */
   apiKey: string;
-
   count: number;
-
   enabled: boolean;
+}
 
-  constructor(
+export namespace SvelteAllMacrosTest {
+  export function make(
     id: string,
     title: string,
     content: string,
     apiKey: string,
     count: number,
-    enabled: boolean
-  ) {
-    this.id = id;
-    this.title = title;
-    this.content = content;
-    this.apiKey = apiKey;
-    this.count = count;
-    this.enabled = enabled;
+    enabled: boolean,
+  ): SvelteAllMacrosTest {
+    return { id, title, content, apiKey, count, enabled };
   }
 }
 
 // Pre-instantiated test instance for e2e tests
-export const svelteTestInstance = new SvelteAllMacrosTest(
+export const svelteTestInstance = SvelteAllMacrosTest.make(
   "svelte-001",
   "Svelte Test",
   "Testing all macros in SvelteKit",
   "sk-secret-key",
   42,
-  true
+  true,
 );
