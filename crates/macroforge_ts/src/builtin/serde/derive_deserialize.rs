@@ -1086,11 +1086,12 @@ mod tests {
 
         // Custom validator is handled specially - it generates an empty condition
         // because the validation code is generated differently for it
-        let custom_condition = generate_validation_condition(
-            &Validator::Custom("myValidator".into()),
-            "value"
+        let custom_condition =
+            generate_validation_condition(&Validator::Custom("myValidator".into()), "value");
+        assert!(
+            custom_condition.is_empty(),
+            "Custom validator should return empty condition"
         );
-        assert!(custom_condition.is_empty(), "Custom validator should return empty condition");
     }
 
     /// Test that all validators produce non-empty error messages
@@ -1169,12 +1170,13 @@ mod tests {
     #[test]
     fn test_specific_validation_conditions() {
         // String validators
-        assert!(generate_validation_condition(&Validator::Trimmed, "s")
-            .contains("trim()"));
-        assert!(generate_validation_condition(&Validator::Lowercase, "s")
-            .contains("toLowerCase()"));
-        assert!(generate_validation_condition(&Validator::Uppercase, "s")
-            .contains("toUpperCase()"));
+        assert!(generate_validation_condition(&Validator::Trimmed, "s").contains("trim()"));
+        assert!(
+            generate_validation_condition(&Validator::Lowercase, "s").contains("toLowerCase()")
+        );
+        assert!(
+            generate_validation_condition(&Validator::Uppercase, "s").contains("toUpperCase()")
+        );
 
         // Number validators
         assert_eq!(
@@ -1281,7 +1283,10 @@ mod tests {
             "must be after 2020-01-01"
         );
         assert_eq!(
-            get_validator_message(&Validator::BetweenDate("2020-01-01".into(), "2030-12-31".into())),
+            get_validator_message(&Validator::BetweenDate(
+                "2020-01-01".into(),
+                "2030-12-31".into()
+            )),
             "must be between 2020-01-01 and 2030-12-31"
         );
 
