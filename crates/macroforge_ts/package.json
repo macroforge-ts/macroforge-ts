@@ -35,8 +35,13 @@
   },
   "files": [
     "index.d.ts",
-    "index.js"
+    "index.js",
+    "result.js",
+    "result.d.ts"
   ],
+  "dependencies": {
+    "@rydshift/mirror": "^0.1.1"
+  },
   "engines": {
     "node": ">= 18"
   },

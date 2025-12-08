@@ -24,7 +24,8 @@
 
 use crate::abi::{
     ClassIR, DecoratorIR, EnumIR, EnumVariantIR, FieldIR, InterfaceFieldIR, InterfaceIR,
-    InterfaceMethodIR, MacroContextIR, MethodSigIR, SpanIR, TargetIR,
+    InterfaceMethodIR, MacroContextIR, MethodSigIR, SpanIR, TargetIR, TypeAliasIR, TypeBody,
+    TypeMember,
 };
 
 use crate::TsSynError;
@@ -126,6 +127,8 @@ pub enum Data {
     Enum(DataEnum),
     /// A TypeScript interface
     Interface(DataInterface),
+    /// A TypeScript type alias
+    TypeAlias(DataTypeAlias),
 }
 
 /// Data for a class, analogous to `syn::DataStruct`
@@ -255,6 +258,75 @@ impl DataInterface {
     }
 }
 
+/// Data for a type alias
+#[derive(Debug, Clone)]
+pub struct DataTypeAlias {
+    /// The type alias IR with full details
+    pub inner: TypeAliasIR,
+}
+
+impl DataTypeAlias {
+    /// Get the type body
+    pub fn body(&self) -> &TypeBody {
+        &self.inner.body
+    }
+
+    /// Get type parameters
+    pub fn type_params(&self) -> &[String] {
+        &self.inner.type_params
+    }
+
+    /// Check if this is a union type
+    pub fn is_union(&self) -> bool {
+        self.inner.body.is_union()
+    }
+
+    /// Check if this is an intersection type
+    pub fn is_intersection(&self) -> bool {
+        self.inner.body.is_intersection()
+    }
+
+    /// Check if this is an object type
+    pub fn is_object(&self) -> bool {
+        self.inner.body.is_object()
+    }
+
+    /// Check if this is a tuple type
+    pub fn is_tuple(&self) -> bool {
+        self.inner.body.is_tuple()
+    }
+
+    /// Check if this is a simple alias
+    pub fn is_alias(&self) -> bool {
+        self.inner.body.is_alias()
+    }
+
+    /// Get union members if this is a union type
+    pub fn as_union(&self) -> Option<&[TypeMember]> {
+        self.inner.body.as_union()
+    }
+
+    /// Get intersection members if this is an intersection type
+    pub fn as_intersection(&self) -> Option<&[TypeMember]> {
+        self.inner.body.as_intersection()
+    }
+
+    /// Get object fields if this is an object type
+    pub fn as_object(&self) -> Option<&[InterfaceFieldIR]> {
+        self.inner.body.as_object()
+    }
+
+    /// Get tuple elements if this is a tuple type
+    pub fn as_tuple(&self) -> Option<&[String]> {
+        self.inner.body.as_tuple()
+    }
+
+    /// Get aliased type if this is a simple alias
+    pub fn as_alias(&self) -> Option<&str> {
+        self.inner.body.as_alias()
+    }
+}
+
 impl DeriveInput {
     /// Create a DeriveInput from a MacroContextIR
     pub fn from_context(ctx: MacroContextIR) -> Result<Self, TsSynError> {
@@ -300,6 +372,20 @@ impl DeriveInput {
                     inner: interface.clone(),
                 });
                 (ident, interface.span, attrs, data)
+            }
+            TargetIR::TypeAlias(type_alias) => {
+                let ident = Ident::new(&type_alias.name, type_alias.span);
+                let attrs = type_alias
+                    .decorators
+                    .iter()
+                    .filter(|d| d.name != "Derive")
+                    .cloned()
+                    .map(|d| Attribute { inner: d })
+                    .collect();
+                let data = Data::TypeAlias(DataTypeAlias {
+                    inner: type_alias.clone(),
+                });
+                (ident, type_alias.span, attrs, data)
             }
             TargetIR::Function => {
                 return Err(TsSynError::Unsupported(
@@ -351,6 +437,14 @@ impl DeriveInput {
         }
     }
 
+    /// Get the type alias data, if this is a type alias
+    pub fn as_type_alias(&self) -> Option<&DataTypeAlias> {
+        match &self.data {
+            Data::TypeAlias(t) => Some(t),
+            _ => None,
+        }
+    }
+
     /// Get the decorator span (for deletion/replacement)
     pub fn decorator_span(&self) -> SpanIR {
         self.context.decorator_span
@@ -374,12 +468,13 @@ impl DeriveInput {
     }
 
     /// Get the class or interface body span for inserting type signatures
-    /// Returns None if this is an enum
+    /// Returns None if this is an enum or type alias
     pub fn body_span(&self) -> Option<SpanIR> {
         match &self.data {
             Data::Class(c) => Some(c.body_span()),
             Data::Interface(i) => Some(i.body_span()),
             Data::Enum(_) => None,
+            Data::TypeAlias(_) => None,
         }
     }
 }
@@ -525,17 +620,23 @@ mod tests {
             target: TargetIR::Enum(EnumIR {
                 name: "Status".into(),
                 span: SpanIR::new(11, 100),
+                body_span: SpanIR::new(18, 99),
                 decorators: vec![],
                 variants: vec![
                     EnumVariantIR {
                         name: "Active".into(),
                         span: SpanIR::new(20, 30),
+                        value: crate::abi::EnumValue::Auto,
+                        decorators: vec![],
                     },
                     EnumVariantIR {
                         name: "Inactive".into(),
                         span: SpanIR::new(35, 45),
+                        value: crate::abi::EnumValue::Auto,
+                        decorators: vec![],
                     },
                 ],
+                is_const: false,
             }),
             target_source: "enum Status { Active, Inactive }".into(),
         };

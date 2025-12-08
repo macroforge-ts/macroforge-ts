@@ -1,7 +1,7 @@
 //! Rust-style templating for TypeScript code generation
 //!
 //! Provides a template syntax with interpolation and control flow:
-//! - `@{expr}` - Interpolate expressions
+//! - `@{expr}` - Interpolate expressions (calls `.to_string()`)
 //! - `{| content |}` - Ident block: concatenates content without spaces (e.g., `{|get@{name}|}` → `getUser`)
 //! - `@@{` - Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)
 //! - `"string @{expr}"` - String interpolation (auto-detected)
@@ -13,6 +13,7 @@
 //! - `{#match expr}{:case pattern}...{/match}` - Match blocks with case arms
 //! - `{#for item in list}...{/for}` - Iteration
 //! - `{%let name = expr}` - Local constants
+//! - `{%typescript stream}` - Inject a TsStream, preserving its source and runtime_patches (imports)
 //!
 //! Note: A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com`).
 
@@ -21,6 +22,7 @@ use quote::{ToTokens, quote};
 use std::iter::Peekable;
 
 /// Parse the template stream and generate code to build a TypeScript string
+/// Returns a tuple of (String, Vec<Patch>) to support TsStream injection via {%typescript}
 pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
     // Parse the tokens into a Rust block that returns a String or a templating error
     let (body, _) = parse_fragment(&mut input.into_iter().peekable(), None)?;
@@ -28,8 +30,9 @@ pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
     Ok(quote! {
         {
             let mut __out = String::new();
+            let mut __patches: Vec<macroforge_ts::ts_syn::abi::Patch> = Vec::new();
             #body
-            __out
+            (__out, __patches)
         }
     })
 }
@@ -58,8 +61,9 @@ enum TagType {
     EndFor,
     EndMatch,
     Let(TokenStream2),
-    IdentBlock, // {| ... |} - identifier block with no internal spacing
-    Block,      // Standard TypeScript Block { ... }
+    Typescript(TokenStream2), // {%typescript stream_expr} - inject TsStream with patches
+    IdentBlock,               // {| ... |} - identifier block with no internal spacing
+    Block,                    // Standard TypeScript Block { ... }
 }
 
 fn analyze_tag(g: &Group) -> TagType {
@@ -147,14 +151,20 @@ fn analyze_tag(g: &Group) -> TagType {
         }
     }
 
-    // Check for {% ...} tags (let)
+    // Check for {% ...} tags (let, typescript)
     if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
         && p.as_char() == '%'
-        && i == "let"
     {
-        // Format: {%let name = expr}
-        let body: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
-        return TagType::Let(body);
+        if i == "let" {
+            // Format: {%let name = expr}
+            let body: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            return TagType::Let(body);
+        }
+        if i == "typescript" {
+            // Format: {%typescript stream_expr}
+            let expr: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            return TagType::Typescript(expr);
+        }
     }
 
     // Check for {: ...} tags (else, else if, case)
@@ -582,6 +592,16 @@ fn parse_fragment(
                         iter.next(); // Consume {%let ...}
                         output.extend(quote! {
                             let #body;
+                        });
+                    }
+                    TagType::Typescript(expr) => {
+                        iter.next(); // Consume {%typescript ...}
+                        output.extend(quote! {
+                            {
+                                let __ts_stream = #expr;
+                                __out.push_str(__ts_stream.source());
+                                __patches.extend(__ts_stream.runtime_patches);
+                            }
                         });
                     }
                     TagType::IdentBlock => {

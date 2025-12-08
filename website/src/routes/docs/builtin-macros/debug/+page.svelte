@@ -161,3 +161,83 @@ interface Status {
 const status: Status = { active: true, message: "OK" };
 console.log(Status.toString(status));
 // Output: Status { active: true, message: OK }`} lang="typescript" />
+
+<h2 id="enum-support">Enum Support</h2>
+
+<p>
+	Debug also works with enums. For enums, a namespace is generated with a <code>toString</code> function
+	that displays the enum name and variant:
+</p>
+
+<CodeBlock code={`/** @derive(Debug) */
+enum Priority {
+  Low = 1,
+  Medium = 2,
+  High = 3,
+}
+
+// Generated:
+// export namespace Priority {
+//   export function toString(value: Priority): string {
+//     const key = Priority[value as unknown as keyof typeof Priority];
+//     if (key !== undefined) {
+//       return "Priority." + key;
+//     }
+//     return "Priority(" + String(value) + ")";
+//   }
+// }
+
+console.log(Priority.toString(Priority.High));
+// Output: Priority.High
+
+console.log(Priority.toString(Priority.Low));
+// Output: Priority.Low`} lang="typescript" />
+
+<p>
+	Works with both numeric and string enums:
+</p>
+
+<CodeBlock code={`/** @derive(Debug) */
+enum Status {
+  Active = "active",
+  Inactive = "inactive",
+}
+
+console.log(Status.toString(Status.Active));
+// Output: Status.Active`} lang="typescript" />
+
+<h2 id="type-alias-support">Type Alias Support</h2>
+
+<p>
+	Debug works with type aliases. For object types, fields are displayed similar to interfaces:
+</p>
+
+<CodeBlock code={`/** @derive(Debug) */
+type Point = {
+  x: number;
+  y: number;
+};
+
+// Generated:
+// export namespace Point {
+//   export function toString(value: Point): string {
+//     const parts: string[] = [];
+//     parts.push("x: " + value.x);
+//     parts.push("y: " + value.y);
+//     return "Point { " + parts.join(", ") + " }";
+//   }
+// }
+
+const point: Point = { x: 10, y: 20 };
+console.log(Point.toString(point));
+// Output: Point { x: 10, y: 20 }`} lang="typescript" />
+
+<p>
+	For union types, the value is displayed using JSON.stringify:
+</p>
+
+<CodeBlock code={`/** @derive(Debug) */
+type ApiStatus = "loading" | "success" | "error";
+
+console.log(ApiStatus.toString("success"));
+// Output: ApiStatus("success")`} lang="typescript" />

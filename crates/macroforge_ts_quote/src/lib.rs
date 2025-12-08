@@ -459,16 +459,19 @@ pub fn ts_template(input: TokenStream) -> TokenStream {
     let input = TokenStream2::from(input);
 
     // Parse the template to generate string-building code
-    let string_builder = match template::parse_template(input) {
+    // parse_template returns a tuple: (String, Vec<Patch>)
+    let template_builder = match template::parse_template(input) {
         Ok(s) => s,
         Err(e) => return e.to_compile_error().into(),
     };
 
-    // Wrap in code that builds string and parses it
+    // Wrap in code that builds string and collects patches
     let output = quote::quote! {
         {
-            let __ts_code = #string_builder;
-            macroforge_ts::ts_syn::TsStream::from_string(__ts_code)
+            let (__ts_code, __collected_patches) = #template_builder;
+            let mut __stream = macroforge_ts::ts_syn::TsStream::from_string(__ts_code);
+            __stream.runtime_patches = __collected_patches;
+            __stream
         }
     };
 
@@ -500,23 +503,22 @@ pub fn signature(input: TokenStream) -> TokenStream {
 }
 
 fn generate_scoped_template(input: TokenStream2, marker: &str) -> TokenStream {
-    let string_builder = match template::parse_template(input) {
+    let template_builder = match template::parse_template(input) {
         Ok(s) => s,
         Err(e) => return e.to_compile_error().into(),
     };
 
-    // Inject the marker at the start of the string building block
-    // parse_template returns: { let mut __out = String::new(); ... __out }
-    // We want to inject __out.push_str(marker); right after String::new();
-
-    // Since parse_template returns a block, we can't easily inject inside it without parsing it.
-    // However, we can just prepend the marker to the result string.
+    // parse_template now returns a tuple: (String, Vec<Patch>)
+    // We destructure it and set runtime_patches on the resulting TsStream
 
     let output = quote::quote! {
         {
             let mut __ts_code = String::from(#marker);
-            __ts_code.push_str(&#string_builder);
-            macroforge_ts::ts_syn::TsStream::from_string(__ts_code)
+            let (__content, __collected_patches) = #template_builder;
+            __ts_code.push_str(&__content);
+            let mut __stream = macroforge_ts::ts_syn::TsStream::from_string(__ts_code);
+            __stream.runtime_patches = __collected_patches;
+            __stream
         }
     };
 

@@ -128,3 +128,65 @@ const copy = Point.clone(original);
 
 console.log(copy.x, copy.y);        // 10, 20
 console.log(original === copy);     // false (different objects)`} lang="typescript" />
+
+<h2 id="enum-support">Enum Support</h2>
+
+<p>
+	Clone also works with enums. For enums, the clone function simply returns the value as-is,
+	since enum values are primitives and don't need cloning:
+</p>
+
+<CodeBlock code={`/** @derive(Clone) */
+enum Status {
+  Active = "active",
+  Inactive = "inactive",
+}
+
+// Generated:
+// export namespace Status {
+//   export function clone(value: Status): Status {
+//     return value;
+//   }
+// }
+
+const original = Status.Active;
+const copy = Status.clone(original);
+
+console.log(copy);               // "active"
+console.log(original === copy);  // true (same primitive value)`} lang="typescript" />
+
+<h2 id="type-alias-support">Type Alias Support</h2>
+
+<p>
+	Clone works with type aliases. For object types, a shallow copy is created using spread:
+</p>
+
+<CodeBlock code={`/** @derive(Clone) */
+type Point = {
+  x: number;
+  y: number;
+};
+
+// Generated:
+// export namespace Point {
+//   export function clone(value: Point): Point {
+//     return { ...value };
+//   }
+// }
+
+const original: Point = { x: 10, y: 20 };
+const copy = Point.clone(original);
+
+console.log(copy.x, copy.y);     // 10, 20
+console.log(original === copy);  // false (different objects)`} lang="typescript" />
+
+<p>
+	For union types, the value is returned as-is (unions of primitives don't need cloning):
+</p>
+
+<CodeBlock code={`/** @derive(Clone) */
+type ApiStatus = "loading" | "success" | "error";
+
+const status: ApiStatus = "success";
+const copy = ApiStatus.clone(status);
+console.log(copy); // "success"`} lang="typescript" />

@@ -2,11 +2,13 @@ use crate::abi::*;
 
 use crate::TsSynError;
 
-/// A lowered target that can be either a class or interface
+/// A lowered target that can be a class, interface, enum, or type alias
 #[derive(Clone, Debug)]
 pub enum LoweredTarget {
     Class(ClassIR),
     Interface(InterfaceIR),
+    Enum(EnumIR),
+    TypeAlias(TypeAliasIR),
 }
 
 #[cfg(feature = "swc")]
@@ -42,6 +44,28 @@ pub fn lower_interfaces(module: &Module, source: &str) -> Result<Vec<InterfaceIR
 #[cfg(feature = "swc")]
 pub fn lower_targets(module: &Module, source: &str) -> Result<Vec<LoweredTarget>, TsSynError> {
     let mut v = TargetCollector {
+        out: vec![],
+        source,
+    };
+    module.visit_with(&mut v);
+    Ok(v.out)
+}
+
+/// Lower a module into EnumIR list (derive targets).
+#[cfg(feature = "swc")]
+pub fn lower_enums(module: &Module, source: &str) -> Result<Vec<EnumIR>, TsSynError> {
+    let mut v = EnumCollector {
+        out: vec![],
+        source,
+    };
+    module.visit_with(&mut v);
+    Ok(v.out)
+}
+
+/// Lower a module into TypeAliasIR list (derive targets).
+#[cfg(feature = "swc")]
+pub fn lower_type_aliases(module: &Module, source: &str) -> Result<Vec<TypeAliasIR>, TsSynError> {
+    let mut v = TypeAliasCollector {
         out: vec![],
         source,
     };
@@ -114,6 +138,36 @@ impl<'a> Visit for InterfaceCollector<'a> {
 }
 
 #[cfg(feature = "swc")]
+struct EnumCollector<'a> {
+    out: Vec<EnumIR>,
+    source: &'a str,
+}
+
+#[cfg(feature = "swc")]
+impl<'a> Visit for EnumCollector<'a> {
+    fn visit_ts_enum_decl(&mut self, n: &TsEnumDecl) {
+        if let Some(ir) = lower_enum(n, self.source) {
+            self.out.push(ir);
+        }
+    }
+}
+
+#[cfg(feature = "swc")]
+struct TypeAliasCollector<'a> {
+    out: Vec<TypeAliasIR>,
+    source: &'a str,
+}
+
+#[cfg(feature = "swc")]
+impl<'a> Visit for TypeAliasCollector<'a> {
+    fn visit_ts_type_alias_decl(&mut self, n: &TsTypeAliasDecl) {
+        if let Some(ir) = lower_type_alias(n, self.source) {
+            self.out.push(ir);
+        }
+    }
+}
+
+#[cfg(feature = "swc")]
 struct TargetCollector<'a> {
     out: Vec<LoweredTarget>,
     source: &'a str,
@@ -165,6 +219,18 @@ impl<'a> Visit for TargetCollector<'a> {
             self.out.push(LoweredTarget::Interface(ir));
         }
     }
+
+    fn visit_ts_enum_decl(&mut self, n: &TsEnumDecl) {
+        if let Some(ir) = lower_enum(n, self.source) {
+            self.out.push(LoweredTarget::Enum(ir));
+        }
+    }
+
+    fn visit_ts_type_alias_decl(&mut self, n: &TsTypeAliasDecl) {
+        if let Some(ir) = lower_type_alias(n, self.source) {
+            self.out.push(LoweredTarget::TypeAlias(ir));
+        }
+    }
 }
 
 #[cfg(feature = "swc")]
@@ -199,6 +265,244 @@ fn lower_interface(n: &TsInterfaceDecl, source: &str) -> Option<InterfaceIR> {
         fields,
         methods,
     })
+}
+
+#[cfg(feature = "swc")]
+fn lower_enum(n: &TsEnumDecl, source: &str) -> Option<EnumIR> {
+    let name = n.id.sym.to_string();
+    let span = swc_span_to_ir(n.span);
+
+    let enum_source = snippet(source, n.span);
+    let body_span = if let (Some(open_brace), Some(close_brace)) =
+        (enum_source.find('{'), enum_source.rfind('}'))
+    {
+        SpanIR::new(
+            n.span.lo.0 + open_brace as u32,
+            n.span.lo.0 + close_brace as u32 + 1,
+        )
+    } else {
+        span
+    };
+
+    // Collect decorators from leading JSDoc comments
+    let decorators = collect_leading_macro_directives(source, n.span.lo.0 as usize);
+
+    // Lower enum members with values
+    let variants = lower_enum_members(&n.members, source);
+
+    Some(EnumIR {
+        name,
+        span,
+        body_span,
+        decorators,
+        variants,
+        is_const: n.is_const,
+    })
+}
+
+#[cfg(feature = "swc")]
+fn lower_enum_members(members: &[TsEnumMember], source: &str) -> Vec<EnumVariantIR> {
+    let mut variants = vec![];
+    let mut next_auto_value: f64 = 0.0;
+
+    for member in members {
+        let name = match &member.id {
+            TsEnumMemberId::Ident(i) => i.sym.to_string(),
+            TsEnumMemberId::Str(s) => String::from_utf8_lossy(s.value.as_bytes()).to_string(),
+        };
+
+        // Collect field-level decorators from JSDoc comments
+        let decorators = collect_leading_macro_directives(source, member.span.lo.0 as usize);
+
+        // Extract the value from the initializer
+        let value = if let Some(init) = &member.init {
+            match &**init {
+                // String literal: "ACTIVE"
+                Expr::Lit(Lit::Str(s)) => {
+                    // String enums reset auto-increment behavior
+                    EnumValue::String(String::from_utf8_lossy(s.value.as_bytes()).to_string())
+                }
+                // Numeric literal: 42
+                Expr::Lit(Lit::Num(n)) => {
+                    let val = n.value;
+                    next_auto_value = val + 1.0;
+                    EnumValue::Number(val)
+                }
+                // Unary expression: -1, +5
+                Expr::Unary(unary) if matches!(unary.op, swc_core::ecma::ast::UnaryOp::Minus | swc_core::ecma::ast::UnaryOp::Plus) => {
+                    if let Expr::Lit(Lit::Num(n)) = &*unary.arg {
+                        let val = if matches!(unary.op, swc_core::ecma::ast::UnaryOp::Minus) {
+                            -n.value
+                        } else {
+                            n.value
+                        };
+                        next_auto_value = val + 1.0;
+                        EnumValue::Number(val)
+                    } else {
+                        // Complex unary expression, store as expression
+                        let expr_src = snippet(source, init.span());
+                        EnumValue::Expr(expr_src)
+                    }
+                }
+                // Any other expression (function call, binary op, etc.)
+                _ => {
+                    let expr_src = snippet(source, init.span());
+                    // Try to evaluate simple expressions like A + 1 where A is known
+                    EnumValue::Expr(expr_src)
+                }
+            }
+        } else {
+            // No initializer - use auto-increment
+            let val = next_auto_value;
+            next_auto_value += 1.0;
+            // Check if this is truly auto (first member with no init) or follows string enum
+            // For simplicity, we track numeric auto-increment
+            EnumValue::Number(val)
+        };
+
+        variants.push(EnumVariantIR {
+            name,
+            span: swc_span_to_ir(member.span),
+            value,
+            decorators,
+        });
+    }
+
+    variants
+}
+
+#[cfg(feature = "swc")]
+fn lower_type_alias(n: &TsTypeAliasDecl, source: &str) -> Option<TypeAliasIR> {
+    let name = n.id.sym.to_string();
+    let span = swc_span_to_ir(n.span);
+
+    // Collect decorators from leading JSDoc comments
+    let decorators = collect_leading_macro_directives(source, n.span.lo.0 as usize);
+
+    // Extract type parameters
+    let type_params = n
+        .type_params
+        .as_ref()
+        .map(|tp| {
+            tp.params
+                .iter()
+                .map(|p| p.name.sym.to_string())
+                .collect()
+        })
+        .unwrap_or_default();
+
+    // Lower the type body
+    let body = lower_type_body(&n.type_ann, source);
+
+    Some(TypeAliasIR {
+        name,
+        span,
+        decorators,
+        type_params,
+        body,
+    })
+}
+
+#[cfg(feature = "swc")]
+fn lower_type_body(ts_type: &TsType, source: &str) -> TypeBody {
+    use swc_core::ecma::ast::TsType::*;
+
+    match ts_type {
+        // Union type: A | B | C
+        TsUnionOrIntersectionType(swc_core::ecma::ast::TsUnionOrIntersectionType::TsUnionType(
+            union,
+        )) => {
+            let members: Vec<TypeMember> = union
+                .types
+                .iter()
+                .map(|t| lower_type_member(t, source))
+                .collect();
+            TypeBody::Union(members)
+        }
+
+        // Intersection type: A & B & C
+        TsUnionOrIntersectionType(
+            swc_core::ecma::ast::TsUnionOrIntersectionType::TsIntersectionType(intersection),
+        ) => {
+            let members: Vec<TypeMember> = intersection
+                .types
+                .iter()
+                .map(|t| lower_type_member(t, source))
+                .collect();
+            TypeBody::Intersection(members)
+        }
+
+        // Type literal (object type): { x: number; y: number }
+        TsTypeLit(lit) => {
+            let (fields, _methods) = lower_interface_members(&lit.members, source);
+            TypeBody::Object { fields }
+        }
+
+        // Tuple type: [string, number]
+        TsTupleType(tuple) => {
+            let elements: Vec<String> = tuple
+                .elem_types
+                .iter()
+                .map(|elem| snippet(source, elem.span()))
+                .collect();
+            TypeBody::Tuple(elements)
+        }
+
+        // Type reference: string, number, Array<T>, etc.
+        TsTypeRef(type_ref) => {
+            let type_str = snippet(source, type_ref.span());
+            TypeBody::Alias(type_str)
+        }
+
+        // Keyword types: string, number, boolean, etc.
+        TsKeywordType(kw) => {
+            let type_str = snippet(source, kw.span);
+            TypeBody::Alias(type_str)
+        }
+
+        // Literal type: "active", 42
+        TsLitType(lit) => {
+            let type_str = snippet(source, lit.span);
+            TypeBody::Alias(type_str)
+        }
+
+        // Array type: string[]
+        TsArrayType(arr) => {
+            let type_str = snippet(source, arr.span);
+            TypeBody::Alias(type_str)
+        }
+
+        // Fallback for other types (mapped, conditional, etc.)
+        _ => {
+            let type_str = snippet(source, ts_type.span());
+            TypeBody::Other(type_str)
+        }
+    }
+}
+
+#[cfg(feature = "swc")]
+fn lower_type_member(ts_type: &TsType, source: &str) -> TypeMember {
+    use swc_core::ecma::ast::TsType::*;
+
+    match ts_type {
+        // Literal type: "active", 42, true
+        TsLitType(lit) => {
+            let lit_str = snippet(source, lit.span);
+            TypeMember::Literal(lit_str)
+        }
+
+        // Type literal (inline object): { role: string }
+        TsTypeLit(lit) => {
+            let (fields, _methods) = lower_interface_members(&lit.members, source);
+            TypeMember::Object { fields }
+        }
+
+        // Type reference or other: User, string, Array<T>
+        _ => {
+            let type_str = snippet(source, ts_type.span());
+            TypeMember::TypeRef(type_str)
+        }
+    }
 }
 
 #[cfg(feature = "swc")]

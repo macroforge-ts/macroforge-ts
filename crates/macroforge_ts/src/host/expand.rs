@@ -15,10 +15,10 @@ use swc_core::{
     ecma::ast::{ClassMember, Module, Program},
 };
 use crate::ts_syn::abi::{
-    ClassIR, Diagnostic, DiagnosticLevel, InterfaceIR, MacroContextIR, MacroResult, Patch,
-    PatchCode, SourceMapping, SpanIR, TargetIR,
+    ClassIR, Diagnostic, DiagnosticLevel, EnumIR, InterfaceIR, MacroContextIR, MacroResult, Patch,
+    PatchCode, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
 };
-use crate::ts_syn::{lower_classes, lower_interfaces};
+use crate::ts_syn::{lower_classes, lower_enums, lower_interfaces, lower_type_aliases};
 
 use super::{
     MacroConfig, MacroDispatcher, MacroError, MacroRegistry, PatchCollector, Result, derived,
@@ -39,6 +39,8 @@ pub struct MacroExpansion {
     pub type_output: Option<String>,
     pub classes: Vec<ClassIR>,
     pub interfaces: Vec<InterfaceIR>,
+    pub enums: Vec<EnumIR>,
+    pub type_aliases: Vec<TypeAliasIR>,
     /// Source mapping between original and expanded code positions
     pub source_mapping: Option<SourceMapping>,
 }
@@ -56,9 +58,24 @@ pub struct MacroExpander {
     external_loader: Option<ExternalMacroLoader>,
 }
 
-type Classes = Vec<ClassIR>;
-type Interfaces = Vec<InterfaceIR>;
 type ContextFactory = Box<dyn Fn(String, String) -> MacroContextIR>;
+
+/// Lowered IR representations of TypeScript declarations
+pub(crate) struct LoweredItems {
+    pub classes: Vec<ClassIR>,
+    pub interfaces: Vec<InterfaceIR>,
+    pub enums: Vec<EnumIR>,
+    pub type_aliases: Vec<TypeAliasIR>,
+}
+
+impl LoweredItems {
+    fn is_empty(&self) -> bool {
+        self.classes.is_empty()
+            && self.interfaces.is_empty()
+            && self.enums.is_empty()
+            && self.type_aliases.is_empty()
+    }
+}
 
 impl MacroExpander {
     /// Create a new expander with the local registry populated from inventory
@@ -143,7 +160,14 @@ impl MacroExpander {
         let interfaces = lower_interfaces(&module, source)
             .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
 
-        if classes.is_empty() && interfaces.is_empty() {
+        let enums = lower_enums(&module, source)
+            .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
+
+        let type_aliases = lower_type_aliases(&module, source)
+            .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
+
+        let items = LoweredItems { classes, interfaces, enums, type_aliases };
+        if items.is_empty() {
             return Ok(MacroExpansion {
                 code: source.to_string(),
                 diagnostics: Vec::new(),
@@ -151,23 +175,23 @@ impl MacroExpander {
                 type_output: None,
                 classes: Vec::new(),
                 interfaces: Vec::new(),
+                enums: Vec::new(),
+                type_aliases: Vec::new(),
                 source_mapping: None,
             });
         }
 
-        let classes_clone = classes.clone();
-        let interfaces_clone = interfaces.clone();
+        let items_clone = LoweredItems {
+            classes: items.classes.clone(),
+            interfaces: items.interfaces.clone(),
+            enums: items.enums.clone(),
+            type_aliases: items.type_aliases.clone(),
+        };
 
         let (mut collector, mut diagnostics) =
-            self.collect_macro_patches(&module, classes, interfaces, file_name, source);
+            self.collect_macro_patches(&module, items, file_name, source);
 
-        self.apply_and_finalize_expansion(
-            source,
-            &mut collector,
-            &mut diagnostics,
-            classes_clone,
-            interfaces_clone,
-        )
+        self.apply_and_finalize_expansion(source, &mut collector, &mut diagnostics, items_clone)
     }
 
     /// Expand all macros found in the parsed program and return the updated source code.
@@ -177,7 +201,7 @@ impl MacroExpander {
         program: &Program,
         file_name: &str,
     ) -> anyhow::Result<MacroExpansion> {
-        let (module, classes, interfaces) = match self.prepare_expansion_context(program, source)? {
+        let (module, items) = match self.prepare_expansion_context(program, source)? {
             Some(context) => context,
             None => {
                 return Ok(MacroExpansion {
@@ -187,31 +211,31 @@ impl MacroExpander {
                     type_output: None,
                     classes: Vec::new(),
                     interfaces: Vec::new(),
+                    enums: Vec::new(),
+                    type_aliases: Vec::new(),
                     source_mapping: None,
                 });
             }
         };
 
-        let classes_clone = classes.clone();
-        let interfaces_clone = interfaces.clone();
+        let items_clone = LoweredItems {
+            classes: items.classes.clone(),
+            interfaces: items.interfaces.clone(),
+            enums: items.enums.clone(),
+            type_aliases: items.type_aliases.clone(),
+        };
 
         let (mut collector, mut diagnostics) =
-            self.collect_macro_patches(&module, classes, interfaces, file_name, source);
-        self.apply_and_finalize_expansion(
-            source,
-            &mut collector,
-            &mut diagnostics,
-            classes_clone,
-            interfaces_clone,
-        )
-        .map_err(anyhow::Error::from)
+            self.collect_macro_patches(&module, items, file_name, source);
+        self.apply_and_finalize_expansion(source, &mut collector, &mut diagnostics, items_clone)
+            .map_err(anyhow::Error::from)
     }
 
     pub(crate) fn prepare_expansion_context(
         &self,
         program: &Program,
         source: &str,
-    ) -> anyhow::Result<Option<(Module, Classes, Interfaces)>> {
+    ) -> anyhow::Result<Option<(Module, LoweredItems)>> {
         let module = match program {
             Program::Module(module) => module.clone(),
             Program::Script(script) => {
@@ -234,21 +258,28 @@ impl MacroExpander {
         let interfaces = lower_interfaces(&module, source)
             .context("failed to lower interfaces for macro processing")?;
 
-        if classes.is_empty() && interfaces.is_empty() {
+        let enums = lower_enums(&module, source)
+            .context("failed to lower enums for macro processing")?;
+
+        let type_aliases = lower_type_aliases(&module, source)
+            .context("failed to lower type aliases for macro processing")?;
+
+        let items = LoweredItems { classes, interfaces, enums, type_aliases };
+        if items.is_empty() {
             return Ok(None);
         }
 
-        Ok(Some((module, classes, interfaces)))
+        Ok(Some((module, items)))
     }
 
     pub(crate) fn collect_macro_patches(
         &self,
         module: &Module,
-        classes: Vec<ClassIR>,
-        interfaces: Vec<InterfaceIR>,
+        items: LoweredItems,
         file_name: &str,
         source: &str,
     ) -> (PatchCollector, Vec<Diagnostic>) {
+        let LoweredItems { classes, interfaces, enums, type_aliases } = items;
         let mut collector = PatchCollector::new();
         let mut diagnostics = Vec::new();
 
@@ -310,7 +341,17 @@ impl MacroExpander {
             .map(|iface| (SpanKey::from(iface.span), iface))
             .collect();
 
-        let derive_targets = collect_derive_targets(module, &class_map, &interface_map, source);
+        let enum_map: HashMap<SpanKey, EnumIR> = enums
+            .into_iter()
+            .map(|e| (SpanKey::from(e.span), e))
+            .collect();
+
+        let type_alias_map: HashMap<SpanKey, TypeAliasIR> = type_aliases
+            .into_iter()
+            .map(|ta| (SpanKey::from(ta.span), ta))
+            .collect();
+
+        let derive_targets = collect_derive_targets(module, &class_map, &interface_map, &enum_map, &type_alias_map, source);
 
         if derive_targets.is_empty() {
             return (collector, diagnostics);
@@ -362,6 +403,8 @@ impl MacroExpander {
                             }
                         }
                     }
+                    // Enums and type aliases don't have field decorators in the same way
+                    DeriveTargetIR::Enum(_) | DeriveTargetIR::TypeAlias(_) => {}
                 }
             }
 
@@ -415,6 +458,58 @@ impl MacroExpander {
                                     span,
                                     file.clone(),
                                     interface_ir_clone.clone(),
+                                    src_clone.clone(),
+                                )
+                            }),
+                        )
+                    }
+                    DeriveTargetIR::Enum(enum_ir) => {
+                        let span = enum_ir.span;
+                        let src = source
+                            .get(span.start as usize..span.end as usize)
+                            .unwrap_or("")
+                            .to_string();
+                        let enum_ir_clone = enum_ir.clone();
+                        let decorator_span = target.decorator_span;
+                        let file = file_name.to_string();
+                        let src_clone = src.clone();
+                        (
+                            span,
+                            src,
+                            Box::new(move |macro_name, module_path| {
+                                MacroContextIR::new_derive_enum(
+                                    macro_name,
+                                    module_path,
+                                    decorator_span,
+                                    span,
+                                    file.clone(),
+                                    enum_ir_clone.clone(),
+                                    src_clone.clone(),
+                                )
+                            }),
+                        )
+                    }
+                    DeriveTargetIR::TypeAlias(type_alias_ir) => {
+                        let span = type_alias_ir.span;
+                        let src = source
+                            .get(span.start as usize..span.end as usize)
+                            .unwrap_or("")
+                            .to_string();
+                        let type_alias_ir_clone = type_alias_ir.clone();
+                        let decorator_span = target.decorator_span;
+                        let file = file_name.to_string();
+                        let src_clone = src.clone();
+                        (
+                            span,
+                            src,
+                            Box::new(move |macro_name, module_path| {
+                                MacroContextIR::new_derive_type_alias(
+                                    macro_name,
+                                    module_path,
+                                    decorator_span,
+                                    span,
+                                    file.clone(),
+                                    type_alias_ir_clone.clone(),
                                     src_clone.clone(),
                                 )
                             }),
@@ -668,6 +763,72 @@ impl MacroExpander {
                         }
                     }
                 }
+                TargetIR::Enum(enum_ir) => {
+                    let chunks = split_by_markers(tokens);
+
+                    for (location, code) in chunks {
+                        match location {
+                            "above" => {
+                                let patch = Patch::Insert {
+                                    at: SpanIR {
+                                        start: enum_ir.span.start,
+                                        end: enum_ir.span.start,
+                                    },
+                                    code: PatchCode::Text(code.clone()),
+                                    source_macro: macro_name.clone(),
+                                };
+                                runtime_patches.push(patch.clone());
+                                type_patches.push(patch);
+                            }
+                            _ => {
+                                // Enums get namespace code inserted after the enum declaration
+                                let patch = Patch::Insert {
+                                    at: SpanIR {
+                                        start: enum_ir.span.end,
+                                        end: enum_ir.span.end,
+                                    },
+                                    code: PatchCode::Text(format!("\n\n{}", code.trim())),
+                                    source_macro: macro_name.clone(),
+                                };
+                                runtime_patches.push(patch.clone());
+                                type_patches.push(patch);
+                            }
+                        }
+                    }
+                }
+                TargetIR::TypeAlias(type_alias_ir) => {
+                    let chunks = split_by_markers(tokens);
+
+                    for (location, code) in chunks {
+                        match location {
+                            "above" => {
+                                let patch = Patch::Insert {
+                                    at: SpanIR {
+                                        start: type_alias_ir.span.start,
+                                        end: type_alias_ir.span.start,
+                                    },
+                                    code: PatchCode::Text(code.clone()),
+                                    source_macro: macro_name.clone(),
+                                };
+                                runtime_patches.push(patch.clone());
+                                type_patches.push(patch);
+                            }
+                            _ => {
+                                // Type aliases get namespace code inserted after the type declaration
+                                let patch = Patch::Insert {
+                                    at: SpanIR {
+                                        start: type_alias_ir.span.end,
+                                        end: type_alias_ir.span.end,
+                                    },
+                                    code: PatchCode::Text(format!("\n\n{}", code.trim())),
+                                    source_macro: macro_name.clone(),
+                                };
+                                runtime_patches.push(patch.clone());
+                                type_patches.push(patch);
+                            }
+                        }
+                    }
+                }
                 _ => {}
             }
         }
@@ -679,9 +840,9 @@ impl MacroExpander {
         source: &str,
         collector: &mut PatchCollector,
         diagnostics: &mut Vec<Diagnostic>,
-        classes: Vec<ClassIR>,
-        interfaces: Vec<InterfaceIR>,
+        items: LoweredItems,
     ) -> Result<MacroExpansion> {
+        let LoweredItems { classes, interfaces, enums, type_aliases } = items;
         let runtime_result = collector
             .apply_runtime_patches_with_mapping(source, None)
             .map_err(|e| MacroError::InvalidConfig(format!("Patch error: {:?}", e)))?;
@@ -714,6 +875,8 @@ impl MacroExpander {
             type_output,
             classes,
             interfaces,
+            enums,
+            type_aliases,
             source_mapping,
         };
 
@@ -1025,11 +1188,13 @@ impl From<Span> for SpanKey {
     }
 }
 
-/// The IR for a derive target - either a class or interface
+/// The IR for a derive target - class, interface, enum, or type alias
 #[derive(Clone)]
 enum DeriveTargetIR {
     Class(ClassIR),
     Interface(InterfaceIR),
+    Enum(EnumIR),
+    TypeAlias(TypeAliasIR),
 }
 
 #[derive(Clone)]
@@ -1121,6 +1286,8 @@ fn collect_derive_targets(
     module: &Module,
     class_map: &HashMap<SpanKey, ClassIR>,
     interface_map: &HashMap<SpanKey, InterfaceIR>,
+    enum_map: &HashMap<SpanKey, EnumIR>,
+    type_alias_map: &HashMap<SpanKey, TypeAliasIR>,
     source: &str,
 ) -> Vec<DeriveTarget> {
     let mut targets = Vec::new();
@@ -1133,6 +1300,14 @@ fn collect_derive_targets(
 
     for interface_ir in interface_map.values() {
         collect_from_interface(interface_ir, source, &import_sources, &mut targets);
+    }
+
+    for enum_ir in enum_map.values() {
+        collect_from_enum(enum_ir, source, &import_sources, &mut targets);
+    }
+
+    for type_alias_ir in type_alias_map.values() {
+        collect_from_type_alias(type_alias_ir, source, &import_sources, &mut targets);
     }
 
     targets
@@ -1200,6 +1375,72 @@ fn collect_from_interface(
             macro_names,
             decorator_span: span,
             target_ir: DeriveTargetIR::Interface(interface_ir.clone()),
+        });
+    }
+}
+
+fn collect_from_enum(
+    enum_ir: &EnumIR,
+    source: &str,
+    import_sources: &HashMap<String, String>,
+    out: &mut Vec<DeriveTarget>,
+) {
+    for decorator in &enum_ir.decorators {
+        if let Some(macro_names) = parse_derive_decorator(&decorator.args_src, import_sources) {
+            if macro_names.is_empty() {
+                continue;
+            }
+
+            out.push(DeriveTarget {
+                macro_names,
+                decorator_span: span_ir_with_at(decorator.span, source),
+                target_ir: DeriveTargetIR::Enum(enum_ir.clone()),
+            });
+            return;
+        }
+    }
+
+    if let Some((span, args_src)) = find_leading_derive_comment(source, enum_ir.span.start)
+        && let Some(macro_names) = parse_derive_decorator(&args_src, import_sources)
+        && !macro_names.is_empty()
+    {
+        out.push(DeriveTarget {
+            macro_names,
+            decorator_span: span,
+            target_ir: DeriveTargetIR::Enum(enum_ir.clone()),
+        });
+    }
+}
+
+fn collect_from_type_alias(
+    type_alias_ir: &TypeAliasIR,
+    source: &str,
+    import_sources: &HashMap<String, String>,
+    out: &mut Vec<DeriveTarget>,
+) {
+    for decorator in &type_alias_ir.decorators {
+        if let Some(macro_names) = parse_derive_decorator(&decorator.args_src, import_sources) {
+            if macro_names.is_empty() {
+                continue;
+            }
+
+            out.push(DeriveTarget {
+                macro_names,
+                decorator_span: span_ir_with_at(decorator.span, source),
+                target_ir: DeriveTargetIR::TypeAlias(type_alias_ir.clone()),
+            });
+            return;
+        }
+    }
+
+    if let Some((span, args_src)) = find_leading_derive_comment(source, type_alias_ir.span.start)
+        && let Some(macro_names) = parse_derive_decorator(&args_src, import_sources)
+        && !macro_names.is_empty()
+    {
+        out.push(DeriveTarget {
+            macro_names,
+            decorator_span: span,
+            target_ir: DeriveTargetIR::TypeAlias(type_alias_ir.clone()),
         });
     }
 }

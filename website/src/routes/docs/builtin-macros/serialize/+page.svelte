@@ -267,6 +267,85 @@ const response: ApiResponse = {
 console.log(JSON.stringify(ApiResponse.toJSON(response)));
 // {"status":200,"message":"OK","timestamp":"2024-01-15T10:30:00.000Z"}`} lang="typescript" />
 
+<h2 id="enum-support">Enum Support</h2>
+
+<p>
+	Serialize also works with enums. The <code>toJSON</code> function returns the underlying
+	enum value (string or number):
+</p>
+
+<CodeBlock code={`/** @derive(Serialize) */
+enum Status {
+  Active = "active",
+  Inactive = "inactive",
+  Pending = "pending",
+}
+
+// Generated:
+// export namespace Status {
+//   export function toJSON(value: Status): string | number {
+//     return value;
+//   }
+// }
+
+console.log(Status.toJSON(Status.Active));  // "active"
+console.log(Status.toJSON(Status.Pending)); // "pending"`} lang="typescript" />
+
+<p>
+	Works with numeric enums too:
+</p>
+
+<CodeBlock code={`/** @derive(Serialize) */
+enum Priority {
+  Low = 1,
+  Medium = 2,
+  High = 3,
+}
+
+console.log(Priority.toJSON(Priority.High)); // 3`} lang="typescript" />
+
+<h2 id="type-alias-support">Type Alias Support</h2>
+
+<p>
+	Serialize works with type aliases. For object types, fields are serialized with full type handling:
+</p>
+
+<CodeBlock code={`/** @derive(Serialize) */
+type UserProfile = {
+  id: string;
+  name: string;
+  createdAt: Date;
+};
+
+// Generated:
+// export namespace UserProfile {
+//   export function toJSON(value: UserProfile): Record<string, unknown> {
+//     const result: Record<string, unknown> = {};
+//     result["id"] = value.id;
+//     result["name"] = value.name;
+//     result["createdAt"] = value.createdAt.toISOString();
+//     return result;
+//   }
+// }
+
+const profile: UserProfile = {
+  id: "123",
+  name: "Alice",
+  createdAt: new Date("2024-01-15")
+};
+
+console.log(JSON.stringify(UserProfile.toJSON(profile)));
+// {"id":"123","name":"Alice","createdAt":"2024-01-15T00:00:00.000Z"}`} lang="typescript" />
+
+<p>
+	For union types, the value is returned directly:
+</p>
+
+<CodeBlock code={`/** @derive(Serialize) */
+type ApiStatus = "loading" | "success" | "error";
+
+console.log(ApiStatus.toJSON("success")); // "success"`} lang="typescript" />
+
 <h2 id="combining-with-deserialize">Combining with Deserialize</h2>
 
 <p>

@@ -295,7 +295,7 @@ fn test_prepare_with_classes() {
     let host = MacroExpander::new().unwrap();
     let result = host.prepare_expansion_context(&program, source).unwrap();
     assert!(result.is_some());
-    let (_module, classes, _interfaces) = result.unwrap();
+    let (_module, classes, _interfaces, _enums, _type_aliases) = result.unwrap();
     assert_eq!(classes.len(), 1);
     assert_eq!(classes[0].name, "User");
 }
@@ -415,13 +415,13 @@ fn test_collect_constructor_patch() {
     let source = "class User { constructor(id: string) { this.id = id; } }";
     let program = parse_module(source);
     let host = MacroExpander::new().unwrap();
-    let (module, classes, interfaces) = host
+    let (module, classes, interfaces, enums, type_aliases) = host
         .prepare_expansion_context(&program, source)
         .unwrap()
         .unwrap();
 
     let (collector, _) =
-        host.collect_macro_patches(&module, classes, interfaces, "test.ts", source);
+        host.collect_macro_patches(&module, classes, interfaces, enums, type_aliases, "test.ts", source);
 
     let type_patches = collector.get_type_patches();
     assert_eq!(type_patches.len(), 1);
@@ -442,12 +442,12 @@ fn test_collect_derive_debug_patch() {
     let source = "/** @derive(Debug) */ class User { name: string; }";
     let program = parse_module(source);
     let host = MacroExpander::new().unwrap();
-    let (module, classes, interfaces) = host
+    let (module, classes, interfaces, enums, type_aliases) = host
         .prepare_expansion_context(&program, source)
         .unwrap()
         .unwrap();
     let (collector, _) =
-        host.collect_macro_patches(&module, classes, interfaces, "test.ts", source);
+        host.collect_macro_patches(&module, classes, interfaces, enums, type_aliases, "test.ts", source);
 
     let type_patches = collector.get_type_patches();
 
@@ -488,6 +488,8 @@ fn test_apply_and_finalize_expansion_no_type_patches() {
             source,
             &mut collector,
             &mut diagnostics,
+            Vec::new(),
+            Vec::new(),
             Vec::new(),
             Vec::new(),
         )
@@ -1662,7 +1664,7 @@ import { Derive } from "@macro/derive";
 class User {
     name: string;
     age: number;
-    static fromJSON(data: unknown): User;
+    static fromJSON(data: unknown): Result<User, string[]>;
 }
 "#;
 
@@ -1814,6 +1816,494 @@ class Config {
         assert!(
             result.code.contains("static fromJSON"),
             "Should have Deserialize's fromJSON"
+        );
+    });
+}
+
+// ==================== ENUM TESTS ====================
+
+#[test]
+fn test_derive_debug_on_enum_generates_namespace() {
+    let source = r#"
+/** @derive(Debug) */
+enum Status {
+    Active,
+    Inactive,
+    Pending
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
+
+        // Debug macro on enum generates namespace with toString
+        assert!(
+            result.code.contains("namespace Status"),
+            "Should generate namespace for enum"
+        );
+        assert!(
+            result.code.contains("toString"),
+            "Should have toString function"
+        );
+    });
+}
+
+#[test]
+fn test_derive_clone_on_enum_generates_namespace() {
+    let source = r#"
+/** @derive(Clone) */
+enum Priority {
+    Low = 1,
+    Medium = 2,
+    High = 3
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
+
+        // Clone macro on enum generates namespace with clone function
+        assert!(
+            result.code.contains("namespace Priority"),
+            "Should generate namespace for enum"
+        );
+        assert!(
+            result.code.contains("clone"),
+            "Should have clone function"
+        );
+    });
+}
+
+#[test]
+fn test_derive_eq_on_enum_generates_namespace() {
+    let source = r#"
+/** @derive(Eq) */
+enum Color {
+    Red = "red",
+    Green = "green",
+    Blue = "blue"
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
+
+        // Eq macro on enum generates namespace with equals and hashCode
+        assert!(
+            result.code.contains("namespace Color"),
+            "Should generate namespace for enum"
+        );
+        assert!(result.code.contains("equals"), "Should have equals function");
+        assert!(
+            result.code.contains("hashCode"),
+            "Should have hashCode function"
+        );
+    });
+}
+
+#[test]
+fn test_derive_serialize_on_enum_generates_namespace() {
+    let source = r#"
+/** @derive(Serialize) */
+enum Direction {
+    North,
+    South,
+    East,
+    West
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
+
+        // Serialize macro on enum generates namespace with toJSON
+        assert!(
+            result.code.contains("namespace Direction"),
+            "Should generate namespace for enum"
+        );
+        assert!(result.code.contains("toJSON"), "Should have toJSON function");
+    });
+}
+
+#[test]
+fn test_derive_deserialize_on_enum_generates_namespace() {
+    let source = r#"
+/** @derive(Deserialize) */
+enum Role {
+    Admin = "admin",
+    User = "user",
+    Guest = "guest"
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
+
+        // Deserialize macro on enum generates namespace with fromJSON
+        assert!(
+            result.code.contains("namespace Role"),
+            "Should generate namespace for enum"
+        );
+        assert!(
+            result.code.contains("fromJSON"),
+            "Should have fromJSON function"
+        );
+    });
+}
+
+#[test]
+fn test_multiple_derives_on_enum() {
+    let source = r#"
+/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+enum Status {
+    Active = "active",
+    Inactive = "inactive"
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors, got {} errors",
+            error_count
+        );
+
+        // All macros should generate functions in the namespace
+        assert!(
+            result.code.contains("namespace Status"),
+            "Should generate namespace for enum"
+        );
+        assert!(
+            result.code.contains("toString"),
+            "Should have Debug's toString"
+        );
+        assert!(result.code.contains("clone"), "Should have Clone's clone");
+        assert!(result.code.contains("equals"), "Should have Eq's equals");
+        assert!(
+            result.code.contains("hashCode"),
+            "Should have Eq's hashCode"
+        );
+        assert!(
+            result.code.contains("toJSON"),
+            "Should have Serialize's toJSON"
+        );
+        assert!(
+            result.code.contains("fromJSON"),
+            "Should have Deserialize's fromJSON"
+        );
+    });
+}
+
+// ==================== TYPE ALIAS TESTS ====================
+
+#[test]
+fn test_derive_debug_on_type_alias_generates_namespace() {
+    let source = r#"
+/** @derive(Debug) */
+type Point = {
+    x: number;
+    y: number;
+};
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
+
+        // Debug macro on type alias generates namespace with toString
+        assert!(
+            result.code.contains("namespace Point"),
+            "Should generate namespace for type"
+        );
+        assert!(
+            result.code.contains("toString"),
+            "Should have toString function"
+        );
+    });
+}
+
+#[test]
+fn test_derive_clone_on_type_alias_generates_namespace() {
+    let source = r#"
+/** @derive(Clone) */
+type Config = {
+    host: string;
+    port: number;
+};
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
+
+        // Clone macro on type alias generates namespace with clone
+        assert!(
+            result.code.contains("namespace Config"),
+            "Should generate namespace for type"
+        );
+        assert!(result.code.contains("clone"), "Should have clone function");
+    });
+}
+
+#[test]
+fn test_derive_eq_on_type_alias_generates_namespace() {
+    let source = r#"
+/** @derive(Eq) */
+type Vector = {
+    x: number;
+    y: number;
+    z: number;
+};
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
+
+        // Eq macro on type alias generates namespace with equals and hashCode
+        assert!(
+            result.code.contains("namespace Vector"),
+            "Should generate namespace for type"
+        );
+        assert!(result.code.contains("equals"), "Should have equals function");
+        assert!(
+            result.code.contains("hashCode"),
+            "Should have hashCode function"
+        );
+    });
+}
+
+#[test]
+fn test_derive_serialize_on_type_alias_generates_namespace() {
+    let source = r#"
+/** @derive(Serialize) */
+type User = {
+    name: string;
+    age: number;
+};
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
+
+        // Serialize macro on type alias generates namespace with toJSON
+        assert!(
+            result.code.contains("namespace User"),
+            "Should generate namespace for type"
+        );
+        assert!(result.code.contains("toJSON"), "Should have toJSON function");
+    });
+}
+
+#[test]
+fn test_derive_deserialize_on_type_alias_generates_namespace() {
+    let source = r#"
+/** @derive(Deserialize) */
+type Settings = {
+    theme: string;
+    language: string;
+};
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
+
+        // Deserialize macro on type alias generates namespace with fromJSON
+        assert!(
+            result.code.contains("namespace Settings"),
+            "Should generate namespace for type"
+        );
+        assert!(
+            result.code.contains("fromJSON"),
+            "Should have fromJSON function"
+        );
+    });
+}
+
+#[test]
+fn test_multiple_derives_on_type_alias() {
+    let source = r#"
+/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+type Coordinate = {
+    lat: number;
+    lng: number;
+};
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors, got {} errors",
+            error_count
+        );
+
+        // All macros should generate functions in the namespace
+        assert!(
+            result.code.contains("namespace Coordinate"),
+            "Should generate namespace for type"
+        );
+        assert!(
+            result.code.contains("toString"),
+            "Should have Debug's toString"
+        );
+        assert!(result.code.contains("clone"), "Should have Clone's clone");
+        assert!(result.code.contains("equals"), "Should have Eq's equals");
+        assert!(
+            result.code.contains("hashCode"),
+            "Should have Eq's hashCode"
+        );
+        assert!(
+            result.code.contains("toJSON"),
+            "Should have Serialize's toJSON"
+        );
+        assert!(
+            result.code.contains("fromJSON"),
+            "Should have Deserialize's fromJSON"
+        );
+    });
+}
+
+#[test]
+fn test_derive_on_union_type_alias() {
+    let source = r#"
+/** @derive(Debug, Eq) */
+type Status = "active" | "inactive" | "pending";
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
+
+        // Macros should generate namespace for union type alias
+        assert!(
+            result.code.contains("namespace Status"),
+            "Should generate namespace for union type"
         );
     });
 }

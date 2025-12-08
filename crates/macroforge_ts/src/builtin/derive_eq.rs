@@ -45,10 +45,30 @@ pub fn derive_eq_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError>
                 }
             })
         }
-        Data::Enum(_) => Err(MacroforgeError::new(
-            input.error_span(),
-            "/** @derive(Eq) */ can only be applied to classes or interfaces",
-        )),
+        Data::Enum(_) => {
+            // Enums: direct comparison with ===
+            let enum_name = input.name();
+            Ok(ts_template! {
+                export namespace @{enum_name} {
+                    export function equals(a: @{enum_name}, b: @{enum_name}): boolean {
+                        return a === b;
+                    }
+
+                    export function hashCode(value: @{enum_name}): number {
+                        // For numeric enums, use the value directly
+                        // For string enums, hash the string
+                        if (typeof value === "string") {
+                            let hash = 0;
+                            for (let i = 0; i < value.length; i++) {
+                                hash = (hash * 31 + value.charCodeAt(i)) | 0;
+                            }
+                            return hash;
+                        }
+                        return value as number;
+                    }
+                }
+            })
+        }
         Data::Interface(interface) => {
             let interface_name = input.name();
             let field_names: Vec<&str> = interface.field_names().collect();
@@ -85,6 +105,73 @@ pub fn derive_eq_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError>
                     }
                 }
             })
+        }
+        Data::TypeAlias(type_alias) => {
+            let type_name = input.name();
+
+            if type_alias.is_object() {
+                // Object type: field-by-field comparison
+                let field_names: Vec<&str> = type_alias
+                    .as_object()
+                    .unwrap()
+                    .iter()
+                    .map(|f| f.name.as_str())
+                    .collect();
+                let has_fields = !field_names.is_empty();
+
+                let comparison = if field_names.is_empty() {
+                    "true".to_string()
+                } else {
+                    field_names
+                        .iter()
+                        .map(|f| format!("a.{f} === b.{f}"))
+                        .collect::<Vec<_>>()
+                        .join(" && ")
+                };
+
+                Ok(ts_template! {
+                    export namespace @{type_name} {
+                        export function equals(a: @{type_name}, b: @{type_name}): boolean {
+                            if (a === b) return true;
+                            return @{comparison};
+                        }
+
+                        export function hashCode(value: @{type_name}): number {
+                            let hash = 0;
+
+                            {#if has_fields}
+                                {#for field in field_names}
+                                    hash = (hash * 31 + (value.@{field} ? value.@{field}.toString().charCodeAt(0) : 0)) | 0;
+                                {/for}
+                            {/if}
+
+                            return hash;
+                        }
+                    }
+                })
+            } else {
+                // Union, tuple, or simple alias: use strict equality and JSON hash
+                Ok(ts_template! {
+                    export namespace @{type_name} {
+                        export function equals(a: @{type_name}, b: @{type_name}): boolean {
+                            if (a === b) return true;
+                            if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
+                                return JSON.stringify(a) === JSON.stringify(b);
+                            }
+                            return false;
+                        }
+
+                        export function hashCode(value: @{type_name}): number {
+                            const str = JSON.stringify(value);
+                            let hash = 0;
+                            for (let i = 0; i < str.length; i++) {
+                                hash = (hash * 31 + str.charCodeAt(i)) | 0;
+                            }
+                            return hash;
+                        }
+                    }
+                })
+            }
         }
     }
 }
