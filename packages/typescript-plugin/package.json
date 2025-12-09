@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/typescript-plugin",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "TypeScript language service plugin that augments classes decorated with @derive to include macro-generated methods.",
   "type": "commonjs",
   "main": "dist/index.js",
@@ -32,7 +32,7 @@
     "test": "bun run build && node --test tests/**/*.test.js"
   },
   "dependencies": {
-    "macroforge": "^0.1.16"
+    "macroforge": "^0.1.17"
   },
   "peerDependencies": {
     "typescript": ">=5.0.0"

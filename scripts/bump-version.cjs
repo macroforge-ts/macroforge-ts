@@ -123,12 +123,25 @@ workspaceCargo = workspaceCargo.replace(
 fs.writeFileSync(workspaceCargoPath, workspaceCargo);
 console.log(`  Updated crates/Cargo.toml`);
 
-// Update macroforge_ts Cargo.toml
+// Update macroforge_ts Cargo.toml (including internal crate dependencies)
 const macroforgeTsCargoPath = path.join(root, "crates/macroforge_ts/Cargo.toml");
 let macroforgeTsCargo = fs.readFileSync(macroforgeTsCargoPath, "utf8");
 macroforgeTsCargo = macroforgeTsCargo.replace(
   /^version = ".*"$/m,
   `version = "${version}"`
+);
+// Update internal crate dependencies to exact versions to prevent version mismatch issues
+macroforgeTsCargo = macroforgeTsCargo.replace(
+  /macroforge_ts_syn = \{ version = "[^"]+"/g,
+  `macroforge_ts_syn = { version = "${version}"`
+);
+macroforgeTsCargo = macroforgeTsCargo.replace(
+  /macroforge_ts_quote = \{ version = "[^"]+"/g,
+  `macroforge_ts_quote = { version = "${version}"`
+);
+macroforgeTsCargo = macroforgeTsCargo.replace(
+  /macroforge_ts_macros = \{ version = "[^"]+"/g,
+  `macroforge_ts_macros = { version = "${version}"`
 );
 fs.writeFileSync(macroforgeTsCargoPath, macroforgeTsCargo);
 console.log(`  Updated crates/macroforge_ts/Cargo.toml`);
