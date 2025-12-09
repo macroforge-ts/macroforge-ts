@@ -9,7 +9,7 @@
 	<div class="lg:grid lg:grid-cols-[256px_1fr] lg:gap-8 py-8">
 		<!-- Desktop Sidebar -->
 		<aside class="hidden lg:block">
-			<div class="sticky top-24">
+			<div class="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto">
 				<Sidebar />
 			</div>
 		</aside>
