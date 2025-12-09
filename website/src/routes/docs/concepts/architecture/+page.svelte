@@ -21,7 +21,7 @@
 <ArchitectureDiagram layers={[
 	{ title: "Node.js / Vite" },
 	{ title: "NAPI-RS Bindings" },
-	{ title: "Macro Crates", items: ["ts_syn (parsing)", "ts_quote (templating)", "ts_macro_derive (proc-macro)"] },
+	{ title: "Macro Crates", items: ["macroforge_ts_syn", "macroforge_ts_quote", "macroforge_ts_macros"] },
 	{ title: "SWC Core", items: ["TypeScript parsing & codegen"] }
 ]} />
 
@@ -37,7 +37,7 @@
 	<li>Code generation (AST → source code)</li>
 </ul>
 
-<h3>ts_syn</h3>
+<h3>macroforge_ts_syn</h3>
 <p>
 	A Rust crate that provides:
 </p>
@@ -47,7 +47,7 @@
 	<li>Derive input structures (class fields, decorators, etc.)</li>
 </ul>
 
-<h3>ts_quote</h3>
+<h3>macroforge_ts_quote</h3>
 <p>
 	Template-based code generation similar to Rust's <code>quote!</code>:
 </p>
@@ -57,7 +57,7 @@
 	<li>Control flow: <code>{"{#for}"}</code>, <code>{"{#if}"}</code>, <code>{"{$let}"}</code></li>
 </ul>
 
-<h3>ts_macro_derive</h3>
+<h3>macroforge_ts_macros</h3>
 <p>
 	The procedural macro attribute for defining derive macros:
 </p>
@@ -106,18 +106,18 @@
 </p>
 
 <CodeBlock code={`// All available via macroforge_ts::*
-pub extern crate ts_syn;         // AST types, parsing
-pub extern crate ts_quote;       // Code generation templates
-pub extern crate ts_macro_derive; // #[ts_macro_derive] attribute
-pub extern crate inventory;       // Macro registration
-pub extern crate serde_json;      // Serialization
-pub extern crate napi;            // Node.js bindings
-pub extern crate napi_derive;     // NAPI proc-macros
+pub extern crate macroforge_ts_syn;    // AST types, parsing
+pub extern crate macroforge_ts_quote;  // Code generation templates
+pub extern crate macroforge_ts_macros; // #[ts_macro_derive] attribute
+pub extern crate inventory;            // Macro registration
+pub extern crate serde_json;           // Serialization
+pub extern crate napi;                 // Node.js bindings
+pub extern crate napi_derive;          // NAPI proc-macros
 
 // SWC modules
-pub use ts_syn::swc_core;
-pub use ts_syn::swc_common;
-pub use ts_syn::swc_ecma_ast;`} lang="rust" />
+pub use macroforge_ts_syn::swc_core;
+pub use macroforge_ts_syn::swc_common;
+pub use macroforge_ts_syn::swc_ecma_ast;`} lang="rust" />
 
 <h2 id="next-steps">Next Steps</h2>
 

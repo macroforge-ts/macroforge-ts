@@ -44,7 +44,7 @@ export const navigation: NavSection[] = [
 		items: [
 			{ title: 'Overview', href: '/docs/custom-macros' },
 			{ title: 'Rust Setup', href: '/docs/custom-macros/rust-setup' },
-			{ title: 'ts_macro_derive', href: '/docs/custom-macros/ts-macro-derive' },
+			{ title: '#[ts_macro_derive]', href: '/docs/custom-macros/ts-macro-derive' },
 			{ title: 'Template Syntax', href: '/docs/custom-macros/ts-quote' }
 		]
 	},

@@ -18,8 +18,8 @@
 <h2 id="requirements">Requirements</h2>
 
 <ul>
-	<li>Node.js 18.0 or later</li>
-	<li>TypeScript 5.0 or later</li>
+	<li>Node.js 24.0 or later</li>
+	<li>TypeScript 5.9 or later</li>
 </ul>
 
 <h2 id="install">Install the Package</h2>

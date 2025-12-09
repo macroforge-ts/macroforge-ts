@@ -1,7 +1,9 @@
 <script lang="ts">
-	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
+	import MacroExample from '$lib/components/ui/MacroExample.svelte';
 	import { siteConfig } from '$lib/config/site';
 	import { base } from '$app/paths';
+
+	let { data } = $props();
 
 	const features = [
 		{
@@ -36,40 +38,6 @@
 		}
 	];
 
-	const beforeCode = `import { Debug, Clone, Eq } from "macroforge";
-
-/** @derive(Debug, Clone, Eq) */
-class User {
-  name: string;
-  age: number;
-
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-  }
-}`;
-
-	const afterCode = `class User {
-  name: string;
-  age: number;
-
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-  }
-
-  toString(): string {
-    return \`User { name: \${this.name}, age: \${this.age} }\`;
-  }
-
-  clone(): User {
-    return new User(this.name, this.age);
-  }
-
-  equals(other: User): boolean {
-    return this.name === other.name && this.age === other.age;
-  }
-}`;
 </script>
 
 <svelte:head>
@@ -178,21 +146,8 @@ class User {
 			</p>
 		</div>
 
-		<div class="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
-			<div>
-				<div class="flex items-center gap-2 mb-3">
-					<div class="w-3 h-3 rounded-full bg-warning"></div>
-					<span class="text-sm font-medium text-muted-foreground">Before (Your Code)</span>
-				</div>
-				<CodeBlock code={beforeCode} lang="typescript" />
-			</div>
-			<div>
-				<div class="flex items-center gap-2 mb-3">
-					<div class="w-3 h-3 rounded-full bg-success"></div>
-					<span class="text-sm font-medium text-muted-foreground">After (Generated)</span>
-				</div>
-				<CodeBlock code={afterCode} lang="typescript" />
-			</div>
+		<div class="max-w-5xl mx-auto">
+			<MacroExample before={data.heroExample.before} after={data.heroExample.after} />
 		</div>
 
 		<div class="text-center mt-10">
@@ -252,15 +207,15 @@ class User {
 					<!-- Layer 3 -->
 					<div class="grid grid-cols-3 gap-4">
 						<div class="text-center p-4 bg-warning/10 rounded-lg border border-warning/20">
-							<span class="text-xs font-medium text-warning-foreground">ts_syn</span>
+							<span class="text-xs font-medium text-warning-foreground">macroforge_ts_syn</span>
 							<p class="text-xs text-warning-foreground/80 mt-1">Parsing</p>
 						</div>
 						<div class="text-center p-4 bg-warning/10 rounded-lg border border-warning/20">
-							<span class="text-xs font-medium text-warning-foreground">ts_quote</span>
+							<span class="text-xs font-medium text-warning-foreground">macroforge_ts_quote</span>
 							<p class="text-xs text-warning-foreground/80 mt-1">Templating</p>
 						</div>
 						<div class="text-center p-4 bg-warning/10 rounded-lg border border-warning/20">
-							<span class="text-xs font-medium text-warning-foreground">ts_macro_derive</span>
+							<span class="text-xs font-medium text-warning-foreground">macroforge_ts_macros</span>
 							<p class="text-xs text-warning-foreground/80 mt-1">Proc Macro</p>
 						</div>
 					</div>

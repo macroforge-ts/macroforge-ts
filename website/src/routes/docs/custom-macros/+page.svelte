@@ -24,7 +24,7 @@
 <ol>
 	<li>Creating a Rust crate with NAPI bindings</li>
 	<li>Defining macro functions with <code>#[ts_macro_derive]</code></li>
-	<li>Using <code>ts_quote</code> to generate TypeScript code</li>
+	<li>Using <code>macroforge_ts_quote</code> to generate TypeScript code</li>
 	<li>Building and publishing as an npm package</li>
 </ol>
 
@@ -94,6 +94,6 @@ console.log(user.toJSON()); // { name: "Alice", age: 30 }`} lang="typescript" />
 
 <ul>
 	<li><a href="{base}/docs/custom-macros/rust-setup">Set up a Rust macro crate</a></li>
-	<li><a href="{base}/docs/custom-macros/ts-macro-derive">Use the ts_macro_derive attribute</a></li>
-	<li><a href="{base}/docs/custom-macros/ts-quote">Learn the ts_quote template syntax</a></li>
+	<li><a href="{base}/docs/custom-macros/ts-macro-derive">Learn the #[ts_macro_derive] attribute</a></li>
+	<li><a href="{base}/docs/custom-macros/ts-quote">Learn the template syntax</a></li>
 </ul>

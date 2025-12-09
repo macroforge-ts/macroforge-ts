@@ -142,6 +142,6 @@ npm run build
 <h2 id="next-steps">Next Steps</h2>
 
 <ul>
-	<li><a href="{base}/docs/custom-macros/ts-macro-derive">Learn the ts_macro_derive attribute</a></li>
-	<li><a href="{base}/docs/custom-macros/ts-quote">Master the ts_quote template syntax</a></li>
+	<li><a href="{base}/docs/custom-macros/ts-macro-derive">Learn the #[ts_macro_derive] attribute</a></li>
+	<li><a href="{base}/docs/custom-macros/ts-quote">Master the template syntax</a></li>
 </ul>
