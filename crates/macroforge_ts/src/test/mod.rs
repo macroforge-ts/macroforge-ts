@@ -412,6 +412,46 @@ fn test_process_macro_output_reports_parse_errors() {
 
 #[test]
 fn test_collect_constructor_patch() {
+    // Test that a class WITH @derive gets constructor body stripping patches
+    let source = "/** @derive(Debug) */ class User { constructor(id: string) { this.id = id; } }";
+    let program = parse_module(source);
+    let host = MacroExpander::new().unwrap();
+    let (module, items) = host
+        .prepare_expansion_context(&program, source)
+        .unwrap()
+        .unwrap();
+
+    let (collector, _) =
+        host.collect_macro_patches(&module, items, "test.ts", source);
+
+    let type_patches = collector.get_type_patches();
+    // Should have at least: decorator removal + constructor body stripping + generated methods
+    assert!(type_patches.len() >= 2, "Expected at least 2 patches, got {}", type_patches.len());
+
+    // Find the constructor patch
+    let constructor_patch = type_patches.iter().find(|p| {
+        if let Patch::Replace { code, .. } = p {
+            match code {
+                PatchCode::Text(text) => text.contains("constructor"),
+                _ => false,
+            }
+        } else {
+            false
+        }
+    });
+
+    assert!(constructor_patch.is_some(), "Should have a constructor patch");
+    if let Some(Patch::Replace { code, .. }) = constructor_patch {
+        match code {
+            PatchCode::Text(text) => assert_eq!(text, "constructor(id: string);"),
+            _ => panic!("Expected textual patch for constructor signature"),
+        }
+    }
+}
+
+#[test]
+fn test_no_patches_for_class_without_derive() {
+    // Test that a class WITHOUT @derive gets NO patches (fixes .svelte.ts rune issue)
     let source = "class User { constructor(id: string) { this.id = id; } }";
     let program = parse_module(source);
     let host = MacroExpander::new().unwrap();
@@ -424,17 +464,10 @@ fn test_collect_constructor_patch() {
         host.collect_macro_patches(&module, items, "test.ts", source);
 
     let type_patches = collector.get_type_patches();
-    assert_eq!(type_patches.len(), 1);
-    let patch = &type_patches[0];
+    assert_eq!(type_patches.len(), 0, "Class without @derive should get no type patches");
 
-    if let Patch::Replace { code, .. } = patch {
-        match code {
-            PatchCode::Text(text) => assert_eq!(text, "constructor(id: string);"),
-            _ => panic!("Expected textual patch for constructor signature"),
-        }
-    } else {
-        panic!("Expected a replace patch for constructor");
-    }
+    // Also verify that has_type_patches is false
+    assert!(!collector.has_type_patches(), "Class without @derive should have no type patches");
 }
 
 #[test]

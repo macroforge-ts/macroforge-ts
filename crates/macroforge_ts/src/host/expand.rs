@@ -308,54 +308,6 @@ impl MacroExpander {
         // Check for imports of built-in macros and add warnings
         diagnostics.extend(check_builtin_import_warnings(module, source));
 
-        // Add patches to remove method bodies from type output (classes only)
-        for class_ir in classes.iter() {
-            for method in &class_ir.methods {
-                let return_type = method
-                    .return_type_src
-                    .trim_start()
-                    .trim_start_matches(':')
-                    .trim_start();
-                let method_signature = if method.name == "constructor" {
-                    let visibility = match method.visibility {
-                        crate::ts_syn::abi::Visibility::Private => "private ",
-                        crate::ts_syn::abi::Visibility::Protected => "protected ",
-                        crate::ts_syn::abi::Visibility::Public => "",
-                    };
-                    format!(
-                        "{visibility}constructor({params_src});",
-                        visibility = visibility,
-                        params_src = method.params_src
-                    )
-                } else {
-                    let visibility = match method.visibility {
-                        crate::ts_syn::abi::Visibility::Private => "private ",
-                        crate::ts_syn::abi::Visibility::Protected => "protected ",
-                        crate::ts_syn::abi::Visibility::Public => "",
-                    };
-                    let static_kw = if method.is_static { "static " } else { "" };
-                    let async_kw = if method.is_async { "async " } else { "" };
-
-                    format!(
-                        "{visibility}{static_kw}{async_kw}{method_name}{type_params}({params_src}): {return_type};",
-                        visibility = visibility,
-                        static_kw = static_kw,
-                        async_kw = async_kw,
-                        method_name = method.name,
-                        type_params = method.type_params_src,
-                        params_src = method.params_src,
-                        return_type = return_type
-                    )
-                };
-
-                collector.add_type_patches(vec![Patch::Replace {
-                    span: method.span,
-                    code: method_signature.into(),
-                    source_macro: None,
-                }]);
-            }
-        }
-
         let class_map: HashMap<SpanKey, ClassIR> = classes
             .into_iter()
             .map(|class| (SpanKey::from(class.span), class))
@@ -391,45 +343,92 @@ impl MacroExpander {
                 collector.add_type_patches(vec![decorator_removal]);
             }
 
-            // Remove all field decorators when not keeping decorators
+            // Process class-specific patches (field decorators and method body stripping)
+            if let DeriveTargetIR::Class(class_ir) = &target.target_ir {
+                // Remove field decorators when not keeping decorators
+                if !self.keep_decorators {
+                    for field in &class_ir.fields {
+                        for decorator in &field.decorators {
+                            let field_dec_removal = Patch::Delete {
+                                span: span_ir_with_at(decorator.span, source),
+                            };
+                            collector.add_runtime_patches(vec![field_dec_removal.clone()]);
+                            collector.add_type_patches(vec![field_dec_removal]);
+                        }
+
+                        if let Some(span) = find_macro_comment_span(source, field.span.start) {
+                            let removal = Patch::Delete { span };
+                            collector.add_runtime_patches(vec![removal.clone()]);
+                            collector.add_type_patches(vec![removal]);
+                        }
+                    }
+                }
+
+                // Add patches to strip method bodies for type output (only for classes with @derive)
+                for method in &class_ir.methods {
+                    let return_type = method
+                        .return_type_src
+                        .trim_start()
+                        .trim_start_matches(':')
+                        .trim_start();
+                    let method_signature = if method.name == "constructor" {
+                        let visibility = match method.visibility {
+                            crate::ts_syn::abi::Visibility::Private => "private ",
+                            crate::ts_syn::abi::Visibility::Protected => "protected ",
+                            crate::ts_syn::abi::Visibility::Public => "",
+                        };
+                        format!(
+                            "{visibility}constructor({params_src});",
+                            visibility = visibility,
+                            params_src = method.params_src
+                        )
+                    } else {
+                        let visibility = match method.visibility {
+                            crate::ts_syn::abi::Visibility::Private => "private ",
+                            crate::ts_syn::abi::Visibility::Protected => "protected ",
+                            crate::ts_syn::abi::Visibility::Public => "",
+                        };
+                        let static_kw = if method.is_static { "static " } else { "" };
+                        let async_kw = if method.is_async { "async " } else { "" };
+
+                        format!(
+                            "{visibility}{static_kw}{async_kw}{method_name}{type_params}({params_src}): {return_type};",
+                            visibility = visibility,
+                            static_kw = static_kw,
+                            async_kw = async_kw,
+                            method_name = method.name,
+                            type_params = method.type_params_src,
+                            params_src = method.params_src,
+                            return_type = return_type
+                        )
+                    };
+
+                    collector.add_type_patches(vec![Patch::Replace {
+                        span: method.span,
+                        code: method_signature.into(),
+                        source_macro: None,
+                    }]);
+                }
+            }
+
+            // Remove interface field decorators when not keeping decorators
             if !self.keep_decorators {
-                match &target.target_ir {
-                    DeriveTargetIR::Class(class_ir) => {
-                        for field in &class_ir.fields {
-                            for decorator in &field.decorators {
-                                let field_dec_removal = Patch::Delete {
-                                    span: span_ir_with_at(decorator.span, source),
-                                };
-                                collector.add_runtime_patches(vec![field_dec_removal.clone()]);
-                                collector.add_type_patches(vec![field_dec_removal]);
-                            }
+                if let DeriveTargetIR::Interface(interface_ir) = &target.target_ir {
+                    for field in &interface_ir.fields {
+                        for decorator in &field.decorators {
+                            let field_dec_removal = Patch::Delete {
+                                span: span_ir_with_at(decorator.span, source),
+                            };
+                            collector.add_runtime_patches(vec![field_dec_removal.clone()]);
+                            collector.add_type_patches(vec![field_dec_removal]);
+                        }
 
-                            if let Some(span) = find_macro_comment_span(source, field.span.start) {
-                                let removal = Patch::Delete { span };
-                                collector.add_runtime_patches(vec![removal.clone()]);
-                                collector.add_type_patches(vec![removal]);
-                            }
+                        if let Some(span) = find_macro_comment_span(source, field.span.start) {
+                            let removal = Patch::Delete { span };
+                            collector.add_runtime_patches(vec![removal.clone()]);
+                            collector.add_type_patches(vec![removal]);
                         }
                     }
-                    DeriveTargetIR::Interface(interface_ir) => {
-                        for field in &interface_ir.fields {
-                            for decorator in &field.decorators {
-                                let field_dec_removal = Patch::Delete {
-                                    span: span_ir_with_at(decorator.span, source),
-                                };
-                                collector.add_runtime_patches(vec![field_dec_removal.clone()]);
-                                collector.add_type_patches(vec![field_dec_removal]);
-                            }
-
-                            if let Some(span) = find_macro_comment_span(source, field.span.start) {
-                                let removal = Patch::Delete { span };
-                                collector.add_runtime_patches(vec![removal.clone()]);
-                                collector.add_type_patches(vec![removal]);
-                            }
-                        }
-                    }
-                    // Enums and type aliases don't have field decorators in the same way
-                    DeriveTargetIR::Enum(_) | DeriveTargetIR::TypeAlias(_) => {}
                 }
             }
 
