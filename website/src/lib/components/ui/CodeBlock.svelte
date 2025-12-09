@@ -48,6 +48,5 @@
 	{/if}
 	<pre
 		class="overflow-x-auto p-4 bg-card text-sm {filename ? '' : 'pt-8'}"
-	><code class="text-card-foreground font-mono">{#each lines as line, i}{#if showLineNumbers}<span class="inline-block w-8 text-right mr-4 text-muted-foreground select-none">{i + 1}</span>{/if}<span>{line}</span>{#if i < lines.length - 1}
-{/if}{/each}</code></pre>
+	><code class="text-card-foreground font-mono">{#each lines as line, i}{#if showLineNumbers}<span class="inline-block w-8 text-right mr-4 text-muted-foreground select-none">{i + 1}</span>{/if}<span>{line}</span>{#if i < lines.length - 1}{'\n'}{/if}{/each}</code></pre>
 </div>

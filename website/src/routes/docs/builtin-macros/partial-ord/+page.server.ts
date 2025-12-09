@@ -3,9 +3,7 @@ import { expandExample } from '$lib/server/macroforge';
 export function load() {
 	return {
 		examples: {
-			basic: expandExample(`import { PartialOrd } from "macroforge";
-
-/** @derive(PartialOrd) */
+			basic: expandExample(`/** @derive(PartialOrd) */
 class Temperature {
   celsius: number;
 
@@ -13,9 +11,7 @@ class Temperature {
     this.celsius = celsius;
   }
 }`),
-			skip: expandExample(`import { PartialOrd } from "macroforge";
-
-/** @derive(PartialOrd) */
+			skip: expandExample(`/** @derive(PartialOrd) */
 class Item {
   price: number;
   name: string;
@@ -29,24 +25,18 @@ class Item {
     this.description = description;
   }
 }`),
-			interface: expandExample(`import { PartialOrd } from "macroforge";
-
-/** @derive(PartialOrd) */
+			interface: expandExample(`/** @derive(PartialOrd) */
 interface Measurement {
   value: number;
   unit: string;
 }`),
-			enum: expandExample(`import { PartialOrd } from "macroforge";
-
-/** @derive(PartialOrd) */
+			enum: expandExample(`/** @derive(PartialOrd) */
 enum Size {
   Small = 1,
   Medium = 2,
   Large = 3
 }`),
-			typeAlias: expandExample(`import { PartialOrd } from "macroforge";
-
-/** @derive(PartialOrd) */
+			typeAlias: expandExample(`/** @derive(PartialOrd) */
 type Interval = {
   start: number;
   end: number;

@@ -3,9 +3,7 @@ import { expandExample } from '$lib/server/macroforge';
 export function load() {
 	return {
 		examples: {
-			basic: expandExample(`import { Ord } from "macroforge";
-
-/** @derive(Ord) */
+			basic: expandExample(`/** @derive(Ord) */
 class Version {
   major: number;
   minor: number;
@@ -17,9 +15,7 @@ class Version {
     this.patch = patch;
   }
 }`),
-			skip: expandExample(`import { Ord } from "macroforge";
-
-/** @derive(Ord) */
+			skip: expandExample(`/** @derive(Ord) */
 class Task {
   priority: number;
   name: string;
@@ -33,25 +29,19 @@ class Task {
     this.createdAt = createdAt;
   }
 }`),
-			interface: expandExample(`import { Ord } from "macroforge";
-
-/** @derive(Ord) */
+			interface: expandExample(`/** @derive(Ord) */
 interface Point {
   x: number;
   y: number;
 }`),
-			enum: expandExample(`import { Ord } from "macroforge";
-
-/** @derive(Ord) */
+			enum: expandExample(`/** @derive(Ord) */
 enum Priority {
   Low = 0,
   Medium = 1,
   High = 2,
   Critical = 3
 }`),
-			typeAlias: expandExample(`import { Ord } from "macroforge";
-
-/** @derive(Ord) */
+			typeAlias: expandExample(`/** @derive(Ord) */
 type Coordinate = {
   x: number;
   y: number;
