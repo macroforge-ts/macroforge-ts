@@ -47,10 +47,10 @@
 | `&#123;#for item in list&#125;...&#123;/for&#125;` 
 | Iterate over a collection 
 
-| `&#123;%let name = expr&#125;` 
+| `&#123;$let name = expr&#125;` 
 | Define a local constant 
 
-| `&#123;%typescript stream&#125;` 
+| `&#123;$typescript stream&#125;` 
 | Inject a TsStream, preserving its source and runtime_patches (imports)
 
 **Note:** A single `@` not followed by `&#123;` passes through unchanged (e.g., `email@domain.com` works as expected).
@@ -383,7 +383,7 @@ ts_template! {
 }
 ```
 
-## Local Constants: `&#123;%let&#125;`
+## Local Constants: `&#123;$let&#125;`
 
 Define local variables within the template scope:
 
@@ -392,7 +392,7 @@ let items = vec![("user", "User"), ("post", "Post")];
 
 let code = ts_template! {
     {#for (key, class_name) in items}
-        {%let upper = class_name.to_uppercase()}
+        {$let upper = class_name.to_uppercase()}
         console.log("Processing @{upper}");
         const @{key} = new @{class_name}();
     {/for}
@@ -401,7 +401,7 @@ let code = ts_template! {
 
 This is useful for computing derived values inside loops without cluttering the Rust code.
 
-## TsStream Injection: `&#123;%typescript&#125;`
+## TsStream Injection: `&#123;$typescript&#125;`
 
 Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via `add_import()`):
 
@@ -416,7 +416,7 @@ helper.add_import("Result", "macroforge/result");
 
 // Inject the helper into the main template
 let result = body! {
-    {%typescript helper}
+    {$typescript helper}
 
     process(data: Record<string, unknown>): void {
         // ...
@@ -440,7 +440,7 @@ body! {
     mainMethod(): void {}
 
     {#if let Some(methods) = extra_methods}
-        {%typescript methods}
+        {$typescript methods}
     {/if}
 }
 ```
