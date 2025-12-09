@@ -121,6 +121,20 @@ pub struct ExpandResult {
     pub source_mapping: Option<SourceMappingResult>,
 }
 
+impl ExpandResult {
+    /// Create a no-op result with unchanged code.
+    /// Used for early bailout when no macros need processing.
+    pub fn unchanged(code: &str) -> Self {
+        Self {
+            code: code.to_string(),
+            types: None,
+            metadata: None,
+            diagnostics: vec![],
+            source_mapping: None,
+        }
+    }
+}
+
 #[napi(object)]
 #[derive(Clone)]
 pub struct ImportSourceResult {
@@ -623,6 +637,13 @@ fn expand_inner(
     filepath: &str,
     options: Option<ExpandOptions>,
 ) -> Result<ExpandResult> {
+    // Early bailout: Skip files without @derive decorator
+    // This avoids expensive parsing for files that don't use macros
+    // and prevents issues with Svelte runes ($state, $derived, etc.)
+    if !code.contains("@derive") {
+        return Ok(ExpandResult::unchanged(code));
+    }
+
     // We create a NEW macro host for this thread.
     // Note: If MacroExpander requires NAPI Env for calling back into JS,
     // that part will fail in a threaded context. Assuming pure-Rust expansion here.

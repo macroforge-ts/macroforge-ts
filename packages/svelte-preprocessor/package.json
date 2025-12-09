@@ -1,5 +1,5 @@
 {
-  "name": "@macroforge/vite-plugin",
+  "name": "@macroforge/svelte-preprocessor",
   "version": "0.1.19",
   "type": "module",
   "main": "dist/index.js",
@@ -19,8 +19,11 @@
   "dependencies": {
     "macroforge": "^0.1.19"
   },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "vite": "^7.2.4"
+    "svelte": "^5.43.8",
+    "typescript": "^5.9.3"
   }
 }

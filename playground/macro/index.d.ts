@@ -103,7 +103,7 @@ export declare function checkSyntax(code: string, filepath: string): SyntaxCheck
 export declare function Clone(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
 any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
-/** Generates a toString() method for debugging */
+/** Configure debug output for this field. Options: skip (exclude from output), rename (custom label) */
 export declare function debug(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
 any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
 
@@ -227,11 +227,11 @@ export interface ProcessFileOptions {
   version?: string
 }
 
-/** Generates a static fromJSON() method for JSON deserialization with runtime validation */
+/** Configure deserialization for this field. Options: skip, rename, flatten, default, validate (email, url, minLength, etc.) */
 export declare function serde(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
 any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
 
-/** Generates a toJSON() method for JSON serialization */
+/** Configure serialization for this field. Options: skip, rename, flatten, validate (email, url, minLength, etc.) */
 export declare function serde(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
 any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
 

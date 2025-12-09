@@ -9,24 +9,34 @@
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"test": "vitest run",
+		"test:watch": "vitest"
 	},
- "dependencies": {
-    "@playground/macro": "file:../macro",
-    "macroforge": "file:../../crates/macroforge_ts",
-    "effect": "^3.19.4",
-    "runed": "^0.36.0",
-    "svelte-toolbelt": "^0.10.6"
-  },
-  "devDependencies": {
-    "@sveltejs/adapter-auto": "^7.0.0",
-    "@sveltejs/kit": "^2.49.0",
-    "@sveltejs/vite-plugin-svelte": "^6.2.1",
-    "@macroforge/typescript-plugin": "file:../../packages/typescript-plugin",
-    "svelte": "^5.43.8",
-    "svelte-check": "^4.3.4",
-    "typescript": "^5.9.3",
-    "vite": "^7.2.2",
-    "@macroforge/vite-plugin": "file:../../packages/vite-plugin"
-  }
+	"dependencies": {
+		"@playground/macro": "file:../macro",
+		"macroforge": "file:../../crates/macroforge_ts",
+		"effect": "^3.19.4",
+		"runed": "^0.36.0",
+		"svelte-toolbelt": "^0.10.6"
+	},
+	"devDependencies": {
+		"@inlang/paraglide-js": "^2.6.0",
+		"@macroforge/svelte-preprocessor": "file:../../packages/svelte-preprocessor",
+		"@macroforge/typescript-plugin": "file:../../packages/typescript-plugin",
+		"@macroforge/vite-plugin": "file:../../packages/vite-plugin",
+		"@sveltejs/adapter-auto": "^7.0.0",
+		"@sveltejs/kit": "^2.49.0",
+		"@sveltejs/vite-plugin-svelte": "^6.2.1",
+		"@tailwindcss/vite": "^4.1.10",
+		"@testing-library/jest-dom": "^6.6.3",
+		"@testing-library/svelte": "^5.2.7",
+		"jsdom": "^26.1.0",
+		"svelte": "^5.43.8",
+		"svelte-check": "^4.3.4",
+		"tailwindcss": "^4.1.10",
+		"typescript": "^5.9.3",
+		"vite": "^7.2.2",
+		"vitest": "^3.2.4"
+	}
 }

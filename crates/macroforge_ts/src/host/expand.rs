@@ -1984,3 +1984,127 @@ export function __macroforgeRunDebug(ctxJson) {
         assert!(result.diagnostics.is_empty());
     }
 }
+
+#[cfg(test)]
+mod builtin_import_warning_tests {
+    use super::*;
+    use crate::ts_syn::parse_ts_module;
+
+    #[test]
+    fn warns_on_importing_debug_from_macroforge() {
+        let source = r#"import { Debug } from "macroforge";
+
+/** @derive(Debug) */
+class User {
+    name: string;
+}"#;
+
+        let module = parse_ts_module(source).unwrap();
+        let warnings = check_builtin_import_warnings(&module, source);
+
+        assert_eq!(warnings.len(), 1);
+        assert_eq!(warnings[0].level, DiagnosticLevel::Warning);
+        assert!(warnings[0].message.contains("Debug"));
+        assert!(warnings[0].message.contains("built-in macro"));
+        assert!(warnings[0].help.as_ref().unwrap().contains("@derive(Debug)"));
+    }
+
+    #[test]
+    fn warns_on_importing_serialize_from_macroforge_core() {
+        let source = r#"import { Serialize, Deserialize } from "@macroforge/core";
+
+/** @derive(Serialize, Deserialize) */
+class User {
+    name: string;
+}"#;
+
+        let module = parse_ts_module(source).unwrap();
+        let warnings = check_builtin_import_warnings(&module, source);
+
+        assert_eq!(warnings.len(), 2);
+        assert!(warnings.iter().any(|w| w.message.contains("Serialize")));
+        assert!(warnings.iter().any(|w| w.message.contains("Deserialize")));
+    }
+
+    #[test]
+    fn warns_on_importing_clone_from_macro_derive() {
+        let source = r#"import { Clone, Default, Hash } from "@macro/derive";
+
+/** @derive(Clone, Default, Hash) */
+class Config {
+    value: number;
+}"#;
+
+        let module = parse_ts_module(source).unwrap();
+        let warnings = check_builtin_import_warnings(&module, source);
+
+        assert_eq!(warnings.len(), 3);
+        assert!(warnings.iter().any(|w| w.message.contains("Clone")));
+        assert!(warnings.iter().any(|w| w.message.contains("Default")));
+        assert!(warnings.iter().any(|w| w.message.contains("Hash")));
+    }
+
+    #[test]
+    fn no_warning_for_non_macro_imports() {
+        let source = r#"import { Debug } from "my-custom-lib";
+import { Clone } from "./local-utils";
+
+class User {
+    name: string;
+}"#;
+
+        let module = parse_ts_module(source).unwrap();
+        let warnings = check_builtin_import_warnings(&module, source);
+
+        // No warnings because imports are not from macro-related modules
+        assert!(warnings.is_empty());
+    }
+
+    #[test]
+    fn no_warning_for_custom_macro_imports() {
+        let source = r#"import { MyCustomMacro } from "macroforge";
+
+/** @derive(MyCustomMacro) */
+class User {
+    name: string;
+}"#;
+
+        let module = parse_ts_module(source).unwrap();
+        let warnings = check_builtin_import_warnings(&module, source);
+
+        // No warnings because MyCustomMacro is not a built-in
+        assert!(warnings.is_empty());
+    }
+
+    #[test]
+    fn warns_with_correct_span() {
+        let source = r#"import { Debug } from "macroforge";"#;
+
+        let module = parse_ts_module(source).unwrap();
+        let warnings = check_builtin_import_warnings(&module, source);
+
+        assert_eq!(warnings.len(), 1);
+        let span = warnings[0].span.unwrap();
+        // Span should point to "Debug" in the import statement
+        let highlighted = &source[span.start as usize..span.end as usize];
+        assert_eq!(highlighted, "Debug");
+    }
+
+    #[test]
+    fn warns_all_ord_variants() {
+        let source = r#"import { Ord, PartialOrd, PartialEq } from "macroforge";
+
+/** @derive(Ord, PartialOrd, PartialEq) */
+class Comparable {
+    value: number;
+}"#;
+
+        let module = parse_ts_module(source).unwrap();
+        let warnings = check_builtin_import_warnings(&module, source);
+
+        assert_eq!(warnings.len(), 3);
+        assert!(warnings.iter().any(|w| w.message.contains("Ord")));
+        assert!(warnings.iter().any(|w| w.message.contains("PartialOrd")));
+        assert!(warnings.iter().any(|w| w.message.contains("PartialEq")));
+    }
+}
