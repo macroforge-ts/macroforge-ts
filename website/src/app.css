@@ -136,3 +136,93 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Prose styles for documentation content */
+.prose {
+  @apply text-foreground leading-7;
+
+  /* Headings */
+  h1 {
+    @apply text-3xl font-bold tracking-tight text-foreground mt-2 mb-4 scroll-mt-20;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold tracking-tight text-foreground mt-10 mb-4 pb-2 border-b border-border scroll-mt-20;
+  }
+
+  h3 {
+    @apply text-xl font-semibold tracking-tight text-foreground mt-8 mb-3 scroll-mt-20;
+  }
+
+  h4 {
+    @apply text-lg font-semibold tracking-tight text-foreground mt-6 mb-2 scroll-mt-20;
+  }
+
+  /* Paragraphs */
+  p {
+    @apply my-4;
+  }
+
+  .lead {
+    @apply text-lg text-muted-foreground mb-6;
+  }
+
+  /* Links */
+  a {
+    @apply text-primary underline underline-offset-4 hover:text-primary/80 transition-colors;
+  }
+
+  /* Lists */
+  ul, ol {
+    @apply my-4 pl-6;
+  }
+
+  ul {
+    @apply list-disc;
+  }
+
+  ol {
+    @apply list-decimal;
+  }
+
+  li {
+    @apply my-2;
+  }
+
+  /* Inline code */
+  :not(pre) > code {
+    @apply bg-muted text-foreground px-1.5 py-0.5 rounded text-sm font-mono;
+  }
+
+  /* Blockquotes */
+  blockquote {
+    @apply border-l-4 border-primary pl-4 italic my-4 text-muted-foreground;
+  }
+
+  /* Horizontal rules */
+  hr {
+    @apply my-8 border-border;
+  }
+
+  /* Tables */
+  table {
+    @apply w-full my-6 text-sm;
+  }
+
+  th {
+    @apply border border-border px-4 py-2 text-left font-semibold bg-muted;
+  }
+
+  td {
+    @apply border border-border px-4 py-2;
+  }
+
+  /* Strong and emphasis */
+  strong {
+    @apply font-semibold text-foreground;
+  }
+
+  em {
+    @apply italic;
+  }
+}
