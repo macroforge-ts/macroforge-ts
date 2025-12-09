@@ -214,6 +214,26 @@ jobs:
           npm publish --access public
         working-directory: packages/vite-plugin
 
+      - name: Install svelte-preprocessor dependencies
+        run: npm install
+        working-directory: packages/svelte-preprocessor
+
+      - name: Build and publish @macroforge/svelte-preprocessor
+        run: |
+          npm run build
+          npm publish --access public
+        working-directory: packages/svelte-preprocessor
+
+      - name: Install mcp-server dependencies
+        run: npm install
+        working-directory: packages/mcp-server
+
+      - name: Build and publish @macroforge/mcp-server
+        run: |
+          npm run build
+          npm publish --access public
+        working-directory: packages/mcp-server
+
       # Publish Rust crates to crates.io
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable

@@ -4,31 +4,14 @@
 
 ## Basic Usage
 
+<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
+
 ```typescript
-/** @derive(Clone) */
-class Point {
-  x: number;
-  y: number;
-
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-  }
-}
-
 const original = new Point(10, 20);
 const copy = original.clone();
 
 console.log(copy.x, copy.y); // 10, 20
 console.log(original === copy); // false (different instances)
-```
-
-## Generated Code
-
-```typescript
-clone(): Point {
-  return new Point(this.x, this.y);
-}
 ```
 
 ## How It Works
@@ -45,18 +28,9 @@ This creates a **shallow clone** - primitive values are copied, but object refer
 
 ## With Nested Objects
 
+<MacroExample before={data.examples.nested.before} after={data.examples.nested.after} />
+
 ```typescript
-/** @derive(Clone) */
-class User {
-  name: string;
-  address: { city: string; zip: string };
-
-  constructor(name: string, address: { city: string; zip: string }) {
-    this.name = name;
-    this.address = address;
-  }
-}
-
 const original = new User("Alice", { city: "NYC", zip: "10001" });
 const copy = original.clone();
 
@@ -70,12 +44,11 @@ console.log(original.address.city); // "LA"
 
 For deep cloning of nested objects, you would need to implement custom clone methods or use a deep clone utility.
 
-## Combining with Eq
+## Combining with PartialEq
 
-Clone works well with Eq for creating independent copies that compare as equal:
+Clone works well with PartialEq for creating independent copies that compare as equal:
 
-```typescript
-/** @derive(Clone, Eq) */
+<InteractiveMacro code={`/** @derive(Clone, PartialEq) */
 class Point {
   x: number;
   y: number;
@@ -84,8 +57,9 @@ class Point {
     this.x = x;
     this.y = y;
   }
-}
+}`} />
 
+```typescript
 const original = new Point(10, 20);
 const copy = original.clone();
 
@@ -97,20 +71,9 @@ console.log(original.equals(copy));   // true (same values)
 
 Clone also works with interfaces. For interfaces, a namespace is generated with a `clone` function:
 
+<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
+
 ```typescript
-/** @derive(Clone) */
-interface Point {
-  x: number;
-  y: number;
-}
-
-// Generated:
-// export namespace Point {
-//   export function clone(self: Point): Point {
-//     return { x: self.x, y: self.y };
-//   }
-// }
-
 const original: Point = { x: 10, y: 20 };
 const copy = Point.clone(original);
 
@@ -122,20 +85,9 @@ console.log(original === copy);     // false (different objects)
 
 Clone also works with enums. For enums, the clone function simply returns the value as-is, since enum values are primitives and don't need cloning:
 
+<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
+
 ```typescript
-/** @derive(Clone) */
-enum Status {
-  Active = "active",
-  Inactive = "inactive",
-}
-
-// Generated:
-// export namespace Status {
-//   export function clone(value: Status): Status {
-//     return value;
-//   }
-// }
-
 const original = Status.Active;
 const copy = Status.clone(original);
 
@@ -147,20 +99,9 @@ console.log(original === copy);  // true (same primitive value)
 
 Clone works with type aliases. For object types, a shallow copy is created using spread:
 
+<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
+
 ```typescript
-/** @derive(Clone) */
-type Point = {
-  x: number;
-  y: number;
-};
-
-// Generated:
-// export namespace Point {
-//   export function clone(value: Point): Point {
-//     return { ...value };
-//   }
-// }
-
 const original: Point = { x: 10, y: 20 };
 const copy = Point.clone(original);
 
@@ -170,10 +111,10 @@ console.log(original === copy);  // false (different objects)
 
 For union types, the value is returned as-is (unions of primitives don't need cloning):
 
-```typescript
-/** @derive(Clone) */
-type ApiStatus = "loading" | "success" | "error";
+<InteractiveMacro code={`/** @derive(Clone) */
+type ApiStatus = "loading" | "success" | "error";`} />
 
+```typescript
 const status: ApiStatus = "success";
 const copy = ApiStatus.clone(status);
 console.log(copy); // "success"

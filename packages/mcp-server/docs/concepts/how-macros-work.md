@@ -14,22 +14,7 @@ Unlike runtime solutions that use reflection or proxies, Macroforge expands macr
 
 4. **Output**: The transformed TypeScript is written out, ready for normal compilation
 
-```typescript
-// Your source code
-/** @derive(Debug) */
-class User {
-  name: string;
-}
-
-// After macro expansion
-class User {
-  name: string;
-
-  toString(): string {
-    return \`User { name: \${this.name} }\`;
-  }
-}
-```
+<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
 
 ## Zero Runtime Overhead
 
@@ -55,43 +40,19 @@ Macroforge tracks the relationship between your source code and the expanded out
 
 - IDE features like "go to definition" work as expected
 
-> **Note:**
-> The TypeScript plugin uses source mapping to show errors at the `@derive` decorator position, not in the generated code.
+<Alert type="info" title="Error positioning">
+The TypeScript plugin uses source mapping to show errors at the `@derive` decorator position, not in the generated code.
+</Alert>
 
 ## Execution Flow
 
-```text
-┌─────────────────────────────────────────────────────────┐
-│                    Your Source Code                      │
-│              (with @derive decorators)                   │
-└───────────────────────┬─────────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│                   SWC Parser                             │
-│            (TypeScript → AST)                            │
-└───────────────────────┬─────────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│                Macro Expansion Engine                    │
-│    - Finds @derive decorators                            │
-│    - Runs registered macros                              │
-│    - Generates new AST nodes                             │
-└───────────────────────┬─────────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│                 Code Generator                           │
-│            (AST → TypeScript)                            │
-└───────────────────────┬─────────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│                 Expanded TypeScript                      │
-│         (ready for normal compilation)                   │
-└─────────────────────────────────────────────────────────┘
-```
+<Flowchart steps={[
+{ title: "Your Source Code", description: "with @derive decorators" },
+{ title: "SWC Parser", description: "TypeScript → AST" },
+{ title: "Macro Expansion Engine", description: "Finds @derive decorators, runs macros, generates new AST nodes" },
+{ title: "Code Generator", description: "AST → TypeScript" },
+{ title: "Expanded TypeScript", description: "ready for normal compilation" }
+]} />
 
 ## Integration Points
 

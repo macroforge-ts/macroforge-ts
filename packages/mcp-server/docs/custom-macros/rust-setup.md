@@ -61,8 +61,7 @@ fn main() {
 
 `src/lib.rs`
 ```rust
-use macroforge_ts::ts_macro_derive::ts_macro_derive;
-use macroforge_ts::ts_quote::body;
+use macroforge_ts::macros::{ts_macro_derive, body};
 use macroforge_ts::ts_syn::{
     Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
 };
@@ -141,6 +140,6 @@ npm run build
 
 ## Next Steps
 
-- [Learn the ts_macro_derive attribute]({base}/docs/custom-macros/ts-macro-derive)
+- [Learn the #[ts_macro_derive] attribute]({base}/docs/custom-macros/ts-macro-derive)
 
-- [Master the ts_quote template syntax]({base}/docs/custom-macros/ts-quote)
+- [Master the template syntax]({base}/docs/custom-macros/ts-quote)

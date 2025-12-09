@@ -4,35 +4,12 @@
 
 ## Basic Usage
 
+<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
+
 ```typescript
-/** @derive(Serialize) */
-class User {
-  name: string;
-  age: number;
-  createdAt: Date;
-
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-    this.createdAt = new Date();
-  }
-}
-
 const user = new User("Alice", 30);
 console.log(JSON.stringify(user));
 // {"name":"Alice","age":30,"createdAt":"2024-01-15T10:30:00.000Z"}
-```
-
-## Generated Code
-
-```typescript
-toJSON(): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  result["name"] = this.name;
-  result["age"] = this.age;
-  result["createdAt"] = this.createdAt.toISOString();
-  return result;
-}
 ```
 
 ## Automatic Type Handling
@@ -57,32 +34,15 @@ Serialize automatically handles various TypeScript types:
 | Nested objects 
 | Calls `toJSON()` if available
 
-```typescript
-/** @derive(Serialize) */
-class DataContainer {
-  items: string[];
-  metadata: Map<string, number>;
-  tags: Set<string>;
-  nested: User;
-}
-```
-
 ## Serde Options
 
 Use the `@serde` decorator for fine-grained control over serialization:
 
 ### Renaming Fields
 
+<MacroExample before={data.examples.rename.before} after={data.examples.rename.after} />
+
 ```typescript
-/** @derive(Serialize) */
-class User {
-  /** @serde({ rename: "user_id" }) */
-  id: string;
-
-  /** @serde({ rename: "full_name" }) */
-  name: string;
-}
-
 const user = new User();
 user.id = "123";
 user.name = "Alice";
@@ -92,19 +52,7 @@ console.log(JSON.stringify(user));
 
 ### Skipping Fields
 
-```typescript
-/** @derive(Serialize) */
-class User {
-  name: string;
-  email: string;
-
-  /** @serde({ skip: true }) */
-  password: string;
-
-  /** @serde({ skip_serializing: true }) */
-  internalId: string;
-}
-```
+<MacroExample before={data.examples.skip.before} after={data.examples.skip.after} />
 
 <Alert type="tip" title="skip vs skip_serializing">
 Use `skip: true` to exclude from both serialization and deserialization.
@@ -115,15 +63,13 @@ Use `skip_serializing: true` to only skip during serialization.
 
 Apply a naming convention to all fields at the container level:
 
-```typescript
-/** @derive(Serialize) */
+<InteractiveMacro code={`/** @derive(Serialize) */
 /** @serde({ rename_all: "camelCase" }) */
 class ApiResponse {
-  user_name: string;    // becomes "userName"
-  created_at: Date;     // becomes "createdAt"
-  is_active: boolean;   // becomes "isActive"
-}
-```
+  user_name: string;
+  created_at: Date;
+  is_active: boolean;
+}`} />
 
 Supported conventions:
 
@@ -139,8 +85,7 @@ Supported conventions:
 
 ### Flattening Nested Objects
 
-```typescript
-/** @derive(Serialize) */
+<InteractiveMacro code={`/** @derive(Serialize) */
 class Address {
   city: string;
   zip: string;
@@ -152,8 +97,9 @@ class User {
 
   /** @serde({ flatten: true }) */
   address: Address;
-}
+}`} />
 
+```typescript
 const user = new User();
 user.name = "Alice";
 user.address = { city: "NYC", zip: "10001" };
@@ -191,25 +137,9 @@ console.log(JSON.stringify(user));
 
 Serialize also works with interfaces. For interfaces, a namespace is generated with a `toJSON` function:
 
+<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
+
 ```typescript
-/** @derive(Serialize) */
-interface ApiResponse {
-  status: number;
-  message: string;
-  timestamp: Date;
-}
-
-// Generated:
-// export namespace ApiResponse {
-//   export function toJSON(self: ApiResponse): Record<string, unknown> {
-//     const result: Record<string, unknown> = {};
-//     result["status"] = self.status;
-//     result["message"] = self.message;
-//     result["timestamp"] = self.timestamp.toISOString();
-//     return result;
-//   }
-// }
-
 const response: ApiResponse = {
   status: 200,
   message: "OK",
@@ -224,35 +154,23 @@ console.log(JSON.stringify(ApiResponse.toJSON(response)));
 
 Serialize also works with enums. The `toJSON` function returns the underlying enum value (string or number):
 
+<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
+
 ```typescript
-/** @derive(Serialize) */
-enum Status {
-  Active = "active",
-  Inactive = "inactive",
-  Pending = "pending",
-}
-
-// Generated:
-// export namespace Status {
-//   export function toJSON(value: Status): string | number {
-//     return value;
-//   }
-// }
-
 console.log(Status.toJSON(Status.Active));  // "active"
 console.log(Status.toJSON(Status.Pending)); // "pending"
 ```
 
 Works with numeric enums too:
 
-```typescript
-/** @derive(Serialize) */
+<InteractiveMacro code={`/** @derive(Serialize) */
 enum Priority {
   Low = 1,
   Medium = 2,
   High = 3,
-}
+}`} />
 
+```typescript
 console.log(Priority.toJSON(Priority.High)); // 3
 ```
 
@@ -260,25 +178,9 @@ console.log(Priority.toJSON(Priority.High)); // 3
 
 Serialize works with type aliases. For object types, fields are serialized with full type handling:
 
+<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
+
 ```typescript
-/** @derive(Serialize) */
-type UserProfile = {
-  id: string;
-  name: string;
-  createdAt: Date;
-};
-
-// Generated:
-// export namespace UserProfile {
-//   export function toJSON(value: UserProfile): Record<string, unknown> {
-//     const result: Record<string, unknown> = {};
-//     result["id"] = value.id;
-//     result["name"] = value.name;
-//     result["createdAt"] = value.createdAt.toISOString();
-//     return result;
-//   }
-// }
-
 const profile: UserProfile = {
   id: "123",
   name: "Alice",
@@ -291,10 +193,10 @@ console.log(JSON.stringify(UserProfile.toJSON(profile)));
 
 For union types, the value is returned directly:
 
-```typescript
-/** @derive(Serialize) */
-type ApiStatus = "loading" | "success" | "error";
+<InteractiveMacro code={`/** @derive(Serialize) */
+type ApiStatus = "loading" | "success" | "error";`} />
 
+```typescript
 console.log(ApiStatus.toJSON("success")); // "success"
 ```
 
@@ -302,13 +204,13 @@ console.log(ApiStatus.toJSON("success")); // "success"
 
 Use both Serialize and Deserialize for complete JSON round-trip support:
 
-```typescript
-/** @derive(Serialize, Deserialize) */
+<InteractiveMacro code={`/** @derive(Serialize, Deserialize) */
 class User {
   name: string;
   createdAt: Date;
-}
+}`} />
 
+```typescript
 // Serialize
 const user = new User();
 user.name = "Alice";

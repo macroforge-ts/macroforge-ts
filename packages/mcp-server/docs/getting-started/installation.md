@@ -4,9 +4,9 @@
 
 ## Requirements
 
-- Node.js 18.0 or later
+- Node.js 24.0 or later
 
-- TypeScript 5.0 or later
+- TypeScript 5.9 or later
 
 ## Install the Package
 

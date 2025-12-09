@@ -5,7 +5,7 @@
 ## Basic Syntax
 
 ```rust
-use macroforge_ts::ts_macro_derive::ts_macro_derive;
+use macroforge_ts::macros::ts_macro_derive;
 use macroforge_ts::ts_syn::{TsStream, MacroforgeError};
 
 #[ts_macro_derive(MacroName)]
@@ -70,7 +70,7 @@ pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError>
 Use `parse_ts_macro_input!` to convert the token stream:
 
 ```rust
-use macroforge_ts::ts_syn::{DeriveInput, Data, parse_ts_macro_input};
+use macroforge_ts::ts_syn::{Data, DeriveInput, parse_ts_macro_input};
 
 #[ts_macro_derive(MyMacro)]
 pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
@@ -256,8 +256,7 @@ pub fn class_only(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
 ## Complete Example
 
 ```rust
-use macroforge_ts::ts_macro_derive::ts_macro_derive;
-use macroforge_ts::ts_quote::body;
+use macroforge_ts::macros::{ts_macro_derive, body};
 use macroforge_ts::ts_syn::{
     Data, DeriveInput, FieldIR, MacroforgeError, TsStream, parse_ts_macro_input,
 };
@@ -304,4 +303,4 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError>
 
 ## Next Steps
 
-- [Learn the ts_quote template syntax]({base}/docs/custom-macros/ts-quote)
+- [Learn the template syntax]({base}/docs/custom-macros/ts-quote)

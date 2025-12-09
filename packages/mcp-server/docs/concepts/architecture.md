@@ -4,21 +4,12 @@
 
 ## Overview
 
-```text
-┌─────────────────────────────────────────────────────────┐
-│                    Node.js / Vite                        │
-├─────────────────────────────────────────────────────────┤
-│                   NAPI-RS Bindings                       │
-├─────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌──────────────┐  ┌───────────────┐   │
-│  │   ts_syn    │  │   ts_quote   │  │ts_macro_derive│   │
-│  │  (parsing)  │  │ (templating) │  │  (proc-macro) │   │
-│  └─────────────┘  └──────────────┘  └───────────────┘   │
-├─────────────────────────────────────────────────────────┤
-│                    SWC Core                              │
-│            (TypeScript parsing & codegen)                │
-└─────────────────────────────────────────────────────────┘
-```
+<ArchitectureDiagram layers={[
+{ title: "Node.js / Vite" },
+{ title: "NAPI-RS Bindings" },
+{ title: "Macro Crates", items: ["macroforge_ts_syn", "macroforge_ts_quote", "macroforge_ts_macros"] },
+{ title: "SWC Core", items: ["TypeScript parsing & codegen"] }
+]} />
 
 ## Core Components
 
@@ -32,7 +23,7 @@ The foundation layer provides:
 
 - Code generation (AST → source code)
 
-### ts_syn
+### macroforge_ts_syn
 
 A Rust crate that provides:
 
@@ -42,7 +33,7 @@ A Rust crate that provides:
 
 - Derive input structures (class fields, decorators, etc.)
 
-### ts_quote
+### macroforge_ts_quote
 
 Template-based code generation similar to Rust's `quote!`:
 
@@ -52,7 +43,7 @@ Template-based code generation similar to Rust's `quote!`:
 
 - Control flow: `{"{#for}"}`, `{"{#if}"}`, `{"{$let}"}`
 
-### ts_macro_derive
+### macroforge_ts_macros
 
 The procedural macro attribute for defining derive macros:
 
@@ -74,33 +65,16 @@ Bridges Rust and Node.js:
 
 ## Data Flow
 
-```text
-1. Source Code (TypeScript with @derive)
-   │
-   ▼
-2. NAPI-RS receives JavaScript string
-   │
-   ▼
-3. SWC parses to AST
-   │
-   ▼
-4. Macro expander finds @derive decorators
-   │
-   ▼
-5. For each macro:
-   │  a. Extract class/interface data
-   │  b. Run macro function
-   │  c. Generate new AST nodes
-   │
-   ▼
-6. Merge generated nodes into AST
-   │
-   ▼
-7. SWC generates source code
-   │
-   ▼
-8. Return to JavaScript with source mapping
-```
+<Flowchart steps={[
+{ title: "1. Source Code", description: "TypeScript with @derive" },
+{ title: "2. NAPI-RS", description: "receives JavaScript string" },
+{ title: "3. SWC Parser", description: "parses to AST" },
+{ title: "4. Macro Expander", description: "finds @derive decorators" },
+{ title: "5. For Each Macro", description: "extract data, run macro, generate AST nodes" },
+{ title: "6. Merge", description: "generated nodes into AST" },
+{ title: "7. SWC Codegen", description: "generates source code" },
+{ title: "8. Return", description: "to JavaScript with source mapping" }
+]} />
 
 ## Performance Characteristics
 
@@ -117,19 +91,14 @@ Bridges Rust and Node.js:
 For custom macro development, `macroforge_ts` re-exports everything you need:
 
 ```rust
-// All available via macroforge_ts::*
-pub extern crate ts_syn;         // AST types, parsing
-pub extern crate ts_quote;       // Code generation templates
-pub extern crate ts_macro_derive; // #[ts_macro_derive] attribute
-pub extern crate inventory;       // Macro registration
-pub extern crate serde_json;      // Serialization
-pub extern crate napi;            // Node.js bindings
-pub extern crate napi_derive;     // NAPI proc-macros
+// Convenient re-exports for macro development
+use macroforge_ts::macros::{ts_macro_derive, body, ts_template, above, below, signature};
+use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
-// SWC modules
-pub use ts_syn::swc_core;
-pub use ts_syn::swc_common;
-pub use ts_syn::swc_ecma_ast;
+// Also available: raw crate access and SWC modules
+use macroforge_ts::swc_core;
+use macroforge_ts::swc_common;
+use macroforge_ts::swc_ecma_ast;
 ```
 
 ## Next Steps
