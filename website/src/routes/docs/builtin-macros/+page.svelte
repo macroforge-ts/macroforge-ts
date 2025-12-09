@@ -36,7 +36,7 @@
 			<td>Creates a copy of the object</td>
 		</tr>
 		<tr>
-			<td><code>Eq</code></td>
+			<td><code>PartialEq</code></td>
 			<td><code>equals(other: T): boolean</code></td>
 			<td>Value equality comparison</td>
 		</tr>
@@ -59,7 +59,7 @@
 	Built-in macros don't require imports. Just use them with <code>@derive</code>:
 </p>
 
-<CodeBlock code={`/** @derive(Debug, Clone, Eq) */
+<CodeBlock code={`/** @derive(Debug, Clone, PartialEq) */
 class User {
   name: string;
   age: number;
@@ -77,7 +77,7 @@ class User {
 	in a namespace with the same name, using <code>self</code> as the first parameter:
 </p>
 
-<CodeBlock code={`/** @derive(Debug, Clone, Eq) */
+<CodeBlock code={`/** @derive(Debug, Clone, PartialEq) */
 interface Point {
   x: number;
   y: number;
@@ -105,7 +105,7 @@ console.log(Point.equals(point, copy)); // true`} lang="typescript" />
 	in a namespace with the same name:
 </p>
 
-<CodeBlock code={`/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+<CodeBlock code={`/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
@@ -135,7 +135,7 @@ const parsed = Status.fromJSON("active");        // Status.Active`} lang="typesc
 	are generated in a namespace:
 </p>
 
-<CodeBlock code={`/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+<CodeBlock code={`/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 type Point = {
   x: number;
   y: number;
@@ -160,7 +160,7 @@ console.log(Point.equals(point, copy)); // true`} lang="typescript" />
 	Union type aliases also work, using JSON-based implementations:
 </p>
 
-<CodeBlock code={`/** @derive(Debug, Eq) */
+<CodeBlock code={`/** @derive(Debug, PartialEq) */
 type ApiStatus = "loading" | "success" | "error";
 
 const status: ApiStatus = "success";
@@ -195,7 +195,7 @@ console.log(user.equals(copy)); // true`} lang="typescript" />
 <ul>
 	<li><a href="/docs/builtin-macros/debug"><strong>Debug</strong></a> - Customizable field renaming and skipping</li>
 	<li><a href="/docs/builtin-macros/clone"><strong>Clone</strong></a> - Shallow copying for all field types</li>
-	<li><a href="/docs/builtin-macros/eq"><strong>Eq</strong></a> - Value-based equality comparison</li>
+	<li><a href="/docs/builtin-macros/partial-eq"><strong>PartialEq</strong></a> - Value-based equality comparison</li>
 	<li><a href="/docs/builtin-macros/serialize"><strong>Serialize</strong></a> - JSON serialization with serde-style options</li>
 	<li><a href="/docs/builtin-macros/deserialize"><strong>Deserialize</strong></a> - JSON deserialization with validation</li>
 </ul>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
+	import Alert from '$lib/components/ui/Alert.svelte';
 </script>
 
 <svelte:head>
