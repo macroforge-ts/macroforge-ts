@@ -14,7 +14,7 @@
 </script>
 
 <header
-	class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-surface-950/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-surface-950/60"
+	class="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
 >
 	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="flex h-16 items-center justify-between">
@@ -23,7 +23,7 @@
 				{#if isDocsPage}
 					<button
 						onclick={() => onMenuClick?.()}
-						class="lg:hidden p-2 -ml-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+						class="lg:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground"
 						aria-label="Open navigation menu"
 					>
 						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -33,10 +33,10 @@
 				{/if}
 
 				<a href="{base}/" class="flex items-center gap-2">
-					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white font-bold">
+					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">
 						M
 					</div>
-					<span class="font-semibold text-slate-900 dark:text-white text-lg">
+					<span class="font-semibold text-foreground text-lg">
 						{siteConfig.name}
 					</span>
 				</a>
@@ -46,9 +46,8 @@
 			<nav class="hidden md:flex items-center gap-6">
 				<a
 					href="{base}/docs/getting-started"
-					class="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"
-					class:text-primary-600={isDocsPage}
-					class:dark:text-primary-400={isDocsPage}
+					class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+					class:text-primary={isDocsPage}
 				>
 					Documentation
 				</a>
@@ -56,7 +55,7 @@
 					href={siteConfig.links.github}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"
+					class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
 				>
 					GitHub
 				</a>
@@ -68,7 +67,7 @@
 					href={siteConfig.links.github}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="hidden sm:flex p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+					class="hidden sm:flex p-2 text-muted-foreground hover:text-foreground"
 					aria-label="GitHub repository"
 				>
 					<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">

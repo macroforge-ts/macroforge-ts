@@ -23,12 +23,12 @@
 
 <button
 	onclick={copy}
-	class="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors {className}"
+	class="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors {className}"
 	aria-label={copied ? 'Copied!' : 'Copy to clipboard'}
 >
 	{#if copied}
 		<!-- Check icon -->
-		<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+		<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-success" viewBox="0 0 20 20" fill="currentColor">
 			<path
 				fill-rule="evenodd"
 				d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"

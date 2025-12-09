@@ -11,28 +11,28 @@
 
 	const styles = {
 		info: {
-			container: 'bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800',
-			icon: 'text-blue-600 dark:text-blue-400',
-			title: 'text-blue-800 dark:text-blue-300',
-			text: 'text-blue-700 dark:text-blue-300'
+			container: 'bg-info/10 border-info/20',
+			icon: 'text-info',
+			title: 'text-info-foreground',
+			text: 'text-info-foreground/90'
 		},
 		warning: {
-			container: 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800',
-			icon: 'text-amber-600 dark:text-amber-400',
-			title: 'text-amber-800 dark:text-amber-300',
-			text: 'text-amber-700 dark:text-amber-300'
+			container: 'bg-warning/10 border-warning/20',
+			icon: 'text-warning',
+			title: 'text-warning-foreground',
+			text: 'text-warning-foreground/90'
 		},
 		tip: {
-			container: 'bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800',
-			icon: 'text-green-600 dark:text-green-400',
-			title: 'text-green-800 dark:text-green-300',
-			text: 'text-green-700 dark:text-green-300'
+			container: 'bg-success/10 border-success/20',
+			icon: 'text-success',
+			title: 'text-success-foreground',
+			text: 'text-success-foreground/90'
 		},
 		note: {
-			container: 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700',
-			icon: 'text-slate-600 dark:text-slate-400',
-			title: 'text-slate-800 dark:text-slate-200',
-			text: 'text-slate-600 dark:text-slate-300'
+			container: 'bg-muted border-border',
+			icon: 'text-muted-foreground',
+			title: 'text-foreground',
+			text: 'text-muted-foreground'
 		}
 	};
 
