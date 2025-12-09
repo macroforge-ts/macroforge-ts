@@ -103,8 +103,8 @@ export default defineConfig({
 
 Now that you have Macroforge installed, learn how to use it:
 
-- [Create your first macro](/docs/getting-started/first-macro)
+- [Create your first macro]({base}/docs/getting-started/first-macro)
 
-- [Understand how macros work](/docs/concepts)
+- [Understand how macros work]({base}/docs/concepts)
 
-- [Explore built-in macros](/docs/builtin-macros)
+- [Explore built-in macros]({base}/docs/builtin-macros)

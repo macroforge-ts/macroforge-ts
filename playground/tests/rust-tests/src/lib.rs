@@ -1,10 +1,12 @@
 #[cfg(test)]
 mod tests {
-    use swc_core::common::{FileName, GLOBALS, Globals, SourceMap, sync::Lrc};
-    use swc_core::ecma::parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer};
-    use macroforge_ts_syn::abi::{MacroContextIR, SpanIR};
     use macroforge_ts_quote::ts_template;
-    use macroforge_ts_syn::{Data, DeriveInput, ParseTs, TsStream, lower_classes, lower_interfaces};
+    use macroforge_ts_syn::abi::{MacroContextIR, SpanIR};
+    use macroforge_ts_syn::{
+        lower_classes, lower_interfaces, Data, DeriveInput, ParseTs, TsStream,
+    };
+    use swc_core::common::{sync::Lrc, FileName, Globals, SourceMap, GLOBALS};
+    use swc_core::ecma::parser::{lexer::Lexer, Parser, StringInput, Syntax, TsSyntax};
 
     fn capitalize(s: &str) -> String {
         let mut chars = s.chars();
@@ -195,7 +197,7 @@ mod tests {
                     };
 
                     {#for (label_text, field_path_literal, field_path_prop, field_controller_prop, field_type) in field_data}
-                        {%let controller_type = format!("{}FieldController", label_text.replace("\"", ""))}
+                        {$let controller_type = format!("{}FieldController", label_text.replace("\"", ""))}
 
                         static {
                             this.prototype.@{field_path_prop} = [@{field_path_literal}];
@@ -311,7 +313,7 @@ mod tests {
             };
 
             {#for (label_text, field_path_literal, field_path_prop, field_controller_prop, field_type) in field_data}
-                {%let controller_type_ident = label_text.replace("\"", "") + "FieldController"}
+                {$let controller_type_ident = label_text.replace("\"", "") + "FieldController"}
 
                 static {
                     this.prototype.@{field_path_prop} = [@{field_path_literal}];

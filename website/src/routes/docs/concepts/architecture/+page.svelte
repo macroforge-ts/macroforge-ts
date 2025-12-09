@@ -59,7 +59,7 @@
 <ul>
 	<li><code>ts_template!</code> - Generate TypeScript code from templates</li>
 	<li><code>body!</code> - Generate class body members</li>
-	<li>Control flow: <code>{"{#for}"}</code>, <code>{"{#if}"}</code>, <code>{"{%let}"}</code></li>
+	<li>Control flow: <code>{"{#for}"}</code>, <code>{"{#if}"}</code>, <code>{"{$let}"}</code></li>
 </ul>
 
 <h3>ts_macro_derive</h3>

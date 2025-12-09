@@ -161,11 +161,11 @@ export default defineConfig({
 
 Now that you have Macroforge installed, learn how to use it:
 
-- [Create your first macro](/docs/getting-started/first-macro)
+- [Create your first macro]({base}/docs/getting-started/first-macro)
 
-- [Understand how macros work](/docs/concepts)
+- [Understand how macros work]({base}/docs/concepts)
 
-- [Explore built-in macros](/docs/builtin-macros)
+- [Explore built-in macros]({base}/docs/builtin-macros)
 
 ---
 
@@ -284,11 +284,11 @@ console.log(user.toString());
 
 ## Next Steps
 
-- [Learn how macros work under the hood](/docs/concepts)
+- [Learn how macros work under the hood]({base}/docs/concepts)
 
-- [Explore all Debug options](/docs/builtin-macros/debug)
+- [Explore all Debug options]({base}/docs/builtin-macros/debug)
 
-- [Create your own custom macros](/docs/custom-macros)
+- [Create your own custom macros]({base}/docs/custom-macros)
 
 ---
 
@@ -415,9 +415,9 @@ The Vite plugin runs macro expansion during the build process:
 
 ## Next Steps
 
-- [Learn about the derive system](/docs/concepts/derive-system)
+- [Learn about the derive system]({base}/docs/concepts/derive-system)
 
-- [Explore the architecture](/docs/concepts/architecture)
+- [Explore the architecture]({base}/docs/concepts/architecture)
 
 ---
 
@@ -476,7 +476,7 @@ Syntax rules:
 
 - Can appear anywhere in the file (typically at the top)
 
-- Multiple macros can be imported: `import macro { A, B } from "pkg";`
+- Multiple macros can be imported: `import macro &#123; A, B &#125; from "pkg";`
 
 - Multiple import statements can be used for different packages
 
@@ -526,11 +526,11 @@ Syntax rules:
 
 - Must be inside a JSDoc comment immediately before the field
 
-- Options use object literal syntax: `@attr({ key: value })`
+- Options use object literal syntax: `@attr(&#123; key: value &#125;)`
 
-- Boolean options: `@attr({ skip: true })`
+- Boolean options: `@attr(&#123; skip: true &#125;)`
 
-- String options: `@attr({ rename: "newName" })`
+- String options: `@attr(&#123; rename: "newName" &#125;)`
 
 - Multiple attributes can be on separate lines or combined
 
@@ -622,9 +622,9 @@ Macroforge comes with built-in macros that work out of the box. You can also cre
 
 ## Next Steps
 
-- [Explore built-in macros](/docs/builtin-macros)
+- [Explore built-in macros]({base}/docs/builtin-macros)
 
-- [Create custom macros](/docs/custom-macros)
+- [Create custom macros]({base}/docs/custom-macros)
 
 ---
 
@@ -680,7 +680,7 @@ Template-based code generation similar to Rust's `quote!`:
 
 - `body!` - Generate class body members
 
-- Control flow: `{"{#for}"}`, `{"{#if}"}`, `{"{%let}"}`
+- Control flow: `{"{#for}"}`, `{"{#if}"}`, `{"{$let}"}`
 
 ### ts_macro_derive
 
@@ -764,9 +764,9 @@ pub use ts_syn::swc_ecma_ast;
 
 ## Next Steps
 
-- [Write custom macros](/docs/custom-macros)
+- [Write custom macros]({base}/docs/custom-macros)
 
-- [Explore the API reference](/docs/api)
+- [Explore the API reference]({base}/docs/api)
 
 ---
 
@@ -798,7 +798,7 @@ pub use ts_syn::swc_ecma_ast;
 <td>Creates a copy of the object</td>
 </tr>
 <tr>
-<td>`Eq`</td>
+<td>`PartialEq`</td>
 <td>`equals(other: T): boolean`</td>
 <td>Value equality comparison</td>
 </tr>
@@ -820,7 +820,7 @@ pub use ts_syn::swc_ecma_ast;
 Built-in macros don't require imports. Just use them with `@derive`:
 
 ```typescript
-/** @derive(Debug, Clone, Eq) */
+/** @derive(Debug, Clone, PartialEq) */
 class User {
   name: string;
   age: number;
@@ -837,7 +837,7 @@ class User {
 All built-in macros work with interfaces. For interfaces, methods are generated as functions in a namespace with the same name, using `self` as the first parameter:
 
 ```typescript
-/** @derive(Debug, Clone, Eq) */
+/** @derive(Debug, Clone, PartialEq) */
 interface Point {
   x: number;
   y: number;
@@ -864,7 +864,7 @@ console.log(Point.equals(point, copy)); // true
 All built-in macros work with enums. For enums, methods are generated as functions in a namespace with the same name:
 
 ```typescript
-/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
@@ -893,7 +893,7 @@ const parsed = Status.fromJSON("active");        // Status.Active
 All built-in macros work with type aliases. For object type aliases, field-aware methods are generated in a namespace:
 
 ```typescript
-/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 type Point = {
   x: number;
   y: number;
@@ -918,7 +918,7 @@ console.log(Point.equals(point, copy)); // true
 Union type aliases also work, using JSON-based implementations:
 
 ```typescript
-/** @derive(Debug, Eq) */
+/** @derive(Debug, PartialEq) */
 type ApiStatus = "loading" | "success" | "error";
 
 const status: ApiStatus = "success";
@@ -949,15 +949,15 @@ console.log(user.equals(copy)); // true
 
 Each macro has its own options and behaviors:
 
-- [**Debug**](/docs/builtin-macros/debug) - Customizable field renaming and skipping
+- [**Debug**]({base}/docs/builtin-macros/debug) - Customizable field renaming and skipping
 
-- [**Clone**](/docs/builtin-macros/clone) - Shallow copying for all field types
+- [**Clone**]({base}/docs/builtin-macros/clone) - Shallow copying for all field types
 
-- [**Eq**](/docs/builtin-macros/eq) - Value-based equality comparison
+- [**PartialEq**]({base}/docs/builtin-macros/partial-eq) - Value-based equality comparison
 
-- [**Serialize**](/docs/builtin-macros/serialize) - JSON serialization with serde-style options
+- [**Serialize**]({base}/docs/builtin-macros/serialize) - JSON serialization with serde-style options
 
-- [**Deserialize**](/docs/builtin-macros/deserialize) - JSON deserialization with validation
+- [**Deserialize**]({base}/docs/builtin-macros/deserialize) - JSON deserialization with validation
 
 ---
 
@@ -3908,11 +3908,11 @@ console.log(user.toJSON()); // { name: "Alice", age: 30 }
 
 Follow these guides to create your own macros:
 
-- [Set up a Rust macro crate](/docs/custom-macros/rust-setup)
+- [Set up a Rust macro crate]({base}/docs/custom-macros/rust-setup)
 
-- [Use the ts_macro_derive attribute](/docs/custom-macros/ts-macro-derive)
+- [Use the ts_macro_derive attribute]({base}/docs/custom-macros/ts-macro-derive)
 
-- [Learn the ts_quote template syntax](/docs/custom-macros/ts-quote)
+- [Learn the ts_quote template syntax]({base}/docs/custom-macros/ts-quote)
 
 ---
 
@@ -4059,9 +4059,9 @@ npm run build
 
 ## Next Steps
 
-- [Learn the ts_macro_derive attribute](/docs/custom-macros/ts-macro-derive)
+- [Learn the ts_macro_derive attribute]({base}/docs/custom-macros/ts-macro-derive)
 
-- [Master the ts_quote template syntax](/docs/custom-macros/ts-quote)
+- [Master the ts_quote template syntax]({base}/docs/custom-macros/ts-quote)
 
 ---
 
@@ -4384,7 +4384,7 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError>
 
 ## Next Steps
 
-- [Learn the ts_quote template syntax](/docs/custom-macros/ts-quote)
+- [Learn the ts_quote template syntax]({base}/docs/custom-macros/ts-quote)
 
 ---
 
@@ -4471,11 +4471,27 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError>
 <td>Iterate over a collection</td>
 </tr>
 <tr>
-<td>`&#123;%let name = expr&#125;`</td>
+<td>`&#123;#while cond&#125;...&#123;/while&#125;`</td>
+<td>While loop</td>
+</tr>
+<tr>
+<td>`&#123;#while let pattern = expr&#125;...&#123;/while&#125;`</td>
+<td>While-let pattern matching loop</td>
+</tr>
+<tr>
+<td>`&#123;$let name = expr&#125;`</td>
 <td>Define a local constant</td>
 </tr>
 <tr>
-<td>`&#123;%typescript stream&#125;`</td>
+<td>`&#123;$let mut name = expr&#125;`</td>
+<td>Define a mutable local variable</td>
+</tr>
+<tr>
+<td>`&#123;$do expr&#125;`</td>
+<td>Execute a side-effectful expression</td>
+</tr>
+<tr>
+<td>`&#123;$typescript stream&#125;`</td>
 <td>Inject a TsStream, preserving its source and runtime_patches (imports)</td>
 </tr>
 </tbody>
@@ -4811,7 +4827,56 @@ ts_template! {
 }
 ```
 
-## Local Constants: `&#123;%let&#125;`
+## While Loops: `&#123;#while&#125;`
+
+Use `while` for loops that need to continue until a condition is false:
+
+```rust
+let items = get_items();
+let mut idx = 0;
+
+let code = ts_template! {
+    {$let mut i = 0}
+    {#while i < items.len()}
+        console.log("Item @{i}");
+        {$do i += 1}
+    {/while}
+};
+```
+
+### While-Let Pattern Matching
+
+Use `while let` for iterating with pattern matching, similar to `if let`:
+
+```rust
+let mut items = vec!["a", "b", "c"].into_iter();
+
+let code = ts_template! {
+    {#while let Some(item) = items.next()}
+        console.log("@{item}");
+    {/while}
+};
+```
+
+**Generates:**
+
+```typescript
+console.log("a");
+console.log("b");
+console.log("c");
+```
+
+This is especially useful when working with iterators or consuming optional values:
+
+```rust
+let code = ts_template! {
+    {#while let Some(next_field) = remaining_fields.pop()}
+        result.@{next_field.name} = this.@{next_field.name};
+    {/while}
+};
+```
+
+## Local Constants: `&#123;$let&#125;`
 
 Define local variables within the template scope:
 
@@ -4820,7 +4885,7 @@ let items = vec![("user", "User"), ("post", "Post")];
 
 let code = ts_template! {
     {#for (key, class_name) in items}
-        {%let upper = class_name.to_uppercase()}
+        {$let upper = class_name.to_uppercase()}
         console.log("Processing @{upper}");
         const @{key} = new @{class_name}();
     {/for}
@@ -4829,7 +4894,46 @@ let code = ts_template! {
 
 This is useful for computing derived values inside loops without cluttering the Rust code.
 
-## TsStream Injection: `&#123;%typescript&#125;`
+## Mutable Variables: `&#123;$let mut&#125;`
+
+When you need to modify a variable within the template (e.g., in a `while` loop), use `&#123;$let mut&#125;`:
+
+```rust
+let code = ts_template! {
+    {$let mut count = 0}
+    {#for item in items}
+        console.log("Item @{count}: @{item}");
+        {$do count += 1}
+    {/for}
+    console.log("Total: @{count}");
+};
+```
+
+## Side Effects: `&#123;$do&#125;`
+
+Execute an expression for its side effects without producing output. This is commonly used with mutable variables:
+
+```rust
+let code = ts_template! {
+    {$let mut results: Vec<String> = Vec::new()}
+    {#for field in fields}
+        {$do results.push(format!("this.{}", field))}
+    {/for}
+    return [@{results.join(", ")}];
+};
+```
+
+Common uses for `&#123;$do&#125;`:
+
+- Incrementing counters: `&#123;$do i += 1&#125;`
+
+- Building collections: `&#123;$do vec.push(item)&#125;`
+
+- Setting flags: `&#123;$do found = true&#125;`
+
+- Any mutating operation
+
+## TsStream Injection: `&#123;$typescript&#125;`
 
 Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via `add_import()`):
 
@@ -4844,7 +4948,7 @@ helper.add_import("Result", "macroforge/result");
 
 // Inject the helper into the main template
 let result = body! {
-    {%typescript helper}
+    {$typescript helper}
 
     process(data: Record<string, unknown>): void {
         // ...
@@ -4868,7 +4972,7 @@ body! {
     mainMethod(): void {}
 
     {#if let Some(methods) = extra_methods}
-        {%typescript methods}
+        {$typescript methods}
     {/if}
 }
 ```
@@ -4982,7 +5086,7 @@ This shows you exactly what was generated, making debugging easy!
 
 You can mix template syntax with regular TypeScript. Braces `&#123;&#125;` are recognized as either:
 
-- **Template tags** if they start with `#`, `%`, `:`, or `/`
+- **Template tags** if they start with `#`, `$`, `:`, or `/`
 
 - **Regular TypeScript blocks** otherwise
 
@@ -5102,11 +5206,11 @@ npm install -D @macroforge/typescript-plugin @macroforge/vite-plugin
 
 ## Detailed Guides
 
-- [TypeScript Plugin setup](/docs/integration/typescript-plugin)
+- [TypeScript Plugin setup]({base}/docs/integration/typescript-plugin)
 
-- [Vite Plugin configuration](/docs/integration/vite-plugin)
+- [Vite Plugin configuration]({base}/docs/integration/vite-plugin)
 
-- [Configuration options](/docs/integration/configuration)
+- [Configuration options]({base}/docs/integration/configuration)
 
 ---
 
@@ -5785,7 +5889,7 @@ Language server integrations are currently experimental. They work in the reposi
 
 ## Overview
 
-While the [TypeScript Plugin](/docs/integration/typescript-plugin) provides macro support in any TypeScript-aware editor, dedicated language servers offer deeper integration for specific frameworks and editors.
+While the [TypeScript Plugin]({base}/docs/integration/typescript-plugin) provides macro support in any TypeScript-aware editor, dedicated language servers offer deeper integration for specific frameworks and editors.
 
 <table>
 <thead>
@@ -5797,12 +5901,12 @@ While the [TypeScript Plugin](/docs/integration/typescript-plugin) provides macr
 </thead>
 <tbody>
 <tr>
-<td>[Svelte Language Server](/docs/language-servers/svelte)</td>
+<td>[Svelte Language Server]({base}/docs/language-servers/svelte)</td>
 <td>Full Svelte support with macroforge</td>
 <td>Working (dev install)</td>
 </tr>
 <tr>
-<td>[Zed Extensions](/docs/language-servers/zed)</td>
+<td>[Zed Extensions]({base}/docs/language-servers/zed)</td>
 <td>VTSLS and Svelte for Zed editor</td>
 <td>Working (dev install)</td>
 </tr>
@@ -5833,9 +5937,9 @@ We're working on official extension releases for:
 
 ## Detailed Guides
 
-- [Svelte Language Server](/docs/language-servers/svelte) - Full Svelte IDE support
+- [Svelte Language Server]({base}/docs/language-servers/svelte) - Full Svelte IDE support
 
-- [Zed Extensions](/docs/language-servers/zed) - VTSLS and Svelte for Zed
+- [Zed Extensions]({base}/docs/language-servers/zed) - VTSLS and Svelte for Zed
 
 ---
 
@@ -5927,7 +6031,7 @@ The Svelte language server extends the standard Svelte language tooling with mac
 
 ## Using with Zed
 
-For Zed editor, see the [Zed Extensions](/docs/language-servers/zed) page for the dedicated `svelte-macroforge` extension.
+For Zed editor, see the [Zed Extensions]({base}/docs/language-servers/zed) page for the dedicated `svelte-macroforge` extension.
 
 ---
 
@@ -6062,11 +6166,11 @@ import {
 </thead>
 <tbody>
 <tr>
-<td>[`expandSync()`](/docs/api/expand-sync)</td>
+<td>[`expandSync()`]({base}/docs/api/expand-sync)</td>
 <td>Expand macros synchronously</td>
 </tr>
 <tr>
-<td>[`transformSync()`](/docs/api/transform-sync)</td>
+<td>[`transformSync()`]({base}/docs/api/transform-sync)</td>
 <td>Transform code with additional metadata</td>
 </tr>
 <tr>
@@ -6091,11 +6195,11 @@ import {
 </thead>
 <tbody>
 <tr>
-<td>[`NativePlugin`](/docs/api/native-plugin)</td>
+<td>[`NativePlugin`]({base}/docs/api/native-plugin)</td>
 <td>Stateful plugin with caching</td>
 </tr>
 <tr>
-<td>[`PositionMapper`](/docs/api/position-mapper)</td>
+<td>[`PositionMapper`]({base}/docs/api/position-mapper)</td>
 <td>Maps positions between original and expanded code</td>
 </tr>
 </tbody>
@@ -6130,13 +6234,13 @@ if (result.diagnostics.length > 0) {
 
 ## Detailed Reference
 
-- [`expandSync()`](/docs/api/expand-sync) - Full options and return types
+- [`expandSync()`]({base}/docs/api/expand-sync) - Full options and return types
 
-- [`transformSync()`](/docs/api/transform-sync) - Transform with source maps
+- [`transformSync()`]({base}/docs/api/transform-sync) - Transform with source maps
 
-- [`NativePlugin`](/docs/api/native-plugin) - Caching for language servers
+- [`NativePlugin`]({base}/docs/api/native-plugin) - Caching for language servers
 
-- [`PositionMapper`](/docs/api/position-mapper) - Position mapping utilities
+- [`PositionMapper`]({base}/docs/api/position-mapper) - Position mapping utilities
 
 ---
 

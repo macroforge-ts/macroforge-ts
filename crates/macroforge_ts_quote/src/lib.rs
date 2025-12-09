@@ -421,7 +421,7 @@ fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
 /// - `{:else}` - Else clause
 /// - `{:else if cond}` - Else-if clause
 /// - `{#for item in list}...{/for}` - Iteration
-/// - `{%let name = expr}` - Local constants
+/// - `{$let name = expr}` - Local constants
 ///
 /// Note: A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com`).
 ///

@@ -12,7 +12,7 @@
 | `clone(): T` 
 | Creates a copy of the object 
 
-| `Eq` 
+| `PartialEq` 
 | `equals(other: T): boolean` 
 | Value equality comparison 
 
@@ -29,7 +29,7 @@
 Built-in macros don't require imports. Just use them with `@derive`:
 
 ```typescript
-/** @derive(Debug, Clone, Eq) */
+/** @derive(Debug, Clone, PartialEq) */
 class User {
   name: string;
   age: number;
@@ -46,7 +46,7 @@ class User {
 All built-in macros work with interfaces. For interfaces, methods are generated as functions in a namespace with the same name, using `self` as the first parameter:
 
 ```typescript
-/** @derive(Debug, Clone, Eq) */
+/** @derive(Debug, Clone, PartialEq) */
 interface Point {
   x: number;
   y: number;
@@ -73,7 +73,7 @@ console.log(Point.equals(point, copy)); // true
 All built-in macros work with enums. For enums, methods are generated as functions in a namespace with the same name:
 
 ```typescript
-/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
@@ -102,7 +102,7 @@ const parsed = Status.fromJSON("active");        // Status.Active
 All built-in macros work with type aliases. For object type aliases, field-aware methods are generated in a namespace:
 
 ```typescript
-/** @derive(Debug, Clone, Eq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 type Point = {
   x: number;
   y: number;
@@ -127,7 +127,7 @@ console.log(Point.equals(point, copy)); // true
 Union type aliases also work, using JSON-based implementations:
 
 ```typescript
-/** @derive(Debug, Eq) */
+/** @derive(Debug, PartialEq) */
 type ApiStatus = "loading" | "success" | "error";
 
 const status: ApiStatus = "success";
@@ -158,12 +158,12 @@ console.log(user.equals(copy)); // true
 
 Each macro has its own options and behaviors:
 
-- [**Debug**](/docs/builtin-macros/debug) - Customizable field renaming and skipping
+- [**Debug**]({base}/docs/builtin-macros/debug) - Customizable field renaming and skipping
 
-- [**Clone**](/docs/builtin-macros/clone) - Shallow copying for all field types
+- [**Clone**]({base}/docs/builtin-macros/clone) - Shallow copying for all field types
 
-- [**Eq**](/docs/builtin-macros/eq) - Value-based equality comparison
+- [**PartialEq**]({base}/docs/builtin-macros/partial-eq) - Value-based equality comparison
 
-- [**Serialize**](/docs/builtin-macros/serialize) - JSON serialization with serde-style options
+- [**Serialize**]({base}/docs/builtin-macros/serialize) - JSON serialization with serde-style options
 
-- [**Deserialize**](/docs/builtin-macros/deserialize) - JSON deserialization with validation
+- [**Deserialize**]({base}/docs/builtin-macros/deserialize) - JSON deserialization with validation

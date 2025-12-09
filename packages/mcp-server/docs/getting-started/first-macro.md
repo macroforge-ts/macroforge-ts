@@ -113,8 +113,8 @@ console.log(user.toString());
 
 ## Next Steps
 
-- [Learn how macros work under the hood](/docs/concepts)
+- [Learn how macros work under the hood]({base}/docs/concepts)
 
-- [Explore all Debug options](/docs/builtin-macros/debug)
+- [Explore all Debug options]({base}/docs/builtin-macros/debug)
 
-- [Create your own custom macros](/docs/custom-macros)
+- [Create your own custom macros]({base}/docs/custom-macros)
