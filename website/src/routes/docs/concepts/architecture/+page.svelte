@@ -1,5 +1,7 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
+	import ArchitectureDiagram from '$lib/components/ui/ArchitectureDiagram.svelte';
+	import Flowchart from '$lib/components/ui/Flowchart.svelte';
 	import { base } from '$app/paths';
 </script>
 
@@ -16,19 +18,12 @@
 
 <h2 id="overview">Overview</h2>
 
-<CodeBlock code={`┌─────────────────────────────────────────────────────────┐
-│                    Node.js / Vite                        │
-├─────────────────────────────────────────────────────────┤
-│                   NAPI-RS Bindings                       │
-├─────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌──────────────┐  ┌───────────────┐   │
-│  │   ts_syn    │  │   ts_quote   │  │ts_macro_derive│   │
-│  │  (parsing)  │  │ (templating) │  │  (proc-macro) │   │
-│  └─────────────┘  └──────────────┘  └───────────────┘   │
-├─────────────────────────────────────────────────────────┤
-│                    SWC Core                              │
-│            (TypeScript parsing & codegen)                │
-└─────────────────────────────────────────────────────────┘`} lang="text" />
+<ArchitectureDiagram layers={[
+	{ title: "Node.js / Vite" },
+	{ title: "NAPI-RS Bindings" },
+	{ title: "Macro Crates", items: ["ts_syn (parsing)", "ts_quote (templating)", "ts_macro_derive (proc-macro)"] },
+	{ title: "SWC Core", items: ["TypeScript parsing & codegen"] }
+]} />
 
 <h2 id="components">Core Components</h2>
 
@@ -84,31 +79,16 @@
 
 <h2 id="data-flow">Data Flow</h2>
 
-<CodeBlock code={`1. Source Code (TypeScript with @derive)
-   │
-   ▼
-2. NAPI-RS receives JavaScript string
-   │
-   ▼
-3. SWC parses to AST
-   │
-   ▼
-4. Macro expander finds @derive decorators
-   │
-   ▼
-5. For each macro:
-   │  a. Extract class/interface data
-   │  b. Run macro function
-   │  c. Generate new AST nodes
-   │
-   ▼
-6. Merge generated nodes into AST
-   │
-   ▼
-7. SWC generates source code
-   │
-   ▼
-8. Return to JavaScript with source mapping`} lang="text" />
+<Flowchart steps={[
+	{ title: "1. Source Code", description: "TypeScript with @derive" },
+	{ title: "2. NAPI-RS", description: "receives JavaScript string" },
+	{ title: "3. SWC Parser", description: "parses to AST" },
+	{ title: "4. Macro Expander", description: "finds @derive decorators" },
+	{ title: "5. For Each Macro", description: "extract data, run macro, generate AST nodes" },
+	{ title: "6. Merge", description: "generated nodes into AST" },
+	{ title: "7. SWC Codegen", description: "generates source code" },
+	{ title: "8. Return", description: "to JavaScript with source mapping" }
+]} />
 
 <h2 id="performance">Performance Characteristics</h2>
 

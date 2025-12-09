@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
+	import Flowchart from '$lib/components/ui/Flowchart.svelte';
 	import { base } from '$app/paths';
 </script>
 
@@ -78,36 +79,13 @@ class User {
 
 <h2 id="execution-flow">Execution Flow</h2>
 
-<CodeBlock code={`┌─────────────────────────────────────────────────────────┐
-│                    Your Source Code                      │
-│              (with @derive decorators)                   │
-└───────────────────────┬─────────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│                   SWC Parser                             │
-│            (TypeScript → AST)                            │
-└───────────────────────┬─────────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│                Macro Expansion Engine                    │
-│    - Finds @derive decorators                            │
-│    - Runs registered macros                              │
-│    - Generates new AST nodes                             │
-└───────────────────────┬─────────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│                 Code Generator                           │
-│            (AST → TypeScript)                            │
-└───────────────────────┬─────────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│                 Expanded TypeScript                      │
-│         (ready for normal compilation)                   │
-└─────────────────────────────────────────────────────────┘`} lang="text" />
+<Flowchart steps={[
+	{ title: "Your Source Code", description: "with @derive decorators" },
+	{ title: "SWC Parser", description: "TypeScript → AST" },
+	{ title: "Macro Expansion Engine", description: "Finds @derive decorators, runs macros, generates new AST nodes" },
+	{ title: "Code Generator", description: "AST → TypeScript" },
+	{ title: "Expanded TypeScript", description: "ready for normal compilation" }
+]} />
 
 <h2 id="integration-points">Integration Points</h2>
 
