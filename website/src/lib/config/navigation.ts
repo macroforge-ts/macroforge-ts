@@ -55,6 +55,8 @@ export const navigation: NavSection[] = [
 			{ title: 'CLI', href: '/docs/integration/cli' },
 			{ title: 'TypeScript Plugin', href: '/docs/integration/typescript-plugin' },
 			{ title: 'Vite Plugin', href: '/docs/integration/vite-plugin' },
+			{ title: 'Svelte Preprocessor', href: '/docs/integration/svelte-preprocessor' },
+			{ title: 'MCP Server', href: '/docs/integration/mcp-server' },
 			{ title: 'Configuration', href: '/docs/integration/configuration' }
 		]
 	},
