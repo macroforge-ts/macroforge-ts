@@ -4,16 +4,20 @@
 
 ## Installation
 
-The CLI is included with the main `macroforge` package:
+The CLI is a Rust binary. You can install it using Cargo:
 
 ```bash
-npm install macroforge
+cargo install macroforge_ts
 ```
 
-Or install globally:
+Or build from source:
 
 ```bash
-npm install -g macroforge
+git clone https://github.com/rymskip/macroforge-ts.git
+cd macroforge-ts/crates
+cargo build --release --bin macroforge
+
+# The binary is at target/release/macroforge
 ```
 
 ## Commands
@@ -42,8 +46,8 @@ macroforge expand <input> [options]
 | `--print` 
 | Print output to stdout even when `--out` is specified 
 
-| `--use-node` 
-| Use Node.js NAPI module instead of Rust expander (supports external macros)
+| `--builtin-only` 
+| Use only built-in Rust macros (faster, but no external macro support)
 
 #### Examples
 
@@ -65,11 +69,14 @@ Expand with both runtime output and type declarations:
 macroforge expand src/user.ts --out dist/user.js --types-out dist/user.d.ts
 ```
 
-Use Node.js expander for external macro support:
+Use fast built-in macros only (no external macro support):
 
 ```bash
-macroforge expand src/user.ts --use-node
+macroforge expand src/user.ts --builtin-only
 ```
+
+>
+> By default, the CLI uses Node.js for full macro support (including external macros). It must be run from your project's root directory where `macroforge` and any external macro packages are installed in `node_modules`.
 
 ### macroforge tsc
 
@@ -179,22 +186,22 @@ for file in src/**/*.ts; do
 done
 ```
 
-## Rust vs Node Expander
+## Built-in vs Full Mode
 
-By default, the CLI uses the native Rust expander which is faster but only supports built-in macros. Use `--use-node` to enable external macro support:
+By default, the CLI uses Node.js for full macro support including external macros. Use `--builtin-only` for faster expansion when you only need built-in macros:
 
 | Built-in macros 
 | Yes 
 | Yes 
 
 | External macros 
-| No 
 | Yes 
+| No 
 
 | Performance 
+| Standard 
 | Faster 
-| Slower 
 
 | Dependencies 
-| None 
-| Requires Node.js
+| Requires `macroforge` in node_modules 
+| None
