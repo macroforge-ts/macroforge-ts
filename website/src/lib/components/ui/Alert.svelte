@@ -63,12 +63,13 @@
 		>
 			<path stroke-linecap="round" stroke-linejoin="round" d={icons[type]} />
 		</svg>
+		{#if title || defaultTitles[type]}
+			<h3 class="text-sm font-medium {styles[type].title}">
+				{title ?? defaultTitles[type]}
+			</h3>
+		{/if}
 		<div class="-mt-0.5">
-			{#if title || defaultTitles[type]}
-				<h3 class="text-sm font-medium {styles[type].title}">
-					{title ?? defaultTitles[type]}
-				</h3>
-			{/if}
+
 			<div class="text-sm {styles[type].text}" class:mt-1={title || defaultTitles[type]}>
 				{@render children()}
 			</div>
