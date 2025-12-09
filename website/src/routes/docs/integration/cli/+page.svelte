@@ -15,13 +15,17 @@
 
 <h2 id="installation">Installation</h2>
 
-<p>The CLI is included with the main <code>macroforge</code> package:</p>
+<p>The CLI is a Rust binary. You can install it using Cargo:</p>
 
-<CodeBlock code={`npm install macroforge`} lang="bash" />
+<CodeBlock code={`cargo install macroforge_ts`} lang="bash" />
 
-<p>Or install globally:</p>
+<p>Or build from source:</p>
 
-<CodeBlock code={`npm install -g macroforge`} lang="bash" />
+<CodeBlock code={`git clone https://github.com/rymskip/macroforge-ts.git
+cd macroforge-ts/crates
+cargo build --release --bin macroforge
+
+# The binary is at target/release/macroforge`} lang="bash" />
 
 <h2 id="commands">Commands</h2>
 
@@ -71,8 +75,8 @@
 			<td>Print output to stdout even when <code>--out</code> is specified</td>
 		</tr>
 		<tr>
-			<td><code>--use-node</code></td>
-			<td>Use Node.js NAPI module instead of Rust expander (supports external macros)</td>
+			<td><code>--builtin-only</code></td>
+			<td>Use only built-in Rust macros (faster, but no external macro support)</td>
 		</tr>
 	</tbody>
 </table>
@@ -91,9 +95,13 @@
 
 <CodeBlock code={`macroforge expand src/user.ts --out dist/user.js --types-out dist/user.d.ts`} lang="bash" />
 
-<p>Use Node.js expander for external macro support:</p>
+<p>Use fast built-in macros only (no external macro support):</p>
 
-<CodeBlock code={`macroforge expand src/user.ts --use-node`} lang="bash" />
+<CodeBlock code={`macroforge expand src/user.ts --builtin-only`} lang="bash" />
+
+<Alert type="note">
+	<span>By default, the CLI uses Node.js for full macro support (including external macros). It must be run from your project's root directory where <code>macroforge</code> and any external macro packages are installed in <code>node_modules</code>.</span>
+</Alert>
 
 <h3 id="tsc">macroforge tsc</h3>
 
@@ -200,16 +208,16 @@ for file in src/**/*.ts; do
   macroforge expand "$file" --out "$outfile"
 done`} lang="bash" />
 
-<h2 id="rust-vs-node">Rust vs Node Expander</h2>
+<h2 id="builtin-vs-full">Built-in vs Full Mode</h2>
 
-<p>By default, the CLI uses the native Rust expander which is faster but only supports built-in macros. Use <code>--use-node</code> to enable external macro support:</p>
+<p>By default, the CLI uses Node.js for full macro support including external macros. Use <code>--builtin-only</code> for faster expansion when you only need built-in macros:</p>
 
 <table>
 	<thead>
 		<tr>
 			<th>Feature</th>
-			<th>Rust (default)</th>
-			<th>Node (<code>--use-node</code>)</th>
+			<th>Default (Node.js)</th>
+			<th><code>--builtin-only</code> (Rust)</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -220,18 +228,18 @@ done`} lang="bash" />
 		</tr>
 		<tr>
 			<td>External macros</td>
-			<td>No</td>
 			<td>Yes</td>
+			<td>No</td>
 		</tr>
 		<tr>
 			<td>Performance</td>
+			<td>Standard</td>
 			<td>Faster</td>
-			<td>Slower</td>
 		</tr>
 		<tr>
 			<td>Dependencies</td>
+			<td>Requires <code>macroforge</code> in node_modules</td>
 			<td>None</td>
-			<td>Requires Node.js</td>
 		</tr>
 	</tbody>
 </table>

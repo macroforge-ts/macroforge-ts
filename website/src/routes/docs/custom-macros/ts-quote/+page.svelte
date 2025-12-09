@@ -4,13 +4,13 @@
 
 <svelte:head>
 	<title>Template Syntax - Macroforge Documentation</title>
-	<meta name="description" content="Learn the ts_quote template syntax for generating TypeScript code in macros." />
+	<meta name="description" content="Learn the ts_template syntax for generating TypeScript code in macros." />
 </svelte:head>
 
 <h1>Template Syntax (ts_quote)</h1>
 
 <p class="lead">
-	The <code>ts_quote</code> crate provides template-based code generation for TypeScript. It's similar to Rust's <code>quote!</code> macro but outputs TypeScript.
+	The <code>ts_quote</code> crate provides template-based code generation for TypeScript. The <code>ts_template!</code> macro uses Rust-inspired syntax for control flow and interpolation, making it easy to generate complex TypeScript code.
 </p>
 
 <h2 id="macros">Available Macros</h2>
@@ -37,132 +37,372 @@
 	</tbody>
 </table>
 
-<h2 id="interpolation">Interpolation</h2>
+<h2 id="quick-reference">Quick Reference</h2>
 
-<p>Use <code>@{'{'}expr{'}'}</code> to interpolate Rust expressions:</p>
+<table>
+	<thead>
+		<tr>
+			<th>Syntax</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><code>@&#123;expr&#125;</code></td>
+			<td>Interpolate a Rust expression (adds space after)</td>
+		</tr>
+		<tr>
+			<td><code>&#123;| content |&#125;</code></td>
+			<td>Ident block: concatenates without spaces (e.g., <code>&#123;|get@&#123;name&#125;|&#125;</code> → <code>getUser</code>)</td>
+		</tr>
+		<tr>
+			<td><code>@@&#123;</code></td>
+			<td>Escape for literal <code>@&#123;</code> (e.g., <code>"@@&#123;foo&#125;"</code> → <code>@&#123;foo&#125;</code>)</td>
+		</tr>
+		<tr>
+			<td><code>"text @&#123;expr&#125;"</code></td>
+			<td>String interpolation (auto-detected)</td>
+		</tr>
+		<tr>
+			<td><code>"'^template $&#123;js&#125;^'"</code></td>
+			<td>JS backtick template literal (outputs <code>`template $&#123;js&#125;`</code>)</td>
+		</tr>
+		<tr>
+			<td><code>&#123;#if cond&#125;...&#123;/if&#125;</code></td>
+			<td>Conditional block</td>
+		</tr>
+		<tr>
+			<td><code>&#123;#if cond&#125;...&#123;:else&#125;...&#123;/if&#125;</code></td>
+			<td>Conditional with else</td>
+		</tr>
+		<tr>
+			<td><code>&#123;#if a&#125;...&#123;:else if b&#125;...&#123;:else&#125;...&#123;/if&#125;</code></td>
+			<td>Full if/else-if/else chain</td>
+		</tr>
+		<tr>
+			<td><code>&#123;#if let pattern = expr&#125;...&#123;/if&#125;</code></td>
+			<td>Pattern matching if-let</td>
+		</tr>
+		<tr>
+			<td><code>&#123;#match expr&#125;&#123;:case pattern&#125;...&#123;/match&#125;</code></td>
+			<td>Match expression with case arms</td>
+		</tr>
+		<tr>
+			<td><code>&#123;#for item in list&#125;...&#123;/for&#125;</code></td>
+			<td>Iterate over a collection</td>
+		</tr>
+		<tr>
+			<td><code>&#123;%let name = expr&#125;</code></td>
+			<td>Define a local constant</td>
+		</tr>
+		<tr>
+			<td><code>&#123;%typescript stream&#125;</code></td>
+			<td>Inject a TsStream, preserving its source and runtime_patches (imports)</td>
+		</tr>
+	</tbody>
+</table>
+
+<p><strong>Note:</strong> A single <code>@</code> not followed by <code>&#123;</code> passes through unchanged (e.g., <code>email@domain.com</code> works as expected).</p>
+
+<h2 id="interpolation">Interpolation: <code>@&#123;expr&#125;</code></h2>
+
+<p>Insert Rust expressions into the generated TypeScript:</p>
 
 <CodeBlock code={`let class_name = "User";
-let field_name = "name";
+let method = "toString";
 
-body! {
-    {|get@{field_name}|}(): string {
-        return this.@{field_name};
+let code = ts_template! {
+    @{class_name}.prototype.@{method} = function() {
+        return "User instance";
+    };
+};`} lang="rust" />
+
+<p><strong>Generates:</strong></p>
+
+<CodeBlock code={`User.prototype.toString = function () {
+  return "User instance";
+};`} lang="typescript" />
+
+<h2 id="ident-blocks">Identifier Concatenation: <code>&#123;| content |&#125;</code></h2>
+
+<p>When you need to build identifiers dynamically (like <code>getUser</code>, <code>setName</code>), use the ident block syntax. Everything inside <code>&#123;| |&#125;</code> is concatenated without spaces:</p>
+
+<CodeBlock code={`let field_name = "User";
+
+let code = ts_template! {
+    function {|get@{field_name}|}() {
+        return this.@{field_name.to_lowercase()};
     }
-}
+};`} lang="rust" />
 
-// Generates:
-// getname(): string {
-//     return this.name;
-// }`} lang="rust" />
+<p><strong>Generates:</strong></p>
 
-<h2 id="ident-blocks">Identifier Concatenation</h2>
+<CodeBlock code={`function getUser() {
+  return this.user;
+}`} lang="typescript" />
 
-<p>Use <code>{'{'} | content | {'}'}</code> to concatenate identifiers without spaces. This is essential for building dynamic identifiers like <code>getUser</code>, <code>setName</code>, etc.</p>
-
-<CodeBlock code={`let type_name = "User";
-
-body! {
-    // With ident block - concatenates without spaces
-    function {|get@{type_name}|}() {
-        return this.user;
-    }
-}
-
-// Generates:
-// function getUser() { return this.user; }`} lang="rust" />
-
-<p>By default, <code>@{'{'}expr{'}'}</code> adds a space after for readability. Use ident blocks when you explicitly need concatenation:</p>
+<p>Without ident blocks, <code>@&#123;&#125;</code> always adds a space after for readability. Use <code>&#123;| |&#125;</code> when you explicitly want concatenation:</p>
 
 <CodeBlock code={`let name = "Status";
 
-// Regular interpolation (space after)
-ts_template! { namespace @{name} }
-// → "namespace Status"
+// With space (default behavior)
+ts_template! { namespace @{name} }  // → "namespace Status"
 
-// Ident block (no space)
-ts_template! { {|namespace@{name}|} }
-// → "namespaceStatus"`} lang="rust" />
+// Without space (ident block)
+ts_template! { {|namespace@{name}|} }  // → "namespaceStatus"`} lang="rust" />
 
-<h2 id="loops">Loops</h2>
+<p>Multiple interpolations can be combined:</p>
 
-<p>Iterate with <code>{'{'}#for{'}'}</code>:</p>
+<CodeBlock code={`let entity = "user";
+let action = "create";
 
-<CodeBlock code={`let fields = vec!["name", "age", "email"];
+ts_template! { {|@{entity}_@{action}|} }  // → "user_create"`} lang="rust" />
 
-body! {
-    {#for field in fields}
-        {|get@{field}|}() {
-            return this.@{field};
-        }
-    {/for}
-}
+<h2 id="string-interpolation">String Interpolation: <code>"text @&#123;expr&#125;"</code></h2>
 
-// Generates getters for each field`} lang="rust" />
+<p>Interpolation works automatically inside string literals - no <code>format!()</code> needed:</p>
 
-<h3>Loop with Tuples</h3>
+<CodeBlock code={`let name = "World";
+let count = 42;
 
-<CodeBlock code={`let fields = vec![
-    ("name", "string"),
-    ("age", "number"),
-];
+let code = ts_template! {
+    console.log("Hello @{name}!");
+    console.log("Count: @{count}, doubled: @{count * 2}");
+};`} lang="rust" />
 
-body! {
-    {#for (name, type_name) in fields}
-        {|get@{name}|}(): @{type_name} {
-            return this.@{name};
-        }
-    {/for}
-}`} lang="rust" />
+<p><strong>Generates:</strong></p>
 
-<h2 id="conditionals">Conditionals</h2>
+<CodeBlock code={`console.log("Hello World!");
+console.log("Count: 42, doubled: 84");`} lang="typescript" />
 
-<p>Use <code>{'{'}#if{'}'}</code> for conditional code:</p>
+<p>This also works with method calls and complex expressions:</p>
 
-<CodeBlock code={`let include_setter = true;
-let field_name = "value";
+<CodeBlock code={`let field = "username";
 
-body! {
-    getValue(): number {
-        return this.@{field_name};
+let code = ts_template! {
+    throw new Error("Invalid @{field.to_uppercase()}");
+};`} lang="rust" />
+
+<h2 id="backtick-templates">Backtick Template Literals: <code>"'^...^'"</code></h2>
+
+<p>For JavaScript template literals (backtick strings), use the <code>'^...^'</code> syntax. This outputs actual backticks and passes through <code>${"${}"}</code> for JS interpolation:</p>
+
+<CodeBlock code={`let tag_name = "div";
+
+let code = ts_template! {
+    const html = "'^<@{tag_name}>\${content}</@{tag_name}>^'";
+};`} lang="rust" />
+
+<p><strong>Generates:</strong></p>
+
+<CodeBlock code={'const html = `<div>${content}</div>`;'} lang="typescript" />
+
+<p>You can mix Rust <code>@&#123;&#125;</code> interpolation (evaluated at macro expansion time) with JS <code>${"${}"}</code> interpolation (evaluated at runtime):</p>
+
+<CodeBlock code={`let class_name = "User";
+
+let code = ts_template! {
+    "'^Hello \${this.name}, you are a @{class_name}^'"
+};`} lang="rust" />
+
+<p><strong>Generates:</strong></p>
+
+<CodeBlock code={'`Hello ${this.name}, you are a User`'} lang="typescript" />
+
+<h2 id="conditionals">Conditionals: <code>&#123;#if&#125;...&#123;/if&#125;</code></h2>
+
+<p>Basic conditional:</p>
+
+<CodeBlock code={`let needs_validation = true;
+
+let code = ts_template! {
+    function save() {
+        {#if needs_validation}
+            if (!this.isValid()) return false;
+        {/if}
+        return this.doSave();
     }
-
-    {#if include_setter}
-        setValue(v: number): void {
-            this.@{field_name} = v;
-        }
-    {/if}
-}`} lang="rust" />
+};`} lang="rust" />
 
 <h3>If-Else</h3>
 
-<CodeBlock code={`let is_nullable = true;
+<CodeBlock code={`let has_default = true;
 
-body! {
-    getValue(): @{if is_nullable { "number | null" } else { "number" }} {
-        return this.value;
+let code = ts_template! {
+    {#if has_default}
+        return defaultValue;
+    {:else}
+        throw new Error("No default");
+    {/if}
+};`} lang="rust" />
+
+<h3>If-Else-If Chains</h3>
+
+<CodeBlock code={`let level = 2;
+
+let code = ts_template! {
+    {#if level == 1}
+        console.log("Level 1");
+    {:else if level == 2}
+        console.log("Level 2");
+    {:else}
+        console.log("Other level");
+    {/if}
+};`} lang="rust" />
+
+<h2 id="pattern-matching">Pattern Matching: <code>&#123;#if let&#125;</code></h2>
+
+<p>Use <code>if let</code> for pattern matching on <code>Option</code>, <code>Result</code>, or other Rust enums:</p>
+
+<CodeBlock code={`let maybe_name: Option<&str> = Some("Alice");
+
+let code = ts_template! {
+    {#if let Some(name) = maybe_name}
+        console.log("Hello, @{name}!");
+    {:else}
+        console.log("Hello, anonymous!");
+    {/if}
+};`} lang="rust" />
+
+<p><strong>Generates:</strong></p>
+
+<CodeBlock code={`console.log("Hello, Alice!");`} lang="typescript" />
+
+<p>This is useful when working with optional values from your IR:</p>
+
+<CodeBlock code={`let code = ts_template! {
+    {#if let Some(default_val) = field.default_value}
+        this.@{field.name} = @{default_val};
+    {:else}
+        this.@{field.name} = undefined;
+    {/if}
+};`} lang="rust" />
+
+<h2 id="match-expressions">Match Expressions: <code>&#123;#match&#125;</code></h2>
+
+<p>Use <code>match</code> for exhaustive pattern matching:</p>
+
+<CodeBlock code={`enum Visibility { Public, Private, Protected }
+let visibility = Visibility::Public;
+
+let code = ts_template! {
+    {#match visibility}
+        {:case Visibility::Public}
+            public
+        {:case Visibility::Private}
+            private
+        {:case Visibility::Protected}
+            protected
+    {/match}
+    field: string;
+};`} lang="rust" />
+
+<p><strong>Generates:</strong></p>
+
+<CodeBlock code={`public field: string;`} lang="typescript" />
+
+<h3>Match with Value Extraction</h3>
+
+<CodeBlock code={`let result: Result<i32, &str> = Ok(42);
+
+let code = ts_template! {
+    const value = {#match result}
+        {:case Ok(val)}
+            @{val}
+        {:case Err(msg)}
+            throw new Error("@{msg}")
+    {/match};
+};`} lang="rust" />
+
+<h3>Match with Wildcard</h3>
+
+<CodeBlock code={`let count = 5;
+
+let code = ts_template! {
+    {#match count}
+        {:case 0}
+            console.log("none");
+        {:case 1}
+            console.log("one");
+        {:case _}
+            console.log("many");
+    {/match}
+};`} lang="rust" />
+
+<h2 id="loops">Iteration: <code>&#123;#for&#125;</code></h2>
+
+<CodeBlock code={`let fields = vec!["name", "email", "age"];
+
+let code = ts_template! {
+    function toJSON() {
+        const result = {};
+        {#for field in fields}
+            result.@{field} = this.@{field};
+        {/for}
+        return result;
     }
-}`} lang="rust" />
+};`} lang="rust" />
 
-<h2 id="local-variables">Local Variables</h2>
+<p><strong>Generates:</strong></p>
 
-<p>Use <code>{'{'}%let{'}'}</code> to define local variables within templates:</p>
+<CodeBlock code={`function toJSON() {
+  const result = {};
+  result.name = this.name;
+  result.email = this.email;
+  result.age = this.age;
+  return result;
+}`} lang="typescript" />
 
-<CodeBlock code={`body! {
-    {#for field in fields}
-        {%let capitalized = capitalize(field.name)}
-        {%let return_type = field.ts_type.clone()}
+<h3>Tuple Destructuring in Loops</h3>
 
-        {|get@{capitalized}|}(): @{return_type} {
-            return this.@{field.name};
-        }
+<CodeBlock code={`let items = vec![("user", "User"), ("post", "Post")];
+
+let code = ts_template! {
+    {#for (key, class_name) in items}
+        const @{key} = new @{class_name}();
+    {/for}
+};`} lang="rust" />
+
+<h3>Nested Iterations</h3>
+
+<CodeBlock code={`let classes = vec![
+    ("User", vec!["name", "email"]),
+    ("Post", vec!["title", "content"]),
+];
+
+ts_template! {
+    {#for (class_name, fields) in classes}
+        @{class_name}.prototype.toJSON = function() {
+            return {
+                {#for field in fields}
+                    @{field}: this.@{field},
+                {/for}
+            };
+        };
     {/for}
 }`} lang="rust" />
 
-<h2 id="typescript-injection">TsStream Injection</h2>
+<h2 id="local-variables">Local Constants: <code>&#123;%let&#125;</code></h2>
 
-<p>Use <code>{'{'}%typescript stream{'}'}</code> to inject another TsStream into your template, preserving both its source code and runtime patches (like imports):</p>
+<p>Define local variables within the template scope:</p>
 
-<CodeBlock code={`// Create a helper with its own import
+<CodeBlock code={`let items = vec![("user", "User"), ("post", "Post")];
+
+let code = ts_template! {
+    {#for (key, class_name) in items}
+        {%let upper = class_name.to_uppercase()}
+        console.log("Processing @{upper}");
+        const @{key} = new @{class_name}();
+    {/for}
+};`} lang="rust" />
+
+<p>This is useful for computing derived values inside loops without cluttering the Rust code.</p>
+
+<h2 id="typescript-injection">TsStream Injection: <code>&#123;%typescript&#125;</code></h2>
+
+<p>Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via <code>add_import()</code>):</p>
+
+<CodeBlock code={`// Create a helper method with its own import
 let mut helper = body! {
     validateEmail(email: string): boolean {
         return Result.ok(true);
@@ -170,16 +410,17 @@ let mut helper = body! {
 };
 helper.add_import("Result", "macroforge/result");
 
-// Inject into the main template - imports are preserved!
+// Inject the helper into the main template
 let result = body! {
     {%typescript helper}
 
     process(data: Record<string, unknown>): void {
         // ...
     }
-};`} lang="rust" />
+};
+// result now includes helper's source AND its Result import`} lang="rust" />
 
-<p>This is essential for composing macro outputs while keeping imports intact:</p>
+<p>This is essential for composing multiple macro outputs while preserving imports and patches:</p>
 
 <CodeBlock code={`let extra_methods = if include_validation {
     Some(body! {
@@ -197,78 +438,154 @@ body! {
     {/if}
 }`} lang="rust" />
 
-<h2 id="string-literals">String Literals</h2>
+<h2 id="escape-syntax">Escape Syntax</h2>
 
-<p>String content is output literally, with interpolation inside:</p>
+<p>If you need a literal <code>@&#123;</code> in your output (not interpolation), use <code>@@&#123;</code>:</p>
 
-<CodeBlock code={`let class_name = "User";
-
-body! {
-    toString(): string {
-        return "@{class_name} { " + this.toJSON() + " }";
-    }
+<CodeBlock code={`ts_template! {
+    // This outputs a literal @{foo}
+    const example = "Use @@{foo} for templates";
 }`} lang="rust" />
 
-<h2 id="complete-example">Complete Example</h2>
+<p><strong>Generates:</strong></p>
 
-<CodeBlock code={`use macroforge_ts::ts_quote::body;
+<CodeBlock code={`// This outputs a literal @{foo}
+const example = "Use @{foo} for templates";`} lang="typescript" />
 
-fn generate_json_macro(class: &ClassData) -> TsStream {
-    body! {
-        toJSON(): Record<string, unknown> {
-            const result: Record<string, unknown> = {};
+<h2 id="complete-example">Complete Example: JSON Derive Macro</h2>
 
-            {#for field in class.field_names()}
-                result.@{field} = this.@{field};
-            {/for}
+<p>Here's a comparison showing how <code>ts_template!</code> simplifies code generation:</p>
 
-            return result;
-        }
+<h3>Before (Manual AST Building)</h3>
 
-        static fromJSON(data: Record<string, unknown>): @{class.name} {
-            return new @{class.name}(
-                {#for (i, field) in class.fields().iter().enumerate()}
-                    data.@{field.name} as @{field.ts_type}
-                    @{if i < class.fields().len() - 1 { "," } else { "" }}
-                {/for}
+<CodeBlock code={`pub fn derive_json_macro(input: TsStream) -> MacroResult {
+    let input = parse_ts_macro_input!(input as DeriveInput);
+
+    match &input.data {
+        Data::Class(class) => {
+            let class_name = input.name();
+
+            let mut body_stmts = vec![ts_quote!( const result = {}; as Stmt )];
+
+            for field_name in class.field_names() {
+                body_stmts.push(ts_quote!(
+                    result.$(ident!("{}", field_name)) = this.$(ident!("{}", field_name));
+                    as Stmt
+                ));
+            }
+
+            body_stmts.push(ts_quote!( return result; as Stmt ));
+
+            let runtime_code = fn_assign!(
+                member_expr!(Expr::Ident(ident!(class_name)), "prototype"),
+                "toJSON",
+                body_stmts
             );
+
+            // ...
         }
     }
 }`} lang="rust" />
 
-<h2 id="syntax-reference">Syntax Reference</h2>
+<h3>After (With ts_template!)</h3>
+
+<CodeBlock code={`pub fn derive_json_macro(input: TsStream) -> MacroResult {
+    let input = parse_ts_macro_input!(input as DeriveInput);
+
+    match &input.data {
+        Data::Class(class) => {
+            let class_name = input.name();
+            let fields = class.field_names();
+
+            let runtime_code = ts_template! {
+                @{class_name}.prototype.toJSON = function() {
+                    const result = {};
+                    {#for field in fields}
+                        result.@{field} = this.@{field};
+                    {/for}
+                    return result;
+                };
+            };
+
+            // ...
+        }
+    }
+}`} lang="rust" />
+
+<h2 id="how-it-works">How It Works</h2>
+
+<ol>
+	<li><strong>Compile-Time:</strong> The template is parsed during macro expansion</li>
+	<li><strong>String Building:</strong> Generates Rust code that builds a TypeScript string at runtime</li>
+	<li><strong>SWC Parsing:</strong> The generated string is parsed with SWC to produce a typed AST</li>
+	<li><strong>Result:</strong> Returns <code>Stmt</code> that can be used in <code>MacroResult</code> patches</li>
+</ol>
+
+<h2 id="return-type">Return Type</h2>
+
+<p><code>ts_template!</code> returns a <code>Result&lt;Stmt, TsSynError&gt;</code> by default. The macro automatically unwraps and provides helpful error messages showing the generated TypeScript code if parsing fails:</p>
+
+<CodeBlock code={`Failed to parse generated TypeScript:
+User.prototype.toJSON = function( {
+    return {};
+}`} lang="text" />
+
+<p>This shows you exactly what was generated, making debugging easy!</p>
+
+<h2 id="nesting">Nesting and Regular TypeScript</h2>
+
+<p>You can mix template syntax with regular TypeScript. Braces <code>&#123;&#125;</code> are recognized as either:</p>
+
+<ul>
+	<li><strong>Template tags</strong> if they start with <code>#</code>, <code>%</code>, <code>:</code>, or <code>/</code></li>
+	<li><strong>Regular TypeScript blocks</strong> otherwise</li>
+</ul>
+
+<CodeBlock code={`ts_template! {
+    const config = {
+        {#if use_strict}
+            strict: true,
+        {:else}
+            strict: false,
+        {/if}
+        timeout: 5000
+    };
+}`} lang="rust" />
+
+<h2 id="comparison">Comparison with Alternatives</h2>
 
 <table>
 	<thead>
 		<tr>
-			<th>Syntax</th>
-			<th>Description</th>
+			<th>Approach</th>
+			<th>Pros</th>
+			<th>Cons</th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr>
-			<td><code>@&#123;expr&#125;</code></td>
-			<td>Interpolate Rust expression (adds space after)</td>
+			<td><code>ts_quote!</code></td>
+			<td>Compile-time validation, type-safe</td>
+			<td>Can't handle Vec&lt;Stmt&gt;, verbose</td>
 		</tr>
 		<tr>
-			<td><code>&#123;| content |&#125;</code></td>
-			<td>Ident block: concatenates without spaces</td>
+			<td><code>parse_ts_str()</code></td>
+			<td>Maximum flexibility</td>
+			<td>Runtime parsing, less readable</td>
 		</tr>
 		<tr>
-			<td><code>&#123;#for x in iter&#125;...&#123;/for&#125;</code></td>
-			<td>Loop over iterable</td>
-		</tr>
-		<tr>
-			<td><code>&#123;#if cond&#125;...&#123;/if&#125;</code></td>
-			<td>Conditional block</td>
-		</tr>
-		<tr>
-			<td><code>&#123;%let name = expr&#125;</code></td>
-			<td>Local variable binding</td>
-		</tr>
-		<tr>
-			<td><code>&#123;%typescript stream&#125;</code></td>
-			<td>Inject TsStream, preserving source and patches (imports)</td>
+			<td><code>ts_template!</code></td>
+			<td>Readable, handles loops/conditions</td>
+			<td>Small runtime parsing overhead</td>
 		</tr>
 	</tbody>
 </table>
+
+<h2 id="best-practices">Best Practices</h2>
+
+<ol>
+	<li>Use <code>ts_template!</code> for complex code generation with loops/conditions</li>
+	<li>Use <code>ts_quote!</code> for simple, static statements</li>
+	<li>Keep templates readable - extract complex logic into variables</li>
+	<li>Don't nest templates too deeply - split into helper functions</li>
+</ol>
