@@ -1,0 +1,29 @@
+{
+  "name": "@macroforge/svelte-preprocessor",
+  "version": "0.1.19",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rymskip/macroforge-ts.git"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "test": "npm run build && node --test tests/**/*.test.js"
+  },
+  "dependencies": {
+    "macroforge": "^0.1.19"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "svelte": "^5.43.8",
+    "typescript": "^5.9.3"
+  }
+}
