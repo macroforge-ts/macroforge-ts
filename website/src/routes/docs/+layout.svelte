@@ -14,8 +14,8 @@
 	</aside>
 
 	<!-- Main Content -->
-	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
-		<article class="min-w-0 max-w-3xl py-8">
+	<div class="flex justify-center px-4 sm:px-6 lg:px-8">
+		<article class="min-w-0 max-w-3xl w-full py-8">
 			<div class="prose">
 				{@render children()}
 			</div>
