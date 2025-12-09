@@ -42,9 +42,7 @@
 	The simplest way to use Macroforge is with the built-in derive macros. Add a <code>@derive</code> comment decorator to your class:
 </p>
 
-<CodeBlock code={`import { Debug, Clone, Eq } from "macroforge";
-
-/** @derive(Debug, Clone, Eq) */
+<CodeBlock code={`/** @derive(Debug, Clone, Eq) */
 class User {
   name: string;
   age: number;
