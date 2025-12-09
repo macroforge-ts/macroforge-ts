@@ -44,8 +44,8 @@ npm install -D @macroforge/typescript-plugin @macroforge/vite-plugin
 
 ## Detailed Guides
 
-- [TypeScript Plugin setup](/docs/integration/typescript-plugin)
+- [TypeScript Plugin setup]({base}/docs/integration/typescript-plugin)
 
-- [Vite Plugin configuration](/docs/integration/vite-plugin)
+- [Vite Plugin configuration]({base}/docs/integration/vite-plugin)
 
-- [Configuration options](/docs/integration/configuration)
+- [Configuration options]({base}/docs/integration/configuration)

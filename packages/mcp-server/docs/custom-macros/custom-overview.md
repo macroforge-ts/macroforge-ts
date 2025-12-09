@@ -77,8 +77,8 @@ console.log(user.toJSON()); // { name: "Alice", age: 30 }
 
 Follow these guides to create your own macros:
 
-- [Set up a Rust macro crate](/docs/custom-macros/rust-setup)
+- [Set up a Rust macro crate]({base}/docs/custom-macros/rust-setup)
 
-- [Use the ts_macro_derive attribute](/docs/custom-macros/ts-macro-derive)
+- [Use the ts_macro_derive attribute]({base}/docs/custom-macros/ts-macro-derive)
 
-- [Learn the ts_quote template syntax](/docs/custom-macros/ts-quote)
+- [Learn the ts_quote template syntax]({base}/docs/custom-macros/ts-quote)

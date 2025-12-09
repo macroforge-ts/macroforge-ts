@@ -304,4 +304,4 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError>
 
 ## Next Steps
 
-- [Learn the ts_quote template syntax](/docs/custom-macros/ts-quote)
+- [Learn the ts_quote template syntax]({base}/docs/custom-macros/ts-quote)

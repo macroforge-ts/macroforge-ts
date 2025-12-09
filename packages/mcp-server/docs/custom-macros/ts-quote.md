@@ -47,8 +47,20 @@
 | `&#123;#for item in list&#125;...&#123;/for&#125;` 
 | Iterate over a collection 
 
+| `&#123;#while cond&#125;...&#123;/while&#125;` 
+| While loop 
+
+| `&#123;#while let pattern = expr&#125;...&#123;/while&#125;` 
+| While-let pattern matching loop 
+
 | `&#123;$let name = expr&#125;` 
 | Define a local constant 
+
+| `&#123;$let mut name = expr&#125;` 
+| Define a mutable local variable 
+
+| `&#123;$do expr&#125;` 
+| Execute a side-effectful expression 
 
 | `&#123;$typescript stream&#125;` 
 | Inject a TsStream, preserving its source and runtime_patches (imports)
@@ -383,6 +395,55 @@ ts_template! {
 }
 ```
 
+## While Loops: `&#123;#while&#125;`
+
+Use `while` for loops that need to continue until a condition is false:
+
+```rust
+let items = get_items();
+let mut idx = 0;
+
+let code = ts_template! {
+    {$let mut i = 0}
+    {#while i < items.len()}
+        console.log("Item @{i}");
+        {$do i += 1}
+    {/while}
+};
+```
+
+### While-Let Pattern Matching
+
+Use `while let` for iterating with pattern matching, similar to `if let`:
+
+```rust
+let mut items = vec!["a", "b", "c"].into_iter();
+
+let code = ts_template! {
+    {#while let Some(item) = items.next()}
+        console.log("@{item}");
+    {/while}
+};
+```
+
+**Generates:**
+
+```typescript
+console.log("a");
+console.log("b");
+console.log("c");
+```
+
+This is especially useful when working with iterators or consuming optional values:
+
+```rust
+let code = ts_template! {
+    {#while let Some(next_field) = remaining_fields.pop()}
+        result.@{next_field.name} = this.@{next_field.name};
+    {/while}
+};
+```
+
 ## Local Constants: `&#123;$let&#125;`
 
 Define local variables within the template scope:
@@ -400,6 +461,45 @@ let code = ts_template! {
 ```
 
 This is useful for computing derived values inside loops without cluttering the Rust code.
+
+## Mutable Variables: `&#123;$let mut&#125;`
+
+When you need to modify a variable within the template (e.g., in a `while` loop), use `&#123;$let mut&#125;`:
+
+```rust
+let code = ts_template! {
+    {$let mut count = 0}
+    {#for item in items}
+        console.log("Item @{count}: @{item}");
+        {$do count += 1}
+    {/for}
+    console.log("Total: @{count}");
+};
+```
+
+## Side Effects: `&#123;$do&#125;`
+
+Execute an expression for its side effects without producing output. This is commonly used with mutable variables:
+
+```rust
+let code = ts_template! {
+    {$let mut results: Vec<String> = Vec::new()}
+    {#for field in fields}
+        {$do results.push(format!("this.{}", field))}
+    {/for}
+    return [@{results.join(", ")}];
+};
+```
+
+Common uses for `&#123;$do&#125;`:
+
+- Incrementing counters: `&#123;$do i += 1&#125;`
+
+- Building collections: `&#123;$do vec.push(item)&#125;`
+
+- Setting flags: `&#123;$do found = true&#125;`
+
+- Any mutating operation
 
 ## TsStream Injection: `&#123;$typescript&#125;`
 
@@ -554,7 +654,7 @@ This shows you exactly what was generated, making debugging easy!
 
 You can mix template syntax with regular TypeScript. Braces `&#123;&#125;` are recognized as either:
 
-- **Template tags** if they start with `#`, `%`, `:`, or `/`
+- **Template tags** if they start with `#`, `$`, `:`, or `/`
 
 - **Regular TypeScript blocks** otherwise
 
