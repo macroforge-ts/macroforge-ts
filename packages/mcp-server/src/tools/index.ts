@@ -5,7 +5,7 @@ import {
   ErrorCode,
   McpError,
 } from '@modelcontextprotocol/sdk/types.js';
-import { loadSections, getSection, getSections, searchSections, type Section } from './docs-loader.js';
+import { loadSections, getSection, searchSections, type Section } from './docs-loader.js';
 
 let sections: Section[] = [];
 
@@ -22,8 +22,20 @@ export function registerTools(server: Server): void {
       tools: [
         {
           name: 'list-sections',
-          description:
-            'Lists all available Macroforge documentation sections in a structured format. Each section includes a "use_cases" field describing when the documentation is useful. Use this tool FIRST to discover relevant documentation for any Macroforge-related task.',
+          description: `Lists all Macroforge documentation sections.
+
+Returns sections with:
+- title: Section name
+- use_cases: When this doc is useful (comma-separated keywords)
+- path: File path
+- category: Category name
+
+WORKFLOW:
+1. Call list-sections FIRST for any Macroforge-related task
+2. Analyze use_cases to find relevant sections
+3. Call get-documentation with ALL relevant section names
+
+Example use_cases: "setup, install", "serialization, json", "validation, email"`,
           inputSchema: {
             type: 'object',
             properties: {},
@@ -31,8 +43,15 @@ export function registerTools(server: Server): void {
         },
         {
           name: 'get-documentation',
-          description:
-            'Retrieves full documentation content for Macroforge sections. Supports flexible search by title (e.g., "Debug", "Vite Plugin") or ID (e.g., "debug", "vite-plugin"). Can accept a single section name or an array of sections. After calling list-sections, analyze the use_cases and fetch ALL relevant sections.',
+          description: `Retrieves full documentation content for Macroforge sections.
+
+Supports flexible search by:
+- Title (e.g., "Debug", "Vite Plugin")
+- ID (e.g., "debug", "vite-plugin")
+- Partial matches
+
+Can accept a single section name or an array of sections.
+After calling list-sections, analyze the use_cases and fetch ALL relevant sections at once.`,
           inputSchema: {
             type: 'object',
             properties: {
@@ -42,7 +61,7 @@ export function registerTools(server: Server): void {
                   { type: 'array', items: { type: 'string' } },
                 ],
                 description:
-                  'The section name(s) to retrieve. Can search by title or ID. Supports single string or array of strings.',
+                  'Section name(s) to retrieve. Supports single string or array of strings.',
               },
             },
             required: ['section'],
@@ -50,18 +69,35 @@ export function registerTools(server: Server): void {
         },
         {
           name: 'macroforge-autofixer',
-          description:
-            'Analyzes TypeScript code with @derive decorators and returns suggestions for issues. Uses the native Macroforge expansion to validate code and detect problems like invalid macro names, malformed decorators, or missing validators. Call this tool when writing Macroforge code to ensure correctness.',
+          description: `Validates TypeScript code with @derive decorators using Macroforge's native validation.
+
+Returns structured JSON diagnostics with:
+- level: error | warning | info
+- message: What's wrong
+- location: Line and column number (when available)
+- help: Suggested fix (when available)
+- notes: Additional context (when available)
+- summary: Count of errors, warnings, and info messages
+
+This tool MUST be used before sending Macroforge code to the user.
+If require_another_tool_call_after_fixing is true, fix the issues and validate again.
+
+Detects:
+- Invalid/unknown macro names
+- Malformed @derive decorators
+- @serde validator issues (email, url, length, etc.)
+- Macro expansion failures
+- Syntax errors in generated code`,
           inputSchema: {
             type: 'object',
             properties: {
               code: {
                 type: 'string',
-                description: 'The TypeScript code to analyze',
+                description: 'TypeScript code with @derive decorators to validate',
               },
               filename: {
                 type: 'string',
-                description: 'Optional filename for the code (defaults to "input.ts")',
+                description: 'Filename for the code (default: input.ts)',
               },
             },
             required: ['code'],
@@ -69,21 +105,51 @@ export function registerTools(server: Server): void {
         },
         {
           name: 'expand-code',
-          description:
-            'Expands Macroforge macros in TypeScript code and returns the transformed result. Useful for seeing what code the macros generate.',
+          description: `Expands Macroforge macros in TypeScript code and returns the transformed result.
+
+Shows:
+- The fully expanded TypeScript code with all generated methods
+- Any diagnostics (errors, warnings, info) with line/column locations
+- Help text for fixing issues (when available)
+
+Useful for:
+- Seeing what code the macros generate
+- Understanding how @derive decorators transform your classes
+- Debugging macro expansion issues`,
           inputSchema: {
             type: 'object',
             properties: {
               code: {
                 type: 'string',
-                description: 'The TypeScript code with @derive decorators to expand',
+                description: 'TypeScript code with @derive decorators to expand',
               },
               filename: {
                 type: 'string',
-                description: 'Optional filename for the code (defaults to "input.ts")',
+                description: 'Filename for the code (default: input.ts)',
               },
             },
             required: ['code'],
+          },
+        },
+        {
+          name: 'get-macro-info',
+          description: `Get documentation for Macroforge macros and decorators.
+
+Returns information about:
+- Macro descriptions (e.g., Debug, Serialize, Clone)
+- Decorator documentation (e.g., @serde, @debug field decorators)
+- Available macro options and configuration
+
+Use without parameters to get the full manifest of all available macros and decorators.
+Use with a name parameter to get info for a specific macro or decorator.`,
+          inputSchema: {
+            type: 'object',
+            properties: {
+              name: {
+                type: 'string',
+                description: 'Optional: specific macro or decorator name to look up',
+              },
+            },
           },
         },
       ],
@@ -106,6 +172,9 @@ export function registerTools(server: Server): void {
 
       case 'expand-code':
         return handleExpandCode(args as { code: string; filename?: string });
+
+      case 'get-macro-info':
+        return handleGetMacroInfo(args as { name?: string });
 
       default:
         throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
@@ -168,50 +237,82 @@ function handleGetDocumentation(args: { section: string | string[] }) {
 
 /**
  * Handle macroforge-autofixer tool call
+ * Returns structured diagnostics from Macroforge's native validation
  */
 async function handleAutofixer(args: { code: string; filename?: string }) {
   const filename = args.filename || 'input.ts';
-  const suggestions: string[] = [];
 
   try {
-    // Try to import native bindings
     const macroforge = await importMacroforge();
 
-    if (macroforge) {
-      const result = macroforge.expandSync(args.code, filename, {});
-
-      // Check for diagnostics
-      if (result.diagnostics && result.diagnostics.length > 0) {
-        for (const diag of result.diagnostics) {
-          suggestions.push(`[${diag.level}] ${diag.message}`);
-        }
-      } else {
-        suggestions.push('No issues found. Code validates successfully.');
-      }
-    } else {
-      // Fallback: basic static analysis without native bindings
-      suggestions.push(...analyzeCodeStatically(args.code));
+    if (!macroforge) {
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify({
+              diagnostics: [{
+                level: 'error',
+                message: 'Native Macroforge bindings not available. Install @macroforge/core.',
+              }],
+              summary: { errors: 1, warnings: 0, info: 0 },
+              require_another_tool_call_after_fixing: false,
+            }, null, 2),
+          },
+        ],
+      };
     }
+
+    const result = macroforge.expandSync(args.code, filename, {});
+    const diagnostics = result.diagnostics || [];
+
+    const output: AutofixerResult = {
+      diagnostics: diagnostics.map((d) => ({
+        level: normalizeLevel(d.level),
+        message: d.message,
+        location: d.span ? { line: d.span.start.line, column: d.span.start.column } : undefined,
+        help: d.help || undefined,
+        notes: d.notes && d.notes.length > 0 ? d.notes : undefined,
+      })),
+      summary: {
+        errors: diagnostics.filter((d) => d.level === 'Error').length,
+        warnings: diagnostics.filter((d) => d.level === 'Warning').length,
+        info: diagnostics.filter((d) => d.level === 'Info').length,
+      },
+      require_another_tool_call_after_fixing: diagnostics.some((d) => d.level === 'Error'),
+    };
+
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: JSON.stringify(output, null, 2),
+        },
+      ],
+    };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    suggestions.push(`Error during analysis: ${message}`);
-
-    // Still try static analysis
-    suggestions.push(...analyzeCodeStatically(args.code));
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: JSON.stringify({
+            diagnostics: [{
+              level: 'error',
+              message: `Error during analysis: ${message}`,
+            }],
+            summary: { errors: 1, warnings: 0, info: 0 },
+            require_another_tool_call_after_fixing: false,
+          }, null, 2),
+        },
+      ],
+    };
   }
-
-  return {
-    content: [
-      {
-        type: 'text' as const,
-        text: suggestions.length > 0 ? suggestions.join('\n') : 'No issues found.',
-      },
-    ],
-  };
 }
 
 /**
  * Handle expand-code tool call
+ * Returns expanded code with structured diagnostics
  */
 async function handleExpandCode(args: { code: string; filename?: string }) {
   const filename = args.filename || 'input.ts';
@@ -219,22 +320,7 @@ async function handleExpandCode(args: { code: string; filename?: string }) {
   try {
     const macroforge = await importMacroforge();
 
-    if (macroforge) {
-      const result = macroforge.expandSync(args.code, filename, {});
-
-      let output = `## Expanded Code\n\n\`\`\`typescript\n${result.code}\n\`\`\``;
-
-      if (result.diagnostics && result.diagnostics.length > 0) {
-        output += '\n\n## Diagnostics\n\n';
-        for (const diag of result.diagnostics) {
-          output += `- [${diag.level}] ${diag.message}\n`;
-        }
-      }
-
-      return {
-        content: [{ type: 'text' as const, text: output }],
-      };
-    } else {
+    if (!macroforge) {
       return {
         content: [
           {
@@ -244,6 +330,44 @@ async function handleExpandCode(args: { code: string; filename?: string }) {
         ],
       };
     }
+
+    const result = macroforge.expandSync(args.code, filename, {});
+    const diagnostics = result.diagnostics || [];
+
+    // Build structured output
+    const output: ExpandResult = {
+      expandedCode: result.code,
+      diagnostics: diagnostics.map((d) => ({
+        level: normalizeLevel(d.level),
+        message: d.message,
+        location: d.span?.start,
+        help: d.help || undefined,
+      })),
+      hasErrors: diagnostics.some((d) => d.level === 'Error'),
+    };
+
+    // Format human-readable text
+    let text = `## Expanded Code\n\n\`\`\`typescript\n${result.code}\n\`\`\``;
+
+    if (diagnostics.length > 0) {
+      text += '\n\n## Diagnostics\n\n';
+      for (const d of diagnostics) {
+        const loc = d.span ? ` (line ${d.span.start.line}, col ${d.span.start.column})` : '';
+        text += `- **[${normalizeLevel(d.level)}]**${loc} ${d.message}\n`;
+        if (d.help) {
+          text += `  - Help: ${d.help}\n`;
+        }
+        if (d.notes && d.notes.length > 0) {
+          for (const note of d.notes) {
+            text += `  - Note: ${note}\n`;
+          }
+        }
+      }
+    }
+
+    return {
+      content: [{ type: 'text' as const, text }],
+    };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return {
@@ -257,12 +381,181 @@ async function handleExpandCode(args: { code: string; filename?: string }) {
   }
 }
 
+/**
+ * Handle get-macro-info tool call
+ * Returns documentation for macros and decorators from the manifest
+ */
+async function handleGetMacroInfo(args: { name?: string }) {
+  try {
+    const macroforge = await importMacroforge();
+
+    if (!macroforge || !macroforge.__macroforgeGetManifest) {
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: 'Native Macroforge bindings not available. Install @macroforge/core to access macro documentation.',
+          },
+        ],
+      };
+    }
+
+    const manifest = macroforge.__macroforgeGetManifest();
+
+    if (args.name) {
+      // Look up specific macro or decorator
+      const nameLower = args.name.toLowerCase();
+      const macro = manifest.macros.find(m => m.name.toLowerCase() === nameLower);
+      const decorator = manifest.decorators.find(d => d.export.toLowerCase() === nameLower);
+
+      if (!macro && !decorator) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `No macro or decorator found with name "${args.name}".
+
+Available macros: ${manifest.macros.map(m => m.name).join(', ')}
+Available decorators: ${manifest.decorators.map(d => d.export).join(', ')}`,
+            },
+          ],
+        };
+      }
+
+      let result = '';
+
+      if (macro) {
+        result += `## Macro: @derive(${macro.name})\n\n`;
+        result += `**Description:** ${macro.description || 'No description available'}\n`;
+        result += `**Kind:** ${macro.kind}\n`;
+        result += `**Package:** ${macro.package}\n`;
+      }
+
+      if (decorator) {
+        if (result) result += '\n---\n\n';
+        result += `## Decorator: @${decorator.export}\n\n`;
+        result += `**Documentation:** ${decorator.docs || 'No documentation available'}\n`;
+        result += `**Kind:** ${decorator.kind}\n`;
+        result += `**Module:** ${decorator.module}\n`;
+      }
+
+      return {
+        content: [{ type: 'text' as const, text: result }],
+      };
+    }
+
+    // Return full manifest
+    let result = '# Macroforge Macro Manifest\n\n';
+
+    result += '## Available Macros\n\n';
+    for (const macro of manifest.macros) {
+      result += `### @derive(${macro.name})\n`;
+      result += `${macro.description || 'No description'}\n\n`;
+    }
+
+    if (manifest.decorators.length > 0) {
+      result += '## Available Field Decorators\n\n';
+      for (const decorator of manifest.decorators) {
+        result += `### @${decorator.export}\n`;
+        result += `${decorator.docs || 'No documentation'}\n\n`;
+      }
+    }
+
+    return {
+      content: [{ type: 'text' as const, text: result }],
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: `Error getting macro info: ${message}`,
+        },
+      ],
+    };
+  }
+}
+
+// ============================================================================
+// Types - Match Rust's Diagnostic structure from macroforge_ts_syn/src/abi/patch.rs
+// ============================================================================
+
+interface DiagnosticSpan {
+  start: { line: number; column: number };
+  end: { line: number; column: number };
+}
+
+interface Diagnostic {
+  level: 'Error' | 'Warning' | 'Info';
+  message: string;
+  span?: DiagnosticSpan;
+  notes: string[];
+  help?: string;
+}
+
+interface MacroManifestEntry {
+  name: string;
+  kind: string;
+  description: string;
+  package: string;
+}
+
+interface DecoratorManifestEntry {
+  module: string;
+  export: string;
+  kind: string;
+  docs: string;
+}
+
+interface MacroManifest {
+  version: number;
+  macros: MacroManifestEntry[];
+  decorators: DecoratorManifestEntry[];
+}
+
 interface MacroforgeModule {
   expandSync: (code: string, filename: string, options: object) => {
     code: string;
-    diagnostics?: Array<{ level: string; message: string }>;
+    diagnostics?: Diagnostic[];
   };
+  __macroforgeGetManifest?: () => MacroManifest;
 }
+
+// ============================================================================
+// Output types for structured responses
+// ============================================================================
+
+interface AutofixerResult {
+  diagnostics: Array<{
+    level: string;
+    message: string;
+    location?: { line: number; column: number };
+    help?: string;
+    notes?: string[];
+  }>;
+  summary: {
+    errors: number;
+    warnings: number;
+    info: number;
+  };
+  require_another_tool_call_after_fixing: boolean;
+}
+
+interface ExpandResult {
+  expandedCode: string;
+  diagnostics: Array<{
+    level: string;
+    message: string;
+    location?: { line: number; column: number };
+    help?: string;
+  }>;
+  hasErrors: boolean;
+}
+
+// ============================================================================
+// Helper functions
+// ============================================================================
 
 /**
  * Try to import native Macroforge bindings
@@ -279,39 +572,8 @@ async function importMacroforge(): Promise<MacroforgeModule | null> {
 }
 
 /**
- * Basic static analysis fallback when native bindings aren't available
+ * Normalize diagnostic level to lowercase for output
  */
-function analyzeCodeStatically(code: string): string[] {
-  const suggestions: string[] = [];
-
-  // Check for @derive decorator
-  const deriveMatches = code.match(/@derive\(([^)]+)\)/g);
-  if (deriveMatches) {
-    const validMacros = ['Debug', 'Clone', 'Default', 'Hash', 'Ord', 'PartialEq', 'PartialOrd', 'Serialize', 'Deserialize'];
-
-    for (const match of deriveMatches) {
-      const macros = match.replace('@derive(', '').replace(')', '').split(',').map(m => m.trim());
-
-      for (const macro of macros) {
-        if (!validMacros.includes(macro)) {
-          suggestions.push(`[warning] Unknown macro "${macro}". Valid macros are: ${validMacros.join(', ')}`);
-        }
-      }
-    }
-  }
-
-  // Check for common issues
-  if (code.includes('/** @derive') && !code.includes('*/')) {
-    suggestions.push('[error] Unclosed JSDoc comment for @derive decorator');
-  }
-
-  if (code.includes('@serde(') && !code.includes('Serialize') && !code.includes('Deserialize')) {
-    suggestions.push('[warning] @serde field options used but Serialize/Deserialize macro not applied');
-  }
-
-  if (suggestions.length === 0) {
-    suggestions.push('[info] Static analysis found no obvious issues. For full validation, ensure @macroforge/core is installed.');
-  }
-
-  return suggestions;
+function normalizeLevel(level: string): string {
+  return level.toLowerCase();
 }
