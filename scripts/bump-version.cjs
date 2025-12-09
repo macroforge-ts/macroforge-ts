@@ -84,6 +84,12 @@ updatePackageJson("packages/vite-plugin/package.json", {
   "dependencies.macroforge": `^${version}`,
 });
 
+// Update mcp-server
+updatePackageJson("packages/mcp-server/package.json", {
+  version,
+  "peerDependencies.macroforge": `^${version}`,
+});
+
 // Update vtsls-macroforge Zed extension lib.rs
 const vtslsLibRsPath = path.join(root, "crates/extensions/vtsls-macroforge/src/lib.rs");
 let vtslsLibRs = fs.readFileSync(vtslsLibRsPath, "utf8");

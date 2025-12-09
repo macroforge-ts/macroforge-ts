@@ -22,7 +22,7 @@ struct SerializeField {
 #[ts_macro_derive(
     Serialize,
     description = "Generates a toJSON() method for JSON serialization",
-    attributes(serde)
+    attributes((serde, "Configure serialization for this field. Options: skip, rename, flatten, validate (email, url, minLength, etc.)"))
 )]
 pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
