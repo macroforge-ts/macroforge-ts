@@ -16,7 +16,7 @@
 	}: Props = $props();
 </script>
 
-<div class="grid lg:grid-cols-2 gap-8">
+<div class="space-y-6">
 	<div>
 		<div class="flex items-center gap-2 mb-3">
 			<div class="w-3 h-3 rounded-full bg-warning"></div>
