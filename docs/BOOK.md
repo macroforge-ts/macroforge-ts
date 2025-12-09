@@ -94,8 +94,6 @@ The simplest way to use Macroforge is with the built-in derive macros. Add a `@d
 
 `user.ts`
 ```typescript
-import { Debug, Clone, Eq } from "macroforge";
-
 /** @derive(Debug, Clone, Eq) */
 class User {
   name: string;
@@ -5039,8 +5037,6 @@ interface MacroDiagnostic {
 import { expandSync } from "macroforge";
 
 const sourceCode = \`
-import { Debug } from "macroforge";
-
 /** @derive(Debug) */
 class User {
   name: string;
