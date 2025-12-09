@@ -15,8 +15,8 @@ struct DefaultField {
 
 #[ts_macro_derive(
     Default,
-    description = "Generates a static default() factory method",
-    attributes(defaultValue)
+    description = "Generates a static defaultValue() factory method",
+    attributes(default)
 )]
 pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
@@ -57,7 +57,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
             };
 
             Ok(body! {
-                static default(): @{class_name} {
+                static defaultValue(): @{class_name} {
                     const instance = new @{class_name}();
                     {#if has_defaults}
                         @{assignments}
@@ -78,7 +78,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 
             Ok(ts_template! {
                 export namespace @{enum_name} {
-                    export function default_(): @{enum_name} {
+                    export function defaultValue(): @{enum_name} {
                         return @{enum_name}.@{first_variant};
                     }
                 }
@@ -120,7 +120,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 
             Ok(ts_template! {
                 export namespace @{interface_name} {
-                    export function default_(): @{interface_name} {
+                    export function defaultValue(): @{interface_name} {
                         return {
                             {#if has_defaults}
                                 @{object_body}
@@ -167,7 +167,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 
                 Ok(ts_template! {
                     export namespace @{type_name} {
-                        export function default_(): @{type_name} {
+                        export function defaultValue(): @{type_name} {
                             return {
                                 {#if has_defaults}
                                     @{object_body}
@@ -180,7 +180,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 // Union, tuple, or simple alias: return null/undefined as placeholder
                 Ok(ts_template! {
                     export namespace @{type_name} {
-                        export function default_(): @{type_name} {
+                        export function defaultValue(): @{type_name} {
                             return null as unknown as @{type_name};
                         }
                     }
@@ -217,7 +217,7 @@ mod tests {
             .join("\n                    ");
 
         let output = body! {
-            static default(): @{class_name} {
+            static defaultValue(): @{class_name} {
                 const instance = new @{class_name}();
                 {#if has_defaults}
                     @{assignments}
@@ -236,7 +236,7 @@ mod tests {
             macroforge_ts_syn::parse_ts_stmt(&wrapped).is_ok(),
             "Generated Default macro output should parse as class members"
         );
-        assert!(source.contains("default"), "Should contain default method");
+        assert!(source.contains("defaultValue"), "Should contain defaultValue method");
         assert!(source.contains("static"), "Should be a static method");
     }
 

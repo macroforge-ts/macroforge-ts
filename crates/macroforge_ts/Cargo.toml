@@ -34,9 +34,9 @@ swc_core = { version = "48.0.4", features = [
 ] }
 
 # External crates
-macroforge_ts_syn = { version = "0.1.21", path = "../macroforge_ts_syn" }
-macroforge_ts_quote = { version = "0.1.21", path = "../macroforge_ts_quote" }
-macroforge_ts_macros = { version = "0.1.21", path = "../macroforge_ts_macros" }
+macroforge_ts_syn = { version = "0.1.22", path = "../macroforge_ts_syn" }
+macroforge_ts_quote = { version = "0.1.22", path = "../macroforge_ts_quote" }
+macroforge_ts_macros = { version = "0.1.22", path = "../macroforge_ts_macros" }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
