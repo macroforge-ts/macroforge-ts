@@ -21,20 +21,20 @@
 {#if open}
 	<!-- Backdrop -->
 	<button
-		class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden cursor-default"
+		class="fixed inset-0 z-40 bg-foreground/50 backdrop-blur-sm lg:hidden cursor-default"
 		onclick={onClose}
 		aria-label="Close navigation menu"
 	></button>
 
 	<!-- Sidebar panel -->
 	<div
-		class="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-surface-950 border-r border-slate-200 dark:border-slate-800 overflow-y-auto lg:hidden"
+		class="fixed inset-y-0 left-0 z-50 w-72 bg-background border-r border-border overflow-y-auto lg:hidden"
 	>
-		<div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
-			<span class="font-semibold text-slate-900 dark:text-white">Navigation</span>
+		<div class="flex items-center justify-between p-4 border-b border-border">
+			<span class="font-semibold text-foreground">Navigation</span>
 			<button
 				onclick={onClose}
-				class="p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+				class="p-2 text-muted-foreground hover:text-foreground"
 				aria-label="Close navigation menu"
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

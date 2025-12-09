@@ -2,10 +2,10 @@
 	import { siteConfig } from '$lib/config/site';
 </script>
 
-<footer class="border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-surface-900">
+<footer class="border-t border-border bg-muted">
 	<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<div class="flex flex-col md:flex-row items-center justify-between gap-4">
-			<div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+			<div class="flex items-center gap-2 text-sm text-muted-foreground">
 				<span>&copy; {new Date().getFullYear()} {siteConfig.name}.</span>
 				<span>Built with SvelteKit.</span>
 			</div>
@@ -15,7 +15,7 @@
 					href={siteConfig.links.github}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+					class="text-sm text-muted-foreground hover:text-foreground transition-colors"
 				>
 					GitHub
 				</a>
@@ -23,7 +23,7 @@
 					href={siteConfig.links.npm}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+					class="text-sm text-muted-foreground hover:text-foreground transition-colors"
 				>
 					npm
 				</a>
@@ -31,7 +31,7 @@
 					href="{siteConfig.links.github}/blob/main/LICENSE"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+					class="text-sm text-muted-foreground hover:text-foreground transition-colors"
 				>
 					MIT License
 				</a>

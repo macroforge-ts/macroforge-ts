@@ -77,29 +77,29 @@ class User {
 </svelte:head>
 
 <!-- Hero Section -->
-<section class="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white dark:from-surface-900 dark:to-surface-950 pt-16 pb-20 sm:pt-24 sm:pb-28">
+<section class="relative overflow-hidden bg-gradient-to-b from-secondary to-background pt-16 pb-20 sm:pt-24 sm:pb-28">
 	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="text-center max-w-3xl mx-auto">
-			<h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white">
+			<h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground">
 				TypeScript Macros,
-				<span class="text-primary-600 dark:text-primary-400">Powered by Rust</span>
+				<span class="text-primary">Powered by Rust</span>
 			</h1>
-			<p class="mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+			<p class="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
 				Compile-time code generation with a Rust-like derive system.
 				Eliminate boilerplate and generate type-safe code automatically.
 			</p>
 
 			<!-- Install Command -->
 			<div class="mt-8 flex justify-center">
-				<div class="inline-flex items-center gap-3 bg-slate-900 dark:bg-slate-800 rounded-lg px-4 py-3 text-sm font-mono text-slate-100">
-					<span class="text-slate-400">$</span>
+				<div class="inline-flex items-center gap-3 bg-card rounded-lg px-4 py-3 text-sm font-mono text-card-foreground border border-border">
+					<span class="text-muted-foreground">$</span>
 					<span>npm install macroforge</span>
 					<button
 						onclick={() => navigator.clipboard.writeText('npm install macroforge')}
-						class="p-1 hover:bg-slate-700 rounded transition-colors"
+						class="p-1 hover:bg-accent rounded transition-colors"
 						aria-label="Copy install command"
 					>
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-muted-foreground" viewBox="0 0 20 20" fill="currentColor">
 							<path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
 							<path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
 						</svg>
@@ -111,7 +111,7 @@ class User {
 			<div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
 				<a
 					href="{base}/docs/getting-started"
-					class="inline-flex items-center justify-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors"
+					class="inline-flex items-center justify-center px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg transition-colors"
 				>
 					Get Started
 					<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
@@ -122,7 +122,7 @@ class User {
 					href={siteConfig.links.github}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="inline-flex items-center justify-center px-6 py-3 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium rounded-lg transition-colors"
+					class="inline-flex items-center justify-center px-6 py-3 border border-border text-foreground hover:bg-accent font-medium rounded-lg transition-colors"
 				>
 					<svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
 						<path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
@@ -135,29 +135,29 @@ class User {
 </section>
 
 <!-- Features Section -->
-<section class="py-16 sm:py-24 bg-white dark:bg-surface-950">
+<section class="py-16 sm:py-24 bg-background">
 	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="text-center max-w-2xl mx-auto mb-12">
-			<h2 class="text-3xl font-bold text-slate-900 dark:text-white">
+			<h2 class="text-3xl font-bold text-foreground">
 				Why Macroforge?
 			</h2>
-			<p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
+			<p class="mt-4 text-lg text-muted-foreground">
 				Bring the power of Rust-style derive macros to TypeScript
 			</p>
 		</div>
 
 		<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
 			{#each features as feature}
-				<div class="relative p-6 bg-slate-50 dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-slate-800">
-					<div class="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center mb-4">
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+				<div class="relative p-6 bg-card rounded-xl border border-border">
+					<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
 							<path stroke-linecap="round" stroke-linejoin="round" d={feature.icon} />
 						</svg>
 					</div>
-					<h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+					<h3 class="text-lg font-semibold text-foreground mb-2">
 						{feature.title}
 					</h3>
-					<p class="text-slate-600 dark:text-slate-400">
+					<p class="text-muted-foreground">
 						{feature.description}
 					</p>
 				</div>
@@ -167,13 +167,13 @@ class User {
 </section>
 
 <!-- Code Example Section -->
-<section class="py-16 sm:py-24 bg-slate-50 dark:bg-surface-900">
+<section class="py-16 sm:py-24 bg-muted">
 	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="text-center max-w-2xl mx-auto mb-12">
-			<h2 class="text-3xl font-bold text-slate-900 dark:text-white">
+			<h2 class="text-3xl font-bold text-foreground">
 				See It In Action
 			</h2>
-			<p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
+			<p class="mt-4 text-lg text-muted-foreground">
 				Write less code, get more functionality
 			</p>
 		</div>
@@ -181,15 +181,15 @@ class User {
 		<div class="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
 			<div>
 				<div class="flex items-center gap-2 mb-3">
-					<div class="w-3 h-3 rounded-full bg-amber-400"></div>
-					<span class="text-sm font-medium text-slate-600 dark:text-slate-400">Before (Your Code)</span>
+					<div class="w-3 h-3 rounded-full bg-warning"></div>
+					<span class="text-sm font-medium text-muted-foreground">Before (Your Code)</span>
 				</div>
 				<CodeBlock code={beforeCode} lang="typescript" />
 			</div>
 			<div>
 				<div class="flex items-center gap-2 mb-3">
-					<div class="w-3 h-3 rounded-full bg-green-400"></div>
-					<span class="text-sm font-medium text-slate-600 dark:text-slate-400">After (Generated)</span>
+					<div class="w-3 h-3 rounded-full bg-success"></div>
+					<span class="text-sm font-medium text-muted-foreground">After (Generated)</span>
 				</div>
 				<CodeBlock code={afterCode} lang="typescript" />
 			</div>
@@ -198,7 +198,7 @@ class User {
 		<div class="text-center mt-10">
 			<a
 				href="{base}/docs/getting-started"
-				class="inline-flex items-center text-primary-600 dark:text-primary-400 font-medium hover:underline"
+				class="inline-flex items-center text-primary font-medium hover:underline"
 			>
 				Learn more about derive macros
 				<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
@@ -210,72 +210,72 @@ class User {
 </section>
 
 <!-- Architecture Section -->
-<section class="py-16 sm:py-24 bg-white dark:bg-surface-950">
+<section class="py-16 sm:py-24 bg-background">
 	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="text-center max-w-2xl mx-auto mb-12">
-			<h2 class="text-3xl font-bold text-slate-900 dark:text-white">
+			<h2 class="text-3xl font-bold text-foreground">
 				Built on Solid Foundations
 			</h2>
-			<p class="mt-4 text-lg text-slate-600 dark:text-slate-300">
+			<p class="mt-4 text-lg text-muted-foreground">
 				Native performance with familiar tooling
 			</p>
 		</div>
 
 		<div class="max-w-3xl mx-auto">
 			<!-- Architecture Diagram -->
-			<div class="bg-slate-50 dark:bg-surface-900 rounded-xl border border-slate-200 dark:border-slate-800 p-8">
+			<div class="bg-card rounded-xl border border-border p-8">
 				<div class="space-y-4">
 					<!-- Layer 1 -->
-					<div class="text-center p-4 bg-white dark:bg-surface-800 rounded-lg border border-slate-200 dark:border-slate-700">
-						<span class="text-sm font-medium text-slate-600 dark:text-slate-400">Node.js / Vite / TypeScript Language Server</span>
+					<div class="text-center p-4 bg-muted rounded-lg border border-border">
+						<span class="text-sm font-medium text-muted-foreground">Node.js / Vite / TypeScript Language Server</span>
 					</div>
 
 					<!-- Arrow -->
 					<div class="flex justify-center">
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
 						</svg>
 					</div>
 
 					<!-- Layer 2 -->
-					<div class="text-center p-4 bg-primary-50 dark:bg-primary-950/50 rounded-lg border border-primary-200 dark:border-primary-800">
-						<span class="text-sm font-medium text-primary-700 dark:text-primary-300">NAPI-RS Bindings</span>
+					<div class="text-center p-4 bg-primary/10 rounded-lg border border-primary/20">
+						<span class="text-sm font-medium text-primary">NAPI-RS Bindings</span>
 					</div>
 
 					<!-- Arrow -->
 					<div class="flex justify-center">
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
 						</svg>
 					</div>
 
 					<!-- Layer 3 -->
 					<div class="grid grid-cols-3 gap-4">
-						<div class="text-center p-4 bg-amber-50 dark:bg-amber-950/50 rounded-lg border border-amber-200 dark:border-amber-800">
-							<span class="text-xs font-medium text-amber-700 dark:text-amber-300">ts_syn</span>
-							<p class="text-xs text-amber-600 dark:text-amber-400 mt-1">Parsing</p>
+						<div class="text-center p-4 bg-warning/10 rounded-lg border border-warning/20">
+							<span class="text-xs font-medium text-warning-foreground">ts_syn</span>
+							<p class="text-xs text-warning-foreground/80 mt-1">Parsing</p>
 						</div>
-						<div class="text-center p-4 bg-amber-50 dark:bg-amber-950/50 rounded-lg border border-amber-200 dark:border-amber-800">
-							<span class="text-xs font-medium text-amber-700 dark:text-amber-300">ts_quote</span>
-							<p class="text-xs text-amber-600 dark:text-amber-400 mt-1">Templating</p>
+						<div class="text-center p-4 bg-warning/10 rounded-lg border border-warning/20">
+							<span class="text-xs font-medium text-warning-foreground">ts_quote</span>
+							<p class="text-xs text-warning-foreground/80 mt-1">Templating</p>
 						</div>
-						<div class="text-center p-4 bg-amber-50 dark:bg-amber-950/50 rounded-lg border border-amber-200 dark:border-amber-800">
-							<span class="text-xs font-medium text-amber-700 dark:text-amber-300">ts_macro_derive</span>
-							<p class="text-xs text-amber-600 dark:text-amber-400 mt-1">Proc Macro</p>
+						<div class="text-center p-4 bg-warning/10 rounded-lg border border-warning/20">
+							<span class="text-xs font-medium text-warning-foreground">ts_macro_derive</span>
+							<p class="text-xs text-warning-foreground/80 mt-1">Proc Macro</p>
 						</div>
 					</div>
 
 					<!-- Arrow -->
 					<div class="flex justify-center">
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
 						</svg>
 					</div>
 
 					<!-- Layer 4 -->
-					<div class="text-center p-4 bg-slate-800 dark:bg-slate-900 rounded-lg border border-slate-700">
-						<span class="text-sm font-medium text-white">SWC Core</span>
-						<p class="text-xs text-slate-400 mt-1">TypeScript parsing & code generation</p>
+					<div class="text-center p-4 bg-foreground rounded-lg">
+						<span class="text-sm font-medium text-background">SWC Core</span>
+						<p class="text-xs text-background/70 mt-1">TypeScript parsing & code generation</p>
 					</div>
 				</div>
 			</div>
@@ -284,17 +284,17 @@ class User {
 </section>
 
 <!-- CTA Section -->
-<section class="py-16 sm:py-24 bg-primary-600 dark:bg-primary-800">
+<section class="py-16 sm:py-24 bg-primary">
 	<div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-		<h2 class="text-3xl font-bold text-white mb-4">
+		<h2 class="text-3xl font-bold text-primary-foreground mb-4">
 			Ready to Get Started?
 		</h2>
-		<p class="text-lg text-primary-100 mb-8 max-w-2xl mx-auto">
+		<p class="text-lg text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
 			Install Macroforge and start generating code in minutes.
 		</p>
 		<a
 			href="{base}/docs/getting-started"
-			class="inline-flex items-center justify-center px-6 py-3 bg-white text-primary-600 font-medium rounded-lg hover:bg-primary-50 transition-colors"
+			class="inline-flex items-center justify-center px-6 py-3 bg-background text-foreground font-medium rounded-lg hover:bg-background/90 transition-colors"
 		>
 			Read the Documentation
 		</a>

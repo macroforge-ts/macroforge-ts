@@ -28,12 +28,12 @@
 	};
 </script>
 
-<div class="relative group my-4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+<div class="relative group my-4 rounded-lg overflow-hidden border border-border">
 	{#if filename}
 		<div
-			class="flex items-center justify-between px-4 py-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700"
+			class="flex items-center justify-between px-4 py-2 bg-muted border-b border-border"
 		>
-			<span class="text-xs font-medium text-slate-600 dark:text-slate-400">{filename}</span>
+			<span class="text-xs font-medium text-muted-foreground">{filename}</span>
 			<CopyButton text={code} />
 		</div>
 	{:else}
@@ -41,13 +41,13 @@
 			<CopyButton text={code} />
 		</div>
 		{#if lang && langDisplay[lang]}
-			<div class="absolute top-2 left-4 text-xs text-slate-500 dark:text-slate-500">
+			<div class="absolute top-2 left-4 text-xs text-muted-foreground">
 				{langDisplay[lang]}
 			</div>
 		{/if}
 	{/if}
 	<pre
-		class="overflow-x-auto p-4 bg-slate-900 dark:bg-slate-950 text-sm {filename ? '' : 'pt-8'}"
-	><code class="text-slate-100 font-mono">{#each lines as line, i}{#if showLineNumbers}<span class="inline-block w-8 text-right mr-4 text-slate-500 select-none">{i + 1}</span>{/if}<span>{line}</span>{#if i < lines.length - 1}
+		class="overflow-x-auto p-4 bg-card text-sm {filename ? '' : 'pt-8'}"
+	><code class="text-card-foreground font-mono">{#each lines as line, i}{#if showLineNumbers}<span class="inline-block w-8 text-right mr-4 text-muted-foreground select-none">{i + 1}</span>{/if}<span>{line}</span>{#if i < lines.length - 1}
 {/if}{/each}</code></pre>
 </div>

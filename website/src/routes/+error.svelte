@@ -9,25 +9,25 @@
 
 <div class="min-h-[60vh] flex items-center justify-center px-4">
 	<div class="text-center">
-		<p class="text-6xl font-bold text-primary-600 dark:text-primary-400">
+		<p class="text-6xl font-bold text-primary">
 			{page.status}
 		</p>
-		<h1 class="mt-4 text-2xl font-semibold text-slate-900 dark:text-white">
+		<h1 class="mt-4 text-2xl font-semibold text-foreground">
 			{page.error?.message || 'Page not found'}
 		</h1>
-		<p class="mt-2 text-slate-600 dark:text-slate-400">
+		<p class="mt-2 text-muted-foreground">
 			The page you're looking for doesn't exist or has been moved.
 		</p>
 		<div class="mt-6 flex items-center justify-center gap-4">
 			<a
 				href="{base}/"
-				class="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors"
+				class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg transition-colors"
 			>
 				Go Home
 			</a>
 			<a
 				href="{base}/docs/getting-started"
-				class="inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium rounded-lg transition-colors"
+				class="inline-flex items-center px-4 py-2 border border-border text-foreground hover:bg-accent font-medium rounded-lg transition-colors"
 			>
 				Documentation
 			</a>
