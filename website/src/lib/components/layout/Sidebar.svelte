@@ -12,9 +12,8 @@
 	{#each navigation as section}
 		<div>
 			<h4
-				class="text-sm font-semibold text-slate-900 dark:text-white mb-3"
-				class:text-primary-600={isSectionActive(section)}
-				class:dark:text-primary-400={isSectionActive(section)}
+				class="text-sm font-semibold text-foreground mb-3"
+				class:text-primary={isSectionActive(section)}
 			>
 				{section.title}
 			</h4>
@@ -25,8 +24,8 @@
 							href={getHref(item.href)}
 							class="block py-1.5 px-3 text-sm rounded-md transition-colors
 								{isActive(item.href)
-									? 'bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-400 font-medium'
-									: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}"
+									? 'bg-primary/10 text-primary font-medium'
+									: 'text-muted-foreground hover:text-foreground hover:bg-accent'}"
 							aria-current={isActive(item.href) ? 'page' : undefined}
 						>
 							{item.title}

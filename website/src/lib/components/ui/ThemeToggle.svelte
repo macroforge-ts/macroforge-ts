@@ -6,7 +6,7 @@
 
 <button
 	onclick={toggleMode}
-	class="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+	class="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
 	aria-label={mode.current === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
 >
 	{#if mode.current === 'dark'}
