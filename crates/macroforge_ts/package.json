@@ -1,6 +1,6 @@
 {
   "name": "macroforge",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "TypeScript macro expansion engine powered by Rust and SWC",
   "main": "index.js",
   "types": "index.d.ts",
@@ -60,12 +60,12 @@
     "node": ">= 18"
   },
   "optionalDependencies": {
-    "@macroforge/bin-darwin-x64": "0.1.18",
-    "@macroforge/bin-darwin-arm64": "0.1.18",
-    "@macroforge/bin-linux-x64-gnu": "0.1.18",
-    "@macroforge/bin-linux-arm64-gnu": "0.1.18",
-    "@macroforge/bin-win32-x64-msvc": "0.1.18",
-    "@macroforge/bin-win32-arm64-msvc": "0.1.18"
+    "@macroforge/bin-darwin-x64": "0.1.19",
+    "@macroforge/bin-darwin-arm64": "0.1.19",
+    "@macroforge/bin-linux-x64-gnu": "0.1.19",
+    "@macroforge/bin-linux-arm64-gnu": "0.1.19",
+    "@macroforge/bin-win32-x64-msvc": "0.1.19",
+    "@macroforge/bin-win32-arm64-msvc": "0.1.19"
   },
   "scripts": {
     "artifacts": "napi artifacts --npm-dir npm"
