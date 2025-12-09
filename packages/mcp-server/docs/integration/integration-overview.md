@@ -27,20 +27,27 @@ npm install -D @macroforge/typescript-plugin @macroforge/vite-plugin
 
 ## How They Work Together
 
-```text
-┌────────────────────────────────────────────────────────┐
-│                   Development Flow                      │
-├────────────────────────────────────────────────────────┤
-│                                                         │
-│  Your Code ──► TypeScript Plugin ──► IDE Feedback       │
-│      │                                                  │
-│      │                                                  │
-│      └──────► Vite Plugin ────────► Dev Server          │
-│                     │                                   │
-│                     └─────────────► Production Build    │
-│                                                         │
-└────────────────────────────────────────────────────────┘
-```
+<IntegrationFlow
+source="Your Code"
+sourceDesc="TypeScript with @derive decorators"
+branches={[
+{
+plugin: 'TypeScript Plugin',
+pluginDesc: 'Language service integration',
+outputs: [
+{ label: 'IDE Feedback', desc: 'Errors & completions' }
+]
+},
+{
+plugin: 'Vite Plugin',
+pluginDesc: 'Build-time transformation',
+outputs: [
+{ label: 'Dev Server', desc: 'Hot reload' },
+{ label: 'Production Build', desc: 'Optimized output' }
+]
+}
+]}
+/>
 
 ## Detailed Guides
 

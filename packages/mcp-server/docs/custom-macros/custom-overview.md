@@ -10,15 +10,14 @@ Custom macros are written in Rust and compiled to native Node.js addons. The pro
 
 2. Defining macro functions with `#[ts_macro_derive]`
 
-3. Using `ts_quote` to generate TypeScript code
+3. Using `macroforge_ts_quote` to generate TypeScript code
 
 4. Building and publishing as an npm package
 
 ## Quick Example
 
 ```rust
-use macroforge_ts::ts_macro_derive::ts_macro_derive;
-use macroforge_ts::ts_quote::body;
+use macroforge_ts::macros::{ts_macro_derive, body};
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 #[ts_macro_derive(
@@ -79,6 +78,6 @@ Follow these guides to create your own macros:
 
 - [Set up a Rust macro crate]({base}/docs/custom-macros/rust-setup)
 
-- [Use the ts_macro_derive attribute]({base}/docs/custom-macros/ts-macro-derive)
+- [Learn the #[ts_macro_derive] attribute]({base}/docs/custom-macros/ts-macro-derive)
 
-- [Learn the ts_quote template syntax]({base}/docs/custom-macros/ts-quote)
+- [Learn the template syntax]({base}/docs/custom-macros/ts-quote)

@@ -2,6 +2,7 @@
 
 /**
  * Extract documentation from website Svelte pages into markdown files for MCP server.
+ * Auto-discovers all pages from the website's navigation.ts config.
  *
  * Usage: node scripts/extract-docs.cjs
  */
@@ -11,245 +12,132 @@ const path = require('path');
 
 const websiteRoot = path.join(__dirname, '..', '..', '..', 'website');
 const routesDir = path.join(websiteRoot, 'src', 'routes');
+const navigationPath = path.join(websiteRoot, 'src', 'lib', 'config', 'navigation.ts');
 const outputDir = path.join(__dirname, '..', 'docs');
 
-// Navigation structure with use_cases for each section
-const navigation = [
-  {
-    category: 'getting-started',
-    title: 'Getting Started',
-    items: [
-      {
-        id: 'installation',
-        title: 'Installation',
-        href: '/docs/getting-started',
-        use_cases: 'setup, install, npm, getting started, quick start, init'
-      },
-      {
-        id: 'first-macro',
-        title: 'First Macro',
-        href: '/docs/getting-started/first-macro',
-        use_cases: 'tutorial, example, hello world, beginner, learn'
-      }
-    ]
-  },
-  {
-    category: 'concepts',
-    title: 'Core Concepts',
-    items: [
-      {
-        id: 'how-macros-work',
-        title: 'How Macros Work',
-        href: '/docs/concepts',
-        use_cases: 'architecture, overview, understanding, basics, fundamentals'
-      },
-      {
-        id: 'derive-system',
-        title: 'The Derive System',
-        href: '/docs/concepts/derive-system',
-        use_cases: '@derive, decorator, annotation, derive macro'
-      },
-      {
-        id: 'architecture',
-        title: 'Architecture',
-        href: '/docs/concepts/architecture',
-        use_cases: 'internals, rust, swc, napi, how it works'
-      }
-    ]
-  },
-  {
-    category: 'builtin-macros',
-    title: 'Built-in Macros',
-    items: [
-      {
-        id: 'macros-overview',
-        title: 'Overview',
-        href: '/docs/builtin-macros',
-        use_cases: 'all macros, list, available macros, macro list'
-      },
-      {
-        id: 'debug',
-        title: 'Debug',
-        href: '/docs/builtin-macros/debug',
-        use_cases: 'toString, debugging, logging, output, print'
-      },
-      {
-        id: 'clone',
-        title: 'Clone',
-        href: '/docs/builtin-macros/clone',
-        use_cases: 'copy, clone, duplicate, shallow copy, immutable'
-      },
-      {
-        id: 'default',
-        title: 'Default',
-        href: '/docs/builtin-macros/default',
-        use_cases: 'default values, factory, initialization, constructor'
-      },
-      {
-        id: 'hash',
-        title: 'Hash',
-        href: '/docs/builtin-macros/hash',
-        use_cases: 'hashCode, hashing, hash map, equality, hash function'
-      },
-      {
-        id: 'ord',
-        title: 'Ord',
-        href: '/docs/builtin-macros/ord',
-        use_cases: 'compareTo, ordering, sorting, comparison, total order'
-      },
-      {
-        id: 'partial-eq',
-        title: 'PartialEq',
-        href: '/docs/builtin-macros/partial-eq',
-        use_cases: 'equals, equality, comparison, value equality'
-      },
-      {
-        id: 'partial-ord',
-        title: 'PartialOrd',
-        href: '/docs/builtin-macros/partial-ord',
-        use_cases: 'compareTo, partial ordering, sorting, nullable comparison'
-      },
-      {
-        id: 'serialize',
-        title: 'Serialize',
-        href: '/docs/builtin-macros/serialize',
-        use_cases: 'toJSON, serialization, json, api, data transfer'
-      },
-      {
-        id: 'deserialize',
-        title: 'Deserialize',
-        href: '/docs/builtin-macros/deserialize',
-        use_cases: 'fromJSON, deserialization, parsing, validation, json'
-      }
-    ]
-  },
-  {
-    category: 'custom-macros',
-    title: 'Custom Macros',
-    items: [
-      {
-        id: 'custom-overview',
-        title: 'Overview',
-        href: '/docs/custom-macros',
-        use_cases: 'custom, extending, creating macros, own macro'
-      },
-      {
-        id: 'rust-setup',
-        title: 'Rust Setup',
-        href: '/docs/custom-macros/rust-setup',
-        use_cases: 'rust, cargo, napi, compilation, building'
-      },
-      {
-        id: 'ts-macro-derive',
-        title: 'ts_macro_derive',
-        href: '/docs/custom-macros/ts-macro-derive',
-        use_cases: 'attribute, proc macro, derive attribute, rust macro'
-      },
-      {
-        id: 'ts-quote',
-        title: 'Template Syntax',
-        href: '/docs/custom-macros/ts-quote',
-        use_cases: 'ts_quote, template, code generation, interpolation'
-      }
-    ]
-  },
-  {
-    category: 'integration',
-    title: 'Integration',
-    items: [
-      {
-        id: 'integration-overview',
-        title: 'Overview',
-        href: '/docs/integration',
-        use_cases: 'setup, integration, tools, ecosystem'
-      },
-      {
-        id: 'cli',
-        title: 'CLI',
-        href: '/docs/integration/cli',
-        use_cases: 'command line, macroforge command, expand, terminal'
-      },
-      {
-        id: 'typescript-plugin',
-        title: 'TypeScript Plugin',
-        href: '/docs/integration/typescript-plugin',
-        use_cases: 'vscode, ide, language server, intellisense, autocomplete'
-      },
-      {
-        id: 'vite-plugin',
-        title: 'Vite Plugin',
-        href: '/docs/integration/vite-plugin',
-        use_cases: 'vite, build, bundler, react, svelte, sveltekit'
-      },
-      {
-        id: 'configuration',
-        title: 'Configuration',
-        href: '/docs/integration/configuration',
-        use_cases: 'macroforge.json, config, settings, options'
-      }
-    ]
-  },
-  {
-    category: 'language-servers',
-    title: 'Language Servers',
-    items: [
-      {
-        id: 'ls-overview',
-        title: 'Overview',
-        href: '/docs/language-servers',
-        use_cases: 'lsp, language server, editor support'
-      },
-      {
-        id: 'svelte-ls',
-        title: 'Svelte',
-        href: '/docs/language-servers/svelte',
-        use_cases: 'svelte, svelte language server, .svelte files'
-      },
-      {
-        id: 'zed-extensions',
-        title: 'Zed Extensions',
-        href: '/docs/language-servers/zed',
-        use_cases: 'zed, zed editor, extension'
-      }
-    ]
-  },
-  {
-    category: 'api',
-    title: 'API Reference',
-    items: [
-      {
-        id: 'api-overview',
-        title: 'Overview',
-        href: '/docs/api',
-        use_cases: 'api, functions, exports, programmatic'
-      },
-      {
-        id: 'expand-sync',
-        title: 'expandSync()',
-        href: '/docs/api/expand-sync',
-        use_cases: 'expandSync, expand, transform, macro expansion'
-      },
-      {
-        id: 'transform-sync',
-        title: 'transformSync()',
-        href: '/docs/api/transform-sync',
-        use_cases: 'transformSync, transform, metadata, low-level'
-      },
-      {
-        id: 'native-plugin',
-        title: 'NativePlugin',
-        href: '/docs/api/native-plugin',
-        use_cases: 'NativePlugin, caching, language server, stateful'
-      },
-      {
-        id: 'position-mapper',
-        title: 'PositionMapper',
-        href: '/docs/api/position-mapper',
-        use_cases: 'PositionMapper, source map, diagnostics, position'
-      }
-    ]
+// Use cases for each section (keyed by href)
+const useCasesMap = {
+  // Getting Started
+  '/docs/getting-started': 'setup, install, npm, getting started, quick start, init',
+  '/docs/getting-started/first-macro': 'tutorial, example, hello world, beginner, learn',
+
+  // Core Concepts
+  '/docs/concepts': 'architecture, overview, understanding, basics, fundamentals',
+  '/docs/concepts/derive-system': '@derive, decorator, annotation, derive macro',
+  '/docs/concepts/architecture': 'internals, rust, swc, napi, how it works',
+
+  // Built-in Macros
+  '/docs/builtin-macros': 'all macros, list, available macros, macro list',
+  '/docs/builtin-macros/debug': 'toString, debugging, logging, output, print',
+  '/docs/builtin-macros/clone': 'copy, clone, duplicate, shallow copy, immutable',
+  '/docs/builtin-macros/default': 'default values, factory, initialization, constructor',
+  '/docs/builtin-macros/hash': 'hashCode, hashing, hash map, equality, hash function',
+  '/docs/builtin-macros/ord': 'compareTo, ordering, sorting, comparison, total order',
+  '/docs/builtin-macros/partial-eq': 'equals, equality, comparison, value equality',
+  '/docs/builtin-macros/partial-ord': 'compareTo, partial ordering, sorting, nullable comparison',
+  '/docs/builtin-macros/serialize': 'toJSON, serialization, json, api, data transfer',
+  '/docs/builtin-macros/deserialize': 'fromJSON, deserialization, parsing, validation, json',
+
+  // Custom Macros
+  '/docs/custom-macros': 'custom, extending, creating macros, own macro',
+  '/docs/custom-macros/rust-setup': 'rust, cargo, napi, compilation, building',
+  '/docs/custom-macros/ts-macro-derive': 'attribute, proc macro, derive attribute, rust macro',
+  '/docs/custom-macros/ts-quote': 'ts_quote, template, code generation, interpolation',
+
+  // Integration
+  '/docs/integration': 'setup, integration, tools, ecosystem',
+  '/docs/integration/cli': 'command line, macroforge command, expand, terminal',
+  '/docs/integration/typescript-plugin': 'vscode, ide, language server, intellisense, autocomplete',
+  '/docs/integration/vite-plugin': 'vite, build, bundler, react, svelte, sveltekit',
+  '/docs/integration/svelte-preprocessor': 'svelte, preprocessor, svelte components, .svelte files, sveltekit',
+  '/docs/integration/mcp-server': 'mcp, ai, claude, llm, model context protocol, assistant',
+  '/docs/integration/configuration': 'macroforge.json, config, settings, options',
+
+  // Language Servers
+  '/docs/language-servers': 'lsp, language server, editor support',
+  '/docs/language-servers/svelte': 'svelte, svelte language server, .svelte files',
+  '/docs/language-servers/zed': 'zed, zed editor, extension',
+
+  // API Reference
+  '/docs/api': 'api, functions, exports, programmatic',
+  '/docs/api/expand-sync': 'expandSync, expand, transform, macro expansion',
+  '/docs/api/transform-sync': 'transformSync, transform, metadata, low-level',
+  '/docs/api/native-plugin': 'NativePlugin, caching, language server, stateful',
+  '/docs/api/position-mapper': 'PositionMapper, source map, diagnostics, position',
+
+  // Roadmap
+  '/docs/roadmap': 'roadmap, future, planned features, upcoming'
+};
+
+/**
+ * Parse the navigation.ts file to extract the navigation structure
+ */
+function parseNavigation() {
+  const content = fs.readFileSync(navigationPath, 'utf-8');
+  const sections = [];
+
+  // Match each section block
+  const sectionRegex = /\{\s*title:\s*['"]([^'"]+)['"]\s*,\s*items:\s*\[([\s\S]*?)\]\s*\}/g;
+  let sectionMatch;
+
+  while ((sectionMatch = sectionRegex.exec(content)) !== null) {
+    const sectionTitle = sectionMatch[1];
+    const itemsContent = sectionMatch[2];
+
+    const items = [];
+    const itemRegex = /\{\s*title:\s*['"]([^'"]+)['"]\s*,\s*href:\s*['"]([^'"]+)['"]\s*\}/g;
+    let itemMatch;
+
+    while ((itemMatch = itemRegex.exec(itemsContent)) !== null) {
+      items.push({
+        title: itemMatch[1],
+        href: itemMatch[2]
+      });
+    }
+
+    if (items.length > 0) {
+      sections.push({
+        title: sectionTitle,
+        items
+      });
+    }
   }
-];
+
+  return sections;
+}
+
+/**
+ * Convert href to category slug
+ */
+function hrefToCategory(href) {
+  // /docs/getting-started/first-macro -> getting-started
+  const parts = href.replace('/docs/', '').split('/');
+  return parts[0];
+}
+
+/**
+ * Convert href to item ID
+ */
+function hrefToId(href) {
+  // /docs/getting-started/first-macro -> first-macro
+  // /docs/getting-started -> installation (special case for index pages)
+  const parts = href.replace('/docs/', '').split('/');
+  if (parts.length === 1) {
+    // Index page - use a descriptive name based on the category
+    const categoryIdMap = {
+      'getting-started': 'installation',
+      'concepts': 'how-macros-work',
+      'builtin-macros': 'macros-overview',
+      'custom-macros': 'custom-overview',
+      'integration': 'integration-overview',
+      'language-servers': 'ls-overview',
+      'api': 'api-overview',
+      'roadmap': 'roadmap'
+    };
+    return categoryIdMap[parts[0]] || parts[0];
+  }
+  return parts[parts.length - 1];
+}
 
 /**
  * Convert href to file path
@@ -378,6 +266,13 @@ function htmlToMarkdown(html) {
  * Extract documentation from website and generate markdown files
  */
 function extractDocs() {
+  console.log('Auto-discovering pages from navigation.ts...\n');
+
+  // Parse navigation from website
+  const navigation = parseNavigation();
+
+  console.log(`Found ${navigation.length} sections in navigation.ts\n`);
+
   // Ensure output directory exists
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
@@ -385,39 +280,45 @@ function extractDocs() {
 
   const sections = [];
 
-  for (const category of navigation) {
+  for (const section of navigation) {
+    const category = hrefToCategory(section.items[0]?.href || '');
+
     // Create category directory
-    const categoryDir = path.join(outputDir, category.category);
+    const categoryDir = path.join(outputDir, category);
     if (!fs.existsSync(categoryDir)) {
       fs.mkdirSync(categoryDir, { recursive: true });
     }
 
-    for (const item of category.items) {
+    for (const item of section.items) {
       const filePath = hrefToFilePath(item.href);
+      const itemId = hrefToId(item.href);
 
       if (!fs.existsSync(filePath)) {
         console.warn(`Warning: File not found: ${filePath}`);
         continue;
       }
 
-      console.log(`Processing: ${item.title} (${filePath})`);
+      console.log(`Processing: ${item.title} (${item.href})`);
 
       const svelteContent = fs.readFileSync(filePath, 'utf-8');
       const htmlContent = extractContent(svelteContent);
       const markdownContent = htmlToMarkdown(htmlContent);
 
       // Write markdown file
-      const outputPath = path.join(categoryDir, `${item.id}.md`);
+      const outputPath = path.join(categoryDir, `${itemId}.md`);
       fs.writeFileSync(outputPath, markdownContent);
+
+      // Get use_cases from map or generate default
+      const useCases = useCasesMap[item.href] || item.title.toLowerCase();
 
       // Add to sections list
       sections.push({
-        id: item.id,
+        id: itemId,
         title: item.title,
-        category: category.category,
-        category_title: category.title,
-        path: `${category.category}/${item.id}.md`,
-        use_cases: item.use_cases
+        category: category,
+        category_title: section.title,
+        path: `${category}/${itemId}.md`,
+        use_cases: useCases
       });
     }
   }

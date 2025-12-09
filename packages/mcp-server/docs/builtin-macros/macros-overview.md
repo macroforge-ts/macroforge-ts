@@ -1,27 +1,43 @@
 # Built-in Macros
 
-*Macroforge comes with five built-in derive macros that cover the most common code generation needs. All macros work with classes, interfaces, enums, and type aliases.*
+*Macroforge comes with built-in derive macros that cover the most common code generation needs. All macros work with classes, interfaces, enums, and type aliases.*
 
 ## Overview
 
-| `Debug` 
+| [`Debug`]({base}/docs/builtin-macros/debug) 
 | `toString(): string` 
 | Human-readable string representation 
 
-| `Clone` 
+| [`Clone`]({base}/docs/builtin-macros/clone) 
 | `clone(): T` 
-| Creates a copy of the object 
+| Creates a deep copy of the object 
 
-| `PartialEq` 
+| [`Default`]({base}/docs/builtin-macros/default) 
+| `static default(): T` 
+| Creates an instance with default values 
+
+| [`Hash`]({base}/docs/builtin-macros/hash) 
+| `hashCode(): number` 
+| Generates a hash code for the object 
+
+| [`PartialEq`]({base}/docs/builtin-macros/partial-eq) 
 | `equals(other: T): boolean` 
 | Value equality comparison 
 
-| `Serialize` 
+| [`Ord`]({base}/docs/builtin-macros/ord) 
+| `compare(other: T): number` 
+| Total ordering comparison (-1, 0, 1) 
+
+| [`PartialOrd`]({base}/docs/builtin-macros/partial-ord) 
+| `partialCompare(other: T): number | null` 
+| Partial ordering comparison 
+
+| [`Serialize`]({base}/docs/builtin-macros/serialize) 
 | `toJSON(): Record<string, unknown>` 
 | JSON serialization with type handling 
 
-| `Deserialize` 
-| `fromJSON(data: unknown): T` 
+| [`Deserialize`]({base}/docs/builtin-macros/deserialize) 
+| `static fromJSON(data: unknown): T` 
 | JSON deserialization with validation
 
 ## Using Built-in Macros
@@ -160,9 +176,17 @@ Each macro has its own options and behaviors:
 
 - [**Debug**]({base}/docs/builtin-macros/debug) - Customizable field renaming and skipping
 
-- [**Clone**]({base}/docs/builtin-macros/clone) - Shallow copying for all field types
+- [**Clone**]({base}/docs/builtin-macros/clone) - Deep copying for all field types
+
+- [**Default**]({base}/docs/builtin-macros/default) - Default value generation with field attributes
+
+- [**Hash**]({base}/docs/builtin-macros/hash) - Hash code generation for use in maps and sets
 
 - [**PartialEq**]({base}/docs/builtin-macros/partial-eq) - Value-based equality comparison
+
+- [**Ord**]({base}/docs/builtin-macros/ord) - Total ordering for sorting
+
+- [**PartialOrd**]({base}/docs/builtin-macros/partial-ord) - Partial ordering comparison
 
 - [**Serialize**]({base}/docs/builtin-macros/serialize) - JSON serialization with serde-style options
 

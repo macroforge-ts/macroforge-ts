@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/mcp-server",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "MCP server for Macroforge documentation and code analysis",
   "type": "module",
   "main": "dist/index.js",
@@ -27,7 +27,7 @@
     "typescript": "^5.7.0"
   },
   "peerDependencies": {
-    "macroforge": "^0.1.19"
+    "macroforge": "^0.1.20"
   },
   "peerDependenciesMeta": {
     "macroforge": {

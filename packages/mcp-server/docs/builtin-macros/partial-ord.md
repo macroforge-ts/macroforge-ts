@@ -4,16 +4,9 @@
 
 ## Basic Usage
 
+<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
+
 ```typescript
-/** @derive(PartialOrd) */
-class Temperature {
-  celsius: number;
-
-  constructor(celsius: number) {
-    this.celsius = celsius;
-  }
-}
-
 const t1 = new Temperature(20);
 const t2 = new Temperature(30);
 const t3 = new Temperature(20);
@@ -24,22 +17,6 @@ console.log(t1.compareTo(t3)); // 0  (t1 == t3)
 
 // Returns null for incomparable types
 console.log(t1.compareTo("not a Temperature")); // null
-```
-
-## Generated Code
-
-The PartialOrd macro generates a compareTo method with runtime type checking:
-
-```typescript
-compareTo(other: unknown): number | null {
-    if (this === other) return 0;
-    if (!(other instanceof Temperature)) return null;
-    const typedOther = other as Temperature;
-    const cmp0 = (this.celsius < typedOther.celsius ? -1 : this.celsius > typedOther.celsius ? 1 : 0);
-    if (cmp0 === null) return null;
-    if (cmp0 !== 0) return cmp0;
-    return 0;
-}
 ```
 
 ## Return Values
@@ -78,22 +55,9 @@ The PartialOrd macro compares fields in declaration order with type checking:
 
 Use `@ord(skip)` to exclude a field from ordering comparison:
 
+<MacroExample before={data.examples.skip.before} after={data.examples.skip.after} />
+
 ```typescript
-/** @derive(PartialOrd) */
-class Item {
-  price: number;
-  name: string;
-
-  /** @ord(skip) */
-  description: string;  // Not used for ordering
-
-  constructor(price: number, name: string, description: string) {
-    this.price = price;
-    this.name = name;
-    this.description = description;
-  }
-}
-
 const i1 = new Item(10, "Widget", "A useful widget");
 const i2 = new Item(10, "Widget", "Different description");
 
@@ -104,16 +68,16 @@ console.log(i1.compareTo(i2)); // 0 (description is skipped)
 
 When using PartialOrd, always handle the `null` case:
 
-```typescript
-/** @derive(PartialOrd) */
+<InteractiveMacro code={`/** @derive(PartialOrd) */
 class Value {
   amount: number;
 
   constructor(amount: number) {
     this.amount = amount;
   }
-}
+}`} />
 
+```typescript
 function safeCompare(a: Value, b: unknown): string {
   const result = a.compareTo(b);
   if (result === null) {
@@ -136,16 +100,16 @@ console.log(safeCompare(v, "string"));       // "incomparable"
 
 When sorting, handle `null` values appropriately:
 
-```typescript
-/** @derive(PartialOrd) */
+<InteractiveMacro code={`/** @derive(PartialOrd) */
 class Score {
   value: number;
 
   constructor(value: number) {
     this.value = value;
   }
-}
+}`} />
 
+```typescript
 const scores = [
   new Score(100),
   new Score(50),
@@ -161,25 +125,9 @@ scores.sort((a, b) => a.compareTo(b) ?? 0);
 
 PartialOrd works with interfaces. For interfaces, a namespace is generated with a `compareTo` function:
 
+<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
+
 ```typescript
-/** @derive(PartialOrd) */
-interface Measurement {
-  value: number;
-  unit: string;
-}
-
-// Generated:
-// export namespace Measurement {
-//   export function compareTo(self: Measurement, other: Measurement): number | null {
-//     if (self === other) return 0;
-//     const cmp0 = (self.value < other.value ? -1 : self.value > other.value ? 1 : 0);
-//     if (cmp0 !== 0) return cmp0;
-//     const cmp1 = self.unit.localeCompare(other.unit);
-//     if (cmp1 !== 0) return cmp1 < 0 ? -1 : 1;
-//     return 0;
-//   }
-// }
-
 const m1: Measurement = { value: 10, unit: "kg" };
 const m2: Measurement = { value: 10, unit: "lb" };
 
@@ -190,21 +138,9 @@ console.log(Measurement.compareTo(m1, m2)); // 1 (kg > lb alphabetically)
 
 PartialOrd works with enums:
 
+<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
+
 ```typescript
-/** @derive(PartialOrd) */
-enum Size {
-  Small = 1,
-  Medium = 2,
-  Large = 3
-}
-
-// Generated:
-// export namespace Size {
-//   export function compareTo(a: Size, b: Size): number | null {
-//     return a < b ? -1 : a > b ? 1 : 0;
-//   }
-// }
-
 console.log(Size.compareTo(Size.Small, Size.Large)); // -1
 console.log(Size.compareTo(Size.Large, Size.Small)); // 1
 ```
@@ -213,25 +149,9 @@ console.log(Size.compareTo(Size.Large, Size.Small)); // 1
 
 PartialOrd works with type aliases:
 
+<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
+
 ```typescript
-/** @derive(PartialOrd) */
-type Interval = {
-  start: number;
-  end: number;
-};
-
-// Generated:
-// export namespace Interval {
-//   export function compareTo(a: Interval, b: Interval): number | null {
-//     if (a === b) return 0;
-//     const cmp0 = (a.start < b.start ? -1 : a.start > b.start ? 1 : 0);
-//     if (cmp0 !== 0) return cmp0;
-//     const cmp1 = (a.end < b.end ? -1 : a.end > b.end ? 1 : 0);
-//     if (cmp1 !== 0) return cmp1;
-//     return 0;
-//   }
-// }
-
 const i1: Interval = { start: 0, end: 10 };
 const i2: Interval = { start: 0, end: 20 };
 
@@ -246,8 +166,7 @@ Choose between `Ord` and `PartialOrd` based on your use case:
 
 - **PartialOrd** → Use when comparing with `unknown` types or when some values might be incomparable
 
-```typescript
-// PartialOrd is safer for public APIs that accept unknown input
+<InteractiveMacro code={`// PartialOrd is safer for public APIs that accept unknown input
 /** @derive(PartialOrd) */
 class SafeValue {
   data: number;
@@ -260,8 +179,9 @@ class SafeValue {
     const result = this.compareTo(other);
     return result !== null && result > 0;
   }
-}
+}`} />
 
+```typescript
 const safe = new SafeValue(100);
 console.log(safe.isGreaterThan(new SafeValue(50)));  // true
 console.log(safe.isGreaterThan("invalid"));          // false

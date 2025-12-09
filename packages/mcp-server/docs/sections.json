@@ -137,7 +137,7 @@
   },
   {
     "id": "ts-macro-derive",
-    "title": "ts_macro_derive",
+    "title": "#[ts_macro_derive]",
     "category": "custom-macros",
     "category_title": "Custom Macros",
     "path": "custom-macros/ts-macro-derive.md",
@@ -184,6 +184,22 @@
     "use_cases": "vite, build, bundler, react, svelte, sveltekit"
   },
   {
+    "id": "svelte-preprocessor",
+    "title": "Svelte Preprocessor",
+    "category": "integration",
+    "category_title": "Integration",
+    "path": "integration/svelte-preprocessor.md",
+    "use_cases": "svelte, preprocessor, svelte components, .svelte files, sveltekit"
+  },
+  {
+    "id": "mcp-server",
+    "title": "MCP Server",
+    "category": "integration",
+    "category_title": "Integration",
+    "path": "integration/mcp-server.md",
+    "use_cases": "mcp, ai, claude, llm, model context protocol, assistant"
+  },
+  {
     "id": "configuration",
     "title": "Configuration",
     "category": "integration",
@@ -200,19 +216,19 @@
     "use_cases": "lsp, language server, editor support"
   },
   {
-    "id": "svelte-ls",
+    "id": "svelte",
     "title": "Svelte",
     "category": "language-servers",
     "category_title": "Language Servers",
-    "path": "language-servers/svelte-ls.md",
+    "path": "language-servers/svelte.md",
     "use_cases": "svelte, svelte language server, .svelte files"
   },
   {
-    "id": "zed-extensions",
+    "id": "zed",
     "title": "Zed Extensions",
     "category": "language-servers",
     "category_title": "Language Servers",
-    "path": "language-servers/zed-extensions.md",
+    "path": "language-servers/zed.md",
     "use_cases": "zed, zed editor, extension"
   },
   {
@@ -254,5 +270,13 @@
     "category_title": "API Reference",
     "path": "api/position-mapper.md",
     "use_cases": "PositionMapper, source map, diagnostics, position"
+  },
+  {
+    "id": "roadmap",
+    "title": "Roadmap",
+    "category": "roadmap",
+    "category_title": "Roadmap",
+    "path": "roadmap/roadmap.md",
+    "use_cases": "roadmap, future, planned features, upcoming"
   }
 ]

@@ -10,13 +10,10 @@ Macroforge uses JSDoc comments for all macro annotations. This ensures compatibi
 
 The `@derive` decorator triggers macro expansion on a class or interface:
 
-```typescript
-/** @derive(MacroName) */
-class MyClass { }
-
-/** @derive(Debug, Clone, PartialEq) */
-class AnotherClass { }
-```
+<InteractiveMacro code={`/** @derive(Debug) */
+class MyClass {
+  value: string;
+}`} />
 
 Syntax rules:
 
@@ -28,16 +25,11 @@ Syntax rules:
 
 - Multiple `@derive` statements can be stacked
 
-```typescript
-// Single derive with multiple macros
-/** @derive(Debug, Clone) */
-class User { }
-
-// Multiple derive statements (equivalent)
-/** @derive(Debug) */
-/** @derive(Clone) */
-class User { }
-```
+<InteractiveMacro code={`/** @derive(Debug, Clone) */
+class User {
+  name: string;
+  email: string;
+}`} />
 
 ### The import macro Statement
 
@@ -68,36 +60,15 @@ class User {
 }
 ```
 
->
-> Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement.
+<Alert type="note" title="Built-in macros">
+Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement.
+</Alert>
 
 ### Field Attributes
 
 Macros can define field-level attributes to customize behavior per field:
 
-```typescript
-/** @attributeName(options) */
-```
-
-The attribute name and available options depend on the macro. Common patterns:
-
-```typescript
-/** @derive(Debug, Serialize) */
-class User {
-  /** @debug({ rename: "userId" }) */
-  /** @serde({ rename: "user_id" }) */
-  id: number;
-
-  name: string;
-
-  /** @debug({ skip: true }) */
-  /** @serde({ skip: true }) */
-  password: string;
-
-  /** @serde({ flatten: true }) */
-  metadata: Record<string, unknown>;
-}
-```
+<MacroExample before={data.examples.fieldAttributes.before} after={data.examples.fieldAttributes.after} />
 
 Syntax rules:
 
@@ -149,10 +120,11 @@ The derive system works on:
 
 - **Classes**: The primary target for derive macros
 
-- **Interfaces**: Some macros can generate companion functions
+- **Interfaces**: Macros generate companion namespace functions
 
-> **Warning:**
-> Enums are not currently supported by the derive system.
+- **Enums**: Macros generate namespace functions for enum values
+
+- **Type aliases**: Both object types and union types are supported
 
 ## Built-in vs Custom Macros
 
