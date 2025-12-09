@@ -52,26 +52,24 @@
 </script>
 
 <div class="rounded-lg border p-4 my-4 {styles[type].container}">
-	<div class="flex">
-		<div class="shrink-0">
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				class="h-5 w-5 {styles[type].icon}"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke="currentColor"
-				stroke-width="2"
-			>
-				<path stroke-linecap="round" stroke-linejoin="round" d={icons[type]} />
-			</svg>
-		</div>
-		<div class="ml-3">
+	<div class="flex items-start gap-3">
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			class="h-5 w-5 shrink-0 mt-0.5 {styles[type].icon}"
+			fill="none"
+			viewBox="0 0 24 24"
+			stroke="currentColor"
+			stroke-width="2"
+		>
+			<path stroke-linecap="round" stroke-linejoin="round" d={icons[type]} />
+		</svg>
+		<div>
 			{#if title || defaultTitles[type]}
-				<h3 class="text-sm font-medium {styles[type].title}">
+				<h3 class="text-sm font-medium leading-5 {styles[type].title}">
 					{title ?? defaultTitles[type]}
 				</h3>
 			{/if}
-			<div class="mt-1 text-sm {styles[type].text}">
+			<div class="text-sm {styles[type].text}" class:mt-1={title || defaultTitles[type]}>
 				{@render children()}
 			</div>
 		</div>

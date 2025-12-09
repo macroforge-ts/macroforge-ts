@@ -7,10 +7,10 @@
 	<meta name="description" content="Learn the ts_template syntax for generating TypeScript code in macros." />
 </svelte:head>
 
-<h1>Template Syntax (ts_quote)</h1>
+<h1>Template Syntax</h1>
 
 <p class="lead">
-	The <code>ts_quote</code> crate provides template-based code generation for TypeScript. The <code>ts_template!</code> macro uses Rust-inspired syntax for control flow and interpolation, making it easy to generate complex TypeScript code.
+	The <code>macroforge_ts_quote</code> crate provides template-based code generation for TypeScript. The <code>ts_template!</code> macro uses Rust-inspired syntax for control flow and interpolation, making it easy to generate complex TypeScript code.
 </p>
 
 <h2 id="macros">Available Macros</h2>
