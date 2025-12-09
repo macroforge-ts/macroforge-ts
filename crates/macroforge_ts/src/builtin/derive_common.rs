@@ -34,12 +34,12 @@ impl CompareFieldOptions {
 // Field Options for Default Macro
 // ============================================================================
 
-/// Options parsed from @defaultValue decorator on fields
+/// Options parsed from @default decorator on fields
 #[derive(Default, Clone)]
 pub struct DefaultFieldOptions {
     /// The default value expression (e.g., "0", "\"\"", "[]")
     pub value: Option<String>,
-    /// Whether this field has a @defaultValue decorator
+    /// Whether this field has a @default decorator
     pub has_default: bool,
 }
 
@@ -47,10 +47,7 @@ impl DefaultFieldOptions {
     pub fn from_decorators(decorators: &[DecoratorIR]) -> Self {
         let mut opts = Self::default();
         for decorator in decorators {
-            // Support both @defaultValue and @default for backward compatibility
-            if !decorator.name.eq_ignore_ascii_case("defaultValue")
-                && !decorator.name.eq_ignore_ascii_case("default")
-            {
+            if !decorator.name.eq_ignore_ascii_case("default") {
                 continue;
             }
             opts.has_default = true;
@@ -230,7 +227,7 @@ mod tests {
 
     #[test]
     fn test_default_field_with_string_value() {
-        let decorator = make_decorator("defaultValue", r#""hello""#);
+        let decorator = make_decorator("default", r#""hello""#);
         let opts = DefaultFieldOptions::from_decorators(&[decorator]);
         assert!(opts.has_default);
         assert_eq!(opts.value.as_deref(), Some(r#""hello""#));
@@ -238,7 +235,7 @@ mod tests {
 
     #[test]
     fn test_default_field_with_number_value() {
-        let decorator = make_decorator("defaultValue", "42");
+        let decorator = make_decorator("default", "42");
         let opts = DefaultFieldOptions::from_decorators(&[decorator]);
         assert!(opts.has_default);
         assert_eq!(opts.value.as_deref(), Some("42"));
@@ -246,7 +243,7 @@ mod tests {
 
     #[test]
     fn test_default_field_with_array_value() {
-        let decorator = make_decorator("defaultValue", "[]");
+        let decorator = make_decorator("default", "[]");
         let opts = DefaultFieldOptions::from_decorators(&[decorator]);
         assert!(opts.has_default);
         assert_eq!(opts.value.as_deref(), Some("[]"));
@@ -254,7 +251,7 @@ mod tests {
 
     #[test]
     fn test_default_field_with_named_value() {
-        let decorator = make_decorator("defaultValue", r#"{ value: "test" }"#);
+        let decorator = make_decorator("default", r#"{ value: "test" }"#);
         let opts = DefaultFieldOptions::from_decorators(&[decorator]);
         assert!(opts.has_default);
         assert_eq!(opts.value.as_deref(), Some("test"));
