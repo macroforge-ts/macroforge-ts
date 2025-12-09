@@ -256,7 +256,7 @@ The `ts_template!` and `body!` macros support:
 |--------|-------------|
 | `@{expr}` | Interpolate Rust expression as identifier/code |
 | `{#for x in iter}...{/for}` | Loop over iterables |
-| `{%let name = expr}` | Local variable binding |
+| `{$let name = expr}` | Local variable binding |
 | `{#if cond}...{/if}` | Conditional blocks |
 
 ### Re-exported Crates

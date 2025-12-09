@@ -390,16 +390,16 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                     {#if has_required}
                         {#for field in &required_fields}
-                            {%let raw_var = format!("__raw_{}", field.field_name)}
-                            {%let val_var = format!("__val_{}", field.field_name)}
-                            {%let has_validators = field.has_validators()}
+                            {$let raw_var = format!("__raw_{}", field.field_name)}
+                            {$let val_var = format!("__val_{}", field.field_name)}
+                            {$let has_validators = field.has_validators()}
                             {#match &field.type_cat}
                                 {:case TypeCategory::Primitive}
-                                    {%let ts_type = &field.ts_type}
+                                    {$let ts_type = &field.ts_type}
                                     const @{raw_var} = obj["@{field.json_key}"];
                                     {#if has_validators}
                                         const @{val_var} = @{raw_var} as @{ts_type};
-                                        {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
+                                        {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
                                         @{validation_code}
                                     {/if}
 
@@ -415,7 +415,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             errors.push("@{class_name}.fromJSON: field \"@{field.json_key}\" must be a Date or ISO string");
                                             @{val_var} = new Date();
                                         }
-                                        {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
+                                        {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
                                         @{validation_code}
                                     {:else}
                                         if (typeof @{raw_var} !== "string" && !(@{raw_var} instanceof Date)) {
@@ -430,7 +430,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     }
                                     {#if has_validators}
                                         const @{val_var} = @{raw_var} as @{inner}[];
-                                        {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
+                                        {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
                                         @{validation_code}
                                     {/if}
 
@@ -447,7 +447,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     }
                                     {#if has_validators}
                                         const @{val_var} = new Set(@{raw_var} as @{inner}[]);
-                                        {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
+                                        {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
                                         @{validation_code}
                                     {/if}
 
@@ -455,29 +455,29 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     const @{raw_var} = obj["@{field.json_key}"];
 
                                 {:case TypeCategory::Optional(_)}
-                                    {%let ts_type = &field.ts_type}
+                                    {$let ts_type = &field.ts_type}
                                     const @{raw_var} = obj["@{field.json_key}"];
                                     {#if has_validators}
                                         const @{val_var} = @{raw_var} as @{ts_type};
-                                        {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
+                                        {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
                                         @{validation_code}
                                     {/if}
 
                                 {:case TypeCategory::Nullable(_)}
-                                    {%let ts_type = &field.ts_type}
+                                    {$let ts_type = &field.ts_type}
                                     const @{raw_var} = obj["@{field.json_key}"];
                                     {#if has_validators}
                                         const @{val_var} = @{raw_var} as @{ts_type};
-                                        {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
+                                        {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
                                         @{validation_code}
                                     {/if}
 
                                 {:case TypeCategory::Unknown}
-                                    {%let ts_type = &field.ts_type}
+                                    {$let ts_type = &field.ts_type}
                                     const @{raw_var} = obj["@{field.json_key}"];
                                     {#if has_validators}
                                         const @{val_var} = @{raw_var} as @{ts_type};
-                                        {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
+                                        {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
                                         @{validation_code}
                                     {/if}
                             {/match}
@@ -486,18 +486,18 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                     {#if has_optional}
                         {#for field in &optional_fields}
-                            {%let raw_var = format!("__raw_{}", field.field_name)}
-                            {%let val_var = format!("__val_{}", field.field_name)}
-                            {%let has_validators = field.has_validators()}
+                            {$let raw_var = format!("__raw_{}", field.field_name)}
+                            {$let val_var = format!("__val_{}", field.field_name)}
+                            {$let has_validators = field.has_validators()}
                             if ("@{field.json_key}" in obj) {
                                 const @{raw_var} = obj["@{field.json_key}"];
                                 if (@{raw_var} !== undefined) {
                                     {#if has_validators}
                                         {#match &field.type_cat}
                                             {:case TypeCategory::Primitive}
-                                                {%let ts_type = &field.ts_type}
+                                                {$let ts_type = &field.ts_type}
                                                 const @{val_var} = @{raw_var} as @{ts_type};
-                                                {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
+                                                {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
                                                 @{validation_code}
 
                                             {:case TypeCategory::Date}
@@ -509,20 +509,20 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 } else {
                                                     @{val_var} = new Date();
                                                 }
-                                                {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
+                                                {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
                                                 @{validation_code}
 
                                             {:case TypeCategory::Array(inner)}
                                                 if (Array.isArray(@{raw_var})) {
                                                     const @{val_var} = @{raw_var} as @{inner}[];
-                                                    {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
+                                                    {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
                                                     @{validation_code}
                                                 }
 
                                             {:case _}
-                                                {%let ts_type = &field.ts_type}
+                                                {$let ts_type = &field.ts_type}
                                                 const @{val_var} = @{raw_var} as @{ts_type};
-                                                {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
+                                                {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
                                                 @{validation_code}
                                         {/match}
                                     {/if}
@@ -539,10 +539,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                     {#if has_required}
                         {#for field in &required_fields}
-                            {%let raw_var = format!("__raw_{}", field.field_name)}
+                            {$let raw_var = format!("__raw_{}", field.field_name)}
                             {#match &field.type_cat}
                                 {:case TypeCategory::Primitive}
-                                    {%let ts_type = &field.ts_type}
+                                    {$let ts_type = &field.ts_type}
                                     init.@{field.field_name} = @{raw_var} as @{ts_type};
 
                                 {:case TypeCategory::Date}
@@ -575,15 +575,15 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     }
 
                                 {:case TypeCategory::Optional(_)}
-                                    {%let ts_type = &field.ts_type}
+                                    {$let ts_type = &field.ts_type}
                                     init.@{field.field_name} = @{raw_var} as @{ts_type};
 
                                 {:case TypeCategory::Nullable(_)}
-                                    {%let ts_type = &field.ts_type}
+                                    {$let ts_type = &field.ts_type}
                                     init.@{field.field_name} = @{raw_var} as @{ts_type};
 
                                 {:case TypeCategory::Unknown}
-                                    {%let ts_type = &field.ts_type}
+                                    {$let ts_type = &field.ts_type}
                                     init.@{field.field_name} = @{raw_var} as @{ts_type};
                             {/match}
                         {/for}
@@ -591,13 +591,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                     {#if has_optional}
                         {#for field in optional_fields}
-                            {%let raw_var = format!("__raw_{}", field.field_name)}
+                            {$let raw_var = format!("__raw_{}", field.field_name)}
                             if ("@{field.json_key}" in obj) {
                                 const @{raw_var} = obj["@{field.json_key}"];
                                 if (@{raw_var} !== undefined) {
                                     {#match &field.type_cat}
                                         {:case TypeCategory::Primitive}
-                                            {%let ts_type = &field.ts_type}
+                                            {$let ts_type = &field.ts_type}
                                             init.@{field.field_name} = @{raw_var} as @{ts_type};
 
                                         {:case TypeCategory::Date}
@@ -620,7 +620,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             }
 
                                         {:case _}
-                                            {%let ts_type = &field.ts_type}
+                                            {$let ts_type = &field.ts_type}
                                             init.@{field.field_name} = @{raw_var} as @{ts_type};
                                     {/match}
                                 }
@@ -759,7 +759,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 {#if field.optional}
                                     {#match &field.type_cat}
                                         {:case TypeCategory::Primitive}
-                                            {%let expected_type = get_js_typeof(&field.ts_type)}
+                                            {$let expected_type = get_js_typeof(&field.ts_type)}
                                             if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined && typeof obj["@{field.json_key}"] !== "@{expected_type}") {
                                                 return false;
                                             }
@@ -776,7 +776,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 {:else}
                                     {#match &field.type_cat}
                                         {:case TypeCategory::Primitive}
-                                            {%let expected_type = get_js_typeof(&field.ts_type)}
+                                            {$let expected_type = get_js_typeof(&field.ts_type)}
                                             if (!("@{field.json_key}" in obj) || typeof obj["@{field.json_key}"] !== "@{expected_type}") {
                                                 return false;
                                             }
@@ -810,18 +810,18 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                         {#if has_validations}
                             {#for field in &validated_fields}
-                                {%let val_var = format!("__val_{}", field.field_name)}
+                                {$let val_var = format!("__val_{}", field.field_name)}
                                 {#if field.optional}
                                     if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
                                         {#match &field.type_cat}
                                             {:case TypeCategory::Date}
                                                 const @{val_var} = typeof obj["@{field.json_key}"] === "string" ? new Date(obj["@{field.json_key}"] as string) : obj["@{field.json_key}"] as Date;
-                                                {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, interface_name)}
+                                                {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, interface_name)}
                                                 @{validation_code}
                                             {:case _}
-                                                {%let ts_type = &field.ts_type}
+                                                {$let ts_type = &field.ts_type}
                                                 const @{val_var} = obj["@{field.json_key}"] as @{ts_type};
-                                                {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, interface_name)}
+                                                {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, interface_name)}
                                                 @{validation_code}
                                         {/match}
                                     }
@@ -829,12 +829,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     {#match &field.type_cat}
                                         {:case TypeCategory::Date}
                                             const @{val_var} = typeof obj["@{field.json_key}"] === "string" ? new Date(obj["@{field.json_key}"] as string) : obj["@{field.json_key}"] as Date;
-                                            {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, interface_name)}
+                                            {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, interface_name)}
                                             @{validation_code}
                                         {:case _}
-                                            {%let ts_type = &field.ts_type}
+                                            {$let ts_type = &field.ts_type}
                                             const @{val_var} = obj["@{field.json_key}"] as @{ts_type};
-                                            {%let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, interface_name)}
+                                            {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, interface_name)}
                                             @{validation_code}
                                     {/match}
                                 {/if}
