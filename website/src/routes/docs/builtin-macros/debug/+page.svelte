@@ -1,6 +1,10 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
+	import MacroExample from '$lib/components/ui/MacroExample.svelte';
+	import InteractiveMacro from '$lib/components/ui/InteractiveMacro.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
+
+	let { data } = $props();
 </script>
 
 <svelte:head>
@@ -16,29 +20,11 @@
 
 <h2 id="basic-usage">Basic Usage</h2>
 
-<CodeBlock code={`/** @derive(Debug) */
-class User {
-  name: string;
-  age: number;
+<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
 
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-  }
-}
-
-const user = new User("Alice", 30);
+<CodeBlock code={`const user = new User("Alice", 30);
 console.log(user.toString());
 // Output: User { name: Alice, age: 30 }`} lang="typescript" />
-
-<h2 id="generated-code">Generated Code</h2>
-
-<CodeBlock code={`toString(): string {
-  const parts: string[] = [];
-  parts.push("name: " + this.name);
-  parts.push("age: " + this.age);
-  return "User { " + parts.join(", ") + " }";
-}`} lang="typescript" />
 
 <h2 id="field-options">Field Options</h2>
 
@@ -48,20 +34,9 @@ console.log(user.toString());
 
 <h3>Renaming Fields</h3>
 
-<CodeBlock code={`/** @derive(Debug) */
-class User {
-  /** @debug({ rename: "userId" }) */
-  id: number;
+<MacroExample before={data.examples.rename.before} after={data.examples.rename.after} />
 
-  name: string;
-
-  constructor(id: number, name: string) {
-    this.id = id;
-    this.name = name;
-  }
-}
-
-const user = new User(42, "Alice");
+<CodeBlock code={`const user = new User(42, "Alice");
 console.log(user.toString());
 // Output: User { userId: 42, name: Alice }`} lang="typescript" />
 
@@ -71,26 +46,9 @@ console.log(user.toString());
 	Use <code>skip: true</code> to exclude sensitive fields from the output:
 </p>
 
-<CodeBlock code={`/** @derive(Debug) */
-class User {
-  name: string;
-  email: string;
+<MacroExample before={data.examples.skip.before} after={data.examples.skip.after} />
 
-  /** @debug({ skip: true }) */
-  password: string;
-
-  /** @debug({ skip: true }) */
-  authToken: string;
-
-  constructor(name: string, email: string, password: string, authToken: string) {
-    this.name = name;
-    this.email = email;
-    this.password = password;
-    this.authToken = authToken;
-  }
-}
-
-const user = new User("Alice", "alice@example.com", "secret", "tok_xxx");
+<CodeBlock code={`const user = new User("Alice", "alice@example.com", "secret", "tok_xxx");
 console.log(user.toString());
 // Output: User { name: Alice, email: alice@example.com }
 // Note: password and authToken are not included`} lang="typescript" />
@@ -101,7 +59,7 @@ console.log(user.toString());
 
 <h2 id="combining-options">Combining Options</h2>
 
-<CodeBlock code={`/** @derive(Debug) */
+<InteractiveMacro code={`/** @derive(Debug) */
 class ApiResponse {
   /** @debug({ rename: "statusCode" }) */
   status: number;
@@ -110,7 +68,7 @@ class ApiResponse {
 
   /** @debug({ skip: true }) */
   internalMetadata: Record<string, unknown>;
-}`} lang="typescript" />
+}`} />
 
 <h2 id="all-options">All Options</h2>
 
@@ -142,23 +100,9 @@ class ApiResponse {
 	Debug also works with interfaces. For interfaces, a namespace is generated with a <code>toString</code> function:
 </p>
 
-<CodeBlock code={`/** @derive(Debug) */
-interface Status {
-  active: boolean;
-  message: string;
-}
+<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
 
-// Generated:
-// export namespace Status {
-//   export function toString(self: Status): string {
-//     const parts: string[] = [];
-//     parts.push("active: " + self.active);
-//     parts.push("message: " + self.message);
-//     return "Status { " + parts.join(", ") + " }";
-//   }
-// }
-
-const status: Status = { active: true, message: "OK" };
+<CodeBlock code={`const status: Status = { active: true, message: "OK" };
 console.log(Status.toString(status));
 // Output: Status { active: true, message: OK }`} lang="typescript" />
 
@@ -169,25 +113,9 @@ console.log(Status.toString(status));
 	that displays the enum name and variant:
 </p>
 
-<CodeBlock code={`/** @derive(Debug) */
-enum Priority {
-  Low = 1,
-  Medium = 2,
-  High = 3,
-}
+<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
 
-// Generated:
-// export namespace Priority {
-//   export function toString(value: Priority): string {
-//     const key = Priority[value as unknown as keyof typeof Priority];
-//     if (key !== undefined) {
-//       return "Priority." + key;
-//     }
-//     return "Priority(" + String(value) + ")";
-//   }
-// }
-
-console.log(Priority.toString(Priority.High));
+<CodeBlock code={`console.log(Priority.toString(Priority.High));
 // Output: Priority.High
 
 console.log(Priority.toString(Priority.Low));
@@ -197,14 +125,11 @@ console.log(Priority.toString(Priority.Low));
 	Works with both numeric and string enums:
 </p>
 
-<CodeBlock code={`/** @derive(Debug) */
+<InteractiveMacro code={`/** @derive(Debug) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
-}
-
-console.log(Status.toString(Status.Active));
-// Output: Status.Active`} lang="typescript" />
+}`} />
 
 <h2 id="type-alias-support">Type Alias Support</h2>
 
@@ -212,23 +137,9 @@ console.log(Status.toString(Status.Active));
 	Debug works with type aliases. For object types, fields are displayed similar to interfaces:
 </p>
 
-<CodeBlock code={`/** @derive(Debug) */
-type Point = {
-  x: number;
-  y: number;
-};
+<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
 
-// Generated:
-// export namespace Point {
-//   export function toString(value: Point): string {
-//     const parts: string[] = [];
-//     parts.push("x: " + value.x);
-//     parts.push("y: " + value.y);
-//     return "Point { " + parts.join(", ") + " }";
-//   }
-// }
-
-const point: Point = { x: 10, y: 20 };
+<CodeBlock code={`const point: Point = { x: 10, y: 20 };
 console.log(Point.toString(point));
 // Output: Point { x: 10, y: 20 }`} lang="typescript" />
 
@@ -236,8 +147,8 @@ console.log(Point.toString(point));
 	For union types, the value is displayed using JSON.stringify:
 </p>
 
-<CodeBlock code={`/** @derive(Debug) */
-type ApiStatus = "loading" | "success" | "error";
+<InteractiveMacro code={`/** @derive(Debug) */
+type ApiStatus = "loading" | "success" | "error";`} />
 
-console.log(ApiStatus.toString("success"));
+<CodeBlock code={`console.log(ApiStatus.toString("success"));
 // Output: ApiStatus("success")`} lang="typescript" />

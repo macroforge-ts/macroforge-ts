@@ -1,5 +1,9 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
+	import MacroExample from '$lib/components/ui/MacroExample.svelte';
+	import InteractiveMacro from '$lib/components/ui/InteractiveMacro.svelte';
+
+	let { data } = $props();
 </script>
 
 <svelte:head>
@@ -15,28 +19,13 @@
 
 <h2 id="basic-usage">Basic Usage</h2>
 
-<CodeBlock code={`/** @derive(Clone) */
-class Point {
-  x: number;
-  y: number;
+<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
 
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-  }
-}
-
-const original = new Point(10, 20);
+<CodeBlock code={`const original = new Point(10, 20);
 const copy = original.clone();
 
 console.log(copy.x, copy.y); // 10, 20
 console.log(original === copy); // false (different instances)`} lang="typescript" />
-
-<h2 id="generated-code">Generated Code</h2>
-
-<CodeBlock code={`clone(): Point {
-  return new Point(this.x, this.y);
-}`} lang="typescript" />
 
 <h2 id="how-it-works">How It Works</h2>
 
@@ -56,18 +45,9 @@ console.log(original === copy); // false (different instances)`} lang="typescrip
 
 <h2 id="with-nested-objects">With Nested Objects</h2>
 
-<CodeBlock code={`/** @derive(Clone) */
-class User {
-  name: string;
-  address: { city: string; zip: string };
+<MacroExample before={data.examples.nested.before} after={data.examples.nested.after} />
 
-  constructor(name: string, address: { city: string; zip: string }) {
-    this.name = name;
-    this.address = address;
-  }
-}
-
-const original = new User("Alice", { city: "NYC", zip: "10001" });
+<CodeBlock code={`const original = new User("Alice", { city: "NYC", zip: "10001" });
 const copy = original.clone();
 
 // The address object is the same reference
@@ -81,13 +61,13 @@ console.log(original.address.city); // "LA"`} lang="typescript" />
 	For deep cloning of nested objects, you would need to implement custom clone methods or use a deep clone utility.
 </p>
 
-<h2 id="combining-with-eq">Combining with Eq</h2>
+<h2 id="combining-with-eq">Combining with PartialEq</h2>
 
 <p>
-	Clone works well with Eq for creating independent copies that compare as equal:
+	Clone works well with PartialEq for creating independent copies that compare as equal:
 </p>
 
-<CodeBlock code={`/** @derive(Clone, Eq) */
+<InteractiveMacro code={`/** @derive(Clone, PartialEq) */
 class Point {
   x: number;
   y: number;
@@ -96,9 +76,9 @@ class Point {
     this.x = x;
     this.y = y;
   }
-}
+}`} />
 
-const original = new Point(10, 20);
+<CodeBlock code={`const original = new Point(10, 20);
 const copy = original.clone();
 
 console.log(original === copy);       // false (different instances)
@@ -110,20 +90,9 @@ console.log(original.equals(copy));   // true (same values)`} lang="typescript" 
 	Clone also works with interfaces. For interfaces, a namespace is generated with a <code>clone</code> function:
 </p>
 
-<CodeBlock code={`/** @derive(Clone) */
-interface Point {
-  x: number;
-  y: number;
-}
+<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
 
-// Generated:
-// export namespace Point {
-//   export function clone(self: Point): Point {
-//     return { x: self.x, y: self.y };
-//   }
-// }
-
-const original: Point = { x: 10, y: 20 };
+<CodeBlock code={`const original: Point = { x: 10, y: 20 };
 const copy = Point.clone(original);
 
 console.log(copy.x, copy.y);        // 10, 20
@@ -136,20 +105,9 @@ console.log(original === copy);     // false (different objects)`} lang="typescr
 	since enum values are primitives and don't need cloning:
 </p>
 
-<CodeBlock code={`/** @derive(Clone) */
-enum Status {
-  Active = "active",
-  Inactive = "inactive",
-}
+<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
 
-// Generated:
-// export namespace Status {
-//   export function clone(value: Status): Status {
-//     return value;
-//   }
-// }
-
-const original = Status.Active;
+<CodeBlock code={`const original = Status.Active;
 const copy = Status.clone(original);
 
 console.log(copy);               // "active"
@@ -161,20 +119,9 @@ console.log(original === copy);  // true (same primitive value)`} lang="typescri
 	Clone works with type aliases. For object types, a shallow copy is created using spread:
 </p>
 
-<CodeBlock code={`/** @derive(Clone) */
-type Point = {
-  x: number;
-  y: number;
-};
+<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
 
-// Generated:
-// export namespace Point {
-//   export function clone(value: Point): Point {
-//     return { ...value };
-//   }
-// }
-
-const original: Point = { x: 10, y: 20 };
+<CodeBlock code={`const original: Point = { x: 10, y: 20 };
 const copy = Point.clone(original);
 
 console.log(copy.x, copy.y);     // 10, 20
@@ -184,9 +131,9 @@ console.log(original === copy);  // false (different objects)`} lang="typescript
 	For union types, the value is returned as-is (unions of primitives don't need cloning):
 </p>
 
-<CodeBlock code={`/** @derive(Clone) */
-type ApiStatus = "loading" | "success" | "error";
+<InteractiveMacro code={`/** @derive(Clone) */
+type ApiStatus = "loading" | "success" | "error";`} />
 
-const status: ApiStatus = "success";
+<CodeBlock code={`const status: ApiStatus = "success";
 const copy = ApiStatus.clone(status);
 console.log(copy); // "success"`} lang="typescript" />

@@ -1,8 +1,25 @@
 import { expandSync } from 'macroforge';
+import { execSync } from 'child_process';
 
 export interface ExpandedExample {
 	before: string;
 	after: string;
+}
+
+/**
+ * Format TypeScript code using Biome CLI
+ */
+function formatCode(code: string): string {
+	try {
+		const result = execSync('npx biome format --stdin-file-path=example.ts', {
+			input: code,
+			encoding: 'utf-8',
+			maxBuffer: 10 * 1024 * 1024
+		});
+		return result.trim();
+	} catch {
+		return code.trim();
+	}
 }
 
 /**
@@ -18,11 +35,11 @@ export function expandExample(code: string, filename = 'example.ts'): ExpandedEx
 	// Remove the macroforge import line if present
 	after = after.replace(/^import\s+\{[^}]+\}\s+from\s+['"]macroforge['"];\s*\n?/m, '');
 
-	// Trim any leading/trailing whitespace
-	after = after.trim();
+	// Format the output with Biome
+	after = formatCode(after);
 
 	return {
-		before: code.trim(),
+		before: formatCode(code.trim()),
 		after
 	};
 }
