@@ -1,48 +1,41 @@
 {
-	"format_on_save": "on",
-	"languages": {
-		"JavaScript": {
-			"formatter": {
-				"external": {
-					"command": "npx",
-					"arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
-				}
-			},
-			"language_servers": ["vtsls-macroforge", "eslint", "!biome"],
-			"code_actions_on_format": {
-				"source.fixAll.eslint": true
-			}
-		},
-		"TypeScript": {
-			"formatter": {
-				"external": {
-					"command": "npx",
-					"arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
-				}
-			},
-			"language_servers": ["vtsls-macroforge", "!vtsls", "!typescript-language-server"],
-			"code_actions_on_format": {
-				"source.fixAll.eslint": true
-			}
-		},
-		"Svelte": {
-			"formatter": {
-				"external": {
-					"command": "npx",
-					"arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
-				}
-			},
-			"language_servers": [
-				"svelte-macroforge",
-				"eslint",
-				"!svelte-language-server",
-				"!biome"
-			],
-			"code_actions_on_format": {
-				"source.fixAll.eslint": true
-			}
-		}
-	},
-	"lsp": {
-	}
+    "format_on_save": "on",
+    "languages": {
+        "JavaScript": {
+            "formatter": {
+                "external": {
+                    "command": "npx",
+                    "arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
+                }
+            },
+            "language_servers": ["vtsls-macroforge", "eslint", "!biome"],
+            "code_actions_on_format": {
+                "source.fixAll.eslint": true
+            }
+        },
+        "TypeScript": {
+            "formatter": {
+                "external": {
+                    "command": "npx",
+                    "arguments": ["prettier", "--stdin-filepath", "{buffer_path}"]
+                }
+            },
+            "language_servers": ["vtsls-macroforge", "!vtsls", "!typescript-language-server"],
+            "code_actions_on_format": {
+                "source.fixAll.eslint": true
+            }
+        },
+        "Svelte": {
+            "language_servers": [
+                "svelte-macroforge",
+                "eslint",
+                "!svelte-language-server",
+                "!biome"
+            ],
+            "code_actions_on_format": {
+                "source.fixAll.eslint": true
+            }
+        }
+    },
+    "lsp": {}
 }
