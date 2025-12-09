@@ -75,6 +75,10 @@ export const navigation: NavSection[] = [
 			{ title: 'NativePlugin', href: '/docs/api/native-plugin' },
 			{ title: 'PositionMapper', href: '/docs/api/position-mapper' }
 		]
+	},
+	{
+		title: 'Roadmap',
+		items: [{ title: 'Roadmap', href: '/docs/roadmap' }]
 	}
 ];
 
