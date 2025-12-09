@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ThemeToggle from '$lib/components/ui/ThemeToggle.svelte';
+	import Logo from '$lib/components/ui/Logo.svelte';
 	import { siteConfig } from '$lib/config/site';
 	import { page } from '$app/state';
 	import { base } from '$app/paths';
@@ -32,13 +33,8 @@
 					</button>
 				{/if}
 
-				<a href="{base}/" class="flex items-center gap-2">
-					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">
-						M
-					</div>
-					<span class="font-semibold text-foreground text-lg">
-						{siteConfig.name}
-					</span>
+				<a href="{base}/">
+					<Logo />
 				</a>
 			</div>
 

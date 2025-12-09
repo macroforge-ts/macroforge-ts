@@ -289,7 +289,7 @@ class User {
 		<h2 class="text-3xl font-bold text-primary-foreground mb-4">
 			Ready to Get Started?
 		</h2>
-		<p class="text-lg text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
+		<p class="text-lg text-primary-foreground mb-8 max-w-2xl mx-auto">
 			Install Macroforge and start generating code in minutes.
 		</p>
 		<a
