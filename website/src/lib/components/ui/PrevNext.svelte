@@ -1,8 +1,12 @@
 <script lang="ts">
 	import { getPrevNext } from '$lib/config/navigation';
 	import { page } from '$app/state';
+	import { base } from '$app/paths';
 
-	const { prev, next } = $derived(getPrevNext(page.url.pathname));
+	// Strip base from pathname for comparison with navigation hrefs
+	const pathWithoutBase = $derived(page.url.pathname.replace(base, '') || '/');
+	const { prev, next } = $derived(getPrevNext(pathWithoutBase));
+	const getHref = (href: string) => `${base}${href}`;
 </script>
 
 <nav class="mt-12 pt-6 border-t border-slate-200 dark:border-slate-700">
@@ -10,7 +14,7 @@
 		<div>
 			{#if prev}
 				<a
-					href={prev.href}
+					href={getHref(prev.href)}
 					class="group flex flex-col text-left hover:no-underline"
 				>
 					<span class="text-xs text-slate-500 dark:text-slate-400 mb-1">Previous</span>
@@ -26,7 +30,7 @@
 		<div>
 			{#if next}
 				<a
-					href={next.href}
+					href={getHref(next.href)}
 					class="group flex flex-col text-right hover:no-underline"
 				>
 					<span class="text-xs text-slate-500 dark:text-slate-400 mb-1">Next</span>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
+	import { base } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -193,9 +194,9 @@ console.log(user.equals(copy)); // true`} lang="typescript" />
 </p>
 
 <ul>
-	<li><a href="/docs/builtin-macros/debug"><strong>Debug</strong></a> - Customizable field renaming and skipping</li>
-	<li><a href="/docs/builtin-macros/clone"><strong>Clone</strong></a> - Shallow copying for all field types</li>
-	<li><a href="/docs/builtin-macros/partial-eq"><strong>PartialEq</strong></a> - Value-based equality comparison</li>
-	<li><a href="/docs/builtin-macros/serialize"><strong>Serialize</strong></a> - JSON serialization with serde-style options</li>
-	<li><a href="/docs/builtin-macros/deserialize"><strong>Deserialize</strong></a> - JSON deserialization with validation</li>
+	<li><a href="{base}/docs/builtin-macros/debug"><strong>Debug</strong></a> - Customizable field renaming and skipping</li>
+	<li><a href="{base}/docs/builtin-macros/clone"><strong>Clone</strong></a> - Shallow copying for all field types</li>
+	<li><a href="{base}/docs/builtin-macros/partial-eq"><strong>PartialEq</strong></a> - Value-based equality comparison</li>
+	<li><a href="{base}/docs/builtin-macros/serialize"><strong>Serialize</strong></a> - JSON serialization with serde-style options</li>
+	<li><a href="{base}/docs/builtin-macros/deserialize"><strong>Deserialize</strong></a> - JSON deserialization with validation</li>
 </ul>

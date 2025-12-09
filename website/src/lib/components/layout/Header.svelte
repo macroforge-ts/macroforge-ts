@@ -2,6 +2,7 @@
 	import ThemeToggle from '$lib/components/ui/ThemeToggle.svelte';
 	import { siteConfig } from '$lib/config/site';
 	import { page } from '$app/state';
+	import { base } from '$app/paths';
 
 	interface Props {
 		onMenuClick?: () => void;
@@ -9,7 +10,7 @@
 
 	let { onMenuClick }: Props = $props();
 
-	const isDocsPage = $derived(page.url.pathname.startsWith('/docs'));
+	const isDocsPage = $derived(page.url.pathname.startsWith(`${base}/docs`));
 </script>
 
 <header
@@ -31,7 +32,7 @@
 					</button>
 				{/if}
 
-				<a href="/" class="flex items-center gap-2">
+				<a href="{base}/" class="flex items-center gap-2">
 					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white font-bold">
 						M
 					</div>
@@ -44,7 +45,7 @@
 			<!-- Desktop Navigation -->
 			<nav class="hidden md:flex items-center gap-6">
 				<a
-					href="/docs/getting-started"
+					href="{base}/docs/getting-started"
 					class="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"
 					class:text-primary-600={isDocsPage}
 					class:dark:text-primary-400={isDocsPage}

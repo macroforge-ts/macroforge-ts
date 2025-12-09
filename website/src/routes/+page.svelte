@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
 	import { siteConfig } from '$lib/config/site';
+	import { base } from '$app/paths';
 
 	const features = [
 		{
@@ -109,7 +110,7 @@ class User {
 			<!-- CTA Buttons -->
 			<div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
 				<a
-					href="/docs/getting-started"
+					href="{base}/docs/getting-started"
 					class="inline-flex items-center justify-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors"
 				>
 					Get Started
@@ -196,7 +197,7 @@ class User {
 
 		<div class="text-center mt-10">
 			<a
-				href="/docs/getting-started"
+				href="{base}/docs/getting-started"
 				class="inline-flex items-center text-primary-600 dark:text-primary-400 font-medium hover:underline"
 			>
 				Learn more about derive macros
@@ -292,7 +293,7 @@ class User {
 			Install Macroforge and start generating code in minutes.
 		</p>
 		<a
-			href="/docs/getting-started"
+			href="{base}/docs/getting-started"
 			class="inline-flex items-center justify-center px-6 py-3 bg-white text-primary-600 font-medium rounded-lg hover:bg-primary-50 transition-colors"
 		>
 			Read the Documentation
