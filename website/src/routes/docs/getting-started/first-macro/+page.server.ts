@@ -4,9 +4,7 @@ import { expandExample } from '$lib/server/macroforge';
 export const load: PageServerLoad = async () => {
 	return {
 		examples: {
-			basic: expandExample(`import { Debug, Clone, Eq } from "macroforge";
-
-/** @derive(Debug, Clone, Eq) */
+			basic: expandExample(`/** @derive(Debug, Clone, Eq) */
 export class User {
   name: string;
   age: number;
@@ -18,9 +16,7 @@ export class User {
     this.email = email;
   }
 }`),
-			customizing: expandExample(`import { Debug } from "macroforge";
-
-/** @derive(Debug) */
+			customizing: expandExample(`/** @derive(Debug) */
 export class User {
   /** @debug({ rename: "userId" }) */
   id: number;

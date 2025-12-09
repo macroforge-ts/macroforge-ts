@@ -4,9 +4,7 @@ import { expandExample } from '$lib/server/macroforge';
 export const load: PageServerLoad = async () => {
 	return {
 		examples: {
-			fieldAttributes: expandExample(`import { Debug, Serialize } from "macroforge";
-
-/** @derive(Debug, Serialize) */
+			fieldAttributes: expandExample(`/** @derive(Debug, Serialize) */
 class User {
   /** @debug({ rename: "userId" }) */
   /** @serde({ rename: "user_id" }) */
