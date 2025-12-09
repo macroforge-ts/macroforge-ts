@@ -1,6 +1,10 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
+	import MacroExample from '$lib/components/ui/MacroExample.svelte';
+	import InteractiveMacro from '$lib/components/ui/InteractiveMacro.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
+
+	let { data } = $props();
 </script>
 
 <svelte:head>
@@ -16,32 +20,11 @@
 
 <h2 id="basic-usage">Basic Usage</h2>
 
-<CodeBlock code={`/** @derive(Serialize) */
-class User {
-  name: string;
-  age: number;
-  createdAt: Date;
+<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
 
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-    this.createdAt = new Date();
-  }
-}
-
-const user = new User("Alice", 30);
+<CodeBlock code={`const user = new User("Alice", 30);
 console.log(JSON.stringify(user));
 // {"name":"Alice","age":30,"createdAt":"2024-01-15T10:30:00.000Z"}`} lang="typescript" />
-
-<h2 id="generated-code">Generated Code</h2>
-
-<CodeBlock code={`toJSON(): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  result["name"] = this.name;
-  result["age"] = this.age;
-  result["createdAt"] = this.createdAt.toISOString();
-  return result;
-}`} lang="typescript" />
 
 <h2 id="type-handling">Automatic Type Handling</h2>
 
@@ -84,14 +67,6 @@ console.log(JSON.stringify(user));
 	</tbody>
 </table>
 
-<CodeBlock code={`/** @derive(Serialize) */
-class DataContainer {
-  items: string[];
-  metadata: Map<string, number>;
-  tags: Set<string>;
-  nested: User;
-}`} lang="typescript" />
-
 <h2 id="serde-options">Serde Options</h2>
 
 <p>
@@ -100,16 +75,9 @@ class DataContainer {
 
 <h3>Renaming Fields</h3>
 
-<CodeBlock code={`/** @derive(Serialize) */
-class User {
-  /** @serde({ rename: "user_id" }) */
-  id: string;
+<MacroExample before={data.examples.rename.before} after={data.examples.rename.after} />
 
-  /** @serde({ rename: "full_name" }) */
-  name: string;
-}
-
-const user = new User();
+<CodeBlock code={`const user = new User();
 user.id = "123";
 user.name = "Alice";
 console.log(JSON.stringify(user));
@@ -117,17 +85,7 @@ console.log(JSON.stringify(user));
 
 <h3>Skipping Fields</h3>
 
-<CodeBlock code={`/** @derive(Serialize) */
-class User {
-  name: string;
-  email: string;
-
-  /** @serde({ skip: true }) */
-  password: string;
-
-  /** @serde({ skip_serializing: true }) */
-  internalId: string;
-}`} lang="typescript" />
+<MacroExample before={data.examples.skip.before} after={data.examples.skip.after} />
 
 <Alert type="tip" title="skip vs skip_serializing">
 	Use <code>skip: true</code> to exclude from both serialization and deserialization.
@@ -140,13 +98,13 @@ class User {
 	Apply a naming convention to all fields at the container level:
 </p>
 
-<CodeBlock code={`/** @derive(Serialize) */
+<InteractiveMacro code={`/** @derive(Serialize) */
 /** @serde({ rename_all: "camelCase" }) */
 class ApiResponse {
-  user_name: string;    // becomes "userName"
-  created_at: Date;     // becomes "createdAt"
-  is_active: boolean;   // becomes "isActive"
-}`} lang="typescript" />
+  user_name: string;
+  created_at: Date;
+  is_active: boolean;
+}`} />
 
 <p>Supported conventions:</p>
 <ul>
@@ -159,7 +117,7 @@ class ApiResponse {
 
 <h3>Flattening Nested Objects</h3>
 
-<CodeBlock code={`/** @derive(Serialize) */
+<InteractiveMacro code={`/** @derive(Serialize) */
 class Address {
   city: string;
   zip: string;
@@ -171,9 +129,9 @@ class User {
 
   /** @serde({ flatten: true }) */
   address: Address;
-}
+}`} />
 
-const user = new User();
+<CodeBlock code={`const user = new User();
 user.name = "Alice";
 user.address = { city: "NYC", zip: "10001" };
 console.log(JSON.stringify(user));
@@ -240,25 +198,9 @@ console.log(JSON.stringify(user));
 	Serialize also works with interfaces. For interfaces, a namespace is generated with a <code>toJSON</code> function:
 </p>
 
-<CodeBlock code={`/** @derive(Serialize) */
-interface ApiResponse {
-  status: number;
-  message: string;
-  timestamp: Date;
-}
+<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
 
-// Generated:
-// export namespace ApiResponse {
-//   export function toJSON(self: ApiResponse): Record<string, unknown> {
-//     const result: Record<string, unknown> = {};
-//     result["status"] = self.status;
-//     result["message"] = self.message;
-//     result["timestamp"] = self.timestamp.toISOString();
-//     return result;
-//   }
-// }
-
-const response: ApiResponse = {
+<CodeBlock code={`const response: ApiResponse = {
   status: 200,
   message: "OK",
   timestamp: new Date()
@@ -274,35 +216,23 @@ console.log(JSON.stringify(ApiResponse.toJSON(response)));
 	enum value (string or number):
 </p>
 
-<CodeBlock code={`/** @derive(Serialize) */
-enum Status {
-  Active = "active",
-  Inactive = "inactive",
-  Pending = "pending",
-}
+<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
 
-// Generated:
-// export namespace Status {
-//   export function toJSON(value: Status): string | number {
-//     return value;
-//   }
-// }
-
-console.log(Status.toJSON(Status.Active));  // "active"
+<CodeBlock code={`console.log(Status.toJSON(Status.Active));  // "active"
 console.log(Status.toJSON(Status.Pending)); // "pending"`} lang="typescript" />
 
 <p>
 	Works with numeric enums too:
 </p>
 
-<CodeBlock code={`/** @derive(Serialize) */
+<InteractiveMacro code={`/** @derive(Serialize) */
 enum Priority {
   Low = 1,
   Medium = 2,
   High = 3,
-}
+}`} />
 
-console.log(Priority.toJSON(Priority.High)); // 3`} lang="typescript" />
+<CodeBlock code={`console.log(Priority.toJSON(Priority.High)); // 3`} lang="typescript" />
 
 <h2 id="type-alias-support">Type Alias Support</h2>
 
@@ -310,25 +240,9 @@ console.log(Priority.toJSON(Priority.High)); // 3`} lang="typescript" />
 	Serialize works with type aliases. For object types, fields are serialized with full type handling:
 </p>
 
-<CodeBlock code={`/** @derive(Serialize) */
-type UserProfile = {
-  id: string;
-  name: string;
-  createdAt: Date;
-};
+<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
 
-// Generated:
-// export namespace UserProfile {
-//   export function toJSON(value: UserProfile): Record<string, unknown> {
-//     const result: Record<string, unknown> = {};
-//     result["id"] = value.id;
-//     result["name"] = value.name;
-//     result["createdAt"] = value.createdAt.toISOString();
-//     return result;
-//   }
-// }
-
-const profile: UserProfile = {
+<CodeBlock code={`const profile: UserProfile = {
   id: "123",
   name: "Alice",
   createdAt: new Date("2024-01-15")
@@ -341,10 +255,10 @@ console.log(JSON.stringify(UserProfile.toJSON(profile)));
 	For union types, the value is returned directly:
 </p>
 
-<CodeBlock code={`/** @derive(Serialize) */
-type ApiStatus = "loading" | "success" | "error";
+<InteractiveMacro code={`/** @derive(Serialize) */
+type ApiStatus = "loading" | "success" | "error";`} />
 
-console.log(ApiStatus.toJSON("success")); // "success"`} lang="typescript" />
+<CodeBlock code={`console.log(ApiStatus.toJSON("success")); // "success"`} lang="typescript" />
 
 <h2 id="combining-with-deserialize">Combining with Deserialize</h2>
 
@@ -352,13 +266,13 @@ console.log(ApiStatus.toJSON("success")); // "success"`} lang="typescript" />
 	Use both Serialize and Deserialize for complete JSON round-trip support:
 </p>
 
-<CodeBlock code={`/** @derive(Serialize, Deserialize) */
+<InteractiveMacro code={`/** @derive(Serialize, Deserialize) */
 class User {
   name: string;
   createdAt: Date;
-}
+}`} />
 
-// Serialize
+<CodeBlock code={`// Serialize
 const user = new User();
 user.name = "Alice";
 user.createdAt = new Date();

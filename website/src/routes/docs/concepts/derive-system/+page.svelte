@@ -1,7 +1,11 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
+	import MacroExample from '$lib/components/ui/MacroExample.svelte';
+	import InteractiveMacro from '$lib/components/ui/InteractiveMacro.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
 	import { base } from '$app/paths';
+
+	let { data } = $props();
 </script>
 
 <svelte:head>
@@ -27,11 +31,10 @@
 	The <code>@derive</code> decorator triggers macro expansion on a class or interface:
 </p>
 
-<CodeBlock code={`/** @derive(MacroName) */
-class MyClass { }
-
-/** @derive(Debug, Clone, PartialEq) */
-class AnotherClass { }`} lang="typescript" />
+<InteractiveMacro code={`/** @derive(Debug) */
+class MyClass {
+  value: string;
+}`} />
 
 <p>Syntax rules:</p>
 
@@ -42,14 +45,11 @@ class AnotherClass { }`} lang="typescript" />
 	<li>Multiple <code>@derive</code> statements can be stacked</li>
 </ul>
 
-<CodeBlock code={`// Single derive with multiple macros
-/** @derive(Debug, Clone) */
-class User { }
-
-// Multiple derive statements (equivalent)
-/** @derive(Debug) */
-/** @derive(Clone) */
-class User { }`} lang="typescript" />
+<InteractiveMacro code={`/** @derive(Debug, Clone) */
+class User {
+  name: string;
+  email: string;
+}`} />
 
 <h3 id="import-macro">The import macro Statement</h3>
 
@@ -77,7 +77,7 @@ class User {
   email: string;
 }`} lang="typescript" />
 
-<Alert type="note">
+<Alert type="note" title="Built-in macros">
 	Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement.
 </Alert>
 
@@ -87,27 +87,7 @@ class User {
 	Macros can define field-level attributes to customize behavior per field:
 </p>
 
-<CodeBlock code={`/** @attributeName(options) */`} lang="typescript" />
-
-<p>
-	The attribute name and available options depend on the macro. Common patterns:
-</p>
-
-<CodeBlock code={`/** @derive(Debug, Serialize) */
-class User {
-  /** @debug({ rename: "userId" }) */
-  /** @serde({ rename: "user_id" }) */
-  id: number;
-
-  name: string;
-
-  /** @debug({ skip: true }) */
-  /** @serde({ skip: true }) */
-  password: string;
-
-  /** @serde({ flatten: true }) */
-  metadata: Record<string, unknown>;
-}`} lang="typescript" />
+<MacroExample before={data.examples.fieldAttributes.before} after={data.examples.fieldAttributes.after} />
 
 <p>Syntax rules:</p>
 
@@ -175,12 +155,10 @@ class User {
 
 <ul>
 	<li><strong>Classes</strong>: The primary target for derive macros</li>
-	<li><strong>Interfaces</strong>: Some macros can generate companion functions</li>
+	<li><strong>Interfaces</strong>: Macros generate companion namespace functions</li>
+	<li><strong>Enums</strong>: Macros generate namespace functions for enum values</li>
+	<li><strong>Type aliases</strong>: Both object types and union types are supported</li>
 </ul>
-
-<Alert type="warning">
-	Enums are not currently supported by the derive system.
-</Alert>
 
 <h2 id="built-in-vs-custom">Built-in vs Custom Macros</h2>
 

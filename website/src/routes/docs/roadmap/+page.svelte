@@ -83,12 +83,12 @@
 		</tr>
 		<tr>
 			<td>Angular</td>
-			<td><span class="text-muted-foreground">Considering</span></td>
+			<td><span class="text-warning">Planned</span></td>
 			<td>Angular decorator integration and CLI support</td>
 		</tr>
 		<tr>
 			<td>Solid</td>
-			<td><span class="text-muted-foreground">Considering</span></td>
+			<td><span class="text-warning">Planned</span></td>
 			<td>SolidJS integration</td>
 		</tr>
 	</tbody>
@@ -162,10 +162,38 @@
 			<td><span class="text-muted-foreground">Considering</span></td>
 			<td>Generate immutable update methods (with, set)</td>
 		</tr>
+	</tbody>
+</table>
+
+<h2 id="distribution">Distribution & Packaging</h2>
+
+<p>
+	Making it easier to publish and share custom macros.
+</p>
+
+<table>
+	<thead>
 		<tr>
-			<td>Validate</td>
+			<th>Feature</th>
+			<th>Status</th>
+			<th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Native Node Binaries</td>
+			<td><span class="text-success">Available</span></td>
+			<td>Platform-specific binaries for maximum performance</td>
+		</tr>
+		<tr>
+			<td>WASM Binary Generation</td>
+			<td><span class="text-warning">Planned</span></td>
+			<td>Cross-platform WebAssembly binaries for easier macro distribution</td>
+		</tr>
+		<tr>
+			<td>Macro Registry</td>
 			<td><span class="text-muted-foreground">Considering</span></td>
-			<td>Runtime validation based on decorators</td>
+			<td>Central registry for discovering and sharing community macros</td>
 		</tr>
 	</tbody>
 </table>
