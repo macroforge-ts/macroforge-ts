@@ -15,7 +15,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
-    /// Expand a TypeScript file using the Rust macro host
+    /// Expand a TypeScript file (uses Node.js for full macro support)
     Expand {
         /// Path to the TypeScript/TSX file to expand
         input: PathBuf,
@@ -28,9 +28,9 @@ enum Command {
         /// Print expansion result to stdout even if --out is specified
         #[arg(long)]
         print: bool,
-        /// Use Node.js NAPI module instead of Rust expander (supports external macros)
+        /// Use only built-in Rust macros (faster, but no external macro support)
         #[arg(long)]
-        use_node: bool,
+        builtin_only: bool,
     },
     /// Run tsc with macro expansion baked into file reads (tsc --noEmit semantics)
     Tsc {
@@ -49,8 +49,8 @@ fn main() -> Result<()> {
             out,
             types_out,
             print,
-            use_node,
-        } => expand_file(input, out, types_out, print, use_node),
+            builtin_only,
+        } => expand_file(input, out, types_out, print, builtin_only),
         Command::Tsc { project } => run_tsc_wrapper(project),
     }
 }
@@ -60,9 +60,11 @@ fn expand_file(
     out: Option<PathBuf>,
     types_out: Option<PathBuf>,
     print: bool,
-    use_node: bool,
+    builtin_only: bool,
 ) -> Result<()> {
-    if use_node {
+    // Default: use Node.js for full macro support (including external macros)
+    // With --builtin-only: use fast Rust expander (built-in macros only)
+    if !builtin_only {
         return expand_file_via_node(input, out, types_out, print);
     }
 
