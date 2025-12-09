@@ -30,6 +30,12 @@ const DERIVE_MODULE_PATH: &str = "@macro/derive";
 /// Special marker for dynamic module resolution
 const DYNAMIC_MODULE_MARKER: &str = "__DYNAMIC_MODULE__";
 
+/// Built-in macro names that don't need to be imported
+const BUILTIN_MACRO_NAMES: &[&str] = &[
+    "Debug", "Clone", "Default", "Hash", "Ord",
+    "PartialEq", "PartialOrd", "Serialize", "Deserialize",
+];
+
 /// Result of macro expansion
 #[derive(Debug, Clone)]
 pub struct MacroExpansion {
@@ -298,6 +304,9 @@ impl MacroExpander {
         let LoweredItems { classes, interfaces, enums, type_aliases } = items;
         let mut collector = PatchCollector::new();
         let mut diagnostics = Vec::new();
+
+        // Check for imports of built-in macros and add warnings
+        diagnostics.extend(check_builtin_import_warnings(module, source));
 
         // Add patches to remove method bodies from type output (classes only)
         for class_ir in classes.iter() {
@@ -1255,6 +1264,69 @@ pub fn collect_import_sources(module: &Module, source: &str) -> HashMap<String, 
     }
 
     import_map
+}
+
+/// Check for imports of built-in macros and return warnings
+/// Built-in macros like Debug, Clone, Serialize don't need to be imported
+fn check_builtin_import_warnings(module: &Module, _source: &str) -> Vec<Diagnostic> {
+    use swc_core::ecma::ast::{ImportDecl, ImportSpecifier, ModuleDecl, ModuleItem};
+
+    let mut warnings = Vec::new();
+
+    for item in &module.body {
+        if let ModuleItem::ModuleDecl(ModuleDecl::Import(ImportDecl {
+            specifiers, src, ..
+        })) = item
+        {
+            let module_source = src.value.to_string_lossy().to_string();
+
+            // Only warn for imports that look like they're trying to import macros
+            // e.g., from "macroforge", "@macroforge/core", or similar macro-related modules
+            let is_macro_module = module_source.contains("macroforge")
+                || module_source.contains("macro")
+                || module_source == "@macro/derive";
+
+            if !is_macro_module {
+                continue;
+            }
+
+            for specifier in specifiers {
+                let (local_name, import_span) = match specifier {
+                    ImportSpecifier::Named(named) => {
+                        (named.local.sym.to_string(), named.span)
+                    }
+                    ImportSpecifier::Default(default) => {
+                        (default.local.sym.to_string(), default.span)
+                    }
+                    ImportSpecifier::Namespace(_) => continue,
+                };
+
+                // Check if this is a built-in macro name
+                if BUILTIN_MACRO_NAMES.iter().any(|&name| name == local_name) {
+                    let span_ir = SpanIR::new(
+                        import_span.lo.0.saturating_sub(1),
+                        import_span.hi.0.saturating_sub(1),
+                    );
+
+                    warnings.push(Diagnostic {
+                        level: DiagnosticLevel::Warning,
+                        message: format!(
+                            "'{}' is a built-in macro and doesn't need to be imported",
+                            local_name
+                        ),
+                        span: Some(span_ir),
+                        notes: vec![],
+                        help: Some(format!(
+                            "Remove this import - just use @derive({}) directly in a JSDoc comment",
+                            local_name
+                        )),
+                    });
+                }
+            }
+        }
+    }
+
+    warnings
 }
 
 fn collect_macro_import_comments(source: &str) -> HashMap<String, String> {

@@ -105,7 +105,7 @@ type DebugField = (String, String);
 #[ts_macro_derive(
     Debug,
     description = "Generates a toString() method for debugging",
-    attributes(debug)
+    attributes((debug, "Configure debug output for this field. Options: skip (exclude from output), rename (custom label)"))
 )]
 pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
