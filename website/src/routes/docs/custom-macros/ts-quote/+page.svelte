@@ -92,11 +92,27 @@
 			<td>Iterate over a collection</td>
 		</tr>
 		<tr>
-			<td><code>&#123;%let name = expr&#125;</code></td>
+			<td><code>&#123;#while cond&#125;...&#123;/while&#125;</code></td>
+			<td>While loop</td>
+		</tr>
+		<tr>
+			<td><code>&#123;#while let pattern = expr&#125;...&#123;/while&#125;</code></td>
+			<td>While-let pattern matching loop</td>
+		</tr>
+		<tr>
+			<td><code>&#123;$let name = expr&#125;</code></td>
 			<td>Define a local constant</td>
 		</tr>
 		<tr>
-			<td><code>&#123;%typescript stream&#125;</code></td>
+			<td><code>&#123;$let mut name = expr&#125;</code></td>
+			<td>Define a mutable local variable</td>
+		</tr>
+		<tr>
+			<td><code>&#123;$do expr&#125;</code></td>
+			<td>Execute a side-effectful expression</td>
+		</tr>
+		<tr>
+			<td><code>&#123;$typescript stream&#125;</code></td>
 			<td>Inject a TsStream, preserving its source and runtime_patches (imports)</td>
 		</tr>
 	</tbody>
@@ -382,7 +398,48 @@ ts_template! {
     {/for}
 }`} lang="rust" />
 
-<h2 id="local-variables">Local Constants: <code>&#123;%let&#125;</code></h2>
+<h2 id="while-loops">While Loops: <code>&#123;#while&#125;</code></h2>
+
+<p>Use <code>while</code> for loops that need to continue until a condition is false:</p>
+
+<CodeBlock code={`let items = get_items();
+let mut idx = 0;
+
+let code = ts_template! {
+    {$let mut i = 0}
+    {#while i < items.len()}
+        console.log("Item @{i}");
+        {$do i += 1}
+    {/while}
+};`} lang="rust" />
+
+<h3>While-Let Pattern Matching</h3>
+
+<p>Use <code>while let</code> for iterating with pattern matching, similar to <code>if let</code>:</p>
+
+<CodeBlock code={`let mut items = vec!["a", "b", "c"].into_iter();
+
+let code = ts_template! {
+    {#while let Some(item) = items.next()}
+        console.log("@{item}");
+    {/while}
+};`} lang="rust" />
+
+<p><strong>Generates:</strong></p>
+
+<CodeBlock code={`console.log("a");
+console.log("b");
+console.log("c");`} lang="typescript" />
+
+<p>This is especially useful when working with iterators or consuming optional values:</p>
+
+<CodeBlock code={`let code = ts_template! {
+    {#while let Some(next_field) = remaining_fields.pop()}
+        result.@{next_field.name} = this.@{next_field.name};
+    {/while}
+};`} lang="rust" />
+
+<h2 id="local-variables">Local Constants: <code>&#123;$let&#125;</code></h2>
 
 <p>Define local variables within the template scope:</p>
 
@@ -390,7 +447,7 @@ ts_template! {
 
 let code = ts_template! {
     {#for (key, class_name) in items}
-        {%let upper = class_name.to_uppercase()}
+        {$let upper = class_name.to_uppercase()}
         console.log("Processing @{upper}");
         const @{key} = new @{class_name}();
     {/for}
@@ -398,7 +455,41 @@ let code = ts_template! {
 
 <p>This is useful for computing derived values inside loops without cluttering the Rust code.</p>
 
-<h2 id="typescript-injection">TsStream Injection: <code>&#123;%typescript&#125;</code></h2>
+<h2 id="mutable-variables">Mutable Variables: <code>&#123;$let mut&#125;</code></h2>
+
+<p>When you need to modify a variable within the template (e.g., in a <code>while</code> loop), use <code>&#123;$let mut&#125;</code>:</p>
+
+<CodeBlock code={`let code = ts_template! {
+    {$let mut count = 0}
+    {#for item in items}
+        console.log("Item @{count}: @{item}");
+        {$do count += 1}
+    {/for}
+    console.log("Total: @{count}");
+};`} lang="rust" />
+
+<h2 id="side-effects">Side Effects: <code>&#123;$do&#125;</code></h2>
+
+<p>Execute an expression for its side effects without producing output. This is commonly used with mutable variables:</p>
+
+<CodeBlock code={`let code = ts_template! {
+    {$let mut results: Vec<String> = Vec::new()}
+    {#for field in fields}
+        {$do results.push(format!("this.{}", field))}
+    {/for}
+    return [@{results.join(", ")}];
+};`} lang="rust" />
+
+<p>Common uses for <code>&#123;$do&#125;</code>:</p>
+
+<ul>
+	<li>Incrementing counters: <code>&#123;$do i += 1&#125;</code></li>
+	<li>Building collections: <code>&#123;$do vec.push(item)&#125;</code></li>
+	<li>Setting flags: <code>&#123;$do found = true&#125;</code></li>
+	<li>Any mutating operation</li>
+</ul>
+
+<h2 id="typescript-injection">TsStream Injection: <code>&#123;$typescript&#125;</code></h2>
 
 <p>Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via <code>add_import()</code>):</p>
 
@@ -412,7 +503,7 @@ helper.add_import("Result", "macroforge/result");
 
 // Inject the helper into the main template
 let result = body! {
-    {%typescript helper}
+    {$typescript helper}
 
     process(data: Record<string, unknown>): void {
         // ...
@@ -434,7 +525,7 @@ body! {
     mainMethod(): void {}
 
     {#if let Some(methods) = extra_methods}
-        {%typescript methods}
+        {$typescript methods}
     {/if}
 }`} lang="rust" />
 
@@ -537,7 +628,7 @@ User.prototype.toJSON = function( {
 <p>You can mix template syntax with regular TypeScript. Braces <code>&#123;&#125;</code> are recognized as either:</p>
 
 <ul>
-	<li><strong>Template tags</strong> if they start with <code>#</code>, <code>%</code>, <code>:</code>, or <code>/</code></li>
+	<li><strong>Template tags</strong> if they start with <code>#</code>, <code>$</code>, <code>:</code>, or <code>/</code></li>
 	<li><strong>Regular TypeScript blocks</strong> otherwise</li>
 </ul>
 

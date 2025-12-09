@@ -12,8 +12,12 @@
 //! - `{:else if cond}` - Else-if clause
 //! - `{#match expr}{:case pattern}...{/match}` - Match blocks with case arms
 //! - `{#for item in list}...{/for}` - Iteration
-//! - `{%let name = expr}` - Local constants
-//! - `{%typescript stream}` - Inject a TsStream, preserving its source and runtime_patches (imports)
+//! - `{#while cond}...{/while}` - While loop
+//! - `{#while let pattern = expr}...{/while}` - While-let pattern matching loop
+//! - `{$let name = expr}` - Local constants
+//! - `{$let mut name = expr}` - Mutable local binding
+//! - `{$do expr}` - Execute side-effectful expression (discard result)
+//! - `{$typescript stream}` - Inject a TsStream, preserving its source and runtime_patches (imports)
 //!
 //! Note: A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com`).
 
@@ -22,7 +26,7 @@ use quote::{ToTokens, quote};
 use std::iter::Peekable;
 
 /// Parse the template stream and generate code to build a TypeScript string
-/// Returns a tuple of (String, Vec<Patch>) to support TsStream injection via {%typescript}
+/// Returns a tuple of (String, Vec<Patch>) to support TsStream injection via {$typescript}
 pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
     // Parse the tokens into a Rust block that returns a String or a templating error
     let (body, _) = parse_fragment(&mut input.into_iter().peekable(), None)?;
@@ -44,6 +48,7 @@ enum Terminator {
     ElseIf(TokenStream2),
     EndIf,
     EndFor,
+    EndWhile,
     Case(TokenStream2),
     EndMatch,
 }
@@ -51,17 +56,22 @@ enum Terminator {
 // Analyzes a braces group { ... } to see if it's a Macro Tag or just TS code
 enum TagType {
     If(TokenStream2),
-    IfLet(TokenStream2, TokenStream2), // pattern, expression
-    For(TokenStream2, TokenStream2),   // item_name, collection
-    Match(TokenStream2),               // expression to match
+    IfLet(TokenStream2, TokenStream2),    // pattern, expression
+    While(TokenStream2),                  // {#while cond}
+    WhileLet(TokenStream2, TokenStream2), // {#while let pattern = expr}
+    For(TokenStream2, TokenStream2),      // item_name, collection
+    Match(TokenStream2),                  // expression to match
     Else,
     ElseIf(TokenStream2),
     Case(TokenStream2), // pattern for match arm
     EndIf,
     EndFor,
+    EndWhile,
     EndMatch,
     Let(TokenStream2),
-    Typescript(TokenStream2), // {%typescript stream_expr} - inject TsStream with patches
+    LetMut(TokenStream2),     // {$let mut name = expr}
+    Do(TokenStream2),         // {$do expr} - side-effectful expression
+    Typescript(TokenStream2), // {$typescript stream_expr} - inject TsStream with patches
     IdentBlock,               // {| ... |} - identifier block with no internal spacing
     Block,                    // Standard TypeScript Block { ... }
 }
@@ -126,6 +136,37 @@ fn analyze_tag(g: &Group) -> TagType {
             return TagType::Match(expr);
         }
 
+        if i == "while" {
+            // Check for {#while let pattern = expr}
+            if let Some(TokenTree::Ident(let_kw)) = tokens.get(2)
+                && let_kw == "let"
+            {
+                let mut pattern = TokenStream2::new();
+                let mut expr = TokenStream2::new();
+                let mut seen_eq = false;
+
+                for t in tokens.iter().skip(3) {
+                    if let TokenTree::Punct(eq) = t
+                        && eq.as_char() == '='
+                        && !seen_eq
+                    {
+                        seen_eq = true;
+                        continue;
+                    }
+                    if !seen_eq {
+                        t.to_tokens(&mut pattern);
+                    } else {
+                        t.to_tokens(&mut expr);
+                    }
+                }
+                return TagType::WhileLet(pattern, expr);
+            }
+
+            // Simple {#while condition}
+            let cond: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            return TagType::While(cond);
+        }
+
         if i == "for" {
             // Format: {#for item in collection}
             let mut item = TokenStream2::new();
@@ -151,17 +192,30 @@ fn analyze_tag(g: &Group) -> TagType {
         }
     }
 
-    // Check for {% ...} tags (let, typescript)
+    // Check for {$ ...} tags (let, let mut, do, typescript)
     if let (TokenTree::Punct(p), TokenTree::Ident(i)) = (&tokens[0], &tokens[1])
-        && p.as_char() == '%'
+        && p.as_char() == '$'
     {
         if i == "let" {
-            // Format: {%let name = expr}
+            // Check for {$let mut name = expr}
+            if let Some(TokenTree::Ident(mut_kw)) = tokens.get(2)
+                && mut_kw == "mut"
+            {
+                let body: TokenStream2 =
+                    tokens.iter().skip(3).map(|t| t.to_token_stream()).collect();
+                return TagType::LetMut(body);
+            }
+            // Format: {$let name = expr}
             let body: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
             return TagType::Let(body);
         }
+        if i == "do" {
+            // Format: {$do expr} - execute side-effectful expression
+            let expr: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
+            return TagType::Do(expr);
+        }
         if i == "typescript" {
-            // Format: {%typescript stream_expr}
+            // Format: {$typescript stream_expr}
             let expr: TokenStream2 = tokens.iter().skip(2).map(|t| t.to_token_stream()).collect();
             return TagType::Typescript(expr);
         }
@@ -200,6 +254,9 @@ fn analyze_tag(g: &Group) -> TagType {
         }
         if i == "for" {
             return TagType::EndFor;
+        }
+        if i == "while" {
+            return TagType::EndWhile;
         }
         if i == "match" {
             return TagType::EndMatch;
@@ -315,6 +372,51 @@ fn parse_if_let_chain(
         )),
         _ => unreachable!(),
     }
+}
+
+/// Parse a while loop starting from the condition
+fn parse_while_loop(
+    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
+    cond: TokenStream2,
+    open_span: proc_macro2::Span,
+) -> syn::Result<TokenStream2> {
+    let (body, terminator) = parse_fragment(iter, Some(&[Terminator::EndWhile]))?;
+
+    if !matches!(terminator, Some(Terminator::EndWhile)) {
+        return Err(syn::Error::new(
+            open_span,
+            "Unclosed {#while} block: Missing {/while}",
+        ));
+    }
+
+    Ok(quote! {
+        while #cond {
+            #body
+        }
+    })
+}
+
+/// Parse a while-let loop starting from the pattern and expression
+fn parse_while_let_loop(
+    iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
+    pattern: TokenStream2,
+    expr: TokenStream2,
+    open_span: proc_macro2::Span,
+) -> syn::Result<TokenStream2> {
+    let (body, terminator) = parse_fragment(iter, Some(&[Terminator::EndWhile]))?;
+
+    if !matches!(terminator, Some(Terminator::EndWhile)) {
+        return Err(syn::Error::new(
+            open_span,
+            "Unclosed {#while let} block: Missing {/while}",
+        ));
+    }
+
+    Ok(quote! {
+        while let #pattern = #expr {
+            #body
+        }
+    })
 }
 
 /// Parse match arms starting after {#match expr}
@@ -534,6 +636,14 @@ fn parse_fragment(
                         iter.next(); // Consume {#match}
                         output.extend(parse_match_arms(iter, expr, span)?);
                     }
+                    TagType::While(cond) => {
+                        iter.next(); // Consume {#while}
+                        output.extend(parse_while_loop(iter, cond, span)?);
+                    }
+                    TagType::WhileLet(pattern, expr) => {
+                        iter.next(); // Consume {#while let}
+                        output.extend(parse_while_let_loop(iter, pattern, expr, span)?);
+                    }
                     TagType::Else => {
                         if let Some(stops) = stop_at
                             && stops.iter().any(|s| matches!(s, Terminator::Else))
@@ -570,6 +680,15 @@ fn parse_fragment(
                         }
                         return Err(syn::Error::new(span, "Unexpected {/for}"));
                     }
+                    TagType::EndWhile => {
+                        if let Some(stops) = stop_at
+                            && stops.iter().any(|s| matches!(s, Terminator::EndWhile))
+                        {
+                            iter.next(); // Consume
+                            return Ok((output, Some(Terminator::EndWhile)));
+                        }
+                        return Err(syn::Error::new(span, "Unexpected {/while}"));
+                    }
                     TagType::Case(pattern) => {
                         if let Some(stops) = stop_at
                             && stops.iter().any(|s| matches!(s, Terminator::Case(_)))
@@ -589,13 +708,25 @@ fn parse_fragment(
                         return Err(syn::Error::new(span, "Unexpected {/match}"));
                     }
                     TagType::Let(body) => {
-                        iter.next(); // Consume {%let ...}
+                        iter.next(); // Consume {$let ...}
                         output.extend(quote! {
                             let #body;
                         });
                     }
+                    TagType::LetMut(body) => {
+                        iter.next(); // Consume {$let mut ...}
+                        output.extend(quote! {
+                            let mut #body;
+                        });
+                    }
+                    TagType::Do(expr) => {
+                        iter.next(); // Consume {$do ...}
+                        output.extend(quote! {
+                            #expr;
+                        });
+                    }
                     TagType::Typescript(expr) => {
-                        iter.next(); // Consume {%typescript ...}
+                        iter.next(); // Consume {$typescript ...}
                         output.extend(quote! {
                             {
                                 let __ts_stream = #expr;
