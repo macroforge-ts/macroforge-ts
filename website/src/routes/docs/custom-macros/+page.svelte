@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
+	import { base } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -92,7 +93,7 @@ console.log(user.toJSON()); // { name: "Alice", age: 30 }`} lang="typescript" />
 </p>
 
 <ul>
-	<li><a href="/docs/custom-macros/rust-setup">Set up a Rust macro crate</a></li>
-	<li><a href="/docs/custom-macros/ts-macro-derive">Use the ts_macro_derive attribute</a></li>
-	<li><a href="/docs/custom-macros/ts-quote">Learn the ts_quote template syntax</a></li>
+	<li><a href="{base}/docs/custom-macros/rust-setup">Set up a Rust macro crate</a></li>
+	<li><a href="{base}/docs/custom-macros/ts-macro-derive">Use the ts_macro_derive attribute</a></li>
+	<li><a href="{base}/docs/custom-macros/ts-quote">Learn the ts_quote template syntax</a></li>
 </ul>

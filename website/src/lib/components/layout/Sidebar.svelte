@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { navigation, type NavSection } from '$lib/config/navigation';
 	import { page } from '$app/state';
+	import { base } from '$app/paths';
 
-	const isActive = (href: string) => page.url.pathname === href;
+	const getHref = (href: string) => `${base}${href}`;
+	const isActive = (href: string) => page.url.pathname === getHref(href);
 	const isSectionActive = (section: NavSection) => section.items.some((item) => isActive(item.href));
 </script>
 
@@ -20,7 +22,7 @@
 				{#each section.items as item}
 					<li>
 						<a
-							href={item.href}
+							href={getHref(item.href)}
 							class="block py-1.5 px-3 text-sm rounded-md transition-colors
 								{isActive(item.href)
 									? 'bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-400 font-medium'

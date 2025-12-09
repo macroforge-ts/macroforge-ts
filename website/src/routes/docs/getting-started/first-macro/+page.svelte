@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
+	import { base } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -123,7 +124,7 @@ console.log(user.toString());
 <h2 id="next-steps">Next Steps</h2>
 
 <ul>
-	<li><a href="/docs/concepts">Learn how macros work under the hood</a></li>
-	<li><a href="/docs/builtin-macros/debug">Explore all Debug options</a></li>
-	<li><a href="/docs/custom-macros">Create your own custom macros</a></li>
+	<li><a href="{base}/docs/concepts">Learn how macros work under the hood</a></li>
+	<li><a href="{base}/docs/builtin-macros/debug">Explore all Debug options</a></li>
+	<li><a href="{base}/docs/custom-macros">Create your own custom macros</a></li>
 </ul>

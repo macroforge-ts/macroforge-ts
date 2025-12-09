@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { base } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -19,13 +20,13 @@
 		</p>
 		<div class="mt-6 flex items-center justify-center gap-4">
 			<a
-				href="/"
+				href="{base}/"
 				class="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors"
 			>
 				Go Home
 			</a>
 			<a
-				href="/docs/getting-started"
+				href="{base}/docs/getting-started"
 				class="inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium rounded-lg transition-colors"
 			>
 				Documentation

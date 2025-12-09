@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
+	import { base } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -141,6 +142,6 @@ npm run build
 <h2 id="next-steps">Next Steps</h2>
 
 <ul>
-	<li><a href="/docs/custom-macros/ts-macro-derive">Learn the ts_macro_derive attribute</a></li>
-	<li><a href="/docs/custom-macros/ts-quote">Master the ts_quote template syntax</a></li>
+	<li><a href="{base}/docs/custom-macros/ts-macro-derive">Learn the ts_macro_derive attribute</a></li>
+	<li><a href="{base}/docs/custom-macros/ts-quote">Master the ts_quote template syntax</a></li>
 </ul>

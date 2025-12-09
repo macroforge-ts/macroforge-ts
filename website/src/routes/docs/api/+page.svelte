@@ -1,5 +1,6 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
+	import { base } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -35,11 +36,11 @@
 	</thead>
 	<tbody>
 		<tr>
-			<td><a href="/docs/api/expand-sync"><code>expandSync()</code></a></td>
+			<td><a href="{base}/docs/api/expand-sync"><code>expandSync()</code></a></td>
 			<td>Expand macros synchronously</td>
 		</tr>
 		<tr>
-			<td><a href="/docs/api/transform-sync"><code>transformSync()</code></a></td>
+			<td><a href="{base}/docs/api/transform-sync"><code>transformSync()</code></a></td>
 			<td>Transform code with additional metadata</td>
 		</tr>
 		<tr>
@@ -64,11 +65,11 @@
 	</thead>
 	<tbody>
 		<tr>
-			<td><a href="/docs/api/native-plugin"><code>NativePlugin</code></a></td>
+			<td><a href="{base}/docs/api/native-plugin"><code>NativePlugin</code></a></td>
 			<td>Stateful plugin with caching</td>
 		</tr>
 		<tr>
-			<td><a href="/docs/api/position-mapper"><code>PositionMapper</code></a></td>
+			<td><a href="{base}/docs/api/position-mapper"><code>PositionMapper</code></a></td>
 			<td>Maps positions between original and expanded code</td>
 		</tr>
 	</tbody>
@@ -102,8 +103,8 @@ if (result.diagnostics.length > 0) {
 <h2 id="detailed-reference">Detailed Reference</h2>
 
 <ul>
-	<li><a href="/docs/api/expand-sync"><code>expandSync()</code></a> - Full options and return types</li>
-	<li><a href="/docs/api/transform-sync"><code>transformSync()</code></a> - Transform with source maps</li>
-	<li><a href="/docs/api/native-plugin"><code>NativePlugin</code></a> - Caching for language servers</li>
-	<li><a href="/docs/api/position-mapper"><code>PositionMapper</code></a> - Position mapping utilities</li>
+	<li><a href="{base}/docs/api/expand-sync"><code>expandSync()</code></a> - Full options and return types</li>
+	<li><a href="{base}/docs/api/transform-sync"><code>transformSync()</code></a> - Transform with source maps</li>
+	<li><a href="{base}/docs/api/native-plugin"><code>NativePlugin</code></a> - Caching for language servers</li>
+	<li><a href="{base}/docs/api/position-mapper"><code>PositionMapper</code></a> - Position mapping utilities</li>
 </ul>

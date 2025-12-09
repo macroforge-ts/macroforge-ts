@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
+	import { base } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -137,6 +138,6 @@ class User {
 <h2 id="next-steps">Next Steps</h2>
 
 <ul>
-	<li><a href="/docs/concepts/derive-system">Learn about the derive system</a></li>
-	<li><a href="/docs/concepts/architecture">Explore the architecture</a></li>
+	<li><a href="{base}/docs/concepts/derive-system">Learn about the derive system</a></li>
+	<li><a href="{base}/docs/concepts/architecture">Explore the architecture</a></li>
 </ul>
