@@ -2310,3 +2310,326 @@ type Status = "active" | "inactive" | "pending";
         );
     });
 }
+
+#[test]
+fn test_inline_jsdoc_with_export_interface() {
+    // Test that /** @derive(X) */ export interface works on same line
+    let source = r#"/** @derive(Deserialize) */ export interface User { name: string; age: number; }"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors for inline JSDoc, got {}", error_count);
+
+        // Should generate fromJSON method in User namespace
+        assert!(
+            result.code.contains("User") && result.code.contains("fromJSON"),
+            "Should generate fromJSON for Deserialize on interface. Got:\n{}",
+            result.code
+        );
+    });
+}
+
+#[test]
+fn test_inline_jsdoc_with_export_class() {
+    // Test that /** @derive(X) */ export class works on same line
+    let source = r#"/** @derive(Debug) */ export class User { name: string; }"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors for inline JSDoc on class, got {}", error_count);
+
+        // Should generate toString method in class
+        assert!(
+            result.code.contains("toString"),
+            "Should generate toString for Debug on class. Got:\n{}",
+            result.code
+        );
+    });
+}
+
+#[test]
+fn test_inline_jsdoc_with_export_enum() {
+    // Test that /** @derive(X) */ export enum works on same line
+    let source = r#"/** @derive(Debug) */ export enum Status { Active, Inactive }"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors for inline JSDoc on enum, got {}", error_count);
+
+        // Should generate toString in Status namespace
+        assert!(
+            result.code.contains("Status") && result.code.contains("toString"),
+            "Should generate toString for Debug on enum. Got:\n{}",
+            result.code
+        );
+    });
+}
+
+#[test]
+fn test_inline_jsdoc_with_export_type() {
+    // Test that /** @derive(X) */ export type works on same line
+    let source = r#"/** @derive(Debug) */ export type Point = { x: number; y: number; }"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors for inline JSDoc on type, got {}", error_count);
+
+        // Should generate toString in Point namespace
+        assert!(
+            result.code.contains("Point") && result.code.contains("toString"),
+            "Should generate toString for Debug on type alias. Got:\n{}",
+            result.code
+        );
+    });
+}
+
+// ==================== EARLY BAILOUT TESTS ====================
+
+#[test]
+fn test_early_bailout_no_derive_returns_unchanged() {
+    // Code without @derive should be returned unchanged immediately
+    use crate::expand_inner;
+
+    let source = r#"
+class User {
+    name: string;
+    constructor(name: string) {
+        this.name = name;
+    }
+}
+"#;
+
+    let result = expand_inner(source, "test.ts", None).unwrap();
+
+    // Code should be returned exactly as-is
+    assert_eq!(result.code, source, "Code without @derive should be returned unchanged");
+    assert!(result.types.is_none(), "No type output expected");
+    assert!(result.diagnostics.is_empty(), "No diagnostics expected");
+    assert!(result.source_mapping.is_none(), "No source mapping expected");
+}
+
+#[test]
+fn test_early_bailout_svelte_runes_unchanged() {
+    // Svelte runes ($state, $derived) without @derive should be returned unchanged
+    use crate::expand_inner;
+
+    let source = r#"
+let count = $state(0);
+let double = $derived(count * 2);
+
+function increment() {
+    count++;
+}
+"#;
+
+    let result = expand_inner(source, "Counter.svelte.ts", None).unwrap();
+
+    // Svelte runes code should be returned exactly as-is
+    assert_eq!(result.code, source, "Svelte runes without @derive should be unchanged");
+    assert!(result.diagnostics.is_empty(), "No diagnostics for Svelte runes");
+}
+
+#[test]
+fn test_early_bailout_svelte_props_unchanged() {
+    // Svelte $props() rune should be returned unchanged
+    use crate::expand_inner;
+
+    let source = r#"
+interface Props {
+    name: string;
+    count?: number;
+}
+
+let { name, count = 0 }: Props = $props();
+"#;
+
+    let result = expand_inner(source, "Component.svelte.ts", None).unwrap();
+
+    assert_eq!(result.code, source, "Svelte $props() without @derive should be unchanged");
+    assert!(result.diagnostics.is_empty(), "No diagnostics for Svelte $props");
+}
+
+#[test]
+fn test_early_bailout_complex_svelte_component_unchanged() {
+    // Complex Svelte component code without @derive should be returned unchanged
+    use crate::expand_inner;
+
+    let source = r#"
+interface Props {
+    items: string[];
+    selected?: string;
+}
+
+let { items, selected = '' }: Props = $props();
+
+let filteredItems = $derived(
+    items.filter(item => item.includes(selected))
+);
+
+let count = $state(0);
+let message = $derived.by(() => {
+    if (count === 0) return 'No items';
+    return `${count} items`;
+});
+
+function handleClick() {
+    count++;
+}
+
+$effect(() => {
+    console.log('Count changed:', count);
+});
+"#;
+
+    let result = expand_inner(source, "List.svelte.ts", None).unwrap();
+
+    assert_eq!(result.code, source, "Complex Svelte code without @derive should be unchanged");
+    assert!(result.diagnostics.is_empty(), "No diagnostics expected");
+}
+
+#[test]
+fn test_with_derive_processes_normally() {
+    // Code WITH @derive should be processed normally
+    use crate::expand_inner;
+
+    let source = r#"
+/** @derive(Debug) */
+class User {
+    name: string;
+}
+"#;
+
+    let result = expand_inner(source, "test.ts", None).unwrap();
+
+    // Should have processed the macro
+    assert!(result.code.contains("toString"), "Debug macro should generate toString");
+    assert_ne!(result.code, source, "Code with @derive should be modified");
+}
+
+#[test]
+fn test_derive_in_string_literal_still_skipped() {
+    // @derive inside a string literal should still trigger processing
+    // (we do a simple contains check, not parsing)
+    use crate::expand_inner;
+
+    let source = r#"
+const msg = "Use @derive to add methods";
+class User {
+    name: string;
+}
+"#;
+
+    let result = expand_inner(source, "test.ts", None).unwrap();
+
+    // The contains("@derive") check will find the string literal
+    // This is a conservative approach - we process the file but find no actual decorators
+    // The result should have no errors and the code may have minor changes from parsing
+    assert!(result.diagnostics.iter().all(|d| d.level != "error".to_string()),
+        "No errors expected even with @derive in string literal");
+}
+
+#[test]
+fn test_early_bailout_empty_file() {
+    // Empty file should be returned unchanged
+    use crate::expand_inner;
+
+    let source = "";
+    let result = expand_inner(source, "empty.ts", None).unwrap();
+
+    assert_eq!(result.code, source, "Empty file should be returned unchanged");
+    assert!(result.diagnostics.is_empty(), "No diagnostics for empty file");
+}
+
+#[test]
+fn test_early_bailout_only_comments() {
+    // File with only comments should be returned unchanged
+    use crate::expand_inner;
+
+    let source = r#"
+// This is a comment
+/* Another comment */
+/**
+ * JSDoc comment without derive
+ */
+"#;
+
+    let result = expand_inner(source, "comments.ts", None).unwrap();
+
+    assert_eq!(result.code, source, "Comments-only file should be returned unchanged");
+    assert!(result.diagnostics.is_empty(), "No diagnostics for comments-only file");
+}
+
+#[test]
+fn test_early_bailout_regular_typescript() {
+    // Regular TypeScript without macros should be returned unchanged
+    use crate::expand_inner;
+
+    let source = r#"
+interface User {
+    id: string;
+    name: string;
+    email: string;
+}
+
+type Role = 'admin' | 'user' | 'guest';
+
+enum Status {
+    Active,
+    Inactive,
+    Pending
+}
+
+function createUser(name: string): User {
+    return {
+        id: crypto.randomUUID(),
+        name,
+        email: `${name}@example.com`
+    };
+}
+
+const users: Map<string, User> = new Map();
+
+export { User, Role, Status, createUser, users };
+"#;
+
+    let result = expand_inner(source, "types.ts", None).unwrap();
+
+    assert_eq!(result.code, source, "Regular TypeScript should be returned unchanged");
+    assert!(result.diagnostics.is_empty(), "No diagnostics for regular TypeScript");
+}
