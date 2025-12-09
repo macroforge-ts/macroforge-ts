@@ -1,8 +1,10 @@
 <script lang="ts">
-	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
+	import MacroExample from '$lib/components/ui/MacroExample.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
 	import Flowchart from '$lib/components/ui/Flowchart.svelte';
 	import { base } from '$app/paths';
+
+	let { data } = $props();
 </script>
 
 <svelte:head>
@@ -29,20 +31,7 @@
 	<li><strong>Output</strong>: The transformed TypeScript is written out, ready for normal compilation</li>
 </ol>
 
-<CodeBlock code={`// Your source code
-/** @derive(Debug) */
-class User {
-  name: string;
-}
-
-// After macro expansion
-class User {
-  name: string;
-
-  toString(): string {
-    return \`User { name: \${this.name} }\`;
-  }
-}`} lang="typescript" />
+<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
 
 <h2 id="zero-runtime">Zero Runtime Overhead</h2>
 
@@ -73,7 +62,7 @@ class User {
 	<li>IDE features like "go to definition" work as expected</li>
 </ul>
 
-<Alert type="info">
+<Alert type="info" title="Error positioning">
 	The TypeScript plugin uses source mapping to show errors at the <code>@derive</code> decorator position, not in the generated code.
 </Alert>
 
