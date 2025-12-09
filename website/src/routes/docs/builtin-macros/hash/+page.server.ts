@@ -3,9 +3,7 @@ import { expandExample } from '$lib/server/macroforge';
 export function load() {
 	return {
 		examples: {
-			basic: expandExample(`import { Hash } from "macroforge";
-
-/** @derive(Hash) */
+			basic: expandExample(`/** @derive(Hash) */
 class Point {
   x: number;
   y: number;
@@ -15,9 +13,7 @@ class Point {
     this.y = y;
   }
 }`),
-			skip: expandExample(`import { Hash } from "macroforge";
-
-/** @derive(Hash) */
+			skip: expandExample(`/** @derive(Hash) */
 class User {
   id: number;
   name: string;
@@ -31,24 +27,18 @@ class User {
     this.lastLogin = lastLogin;
   }
 }`),
-			interface: expandExample(`import { Hash } from "macroforge";
-
-/** @derive(Hash) */
+			interface: expandExample(`/** @derive(Hash) */
 interface Point {
   x: number;
   y: number;
 }`),
-			enum: expandExample(`import { Hash } from "macroforge";
-
-/** @derive(Hash) */
+			enum: expandExample(`/** @derive(Hash) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
   Pending = "pending",
 }`),
-			typeAlias: expandExample(`import { Hash } from "macroforge";
-
-/** @derive(Hash) */
+			typeAlias: expandExample(`/** @derive(Hash) */
 type Coordinates = {
   lat: number;
   lng: number;

@@ -105,19 +105,14 @@
 	For custom macro development, <code>macroforge_ts</code> re-exports everything you need:
 </p>
 
-<CodeBlock code={`// All available via macroforge_ts::*
-pub extern crate macroforge_ts_syn;    // AST types, parsing
-pub extern crate macroforge_ts_quote;  // Code generation templates
-pub extern crate macroforge_ts_macros; // #[ts_macro_derive] attribute
-pub extern crate inventory;            // Macro registration
-pub extern crate serde_json;           // Serialization
-pub extern crate napi;                 // Node.js bindings
-pub extern crate napi_derive;          // NAPI proc-macros
+<CodeBlock code={`// Convenient re-exports for macro development
+use macroforge_ts::macros::{ts_macro_derive, body, ts_template, above, below, signature};
+use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
-// SWC modules
-pub use macroforge_ts_syn::swc_core;
-pub use macroforge_ts_syn::swc_common;
-pub use macroforge_ts_syn::swc_ecma_ast;`} lang="rust" />
+// Also available: raw crate access and SWC modules
+use macroforge_ts::swc_core;
+use macroforge_ts::swc_common;
+use macroforge_ts::swc_ecma_ast;`} lang="rust" />
 
 <h2 id="next-steps">Next Steps</h2>
 
