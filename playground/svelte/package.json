@@ -14,11 +14,13 @@
 		"test:watch": "vitest"
 	},
 	"dependencies": {
+		"@emotion/weak-memoize": "^0.4.0",
 		"@playground/macro": "file:../macro",
-		"macroforge": "file:../../crates/macroforge_ts",
 		"effect": "^3.19.4",
+		"macroforge": "file:../../crates/macroforge_ts",
 		"runed": "^0.36.0",
-		"svelte-toolbelt": "^0.10.6"
+		"svelte-toolbelt": "^0.10.6",
+		"ts-deepmerge": "^7.0.3"
 	},
 	"devDependencies": {
 		"@inlang/paraglide-js": "^2.6.0",
