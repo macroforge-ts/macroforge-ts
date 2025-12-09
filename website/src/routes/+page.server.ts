@@ -1,7 +1,7 @@
-import { expandExample } from '$lib/server/macroforge';
+import { expandExample } from "$lib/server/macroforge";
 
 export function load() {
-	const heroExample = expandExample(`import { Debug, Clone, PartialEq } from "macroforge";
+  const heroExample = expandExample(`
 
 /** @derive(Debug, Clone, PartialEq) */
 class User {
@@ -14,7 +14,7 @@ class User {
   }
 }`);
 
-	return {
-		heroExample
-	};
+  return {
+    heroExample,
+  };
 }

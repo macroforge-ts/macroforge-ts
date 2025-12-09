@@ -252,7 +252,7 @@ fn generate_field_validations(
 #[ts_macro_derive(
     Deserialize,
     description = "Generates a static fromJSON() method for JSON deserialization with runtime validation",
-    attributes(serde)
+    attributes((serde, "Configure deserialization for this field. Options: skip, rename, flatten, default, validate (email, url, minLength, etc.)"))
 )]
 pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);

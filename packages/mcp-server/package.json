@@ -1,11 +1,16 @@
 {
   "name": "@macroforge/mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.17",
   "description": "MCP server for Macroforge documentation and code analysis",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
     "macroforge-mcp": "./dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rymskip/macroforge-ts.git",
+    "directory": "packages/mcp-server"
   },
   "scripts": {
     "build": "tsc && chmod +x dist/index.js",
@@ -21,10 +26,10 @@
     "typescript": "^5.7.0"
   },
   "peerDependencies": {
-    "@macroforge/core": "workspace:*"
+    "macroforge": "^0.1.17"
   },
   "peerDependenciesMeta": {
-    "@macroforge/core": {
+    "macroforge": {
       "optional": true
     }
   },

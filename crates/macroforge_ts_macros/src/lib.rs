@@ -42,9 +42,9 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
     let decorator_exprs = options
         .attributes
         .iter()
-        .map(|attr_name| generate_decorator_descriptor(attr_name, &package_expr));
-    let decorator_stubs = options.attributes.iter().map(|attr_name| {
-        generate_decorator_stub(attr_name, &struct_ident, options.description.as_ref())
+        .map(|attr| generate_decorator_descriptor(attr, &package_expr));
+    let decorator_stubs = options.attributes.iter().map(|attr| {
+        generate_decorator_stub(attr, &struct_ident, options.description.as_ref())
     });
 
     let descriptor_ident = format_ident!(
@@ -227,17 +227,33 @@ fn parse_macro_options(tokens: TokenStream2) -> Result<MacroOptions> {
                 let lit: LitStr = meta.value()?.parse()?;
                 opts.kind = MacroKindOption::from_lit(&lit)?;
             } else if meta.path.is_ident("attributes") {
-                meta.parse_nested_meta(|attr_meta| {
-                    if let Some(ident) = attr_meta.path.get_ident() {
-                        opts.attributes.push(ident.clone());
+                // Parse attributes(...) which can contain:
+                // - Simple identifiers: `serde`
+                // - Tuples with docs: `(serde, "Configure serialization")`
+                let content;
+                syn::parenthesized!(content in meta.input);
+
+                while !content.is_empty() {
+                    // Check if it's a tuple (starts with parenthesis)
+                    if content.peek(syn::token::Paren) {
+                        // Parse (ident, "docs") tuple
+                        let inner;
+                        syn::parenthesized!(inner in content);
+                        let ident: Ident = inner.parse()?;
+                        inner.parse::<syn::Token![,]>()?;
+                        let docs: LitStr = inner.parse()?;
+                        opts.attributes.push(AttributeWithDoc::with_docs(ident, docs));
                     } else {
-                        return Err(syn::Error::new(
-                            attr_meta.path.span(),
-                            "attribute name must be an identifier",
-                        ));
+                        // Parse simple identifier
+                        let ident: Ident = content.parse()?;
+                        opts.attributes.push(AttributeWithDoc::new(ident));
                     }
-                    Ok(())
-                })?;
+
+                    // Consume optional comma between attributes
+                    if content.peek(syn::Token![,]) {
+                        content.parse::<syn::Token![,]>()?;
+                    }
+                }
             } else {
                 return Err(syn::Error::new(
                     meta.path.span(),
@@ -253,11 +269,31 @@ fn parse_macro_options(tokens: TokenStream2) -> Result<MacroOptions> {
     Ok(opts)
 }
 
+/// An attribute with optional documentation
+/// Supports both `attr_name` and `(attr_name, "documentation")` syntax
+struct AttributeWithDoc {
+    name: Ident,
+    docs: LitStr,
+}
+
+impl AttributeWithDoc {
+    fn new(name: Ident) -> Self {
+        Self {
+            docs: LitStr::new("", name.span()),
+            name,
+        }
+    }
+
+    fn with_docs(name: Ident, docs: LitStr) -> Self {
+        Self { name, docs }
+    }
+}
+
 struct MacroOptions {
     name: Ident,
     description: Option<LitStr>,
     kind: MacroKindOption,
-    attributes: Vec<Ident>,
+    attributes: Vec<AttributeWithDoc>,
 }
 
 impl Default for MacroOptions {
@@ -279,11 +315,11 @@ fn features_args_type_literal() -> LitStr {
     )
 }
 
-// Helper function to generate a decorator descriptor from an attribute identifier
-fn generate_decorator_descriptor(attr_name: &Ident, package_expr: &TokenStream2) -> TokenStream2 {
-    let attr_str = LitStr::new(&attr_name.to_string(), attr_name.span());
+// Helper function to generate a decorator descriptor from an attribute with docs
+fn generate_decorator_descriptor(attr: &AttributeWithDoc, package_expr: &TokenStream2) -> TokenStream2 {
+    let attr_str = LitStr::new(&attr.name.to_string(), attr.name.span());
     let kind = quote! { macroforge_ts::host::derived::DecoratorKind::Property };
-    let docs = LitStr::new("", Span::call_site());
+    let docs = &attr.docs;
 
     quote! {
         macroforge_ts::host::derived::DecoratorDescriptor {
@@ -297,21 +333,29 @@ fn generate_decorator_descriptor(attr_name: &Ident, package_expr: &TokenStream2)
 
 // Helper function to generate a napi stub for an attribute decorator
 fn generate_decorator_stub(
-    attr_name: &Ident,
+    attr: &AttributeWithDoc,
     owner_ident: &Ident,
-    description: Option<&LitStr>,
+    macro_description: Option<&LitStr>,
 ) -> TokenStream2 {
     let owner_snake = owner_ident.to_string().to_case(Case::Snake);
-    let decorator_snake = attr_name.to_string().to_case(Case::Snake);
+    let decorator_snake = attr.name.to_string().to_case(Case::Snake);
     let fn_ident = format_ident!("__ts_macro_stub_{}_{}", owner_snake, decorator_snake);
-    let js_name = LitStr::new(&attr_name.to_string(), attr_name.span());
+    let js_name = LitStr::new(&attr.name.to_string(), attr.name.span());
 
-    let doc_comment = description.map(|desc| {
-        let desc_str = desc.value();
-        quote! {
-            #[doc = #desc_str]
-        }
-    });
+    // Use attribute-specific docs if provided, otherwise fall back to macro description
+    let doc_str = if !attr.docs.value().is_empty() {
+        attr.docs.value()
+    } else {
+        macro_description.map(|d| d.value()).unwrap_or_default()
+    };
+
+    let doc_comment = if !doc_str.is_empty() {
+        Some(quote! {
+            #[doc = #doc_str]
+        })
+    } else {
+        None
+    };
 
     let decorator_args_type = features_args_type_literal();
 

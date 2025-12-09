@@ -1,8 +1,183 @@
 import type ts from "typescript/lib/tsserverlibrary";
-import type { ExpandResult } from "macroforge";
-import { NativePlugin, PositionMapper } from "macroforge";
+import type { ExpandResult, MacroManifest, MacroManifestEntry, DecoratorManifestEntry } from "macroforge";
+import { NativePlugin, PositionMapper, __macroforgeGetManifest } from "macroforge";
 import path from "path";
 import fs from "fs";
+
+// Macro manifest cache for hover info
+let macroManifestCache: {
+  macros: Map<string, MacroManifestEntry>;
+  decorators: Map<string, DecoratorManifestEntry>;
+} | null = null;
+
+function getMacroManifest() {
+  if (macroManifestCache) return macroManifestCache;
+
+  try {
+    const manifest = __macroforgeGetManifest();
+    macroManifestCache = {
+      macros: new Map(manifest.macros.map(m => [m.name.toLowerCase(), m])),
+      decorators: new Map(manifest.decorators.map(d => [d.export.toLowerCase(), d])),
+    };
+    return macroManifestCache;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Find macro name at position in @derive(...) comment
+ */
+function findDeriveAtPosition(
+  text: string,
+  position: number,
+): { macroName: string; start: number; end: number } | null {
+  const derivePattern = /@derive\s*\(\s*([^)]+)\s*\)/gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = derivePattern.exec(text)) !== null) {
+    const deriveStart = match.index;
+    const deriveEnd = deriveStart + match[0].length;
+
+    if (position >= deriveStart && position <= deriveEnd) {
+      const argsStart = text.indexOf("(", deriveStart) + 1;
+      const argsEnd = text.indexOf(")", argsStart);
+      const argsContent = text.substring(argsStart, argsEnd);
+
+      let currentPos = argsStart;
+      const macroNames = argsContent.split(",");
+
+      for (const rawName of macroNames) {
+        const trimmedName = rawName.trim();
+        const nameStartInArgs = rawName.indexOf(trimmedName);
+        const nameStart = currentPos + nameStartInArgs;
+        const nameEnd = nameStart + trimmedName.length;
+
+        if (position >= nameStart && position <= nameEnd) {
+          return { macroName: trimmedName, start: nameStart, end: nameEnd };
+        }
+
+        currentPos += rawName.length + 1;
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Find decorator at position like @serde or @debug
+ */
+function findDecoratorAtPosition(
+  text: string,
+  position: number,
+): { name: string; start: number; end: number } | null {
+  const decoratorPattern = /@([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = decoratorPattern.exec(text)) !== null) {
+    const atSign = match.index;
+    const nameStart = atSign + 1;
+    const nameEnd = nameStart + match[1].length;
+
+    if (position >= atSign && position <= nameEnd) {
+      // Skip @derive in JSDoc comments - let findDeriveAtPosition handle those
+      if (match[1].toLowerCase() === "derive") {
+        const beforeMatch = text.substring(0, atSign);
+        const lastCommentStart = beforeMatch.lastIndexOf("/**");
+        const lastCommentEnd = beforeMatch.lastIndexOf("*/");
+        if (lastCommentStart > lastCommentEnd) {
+          continue;
+        }
+      }
+
+      return { name: match[1], start: atSign, end: nameEnd };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Get macro hover info at position
+ * Returns QuickInfo if hovering on a macro or decorator, null otherwise
+ */
+function getMacroHoverInfo(
+  text: string,
+  position: number,
+  tsModule: typeof ts,
+): ts.QuickInfo | null {
+  const manifest = getMacroManifest();
+  if (!manifest) return null;
+
+  // Check for @derive(MacroName) in JSDoc comments
+  const deriveMatch = findDeriveAtPosition(text, position);
+  if (deriveMatch) {
+    const macroInfo = manifest.macros.get(deriveMatch.macroName.toLowerCase());
+    if (macroInfo) {
+      return {
+        kind: tsModule.ScriptElementKind.functionElement,
+        kindModifiers: "",
+        textSpan: {
+          start: deriveMatch.start,
+          length: deriveMatch.end - deriveMatch.start,
+        },
+        displayParts: [
+          { text: "@derive(", kind: "punctuation" },
+          { text: macroInfo.name, kind: "functionName" },
+          { text: ")", kind: "punctuation" },
+        ],
+        documentation: macroInfo.description
+          ? [{ text: macroInfo.description, kind: "text" }]
+          : [],
+      };
+    }
+  }
+
+  // Check for @decorator patterns
+  const decoratorMatch = findDecoratorAtPosition(text, position);
+  if (decoratorMatch) {
+    // Check if it's a macro name
+    const macroInfo = manifest.macros.get(decoratorMatch.name.toLowerCase());
+    if (macroInfo) {
+      return {
+        kind: tsModule.ScriptElementKind.functionElement,
+        kindModifiers: "",
+        textSpan: {
+          start: decoratorMatch.start,
+          length: decoratorMatch.end - decoratorMatch.start,
+        },
+        displayParts: [
+          { text: "@", kind: "punctuation" },
+          { text: macroInfo.name, kind: "functionName" },
+        ],
+        documentation: macroInfo.description
+          ? [{ text: macroInfo.description, kind: "text" }]
+          : [],
+      };
+    }
+
+    // Check if it's a decorator
+    const decoratorInfo = manifest.decorators.get(decoratorMatch.name.toLowerCase());
+    if (decoratorInfo && decoratorInfo.docs) {
+      return {
+        kind: tsModule.ScriptElementKind.functionElement,
+        kindModifiers: "",
+        textSpan: {
+          start: decoratorMatch.start,
+          length: decoratorMatch.end - decoratorMatch.start,
+        },
+        displayParts: [
+          { text: "@", kind: "punctuation" },
+          { text: decoratorInfo.export, kind: "functionName" },
+        ],
+        documentation: [{ text: decoratorInfo.docs, kind: "text" }],
+      };
+    }
+  }
+
+  return null;
+}
 
 const FILE_EXTENSIONS = [".ts", ".tsx", ".svelte"];
 
@@ -771,6 +946,16 @@ function init(modules: { typescript: typeof ts }) {
       try {
         if (virtualDtsFiles.has(fileName) || !shouldProcess(fileName)) {
           return originalGetQuickInfoAtPosition(fileName, position);
+        }
+
+        // Check for macro hover first (JSDoc @derive comments and decorators)
+        const snapshot = info.languageServiceHost.getScriptSnapshot(fileName);
+        if (snapshot) {
+          const text = snapshot.getText(0, snapshot.getLength());
+          const macroHover = getMacroHoverInfo(text, position, tsModule);
+          if (macroHover) {
+            return macroHover;
+          }
         }
 
         const mapper = nativePlugin.getMapper(fileName);
