@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/mcp-server",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "MCP server for Macroforge documentation and code analysis",
   "type": "module",
   "main": "dist/index.js",
@@ -16,7 +16,8 @@
     "build": "tsc && chmod +x dist/index.js",
     "build:docs": "node scripts/extract-docs.cjs",
     "dev": "npx @modelcontextprotocol/inspector dist/index.js",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test": "node --test tests/**/*.test.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.11.1"
@@ -26,7 +27,7 @@
     "typescript": "^5.7.0"
   },
   "peerDependencies": {
-    "macroforge": "^0.1.18"
+    "macroforge": "^0.1.19"
   },
   "peerDependenciesMeta": {
     "macroforge": {
