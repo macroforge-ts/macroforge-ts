@@ -3,9 +3,7 @@ import { expandExample } from '$lib/server/macroforge';
 export function load() {
 	return {
 		examples: {
-			basic: expandExample(`import { Debug } from "macroforge";
-
-/** @derive(Debug) */
+			basic: expandExample(`/** @derive(Debug) */
 class User {
   name: string;
   age: number;
@@ -15,9 +13,7 @@ class User {
     this.age = age;
   }
 }`),
-			rename: expandExample(`import { Debug } from "macroforge";
-
-/** @derive(Debug) */
+			rename: expandExample(`/** @derive(Debug) */
 class User {
   /** @debug({ rename: "userId" }) */
   id: number;
@@ -29,9 +25,7 @@ class User {
     this.name = name;
   }
 }`),
-			skip: expandExample(`import { Debug } from "macroforge";
-
-/** @derive(Debug) */
+			skip: expandExample(`/** @derive(Debug) */
 class User {
   name: string;
   email: string;
@@ -49,24 +43,18 @@ class User {
     this.authToken = authToken;
   }
 }`),
-			interface: expandExample(`import { Debug } from "macroforge";
-
-/** @derive(Debug) */
+			interface: expandExample(`/** @derive(Debug) */
 interface Status {
   active: boolean;
   message: string;
 }`),
-			enum: expandExample(`import { Debug } from "macroforge";
-
-/** @derive(Debug) */
+			enum: expandExample(`/** @derive(Debug) */
 enum Priority {
   Low = 1,
   Medium = 2,
   High = 3,
 }`),
-			typeAlias: expandExample(`import { Debug } from "macroforge";
-
-/** @derive(Debug) */
+			typeAlias: expandExample(`/** @derive(Debug) */
 type Point = {
   x: number;
   y: number;

@@ -3,9 +3,7 @@ import { expandExample } from '$lib/server/macroforge';
 export function load() {
 	return {
 		examples: {
-			basic: expandExample(`import { Clone } from "macroforge";
-
-/** @derive(Clone) */
+			basic: expandExample(`/** @derive(Clone) */
 class Point {
   x: number;
   y: number;
@@ -15,9 +13,7 @@ class Point {
     this.y = y;
   }
 }`),
-			nested: expandExample(`import { Clone } from "macroforge";
-
-/** @derive(Clone) */
+			nested: expandExample(`/** @derive(Clone) */
 class User {
   name: string;
   address: { city: string; zip: string };
@@ -27,23 +23,17 @@ class User {
     this.address = address;
   }
 }`),
-			interface: expandExample(`import { Clone } from "macroforge";
-
-/** @derive(Clone) */
+			interface: expandExample(`/** @derive(Clone) */
 interface Point {
   x: number;
   y: number;
 }`),
-			enum: expandExample(`import { Clone } from "macroforge";
-
-/** @derive(Clone) */
+			enum: expandExample(`/** @derive(Clone) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
 }`),
-			typeAlias: expandExample(`import { Clone } from "macroforge";
-
-/** @derive(Clone) */
+			typeAlias: expandExample(`/** @derive(Clone) */
 type Point = {
   x: number;
   y: number;

@@ -3,9 +3,7 @@ import { expandExample } from '$lib/server/macroforge';
 export function load() {
 	return {
 		examples: {
-			basic: expandExample(`import { PartialEq } from "macroforge";
-
-/** @derive(PartialEq) */
+			basic: expandExample(`/** @derive(PartialEq) */
 class Point {
   x: number;
   y: number;
@@ -15,9 +13,7 @@ class Point {
     this.y = y;
   }
 }`),
-			skip: expandExample(`import { PartialEq } from "macroforge";
-
-/** @derive(PartialEq) */
+			skip: expandExample(`/** @derive(PartialEq) */
 class User {
   id: number;
   name: string;
@@ -31,24 +27,18 @@ class User {
     this.createdAt = createdAt;
   }
 }`),
-			interface: expandExample(`import { PartialEq } from "macroforge";
-
-/** @derive(PartialEq) */
+			interface: expandExample(`/** @derive(PartialEq) */
 interface Point {
   x: number;
   y: number;
 }`),
-			enum: expandExample(`import { PartialEq } from "macroforge";
-
-/** @derive(PartialEq) */
+			enum: expandExample(`/** @derive(PartialEq) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
   Pending = "pending",
 }`),
-			typeAlias: expandExample(`import { PartialEq } from "macroforge";
-
-/** @derive(PartialEq) */
+			typeAlias: expandExample(`/** @derive(PartialEq) */
 type Point = {
   x: number;
   y: number;

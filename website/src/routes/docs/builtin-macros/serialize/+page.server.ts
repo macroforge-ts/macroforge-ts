@@ -3,9 +3,7 @@ import { expandExample } from '$lib/server/macroforge';
 export function load() {
 	return {
 		examples: {
-			basic: expandExample(`import { Serialize } from "macroforge";
-
-/** @derive(Serialize) */
+			basic: expandExample(`/** @derive(Serialize) */
 class User {
   name: string;
   age: number;
@@ -17,9 +15,7 @@ class User {
     this.createdAt = new Date();
   }
 }`),
-			rename: expandExample(`import { Serialize } from "macroforge";
-
-/** @derive(Serialize) */
+			rename: expandExample(`/** @derive(Serialize) */
 class User {
   /** @serde({ rename: "user_id" }) */
   id: string;
@@ -27,9 +23,7 @@ class User {
   /** @serde({ rename: "full_name" }) */
   name: string;
 }`),
-			skip: expandExample(`import { Serialize } from "macroforge";
-
-/** @derive(Serialize) */
+			skip: expandExample(`/** @derive(Serialize) */
 class User {
   name: string;
   email: string;
@@ -40,25 +34,19 @@ class User {
   /** @serde({ skip_serializing: true }) */
   internalId: string;
 }`),
-			interface: expandExample(`import { Serialize } from "macroforge";
-
-/** @derive(Serialize) */
+			interface: expandExample(`/** @derive(Serialize) */
 interface ApiResponse {
   status: number;
   message: string;
   timestamp: Date;
 }`),
-			enum: expandExample(`import { Serialize } from "macroforge";
-
-/** @derive(Serialize) */
+			enum: expandExample(`/** @derive(Serialize) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
   Pending = "pending",
 }`),
-			typeAlias: expandExample(`import { Serialize } from "macroforge";
-
-/** @derive(Serialize) */
+			typeAlias: expandExample(`/** @derive(Serialize) */
 type UserProfile = {
   id: string;
   name: string;

@@ -17,7 +17,7 @@
 
 <h2 id="basic-syntax">Basic Syntax</h2>
 
-<CodeBlock code={`use macroforge_ts::ts_macro_derive::ts_macro_derive;
+<CodeBlock code={`use macroforge_ts::macros::ts_macro_derive;
 use macroforge_ts::ts_syn::{TsStream, MacroforgeError};
 
 #[ts_macro_derive(MacroName)]
@@ -86,7 +86,7 @@ pub fn derive_debug(...)`} lang="rust" />
 
 <p>Use <code>parse_ts_macro_input!</code> to convert the token stream:</p>
 
-<CodeBlock code={`use macroforge_ts::ts_syn::{DeriveInput, Data, parse_ts_macro_input};
+<CodeBlock code={`use macroforge_ts::ts_syn::{Data, DeriveInput, parse_ts_macro_input};
 
 #[ts_macro_derive(MyMacro)]
 pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
@@ -260,8 +260,7 @@ pub fn class_only(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
 
 <h2 id="complete-example">Complete Example</h2>
 
-<CodeBlock code={`use macroforge_ts::ts_macro_derive::ts_macro_derive;
-use macroforge_ts::ts_quote::body;
+<CodeBlock code={`use macroforge_ts::macros::{ts_macro_derive, body};
 use macroforge_ts::ts_syn::{
     Data, DeriveInput, FieldIR, MacroforgeError, TsStream, parse_ts_macro_input,
 };

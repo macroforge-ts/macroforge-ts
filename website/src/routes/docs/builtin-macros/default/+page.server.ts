@@ -3,9 +3,7 @@ import { expandExample } from '$lib/server/macroforge';
 export function load() {
 	return {
 		examples: {
-			basic: expandExample(`import { Default } from "macroforge";
-
-/** @derive(Default) */
+			basic: expandExample(`/** @derive(Default) */
 class Config {
   host: string;
   port: number;
@@ -17,9 +15,7 @@ class Config {
     this.enabled = enabled;
   }
 }`),
-			custom: expandExample(`import { Default } from "macroforge";
-
-/** @derive(Default) */
+			custom: expandExample(`/** @derive(Default) */
 class ServerConfig {
   /** @defaultValue("localhost") */
   host: string;
@@ -40,24 +36,18 @@ class ServerConfig {
     this.logLevels = logLevels;
   }
 }`),
-			interface: expandExample(`import { Default } from "macroforge";
-
-/** @derive(Default) */
+			interface: expandExample(`/** @derive(Default) */
 interface Point {
   x: number;
   y: number;
 }`),
-			enum: expandExample(`import { Default } from "macroforge";
-
-/** @derive(Default) */
+			enum: expandExample(`/** @derive(Default) */
 enum Status {
   Pending = "pending",
   Active = "active",
   Completed = "completed",
 }`),
-			typeAlias: expandExample(`import { Default } from "macroforge";
-
-/** @derive(Default) */
+			typeAlias: expandExample(`/** @derive(Default) */
 type Dimensions = {
   width: number;
   height: number;

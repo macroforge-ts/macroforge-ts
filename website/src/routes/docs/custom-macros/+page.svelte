@@ -30,8 +30,7 @@
 
 <h2 id="quick-example">Quick Example</h2>
 
-<CodeBlock code={`use macroforge_ts::ts_macro_derive::ts_macro_derive;
-use macroforge_ts::ts_quote::body;
+<CodeBlock code={`use macroforge_ts::macros::{ts_macro_derive, body};
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 #[ts_macro_derive(
