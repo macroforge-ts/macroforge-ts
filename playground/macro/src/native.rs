@@ -112,7 +112,7 @@ pub fn field_controller_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 };
 
                 {#for (label_text, field_path_literal, field_path_prop, field_controller_prop, field_type) in field_data}
-                    {%let controller_type = format!("{}FieldController", label_text)}
+                    {$let controller_type = format!("{}FieldController", label_text)}
 
                     @{field_path_prop} = [@{field_path_literal}];
 
@@ -204,7 +204,7 @@ fn generate_field_controller_for_interface(
         }
 
         {#for (label_text, field_path_literal, field_path_const, field_controller_fn, field_type) in field_data}
-            {%let controller_type = format!("{}FieldController", label_text)}
+            {$let controller_type = format!("{}FieldController", label_text)}
 
             export const @{field_path_const} = [@{field_path_literal}] as const;
 

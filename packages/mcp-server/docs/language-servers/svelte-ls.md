@@ -77,4 +77,4 @@ The Svelte language server extends the standard Svelte language tooling with mac
 
 ## Using with Zed
 
-For Zed editor, see the [Zed Extensions](/docs/language-servers/zed) page for the dedicated `svelte-macroforge` extension.
+For Zed editor, see the [Zed Extensions]({base}/docs/language-servers/zed) page for the dedicated `svelte-macroforge` extension.

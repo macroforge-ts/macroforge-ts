@@ -53,7 +53,7 @@ Syntax rules:
 
 - Can appear anywhere in the file (typically at the top)
 
-- Multiple macros can be imported: `import macro { A, B } from "pkg";`
+- Multiple macros can be imported: `import macro &#123; A, B &#125; from "pkg";`
 
 - Multiple import statements can be used for different packages
 
@@ -103,11 +103,11 @@ Syntax rules:
 
 - Must be inside a JSDoc comment immediately before the field
 
-- Options use object literal syntax: `@attr({ key: value })`
+- Options use object literal syntax: `@attr(&#123; key: value &#125;)`
 
-- Boolean options: `@attr({ skip: true })`
+- Boolean options: `@attr(&#123; skip: true &#125;)`
 
-- String options: `@attr({ rename: "newName" })`
+- String options: `@attr(&#123; rename: "newName" &#125;)`
 
 - Multiple attributes can be on separate lines or combined
 
@@ -168,6 +168,6 @@ Macroforge comes with built-in macros that work out of the box. You can also cre
 
 ## Next Steps
 
-- [Explore built-in macros](/docs/builtin-macros)
+- [Explore built-in macros]({base}/docs/builtin-macros)
 
-- [Create custom macros](/docs/custom-macros)
+- [Create custom macros]({base}/docs/custom-macros)

@@ -119,6 +119,6 @@ The Vite plugin runs macro expansion during the build process:
 
 ## Next Steps
 
-- [Learn about the derive system](/docs/concepts/derive-system)
+- [Learn about the derive system]({base}/docs/concepts/derive-system)
 
-- [Explore the architecture](/docs/concepts/architecture)
+- [Explore the architecture]({base}/docs/concepts/architecture)

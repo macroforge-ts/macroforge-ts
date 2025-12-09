@@ -61,7 +61,7 @@ fn test_at_interpolation_glue() {
 #[test]
 fn test_let_scope() {
     let input = TokenStream2::from_str(
-        r###"            {%let val_local = val}
+        r###"            {$let val_local = val}
             @{val_local}
         "###,
     )
@@ -482,4 +482,228 @@ fn test_ident_block_plain_text_only() {
 
     // Should emit "hello" without spaces
     assert!(s.contains(r#"__out . push_str ("hello")"#), "Should emit hello");
+}
+
+// ============================================================================
+// WHILE LOOP TESTS
+// ============================================================================
+
+#[test]
+fn test_while_loop() {
+    let input = TokenStream2::from_str(
+        r###"
+            {#while i < 5}
+                item @{i}
+            {/while}
+        "###,
+    )
+    .unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    assert!(s.contains("while i < 5"), "Should generate while loop");
+}
+
+#[test]
+fn test_while_let_loop() {
+    let input = TokenStream2::from_str(
+        r###"
+            {#while let Some(item) = iter.next()}
+                @{item}
+            {/while}
+        "###,
+    )
+    .unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    assert!(
+        s.contains("while let Some (item) = iter . next ()"),
+        "Should generate while-let: {}",
+        s
+    );
+}
+
+#[test]
+fn test_while_with_complex_condition() {
+    let input = TokenStream2::from_str(
+        r###"
+            {#while !done && count < max}
+                processing
+            {/while}
+        "###,
+    )
+    .unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    assert!(
+        s.contains("while ! done && count < max"),
+        "Should handle complex condition: {}",
+        s
+    );
+}
+
+// ============================================================================
+// LET MUT TESTS
+// ============================================================================
+
+#[test]
+fn test_let_mut() {
+    let input = TokenStream2::from_str(
+        r###"
+            {$let mut count = 0}
+            count is @{count}
+        "###,
+    )
+    .unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    assert!(
+        s.contains("let mut count = 0"),
+        "Should have mutable binding: {}",
+        s
+    );
+}
+
+#[test]
+fn test_let_mut_with_type() {
+    let input = TokenStream2::from_str(
+        r###"
+            {$let mut items: Vec<String> = Vec::new()}
+        "###,
+    )
+    .unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    assert!(
+        s.contains("let mut items : Vec < String > = Vec :: new ()"),
+        "Should handle typed mutable binding: {}",
+        s
+    );
+}
+
+// ============================================================================
+// DO (SIDE EFFECT) TESTS
+// ============================================================================
+
+#[test]
+fn test_do_side_effect() {
+    let input = TokenStream2::from_str(
+        r###"
+            {$do results.push("item".to_string())}
+            {$do counter += 1}
+        "###,
+    )
+    .unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    assert!(
+        s.contains("results . push"),
+        "Should have push side effect: {}",
+        s
+    );
+    assert!(s.contains("counter += 1"), "Should have increment: {}", s);
+}
+
+#[test]
+fn test_do_method_call() {
+    let input = TokenStream2::from_str(
+        r###"
+            {$do vec.clear()}
+            {$do map.insert(key, value)}
+        "###,
+    )
+    .unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    assert!(s.contains("vec . clear ()"), "Should have clear call: {}", s);
+    assert!(
+        s.contains("map . insert (key , value)"),
+        "Should have insert call: {}",
+        s
+    );
+}
+
+// ============================================================================
+// COMBINED WHILE + LET MUT + DO TESTS
+// ============================================================================
+
+#[test]
+fn test_while_with_mut_and_do() {
+    let input = TokenStream2::from_str(
+        r###"
+            {$let mut i = 0}
+            {#while i < 5}
+                item @{i}
+                {$do i += 1}
+            {/while}
+        "###,
+    )
+    .unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    assert!(s.contains("let mut i = 0"), "Should have mutable let: {}", s);
+    assert!(s.contains("while i < 5"), "Should generate while loop: {}", s);
+    assert!(s.contains("i += 1"), "Should have do expression: {}", s);
+}
+
+#[test]
+fn test_while_with_break_condition() {
+    // Test a more complex while loop pattern
+    let input = TokenStream2::from_str(
+        r###"
+            {$let mut found = false}
+            {#while !found}
+                {#if condition}
+                    {$do found = true}
+                    found it
+                {/if}
+            {/while}
+        "###,
+    )
+    .unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    assert!(
+        s.contains("while ! found"),
+        "Should have while with negation: {}",
+        s
+    );
+    assert!(
+        s.contains("found = true"),
+        "Should have assignment: {}",
+        s
+    );
+}
+
+#[test]
+fn test_nested_while_loops() {
+    let input = TokenStream2::from_str(
+        r###"
+            {#while outer_cond}
+                outer
+                {#while inner_cond}
+                    inner
+                {/while}
+            {/while}
+        "###,
+    )
+    .unwrap();
+    let output = parse_template(input);
+    let s = output.unwrap().to_string();
+
+    // Should have two while loops
+    let while_count = s.matches("while").count();
+    assert!(
+        while_count >= 2,
+        "Should have at least 2 while loops: {}",
+        s
+    );
 }

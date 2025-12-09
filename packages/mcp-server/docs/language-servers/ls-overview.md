@@ -8,13 +8,13 @@ Language server integrations are currently experimental. They work in the reposi
 
 ## Overview
 
-While the [TypeScript Plugin](/docs/integration/typescript-plugin) provides macro support in any TypeScript-aware editor, dedicated language servers offer deeper integration for specific frameworks and editors.
+While the [TypeScript Plugin]({base}/docs/integration/typescript-plugin) provides macro support in any TypeScript-aware editor, dedicated language servers offer deeper integration for specific frameworks and editors.
 
-| [Svelte Language Server](/docs/language-servers/svelte) 
+| [Svelte Language Server]({base}/docs/language-servers/svelte) 
 | Full Svelte support with macroforge 
 | Working (dev install) 
 
-| [Zed Extensions](/docs/language-servers/zed) 
+| [Zed Extensions]({base}/docs/language-servers/zed) 
 | VTSLS and Svelte for Zed editor 
 | Working (dev install)
 
@@ -42,6 +42,6 @@ We're working on official extension releases for:
 
 ## Detailed Guides
 
-- [Svelte Language Server](/docs/language-servers/svelte) - Full Svelte IDE support
+- [Svelte Language Server]({base}/docs/language-servers/svelte) - Full Svelte IDE support
 
-- [Zed Extensions](/docs/language-servers/zed) - VTSLS and Svelte for Zed
+- [Zed Extensions]({base}/docs/language-servers/zed) - VTSLS and Svelte for Zed

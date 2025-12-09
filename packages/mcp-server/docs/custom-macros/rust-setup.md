@@ -141,6 +141,6 @@ npm run build
 
 ## Next Steps
 
-- [Learn the ts_macro_derive attribute](/docs/custom-macros/ts-macro-derive)
+- [Learn the ts_macro_derive attribute]({base}/docs/custom-macros/ts-macro-derive)
 
-- [Master the ts_quote template syntax](/docs/custom-macros/ts-quote)
+- [Master the ts_quote template syntax]({base}/docs/custom-macros/ts-quote)

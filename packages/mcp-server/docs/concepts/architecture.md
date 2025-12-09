@@ -50,7 +50,7 @@ Template-based code generation similar to Rust's `quote!`:
 
 - `body!` - Generate class body members
 
-- Control flow: `{"{#for}"}`, `{"{#if}"}`, `{"{%let}"}`
+- Control flow: `{"{#for}"}`, `{"{#if}"}`, `{"{$let}"}`
 
 ### ts_macro_derive
 
@@ -134,6 +134,6 @@ pub use ts_syn::swc_ecma_ast;
 
 ## Next Steps
 
-- [Write custom macros](/docs/custom-macros)
+- [Write custom macros]({base}/docs/custom-macros)
 
-- [Explore the API reference](/docs/api)
+- [Explore the API reference]({base}/docs/api)
