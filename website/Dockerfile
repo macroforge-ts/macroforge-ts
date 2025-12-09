@@ -1,13 +1,16 @@
-FROM node:24-slim
+FROM ubuntu:24.04
 
-WORKDIR /app
-
-# Install dependencies for native modules
+# Install Node.js 24 and build dependencies
 RUN apt-get update && apt-get install -y \
+    curl \
     python3 \
     make \
     g++ \
+    && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
+    && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
