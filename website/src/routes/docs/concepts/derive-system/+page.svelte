@@ -63,7 +63,7 @@ class User { }`} lang="typescript" />
 <ul>
 	<li>Must be inside a JSDoc comment (<code>/** */</code>)</li>
 	<li>Can appear anywhere in the file (typically at the top)</li>
-	<li>Multiple macros can be imported: <code>import macro { A, B } from "pkg";</code></li>
+	<li>Multiple macros can be imported: <code>import macro &#123; A, B &#125; from "pkg";</code></li>
 	<li>Multiple import statements can be used for different packages</li>
 </ul>
 
@@ -112,9 +112,9 @@ class User {
 
 <ul>
 	<li>Must be inside a JSDoc comment immediately before the field</li>
-	<li>Options use object literal syntax: <code>@attr({ key: value })</code></li>
-	<li>Boolean options: <code>@attr({ skip: true })</code></li>
-	<li>String options: <code>@attr({ rename: "newName" })</code></li>
+	<li>Options use object literal syntax: <code>@attr(&#123; key: value &#125;)</code></li>
+	<li>Boolean options: <code>@attr(&#123; skip: true &#125;)</code></li>
+	<li>String options: <code>@attr(&#123; rename: "newName" &#125;)</code></li>
 	<li>Multiple attributes can be on separate lines or combined</li>
 </ul>
 
