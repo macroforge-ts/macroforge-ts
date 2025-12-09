@@ -12,21 +12,25 @@ The `ts_template!` macro provides an intuitive, template-based way to generate T
 
 ## Quick Reference
 
-| Syntax | Description |
-|--------|-------------|
-| `@{expr}` | Interpolate a Rust expression (always adds space after) |
-| `{| content |}` | Ident block: concatenates content without spaces (e.g., `{|get@{name}|}` → `getUser`) |
-| `@@{` | Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`) |
-| `"text @{expr}"` | String interpolation (auto-detected) |
-| `"'^template ${js}^'"` | JS backtick template literal (outputs `` `template ${js}` ``) |
-| `{#if cond}...{/if}` | Conditional block |
-| `{#if cond}...{:else}...{/if}` | Conditional with else |
-| `{#if a}...{:else if b}...{:else}...{/if}` | Full if/else-if/else chain |
-| `{#if let pattern = expr}...{/if}` | Pattern matching if-let |
-| `{#match expr}{:case pattern}...{/match}` | Match expression with case arms |
-| `{#for item in list}...{/for}` | Iterate over a collection |
-| `{%let name = expr}` | Define a local constant |
-| `{%typescript stream}` | Inject a TsStream, preserving its source and runtime_patches (imports) |
+| Syntax                                     | Description                                                            |
+| ------------------------------------------ | ---------------------------------------------------------------------- |
+| `@{expr}`                                  | Interpolate a Rust expression (always adds space after)                |
+| `{\| content \|}`                          | Ident block: concatenates content without spaces (e.g., `{\|get@{name}\|}`→`getUser`) |
+| `@@{`                                      | Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)                 |
+| `"text @{expr}"`                           | String interpolation (auto-detected)                                   |
+| `"'^template ${js}^'"`                     | JS backtick template literal (outputs `` `template ${js}` ``)          |
+| `{#if cond}...{/if}`                       | Conditional block                                                      |
+| `{#if cond}...{:else}...{/if}`             | Conditional with else                                                  |
+| `{#if a}...{:else if b}...{:else}...{/if}` | Full if/else-if/else chain                                             |
+| `{#if let pattern = expr}...{/if}`         | Pattern matching if-let                                                |
+| `{#match expr}{:case pattern}...{/match}`  | Match expression with case arms                                        |
+| `{#for item in list}...{/for}`             | Iterate over a collection                                              |
+| `{#while cond}...{/while}`                 | While loop                                                             |
+| `{#while let pattern = expr}...{/while}`   | While-let pattern matching loop                                        |
+| `{$let name = expr}`                       | Define a local constant                                                |
+| `{$let mut name = expr}`                   | Define a mutable local variable                                        |
+| `{$do expr}`                               | Execute a side-effectful expression                                    |
+| `{$typescript stream}`                     | Inject a TsStream, preserving its source and runtime_patches (imports) |
 
 > **Note:** A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com` works as expected).
 
@@ -51,7 +55,7 @@ let code = ts_template! {
 
 ```typescript
 User.prototype.toString = function () {
-  return "User instance";
+    return "User instance";
 };
 ```
 
@@ -73,7 +77,7 @@ let code = ts_template! {
 
 ```typescript
 function getUser() {
-  return this.user;
+    return this.user;
 }
 ```
 
@@ -160,7 +164,7 @@ let code = ts_template! {
 **Generates:**
 
 ```typescript
-`Hello ${this.name}, you are a User`
+`Hello ${this.name}, you are a User`;
 ```
 
 ### Conditionals: `{#if}...{:else}...{/if}`
@@ -321,11 +325,11 @@ let code = ts_template! {
 
 ```typescript
 function toJSON() {
-  const result = {};
-  result.name = this.name;
-  result.email = this.email;
-  result.age = this.age;
-  return result;
+    const result = {};
+    result.name = this.name;
+    result.email = this.email;
+    result.age = this.age;
+    return result;
 }
 ```
 
@@ -341,7 +345,7 @@ let code = ts_template! {
 };
 ```
 
-### Local Constants: `{%let name = expr}`
+### Local Constants: `{$let name = expr}`
 
 Define local variables within the template scope:
 
@@ -350,7 +354,7 @@ let items = vec![("user", "User"), ("post", "Post")];
 
 let code = ts_template! {
     {#for (key, class_name) in items}
-        {%let upper = class_name.to_uppercase()}
+        {$let upper = class_name.to_uppercase()}
         console.log("Processing @{upper}");
         const @{key} = new @{class_name}();
     {/for}
@@ -359,7 +363,7 @@ let code = ts_template! {
 
 This is useful for computing derived values inside loops without cluttering the Rust code.
 
-### TsStream Injection: `{%typescript stream}`
+### TsStream Injection: `{$typescript stream}`
 
 Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via `add_import()`):
 
@@ -374,7 +378,7 @@ helper.add_import("Result", "macroforge/result");
 
 // Inject the helper into the main template
 let result = body! {
-    {%typescript helper}
+    {$typescript helper}
 
     process(data: Record<string, unknown>): void {
         // ...
@@ -398,7 +402,7 @@ body! {
     mainMethod(): void {}
 
     {#if let Some(methods) = extra_methods}
-        {%typescript methods}
+        {$typescript methods}
     {/if}
 }
 ```
@@ -480,7 +484,7 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
 
 You can mix template syntax with regular TypeScript. Braces `{}` are recognized as either:
 
-- **Template tags** if they start with `#`, `%`, `:`, or `/`
+- **Template tags** if they start with `#`, `$`, `:`, or `/`
 - **Regular TypeScript blocks** otherwise
 
 ```rust
