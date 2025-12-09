@@ -75,8 +75,6 @@ interface MacroDiagnostic {
 import { expandSync } from "macroforge";
 
 const sourceCode = \`
-import { Debug } from "macroforge";
-
 /** @derive(Debug) */
 class User {
   name: string;
