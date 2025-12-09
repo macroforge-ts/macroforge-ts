@@ -425,20 +425,153 @@ The Vite plugin runs macro expansion during the build process:
 
 *The derive system is inspired by Rust's derive macros. It allows you to automatically implement common patterns by annotating your classes with `@derive`.*
 
-## Syntax
+## Syntax Reference
 
-The derive decorator uses JSDoc comment syntax:
+Macroforge uses JSDoc comments for all macro annotations. This ensures compatibility with standard TypeScript tooling.
+
+### The @derive Statement
+
+The `@derive` decorator triggers macro expansion on a class or interface:
 
 ```typescript
 /** @derive(MacroName) */
 class MyClass { }
 
-/** @derive(Debug, Clone, Eq) */
+/** @derive(Debug, Clone, PartialEq) */
 class AnotherClass { }
 ```
 
+Syntax rules:
+
+- Must be inside a JSDoc comment (`/** */`)
+
+- Must appear immediately before the class/interface declaration
+
+- Multiple macros can be comma-separated: `@derive(A, B, C)`
+
+- Multiple `@derive` statements can be stacked
+
+```typescript
+// Single derive with multiple macros
+/** @derive(Debug, Clone) */
+class User { }
+
+// Multiple derive statements (equivalent)
+/** @derive(Debug) */
+/** @derive(Clone) */
+class User { }
+```
+
+### The import macro Statement
+
+To use macros from external packages, you must declare them with `import macro`:
+
+```typescript
+/** import macro { MacroName } from "package-name"; */
+```
+
+Syntax rules:
+
+- Must be inside a JSDoc comment (`/** */`)
+
+- Can appear anywhere in the file (typically at the top)
+
+- Multiple macros can be imported: `import macro { A, B } from "pkg";`
+
+- Multiple import statements can be used for different packages
+
+```typescript
+/** import macro { JSON, Validate } from "@my/macros"; */
+/** import macro { Builder } from "@other/macros"; */
+
+/** @derive(JSON, Validate, Builder) */
+class User {
+  name: string;
+  email: string;
+}
+```
+
 >
-> The `@derive` decorator must be in a JSDoc comment (`/** */`) immediately before the class declaration.
+> Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement.
+
+### Field Attributes
+
+Macros can define field-level attributes to customize behavior per field:
+
+```typescript
+/** @attributeName(options) */
+```
+
+The attribute name and available options depend on the macro. Common patterns:
+
+```typescript
+/** @derive(Debug, Serialize) */
+class User {
+  /** @debug({ rename: "userId" }) */
+  /** @serde({ rename: "user_id" }) */
+  id: number;
+
+  name: string;
+
+  /** @debug({ skip: true }) */
+  /** @serde({ skip: true }) */
+  password: string;
+
+  /** @serde({ flatten: true }) */
+  metadata: Record<string, unknown>;
+}
+```
+
+Syntax rules:
+
+- Must be inside a JSDoc comment immediately before the field
+
+- Options use object literal syntax: `@attr({ key: value })`
+
+- Boolean options: `@attr({ skip: true })`
+
+- String options: `@attr({ rename: "newName" })`
+
+- Multiple attributes can be on separate lines or combined
+
+Common field attributes by macro:
+
+<table>
+<thead>
+<tr>
+<th>Macro</th>
+<th>Attribute</th>
+<th>Options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Debug</td>
+<td>`@debug`</td>
+<td>`skip`, `rename`</td>
+</tr>
+<tr>
+<td>Clone</td>
+<td>`@clone`</td>
+<td>`skip`, `clone_with`</td>
+</tr>
+<tr>
+<td>Serialize/Deserialize</td>
+<td>`@serde`</td>
+<td>`skip`, `rename`, `flatten`, `default`</td>
+</tr>
+<tr>
+<td>Hash</td>
+<td>`@hash`</td>
+<td>`skip`</td>
+</tr>
+<tr>
+<td>PartialEq/Ord</td>
+<td>`@eq`, `@ord`</td>
+<td>`skip`</td>
+</tr>
+</tbody>
+</table>
 
 ## How It Works
 
@@ -449,54 +582,6 @@ class AnotherClass { }
 3. **Expansion**: Each named macro receives the class AST and generates code
 
 4. **Injection**: Generated methods/properties are added to the class
-
-## Multiple Macros
-
-You can derive multiple traits in one decorator:
-
-```typescript
-/** @derive(Debug, Clone, Eq) */
-class User {
-  name: string;
-  age: number;
-}
-
-// This generates:
-// - toString() from Debug
-// - clone() from Clone
-// - equals() from Eq
-```
-
-Or use separate decorators:
-
-```typescript
-/** @derive(Debug) */
-/** @derive(Clone) */
-/** @derive(Eq) */
-class User {
-  name: string;
-  age: number;
-}
-```
-
-## Field-Level Decorators
-
-Many macros support field-level customization:
-
-```typescript
-/** @derive(Debug) */
-class User {
-  /** @debug({ rename: "userId" }) */
-  id: number;
-
-  name: string;
-
-  /** @debug({ skip: true }) */
-  password: string;
-}
-```
-
-Each macro defines its own field decorator options. Check the documentation for each macro to see available options.
 
 ## What Can Be Derived
 
@@ -511,16 +596,29 @@ The derive system works on:
 
 ## Built-in vs Custom Macros
 
-Macroforge comes with built-in macros (Debug, Clone, Eq), but you can also create custom macros in Rust. Custom macros use the same derive syntax:
+Macroforge comes with built-in macros that work out of the box. You can also create custom macros in Rust and use them via the `import macro` statement.
 
-```typescript
-/** import macro { JSON } from "@my/macros"; */
-
-/** @derive(JSON) */
-class User {
-  name: string;
-}
-```
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Import Required</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Built-in</td>
+<td>No</td>
+<td>Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize</td>
+</tr>
+<tr>
+<td>Custom</td>
+<td>Yes</td>
+<td>Any macro from an external package</td>
+</tr>
+</tbody>
+</table>
 
 ## Next Steps
 
@@ -3887,9 +3985,6 @@ use macroforge_ts::ts_syn::{
     Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
 };
 
-// Re-export the manifest function (required for macro discovery)
-pub use macroforge_ts::napi_exports::*;
-
 #[ts_macro_derive(
     JSON,
     description = "Generates toJSON() returning a plain object"
@@ -4082,43 +4177,139 @@ pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
 
 ```rust
 struct DeriveInput {
-    // Get the item name (class/interface name)
-    fn name(&self) -> &str;
+    pub ident: Ident,           // The type name
+    pub span: SpanIR,           // Span of the type definition
+    pub attrs: Vec<Attribute>,  // Decorators (excluding @derive)
+    pub data: Data,             // The parsed type data
+    pub context: MacroContextIR, // Macro context with spans
 
-    // Get the span of the @derive decorator
-    fn decorator_span(&self) -> Span;
-
-    // The item data (class, interface, or enum)
-    data: Data,
+    // Helper methods
+    fn name(&self) -> &str;              // Get the type name
+    fn decorator_span(&self) -> SpanIR;  // Span of @derive decorator
+    fn as_class(&self) -> Option<&DataClass>;
+    fn as_interface(&self) -> Option<&DataInterface>;
+    fn as_enum(&self) -> Option<&DataEnum>;
 }
 
 enum Data {
-    Class(ClassData),
-    Interface(InterfaceData),
-    Enum(EnumData),
+    Class(DataClass),
+    Interface(DataInterface),
+    Enum(DataEnum),
+    TypeAlias(DataTypeAlias),
 }
 
-struct ClassData {
-    fn fields(&self) -> &[FieldData];
+impl DataClass {
+    fn fields(&self) -> &[FieldIR];
+    fn methods(&self) -> &[MethodSigIR];
     fn field_names(&self) -> impl Iterator<Item = &str>;
+    fn field(&self, name: &str) -> Option<&FieldIR>;
+    fn body_span(&self) -> SpanIR;      // For inserting code into class body
+    fn type_params(&self) -> &[String]; // Generic type parameters
+    fn heritage(&self) -> &[String];    // extends/implements clauses
+    fn is_abstract(&self) -> bool;
+}
+
+impl DataInterface {
+    fn fields(&self) -> &[InterfaceFieldIR];
+    fn methods(&self) -> &[InterfaceMethodIR];
+    fn field_names(&self) -> impl Iterator<Item = &str>;
+    fn field(&self, name: &str) -> Option<&InterfaceFieldIR>;
+    fn body_span(&self) -> SpanIR;
+    fn type_params(&self) -> &[String];
+    fn heritage(&self) -> &[String];    // extends clauses
+}
+
+impl DataEnum {
+    fn variants(&self) -> &[EnumVariantIR];
+    fn variant_names(&self) -> impl Iterator<Item = &str>;
+    fn variant(&self, name: &str) -> Option<&EnumVariantIR>;
+}
+
+impl DataTypeAlias {
+    fn body(&self) -> &TypeBody;
+    fn type_params(&self) -> &[String];
+    fn is_union(&self) -> bool;
+    fn is_object(&self) -> bool;
+    fn as_union(&self) -> Option<&[TypeMember]>;
+    fn as_object(&self) -> Option<&[InterfaceFieldIR]>;
 }
 ```
 
 ## Accessing Field Data
 
+### Class Fields (FieldIR)
+
 ```rust
-struct FieldData {
-    pub name: String,           // Field name
-    pub ts_type: String,        // TypeScript type annotation
-    pub decorators: Vec<Decorator>, // Field decorators
-
-    // Check if field has a specific decorator
-    fn has_decorator(&self, name: &str) -> bool;
-
-    // Get decorator options as JSON
-    fn get_decorator_options(&self, name: &str) -> Option<serde_json::Value>;
+struct FieldIR {
+    pub name: String,               // Field name
+    pub span: SpanIR,               // Field span
+    pub ts_type: String,            // TypeScript type annotation
+    pub optional: bool,             // Whether field has ?
+    pub readonly: bool,             // Whether field is readonly
+    pub visibility: Visibility,     // Public, Protected, Private
+    pub decorators: Vec<DecoratorIR>, // Field decorators
 }
 ```
+
+### Interface Fields (InterfaceFieldIR)
+
+```rust
+struct InterfaceFieldIR {
+    pub name: String,
+    pub span: SpanIR,
+    pub ts_type: String,
+    pub optional: bool,
+    pub readonly: bool,
+    pub decorators: Vec<DecoratorIR>,
+    // Note: No visibility field (interfaces are always public)
+}
+```
+
+### Enum Variants (EnumVariantIR)
+
+```rust
+struct EnumVariantIR {
+    pub name: String,
+    pub span: SpanIR,
+    pub value: EnumValue,  // Auto, String(String), or Number(f64)
+    pub decorators: Vec<DecoratorIR>,
+}
+```
+
+### Decorator Structure
+
+```rust
+struct DecoratorIR {
+    pub name: String,      // e.g., "serde"
+    pub args_src: String,  // Raw args text, e.g., "skip, rename: 'id'"
+    pub span: SpanIR,
+}
+```
+
+>
+> To check for decorators, iterate through `field.decorators` and check `decorator.name`. For parsing options, you can write helper functions like the built-in macros do.
+
+## Adding Imports
+
+If your macro generates code that requires imports, use the `add_import` method on `TsStream`:
+
+```rust
+// Add an import to be inserted at the top of the file
+let mut output = body! {
+    validate(): ValidationResult {
+        return validateFields(this);
+    }
+};
+
+// This will add: import { validateFields, ValidationResult } from "my-validation-lib";
+output.add_import("validateFields", "my-validation-lib");
+output.add_import("ValidationResult", "my-validation-lib");
+
+Ok(output)
+```
+
+>
+> Imports are automatically deduplicated. If the same import already exists in the file, it won't be added again.
 
 ## Returning Errors
 
@@ -4148,8 +4339,13 @@ pub fn class_only(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
 use macroforge_ts::ts_macro_derive::ts_macro_derive;
 use macroforge_ts::ts_quote::body;
 use macroforge_ts::ts_syn::{
-    Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
+    Data, DeriveInput, FieldIR, MacroforgeError, TsStream, parse_ts_macro_input,
 };
+
+// Helper function to check if a field has a decorator
+fn has_decorator(field: &FieldIR, name: &str) -> bool {
+    field.decorators.iter().any(|d| d.name.eq_ignore_ascii_case(name))
+}
 
 #[ts_macro_derive(
     Validate,
@@ -4161,10 +4357,9 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError>
 
     match &input.data {
         Data::Class(class) => {
-            let class_name = input.name();
             let validations: Vec<_> = class.fields()
                 .iter()
-                .filter(|f| f.has_decorator("validate"))
+                .filter(|f| has_decorator(f, "validate"))
                 .collect();
 
             Ok(body! {
@@ -4195,7 +4390,7 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError>
 
 # Template Syntax (ts_quote)
 
-*The `ts_quote` crate provides template-based code generation for TypeScript. It's similar to Rust's `quote!` macro but outputs TypeScript.*
+*The `ts_quote` crate provides template-based code generation for TypeScript. The `ts_template!` macro uses Rust-inspired syntax for control flow and interpolation, making it easy to generate complex TypeScript code.*
 
 ## Available Macros
 
@@ -4221,149 +4416,425 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError>
 </tbody>
 </table>
 
-## Interpolation
+## Quick Reference
 
-Use `@{'{'}expr{'}'}` to interpolate Rust expressions:
+<table>
+<thead>
+<tr>
+<th>Syntax</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>`@&#123;expr&#125;`</td>
+<td>Interpolate a Rust expression (adds space after)</td>
+</tr>
+<tr>
+<td>`&#123;| content |&#125;`</td>
+<td>Ident block: concatenates without spaces (e.g., `&#123;|get@&#123;name&#125;|&#125;` → `getUser`)</td>
+</tr>
+<tr>
+<td>`@@&#123;`</td>
+<td>Escape for literal `@&#123;` (e.g., `"@@&#123;foo&#125;"` → `@&#123;foo&#125;`)</td>
+</tr>
+<tr>
+<td>`"text @&#123;expr&#125;"`</td>
+<td>String interpolation (auto-detected)</td>
+</tr>
+<tr>
+<td>`"'^template $&#123;js&#125;^'"`</td>
+<td>JS backtick template literal (outputs ``template $&#123;js&#125;``)</td>
+</tr>
+<tr>
+<td>`&#123;#if cond&#125;...&#123;/if&#125;`</td>
+<td>Conditional block</td>
+</tr>
+<tr>
+<td>`&#123;#if cond&#125;...&#123;:else&#125;...&#123;/if&#125;`</td>
+<td>Conditional with else</td>
+</tr>
+<tr>
+<td>`&#123;#if a&#125;...&#123;:else if b&#125;...&#123;:else&#125;...&#123;/if&#125;`</td>
+<td>Full if/else-if/else chain</td>
+</tr>
+<tr>
+<td>`&#123;#if let pattern = expr&#125;...&#123;/if&#125;`</td>
+<td>Pattern matching if-let</td>
+</tr>
+<tr>
+<td>`&#123;#match expr&#125;&#123;:case pattern&#125;...&#123;/match&#125;`</td>
+<td>Match expression with case arms</td>
+</tr>
+<tr>
+<td>`&#123;#for item in list&#125;...&#123;/for&#125;`</td>
+<td>Iterate over a collection</td>
+</tr>
+<tr>
+<td>`&#123;%let name = expr&#125;`</td>
+<td>Define a local constant</td>
+</tr>
+<tr>
+<td>`&#123;%typescript stream&#125;`</td>
+<td>Inject a TsStream, preserving its source and runtime_patches (imports)</td>
+</tr>
+</tbody>
+</table>
+
+**Note:** A single `@` not followed by `&#123;` passes through unchanged (e.g., `email@domain.com` works as expected).
+
+## Interpolation: `@&#123;expr&#125;`
+
+Insert Rust expressions into the generated TypeScript:
 
 ```rust
 let class_name = "User";
-let field_name = "name";
+let method = "toString";
 
-body! {
-    {|get@{field_name}|}(): string {
-        return this.@{field_name};
-    }
-}
-
-// Generates:
-// getname(): string {
-//     return this.name;
-// }
+let code = ts_template! {
+    @{class_name}.prototype.@{method} = function() {
+        return "User instance";
+    };
+};
 ```
 
-## Identifier Concatenation
+**Generates:**
 
-Use `{'{'} | content | {'}'}` to concatenate identifiers without spaces. This is essential for building dynamic identifiers like `getUser`, `setName`, etc.
+```typescript
+User.prototype.toString = function () {
+  return "User instance";
+};
+```
+
+## Identifier Concatenation: `&#123;| content |&#125;`
+
+When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block syntax. Everything inside `&#123;| |&#125;` is concatenated without spaces:
 
 ```rust
-let type_name = "User";
+let field_name = "User";
 
-body! {
-    // With ident block - concatenates without spaces
-    function {|get@{type_name}|}() {
-        return this.user;
+let code = ts_template! {
+    function {|get@{field_name}|}() {
+        return this.@{field_name.to_lowercase()};
     }
-}
-
-// Generates:
-// function getUser() { return this.user; }
+};
 ```
 
-By default, `@{'{'}expr{'}'}` adds a space after for readability. Use ident blocks when you explicitly need concatenation:
+**Generates:**
+
+```typescript
+function getUser() {
+  return this.user;
+}
+```
+
+Without ident blocks, `@&#123;&#125;` always adds a space after for readability. Use `&#123;| |&#125;` when you explicitly want concatenation:
 
 ```rust
 let name = "Status";
 
-// Regular interpolation (space after)
-ts_template! { namespace @{name} }
-// → "namespace Status"
+// With space (default behavior)
+ts_template! { namespace @{name} }  // → "namespace Status"
 
-// Ident block (no space)
-ts_template! { {|namespace@{name}|} }
-// → "namespaceStatus"
+// Without space (ident block)
+ts_template! { {|namespace@{name}|} }  // → "namespaceStatus"
 ```
 
-## Loops
-
-Iterate with `{'{'}#for{'}'}`:
+Multiple interpolations can be combined:
 
 ```rust
-let fields = vec!["name", "age", "email"];
+let entity = "user";
+let action = "create";
 
-body! {
-    {#for field in fields}
-        {|get@{field}|}() {
-            return this.@{field};
-        }
-    {/for}
-}
-
-// Generates getters for each field
+ts_template! { {|@{entity}_@{action}|} }  // → "user_create"
 ```
 
-### Loop with Tuples
+## String Interpolation: `"text @&#123;expr&#125;"`
+
+Interpolation works automatically inside string literals - no `format!()` needed:
 
 ```rust
-let fields = vec![
-    ("name", "string"),
-    ("age", "number"),
-];
+let name = "World";
+let count = 42;
 
-body! {
-    {#for (name, type_name) in fields}
-        {|get@{name}|}(): @{type_name} {
-            return this.@{name};
-        }
-    {/for}
-}
+let code = ts_template! {
+    console.log("Hello @{name}!");
+    console.log("Count: @{count}, doubled: @{count * 2}");
+};
 ```
 
-## Conditionals
+**Generates:**
 
-Use `{'{'}#if{'}'}` for conditional code:
+```typescript
+console.log("Hello World!");
+console.log("Count: 42, doubled: 84");
+```
+
+This also works with method calls and complex expressions:
 
 ```rust
-let include_setter = true;
-let field_name = "value";
+let field = "username";
 
-body! {
-    getValue(): number {
-        return this.@{field_name};
+let code = ts_template! {
+    throw new Error("Invalid @{field.to_uppercase()}");
+};
+```
+
+## Backtick Template Literals: `"'^...^'"`
+
+For JavaScript template literals (backtick strings), use the `'^...^'` syntax. This outputs actual backticks and passes through `${"${}"}` for JS interpolation:
+
+```rust
+let tag_name = "div";
+
+let code = ts_template! {
+    const html = "'^<@{tag_name}>\${content}</@{tag_name}>^'";
+};
+```
+
+**Generates:**
+
+<CodeBlock code={'const html = `${content}`;'} lang="typescript" />
+
+You can mix Rust `@&#123;&#125;` interpolation (evaluated at macro expansion time) with JS `${"${}"}` interpolation (evaluated at runtime):
+
+```rust
+let class_name = "User";
+
+let code = ts_template! {
+    "'^Hello \${this.name}, you are a @{class_name}^'"
+};
+```
+
+**Generates:**
+
+<CodeBlock code={'`Hello ${this.name}, you are a User`'} lang="typescript" />
+
+## Conditionals: `&#123;#if&#125;...&#123;/if&#125;`
+
+Basic conditional:
+
+```rust
+let needs_validation = true;
+
+let code = ts_template! {
+    function save() {
+        {#if needs_validation}
+            if (!this.isValid()) return false;
+        {/if}
+        return this.doSave();
     }
-
-    {#if include_setter}
-        setValue(v: number): void {
-            this.@{field_name} = v;
-        }
-    {/if}
-}
+};
 ```
 
 ### If-Else
 
 ```rust
-let is_nullable = true;
+let has_default = true;
 
-body! {
-    getValue(): @{if is_nullable { "number | null" } else { "number" }} {
-        return this.value;
+let code = ts_template! {
+    {#if has_default}
+        return defaultValue;
+    {:else}
+        throw new Error("No default");
+    {/if}
+};
+```
+
+### If-Else-If Chains
+
+```rust
+let level = 2;
+
+let code = ts_template! {
+    {#if level == 1}
+        console.log("Level 1");
+    {:else if level == 2}
+        console.log("Level 2");
+    {:else}
+        console.log("Other level");
+    {/if}
+};
+```
+
+## Pattern Matching: `&#123;#if let&#125;`
+
+Use `if let` for pattern matching on `Option`, `Result`, or other Rust enums:
+
+```rust
+let maybe_name: Option<&str> = Some("Alice");
+
+let code = ts_template! {
+    {#if let Some(name) = maybe_name}
+        console.log("Hello, @{name}!");
+    {:else}
+        console.log("Hello, anonymous!");
+    {/if}
+};
+```
+
+**Generates:**
+
+```typescript
+console.log("Hello, Alice!");
+```
+
+This is useful when working with optional values from your IR:
+
+```rust
+let code = ts_template! {
+    {#if let Some(default_val) = field.default_value}
+        this.@{field.name} = @{default_val};
+    {:else}
+        this.@{field.name} = undefined;
+    {/if}
+};
+```
+
+## Match Expressions: `&#123;#match&#125;`
+
+Use `match` for exhaustive pattern matching:
+
+```rust
+enum Visibility { Public, Private, Protected }
+let visibility = Visibility::Public;
+
+let code = ts_template! {
+    {#match visibility}
+        {:case Visibility::Public}
+            public
+        {:case Visibility::Private}
+            private
+        {:case Visibility::Protected}
+            protected
+    {/match}
+    field: string;
+};
+```
+
+**Generates:**
+
+```typescript
+public field: string;
+```
+
+### Match with Value Extraction
+
+```rust
+let result: Result<i32, &str> = Ok(42);
+
+let code = ts_template! {
+    const value = {#match result}
+        {:case Ok(val)}
+            @{val}
+        {:case Err(msg)}
+            throw new Error("@{msg}")
+    {/match};
+};
+```
+
+### Match with Wildcard
+
+```rust
+let count = 5;
+
+let code = ts_template! {
+    {#match count}
+        {:case 0}
+            console.log("none");
+        {:case 1}
+            console.log("one");
+        {:case _}
+            console.log("many");
+    {/match}
+};
+```
+
+## Iteration: `&#123;#for&#125;`
+
+```rust
+let fields = vec!["name", "email", "age"];
+
+let code = ts_template! {
+    function toJSON() {
+        const result = {};
+        {#for field in fields}
+            result.@{field} = this.@{field};
+        {/for}
+        return result;
     }
+};
+```
+
+**Generates:**
+
+```typescript
+function toJSON() {
+  const result = {};
+  result.name = this.name;
+  result.email = this.email;
+  result.age = this.age;
+  return result;
 }
 ```
 
-## Local Variables
-
-Use `{'{'}%let{'}'}` to define local variables within templates:
+### Tuple Destructuring in Loops
 
 ```rust
-body! {
-    {#for field in fields}
-        {%let capitalized = capitalize(field.name)}
-        {%let return_type = field.ts_type.clone()}
+let items = vec![("user", "User"), ("post", "Post")];
 
-        {|get@{capitalized}|}(): @{return_type} {
-            return this.@{field.name};
-        }
+let code = ts_template! {
+    {#for (key, class_name) in items}
+        const @{key} = new @{class_name}();
+    {/for}
+};
+```
+
+### Nested Iterations
+
+```rust
+let classes = vec![
+    ("User", vec!["name", "email"]),
+    ("Post", vec!["title", "content"]),
+];
+
+ts_template! {
+    {#for (class_name, fields) in classes}
+        @{class_name}.prototype.toJSON = function() {
+            return {
+                {#for field in fields}
+                    @{field}: this.@{field},
+                {/for}
+            };
+        };
     {/for}
 }
 ```
 
-## TsStream Injection
+## Local Constants: `&#123;%let&#125;`
 
-Use `{'{'}%typescript stream{'}'}` to inject another TsStream into your template, preserving both its source code and runtime patches (like imports):
+Define local variables within the template scope:
 
 ```rust
-// Create a helper with its own import
+let items = vec![("user", "User"), ("post", "Post")];
+
+let code = ts_template! {
+    {#for (key, class_name) in items}
+        {%let upper = class_name.to_uppercase()}
+        console.log("Processing @{upper}");
+        const @{key} = new @{class_name}();
+    {/for}
+};
+```
+
+This is useful for computing derived values inside loops without cluttering the Rust code.
+
+## TsStream Injection: `&#123;%typescript&#125;`
+
+Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via `add_import()`):
+
+```rust
+// Create a helper method with its own import
 let mut helper = body! {
     validateEmail(email: string): boolean {
         return Result.ok(true);
@@ -4371,7 +4842,7 @@ let mut helper = body! {
 };
 helper.add_import("Result", "macroforge/result");
 
-// Inject into the main template - imports are preserved!
+// Inject the helper into the main template
 let result = body! {
     {%typescript helper}
 
@@ -4379,9 +4850,10 @@ let result = body! {
         // ...
     }
 };
+// result now includes helper's source AND its Result import
 ```
 
-This is essential for composing macro outputs while keeping imports intact:
+This is essential for composing multiple macro outputs while preserving imports and patches:
 
 ```rust
 let extra_methods = if include_validation {
@@ -4401,85 +4873,170 @@ body! {
 }
 ```
 
-## String Literals
+## Escape Syntax
 
-String content is output literally, with interpolation inside:
+If you need a literal `@&#123;` in your output (not interpolation), use `@@&#123;`:
 
 ```rust
-let class_name = "User";
-
-body! {
-    toString(): string {
-        return "@{class_name} { " + this.toJSON() + " }";
-    }
+ts_template! {
+    // This outputs a literal @{foo}
+    const example = "Use @@{foo} for templates";
 }
 ```
 
-## Complete Example
+**Generates:**
+
+```typescript
+// This outputs a literal @{foo}
+const example = "Use @{foo} for templates";
+```
+
+## Complete Example: JSON Derive Macro
+
+Here's a comparison showing how `ts_template!` simplifies code generation:
+
+### Before (Manual AST Building)
 
 ```rust
-use macroforge_ts::ts_quote::body;
+pub fn derive_json_macro(input: TsStream) -> MacroResult {
+    let input = parse_ts_macro_input!(input as DeriveInput);
 
-fn generate_json_macro(class: &ClassData) -> TsStream {
-    body! {
-        toJSON(): Record<string, unknown> {
-            const result: Record<string, unknown> = {};
+    match &input.data {
+        Data::Class(class) => {
+            let class_name = input.name();
 
-            {#for field in class.field_names()}
-                result.@{field} = this.@{field};
-            {/for}
+            let mut body_stmts = vec![ts_quote!( const result = {}; as Stmt )];
 
-            return result;
-        }
+            for field_name in class.field_names() {
+                body_stmts.push(ts_quote!(
+                    result.$(ident!("{}", field_name)) = this.$(ident!("{}", field_name));
+                    as Stmt
+                ));
+            }
 
-        static fromJSON(data: Record<string, unknown>): @{class.name} {
-            return new @{class.name}(
-                {#for (i, field) in class.fields().iter().enumerate()}
-                    data.@{field.name} as @{field.ts_type}
-                    @{if i < class.fields().len() - 1 { "," } else { "" }}
-                {/for}
+            body_stmts.push(ts_quote!( return result; as Stmt ));
+
+            let runtime_code = fn_assign!(
+                member_expr!(Expr::Ident(ident!(class_name)), "prototype"),
+                "toJSON",
+                body_stmts
             );
+
+            // ...
         }
     }
 }
 ```
 
-## Syntax Reference
+### After (With ts_template!)
+
+```rust
+pub fn derive_json_macro(input: TsStream) -> MacroResult {
+    let input = parse_ts_macro_input!(input as DeriveInput);
+
+    match &input.data {
+        Data::Class(class) => {
+            let class_name = input.name();
+            let fields = class.field_names();
+
+            let runtime_code = ts_template! {
+                @{class_name}.prototype.toJSON = function() {
+                    const result = {};
+                    {#for field in fields}
+                        result.@{field} = this.@{field};
+                    {/for}
+                    return result;
+                };
+            };
+
+            // ...
+        }
+    }
+}
+```
+
+## How It Works
+
+1. **Compile-Time:** The template is parsed during macro expansion
+
+2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
+
+3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
+
+4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
+
+## Return Type
+
+`ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro automatically unwraps and provides helpful error messages showing the generated TypeScript code if parsing fails:
+
+```text
+Failed to parse generated TypeScript:
+User.prototype.toJSON = function( {
+    return {};
+}
+```
+
+This shows you exactly what was generated, making debugging easy!
+
+## Nesting and Regular TypeScript
+
+You can mix template syntax with regular TypeScript. Braces `&#123;&#125;` are recognized as either:
+
+- **Template tags** if they start with `#`, `%`, `:`, or `/`
+
+- **Regular TypeScript blocks** otherwise
+
+```rust
+ts_template! {
+    const config = {
+        {#if use_strict}
+            strict: true,
+        {:else}
+            strict: false,
+        {/if}
+        timeout: 5000
+    };
+}
+```
+
+## Comparison with Alternatives
 
 <table>
 <thead>
 <tr>
-<th>Syntax</th>
-<th>Description</th>
+<th>Approach</th>
+<th>Pros</th>
+<th>Cons</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>`@&#123;expr&#125;`</td>
-<td>Interpolate Rust expression (adds space after)</td>
+<td>`ts_quote!`</td>
+<td>Compile-time validation, type-safe</td>
+<td>Can't handle Vec<Stmt>, verbose</td>
 </tr>
 <tr>
-<td>`&#123;| content |&#125;`</td>
-<td>Ident block: concatenates without spaces</td>
+<td>`parse_ts_str()`</td>
+<td>Maximum flexibility</td>
+<td>Runtime parsing, less readable</td>
 </tr>
 <tr>
-<td>`&#123;#for x in iter&#125;...&#123;/for&#125;`</td>
-<td>Loop over iterable</td>
-</tr>
-<tr>
-<td>`&#123;#if cond&#125;...&#123;/if&#125;`</td>
-<td>Conditional block</td>
-</tr>
-<tr>
-<td>`&#123;%let name = expr&#125;`</td>
-<td>Local variable binding</td>
-</tr>
-<tr>
-<td>`&#123;%typescript stream&#125;`</td>
-<td>Inject TsStream, preserving source and patches (imports)</td>
+<td>`ts_template!`</td>
+<td>Readable, handles loops/conditions</td>
+<td>Small runtime parsing overhead</td>
 </tr>
 </tbody>
 </table>
+
+## Best Practices
+
+1. Use `ts_template!` for complex code generation with loops/conditions
+
+2. Use `ts_quote!` for simple, static statements
+
+3. Keep templates readable - extract complex logic into variables
+
+4. Don't nest templates too deeply - split into helper functions
 
 ---
 
@@ -4559,16 +5116,20 @@ npm install -D @macroforge/typescript-plugin @macroforge/vite-plugin
 
 ## Installation
 
-The CLI is included with the main `macroforge` package:
+The CLI is a Rust binary. You can install it using Cargo:
 
 ```bash
-npm install macroforge
+cargo install macroforge_ts
 ```
 
-Or install globally:
+Or build from source:
 
 ```bash
-npm install -g macroforge
+git clone https://github.com/rymskip/macroforge-ts.git
+cd macroforge-ts/crates
+cargo build --release --bin macroforge
+
+# The binary is at target/release/macroforge
 ```
 
 ## Commands
@@ -4621,8 +5182,8 @@ macroforge expand <input> [options]
 <td>Print output to stdout even when `--out` is specified</td>
 </tr>
 <tr>
-<td>`--use-node`</td>
-<td>Use Node.js NAPI module instead of Rust expander (supports external macros)</td>
+<td>`--builtin-only`</td>
+<td>Use only built-in Rust macros (faster, but no external macro support)</td>
 </tr>
 </tbody>
 </table>
@@ -4647,11 +5208,14 @@ Expand with both runtime output and type declarations:
 macroforge expand src/user.ts --out dist/user.js --types-out dist/user.d.ts
 ```
 
-Use Node.js expander for external macro support:
+Use fast built-in macros only (no external macro support):
 
 ```bash
-macroforge expand src/user.ts --use-node
+macroforge expand src/user.ts --builtin-only
 ```
+
+>
+> By default, the CLI uses Node.js for full macro support (including external macros). It must be run from your project's root directory where `macroforge` and any external macro packages are installed in `node_modules`.
 
 ### macroforge tsc
 
@@ -4773,16 +5337,16 @@ for file in src/**/*.ts; do
 done
 ```
 
-## Rust vs Node Expander
+## Built-in vs Full Mode
 
-By default, the CLI uses the native Rust expander which is faster but only supports built-in macros. Use `--use-node` to enable external macro support:
+By default, the CLI uses Node.js for full macro support including external macros. Use `--builtin-only` for faster expansion when you only need built-in macros:
 
 <table>
 <thead>
 <tr>
 <th>Feature</th>
-<th>Rust (default)</th>
-<th>Node (`--use-node`)</th>
+<th>Default (Node.js)</th>
+<th>`--builtin-only` (Rust)</th>
 </tr>
 </thead>
 <tbody>
@@ -4793,18 +5357,18 @@ By default, the CLI uses the native Rust expander which is faster but only suppo
 </tr>
 <tr>
 <td>External macros</td>
-<td>No</td>
 <td>Yes</td>
+<td>No</td>
 </tr>
 <tr>
 <td>Performance</td>
+<td>Standard</td>
 <td>Faster</td>
-<td>Slower</td>
 </tr>
 <tr>
 <td>Dependencies</td>
+<td>Requires `macroforge` in node_modules</td>
 <td>None</td>
-<td>Requires Node.js</td>
 </tr>
 </tbody>
 </table>

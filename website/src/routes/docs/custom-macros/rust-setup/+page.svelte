@@ -71,9 +71,6 @@ use macroforge_ts::ts_syn::{
     Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
 };
 
-// Re-export the manifest function (required for macro discovery)
-pub use macroforge_ts::napi_exports::*;
-
 #[ts_macro_derive(
     JSON,
     description = "Generates toJSON() returning a plain object"
