@@ -15,18 +15,34 @@ class Config {
     this.enabled = enabled;
   }
 }`),
+			nullable: expandExample(`/** @derive(Default) */
+interface User {
+  name: string;
+  email: string | null;
+  age: number;
+  metadata: Record<string, unknown> | null;
+}`),
+			customType: expandExample(`/** @derive(Default) */
+interface AppConfig {
+  name: string;
+  port: number;
+  /** @default(Settings.defaultValue()) */
+  settings: Settings;
+  /** @default(Permissions.defaultValue()) */
+  permissions: Permissions;
+}`),
 			custom: expandExample(`/** @derive(Default) */
 class ServerConfig {
-  /** @defaultValue("localhost") */
+  /** @default("localhost") */
   host: string;
 
-  /** @defaultValue(8080) */
+  /** @default(8080) */
   port: number;
 
-  /** @defaultValue(true) */
+  /** @default(true) */
   enabled: boolean;
 
-  /** @defaultValue(["info", "error"]) */
+  /** @default(["info", "error"]) */
   logLevels: string[];
 
   constructor(host: string, port: number, enabled: boolean, logLevels: string[]) {
