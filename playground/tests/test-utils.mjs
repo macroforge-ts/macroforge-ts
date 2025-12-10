@@ -64,24 +64,29 @@ export async function withViteServer(rootDir, optionsOrRunner, maybeRunner) {
       appType: "custom",
       server: {
         middlewareMode: true,
-        hmr: {
-          // Use unique port for each server to prevent conflicts
-          port: uniquePort,
-        },
+        hmr: false,
         // Disable WebSocket server entirely for SSR-only tests
         ws: false,
       },
       optimizeDeps: {
-        disabled: true,
+        // Completely disable dependency optimization to avoid async errors during cleanup
+        noDiscovery: true,
+        include: [],
       },
     });
 
     return await runner(server);
   } finally {
     if (server) {
-      // Give a small grace period for pending requests to settle
+      // Give a grace period for pending async operations to settle
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      try {
+        await server.close();
+      } catch {
+        // Ignore errors during server close - may happen if already closed
+      }
+      // Additional grace period after close
       await new Promise((resolve) => setTimeout(resolve, 100));
-      await server.close();
     }
     if (copiedConfig && fs.existsSync(localConfigPath)) {
       fs.rmSync(localConfigPath);

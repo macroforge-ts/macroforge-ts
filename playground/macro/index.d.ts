@@ -100,16 +100,6 @@ export declare function __macroforgeRunSerialize(contextJson: string): string
 
 export declare function checkSyntax(code: string, filepath: string): SyntaxCheckResult
 
-export declare function Clone(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): ClassDecorator
-
-/** Configure debug output for this field. Options: skip (exclude from output), rename (custom label) */
-export declare function debug(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
-
-export declare function Debug(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): ClassDecorator
-
 export interface DecoratorManifestEntry {
   module: string
   export: string
@@ -117,17 +107,7 @@ export interface DecoratorManifestEntry {
   docs: string
 }
 
-export declare function Default(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): ClassDecorator
-
-/** Generates a static default() factory method */
-export declare function defaultValue(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
-
 export declare function Derive(...features: any[]): ClassDecorator
-
-export declare function Deserialize(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
 export interface ExpandOptions {
   keepDecorators?: boolean
@@ -149,13 +129,6 @@ export interface GeneratedRegionResult {
   end: number
   sourceMacro: string
 }
-
-/** Generates a hashCode() method for hashing */
-export declare function hash(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
-
-export declare function Hash(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
 export interface ImportSourceResult {
   /** Local identifier name in the import statement */
@@ -199,44 +172,12 @@ export interface MappingSegmentResult {
   expandedEnd: number
 }
 
-/** Generates a compareTo() method for total ordering (returns -1, 0, or 1, never null) */
-export declare function ord(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
-
-/** Generates a compareTo() method for partial ordering (returns -1, 0, 1, or null) */
-export declare function ord(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
-
-export declare function Ord(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): ClassDecorator
-
 export declare function parseImportSources(code: string, filepath: string): Array<ImportSourceResult>
-
-/** Generates an equals() method for field-by-field comparison */
-export declare function partialEq(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
-
-export declare function PartialEq(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): ClassDecorator
-
-export declare function PartialOrd(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
 export interface ProcessFileOptions {
   keepDecorators?: boolean
   version?: string
 }
-
-/** Configure deserialization for this field. Options: skip, rename, flatten, default, validate (email, url, minLength, etc.) */
-export declare function serde(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
-
-/** Configure serialization for this field. Options: skip, rename, flatten, validate (email, url, minLength, etc.) */
-export declare function serde(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
-
-export declare function Serialize(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): ClassDecorator
 
 export interface SourceMappingResult {
   segments: Array<MappingSegmentResult>
@@ -272,17 +213,3 @@ export declare function __macroforgeRunFieldController(contextJson: string): str
  * r" Called by the TS plugin to execute macro expansion
  */
 export declare function __macroforgeRunJSON(contextJson: string): string
-
-/** Generates depth-aware field controller helpers for reactive forms */
-export declare function fieldController(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): PropertyDecorator
-
-export declare function FieldController(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): ClassDecorator
-
-export declare function JSON(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): ClassDecorator
-
-/** Generates depth-aware field controller helpers for reactive forms */
-export declare function textAreaController(...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:
-any[]) => unknown) | Record<string, unknown>>): PropertyDecorator

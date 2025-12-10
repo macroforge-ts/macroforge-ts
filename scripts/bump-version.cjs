@@ -96,6 +96,12 @@ updatePackageJson("packages/svelte-preprocessor/package.json", {
   "dependencies.macroforge": `^${version}`,
 });
 
+// Update website
+updatePackageJson("website/package.json", {
+  version,
+  "dependencies.macroforge": `^${version}`,
+});
+
 // Update vtsls-macroforge Zed extension lib.rs
 const vtslsLibRsPath = path.join(root, "crates/extensions/vtsls-macroforge/src/lib.rs");
 let vtslsLibRs = fs.readFileSync(vtslsLibRsPath, "utf8");
