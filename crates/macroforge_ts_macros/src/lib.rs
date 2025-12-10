@@ -43,9 +43,6 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         .attributes
         .iter()
         .map(|attr| generate_decorator_descriptor(attr, &package_expr));
-    let decorator_stubs = options.attributes.iter().map(|attr| {
-        generate_decorator_stub(attr, &struct_ident, options.description.as_ref())
-    });
 
     let descriptor_ident = format_ident!(
         "__TS_MACRO_DESCRIPTOR_{}",
@@ -59,23 +56,6 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
         "__ts_macro_ctor_{}",
         struct_ident.to_string().trim_start_matches("r#")
     );
-
-    let main_macro_stub_fn_ident = format_ident!(
-        "__ts_macro_runtime_stub_{}",
-        struct_ident.to_string().to_case(Case::Snake)
-    );
-    let features_args_type = features_args_type_literal();
-    let main_macro_napi_stub = quote! {
-        #[macroforge_ts::napi_derive::napi(
-            js_name = #macro_name,
-            ts_return_type = "ClassDecorator",
-            ts_args_type = #features_args_type
-        )]
-        pub fn #main_macro_stub_fn_ident() -> macroforge_ts::napi::Result<()> {
-            // This stub function does nothing at runtime; its purpose is purely for TypeScript import resolution.
-            Ok(())
-        }
-    };
 
     // Generate the runMacro NAPI function for this specific macro
     // Use the macro name (not the struct name) for consistent naming
@@ -165,10 +145,6 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
                 descriptor: &#descriptor_ident
             }
         }
-
-        #(#decorator_stubs)*
-
-        #main_macro_napi_stub
 
         #run_macro_napi
     };
@@ -307,14 +283,6 @@ impl Default for MacroOptions {
     }
 }
 
-fn features_args_type_literal() -> LitStr {
-    // Allow strings, decorators, closures, or option objects (for field-level configs)
-    LitStr::new(
-        "...features: Array<string | ClassDecorator | PropertyDecorator | ((...args:\n  any[]) => unknown) | Record<string, unknown>>",
-        Span::call_site(),
-    )
-}
-
 // Helper function to generate a decorator descriptor from an attribute with docs
 fn generate_decorator_descriptor(attr: &AttributeWithDoc, package_expr: &TokenStream2) -> TokenStream2 {
     let attr_str = LitStr::new(&attr.name.to_string(), attr.name.span());
@@ -327,47 +295,6 @@ fn generate_decorator_descriptor(attr: &AttributeWithDoc, package_expr: &TokenSt
             export: #attr_str,
             kind: #kind,
             docs: #docs,
-        }
-    }
-}
-
-// Helper function to generate a napi stub for an attribute decorator
-fn generate_decorator_stub(
-    attr: &AttributeWithDoc,
-    owner_ident: &Ident,
-    macro_description: Option<&LitStr>,
-) -> TokenStream2 {
-    let owner_snake = owner_ident.to_string().to_case(Case::Snake);
-    let decorator_snake = attr.name.to_string().to_case(Case::Snake);
-    let fn_ident = format_ident!("__ts_macro_stub_{}_{}", owner_snake, decorator_snake);
-    let js_name = LitStr::new(&attr.name.to_string(), attr.name.span());
-
-    // Use attribute-specific docs if provided, otherwise fall back to macro description
-    let doc_str = if !attr.docs.value().is_empty() {
-        attr.docs.value()
-    } else {
-        macro_description.map(|d| d.value()).unwrap_or_default()
-    };
-
-    let doc_comment = if !doc_str.is_empty() {
-        Some(quote! {
-            #[doc = #doc_str]
-        })
-    } else {
-        None
-    };
-
-    let decorator_args_type = features_args_type_literal();
-
-    quote! {
-        #doc_comment
-        #[macroforge_ts::napi_derive::napi(
-            js_name = #js_name,
-            ts_args_type = #decorator_args_type,
-            ts_return_type = "PropertyDecorator"
-        )]
-        pub fn #fn_ident() -> macroforge_ts::napi::Result<()> {
-            Ok(())
         }
     }
 }
