@@ -3,6 +3,7 @@
 /**
  * Extract documentation from website Svelte pages into markdown files for MCP server.
  * Auto-discovers all pages from the website's navigation.ts config.
+ * Large documents are automatically chunked at H2 headers for better AI consumption.
  *
  * Usage: node scripts/extract-docs.cjs
  */
@@ -14,6 +15,12 @@ const websiteRoot = path.join(__dirname, '..', '..', '..', 'website');
 const routesDir = path.join(websiteRoot, 'src', 'routes');
 const navigationPath = path.join(websiteRoot, 'src', 'lib', 'config', 'navigation.ts');
 const outputDir = path.join(__dirname, '..', 'docs');
+
+// Chunking thresholds
+// 6KB threshold means only the largest 3-4 docs get chunked (ts-quote, ts-macro-derive, deserialize)
+// This balances context efficiency with keeping most docs intact
+const CHUNK_SIZE_THRESHOLD = 6000; // bytes - chunk docs larger than this
+const MIN_CHUNK_SIZE = 500; // bytes - don't create chunks smaller than this
 
 // Use cases for each section (keyed by href)
 const useCasesMap = {
@@ -263,6 +270,119 @@ function htmlToMarkdown(html) {
 }
 
 /**
+ * Convert a header text to a URL-friendly slug
+ */
+function headerToSlug(header) {
+  return header
+    .toLowerCase()
+    // Remove common code syntax characters but keep meaningful words
+    .replace(/`([^`]+)`/g, '$1')  // Remove backticks but keep content
+    .replace(/&#\d+;/g, '')       // Remove HTML entities like &#123;
+    .replace(/&[a-z]+;/g, '')     // Remove named HTML entities
+    .replace(/[^a-z0-9\s-]/g, '') // Remove other special characters
+    .replace(/\s+/g, '-')         // Replace spaces with hyphens
+    .replace(/-+/g, '-')          // Collapse multiple hyphens
+    .replace(/^-|-$/g, '');       // Remove leading/trailing hyphens
+}
+
+/**
+ * Extract use cases keywords from chunk content
+ */
+function extractChunkUseCases(content, parentUseCases) {
+  // Extract key terms from the chunk content
+  const keywords = [];
+
+  // Get code-related terms (function names, decorators, etc.)
+  const codeMatches = content.match(/`([^`]+)`/g) || [];
+  for (const match of codeMatches.slice(0, 5)) {
+    const term = match.replace(/`/g, '').toLowerCase();
+    if (term.length > 2 && term.length < 30 && !term.includes(' ')) {
+      keywords.push(term);
+    }
+  }
+
+  // Include some parent use cases for context
+  const parentKeywords = parentUseCases.split(',').map(k => k.trim()).slice(0, 2);
+
+  return [...new Set([...parentKeywords, ...keywords])].slice(0, 6).join(', ');
+}
+
+/**
+ * Split markdown content into chunks at H2 headers
+ * Returns array of { slug, title, content } objects
+ */
+function chunkMarkdown(markdown, parentTitle) {
+  const chunks = [];
+
+  // Split at ## headers (H2)
+  const h2Regex = /^## (.+)$/gm;
+  const parts = markdown.split(h2Regex);
+
+  // First part is content before any H2 (overview/intro)
+  if (parts[0] && parts[0].trim().length >= MIN_CHUNK_SIZE) {
+    chunks.push({
+      slug: 'overview',
+      title: `${parentTitle}: Overview`,
+      content: parts[0].trim()
+    });
+  } else if (parts[0]) {
+    // If intro is too small, prepend it to first chunk
+    chunks.push({
+      slug: '_intro',
+      title: '',
+      content: parts[0].trim()
+    });
+  }
+
+  // Process remaining parts (alternating: header, content, header, content...)
+  for (let i = 1; i < parts.length; i += 2) {
+    const header = parts[i];
+    const content = parts[i + 1] || '';
+
+    if (!header) continue;
+
+    const slug = headerToSlug(header);
+    const fullContent = `## ${header}\n\n${content.trim()}`;
+
+    // Check if we should merge with previous chunk (if content is too small)
+    if (fullContent.length < MIN_CHUNK_SIZE && chunks.length > 0) {
+      const lastChunk = chunks[chunks.length - 1];
+      if (lastChunk.slug !== '_intro') {
+        lastChunk.content += '\n\n' + fullContent;
+        continue;
+      }
+    }
+
+    chunks.push({
+      slug,
+      title: `${parentTitle}: ${header}`,
+      content: fullContent
+    });
+  }
+
+  // Handle the intro content - merge it into first real chunk
+  if (chunks.length > 1 && chunks[0].slug === '_intro') {
+    const intro = chunks.shift();
+    chunks[0].content = intro.content + '\n\n' + chunks[0].content;
+    chunks[0].slug = 'overview';
+    chunks[0].title = `${parentTitle}: Overview`;
+  } else if (chunks.length === 1 && chunks[0].slug === '_intro') {
+    // Only intro content, make it the overview
+    chunks[0].slug = 'overview';
+    chunks[0].title = `${parentTitle}: Overview`;
+  }
+
+  return chunks;
+}
+
+/**
+ * Determine if content should be chunked based on size
+ */
+function shouldChunk(content) {
+  return content.length > CHUNK_SIZE_THRESHOLD;
+}
+
+/**
  * Extract documentation from website and generate markdown files
  */
 function extractDocs() {
@@ -304,12 +424,67 @@ function extractDocs() {
       const htmlContent = extractContent(svelteContent);
       const markdownContent = htmlToMarkdown(htmlContent);
 
-      // Write markdown file
-      const outputPath = path.join(categoryDir, `${itemId}.md`);
-      fs.writeFileSync(outputPath, markdownContent);
-
       // Get use_cases from map or generate default
       const useCases = useCasesMap[item.href] || item.title.toLowerCase();
+
+      // Check if we need to chunk this document
+      if (shouldChunk(markdownContent)) {
+        const chunks = chunkMarkdown(markdownContent, item.title);
+
+        if (chunks.length > 1) {
+          console.log(`  → Chunking into ${chunks.length} parts`);
+
+          // Create subdirectory for chunks
+          const chunkDir = path.join(categoryDir, itemId);
+          if (!fs.existsSync(chunkDir)) {
+            fs.mkdirSync(chunkDir, { recursive: true });
+          }
+
+          const chunkIds = [];
+
+          // Write each chunk
+          for (const chunk of chunks) {
+            const chunkId = `${itemId}/${chunk.slug}`;
+            const chunkPath = path.join(chunkDir, `${chunk.slug}.md`);
+            fs.writeFileSync(chunkPath, chunk.content);
+
+            chunkIds.push(chunkId);
+
+            // Add chunk to sections
+            sections.push({
+              id: chunkId,
+              title: chunk.title,
+              category: category,
+              category_title: section.title,
+              path: `${category}/${itemId}/${chunk.slug}.md`,
+              use_cases: extractChunkUseCases(chunk.content, useCases),
+              parent_id: itemId
+            });
+          }
+
+          // Add parent entry (marked as chunked, no content file)
+          sections.push({
+            id: itemId,
+            title: item.title,
+            category: category,
+            category_title: section.title,
+            path: `${category}/${itemId}.md`,
+            use_cases: useCases,
+            is_chunked: true,
+            chunk_ids: chunkIds
+          });
+
+          // Also write the full file for reference (but loader won't use it for chunked sections)
+          const outputPath = path.join(categoryDir, `${itemId}.md`);
+          fs.writeFileSync(outputPath, markdownContent);
+
+          continue;
+        }
+      }
+
+      // Not chunked - write as single file
+      const outputPath = path.join(categoryDir, `${itemId}.md`);
+      fs.writeFileSync(outputPath, markdownContent);
 
       // Add to sections list
       sections.push({

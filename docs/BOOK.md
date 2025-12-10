@@ -2651,11 +2651,11 @@ Follow these guides to create your own macros:
 
 ## Prerequisites
 
-- Rust toolchain (1.70 or later)
+- Rust toolchain (1.88 or later)
 
-- Node.js 18 or later
+    - Node.js 24 or later
 
-- NAPI-RS CLI: `npm install -g @napi-rs/cli`
+    - NAPI-RS CLI: `cargo install macroforge_ts`
 
 ## Create the Project
 
@@ -2677,7 +2677,7 @@ Update your `Cargo.toml` with the required dependencies:
 [package]
 name = "my-macros"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [lib]
 crate-type = ["cdylib"]
@@ -2787,9 +2787,9 @@ npm run build
 
 ## Next Steps
 
-- [Learn the #[ts_macro_derive] attribute]({base}/docs/custom-macros/ts-macro-derive)
+- <a href="{base}/docs/custom-macros/ts-macro-derive" >Learn the #[ts_macro_derive] attribute</a >
 
-- [Master the template syntax]({base}/docs/custom-macros/ts-quote)
+    - <a href="{base}/docs/custom-macros/ts-quote" >Master the template syntax</a >
 
 ---
 

@@ -1,41 +1,38 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "baseUrl": ".",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+	"compilerOptions": {
+		"target": "ES2024",
+		"useDefineForClassFields": true,
+		"module": "ESNext",
+		"baseUrl": ".",
+		"lib": ["ES2024", "DOM", "DOM.Iterable"],
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
 
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-    "paths": {
-      "*": [".macroforge/types/*", "./*"]
-    },
+		/* Bundler mode */
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"isolatedModules": true,
+		"moduleDetection": "force",
+		"noEmit": true,
+		"paths": {
+			"*": [".macroforge/types/*", "./*"]
+		},
 
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
+		/* Linting */
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
 
-    /* Decorators */
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "rootDirs": ["src", ".macroforge/types"],
-    "plugins": [
-      {
-        "name": "@macroforge/typescript-plugin",
-        "macroNames": ["Derive"],
-        "mixinModule": "@macroforge/macros",
-        "mixinTypes": ["MacroDebug", "MacroJSON"]
-      }
-    ]
-  },
-  "include": ["src", ".macroforge/types/**/*.d.ts"]
+		/* Decorators */
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"rootDirs": ["src", ".macroforge/types"],
+		"plugins": [
+			{
+				"name": "@macroforge/typescript-plugin"
+			}
+		]
+	},
+	"include": ["src", ".macroforge/types/**/*.d.ts"]
 }

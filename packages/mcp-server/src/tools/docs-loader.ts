@@ -14,6 +14,9 @@ export interface Section {
   path: string;
   use_cases: string;
   content?: string;
+  is_chunked?: boolean;      // true if this section has sub-chunks
+  parent_id?: string;        // for sub-chunks, points to parent section id
+  chunk_ids?: string[];      // list of chunk IDs if is_chunked is true
 }
 
 /**
@@ -31,6 +34,11 @@ export function loadSections(): Section[] {
 
   // Load content for each section
   for (const section of sectionsData) {
+    // For chunked parent sections, we don't load content - it will be handled specially
+    if (section.is_chunked) {
+      continue;
+    }
+
     const contentPath = join(docsDir, section.path);
     if (existsSync(contentPath)) {
       section.content = readFileSync(contentPath, 'utf-8');

@@ -184,9 +184,13 @@ Use with a name parameter to get info for a specific macro or decorator.`,
 
 /**
  * Handle list-sections tool call
+ * Filters out sub-chunks to show only top-level sections
  */
 function handleListSections() {
-  const formatted = sections
+  // Filter out sub-chunks (sections with parent_id) - only show top-level sections
+  const topLevelSections = sections.filter((s) => !s.parent_id);
+
+  const formatted = topLevelSections
     .map(
       (s) =>
         `* title: [${s.title}], use_cases: [${s.use_cases}], path: [${s.path}], category: [${s.category_title}]`
@@ -205,6 +209,7 @@ function handleListSections() {
 
 /**
  * Handle get-documentation tool call
+ * For chunked sections, returns the first chunk with a list of available sub-chunks
  */
 function handleGetDocumentation(args: { section: string | string[] }) {
   const sectionNames = Array.isArray(args.section) ? args.section : [args.section];
@@ -213,12 +218,65 @@ function handleGetDocumentation(args: { section: string | string[] }) {
   for (const name of sectionNames) {
     const section = getSection(sections, name);
     if (section) {
-      results.push(`# ${section.title}\n\n${section.content}`);
+      // Check if this is a chunked section
+      if (section.is_chunked && section.chunk_ids && section.chunk_ids.length > 0) {
+        // Get the first chunk
+        const firstChunkId = section.chunk_ids[0];
+        const firstChunk = sections.find((s) => s.id === firstChunkId);
+
+        if (firstChunk) {
+          let result = `# ${section.title}\n\n${firstChunk.content}`;
+
+          // Add list of other available chunks
+          if (section.chunk_ids.length > 1) {
+            const otherChunks = section.chunk_ids.slice(1);
+            const chunkList = otherChunks
+              .map((id) => {
+                const chunk = sections.find((s) => s.id === id);
+                return chunk ? `- \`${id}\`: ${chunk.title.replace(`${section.title}: `, '')}` : null;
+              })
+              .filter(Boolean)
+              .join('\n');
+
+            result += `\n\n---\n\n**This section has additional chunks available:**\n${chunkList}\n\nRequest specific chunks with \`get-documentation\` for more details.`;
+          }
+
+          results.push(result);
+        } else {
+          results.push(`# ${section.title}\n\nChunked content not found.`);
+        }
+      } else {
+        // Regular section - return content directly
+        results.push(`# ${section.title}\n\n${section.content}`);
+      }
     } else {
       // Try fuzzy search
       const matches = searchSections(sections, name);
       if (matches.length > 0) {
-        results.push(`# ${matches[0].title}\n\n${matches[0].content}`);
+        const match = matches[0];
+        // Handle chunked sections in fuzzy match too
+        if (match.is_chunked && match.chunk_ids && match.chunk_ids.length > 0) {
+          const firstChunk = sections.find((s) => s.id === match.chunk_ids![0]);
+          if (firstChunk) {
+            let result = `# ${match.title}\n\n${firstChunk.content}`;
+            if (match.chunk_ids.length > 1) {
+              const otherChunks = match.chunk_ids.slice(1);
+              const chunkList = otherChunks
+                .map((id) => {
+                  const chunk = sections.find((s) => s.id === id);
+                  return chunk ? `- \`${id}\`: ${chunk.title.replace(`${match.title}: `, '')}` : null;
+                })
+                .filter(Boolean)
+                .join('\n');
+              result += `\n\n---\n\n**This section has additional chunks available:**\n${chunkList}\n\nRequest specific chunks with \`get-documentation\` for more details.`;
+            }
+            results.push(result);
+          } else {
+            results.push(`# ${match.title}\n\n${match.content}`);
+          }
+        } else {
+          results.push(`# ${match.title}\n\n${match.content}`);
+        }
       } else {
         results.push(`Documentation for "${name}" not found.`);
       }

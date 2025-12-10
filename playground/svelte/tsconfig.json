@@ -14,10 +14,7 @@
 		"moduleResolution": "bundler",
 		"plugins": [
 			{
-				"name": "@macroforge/typescript-plugin",
-				"path": "../../packages/typescript-plugin",
-				"macroNames": ["Derive"],
-				"mixinModule": "@macroforge/macros",
+				"name": "@macroforge/typescript-plugin"
 			}
 		]
 	},
