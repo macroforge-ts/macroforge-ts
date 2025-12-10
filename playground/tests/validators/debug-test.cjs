@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
-const { expandSync } = require('~/macroforge-ts/crates/macroforge_ts/index.js');
+const { expandSync } = require('../../../crates/macroforge_ts/index.js');
 
-const filePath = '~/macroforge-ts/playground/vanilla/src/validators/string-validator-tests.ts';
+const filePath = path.join(__dirname, '../../vanilla/src/validators/string-validator-tests.ts');
 const sourceCode = fs.readFileSync(filePath, 'utf8');
 const result = expandSync(sourceCode, path.basename(filePath));
 
