@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/bin-linux-x64-gnu",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "cpu": [
     "x64"
   ],
