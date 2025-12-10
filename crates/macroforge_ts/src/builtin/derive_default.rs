@@ -3,7 +3,7 @@
 //! Generates a `static default()` factory method that creates an instance with default values.
 //! Requires @default(value) decorator on fields to specify their default values.
 
-use crate::builtin::derive_common::{get_type_default, DefaultFieldOptions};
+use crate::builtin::derive_common::{get_type_default, has_known_default, DefaultFieldOptions};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
 
@@ -25,21 +25,52 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
         Data::Class(class) => {
             let class_name = input.name();
 
-            // Collect fields with @default decorators
+            // Check for required non-primitive fields missing @default (like Rust's derive(Default))
+            let missing_defaults: Vec<&str> = class
+                .fields()
+                .iter()
+                .filter(|field| {
+                    // Skip optional fields
+                    if field.optional {
+                        return false;
+                    }
+                    // Skip if has explicit @default
+                    if DefaultFieldOptions::from_decorators(&field.decorators).has_default {
+                        return false;
+                    }
+                    // Skip if type has known default (primitives, collections, nullable)
+                    if has_known_default(&field.ts_type) {
+                        return false;
+                    }
+                    // This field needs @default but doesn't have it
+                    true
+                })
+                .map(|f| f.name.as_str())
+                .collect();
+
+            if !missing_defaults.is_empty() {
+                return Err(MacroforgeError::new(
+                    input.decorator_span(),
+                    format!(
+                        "@derive(Default) cannot determine default for non-primitive fields. Add @default(value) to: {}",
+                        missing_defaults.join(", ")
+                    ),
+                ));
+            }
+
+            // Build defaults for ALL non-optional fields
             let default_fields: Vec<DefaultField> = class
                 .fields()
                 .iter()
-                .filter_map(|field| {
+                .filter(|field| !field.optional)
+                .map(|field| {
                     let opts = DefaultFieldOptions::from_decorators(&field.decorators);
-                    if !opts.has_default {
-                        return None;
-                    }
-                    Some(DefaultField {
+                    DefaultField {
                         name: field.name.clone(),
                         value: opts
                             .value
                             .unwrap_or_else(|| get_type_default(&field.ts_type)),
-                    })
+                    }
                 })
                 .collect();
 
@@ -87,21 +118,52 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
         Data::Interface(interface) => {
             let interface_name = input.name();
 
-            // Collect fields with @default decorators
+            // Check for required non-primitive fields missing @default (like Rust's derive(Default))
+            let missing_defaults: Vec<&str> = interface
+                .fields()
+                .iter()
+                .filter(|field| {
+                    // Skip optional fields
+                    if field.optional {
+                        return false;
+                    }
+                    // Skip if has explicit @default
+                    if DefaultFieldOptions::from_decorators(&field.decorators).has_default {
+                        return false;
+                    }
+                    // Skip if type has known default (primitives, collections, nullable)
+                    if has_known_default(&field.ts_type) {
+                        return false;
+                    }
+                    // This field needs @default but doesn't have it
+                    true
+                })
+                .map(|f| f.name.as_str())
+                .collect();
+
+            if !missing_defaults.is_empty() {
+                return Err(MacroforgeError::new(
+                    input.decorator_span(),
+                    format!(
+                        "@derive(Default) cannot determine default for non-primitive fields. Add @default(value) to: {}",
+                        missing_defaults.join(", ")
+                    ),
+                ));
+            }
+
+            // Build defaults for ALL non-optional fields
             let default_fields: Vec<DefaultField> = interface
                 .fields()
                 .iter()
-                .filter_map(|field| {
+                .filter(|field| !field.optional)
+                .map(|field| {
                     let opts = DefaultFieldOptions::from_decorators(&field.decorators);
-                    if !opts.has_default {
-                        return None;
-                    }
-                    Some(DefaultField {
+                    DefaultField {
                         name: field.name.clone(),
                         value: opts
                             .value
                             .unwrap_or_else(|| get_type_default(&field.ts_type)),
-                    })
+                    }
                 })
                 .collect();
 
@@ -134,22 +196,52 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
             let type_name = input.name();
 
             if type_alias.is_object() {
-                // Object type: create object with default fields
-                let default_fields: Vec<DefaultField> = type_alias
-                    .as_object()
-                    .unwrap()
+                let fields = type_alias.as_object().unwrap();
+
+                // Check for required non-primitive fields missing @default (like Rust's derive(Default))
+                let missing_defaults: Vec<&str> = fields
                     .iter()
-                    .filter_map(|field| {
-                        let opts = DefaultFieldOptions::from_decorators(&field.decorators);
-                        if !opts.has_default {
-                            return None;
+                    .filter(|field| {
+                        // Skip optional fields
+                        if field.optional {
+                            return false;
                         }
-                        Some(DefaultField {
+                        // Skip if has explicit @default
+                        if DefaultFieldOptions::from_decorators(&field.decorators).has_default {
+                            return false;
+                        }
+                        // Skip if type has known default (primitives, collections, nullable)
+                        if has_known_default(&field.ts_type) {
+                            return false;
+                        }
+                        // This field needs @default but doesn't have it
+                        true
+                    })
+                    .map(|f| f.name.as_str())
+                    .collect();
+
+                if !missing_defaults.is_empty() {
+                    return Err(MacroforgeError::new(
+                        input.decorator_span(),
+                        format!(
+                            "@derive(Default) cannot determine default for non-primitive fields. Add @default(value) to: {}",
+                            missing_defaults.join(", ")
+                        ),
+                    ));
+                }
+
+                // Build defaults for ALL non-optional fields
+                let default_fields: Vec<DefaultField> = fields
+                    .iter()
+                    .filter(|field| !field.optional)
+                    .map(|field| {
+                        let opts = DefaultFieldOptions::from_decorators(&field.decorators);
+                        DefaultField {
                             name: field.name.clone(),
                             value: opts
                                 .value
                                 .unwrap_or_else(|| get_type_default(&field.ts_type)),
-                        })
+                        }
                     })
                     .collect();
 

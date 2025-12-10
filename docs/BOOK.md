@@ -1089,14 +1089,14 @@ console.log(copy); // "success"
 
 # Default
 
-*The `Default` macro generates a static `default()` factory method that creates instances with default field values.*
+*The `Default` macro generates a static `defaultValue()` factory method that creates instances with default field values. It works like Rust's `#[derive(Default)]` trait.*
 
 ## Basic Usage
 
 <MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
 
 ```typescript
-const config = Config.default();
+const config = Config.defaultValue();
 console.log(config.host);    // ""
 console.log(config.port);    // 0
 console.log(config.enabled); // false
@@ -1104,34 +1104,67 @@ console.log(config.enabled); // false
 
 ## Automatic Default Values
 
-The Default macro automatically determines default values based on field types:
+Like Rust's `Default` trait, the macro automatically determines default values for primitive types and common collections:
 
-- `string` → `""` (empty string)
+<table class="w-full text-sm">
+<thead>
+<tr>
+<th class="text-left p-2">TypeScript Type</th>
+<th class="text-left p-2">Default Value</th>
+<th class="text-left p-2">Rust Equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr><td class="p-2">`string`</td><td class="p-2">`""`</td><td class="p-2">`String::default()`</td></tr>
+<tr><td class="p-2">`number`</td><td class="p-2">`0`</td><td class="p-2">`i32::default()`</td></tr>
+<tr><td class="p-2">`boolean`</td><td class="p-2">`false`</td><td class="p-2">`bool::default()`</td></tr>
+<tr><td class="p-2">`bigint`</td><td class="p-2">`0n`</td><td class="p-2">`i64::default()`</td></tr>
+<tr><td class="p-2">`T[]` / `Array<T>`</td><td class="p-2">`[]`</td><td class="p-2">`Vec::default()`</td></tr>
+<tr><td class="p-2">`Map<K, V>`</td><td class="p-2">`new Map()`</td><td class="p-2">`HashMap::default()`</td></tr>
+<tr><td class="p-2">`Set<T>`</td><td class="p-2">`new Set()`</td><td class="p-2">`HashSet::default()`</td></tr>
+<tr><td class="p-2">`Date`</td><td class="p-2">`new Date()`</td><td class="p-2">—</td></tr>
+<tr><td class="p-2">`T | null` / `T | undefined`</td><td class="p-2">`null`</td><td class="p-2">`Option::default()`</td></tr>
+<tr><td class="p-2">Custom types</td><td class="p-2 text-red-500">**Error**</td><td class="p-2 text-red-500">**Error** (needs `impl Default`)</td></tr>
+</tbody>
+</table>
 
-- `number` → `0`
+## Nullable Types (like Rust's Option)
 
-- `boolean` → `false`
+Just like Rust's `Option<T>` defaults to `None`, nullable TypeScript types automatically default to `null`:
 
-- `bigint` → `0n`
+<MacroExample before={data.examples.nullable.before} after={data.examples.nullable.after} />
 
-- `Array<T>` or `T[]` → `[]` (empty array)
+```typescript
+const user = User.defaultValue();
+console.log(user.name);     // ""
+console.log(user.email);    // null (nullable type)
+console.log(user.age);      // 0
+console.log(user.metadata); // null (nullable type)
+```
 
-- `Map<K, V>` → `new Map()`
+## Custom Types Require @default
 
-- `Set<T>` → `new Set()`
+Just like Rust requires `impl Default` for custom types, Macroforge requires the `@default()` decorator on fields with non-primitive types:
 
-- `Date` → `new Date()`
+<MacroExample before={data.examples.customType.before} after={data.examples.customType.after} />
 
-- Custom types → `null as any`
+<p class="text-red-500 text-sm mt-2">
+Without `@default` on custom type fields, the macro will emit an error:
+</p>
+
+```text
+// Error: @derive(Default) cannot determine default for non-primitive fields.
+// Add @default(value) to: settings, permissions
+```
 
 ## Custom Default Values
 
-Use the `@defaultValue()` decorator to specify custom default values for fields:
+Use the `@default()` decorator to specify custom default values for any field:
 
 <MacroExample before={data.examples.custom.before} after={data.examples.custom.after} />
 
 ```typescript
-const config = ServerConfig.default();
+const config = ServerConfig.defaultValue();
 console.log(config.host);      // "localhost"
 console.log(config.port);      // 8080
 console.log(config.enabled);   // true
@@ -1140,12 +1173,12 @@ console.log(config.logLevels); // ["info", "error"]
 
 ## Interface Support
 
-Default also works with interfaces. For interfaces, a namespace is generated with a `default_()` function (note the underscore to avoid conflicts with the reserved word):
+Default also works with interfaces. For interfaces, a namespace is generated with a `defaultValue()` function:
 
 <MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
 
 ```typescript
-const origin = Point.default_();
+const origin = Point.defaultValue();
 console.log(origin); // { x: 0, y: 0 }
 ```
 
@@ -1156,7 +1189,7 @@ Default works with enums. For enums, it returns the first variant as the default
 <MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
 
 ```typescript
-const defaultStatus = Status.default_();
+const defaultStatus = Status.defaultValue();
 console.log(defaultStatus); // "pending"
 ```
 
@@ -1167,7 +1200,7 @@ Default works with type aliases. For object types, it creates an object with def
 <MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
 
 ```typescript
-const dims = Dimensions.default_();
+const dims = Dimensions.defaultValue();
 console.log(dims); // { width: 0, height: 0 }
 ```
 
@@ -1175,10 +1208,10 @@ console.log(dims); // { width: 0, height: 0 }
 
 <InteractiveMacro code={`/** @derive(Default, Debug, Clone, PartialEq) */
 class User {
-  /** @defaultValue("Anonymous") */
+  /** @default("Anonymous") */
   name: string;
 
-  /** @defaultValue(0) */
+  /** @default(0) */
   age: number;
 
   constructor(name: string, age: number) {
@@ -1188,7 +1221,7 @@ class User {
 }`} />
 
 ```typescript
-const user1 = User.default();
+const user1 = User.defaultValue();
 const user2 = user1.clone();
 
 console.log(user1.toString());    // User { name: "Anonymous", age: 0 }
@@ -3129,6 +3162,14 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError>
 <td>Ident block: concatenates without spaces (e.g., `&#123;|get@&#123;name&#125;|&#125;` → `getUser`)</td>
 </tr>
 <tr>
+<td>`&#123;> comment <&#125;`</td>
+<td>Block comment: outputs `/* comment */`</td>
+</tr>
+<tr>
+<td>`&#123;>> doc <<&#125;`</td>
+<td>Doc comment: outputs `/** doc */` (for JSDoc)</td>
+</tr>
+<tr>
 <td>`@@&#123;`</td>
 <td>Escape for literal `@&#123;` (e.g., `"@@&#123;foo&#125;"` → `@&#123;foo&#125;`)</td>
 </tr>
@@ -3257,6 +3298,73 @@ let entity = "user";
 let action = "create";
 
 ts_template! { {|@{entity}_@{action}|} }  // → "user_create"
+```
+
+## Comments: `&#123;> ... <&#125;` and `&#123;>> ... <<&#125;`
+
+Since Rust's tokenizer strips comments before macros see them, you can't write JSDoc comments directly. Instead, use the comment syntax to output JavaScript comments:
+
+### Block Comments
+
+Use `&#123;> comment <&#125;` for block comments:
+
+```rust
+let code = ts_template! {
+    {> This is a block comment <}
+    const x = 42;
+};
+```
+
+**Generates:**
+
+```typescript
+/* This is a block comment */
+const x = 42;
+```
+
+### Doc Comments (JSDoc)
+
+Use `&#123;>> doc <<&#125;` for JSDoc comments:
+
+```rust
+let code = ts_template! {
+    {>> @param {string} name - The user's name <<}
+    {>> @returns {string} A greeting message <<}
+    function greet(name: string): string {
+        return "Hello, " + name;
+    }
+};
+```
+
+**Generates:**
+
+```typescript
+/** @param {string} name - The user's name */
+/** @returns {string} A greeting message */
+function greet(name: string): string {
+    return "Hello, " + name;
+}
+```
+
+### Comments with Interpolation
+
+Comments support `@&#123;expr&#125;` interpolation for dynamic content:
+
+```rust
+let param_name = "userId";
+let param_type = "number";
+
+let code = ts_template! {
+    {>> @param {@{param_type}} @{param_name} - The user ID <<}
+    function getUser(userId: number) {}
+};
+```
+
+**Generates:**
+
+```typescript
+/** @param {number} userId - The user ID */
+function getUser(userId: number) {}
 ```
 
 ## String Interpolation: `"text @&#123;expr&#125;"`

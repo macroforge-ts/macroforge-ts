@@ -3,6 +3,8 @@
 //! Provides a template syntax with interpolation and control flow:
 //! - `@{expr}` - Interpolate expressions (calls `.to_string()`)
 //! - `{| content |}` - Ident block: concatenates content without spaces (e.g., `{|get@{name}|}` → `getUser`)
+//! - `{> comment <}` - Block comment: outputs `/* comment */`
+//! - `{>> doc <<}` - Doc comment: outputs `/** doc */` (for JSDoc)
 //! - `@@{` - Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)
 //! - `"string @{expr}"` - String interpolation (auto-detected)
 //! - `"'^template ${expr}^'"` - JS backtick template literal (outputs `` `template ${expr}` ``)
@@ -73,6 +75,8 @@ enum TagType {
     Do(TokenStream2),         // {$do expr} - side-effectful expression
     Typescript(TokenStream2), // {$typescript stream_expr} - inject TsStream with patches
     IdentBlock,               // {| ... |} - identifier block with no internal spacing
+    BlockComment,             // {> ... <} - block comment /* ... */
+    DocComment,               // {>> ... <<} - doc comment /** ... */
     Block,                    // Standard TypeScript Block { ... }
 }
 
@@ -87,6 +91,30 @@ fn analyze_tag(g: &Group) -> TagType {
         && last.as_char() == '|'
     {
         return TagType::IdentBlock;
+    }
+
+    // Check for {>> ... <<} doc comment - must have at least >> and <<
+    if tokens.len() >= 4
+        && let (Some(TokenTree::Punct(p1)), Some(TokenTree::Punct(p2))) =
+            (tokens.first(), tokens.get(1))
+        && p1.as_char() == '>'
+        && p2.as_char() == '>'
+        && let (Some(TokenTree::Punct(p3)), Some(TokenTree::Punct(p4))) =
+            (tokens.get(tokens.len() - 2), tokens.last())
+        && p3.as_char() == '<'
+        && p4.as_char() == '<'
+    {
+        return TagType::DocComment;
+    }
+
+    // Check for {> ... <} block comment - must have at least > and <
+    if tokens.len() >= 2
+        && let (Some(TokenTree::Punct(first)), Some(TokenTree::Punct(last))) =
+            (tokens.first(), tokens.last())
+        && first.as_char() == '>'
+        && last.as_char() == '<'
+    {
+        return TagType::BlockComment;
     }
 
     if tokens.len() < 2 {
@@ -753,6 +781,46 @@ fn parse_fragment(
                             output.extend(inner_output);
                         }
                         // No space added after the block - that's the point
+                    }
+                    TagType::BlockComment => {
+                        iter.next(); // Consume {> ... <}
+
+                        // Get the content between the > and < markers
+                        let inner_tokens: Vec<TokenTree> = g.stream().into_iter().collect();
+                        // Skip first > and last <, extract content in between
+                        output.extend(quote! { __out.push_str("/* "); });
+                        if inner_tokens.len() >= 2 {
+                            let content: TokenStream2 = inner_tokens[1..inner_tokens.len() - 1]
+                                .iter()
+                                .map(|t| t.to_token_stream())
+                                .collect();
+
+                            // Parse with no-spacing mode to handle @{} interpolation
+                            let inner_output =
+                                parse_fragment_no_spacing(&mut content.into_iter().peekable())?;
+                            output.extend(inner_output);
+                        }
+                        output.extend(quote! { __out.push_str(" */"); });
+                    }
+                    TagType::DocComment => {
+                        iter.next(); // Consume {>> ... <<}
+
+                        // Get the content between the >> and << markers
+                        let inner_tokens: Vec<TokenTree> = g.stream().into_iter().collect();
+                        // Skip first >> and last <<, extract content in between
+                        output.extend(quote! { __out.push_str("/** "); });
+                        if inner_tokens.len() >= 4 {
+                            let content: TokenStream2 = inner_tokens[2..inner_tokens.len() - 2]
+                                .iter()
+                                .map(|t| t.to_token_stream())
+                                .collect();
+
+                            // Parse with no-spacing mode to handle @{} interpolation
+                            let inner_output =
+                                parse_fragment_no_spacing(&mut content.into_iter().peekable())?;
+                            output.extend(inner_output);
+                        }
+                        output.extend(quote! { __out.push_str(" */"); });
                     }
                     TagType::Block => {
                         // Regular TS Block { ... }
