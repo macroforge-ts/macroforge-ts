@@ -143,6 +143,26 @@ const steps = [
     cmd: "npm run build",
     cwd: path.join(root, "playground", "vanilla"),
   },
+  {
+    label: "remove website node_modules",
+    cmd: "rm -rf node_modules",
+    cwd: path.join(root, "website"),
+  },
+  {
+    label: "remove website .svelte-kit",
+    cmd: "rm -rf .svelte-kit",
+    cwd: path.join(root, "website"),
+  },
+  {
+    label: "install website deps",
+    cmd: "npm install",
+    cwd: path.join(root, "website"),
+  },
+  {
+    label: "build website",
+    cmd: "npm run build",
+    cwd: path.join(root, "website"),
+  },
 ];
 
 function runStep(step) {
