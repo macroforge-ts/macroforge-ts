@@ -2,10 +2,10 @@ use std::env;
 use zed_extension_api::{self as zed, serde_json, Command, LanguageServerId, Result, Worktree};
 
 const TS_PLUGIN: &str = "@macroforge/typescript-plugin";
-const TS_PLUGIN_VERSION: &str = "0.1.25";
+const TS_PLUGIN_VERSION: &str = "0.1.26";
 const VTSLS_PACKAGE: &str = "@vtsls/language-server";
 const VTSLS_VERSION: &str = "0.2.6";
-const MACROFORGE_VERSION: &str = "0.1.25";
+const MACROFORGE_VERSION: &str = "0.1.26";
 
 struct VtslsMacroforgeExtension {
     cached_vtsls_path: Option<String>,
