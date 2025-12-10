@@ -98,9 +98,56 @@ pub fn is_numeric_type(ts_type: &str) -> bool {
     matches!(ts_type.trim(), "number" | "bigint")
 }
 
+/// Check if a TypeScript type is nullable (contains `| null` or `| undefined`)
+/// Like Rust's Option<T>, these types default to null.
+pub fn is_nullable_type(ts_type: &str) -> bool {
+    let normalized = ts_type.replace(' ', "");
+    normalized.contains("|null") || normalized.contains("|undefined")
+}
+
+/// Check if a type has a known default value (primitives, collections, nullable)
+/// Similar to Rust's Default trait - only types with well-defined defaults return true.
+pub fn has_known_default(ts_type: &str) -> bool {
+    let t = ts_type.trim();
+
+    // Nullable types default to null (like Rust's Option::default())
+    if is_nullable_type(t) {
+        return true;
+    }
+
+    // Primitives
+    if matches!(t, "string" | "number" | "boolean" | "bigint") {
+        return true;
+    }
+
+    // Arrays
+    if t.ends_with("[]") || t.starts_with("Array<") {
+        return true;
+    }
+
+    // Collections
+    if t.starts_with("Map<") || t.starts_with("Set<") {
+        return true;
+    }
+
+    // Date
+    if t == "Date" {
+        return true;
+    }
+
+    false
+}
+
 /// Get default value for a TypeScript type
 pub fn get_type_default(ts_type: &str) -> String {
-    match ts_type.trim() {
+    let t = ts_type.trim();
+
+    // Nullable first (like Rust's Option::default() -> None)
+    if is_nullable_type(t) {
+        return "null".to_string();
+    }
+
+    match t {
         "string" => r#""""#.to_string(),
         "number" => "0".to_string(),
         "boolean" => "false".to_string(),
