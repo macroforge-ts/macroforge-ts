@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/bin-win32-arm64-msvc",
-  "version": "0.1.25",
+  "version": "0.1.26",
   "cpu": [
     "arm64"
   ],
