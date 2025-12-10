@@ -112,12 +112,105 @@
     "use_cases": "toJSON, serialization, json, api, data transfer"
   },
   {
+    "id": "deserialize/overview",
+    "title": "Deserialize: Overview",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize/overview.md",
+    "use_cases": "fromJSON, deserialization, deserialize, fromjson()",
+    "parent_id": "deserialize"
+  },
+  {
+    "id": "deserialize/runtime-validation",
+    "title": "Deserialize: Runtime Validation",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize/runtime-validation.md",
+    "use_cases": "fromJSON, deserialization",
+    "parent_id": "deserialize"
+  },
+  {
+    "id": "deserialize/serde-options",
+    "title": "Deserialize: Serde Options",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize/serde-options.md",
+    "use_cases": "fromJSON, deserialization, @serde",
+    "parent_id": "deserialize"
+  },
+  {
+    "id": "deserialize/all-options",
+    "title": "Deserialize: All Options",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize/all-options.md",
+    "use_cases": "fromJSON, deserialization, rename_all, string, deny_unknown_fields, boolean",
+    "parent_id": "deserialize"
+  },
+  {
+    "id": "deserialize/interface-support",
+    "title": "Deserialize: Interface Support",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize/interface-support.md",
+    "use_cases": "fromJSON, deserialization, fromjson",
+    "parent_id": "deserialize"
+  },
+  {
+    "id": "deserialize/enum-support",
+    "title": "Deserialize: Enum Support",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize/enum-support.md",
+    "use_cases": "fromJSON, deserialization, fromjson",
+    "parent_id": "deserialize"
+  },
+  {
+    "id": "deserialize/type-alias-support",
+    "title": "Deserialize: Type Alias Support",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize/type-alias-support.md",
+    "use_cases": "fromJSON, deserialization",
+    "parent_id": "deserialize"
+  },
+  {
+    "id": "deserialize/combining-with-serialize",
+    "title": "Deserialize: Combining with Serialize",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize/combining-with-serialize.md",
+    "use_cases": "fromJSON, deserialization",
+    "parent_id": "deserialize"
+  },
+  {
+    "id": "deserialize/error-handling",
+    "title": "Deserialize: Error Handling",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize/error-handling.md",
+    "use_cases": "fromJSON, deserialization",
+    "parent_id": "deserialize"
+  },
+  {
     "id": "deserialize",
     "title": "Deserialize",
     "category": "builtin-macros",
     "category_title": "Built-in Macros",
     "path": "builtin-macros/deserialize.md",
-    "use_cases": "fromJSON, deserialization, parsing, validation, json"
+    "use_cases": "fromJSON, deserialization, parsing, validation, json",
+    "is_chunked": true,
+    "chunk_ids": [
+      "deserialize/overview",
+      "deserialize/runtime-validation",
+      "deserialize/serde-options",
+      "deserialize/all-options",
+      "deserialize/interface-support",
+      "deserialize/enum-support",
+      "deserialize/type-alias-support",
+      "deserialize/combining-with-serialize",
+      "deserialize/error-handling"
+    ]
   },
   {
     "id": "custom-overview",
@@ -136,12 +229,221 @@
     "use_cases": "rust, cargo, napi, compilation, building"
   },
   {
+    "id": "ts-macro-derive/overview",
+    "title": "#[ts_macro_derive]: Overview",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-macro-derive/overview.md",
+    "use_cases": "attribute, proc macro, #[ts_macro_derive]",
+    "parent_id": "ts-macro-derive"
+  },
+  {
+    "id": "ts-macro-derive/attribute-options",
+    "title": "#[ts_macro_derive]: Attribute Options",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-macro-derive/attribute-options.md",
+    "use_cases": "attribute, proc macro, @derive()",
+    "parent_id": "ts-macro-derive"
+  },
+  {
+    "id": "ts-macro-derive/parsing-input",
+    "title": "#[ts_macro_derive]: Parsing Input",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-macro-derive/parsing-input.md",
+    "use_cases": "attribute, proc macro, parse_ts_macro_input!",
+    "parent_id": "ts-macro-derive"
+  },
+  {
+    "id": "ts-macro-derive/deriveinput-structure",
+    "title": "#[ts_macro_derive]: DeriveInput Structure",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-macro-derive/deriveinput-structure.md",
+    "use_cases": "attribute, proc macro",
+    "parent_id": "ts-macro-derive"
+  },
+  {
+    "id": "ts-macro-derive/accessing-field-data",
+    "title": "#[ts_macro_derive]: Accessing Field Data",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-macro-derive/accessing-field-data.md",
+    "use_cases": "attribute, proc macro",
+    "parent_id": "ts-macro-derive"
+  },
+  {
+    "id": "ts-macro-derive/adding-imports",
+    "title": "#[ts_macro_derive]: Adding Imports",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-macro-derive/adding-imports.md",
+    "use_cases": "attribute, proc macro, add_import, tsstream",
+    "parent_id": "ts-macro-derive"
+  },
+  {
+    "id": "ts-macro-derive/returning-errors",
+    "title": "#[ts_macro_derive]: Returning Errors",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-macro-derive/returning-errors.md",
+    "use_cases": "attribute, proc macro, macroforgeerror",
+    "parent_id": "ts-macro-derive"
+  },
+  {
+    "id": "ts-macro-derive/complete-example",
+    "title": "#[ts_macro_derive]: Complete Example",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-macro-derive/complete-example.md",
+    "use_cases": "attribute, proc macro",
+    "parent_id": "ts-macro-derive"
+  },
+  {
     "id": "ts-macro-derive",
     "title": "#[ts_macro_derive]",
     "category": "custom-macros",
     "category_title": "Custom Macros",
     "path": "custom-macros/ts-macro-derive.md",
-    "use_cases": "attribute, proc macro, derive attribute, rust macro"
+    "use_cases": "attribute, proc macro, derive attribute, rust macro",
+    "is_chunked": true,
+    "chunk_ids": [
+      "ts-macro-derive/overview",
+      "ts-macro-derive/attribute-options",
+      "ts-macro-derive/parsing-input",
+      "ts-macro-derive/deriveinput-structure",
+      "ts-macro-derive/accessing-field-data",
+      "ts-macro-derive/adding-imports",
+      "ts-macro-derive/returning-errors",
+      "ts-macro-derive/complete-example"
+    ]
+  },
+  {
+    "id": "ts-quote/overview",
+    "title": "Template Syntax: Overview",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/overview.md",
+    "use_cases": "ts_quote, template, macroforge_ts_quote, ts_template!, body!",
+    "parent_id": "ts-quote"
+  },
+  {
+    "id": "ts-quote/quick-reference",
+    "title": "Template Syntax: Quick Reference",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/quick-reference.md",
+    "use_cases": "ts_quote, template, @&#123;expr&#125;, getuser",
+    "parent_id": "ts-quote"
+  },
+  {
+    "id": "ts-quote/identifier-concatenation-content",
+    "title": "Template Syntax: Identifier Concatenation: `&#123;| content |&#125;`",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/identifier-concatenation-content.md",
+    "use_cases": "ts_quote, template, getuser, setname",
+    "parent_id": "ts-quote"
+  },
+  {
+    "id": "ts-quote/comments-and",
+    "title": "Template Syntax: Comments: `&#123;> ... <&#125;` and `&#123;>> ... <<&#125;`",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/comments-and.md",
+    "use_cases": "ts_quote, template, \n\n**generates:**\n\n",
+    "parent_id": "ts-quote"
+  },
+  {
+    "id": "ts-quote/string-interpolation-text-expr",
+    "title": "Template Syntax: String Interpolation: `\"text @&#123;expr&#125;\"`",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/string-interpolation-text-expr.md",
+    "use_cases": "ts_quote, template, format!(), \n\n**generates:**\n\n",
+    "parent_id": "ts-quote"
+  },
+  {
+    "id": "ts-quote/backtick-template-literals",
+    "title": "Template Syntax: Backtick Template Literals: `\"'^...^'\"`",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/backtick-template-literals.md",
+    "use_cases": "ts_quote, template, \"'^...^'\", '^...^', ${\"${}\"}",
+    "parent_id": "ts-quote"
+  },
+  {
+    "id": "ts-quote/conditionals-ifif",
+    "title": "Template Syntax: Conditionals: `&#123;#if&#125;...&#123;/if&#125;`",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/conditionals-ifif.md",
+    "use_cases": "ts_quote, template",
+    "parent_id": "ts-quote"
+  },
+  {
+    "id": "ts-quote/pattern-matching-if-let",
+    "title": "Template Syntax: Pattern Matching: `&#123;#if let&#125;`",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/pattern-matching-if-let.md",
+    "use_cases": "ts_quote, template, option, result",
+    "parent_id": "ts-quote"
+  },
+  {
+    "id": "ts-quote/match-expressions-match",
+    "title": "Template Syntax: Match Expressions: `&#123;#match&#125;`",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/match-expressions-match.md",
+    "use_cases": "ts_quote, template, &#123;#match&#125;, match, \n\n**generates:**\n\n",
+    "parent_id": "ts-quote"
+  },
+  {
+    "id": "ts-quote/iteration-for",
+    "title": "Template Syntax: Iteration: `&#123;#for&#125;`",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/iteration-for.md",
+    "use_cases": "ts_quote, template, &#123;#for&#125;, \n\n**generates:**\n\n",
+    "parent_id": "ts-quote"
+  },
+  {
+    "id": "ts-quote/while-loops-while",
+    "title": "Template Syntax: While Loops: `&#123;#while&#125;`",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/while-loops-while.md",
+    "use_cases": "ts_quote, template, &#123;#while&#125;, while",
+    "parent_id": "ts-quote"
+  },
+  {
+    "id": "ts-quote/side-effects-do",
+    "title": "Template Syntax: Side Effects: `&#123;$do&#125;`",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/side-effects-do.md",
+    "use_cases": "ts_quote, template, &#123;$do&#125;",
+    "parent_id": "ts-quote"
+  },
+  {
+    "id": "ts-quote/tsstream-injection-typescript",
+    "title": "Template Syntax: TsStream Injection: `&#123;$typescript&#125;`",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/tsstream-injection-typescript.md",
+    "use_cases": "ts_quote, template, &#123;$typescript&#125;, add_import()",
+    "parent_id": "ts-quote"
+  },
+  {
+    "id": "ts-quote/complete-example-json-derive-macro",
+    "title": "Template Syntax: Complete Example: JSON Derive Macro",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/complete-example-json-derive-macro.md",
+    "use_cases": "ts_quote, template, ts_template!",
+    "parent_id": "ts-quote"
   },
   {
     "id": "ts-quote",
@@ -149,7 +451,24 @@
     "category": "custom-macros",
     "category_title": "Custom Macros",
     "path": "custom-macros/ts-quote.md",
-    "use_cases": "ts_quote, template, code generation, interpolation"
+    "use_cases": "ts_quote, template, code generation, interpolation",
+    "is_chunked": true,
+    "chunk_ids": [
+      "ts-quote/overview",
+      "ts-quote/quick-reference",
+      "ts-quote/identifier-concatenation-content",
+      "ts-quote/comments-and",
+      "ts-quote/string-interpolation-text-expr",
+      "ts-quote/backtick-template-literals",
+      "ts-quote/conditionals-ifif",
+      "ts-quote/pattern-matching-if-let",
+      "ts-quote/match-expressions-match",
+      "ts-quote/iteration-for",
+      "ts-quote/while-loops-while",
+      "ts-quote/side-effects-do",
+      "ts-quote/tsstream-injection-typescript",
+      "ts-quote/complete-example-json-derive-macro"
+    ]
   },
   {
     "id": "integration-overview",
