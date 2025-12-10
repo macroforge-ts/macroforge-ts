@@ -108,7 +108,8 @@ try {
   console.log(JSON.stringify({
     code: result.code,
     types: result.types,
-    diagnostics: result.diagnostics || []
+    diagnostics: result.diagnostics || [],
+    sourceMapping: result.sourceMapping || null
   }));
 } catch (err) {
   console.error('Error:', err.message);
@@ -143,32 +144,43 @@ try {
         .ok_or_else(|| anyhow!("missing 'code' in expansion result"))?;
     let types = result["types"].as_str();
 
-    // Write outputs
+    // Check if any macros were actually expanded by looking at generatedRegions
+    let has_expansions = result["sourceMapping"]
+        .get("generatedRegions")
+        .and_then(|r| r.as_array())
+        .map(|arr| !arr.is_empty())
+        .unwrap_or(false);
+
+    // Write outputs only if macros were expanded
     if let Some(out_path) = out {
-        write_file(&out_path, code)?;
-        println!(
-            "[macroforge] wrote expanded output for {} to {}",
-            input.display(),
-            out_path.display()
-        );
+        if has_expansions {
+            write_file(&out_path, code)?;
+            println!(
+                "[macroforge] wrote expanded output for {} to {}",
+                input.display(),
+                out_path.display()
+            );
+        }
     }
 
-    if print {
+    if print && has_expansions {
         println!("// --- {} (expanded) ---", input.display());
         println!("{}", code);
     }
 
     if let Some(types_str) = types {
-        if let Some(types_path) = types_out {
-            write_file(&types_path, types_str)?;
-            println!(
-                "[macroforge] wrote type output for {} to {}",
-                input.display(),
-                types_path.display()
-            );
-        } else if print {
-            println!("// --- {} (.d.ts) ---", input.display());
-            println!("{}", types_str);
+        if has_expansions {
+            if let Some(types_path) = types_out {
+                write_file(&types_path, types_str)?;
+                println!(
+                    "[macroforge] wrote type output for {} to {}",
+                    input.display(),
+                    types_path.display()
+                );
+            } else if print {
+                println!("// --- {} (.d.ts) ---", input.display());
+                println!("{}", types_str);
+            }
         }
     }
 
