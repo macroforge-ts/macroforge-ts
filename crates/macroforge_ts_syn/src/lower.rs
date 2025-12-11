@@ -750,48 +750,103 @@ fn collect_leading_macro_directives(source: &str, target_start: usize) -> Vec<De
 
     let comment_body = &search_area[start_idx + 3 .. end_idx_in_search_area];
 
-    let Some((name, args_src)) = parse_macro_directive(comment_body) else {
-        return Vec::new();
-    };
+    // Parse ALL macro directives from the comment
+    let directives = parse_all_macro_directives(comment_body);
 
-    let final_span_ir = adjust_decorator_span(
-        swc_core::common::Span::new(
-            swc_core::common::BytePos(start_idx as u32 + 1), // Convert to 1-based BytePos
-            swc_core::common::BytePos(end_of_comment_block as u32 + 1), // Convert to 1-based BytePos
-        ),
-        source,
-    );
+    directives
+        .into_iter()
+        .map(|(name, args_src)| {
+            let final_span_ir = adjust_decorator_span(
+                swc_core::common::Span::new(
+                    swc_core::common::BytePos(start_idx as u32 + 1), // Convert to 1-based BytePos
+                    swc_core::common::BytePos(end_of_comment_block as u32 + 1), // Convert to 1-based BytePos
+                ),
+                source,
+            );
 
-    vec![DecoratorIR {
-        name,
-        args_src,
-        span: final_span_ir,
-        node: None,
-    }]
+            DecoratorIR {
+                name,
+                args_src,
+                span: final_span_ir,
+                node: None,
+            }
+        })
+        .collect()
 }
 
+/// Parse ALL macro directives from a JSDoc comment body.
+/// Returns a Vec of (name, args) tuples for each @directive(...) found.
 #[cfg(feature = "swc")]
-fn parse_macro_directive(comment_body: &str) -> Option<(String, String)> {
-    let content = comment_body.trim().trim_start_matches('*').trim();
-    let content = content.strip_prefix('@')?;
+fn parse_all_macro_directives(comment_body: &str) -> Vec<(String, String)> {
+    let mut results = Vec::new();
 
-    let open = content.find('(')?;
-    let close = content.rfind(')')?;
-    if close <= open {
-        return None;
+    // Process line by line to handle multiple directives
+    for line in comment_body.lines() {
+        let line = line.trim().trim_start_matches('*').trim();
+
+        // Skip empty lines
+        if line.is_empty() {
+            continue;
+        }
+
+        // Look for @directive(...) pattern
+        let Some(at_idx) = line.find('@') else {
+            continue;
+        };
+
+        let after_at = &line[at_idx + 1..];
+
+        // Find opening paren
+        let Some(open) = after_at.find('(') else {
+            continue;
+        };
+
+        // Find matching closing paren (handle nested parens/braces)
+        let name = after_at[..open].trim();
+        let args_start = open + 1;
+
+        // Parse balanced parentheses to find the closing one
+        let mut depth: i32 = 1;
+        let mut brace_depth: i32 = 0;
+        let mut bracket_depth: i32 = 0;
+        let mut close_idx = None;
+
+        for (i, c) in after_at[args_start..].char_indices() {
+            match c {
+                '(' => depth += 1,
+                ')' => {
+                    depth -= 1;
+                    if depth == 0 && brace_depth == 0 && bracket_depth == 0 {
+                        close_idx = Some(args_start + i);
+                        break;
+                    }
+                }
+                '{' => brace_depth += 1,
+                '}' => brace_depth = brace_depth.saturating_sub(1),
+                '[' => bracket_depth += 1,
+                ']' => bracket_depth = bracket_depth.saturating_sub(1),
+                _ => {}
+            }
+        }
+
+        let Some(close) = close_idx else {
+            continue;
+        };
+
+        let args = after_at[args_start..close].trim();
+
+        let normalized_name = if name.eq_ignore_ascii_case("derive") {
+            "Derive".to_string()
+        } else {
+            name.to_string()
+        };
+
+        results.push((normalized_name, args.to_string()));
     }
 
-    let name = content[..open].trim();
-    let args = content[open + 1..close].trim();
-
-    let normalized_name = if name.eq_ignore_ascii_case("derive") {
-        "Derive".to_string()
-    } else {
-        name.to_string()
-    };
-
-    Some((normalized_name, args.to_string()))
+    results
 }
+
 
 fn adjust_decorator_span(span: Span, source: &str) -> SpanIR {
     let mut ir = swc_span_to_ir(span);
