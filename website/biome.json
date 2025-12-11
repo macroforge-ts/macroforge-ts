@@ -1,23 +1,140 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
-	"extends": ["../biome.json"],
+	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+	"files": {
+		"ignoreUnknown": false,
+		"includes": [
+			"**",
+			"!!**/dist",
+			"!!**/build",
+			"!!**/.svelte-kit",
+			"!!**/node_modules",
+			"!!**/src/lib/form/legacy"
+		]
+	},
+	"formatter": {
+		"enabled": true,
+		"formatWithErrors": false,
+		"indentStyle": "space",
+		"indentWidth": 4,
+		"lineEnding": "lf",
+		"lineWidth": 100,
+		"attributePosition": "auto",
+		"bracketSameLine": false,
+		"bracketSpacing": true,
+		"expand": "auto",
+		"useEditorconfig": true
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"correctness": {
+				"noUnusedVariables": "warn",
+				"noUnusedImports": "warn"
+			},
+			"suspicious": {
+				"noExplicitAny": "error",
+				"noDoubleEquals": "error",
+				"noDebugger": "error",
+				"noConsole": "off"
+			},
+			"style": {
+				"useConsistentArrayType": {
+					"level": "error",
+					"options": { "syntax": "generic" }
+				},
+				"useNamingConvention": "off",
+				"noNegationElse": "off",
+				"useTemplate": "warn"
+			},
+			"complexity": {
+				"useOptionalChain": "error",
+				"useFlatMap": "warn",
+				"noForEach": "off"
+			},
+			"performance": {
+				"noAccumulatingSpread": "warn",
+				"noDelete": "warn"
+			},
+			"nursery": {
+				"useSortedClasses": "off"
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"trailingCommas": "none",
+			"semicolons": "always",
+			"arrowParentheses": "always",
+			"bracketSameLine": false,
+			"quoteStyle": "single",
+			"attributePosition": "auto",
+			"bracketSpacing": true
+		}
+	},
+	"json": {
+		"formatter": {
+			"trailingCommas": "none"
+		}
+	},
+	"html": {
+		"experimentalFullSupportEnabled": true,
+		"formatter": {
+			"indentScriptAndStyle": true,
+			"selfCloseVoidElements": "always"
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": { "source": { "organizeImports": "on" } }
+	},
 	"overrides": [
 		{
-			"includes": ["**/*.svelte"],
+			"includes": [
+				"**/*.test.ts",
+				"**/*.spec.ts",
+				"**/*.test.js",
+				"**/*.spec.js"
+			],
 			"linter": {
 				"rules": {
-					"correctness": {
-						"noUnusedVariables": "off",
-						"noUnusedImports": "off"
-					},
-					"style": {
-						"useConst": "off",
-						"useImportType": "off"
+					"suspicious": {
+						"noExplicitAny": "off"
 					}
 				}
-			},
+			}
+		},
+		{
+			"includes": ["**/*.js", "**/*.cjs", "**/*.config.ts", "**/*.config.js"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/*.svelte", "**/*.astro", "**/*.vue"],
 			"assist": {
+				"enabled": true,
 				"actions": { "source": { "organizeImports": "off" } }
+			},
+			"linter": {
+				"rules": {
+					"style": {
+						"useConst": "off",
+
+						"useImportType": "off"
+					},
+
+					"correctness": {
+						"noUnusedVariables": "off",
+
+						"noUnusedImports": "off"
+					}
+				}
 			}
 		}
 	]
