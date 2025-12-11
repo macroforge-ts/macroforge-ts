@@ -248,7 +248,7 @@ fn generate_validator_check(
         i18n::get_validator_message(&validator.name, &validator.args, field_name, options)
     });
 
-    let check = match validator.name.as_str() {
+    match validator.name.as_str() {
         // String validators
         "email" => {
             format!(r#"if (typeof {var_name} === "string" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test({var_name})) errors.push("{error_msg}");"#)
@@ -399,9 +399,7 @@ fn generate_validator_check(
             // Unknown validator - skip
             String::new()
         }
-    };
-
-    check
+    }
 }
 
 /// Generates the async validate function.
