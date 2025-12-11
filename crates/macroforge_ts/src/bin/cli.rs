@@ -76,6 +76,11 @@ fn expand_file(
         .expand_source(&source, &input.display().to_string())
         .map_err(|err| anyhow!(format!("{err:?}")))?;
 
+    if !expansion.changed {
+        eprintln!("[macroforge] no macros found in {}", input.display());
+        std::process::exit(2);
+    }
+
     emit_diagnostics(&expansion, &source, &input);
     emit_runtime_output(&expansion, &input, out.as_ref(), print)?;
     emit_type_output(&expansion, &input, types_out.as_ref(), print)?;
@@ -150,6 +155,11 @@ try {
         .and_then(|r| r.as_array())
         .map(|arr| !arr.is_empty())
         .unwrap_or(false);
+
+    if !has_expansions {
+        eprintln!("[macroforge] no macros found in {}", input.display());
+        std::process::exit(2);
+    }
 
     // Write outputs only if macros were expanded
     if let Some(out_path) = out {

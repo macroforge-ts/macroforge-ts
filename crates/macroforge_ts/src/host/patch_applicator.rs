@@ -372,6 +372,10 @@ impl PatchCollector {
         !self.type_patches.is_empty()
     }
 
+    pub fn has_patches(&self) -> bool {
+        !self.runtime_patches.is_empty() || !self.type_patches.is_empty()
+    }
+
     pub fn apply_runtime_patches(&self, source: &str) -> Result<String> {
         if self.runtime_patches.is_empty() {
             return Ok(source.to_string());
