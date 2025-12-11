@@ -262,6 +262,30 @@ jobs:
               env:
                   CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
+            - name: Update website lock file for deployment
+              run: |
+                  # Get version from tag (strip 'v' prefix)
+                  VERSION=${GITHUB_REF#refs/tags/v}
+                  echo "Updating website to use macroforge@^${VERSION} from registry"
+
+                  cd website
+
+                  # Update package.json to use registry version
+                  npm pkg set dependencies.macroforge="^${VERSION}"
+
+                  # Delete old lock file and regenerate with registry version
+                  rm -f package-lock.json
+                  npm install
+
+                  cd ..
+
+                  # Commit and push the updated lock file
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git add website/package.json website/package-lock.json
+                  git commit -m "chore: update website lock file for v${VERSION} [skip ci]" || echo "No changes to commit"
+                  git push origin HEAD:main || echo "Nothing to push"
+
             - name: Deploy website
               run: |
                   curl -X POST "${{ secrets.DEPLOY_WEBHOOK_URL }}" \

@@ -110,32 +110,12 @@ try {
   process.exit(1);
 }
 
-// Step 6: Update website for deployment (switch from local to registry)
-console.log("\n[6/6] Preparing website for deployment...");
-
-// Update package.json to registry version
-const websitePkgPath = path.join(root, "website/package.json");
-const websitePkg = JSON.parse(fs.readFileSync(websitePkgPath, "utf8"));
-websitePkg.dependencies.macroforge = `^${version}`;
-fs.writeFileSync(websitePkgPath, JSON.stringify(websitePkg, null, 2) + "\n");
-console.log(`  Updated website/package.json: macroforge -> ^${version}`);
-
-// Update package-lock.json to registry version
-const websiteLockPath = path.join(root, "website/package-lock.json");
-const websiteLock = JSON.parse(fs.readFileSync(websiteLockPath, "utf8"));
-websiteLock.version = version;
-if (websiteLock.packages?.["node_modules/macroforge"]) {
-  const pkg = websiteLock.packages["node_modules/macroforge"];
-  delete pkg.link;
-  pkg.version = version;
-  pkg.resolved = `https://registry.npmjs.org/macroforge/-/macroforge-${version}.tgz`;
-  delete pkg.integrity;
-}
-if (websiteLock.packages?.[""]?.dependencies?.macroforge) {
-  websiteLock.packages[""].dependencies.macroforge = `^${version}`;
-}
-fs.writeFileSync(websiteLockPath, JSON.stringify(websiteLock, null, 2) + "\n");
-console.log(`  Updated website/package-lock.json`);
+// Step 6: Note about website deployment
+// The website uses file:../crates/macroforge_ts during local builds (set by bump-version.cjs)
+// CI will update it to registry version and regenerate package-lock.json after npm publish
+console.log("\n[6/6] Website preparation...");
+console.log("  Website uses local macroforge for build (file:../crates/macroforge_ts)");
+console.log("  CI will update to registry version after npm publish");
 
 console.log("\n" + "=".repeat(60));
 console.log(`Done! Ready to commit version ${version}`);

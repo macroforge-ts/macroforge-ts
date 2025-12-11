@@ -5,11 +5,12 @@
  *
  * Usage: node scripts/sync-website.cjs
  *
- * This script updates the website's package-lock.json to reference
+ * This script updates the website's package.json and package-lock.json to reference
  * the current published version of macroforge (removing workspace symlink).
  * Use this when you've made website-only changes and don't need a version bump.
  */
 
+const { execSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
@@ -23,34 +24,26 @@ function getCurrentVersion() {
 }
 
 const version = getCurrentVersion();
+const websiteDir = path.join(root, "website");
 
 console.log(`Syncing website for deployment (macroforge@${version})...\n`);
 
 // Update package.json to registry version
-const websitePkgPath = path.join(root, "website/package.json");
+const websitePkgPath = path.join(websiteDir, "package.json");
 const websitePkg = JSON.parse(fs.readFileSync(websitePkgPath, "utf8"));
 websitePkg.dependencies.macroforge = `^${version}`;
 fs.writeFileSync(websitePkgPath, JSON.stringify(websitePkg, null, 2) + "\n");
 console.log(`  Updated website/package.json: macroforge -> ^${version}`);
 
-// Update package-lock.json to registry version
-const websiteLockPath = path.join(root, "website/package-lock.json");
-const websiteLock = JSON.parse(fs.readFileSync(websiteLockPath, "utf8"));
+// Delete old lock file and regenerate with npm install
+// This ensures proper integrity hashes for all dependencies
+const websiteLockPath = path.join(websiteDir, "package-lock.json");
+fs.unlinkSync(websiteLockPath);
+console.log(`  Deleted website/package-lock.json`);
 
-websiteLock.version = version;
-if (websiteLock.packages?.["node_modules/macroforge"]) {
-  const pkg = websiteLock.packages["node_modules/macroforge"];
-  delete pkg.link;
-  pkg.version = version;
-  pkg.resolved = `https://registry.npmjs.org/macroforge/-/macroforge-${version}.tgz`;
-  delete pkg.integrity;
-}
-if (websiteLock.packages?.[""]?.dependencies?.macroforge) {
-  websiteLock.packages[""].dependencies.macroforge = `^${version}`;
-}
-
-fs.writeFileSync(websiteLockPath, JSON.stringify(websiteLock, null, 2) + "\n");
-console.log(`  Updated website/package-lock.json`);
+console.log(`  Running npm install to regenerate lock file...`);
+execSync("npm install", { cwd: websiteDir, stdio: "inherit" });
+console.log(`  Regenerated website/package-lock.json`);
 
 console.log(`\nDone! Website is ready for deployment.`);
 console.log(`
