@@ -5,7 +5,7 @@ import { execSync } from 'child_process';
 
 function formatCode(code: string): string {
 	try {
-		const result = execSync('npx biome format --stdin-file-path=example.ts', {
+		const result = execSync('npx @biomejs/biome format --stdin-file-path=example.ts', {
 			input: code,
 			encoding: 'utf-8',
 			maxBuffer: 10 * 1024 * 1024
