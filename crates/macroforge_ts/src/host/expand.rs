@@ -412,22 +412,22 @@ impl MacroExpander {
             }
 
             // Remove interface field decorators when not keeping decorators
-            if !self.keep_decorators {
-                if let DeriveTargetIR::Interface(interface_ir) = &target.target_ir {
-                    for field in &interface_ir.fields {
-                        for decorator in &field.decorators {
-                            let field_dec_removal = Patch::Delete {
-                                span: span_ir_with_at(decorator.span, source),
-                            };
-                            collector.add_runtime_patches(vec![field_dec_removal.clone()]);
-                            collector.add_type_patches(vec![field_dec_removal]);
-                        }
+            if !self.keep_decorators
+                && let DeriveTargetIR::Interface(interface_ir) = &target.target_ir
+            {
+                for field in &interface_ir.fields {
+                    for decorator in &field.decorators {
+                        let field_dec_removal = Patch::Delete {
+                            span: span_ir_with_at(decorator.span, source),
+                        };
+                        collector.add_runtime_patches(vec![field_dec_removal.clone()]);
+                        collector.add_type_patches(vec![field_dec_removal]);
+                    }
 
-                        if let Some(span) = find_macro_comment_span(source, field.span.start) {
-                            let removal = Patch::Delete { span };
-                            collector.add_runtime_patches(vec![removal.clone()]);
-                            collector.add_type_patches(vec![removal]);
-                        }
+                    if let Some(span) = find_macro_comment_span(source, field.span.start) {
+                        let removal = Patch::Delete { span };
+                        collector.add_runtime_patches(vec![removal.clone()]);
+                        collector.add_type_patches(vec![removal]);
                     }
                 }
             }
