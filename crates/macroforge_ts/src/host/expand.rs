@@ -867,6 +867,7 @@ impl MacroExpander {
         items: LoweredItems,
     ) -> Result<MacroExpansion> {
         let LoweredItems { classes, interfaces, enums, type_aliases } = items;
+        let has_patches = collector.has_patches();
         let runtime_result = collector
             .apply_runtime_patches_with_mapping(source, None)
             .map_err(|e| MacroError::InvalidConfig(format!("Patch error: {:?}", e)))?;
@@ -895,7 +896,7 @@ impl MacroExpander {
         let mut expansion = MacroExpansion {
             code,
             diagnostics: std::mem::take(diagnostics),
-            changed: true,
+            changed: has_patches,
             type_output,
             classes,
             interfaces,
