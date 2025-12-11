@@ -189,6 +189,19 @@ impl TsStream {
         });
     }
 
+    /// Add a type-only import statement to be inserted at the top of the file.
+    /// Use this for TypeScript types/interfaces that don't exist at runtime.
+    pub fn add_type_import(&mut self, specifier: &str, module: &str) {
+        use crate::abi::{Patch, SpanIR};
+        let import_code = format!("import type {{ {specifier} }} from \"{module}\";\n");
+        self.runtime_patches.push(Patch::InsertRaw {
+            at: SpanIR::new(1, 1), // Position 1 = start of file (1-indexed)
+            code: import_code,
+            context: Some("import".to_string()),
+            source_macro: Some("Deserialize".to_string()),
+        });
+    }
+
     /// Create a temporary parser for a parsing operation.
     /// This is an internal helper that manages SWC's complex lifetimes.
     fn with_parser<F, T>(&self, f: F) -> Result<T, TsSynError>

@@ -1,6 +1,6 @@
 {
   "name": "macroforge",
-  "version": "0.1.29",
+  "version": "0.1.30",
   "description": "TypeScript macro expansion engine powered by Rust and SWC",
   "main": "index.js",
   "types": "index.d.ts",
@@ -15,6 +15,12 @@
       "import": "./result.mjs",
       "require": "./result.js",
       "default": "./result.mjs"
+    },
+    "./serde": {
+      "types": "./serde.d.ts",
+      "import": "./serde.mjs",
+      "require": "./serde.js",
+      "default": "./serde.mjs"
     }
   },
   "repository": {
@@ -51,7 +57,10 @@
     "index.js",
     "result.js",
     "result.mjs",
-    "result.d.ts"
+    "result.d.ts",
+    "serde.js",
+    "serde.mjs",
+    "serde.d.ts"
   ],
   "dependencies": {
     "@rydshift/mirror": "^0.1.2"
@@ -60,14 +69,15 @@
     "node": ">= 18"
   },
   "optionalDependencies": {
-    "@macroforge/bin-darwin-x64": "0.1.29",
-    "@macroforge/bin-darwin-arm64": "0.1.29",
-    "@macroforge/bin-linux-x64-gnu": "0.1.29",
-    "@macroforge/bin-linux-arm64-gnu": "0.1.29",
-    "@macroforge/bin-win32-x64-msvc": "0.1.29",
-    "@macroforge/bin-win32-arm64-msvc": "0.1.29"
+    "@macroforge/bin-darwin-x64": "0.1.30",
+    "@macroforge/bin-darwin-arm64": "0.1.30",
+    "@macroforge/bin-linux-x64-gnu": "0.1.30",
+    "@macroforge/bin-linux-arm64-gnu": "0.1.30",
+    "@macroforge/bin-win32-x64-msvc": "0.1.30",
+    "@macroforge/bin-win32-arm64-msvc": "0.1.30"
   },
   "scripts": {
+    "build": "bun x napi build --platform --release",
     "artifacts": "napi artifacts --npm-dir npm"
   }
 }

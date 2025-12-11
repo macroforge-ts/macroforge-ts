@@ -24,6 +24,7 @@ export class User {
     )
     .unwrap();
 
+    // Test without --quiet: should print message to stderr
     let output = macroforge_bin()
         .arg("expand")
         .arg(&input_path)
@@ -42,6 +43,28 @@ export class User {
         stderr.contains("no macros found"),
         "stderr should contain 'no macros found', got: {}",
         stderr
+    );
+
+    // Test with --quiet: should exit silently
+    let quiet_output = macroforge_bin()
+        .arg("expand")
+        .arg(&input_path)
+        .arg("--builtin-only")
+        .arg("--quiet")
+        .output()
+        .expect("failed to run macroforge");
+
+    assert_eq!(
+        quiet_output.status.code(),
+        Some(2),
+        "should exit with code 2 when no macros found (quiet mode)"
+    );
+
+    let quiet_stderr = String::from_utf8_lossy(&quiet_output.stderr);
+    assert!(
+        quiet_stderr.is_empty(),
+        "stderr should be empty in quiet mode, got: {}",
+        quiet_stderr
     );
 }
 

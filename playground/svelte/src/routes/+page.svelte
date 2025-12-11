@@ -59,14 +59,14 @@
                 SvelteAllMacrosTest.hashCode(svelteTestInstance);
         }
 
-        // Test Serialize macro -> toJSON()
-        if (typeof SvelteAllMacrosTest.toJSON === "function") {
-            testResults.serialize =
-                SvelteAllMacrosTest.toJSON(svelteTestInstance);
+        // Test Serialize macro -> toStringifiedJSON()
+        if (typeof SvelteAllMacrosTest.toStringifiedJSON === "function") {
+            const jsonString = SvelteAllMacrosTest.toStringifiedJSON(svelteTestInstance);
+            testResults.serialize = JSON.parse(jsonString);
         }
 
-        // Test Deserialize macro -> fromJSON()
-        if (typeof SvelteAllMacrosTest.fromJSON === "function") {
+        // Test Deserialize macro -> fromStringifiedJSON()
+        if (typeof SvelteAllMacrosTest.fromStringifiedJSON === "function") {
             const testData = {
                 id: "deser-001",
                 title: "Deserialized",
@@ -75,8 +75,8 @@
                 count: 99,
                 enabled: false,
             };
-            const result = SvelteAllMacrosTest.fromJSON(testData);
-            // fromJSON returns a Result, unwrap it
+            const result = SvelteAllMacrosTest.fromStringifiedJSON(JSON.stringify(testData));
+            // fromStringifiedJSON returns a Result, unwrap it
             if (result && typeof result.isOk === "function" && result.isOk()) {
                 testResults.deserialize = result.unwrap();
             } else {

@@ -12,8 +12,8 @@ const MODULE_NAME = "edge-case-tests";
 describe("Edge Cases", () => {
   let mod;
 
-  before(() => {
-    mod = loadValidatorModule(MODULE_NAME);
+  before(async () => {
+    mod = await loadValidatorModule(MODULE_NAME);
   });
 
   // ============================================================================
@@ -21,27 +21,27 @@ describe("Edge Cases", () => {
   // ============================================================================
   describe("MultipleValidators", () => {
     test("accepts valid value passing all validators", () => {
-      const result = mod.MultipleValidatorsTest.fromJSON({ text: "Hello World" });
+      const result = mod.MultipleValidatorsTest.fromStringifiedJSON(JSON.stringify({ text: "Hello World" }));
       assertValidationSuccess(result, "text");
     });
 
     test("accepts value at max length boundary", () => {
-      const result = mod.MultipleValidatorsTest.fromJSON({ text: "a".repeat(100) });
+      const result = mod.MultipleValidatorsTest.fromStringifiedJSON(JSON.stringify({ text: "a".repeat(100) }));
       assertValidationSuccess(result, "text");
     });
 
     test("rejects empty string (fails nonEmpty)", () => {
-      const result = mod.MultipleValidatorsTest.fromJSON({ text: "" });
+      const result = mod.MultipleValidatorsTest.fromStringifiedJSON(JSON.stringify({ text: "" }));
       assertValidationError(result, "text", "must not be empty");
     });
 
     test("rejects string exceeding max length", () => {
-      const result = mod.MultipleValidatorsTest.fromJSON({ text: "a".repeat(101) });
+      const result = mod.MultipleValidatorsTest.fromStringifiedJSON(JSON.stringify({ text: "a".repeat(101) }));
       assertValidationError(result, "text", "must have at most 100 characters");
     });
 
     test("rejects untrimmed string", () => {
-      const result = mod.MultipleValidatorsTest.fromJSON({ text: " hello " });
+      const result = mod.MultipleValidatorsTest.fromStringifiedJSON(JSON.stringify({ text: " hello " }));
       assertValidationError(result, "text", "must be trimmed");
     });
   });
@@ -51,12 +51,12 @@ describe("Edge Cases", () => {
   // ============================================================================
   describe("CustomMessage", () => {
     test("accepts valid email", () => {
-      const result = mod.CustomMessageTest.fromJSON({ email: "test@example.com" });
+      const result = mod.CustomMessageTest.fromStringifiedJSON(JSON.stringify({ email: "test@example.com" }));
       assertValidationSuccess(result, "email");
     });
 
     test("rejects invalid email with custom message", () => {
-      const result = mod.CustomMessageTest.fromJSON({ email: "not-an-email" });
+      const result = mod.CustomMessageTest.fromStringifiedJSON(JSON.stringify({ email: "not-an-email" }));
       assertValidationError(result, "email", "Please enter a valid email address");
     });
   });
@@ -66,17 +66,17 @@ describe("Edge Cases", () => {
   // ============================================================================
   describe("MixedValidators", () => {
     test("accepts valid email", () => {
-      const result = mod.MixedValidatorsTest.fromJSON({ email: "user@domain.com" });
+      const result = mod.MixedValidatorsTest.fromStringifiedJSON(JSON.stringify({ email: "user@domain.com" }));
       assertValidationSuccess(result, "email");
     });
 
     test("rejects empty string", () => {
-      const result = mod.MixedValidatorsTest.fromJSON({ email: "" });
+      const result = mod.MixedValidatorsTest.fromStringifiedJSON(JSON.stringify({ email: "" }));
       assertValidationError(result, "email", "must not be empty");
     });
 
     test("rejects invalid email with custom message", () => {
-      const result = mod.MixedValidatorsTest.fromJSON({ email: "invalid" });
+      const result = mod.MixedValidatorsTest.fromStringifiedJSON(JSON.stringify({ email: "invalid" }));
       assertValidationError(result, "email", "Invalid email format");
     });
   });
@@ -86,32 +86,32 @@ describe("Edge Cases", () => {
   // ============================================================================
   describe("CombinedStringValidators", () => {
     test("accepts valid lowercase username", () => {
-      const result = mod.CombinedStringValidatorsTest.fromJSON({ username: "johndoe" });
+      const result = mod.CombinedStringValidatorsTest.fromStringifiedJSON(JSON.stringify({ username: "johndoe" }));
       assertValidationSuccess(result, "username");
     });
 
     test("accepts minimum length username", () => {
-      const result = mod.CombinedStringValidatorsTest.fromJSON({ username: "abc" });
+      const result = mod.CombinedStringValidatorsTest.fromStringifiedJSON(JSON.stringify({ username: "abc" }));
       assertValidationSuccess(result, "username");
     });
 
     test("accepts maximum length username", () => {
-      const result = mod.CombinedStringValidatorsTest.fromJSON({ username: "a".repeat(20) });
+      const result = mod.CombinedStringValidatorsTest.fromStringifiedJSON(JSON.stringify({ username: "a".repeat(20) }));
       assertValidationSuccess(result, "username");
     });
 
     test("rejects too short username", () => {
-      const result = mod.CombinedStringValidatorsTest.fromJSON({ username: "ab" });
+      const result = mod.CombinedStringValidatorsTest.fromStringifiedJSON(JSON.stringify({ username: "ab" }));
       assertValidationError(result, "username", "must have at least 3 characters");
     });
 
     test("rejects too long username", () => {
-      const result = mod.CombinedStringValidatorsTest.fromJSON({ username: "a".repeat(21) });
+      const result = mod.CombinedStringValidatorsTest.fromStringifiedJSON(JSON.stringify({ username: "a".repeat(21) }));
       assertValidationError(result, "username", "must have at most 20 characters");
     });
 
     test("rejects uppercase username", () => {
-      const result = mod.CombinedStringValidatorsTest.fromJSON({ username: "JohnDoe" });
+      const result = mod.CombinedStringValidatorsTest.fromStringifiedJSON(JSON.stringify({ username: "JohnDoe" }));
       assertValidationError(result, "username", "must be lowercase");
     });
   });
@@ -121,42 +121,42 @@ describe("Edge Cases", () => {
   // ============================================================================
   describe("CombinedNumberValidators", () => {
     test("accepts valid positive integer", () => {
-      const result = mod.CombinedNumberValidatorsTest.fromJSON({ score: 500 });
+      const result = mod.CombinedNumberValidatorsTest.fromStringifiedJSON(JSON.stringify({ score: 500 }));
       assertValidationSuccess(result, "score");
     });
 
     test("accepts minimum positive integer", () => {
-      const result = mod.CombinedNumberValidatorsTest.fromJSON({ score: 1 });
+      const result = mod.CombinedNumberValidatorsTest.fromStringifiedJSON(JSON.stringify({ score: 1 }));
       assertValidationSuccess(result, "score");
     });
 
     test("accepts value just below max", () => {
-      const result = mod.CombinedNumberValidatorsTest.fromJSON({ score: 999 });
+      const result = mod.CombinedNumberValidatorsTest.fromStringifiedJSON(JSON.stringify({ score: 999 }));
       assertValidationSuccess(result, "score");
     });
 
     test("rejects zero (fails positive)", () => {
-      const result = mod.CombinedNumberValidatorsTest.fromJSON({ score: 0 });
+      const result = mod.CombinedNumberValidatorsTest.fromStringifiedJSON(JSON.stringify({ score: 0 }));
       assertValidationError(result, "score", "must be positive");
     });
 
     test("rejects negative number", () => {
-      const result = mod.CombinedNumberValidatorsTest.fromJSON({ score: -10 });
+      const result = mod.CombinedNumberValidatorsTest.fromStringifiedJSON(JSON.stringify({ score: -10 }));
       assertValidationError(result, "score", "must be positive");
     });
 
     test("rejects float (fails int)", () => {
-      const result = mod.CombinedNumberValidatorsTest.fromJSON({ score: 50.5 });
+      const result = mod.CombinedNumberValidatorsTest.fromStringifiedJSON(JSON.stringify({ score: 50.5 }));
       assertValidationError(result, "score", "must be an integer");
     });
 
     test("rejects value at threshold (fails lessThan)", () => {
-      const result = mod.CombinedNumberValidatorsTest.fromJSON({ score: 1000 });
+      const result = mod.CombinedNumberValidatorsTest.fromStringifiedJSON(JSON.stringify({ score: 1000 }));
       assertValidationError(result, "score", "must be less than");
     });
 
     test("rejects value above threshold", () => {
-      const result = mod.CombinedNumberValidatorsTest.fromJSON({ score: 1500 });
+      const result = mod.CombinedNumberValidatorsTest.fromStringifiedJSON(JSON.stringify({ score: 1500 }));
       assertValidationError(result, "score", "must be less than");
     });
   });
