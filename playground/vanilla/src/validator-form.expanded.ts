@@ -38,20 +38,25 @@ export class UserRegistrationForm {
     this.website = props.website;
 }
 
-  static fromJson(json: string, opts?: DeserializeOptions): Result<UserRegistrationForm, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = UserRegistrationForm.__deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-        return Result.err([
-            "UserRegistrationForm.fromJson: root cannot be a forward reference"
-        ]);
+  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<UserRegistrationForm, string[]> {
+    try {
+        const ctx = DeserializeContext.create();
+        const raw = JSON.parse(json);
+        const resultOrRef = UserRegistrationForm.__deserialize(raw, ctx);
+        if (PendingRef.is(resultOrRef)) {
+            return Result.err([
+                "UserRegistrationForm.fromStringifiedJSON: root cannot be a forward reference"
+            ]);
+        }
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+        return Result.ok(resultOrRef);
+    } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-        ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
 }
 
   static __deserialize(value: any, ctx: DeserializeContext): UserRegistrationForm | PendingRef {
@@ -89,43 +94,43 @@ export class UserRegistrationForm {
     {
         const __raw_email = obj["email"];
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) {
-            errors.push("UserRegistrationForm.fromJson: field 'email' must be a valid email");
+            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'email' must be a valid email");
         }
         (instance as any).email = __raw_email;
     }
     {
         const __raw_password = obj["password"];
         if (__raw_password.length < 8) {
-            errors.push("UserRegistrationForm.fromJson: field 'password' must have at least 8 characters");
+            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'password' must have at least 8 characters");
         }
         if (__raw_password.length > 50) {
-            errors.push("UserRegistrationForm.fromJson: field 'password' must have at most 50 characters");
+            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'password' must have at most 50 characters");
         }
         (instance as any).password = __raw_password;
     }
     {
         const __raw_username = obj["username"];
         if (__raw_username.length < 3) {
-            errors.push("UserRegistrationForm.fromJson: field 'username' must have at least 3 characters");
+            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'username' must have at least 3 characters");
         }
         if (__raw_username.length > 20) {
-            errors.push("UserRegistrationForm.fromJson: field 'username' must have at most 20 characters");
+            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'username' must have at most 20 characters");
         }
         if (__raw_username !== __raw_username.toLowerCase()) {
-            errors.push("UserRegistrationForm.fromJson: field 'username' must be lowercase");
+            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'username' must be lowercase");
         }
         if (!/^[a-z][a-z0-9_]+$/.test(__raw_username)) {
-            errors.push("UserRegistrationForm.fromJson: field 'username' must match the required pattern");
+            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'username' must match the required pattern");
         }
         (instance as any).username = __raw_username;
     }
     {
         const __raw_age = obj["age"];
         if (!Number.isInteger(__raw_age)) {
-            errors.push("UserRegistrationForm.fromJson: field 'age' must be an integer");
+            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'age' must be an integer");
         }
         if (__raw_age < 18 || __raw_age > 120) {
-            errors.push("UserRegistrationForm.fromJson: field 'age' must be between 18 and 120");
+            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'age' must be between 18 and 120");
         }
         (instance as any).age = __raw_age;
     }
@@ -139,9 +144,12 @@ export class UserRegistrationForm {
                 return true;
             }
         })()) {
-            errors.push("UserRegistrationForm.fromJson: field 'website' must be a valid URL");
+            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'website' must be a valid URL");
         }
         (instance as any).website = __raw_website;
+    }
+    if (errors.length > 0) {
+        throw new Error(errors.join("; "));
     }
     return instance;
 }
@@ -178,20 +186,25 @@ export class ProductForm {
     this.sku = props.sku;
 }
 
-  static fromJson(json: string, opts?: DeserializeOptions): Result<ProductForm, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = ProductForm.__deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-        return Result.err([
-            "ProductForm.fromJson: root cannot be a forward reference"
-        ]);
+  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<ProductForm, string[]> {
+    try {
+        const ctx = DeserializeContext.create();
+        const raw = JSON.parse(json);
+        const resultOrRef = ProductForm.__deserialize(raw, ctx);
+        if (PendingRef.is(resultOrRef)) {
+            return Result.err([
+                "ProductForm.fromStringifiedJSON: root cannot be a forward reference"
+            ]);
+        }
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+        return Result.ok(resultOrRef);
+    } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-        ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
 }
 
   static __deserialize(value: any, ctx: DeserializeContext): ProductForm | PendingRef {
@@ -229,36 +242,42 @@ export class ProductForm {
     {
         const __raw_name = obj["name"];
         if (__raw_name.length === 0) {
-            errors.push("ProductForm.fromJson: field 'name' must not be empty");
+            errors.push("ProductForm.fromStringifiedJSON: field 'name' must not be empty");
         }
         if (__raw_name.length > 100) {
-            errors.push("ProductForm.fromJson: field 'name' must have at most 100 characters");
+            errors.push("ProductForm.fromStringifiedJSON: field 'name' must have at most 100 characters");
         }
         (instance as any).name = __raw_name;
     }
     {
         const __raw_price = obj["price"];
         if (__raw_price <= 0) {
-            errors.push("ProductForm.fromJson: field 'price' must be positive");
+            errors.push("ProductForm.fromStringifiedJSON: field 'price' must be positive");
         }
         if (__raw_price >= 1000000) {
-            errors.push("ProductForm.fromJson: field 'price' must be less than 1000000");
+            errors.push("ProductForm.fromStringifiedJSON: field 'price' must be less than 1000000");
         }
         (instance as any).price = __raw_price;
     }
     {
         const __raw_quantity = obj["quantity"];
         if (!Number.isInteger(__raw_quantity)) {
-            errors.push("ProductForm.fromJson: field 'quantity' must be an integer");
+            errors.push("ProductForm.fromStringifiedJSON: field 'quantity' must be an integer");
         }
         if (__raw_quantity < 0) {
-            errors.push("ProductForm.fromJson: field 'quantity' must be non-negative");
+            errors.push("ProductForm.fromStringifiedJSON: field 'quantity' must be non-negative");
         }
         (instance as any).quantity = __raw_quantity;
     }
     {
         const __raw_tags = obj["tags"];
         if (Array.isArray(__raw_tags)) {
+            if (__raw_tags.length < 1) {
+                errors.push("ProductForm.fromStringifiedJSON: field 'tags' must have at least 1 items");
+            }
+            if (__raw_tags.length > 5) {
+                errors.push("ProductForm.fromStringifiedJSON: field 'tags' must have at most 5 items");
+            }
             const __arr = (__raw_tags as any[]).map((item, idx)=>{
                 if (item?.__ref !== undefined) {
                     const result = ctx.getOrDefer(item.__ref);
@@ -283,9 +302,12 @@ export class ProductForm {
     {
         const __raw_sku = obj["sku"];
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(__raw_sku)) {
-            errors.push("ProductForm.fromJson: field 'sku' must be a valid UUID");
+            errors.push("ProductForm.fromStringifiedJSON: field 'sku' must be a valid UUID");
         }
         (instance as any).sku = __raw_sku;
+    }
+    if (errors.length > 0) {
+        throw new Error(errors.join("; "));
     }
     return instance;
 }
@@ -317,20 +339,25 @@ export class EventForm {
     this.maxAttendees = props.maxAttendees;
 }
 
-  static fromJson(json: string, opts?: DeserializeOptions): Result<EventForm, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = EventForm.__deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-        return Result.err([
-            "EventForm.fromJson: root cannot be a forward reference"
-        ]);
+  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<EventForm, string[]> {
+    try {
+        const ctx = DeserializeContext.create();
+        const raw = JSON.parse(json);
+        const resultOrRef = EventForm.__deserialize(raw, ctx);
+        if (PendingRef.is(resultOrRef)) {
+            return Result.err([
+                "EventForm.fromStringifiedJSON: root cannot be a forward reference"
+            ]);
+        }
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+        return Result.ok(resultOrRef);
+    } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-        ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
 }
 
   static __deserialize(value: any, ctx: DeserializeContext): EventForm | PendingRef {
@@ -365,10 +392,10 @@ export class EventForm {
     {
         const __raw_title = obj["title"];
         if (__raw_title.length === 0) {
-            errors.push("EventForm.fromJson: field 'title' must not be empty");
+            errors.push("EventForm.fromStringifiedJSON: field 'title' must not be empty");
         }
         if (__raw_title !== __raw_title.trim()) {
-            errors.push("EventForm.fromJson: field 'title' must be trimmed (no leading/trailing whitespace)");
+            errors.push("EventForm.fromStringifiedJSON: field 'title' must be trimmed (no leading/trailing whitespace)");
         }
         (instance as any).title = __raw_title;
     }
@@ -376,11 +403,11 @@ export class EventForm {
         const __raw_startDate = obj["startDate"];
         {
             const __dateVal = typeof __raw_startDate === "string" ? new Date(__raw_startDate) : __raw_startDate as Date;
-            if (isNaN(__dateVal.getTime())) {
-                errors.push("EventForm.fromJson: field 'startDate' must be a valid date");
+            if (__dateVal == null || isNaN(__dateVal.getTime())) {
+                errors.push("EventForm.fromStringifiedJSON: field 'startDate' must be a valid date");
             }
-            if (__dateVal.getTime() <= new Date("2020-01-01").getTime()) {
-                errors.push("EventForm.fromJson: field 'startDate' must be after 2020-01-01");
+            if (__dateVal == null || __dateVal.getTime() <= new Date("2020-01-01").getTime()) {
+                errors.push("EventForm.fromStringifiedJSON: field 'startDate' must be after 2020-01-01");
             }
             (instance as any).startDate = __dateVal;
         }
@@ -389,8 +416,8 @@ export class EventForm {
         const __raw_endDate = obj["endDate"];
         {
             const __dateVal = typeof __raw_endDate === "string" ? new Date(__raw_endDate) : __raw_endDate as Date;
-            if (isNaN(__dateVal.getTime())) {
-                errors.push("EventForm.fromJson: field 'endDate' must be a valid date");
+            if (__dateVal == null || isNaN(__dateVal.getTime())) {
+                errors.push("EventForm.fromStringifiedJSON: field 'endDate' must be a valid date");
             }
             (instance as any).endDate = __dateVal;
         }
@@ -398,12 +425,15 @@ export class EventForm {
     {
         const __raw_maxAttendees = obj["maxAttendees"];
         if (!Number.isInteger(__raw_maxAttendees)) {
-            errors.push("EventForm.fromJson: field 'maxAttendees' must be an integer");
+            errors.push("EventForm.fromStringifiedJSON: field 'maxAttendees' must be an integer");
         }
         if (__raw_maxAttendees < 1 || __raw_maxAttendees > 1000) {
-            errors.push("EventForm.fromJson: field 'maxAttendees' must be between 1 and 1000");
+            errors.push("EventForm.fromStringifiedJSON: field 'maxAttendees' must be between 1 and 1000");
         }
         (instance as any).maxAttendees = __raw_maxAttendees;
+    }
+    if (errors.length > 0) {
+        throw new Error(errors.join("; "));
     }
     return instance;
 }
@@ -428,16 +458,16 @@ export function toValidationResult<T>(result: any): ValidationResult<T> {
 
 // Form validation functions
 export function validateUserRegistration(data: unknown): ValidationResult<UserRegistrationForm> {
-  const result = (UserRegistrationForm as any).fromJSON(data);
+  const result = (UserRegistrationForm as any).fromStringifiedJSON(JSON.stringify(data));
   return toValidationResult(result);
 }
 
 export function validateProduct(data: unknown): ValidationResult<ProductForm> {
-  const result = (ProductForm as any).fromJSON(data);
+  const result = (ProductForm as any).fromStringifiedJSON(JSON.stringify(data));
   return toValidationResult(result);
 }
 
 export function validateEvent(data: unknown): ValidationResult<EventForm> {
-  const result = (EventForm as any).fromJSON(data);
+  const result = (EventForm as any).fromStringifiedJSON(JSON.stringify(data));
   return toValidationResult(result);
 }

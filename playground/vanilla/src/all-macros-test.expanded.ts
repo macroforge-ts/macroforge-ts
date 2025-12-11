@@ -52,7 +52,7 @@ export class AllMacrosTestClass {
     return this.id === typedOther.id && this.name === typedOther.name && this.email === typedOther.email && this.secretToken === typedOther.secretToken && this.isActive === typedOther.isActive && this.score === typedOther.score;
 }
 
-  toJson(): string {
+  toStringifiedJSON(): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(this.__serialize(ctx));
 }
@@ -99,20 +99,25 @@ export class AllMacrosTestClass {
     this.score = props.score;
 }
 
-  static fromJson(json: string, opts?: DeserializeOptions): Result<AllMacrosTestClass, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = AllMacrosTestClass.__deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-        return Result.err([
-            "AllMacrosTestClass.fromJson: root cannot be a forward reference"
-        ]);
+  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<AllMacrosTestClass, string[]> {
+    try {
+        const ctx = DeserializeContext.create();
+        const raw = JSON.parse(json);
+        const resultOrRef = AllMacrosTestClass.__deserialize(raw, ctx);
+        if (PendingRef.is(resultOrRef)) {
+            return Result.err([
+                "AllMacrosTestClass.fromStringifiedJSON: root cannot be a forward reference"
+            ]);
+        }
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+        return Result.ok(resultOrRef);
+    } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-        ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
 }
 
   static __deserialize(value: any, ctx: DeserializeContext): AllMacrosTestClass | PendingRef {
@@ -173,6 +178,9 @@ export class AllMacrosTestClass {
     {
         const __raw_score = obj["score"];
         (instance as any).score = __raw_score;
+    }
+    if (errors.length > 0) {
+        throw new Error(errors.join("; "));
     }
     return instance;
 }
