@@ -326,6 +326,8 @@ test(
           apiToken: "token_qa",
         });
         assert.deepEqual(svelteUser.toJSON(), {
+          __type: "MacroUser",
+          __id: 0,
           id: "usr_55",
           name: "Rin Tester",
           role: "Macro QA",

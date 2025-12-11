@@ -1,8 +1,10 @@
 //! /** @derive(Serialize) */ macro implementation
 //!
-//! Generates JSON serialization methods:
-//! - For classes: `toJSON(): Record<string, unknown>`
-//! - For interfaces: `namespace InterfaceName { export function toJSON(self: InterfaceName): Record<string, unknown> }`
+//! Generates JSON serialization methods with cycle detection:
+//! - For classes: `toStringifiedJSON()`, `toJSON()`, and `__serialize(ctx)`
+//! - For interfaces: `namespace InterfaceName { toStringifiedJSON, __serialize }`
+//!
+//! Uses `__id` and `__ref` markers for object identity tracking.
 
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
@@ -21,14 +23,15 @@ struct SerializeField {
 
 #[ts_macro_derive(
     Serialize,
-    description = "Generates a toJSON() method for JSON serialization",
-    attributes((serde, "Configure serialization for this field. Options: skip, rename, flatten, validate (email, url, minLength, etc.)"))
+    description = "Generates serialization methods with cycle detection (toStringifiedJSON, __serialize)",
+    attributes((serde, "Configure serialization for this field. Options: skip, rename, flatten"))
 )]
 pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
 
     match &input.data {
         Data::Class(class) => {
+            let class_name = input.name();
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
 
             // Collect serializable fields
@@ -65,9 +68,31 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let has_regular = !regular_fields.is_empty();
             let has_flatten = !flatten_fields.is_empty();
 
-            Ok(body! {
+            let mut result = body! {
+                toStringifiedJSON(): string {
+                    const ctx = SerializeContext.create();
+                    return JSON.stringify(this.__serialize(ctx));
+                }
+
                 toJSON(): Record<string, unknown> {
-                    const result: Record<string, unknown> = {};
+                    const ctx = SerializeContext.create();
+                    return this.__serialize(ctx);
+                }
+
+                __serialize(ctx: SerializeContext): Record<string, unknown> {
+                    // Check if already serialized (cycle detection)
+                    const existingId = ctx.getId(this);
+                    if (existingId !== undefined) {
+                        return { __ref: existingId };
+                    }
+
+                    // Register this object
+                    const __id = ctx.register(this);
+
+                    const result: Record<string, unknown> = {
+                        __type: "@{class_name}",
+                        __id,
+                    };
 
                     {#if has_regular}
                         {#for field in regular_fields}
@@ -94,12 +119,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {#if field.optional}
                                         if (this.@{field.field_name} !== undefined) {
                                             result["@{field.json_key}"] = this.@{field.field_name}.map(
-                                                (item: any) => typeof item?.toJSON === "function" ? item.toJSON() : item
+                                                (item: any) => typeof item?.__serialize === "function"
+                                                    ? item.__serialize(ctx)
+                                                    : item
                                             );
                                         }
                                     {:else}
                                         result["@{field.json_key}"] = this.@{field.field_name}.map(
-                                            (item: any) => typeof item?.toJSON === "function" ? item.toJSON() : item
+                                            (item: any) => typeof item?.__serialize === "function"
+                                                ? item.__serialize(ctx)
+                                                : item
                                         );
                                     {/if}
 
@@ -108,14 +137,18 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                         if (this.@{field.field_name} !== undefined) {
                                             result["@{field.json_key}"] = Object.fromEntries(
                                                 Array.from(this.@{field.field_name}.entries()).map(
-                                                    ([k, v]) => [k, typeof (v as any)?.toJSON === "function" ? (v as any).toJSON() : v]
+                                                    ([k, v]) => [k, typeof (v as any)?.__serialize === "function"
+                                                        ? (v as any).__serialize(ctx)
+                                                        : v]
                                                 )
                                             );
                                         }
                                     {:else}
                                         result["@{field.json_key}"] = Object.fromEntries(
                                             Array.from(this.@{field.field_name}.entries()).map(
-                                                ([k, v]) => [k, typeof (v as any)?.toJSON === "function" ? (v as any).toJSON() : v]
+                                                ([k, v]) => [k, typeof (v as any)?.__serialize === "function"
+                                                    ? (v as any).__serialize(ctx)
+                                                    : v]
                                             )
                                         );
                                     {/if}
@@ -124,38 +157,45 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {#if field.optional}
                                         if (this.@{field.field_name} !== undefined) {
                                             result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map(
-                                                (item: any) => typeof item?.toJSON === "function" ? item.toJSON() : item
+                                                (item: any) => typeof item?.__serialize === "function"
+                                                    ? item.__serialize(ctx)
+                                                    : item
                                             );
                                         }
                                     {:else}
                                         result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map(
-                                            (item: any) => typeof item?.toJSON === "function" ? item.toJSON() : item
+                                            (item: any) => typeof item?.__serialize === "function"
+                                                ? item.__serialize(ctx)
+                                                : item
                                         );
                                     {/if}
 
                                 {:case TypeCategory::Optional(_)}
                                     if (this.@{field.field_name} !== undefined) {
-                                        result["@{field.json_key}"] = typeof (this.@{field.field_name} as any)?.toJSON === "function"
-                                            ? (this.@{field.field_name} as any).toJSON()
+                                        result["@{field.json_key}"] = typeof (this.@{field.field_name} as any)?.__serialize === "function"
+                                            ? (this.@{field.field_name} as any).__serialize(ctx)
                                             : this.@{field.field_name};
                                     }
 
                                 {:case TypeCategory::Nullable(_)}
-                                    result["@{field.json_key}"] = this.@{field.field_name} !== null
-                                        && typeof (this.@{field.field_name} as any)?.toJSON === "function"
-                                        ? (this.@{field.field_name} as any).toJSON()
-                                        : this.@{field.field_name};
+                                    if (this.@{field.field_name} !== null) {
+                                        result["@{field.json_key}"] = typeof (this.@{field.field_name} as any)?.__serialize === "function"
+                                            ? (this.@{field.field_name} as any).__serialize(ctx)
+                                            : this.@{field.field_name};
+                                    } else {
+                                        result["@{field.json_key}"] = null;
+                                    }
 
                                 {:case TypeCategory::Serializable(_)}
                                     {#if field.optional}
                                         if (this.@{field.field_name} !== undefined) {
-                                            result["@{field.json_key}"] = typeof (this.@{field.field_name} as any)?.toJSON === "function"
-                                                ? (this.@{field.field_name} as any).toJSON()
+                                            result["@{field.json_key}"] = typeof (this.@{field.field_name} as any)?.__serialize === "function"
+                                                ? (this.@{field.field_name} as any).__serialize(ctx)
                                                 : this.@{field.field_name};
                                         }
                                     {:else}
-                                        result["@{field.json_key}"] = typeof (this.@{field.field_name} as any)?.toJSON === "function"
-                                            ? (this.@{field.field_name} as any).toJSON()
+                                        result["@{field.json_key}"] = typeof (this.@{field.field_name} as any)?.__serialize === "function"
+                                            ? (this.@{field.field_name} as any).__serialize(ctx)
                                             : this.@{field.field_name};
                                     {/if}
 
@@ -175,28 +215,42 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         {#for field in flatten_fields}
                             {#if field.optional}
                                 if (this.@{field.field_name} !== undefined) {
-                                    Object.assign(result, typeof (this.@{field.field_name} as any)?.toJSON === "function"
-                                        ? (this.@{field.field_name} as any).toJSON()
-                                        : this.@{field.field_name});
+                                    const __flattened = typeof (this.@{field.field_name} as any)?.__serialize === "function"
+                                        ? (this.@{field.field_name} as any).__serialize(ctx)
+                                        : this.@{field.field_name};
+                                    // Remove __type and __id from flattened object
+                                    const { __type: _, __id: __, ...rest } = __flattened as any;
+                                    Object.assign(result, rest);
                                 }
                             {:else}
-                                Object.assign(result, typeof (this.@{field.field_name} as any)?.toJSON === "function"
-                                    ? (this.@{field.field_name} as any).toJSON()
-                                    : this.@{field.field_name});
+                                {
+                                    const __flattened = typeof (this.@{field.field_name} as any)?.__serialize === "function"
+                                        ? (this.@{field.field_name} as any).__serialize(ctx)
+                                        : this.@{field.field_name};
+                                    // Remove __type and __id from flattened object
+                                    const { __type: _, __id: __, ...rest } = __flattened as any;
+                                    Object.assign(result, rest);
+                                }
                             {/if}
                         {/for}
                     {/if}
 
                     return result;
                 }
-            })
+            };
+            result.add_import("SerializeContext", "macroforge/serde");
+            Ok(result)
         }
         Data::Enum(_) => {
             // Enums: return the underlying value directly
             let enum_name = input.name();
             Ok(ts_template! {
                 export namespace @{enum_name} {
-                    export function toJSON(value: @{enum_name}): string | number {
+                    export function toStringifiedJSON(value: @{enum_name}): string {
+                        return JSON.stringify(value);
+                    }
+
+                    export function __serialize(_ctx: SerializeContext): string | number {
                         return value;
                     }
                 }
@@ -241,10 +295,27 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let has_regular = !regular_fields.is_empty();
             let has_flatten = !flatten_fields.is_empty();
 
-            Ok(ts_template! {
+            let mut result = ts_template! {
                 export namespace @{interface_name} {
-                    export function toJSON(self: @{interface_name}): Record<string, unknown> {
-                        const result: Record<string, unknown> = {};
+                    export function toStringifiedJSON(self: @{interface_name}): string {
+                        const ctx = SerializeContext.create();
+                        return JSON.stringify(__serialize(self, ctx));
+                    }
+
+                    export function __serialize(self: @{interface_name}, ctx: SerializeContext): Record<string, unknown> {
+                        // Check if already serialized (cycle detection)
+                        const existingId = ctx.getId(self);
+                        if (existingId !== undefined) {
+                            return { __ref: existingId };
+                        }
+
+                        // Register this object
+                        const __id = ctx.register(self);
+
+                        const result: Record<string, unknown> = {
+                            __type: "@{interface_name}",
+                            __id,
+                        };
 
                         {#if has_regular}
                             {#for field in regular_fields}
@@ -271,12 +342,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                         {#if field.optional}
                                             if (self.@{field.field_name} !== undefined) {
                                                 result["@{field.json_key}"] = self.@{field.field_name}.map(
-                                                    (item: any) => typeof item?.toJSON === "function" ? item.toJSON() : item
+                                                    (item: any) => typeof item?.__serialize === "function"
+                                                        ? item.__serialize(ctx)
+                                                        : item
                                                 );
                                             }
                                         {:else}
                                             result["@{field.json_key}"] = self.@{field.field_name}.map(
-                                                (item: any) => typeof item?.toJSON === "function" ? item.toJSON() : item
+                                                (item: any) => typeof item?.__serialize === "function"
+                                                    ? item.__serialize(ctx)
+                                                    : item
                                             );
                                         {/if}
 
@@ -285,14 +360,18 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                             if (self.@{field.field_name} !== undefined) {
                                                 result["@{field.json_key}"] = Object.fromEntries(
                                                     Array.from(self.@{field.field_name}.entries()).map(
-                                                        ([k, v]) => [k, typeof (v as any)?.toJSON === "function" ? (v as any).toJSON() : v]
+                                                        ([k, v]) => [k, typeof (v as any)?.__serialize === "function"
+                                                            ? (v as any).__serialize(ctx)
+                                                            : v]
                                                     )
                                                 );
                                             }
                                         {:else}
                                             result["@{field.json_key}"] = Object.fromEntries(
                                                 Array.from(self.@{field.field_name}.entries()).map(
-                                                    ([k, v]) => [k, typeof (v as any)?.toJSON === "function" ? (v as any).toJSON() : v]
+                                                    ([k, v]) => [k, typeof (v as any)?.__serialize === "function"
+                                                        ? (v as any).__serialize(ctx)
+                                                        : v]
                                                 )
                                             );
                                         {/if}
@@ -301,38 +380,45 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                         {#if field.optional}
                                             if (self.@{field.field_name} !== undefined) {
                                                 result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map(
-                                                    (item: any) => typeof item?.toJSON === "function" ? item.toJSON() : item
+                                                    (item: any) => typeof item?.__serialize === "function"
+                                                        ? item.__serialize(ctx)
+                                                        : item
                                                 );
                                             }
                                         {:else}
                                             result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map(
-                                                (item: any) => typeof item?.toJSON === "function" ? item.toJSON() : item
+                                                (item: any) => typeof item?.__serialize === "function"
+                                                    ? item.__serialize(ctx)
+                                                    : item
                                             );
                                         {/if}
 
                                     {:case TypeCategory::Optional(_)}
                                         if (self.@{field.field_name} !== undefined) {
-                                            result["@{field.json_key}"] = typeof (self.@{field.field_name} as any)?.toJSON === "function"
-                                                ? (self.@{field.field_name} as any).toJSON()
+                                            result["@{field.json_key}"] = typeof (self.@{field.field_name} as any)?.__serialize === "function"
+                                                ? (self.@{field.field_name} as any).__serialize(ctx)
                                                 : self.@{field.field_name};
                                         }
 
                                     {:case TypeCategory::Nullable(_)}
-                                        result["@{field.json_key}"] = self.@{field.field_name} !== null
-                                            && typeof (self.@{field.field_name} as any)?.toJSON === "function"
-                                            ? (self.@{field.field_name} as any).toJSON()
-                                            : self.@{field.field_name};
+                                        if (self.@{field.field_name} !== null) {
+                                            result["@{field.json_key}"] = typeof (self.@{field.field_name} as any)?.__serialize === "function"
+                                                ? (self.@{field.field_name} as any).__serialize(ctx)
+                                                : self.@{field.field_name};
+                                        } else {
+                                            result["@{field.json_key}"] = null;
+                                        }
 
                                     {:case TypeCategory::Serializable(_)}
                                         {#if field.optional}
                                             if (self.@{field.field_name} !== undefined) {
-                                                result["@{field.json_key}"] = typeof (self.@{field.field_name} as any)?.toJSON === "function"
-                                                    ? (self.@{field.field_name} as any).toJSON()
+                                                result["@{field.json_key}"] = typeof (self.@{field.field_name} as any)?.__serialize === "function"
+                                                    ? (self.@{field.field_name} as any).__serialize(ctx)
                                                     : self.@{field.field_name};
                                             }
                                         {:else}
-                                            result["@{field.json_key}"] = typeof (self.@{field.field_name} as any)?.toJSON === "function"
-                                                ? (self.@{field.field_name} as any).toJSON()
+                                            result["@{field.json_key}"] = typeof (self.@{field.field_name} as any)?.__serialize === "function"
+                                                ? (self.@{field.field_name} as any).__serialize(ctx)
                                                 : self.@{field.field_name};
                                         {/if}
 
@@ -352,14 +438,20 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                             {#for field in flatten_fields}
                                 {#if field.optional}
                                     if (self.@{field.field_name} !== undefined) {
-                                        Object.assign(result, typeof (self.@{field.field_name} as any)?.toJSON === "function"
-                                            ? (self.@{field.field_name} as any).toJSON()
-                                            : self.@{field.field_name});
+                                        const __flattened = typeof (self.@{field.field_name} as any)?.__serialize === "function"
+                                            ? (self.@{field.field_name} as any).__serialize(ctx)
+                                            : self.@{field.field_name};
+                                        const { __type: _, __id: __, ...rest } = __flattened as any;
+                                        Object.assign(result, rest);
                                     }
                                 {:else}
-                                    Object.assign(result, typeof (self.@{field.field_name} as any)?.toJSON === "function"
-                                        ? (self.@{field.field_name} as any).toJSON()
-                                        : self.@{field.field_name});
+                                    {
+                                        const __flattened = typeof (self.@{field.field_name} as any)?.__serialize === "function"
+                                            ? (self.@{field.field_name} as any).__serialize(ctx)
+                                            : self.@{field.field_name};
+                                        const { __type: _, __id: __, ...rest } = __flattened as any;
+                                        Object.assign(result, rest);
+                                    }
                                 {/if}
                             {/for}
                         {/if}
@@ -367,7 +459,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         return result;
                     }
                 }
-            })
+            };
+            result.add_import("SerializeContext", "macroforge/serde");
+            Ok(result)
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
@@ -407,10 +501,24 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 let regular_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
                 let has_regular = !regular_fields.is_empty();
 
-                Ok(ts_template! {
+                let mut result = ts_template! {
                     export namespace @{type_name} {
-                        export function toJSON(value: @{type_name}): Record<string, unknown> {
-                            const result: Record<string, unknown> = {};
+                        export function toStringifiedJSON(value: @{type_name}): string {
+                            const ctx = SerializeContext.create();
+                            return JSON.stringify(__serialize(value, ctx));
+                        }
+
+                        export function __serialize(value: @{type_name}, ctx: SerializeContext): Record<string, unknown> {
+                            const existingId = ctx.getId(value);
+                            if (existingId !== undefined) {
+                                return { __ref: existingId };
+                            }
+
+                            const __id = ctx.register(value);
+                            const result: Record<string, unknown> = {
+                                __type: "@{type_name}",
+                                __id,
+                            };
 
                             {#if has_regular}
                                 {#for field in regular_fields}
@@ -427,19 +535,28 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                             return result;
                         }
                     }
-                })
+                };
+                result.add_import("SerializeContext", "macroforge/serde");
+                Ok(result)
             } else {
-                // Union, tuple, or simple alias: return as-is or JSON.stringify
-                Ok(ts_template! {
+                // Union, tuple, or simple alias: delegate to inner type's __serialize if available
+                let mut result = ts_template! {
                     export namespace @{type_name} {
-                        export function toJSON(value: @{type_name}): unknown {
-                            if (typeof value === "object" && value !== null && typeof (value as any).toJSON === "function") {
-                                return (value as any).toJSON();
+                        export function toStringifiedJSON(value: @{type_name}): string {
+                            const ctx = SerializeContext.create();
+                            return JSON.stringify(__serialize(value, ctx));
+                        }
+
+                        export function __serialize(value: @{type_name}, ctx: SerializeContext): unknown {
+                            if (typeof (value as any)?.__serialize === "function") {
+                                return (value as any).__serialize(ctx);
                             }
                             return value;
                         }
                     }
-                })
+                };
+                result.add_import("SerializeContext", "macroforge/serde");
+                Ok(result)
             }
         }
     }

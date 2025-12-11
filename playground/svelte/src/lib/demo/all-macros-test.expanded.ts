@@ -1,4 +1,8 @@
+import { SerializeContext } from "macroforge/serde";
 import { Result } from "macroforge/result";
+import { DeserializeContext } from "macroforge/serde";
+import type { DeserializeOptions } from "macroforge/serde";
+import { PendingRef } from "macroforge/serde";
 /**
  * Comprehensive test class for Svelte playground.
  * Uses all available macros for Playwright e2e testing.
@@ -58,8 +62,23 @@ export namespace SvelteAllMacrosTest {
 }
 
 export namespace SvelteAllMacrosTest {
-  export function toJSON(self: SvelteAllMacrosTest): Record<string, unknown> {
-    const result: Record<string, unknown> = {};
+  export function toJson(self: SvelteAllMacrosTest): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(self, ctx));
+  }
+  export function __serialize(
+    self: SvelteAllMacrosTest,
+    ctx: SerializeContext,
+  ): Record<string, unknown> {
+    const existingId = ctx.getId(self);
+    if (existingId !== undefined) {
+      return { __ref: existingId };
+    }
+    const __id = ctx.register(self);
+    const result: Record<string, unknown> = {
+      __type: "SvelteAllMacrosTest",
+      __id,
+    };
     result["id"] = self.id;
     result["title"] = self.title;
     result["content"] = self.content;
@@ -71,45 +90,140 @@ export namespace SvelteAllMacrosTest {
 }
 
 export namespace SvelteAllMacrosTest {
-  export function is(data: unknown): data is SvelteAllMacrosTest {
-    if (typeof data !== "object" || data === null || Array.isArray(data)) {
-      return false;
-    }
-    const obj = data as Record<string, unknown>;
-    if (!("id" in obj) || typeof obj["id"] !== "string") {
-      return false;
-    }
-    if (!("title" in obj) || typeof obj["title"] !== "string") {
-      return false;
-    }
-    if (!("content" in obj) || typeof obj["content"] !== "string") {
-      return false;
-    }
-    if (!("apiKey" in obj) || typeof obj["apiKey"] !== "string") {
-      return false;
-    }
-    if (!("count" in obj) || typeof obj["count"] !== "number") {
-      return false;
-    }
-    if (!("enabled" in obj) || typeof obj["enabled"] !== "boolean") {
-      return false;
-    }
-    return true;
-  }
-  export function fromJSON(
-    data: unknown,
+  export function fromJson(
+    json: string,
+    opts?: DeserializeOptions,
   ): Result<SvelteAllMacrosTest, string[]> {
-    if (!is(data)) {
+    const ctx = DeserializeContext.create();
+    const raw = JSON.parse(json);
+    const resultOrRef = __deserialize(raw, ctx);
+    if (PendingRef.is(resultOrRef)) {
       return Result.err([
-        "SvelteAllMacrosTest.fromJSON: type validation failed",
+        "SvelteAllMacrosTest.fromJson: root cannot be a forward reference",
       ]);
     }
-    const obj = data as Record<string, unknown>;
-    const errors: string[] = [];
-    if (errors.length > 0) {
-      return Result.err(errors);
+    ctx.applyPatches();
+    if (opts?.freeze) {
+      ctx.freezeAll();
     }
-    return Result.ok(data);
+    return Result.ok(resultOrRef);
+  }
+  export function __deserialize(
+    value: any,
+    ctx: DeserializeContext,
+  ): SvelteAllMacrosTest | PendingRef {
+    if (value?.__ref !== undefined) {
+      return ctx.getOrDefer(value.__ref);
+    }
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+      throw new Error("SvelteAllMacrosTest.__deserialize: expected an object");
+    }
+    const obj = value as Record<string, unknown>;
+    const errors: string[] = [];
+    if (!("id" in obj)) {
+      errors.push(
+        'SvelteAllMacrosTest.__deserialize: missing required field "id"',
+      );
+    }
+    if (!("title" in obj)) {
+      errors.push(
+        'SvelteAllMacrosTest.__deserialize: missing required field "title"',
+      );
+    }
+    if (!("content" in obj)) {
+      errors.push(
+        'SvelteAllMacrosTest.__deserialize: missing required field "content"',
+      );
+    }
+    if (!("apiKey" in obj)) {
+      errors.push(
+        'SvelteAllMacrosTest.__deserialize: missing required field "apiKey"',
+      );
+    }
+    if (!("count" in obj)) {
+      errors.push(
+        'SvelteAllMacrosTest.__deserialize: missing required field "count"',
+      );
+    }
+    if (!("enabled" in obj)) {
+      errors.push(
+        'SvelteAllMacrosTest.__deserialize: missing required field "enabled"',
+      );
+    }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
+    const instance: any = {};
+    if (obj.__id !== undefined) {
+      ctx.register(obj.__id as number, instance);
+    }
+    ctx.trackForFreeze(instance);
+    {
+      const __raw_id = obj["id"];
+      instance.id = __raw_id;
+    }
+    {
+      const __raw_title = obj["title"];
+      instance.title = __raw_title;
+    }
+    {
+      const __raw_content = obj["content"];
+      instance.content = __raw_content;
+    }
+    {
+      const __raw_apiKey = obj["apiKey"];
+      instance.apiKey = __raw_apiKey;
+    }
+    {
+      const __raw_count = obj["count"];
+      instance.count = __raw_count;
+    }
+    {
+      const __raw_enabled = obj["enabled"];
+      instance.enabled = __raw_enabled;
+    }
+    return instance as SvelteAllMacrosTest;
+  }
+}
+
+export namespace SvelteAllMacrosTest {
+  export function hashCode(self: SvelteAllMacrosTest): number {
+    let hash = 17;
+    hash =
+      (hash * 31 +
+        (self.id ?? "")
+          .split("")
+          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+      0;
+    hash =
+      (hash * 31 +
+        (self.title ?? "")
+          .split("")
+          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+      0;
+    hash =
+      (hash * 31 +
+        (self.content ?? "")
+          .split("")
+          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+      0;
+    hash =
+      (hash * 31 +
+        (self.apiKey ?? "")
+          .split("")
+          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+      0;
+    hash =
+      (hash * 31 +
+        (Number.isInteger(self.count)
+          ? self.count | 0
+          : self.count
+              .toString()
+              .split("")
+              .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+      0;
+    hash = (hash * 31 + (self.enabled ? 1231 : 1237)) | 0;
+    return hash;
   }
 }
 

@@ -212,4 +212,10 @@ export declare function __macroforgeRunFieldController(contextJson: string): str
  * r" Run this macro with the given context
  * r" Called by the TS plugin to execute macro expansion
  */
+export declare function __macroforgeRunGigaform(contextJson: string): string
+
+/**
+ * r" Run this macro with the given context
+ * r" Called by the TS plugin to execute macro expansion
+ */
 export declare function __macroforgeRunJSON(contextJson: string): string

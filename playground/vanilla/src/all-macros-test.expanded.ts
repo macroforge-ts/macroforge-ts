@@ -1,4 +1,8 @@
+import { SerializeContext } from "macroforge/serde";
 import { Result } from "macroforge/result";
+import { DeserializeContext } from "macroforge/serde";
+import type { DeserializeOptions } from "macroforge/serde";
+import { PendingRef } from "macroforge/serde";
 /**
  * Comprehensive test class demonstrating all available macros.
  * Used for Playwright e2e tests to verify macro expansion works at runtime.
@@ -48,8 +52,28 @@ export class AllMacrosTestClass {
     return this.id === typedOther.id && this.name === typedOther.name && this.email === typedOther.email && this.secretToken === typedOther.secretToken && this.isActive === typedOther.isActive && this.score === typedOther.score;
 }
 
+  toJson(): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(this.__serialize(ctx));
+}
+
   toJSON(): Record<string, unknown> {
-    const result: Record<string, unknown> = {};
+    const ctx = SerializeContext.create();
+    return this.__serialize(ctx);
+}
+
+  __serialize(ctx: SerializeContext): Record<string, unknown> {
+    const existingId = ctx.getId(this);
+    if (existingId !== undefined) {
+        return {
+            __ref: existingId
+        };
+    }
+    const __id = ctx.register(this);
+    const result: Record<string, unknown> = {
+        __type: "AllMacrosTestClass",
+        __id
+    };
     result["id"] = this.id;
     result["name"] = this.name;
     result["email"] = this.email;
@@ -59,7 +83,7 @@ export class AllMacrosTestClass {
     return result;
 }
 
-  constructor(init: {
+  constructor(props: {
     id: number;
     name: string;
     email: string;
@@ -67,57 +91,90 @@ export class AllMacrosTestClass {
     isActive: boolean;
     score: number;
 }){
-    this.id = init.id;
-    this.name = init.name;
-    this.email = init.email;
-    this.secretToken = init.secretToken;
-    this.isActive = init.isActive;
-    this.score = init.score;
+    this.id = props.id;
+    this.name = props.name;
+    this.email = props.email;
+    this.secretToken = props.secretToken;
+    this.isActive = props.isActive;
+    this.score = props.score;
 }
 
-  static fromJSON(data: unknown): Result<AllMacrosTestClass, string[]> {
-    if (typeof data !== "object" || data === null || Array.isArray(data)) {
+  static fromJson(json: string, opts?: DeserializeOptions): Result<AllMacrosTestClass, string[]> {
+    const ctx = DeserializeContext.create();
+    const raw = JSON.parse(json);
+    const resultOrRef = AllMacrosTestClass.__deserialize(raw, ctx);
+    if (PendingRef.is(resultOrRef)) {
         return Result.err([
-            "AllMacrosTestClass.fromJSON: expected an object, got " + (Array.isArray(data) ? "array" : typeof data)
+            "AllMacrosTestClass.fromJson: root cannot be a forward reference"
         ]);
     }
-    const obj = data as Record<string, unknown>;
+    ctx.applyPatches();
+    if (opts?.freeze) {
+        ctx.freezeAll();
+    }
+    return Result.ok(resultOrRef);
+}
+
+  static __deserialize(value: any, ctx: DeserializeContext): AllMacrosTestClass | PendingRef {
+    if (value?.__ref !== undefined) {
+        return ctx.getOrDefer(value.__ref);
+    }
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+        throw new Error("AllMacrosTestClass.__deserialize: expected an object");
+    }
+    const obj = value as Record<string, unknown>;
     const errors: string[] = [];
     if (!("id" in obj)) {
-        errors.push("AllMacrosTestClass.fromJSON: missing required field \"id\"");
+        errors.push("AllMacrosTestClass.__deserialize: missing required field \"id\"");
     }
     if (!("name" in obj)) {
-        errors.push("AllMacrosTestClass.fromJSON: missing required field \"name\"");
+        errors.push("AllMacrosTestClass.__deserialize: missing required field \"name\"");
     }
     if (!("email" in obj)) {
-        errors.push("AllMacrosTestClass.fromJSON: missing required field \"email\"");
+        errors.push("AllMacrosTestClass.__deserialize: missing required field \"email\"");
     }
     if (!("secretToken" in obj)) {
-        errors.push("AllMacrosTestClass.fromJSON: missing required field \"secretToken\"");
+        errors.push("AllMacrosTestClass.__deserialize: missing required field \"secretToken\"");
     }
     if (!("isActive" in obj)) {
-        errors.push("AllMacrosTestClass.fromJSON: missing required field \"isActive\"");
+        errors.push("AllMacrosTestClass.__deserialize: missing required field \"isActive\"");
     }
     if (!("score" in obj)) {
-        errors.push("AllMacrosTestClass.fromJSON: missing required field \"score\"");
+        errors.push("AllMacrosTestClass.__deserialize: missing required field \"score\"");
     }
-    const __raw_id = obj["id"];
-    const __raw_name = obj["name"];
-    const __raw_email = obj["email"];
-    const __raw_secretToken = obj["secretToken"];
-    const __raw_isActive = obj["isActive"];
-    const __raw_score = obj["score"];
     if (errors.length > 0) {
-        return Result.err(errors);
+        throw new Error(errors.join("; "));
     }
-    const init: Record<string, unknown> = {};
-    init.id = __raw_id as number;
-    init.name = __raw_name as string;
-    init.email = __raw_email as string;
-    init.secretToken = __raw_secretToken as string;
-    init.isActive = __raw_isActive as boolean;
-    init.score = __raw_score as number;
-    return Result.ok(new AllMacrosTestClass(init as any));
+    const instance = Object.create(AllMacrosTestClass.prototype) as AllMacrosTestClass;
+    if (obj.__id !== undefined) {
+        ctx.register(obj.__id as number, instance);
+    }
+    ctx.trackForFreeze(instance);
+    {
+        const __raw_id = obj["id"];
+        (instance as any).id = __raw_id;
+    }
+    {
+        const __raw_name = obj["name"];
+        (instance as any).name = __raw_name;
+    }
+    {
+        const __raw_email = obj["email"];
+        (instance as any).email = __raw_email;
+    }
+    {
+        const __raw_secretToken = obj["secretToken"];
+        (instance as any).secretToken = __raw_secretToken;
+    }
+    {
+        const __raw_isActive = obj["isActive"];
+        (instance as any).isActive = __raw_isActive;
+    }
+    {
+        const __raw_score = obj["score"];
+        (instance as any).score = __raw_score;
+    }
+    return instance;
 }
 }
 

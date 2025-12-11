@@ -597,4 +597,5 @@ module.exports.expandSync = nativeBinding.expandSync
 module.exports.parseImportSources = nativeBinding.parseImportSources
 module.exports.transformSync = nativeBinding.transformSync
 module.exports.__macroforgeRunFieldController = nativeBinding.__macroforgeRunFieldController
+module.exports.__macroforgeRunGigaform = nativeBinding.__macroforgeRunGigaform
 module.exports.__macroforgeRunJSON = nativeBinding.__macroforgeRunJSON
