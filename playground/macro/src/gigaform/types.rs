@@ -112,7 +112,7 @@ fn is_nested_type(type_name: &str) -> bool {
         "never",
         "void",
     ];
-    if primitives.iter().any(|p| trimmed == *p) {
+    if primitives.contains(&trimmed) {
         return false;
     }
 

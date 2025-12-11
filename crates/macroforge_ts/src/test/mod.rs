@@ -430,11 +430,8 @@ fn test_collect_constructor_patch() {
 
     // Find the constructor patch
     let constructor_patch = type_patches.iter().find(|p| {
-        if let Patch::Replace { code, .. } = p {
-            match code {
-                PatchCode::Text(text) => text.contains("constructor"),
-                _ => false,
-            }
+        if let Patch::Replace { code: PatchCode::Text(text), .. } = p {
+            text.contains("constructor")
         } else {
             false
         }
@@ -2577,7 +2574,7 @@ class User {
     // The contains("@derive") check will find the string literal
     // This is a conservative approach - we process the file but find no actual decorators
     // The result should have no errors and the code may have minor changes from parsing
-    assert!(result.diagnostics.iter().all(|d| d.level != "error".to_string()),
+    assert!(result.diagnostics.iter().all(|d| d.level != "error"),
         "No errors expected even with @derive in string literal");
 }
 

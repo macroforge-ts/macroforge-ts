@@ -402,7 +402,7 @@ pub fn parse_fields(interface: &DataInterface, _options: &GigaformOptions) -> Ve
     interface
         .fields()
         .iter()
-        .map(|field| parse_field(field))
+        .map(parse_field)
         .collect()
 }
 
@@ -460,7 +460,7 @@ fn detect_nested_type(ts_type: &str) -> (bool, Option<String>) {
         "never",
         "void",
     ];
-    if primitives.iter().any(|p| trimmed == *p) {
+    if primitives.contains(&trimmed) {
         return (false, None);
     }
 
@@ -557,17 +557,17 @@ fn parse_validator_string(s: &str) -> ValidatorSpec {
     let trimmed = s.trim();
 
     // Check for function-style validator: name(args)
-    if let Some(paren_idx) = trimmed.find('(') {
-        if trimmed.ends_with(')') {
-            let name = trimmed[..paren_idx].to_string();
-            let args_str = &trimmed[paren_idx + 1..trimmed.len() - 1];
-            let args = parse_validator_args(args_str);
-            return ValidatorSpec {
-                name,
-                args,
-                message: None,
-            };
-        }
+    if let Some(paren_idx) = trimmed.find('(')
+        && trimmed.ends_with(')')
+    {
+        let name = trimmed[..paren_idx].to_string();
+        let args_str = &trimmed[paren_idx + 1..trimmed.len() - 1];
+        let args = parse_validator_args(args_str);
+        return ValidatorSpec {
+            name,
+            args,
+            message: None,
+        };
     }
 
     // Simple validator without args
