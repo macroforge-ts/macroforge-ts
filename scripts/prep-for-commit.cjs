@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 
 /**
- * Prepare for commit: bump version, build, test, and sync documentation.
+ * Prepare for commit: build, test, sync documentation, and bump version.
  *
  * Usage: node scripts/prep-for-commit.cjs [version]
  *
  * If no version is specified, the patch version is auto-incremented (e.g., 0.1.22 -> 0.1.23).
  *
  * This script:
- * 1. Clean builds all packages (pixi run cleanbuild:all)
+ * 1. Clean builds all packages (pixi run cleanbuild:all) - uses workspace symlinks
  * 2. Runs all tests (pixi run test:all)
  * 3. Syncs MCP server docs from website
  * 4. Rebuilds the docs book (BOOK.md)
  * 5. Bumps version across all packages
+ * 6. Updates website package-lock.json for deployment
  */
 
 const { execSync } = require("child_process");
@@ -50,25 +51,45 @@ console.log("=".repeat(60));
 console.log(`Preparing release ${version}`);
 console.log("=".repeat(60));
 
-// Step 1: Clean build all packages
-console.log("\n[1/5] Clean building all packages...");
+// Step 1: Clean build all packages (workspace uses local macroforge via symlink)
+console.log("\n[1/6] Clean building all packages...");
 run("pixi run cleanbuild:all");
 
 // Step 2: Run all tests
-console.log("\n[2/5] Running all tests...");
+console.log("\n[2/6] Running all tests...");
 run("pixi run test:all");
 
 // Step 3: Sync MCP docs from website
-console.log("\n[3/5] Syncing MCP server docs...");
+console.log("\n[3/6] Syncing MCP server docs...");
 run("npm run build:docs", path.join(root, "packages/mcp-server"));
 
 // Step 4: Rebuild docs book
-console.log("\n[4/5] Rebuilding docs book...");
+console.log("\n[4/6] Rebuilding docs book...");
 run("node scripts/build-docs-book.cjs");
 
 // Step 5: Bump version
-console.log("\n[5/5] Bumping version...");
+console.log("\n[5/6] Bumping version...");
 run(`node scripts/bump-version.cjs ${version}`);
+
+// Step 6: Update website package-lock.json for deployment
+// The workspace uses symlinks locally, but Docker needs registry references
+console.log("\n[6/6] Updating website package-lock.json for deployment...");
+
+const websiteLockPath = path.join(root, "website/package-lock.json");
+const websiteLock = JSON.parse(fs.readFileSync(websiteLockPath, "utf8"));
+websiteLock.version = version;
+if (websiteLock.packages?.["node_modules/macroforge"]) {
+  const pkg = websiteLock.packages["node_modules/macroforge"];
+  delete pkg.link;
+  pkg.version = version;
+  pkg.resolved = `https://registry.npmjs.org/macroforge/-/macroforge-${version}.tgz`;
+  delete pkg.integrity;
+}
+if (websiteLock.packages?.[""]?.dependencies?.macroforge) {
+  websiteLock.packages[""].dependencies.macroforge = `^${version}`;
+}
+fs.writeFileSync(websiteLockPath, JSON.stringify(websiteLock, null, 2) + "\n");
+console.log(`  Updated website/package-lock.json`);
 
 console.log("\n" + "=".repeat(60));
 console.log(`Done! Ready to commit version ${version}`);

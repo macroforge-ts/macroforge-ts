@@ -1,18 +1,22 @@
 {
-  "name": "packages",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "workspaces": [
-    "vite-plugin",
-    "typescript-plugin",
-    "svelte-language-server"
-  ],
-  "devDependencies": {
-    "@napi-rs/cli": "^3.4.1",
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  }
+	"name": "packages",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"workspaces": [
+		"../crates/macroforge_ts",
+		"../website",
+		"vite-plugin",
+		"typescript-plugin",
+		"svelte-language-server",
+		"svelte-preprocessor",
+		"mcp-server"
+	],
+	"devDependencies": {
+		"@napi-rs/cli": "^3.4.1",
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
 }
