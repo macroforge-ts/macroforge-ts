@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 
 const root = path.resolve(__dirname, "..");
 const version = process.argv[2];
@@ -165,10 +166,3 @@ fs.writeFileSync(macroforgeTsCargoPath, macroforgeTsCargo);
 console.log(`  Updated crates/macroforge_ts/Cargo.toml`);
 
 console.log(`\nDone! All packages updated to ${version}`);
-console.log(`
-Next steps:
-  git add -A
-  git commit -m "Bump version to ${version}"
-  git tag v${version}
-  git push && git push --tags
-`);
