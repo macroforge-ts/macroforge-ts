@@ -1,19 +1,21 @@
 #!/usr/bin/env node
 
 /**
- * Prepare for commit: build, test, sync documentation, and bump version.
+ * Prepare for commit: bump version, build, test, and sync documentation.
  *
  * Usage: node scripts/prep-for-commit.cjs [version]
  *
  * If no version is specified, the patch version is auto-incremented (e.g., 0.1.22 -> 0.1.23).
  *
  * This script:
- * 1. Clean builds all packages (pixi run cleanbuild:all) - uses workspace symlinks
- * 2. Runs all tests (pixi run test:all)
- * 3. Syncs MCP server docs from website
- * 4. Rebuilds the docs book (BOOK.md)
- * 5. Bumps version across all packages
+ * 1. Bumps version across all packages
+ * 2. Clean builds all packages (pixi run cleanbuild:all) - uses workspace symlinks
+ * 3. Runs all tests (pixi run test:all)
+ * 4. Syncs MCP server docs from website
+ * 5. Rebuilds the docs book (BOOK.md)
  * 6. Updates website package-lock.json for deployment
+ *
+ * If any step fails after the bump, the version is rolled back.
  */
 
 const { execSync } = require("child_process");
@@ -47,34 +49,78 @@ function run(cmd, cwd = root) {
   execSync(cmd, { cwd, stdio: "inherit" });
 }
 
+const currentVersion = getCurrentVersion();
+
 console.log("=".repeat(60));
 console.log(`Preparing release ${version}`);
 console.log("=".repeat(60));
 
-// Step 1: Clean build all packages (workspace uses local macroforge via symlink)
-console.log("\n[1/6] Clean building all packages...");
-run("pixi run cleanbuild:all");
+let bumped = false;
 
-// Step 2: Run all tests
-console.log("\n[2/6] Running all tests...");
-run("pixi run test:all");
+function rollback() {
+  if (!bumped) return;
+  console.log("\n" + "!".repeat(60));
+  console.log("Rolling back version bump...");
+  console.log("!".repeat(60));
+  try {
+    execSync(`node scripts/bump-version.cjs ${currentVersion}`, { cwd: root, stdio: "inherit" });
+    console.log(`Rolled back to ${currentVersion}`);
+    bumped = false;
+  } catch (e) {
+    console.error("Failed to rollback. You may need to manually run:");
+    console.error(`  git checkout -- .`);
+  }
+}
 
-// Step 3: Sync MCP docs from website
-console.log("\n[3/6] Syncing MCP server docs...");
-run("npm run build:docs", path.join(root, "packages/mcp-server"));
+process.on("SIGINT", () => {
+  console.log("\n\nInterrupted!");
+  rollback();
+  process.exit(1);
+});
 
-// Step 4: Rebuild docs book
-console.log("\n[4/6] Rebuilding docs book...");
-run("node scripts/build-docs-book.cjs");
+process.on("SIGTERM", () => {
+  console.log("\n\nTerminated!");
+  rollback();
+  process.exit(1);
+});
 
-// Step 5: Bump version
-console.log("\n[5/6] Bumping version...");
+// Step 1: Bump version
+console.log("\n[1/6] Bumping version...");
 run(`node scripts/bump-version.cjs ${version}`);
+bumped = true;
 
-// Step 6: Update website package-lock.json for deployment
-// The workspace uses symlinks locally, but Docker needs registry references
-console.log("\n[6/6] Updating website package-lock.json for deployment...");
+try {
+  // Step 2: Clean build all packages (workspace uses local macroforge via symlink)
+  console.log("\n[2/6] Clean building all packages...");
+  run("pixi run cleanbuild:all");
 
+  // Step 3: Run all tests
+  console.log("\n[3/6] Running all tests...");
+  run("pixi run test:all");
+
+  // Step 4: Sync MCP docs from website
+  console.log("\n[4/6] Syncing MCP server docs...");
+  run("npm run build:docs", path.join(root, "packages/mcp-server"));
+
+  // Step 5: Rebuild docs book
+  console.log("\n[5/6] Rebuilding docs book...");
+  run("node scripts/build-docs-book.cjs");
+} catch (err) {
+  rollback();
+  process.exit(1);
+}
+
+// Step 6: Update website for deployment (switch from local to registry)
+console.log("\n[6/6] Preparing website for deployment...");
+
+// Update package.json to registry version
+const websitePkgPath = path.join(root, "website/package.json");
+const websitePkg = JSON.parse(fs.readFileSync(websitePkgPath, "utf8"));
+websitePkg.dependencies.macroforge = `^${version}`;
+fs.writeFileSync(websitePkgPath, JSON.stringify(websitePkg, null, 2) + "\n");
+console.log(`  Updated website/package.json: macroforge -> ^${version}`);
+
+// Update package-lock.json to registry version
 const websiteLockPath = path.join(root, "website/package-lock.json");
 const websiteLock = JSON.parse(fs.readFileSync(websiteLockPath, "utf8"));
 websiteLock.version = version;

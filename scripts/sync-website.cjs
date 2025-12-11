@@ -26,6 +26,14 @@ const version = getCurrentVersion();
 
 console.log(`Syncing website for deployment (macroforge@${version})...\n`);
 
+// Update package.json to registry version
+const websitePkgPath = path.join(root, "website/package.json");
+const websitePkg = JSON.parse(fs.readFileSync(websitePkgPath, "utf8"));
+websitePkg.dependencies.macroforge = `^${version}`;
+fs.writeFileSync(websitePkgPath, JSON.stringify(websitePkg, null, 2) + "\n");
+console.log(`  Updated website/package.json: macroforge -> ^${version}`);
+
+// Update package-lock.json to registry version
 const websiteLockPath = path.join(root, "website/package-lock.json");
 const websiteLock = JSON.parse(fs.readFileSync(websiteLockPath, "utf8"));
 

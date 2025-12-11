@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/svelte-preprocessor",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
   "type": "module",
   "main": "dist/index.js",
@@ -28,7 +28,7 @@
     "test": "npm run build && node --test tests/**/*.test.js"
   },
   "dependencies": {
-    "macroforge": "^0.1.26"
+    "macroforge": "^0.1.27"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"

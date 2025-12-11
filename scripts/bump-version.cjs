@@ -97,10 +97,10 @@ updatePackageJson("packages/svelte-preprocessor/package.json", {
   "dependencies.macroforge": `^${version}`,
 });
 
-// Update website
+// Update website - use local path for cleanbuild
 updatePackageJson("website/package.json", {
   version,
-  "dependencies.macroforge": `^${version}`,
+  "dependencies.macroforge": `file:../crates/macroforge_ts`,
 });
 
 // Update vtsls-macroforge Zed extension lib.rs
