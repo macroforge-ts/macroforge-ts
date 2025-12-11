@@ -28,6 +28,10 @@ const websiteDir = path.join(root, "website");
 
 console.log(`Syncing website for deployment (macroforge@${version})...\n`);
 
+// Pull latest from origin before making changes
+console.log(`  Pulling latest website from origin...`);
+execSync("git pull origin", { cwd: websiteDir, stdio: "inherit" });
+
 // Update package.json to registry version
 const websitePkgPath = path.join(websiteDir, "package.json");
 const websitePkg = JSON.parse(fs.readFileSync(websitePkgPath, "utf8"));

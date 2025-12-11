@@ -210,6 +210,11 @@ const steps = [
     cwd: path.join(root, "playground", "vanilla"),
   },
   {
+    label: "git pull website from origin",
+    cmd: "git pull origin",
+    cwd: path.join(root, "website"),
+  },
+  {
     label: "remove website node_modules",
     cmd: "rm -rf node_modules",
     cwd: path.join(root, "website"),

@@ -3,7 +3,7 @@ import { Result } from "macroforge/result";
 import { DeserializeContext } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
 import { PendingRef } from "macroforge/serde";
-/** import macro {Gigaform} from "@dealdraft/macros"; */
+/** import macro {Gigaform} from "@playground/macro"; */
 
 /**  */
 export interface User {
@@ -26,7 +26,7 @@ export interface User {
 }
 
 export namespace User {
-  export function toJson(self: User): string {
+  export function toStringifiedJSON(self: User): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -117,21 +117,28 @@ export namespace User {
 }
 
 export namespace User {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<User, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err(["User.fromJson: root cannot be a forward reference"]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "User.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -277,8 +284,414 @@ export namespace User {
         instance.permissions = __raw_permissions;
       }
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as User;
   }
+}
+
+export namespace User {
+  export type Data = User;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    email?: Array<string>;
+    firstName?: Array<string>;
+    lastName?: Array<string>;
+    password?: Array<string>;
+    metadata?: Array<string>;
+    settings?: Settings.Errors;
+    role?: UserRole.Errors;
+    emailVerified?: Array<string>;
+    verificationToken?: Array<string>;
+    verificationExpires?: Array<string>;
+    passwordResetToken?: Array<string>;
+    passwordResetExpires?: Array<string>;
+    permissions?: AppPermissions.Errors;
+  };
+  export type Tainted = {
+    id?: boolean;
+    email?: boolean;
+    firstName?: boolean;
+    lastName?: boolean;
+    password?: boolean;
+    metadata?: boolean;
+    settings?: Settings.Tainted;
+    role?: UserRole.Tainted;
+    emailVerified?: boolean;
+    verificationToken?: boolean;
+    verificationExpires?: boolean;
+    passwordResetToken?: boolean;
+    passwordResetExpires?: boolean;
+    permissions?: AppPermissions.Tainted;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.email = formData.get("email") ?? "";
+    obj.firstName = formData.get("firstName") ?? "";
+    obj.lastName = formData.get("lastName") ?? "";
+    obj.password = formData.get("password") ?? "";
+    obj.metadata = formData.get("metadata") ?? "";
+    {
+      // Collect nested object fields with prefix "settings."
+      const settingsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("settings.")) {
+          const fieldName = key.slice("settings.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = settingsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.settings = settingsObj;
+    }
+    {
+      // Collect nested object fields with prefix "role."
+      const roleObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("role.")) {
+          const fieldName = key.slice("role.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = roleObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.role = roleObj;
+    }
+    {
+      const emailVerifiedVal = formData.get("emailVerified");
+      obj.emailVerified =
+        emailVerifiedVal === "true" ||
+        emailVerifiedVal === "on" ||
+        emailVerifiedVal === "1";
+    }
+    obj.verificationToken = formData.get("verificationToken") ?? "";
+    obj.verificationExpires = formData.get("verificationExpires") ?? "";
+    obj.passwordResetToken = formData.get("passwordResetToken") ?? "";
+    obj.passwordResetExpires = formData.get("passwordResetExpires") ?? "";
+    {
+      // Collect nested object fields with prefix "permissions."
+      const permissionsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("permissions.")) {
+          const fieldName = key.slice("permissions.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = permissionsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.permissions = permissionsObj;
+    }
+    return User.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      email: {
+        path: ["email"] as const,
+        name: "email",
+        constraints: { required: true },
+
+        get: (data: Data) => data.email,
+        set: (data: Data, value: string | null) => {
+          data.email = value;
+        },
+        getError: (errors: Errors) => errors?.email,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.email = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.email ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.email = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      firstName: {
+        path: ["firstName"] as const,
+        name: "firstName",
+        constraints: { required: true },
+
+        get: (data: Data) => data.firstName,
+        set: (data: Data, value: string) => {
+          data.firstName = value;
+        },
+        getError: (errors: Errors) => errors?.firstName,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.firstName = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.firstName ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.firstName = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      lastName: {
+        path: ["lastName"] as const,
+        name: "lastName",
+        constraints: { required: true },
+
+        get: (data: Data) => data.lastName,
+        set: (data: Data, value: string) => {
+          data.lastName = value;
+        },
+        getError: (errors: Errors) => errors?.lastName,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.lastName = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.lastName ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.lastName = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      password: {
+        path: ["password"] as const,
+        name: "password",
+        constraints: { required: true },
+
+        get: (data: Data) => data.password,
+        set: (data: Data, value: string | null) => {
+          data.password = value;
+        },
+        getError: (errors: Errors) => errors?.password,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.password = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.password ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.password = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      metadata: {
+        path: ["metadata"] as const,
+        name: "metadata",
+        constraints: { required: true },
+
+        get: (data: Data) => data.metadata,
+        set: (data: Data, value: Metadata | null) => {
+          data.metadata = value;
+        },
+        getError: (errors: Errors) => errors?.metadata,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.metadata = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.metadata ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.metadata = value;
+        },
+        validate: (_value: Metadata | null): Array<string> => [],
+      },
+      settings: {
+        path: ["settings"] as const,
+        name: "settings",
+        constraints: { required: true },
+
+        get: (data: Data) => data.settings,
+        set: (data: Data, value: Settings) => {
+          data.settings = value;
+        },
+        getError: (errors: Errors) => errors?.settings,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.settings = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.settings ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.settings = value;
+        },
+        validate: (_value: Settings): Array<string> => [],
+      },
+      role: {
+        path: ["role"] as const,
+        name: "role",
+        constraints: { required: true },
+
+        get: (data: Data) => data.role,
+        set: (data: Data, value: UserRole) => {
+          data.role = value;
+        },
+        getError: (errors: Errors) => errors?.role,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.role = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.role ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.role = value;
+        },
+        validate: (_value: UserRole): Array<string> => [],
+      },
+      emailVerified: {
+        path: ["emailVerified"] as const,
+        name: "emailVerified",
+        constraints: { required: true },
+
+        get: (data: Data) => data.emailVerified,
+        set: (data: Data, value: boolean) => {
+          data.emailVerified = value;
+        },
+        getError: (errors: Errors) => errors?.emailVerified,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.emailVerified = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.emailVerified ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.emailVerified = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      verificationToken: {
+        path: ["verificationToken"] as const,
+        name: "verificationToken",
+        constraints: { required: true },
+
+        get: (data: Data) => data.verificationToken,
+        set: (data: Data, value: string | null) => {
+          data.verificationToken = value;
+        },
+        getError: (errors: Errors) => errors?.verificationToken,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.verificationToken = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.verificationToken ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.verificationToken = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      verificationExpires: {
+        path: ["verificationExpires"] as const,
+        name: "verificationExpires",
+        constraints: { required: true },
+
+        get: (data: Data) => data.verificationExpires,
+        set: (data: Data, value: string | null) => {
+          data.verificationExpires = value;
+        },
+        getError: (errors: Errors) => errors?.verificationExpires,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.verificationExpires = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.verificationExpires ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.verificationExpires = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      passwordResetToken: {
+        path: ["passwordResetToken"] as const,
+        name: "passwordResetToken",
+        constraints: { required: true },
+
+        get: (data: Data) => data.passwordResetToken,
+        set: (data: Data, value: string | null) => {
+          data.passwordResetToken = value;
+        },
+        getError: (errors: Errors) => errors?.passwordResetToken,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.passwordResetToken = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.passwordResetToken ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.passwordResetToken = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      passwordResetExpires: {
+        path: ["passwordResetExpires"] as const,
+        name: "passwordResetExpires",
+        constraints: { required: true },
+
+        get: (data: Data) => data.passwordResetExpires,
+        set: (data: Data, value: string | null) => {
+          data.passwordResetExpires = value;
+        },
+        getError: (errors: Errors) => errors?.passwordResetExpires,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.passwordResetExpires = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.passwordResetExpires ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.passwordResetExpires = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      permissions: {
+        path: ["permissions"] as const,
+        name: "permissions",
+        constraints: { required: true },
+
+        get: (data: Data) => data.permissions,
+        set: (data: Data, value: AppPermissions) => {
+          data.permissions = value;
+        },
+        getError: (errors: Errors) => errors?.permissions,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.permissions = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.permissions ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.permissions = value;
+        },
+        validate: (_value: AppPermissions): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -299,7 +712,7 @@ export interface Service {
 }
 
 export namespace Service {
-  export function toJson(self: Service): string {
+  export function toStringifiedJSON(self: Service): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -360,23 +773,28 @@ export namespace Service {
 }
 
 export namespace Service {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Service, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Service.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Service.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -485,8 +903,315 @@ export namespace Service {
         instance.defaults = __raw_defaults;
       }
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Service;
   }
+}
+
+export namespace Service {
+  export type Data = Service;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    name?: Array<string>;
+    quickCode?: Array<string>;
+    group?: Array<string>;
+    subgroup?: Array<string>;
+    unit?: Array<string>;
+    active?: Array<string>;
+    commission?: Array<string>;
+    favorite?: Array<string>;
+    averageTime?: Array<string>;
+    defaults?: ServiceDefaults.Errors;
+  };
+  export type Tainted = {
+    id?: boolean;
+    name?: boolean;
+    quickCode?: boolean;
+    group?: boolean;
+    subgroup?: boolean;
+    unit?: boolean;
+    active?: boolean;
+    commission?: boolean;
+    favorite?: boolean;
+    averageTime?: boolean;
+    defaults?: ServiceDefaults.Tainted;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.name = formData.get("name") ?? "";
+    obj.quickCode = formData.get("quickCode") ?? "";
+    obj.group = formData.get("group") ?? "";
+    obj.subgroup = formData.get("subgroup") ?? "";
+    obj.unit = formData.get("unit") ?? "";
+    {
+      const activeVal = formData.get("active");
+      obj.active =
+        activeVal === "true" || activeVal === "on" || activeVal === "1";
+    }
+    {
+      const commissionVal = formData.get("commission");
+      obj.commission =
+        commissionVal === "true" ||
+        commissionVal === "on" ||
+        commissionVal === "1";
+    }
+    {
+      const favoriteVal = formData.get("favorite");
+      obj.favorite =
+        favoriteVal === "true" || favoriteVal === "on" || favoriteVal === "1";
+    }
+    obj.averageTime = formData.get("averageTime") ?? "";
+    {
+      // Collect nested object fields with prefix "defaults."
+      const defaultsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("defaults.")) {
+          const fieldName = key.slice("defaults.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = defaultsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.defaults = defaultsObj;
+    }
+    return Service.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      name: {
+        path: ["name"] as const,
+        name: "name",
+        constraints: { required: true },
+
+        get: (data: Data) => data.name,
+        set: (data: Data, value: string) => {
+          data.name = value;
+        },
+        getError: (errors: Errors) => errors?.name,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.name = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.name ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.name = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      quickCode: {
+        path: ["quickCode"] as const,
+        name: "quickCode",
+        constraints: { required: true },
+
+        get: (data: Data) => data.quickCode,
+        set: (data: Data, value: string) => {
+          data.quickCode = value;
+        },
+        getError: (errors: Errors) => errors?.quickCode,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.quickCode = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.quickCode ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.quickCode = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      group: {
+        path: ["group"] as const,
+        name: "group",
+        constraints: { required: true },
+
+        get: (data: Data) => data.group,
+        set: (data: Data, value: string | null) => {
+          data.group = value;
+        },
+        getError: (errors: Errors) => errors?.group,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.group = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.group ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.group = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      subgroup: {
+        path: ["subgroup"] as const,
+        name: "subgroup",
+        constraints: { required: true },
+
+        get: (data: Data) => data.subgroup,
+        set: (data: Data, value: string | null) => {
+          data.subgroup = value;
+        },
+        getError: (errors: Errors) => errors?.subgroup,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.subgroup = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.subgroup ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.subgroup = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      unit: {
+        path: ["unit"] as const,
+        name: "unit",
+        constraints: { required: true },
+
+        get: (data: Data) => data.unit,
+        set: (data: Data, value: string | null) => {
+          data.unit = value;
+        },
+        getError: (errors: Errors) => errors?.unit,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.unit = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.unit ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.unit = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      active: {
+        path: ["active"] as const,
+        name: "active",
+        constraints: { required: true },
+
+        get: (data: Data) => data.active,
+        set: (data: Data, value: boolean) => {
+          data.active = value;
+        },
+        getError: (errors: Errors) => errors?.active,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.active = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.active ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.active = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      commission: {
+        path: ["commission"] as const,
+        name: "commission",
+        constraints: { required: true },
+
+        get: (data: Data) => data.commission,
+        set: (data: Data, value: boolean) => {
+          data.commission = value;
+        },
+        getError: (errors: Errors) => errors?.commission,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.commission = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.commission ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.commission = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      favorite: {
+        path: ["favorite"] as const,
+        name: "favorite",
+        constraints: { required: true },
+
+        get: (data: Data) => data.favorite,
+        set: (data: Data, value: boolean) => {
+          data.favorite = value;
+        },
+        getError: (errors: Errors) => errors?.favorite,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.favorite = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.favorite ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.favorite = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      averageTime: {
+        path: ["averageTime"] as const,
+        name: "averageTime",
+        constraints: { required: true },
+
+        get: (data: Data) => data.averageTime,
+        set: (data: Data, value: string | null) => {
+          data.averageTime = value;
+        },
+        getError: (errors: Errors) => errors?.averageTime,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.averageTime = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.averageTime ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.averageTime = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      defaults: {
+        path: ["defaults"] as const,
+        name: "defaults",
+        constraints: { required: true },
+
+        get: (data: Data) => data.defaults,
+        set: (data: Data, value: ServiceDefaults) => {
+          data.defaults = value;
+        },
+        getError: (errors: Errors) => errors?.defaults,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.defaults = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.defaults ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.defaults = value;
+        },
+        validate: (_value: ServiceDefaults): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -503,7 +1228,7 @@ export namespace ServiceDefaults {
 }
 
 export namespace ServiceDefaults {
-  export function toJson(self: ServiceDefaults): string {
+  export function toStringifiedJSON(self: ServiceDefaults): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -524,23 +1249,28 @@ export namespace ServiceDefaults {
 }
 
 export namespace ServiceDefaults {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<ServiceDefaults, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "ServiceDefaults.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "ServiceDefaults.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -580,8 +1310,79 @@ export namespace ServiceDefaults {
       const __raw_description = obj["description"];
       instance.description = __raw_description;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as ServiceDefaults;
   }
+}
+
+export namespace ServiceDefaults {
+  export type Data = ServiceDefaults;
+  export type Errors = {
+    _errors?: Array<string>;
+    price?: Array<string>;
+    description?: Array<string>;
+  };
+  export type Tainted = { price?: boolean; description?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const priceStr = formData.get("price");
+      obj.price = priceStr ? parseFloat(priceStr as string) : 0;
+      if (obj.price !== undefined && Number.isNaN(obj.price)) obj.price = 0;
+    }
+    obj.description = formData.get("description") ?? "";
+    return ServiceDefaults.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      price: {
+        path: ["price"] as const,
+        name: "price",
+        constraints: { required: true },
+
+        get: (data: Data) => data.price,
+        set: (data: Data, value: number) => {
+          data.price = value;
+        },
+        getError: (errors: Errors) => errors?.price,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.price = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.price ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.price = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      description: {
+        path: ["description"] as const,
+        name: "description",
+        constraints: { required: true },
+
+        get: (data: Data) => data.description,
+        set: (data: Data, value: string) => {
+          data.description = value;
+        },
+        getError: (errors: Errors) => errors?.description,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.description = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.description ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.description = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -595,7 +1396,7 @@ export interface Did {
 }
 
 export namespace Did {
-  export function toJson(self: Did): string {
+  export function toStringifiedJSON(self: Did): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -630,21 +1431,28 @@ export namespace Did {
 }
 
 export namespace Did {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Did, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err(["Did.fromJson: root cannot be a forward reference"]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Did.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -716,8 +1524,181 @@ export namespace Did {
       const __raw_metadata = obj["metadata"];
       instance.metadata = __raw_metadata;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Did;
   }
+}
+
+export namespace Did {
+  export type Data = Did;
+  export type Errors = {
+    _errors?: Array<string>;
+    in?: Array<string>;
+    out?: Array<string>;
+    id?: Array<string>;
+    activityType?: ActivityType.Errors;
+    createdAt?: Array<string>;
+    metadata?: Array<string>;
+  };
+  export type Tainted = {
+    in?: boolean;
+    out?: boolean;
+    id?: boolean;
+    activityType?: ActivityType.Tainted;
+    createdAt?: boolean;
+    metadata?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.in = formData.get("in") ?? "";
+    obj.out = formData.get("out") ?? "";
+    obj.id = formData.get("id") ?? "";
+    {
+      // Collect nested object fields with prefix "activityType."
+      const activityTypeObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("activityType.")) {
+          const fieldName = key.slice("activityType.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = activityTypeObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.activityType = activityTypeObj;
+    }
+    obj.createdAt = formData.get("createdAt") ?? "";
+    obj.metadata = formData.get("metadata") ?? "";
+    return Did.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      in: {
+        path: ["in"] as const,
+        name: "in",
+        constraints: { required: true },
+
+        get: (data: Data) => data.in,
+        set: (data: Data, value: string | Actor) => {
+          data.in = value;
+        },
+        getError: (errors: Errors) => errors?.in,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.in = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.in ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.in = value;
+        },
+        validate: (_value: string | Actor): Array<string> => [],
+      },
+      out: {
+        path: ["out"] as const,
+        name: "out",
+        constraints: { required: true },
+
+        get: (data: Data) => data.out,
+        set: (data: Data, value: string | Target) => {
+          data.out = value;
+        },
+        getError: (errors: Errors) => errors?.out,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.out = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.out ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.out = value;
+        },
+        validate: (_value: string | Target): Array<string> => [],
+      },
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      activityType: {
+        path: ["activityType"] as const,
+        name: "activityType",
+        constraints: { required: true },
+
+        get: (data: Data) => data.activityType,
+        set: (data: Data, value: ActivityType) => {
+          data.activityType = value;
+        },
+        getError: (errors: Errors) => errors?.activityType,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.activityType = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.activityType ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.activityType = value;
+        },
+        validate: (_value: ActivityType): Array<string> => [],
+      },
+      createdAt: {
+        path: ["createdAt"] as const,
+        name: "createdAt",
+        constraints: { required: true },
+
+        get: (data: Data) => data.createdAt,
+        set: (data: Data, value: string) => {
+          data.createdAt = value;
+        },
+        getError: (errors: Errors) => errors?.createdAt,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.createdAt = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.createdAt ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.createdAt = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      metadata: {
+        path: ["metadata"] as const,
+        name: "metadata",
+        constraints: { required: true },
+
+        get: (data: Data) => data.metadata,
+        set: (data: Data, value: string | null) => {
+          data.metadata = value;
+        },
+        getError: (errors: Errors) => errors?.metadata,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.metadata = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.metadata ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.metadata = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -734,7 +1715,7 @@ export namespace PersonName {
 }
 
 export namespace PersonName {
-  export function toJson(self: PersonName): string {
+  export function toStringifiedJSON(self: PersonName): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -755,23 +1736,28 @@ export namespace PersonName {
 }
 
 export namespace PersonName {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<PersonName, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "PersonName.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "PersonName.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -811,8 +1797,80 @@ export namespace PersonName {
       const __raw_lastName = obj["lastName"];
       instance.lastName = __raw_lastName;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as PersonName;
   }
+}
+
+export namespace PersonName {
+  export type Data = PersonName;
+  export type Errors = {
+    _errors?: Array<string>;
+    firstName?: Array<string>;
+    lastName?: Array<string>;
+  };
+  export type Tainted = { firstName?: boolean; lastName?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.firstName = formData.get("firstName") ?? "";
+    obj.lastName = formData.get("lastName") ?? "";
+    return PersonName.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      firstName: {
+        path: ["firstName"] as const,
+        name: "firstName",
+        constraints: { required: true },
+
+        get: (data: Data) => data.firstName,
+        set: (data: Data, value: string) => {
+          data.firstName = value;
+        },
+        getError: (errors: Errors) => errors?.firstName,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.firstName = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.firstName ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.firstName = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      lastName: {
+        path: ["lastName"] as const,
+        name: "lastName",
+        constraints: { required: true },
+
+        get: (data: Data) => data.lastName,
+        set: (data: Data, value: string) => {
+          data.lastName = value;
+        },
+        getError: (errors: Errors) => errors?.lastName,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.lastName = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.lastName ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.lastName = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -828,7 +1886,7 @@ export namespace Promotion {
 }
 
 export namespace Promotion {
-  export function toJson(self: Promotion): string {
+  export function toStringifiedJSON(self: Promotion): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -849,23 +1907,28 @@ export namespace Promotion {
 }
 
 export namespace Promotion {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Promotion, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Promotion.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Promotion.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -901,8 +1964,70 @@ export namespace Promotion {
       const __raw_date = obj["date"];
       instance.date = __raw_date;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Promotion;
   }
+}
+
+export namespace Promotion {
+  export type Data = Promotion;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    date?: Array<string>;
+  };
+  export type Tainted = { id?: boolean; date?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.date = formData.get("date") ?? "";
+    return Promotion.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      date: {
+        path: ["date"] as const,
+        name: "date",
+        constraints: { required: true },
+
+        get: (data: Data) => data.date,
+        set: (data: Data, value: string) => {
+          data.date = value;
+        },
+        getError: (errors: Errors) => errors?.date,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.date = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.date ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.date = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -927,7 +2052,7 @@ export interface Site {
 }
 
 export namespace Site {
-  export function toJson(self: Site): string {
+  export function toStringifiedJSON(self: Site): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -998,21 +2123,28 @@ export namespace Site {
 }
 
 export namespace Site {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Site, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err(["Site.fromJson: root cannot be a forward reference"]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Site.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -1136,8 +2268,344 @@ export namespace Site {
         instance.coordinates = __raw_coordinates;
       }
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Site;
   }
+}
+
+export namespace Site {
+  export type Data = Site;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    addressLine1?: Array<string>;
+    addressLine2?: Array<string>;
+    sublocalityLevel1?: Array<string>;
+    locality?: Array<string>;
+    administrativeAreaLevel3?: Array<string>;
+    administrativeAreaLevel2?: Array<string>;
+    administrativeAreaLevel1?: Array<string>;
+    country?: Array<string>;
+    postalCode?: Array<string>;
+    postalCodeSuffix?: Array<string>;
+    coordinates?: Coordinates.Errors;
+  };
+  export type Tainted = {
+    id?: boolean;
+    addressLine1?: boolean;
+    addressLine2?: boolean;
+    sublocalityLevel1?: boolean;
+    locality?: boolean;
+    administrativeAreaLevel3?: boolean;
+    administrativeAreaLevel2?: boolean;
+    administrativeAreaLevel1?: boolean;
+    country?: boolean;
+    postalCode?: boolean;
+    postalCodeSuffix?: boolean;
+    coordinates?: Coordinates.Tainted;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.addressLine1 = formData.get("addressLine1") ?? "";
+    obj.addressLine2 = formData.get("addressLine2") ?? "";
+    obj.sublocalityLevel1 = formData.get("sublocalityLevel1") ?? "";
+    obj.locality = formData.get("locality") ?? "";
+    obj.administrativeAreaLevel3 =
+      formData.get("administrativeAreaLevel3") ?? "";
+    obj.administrativeAreaLevel2 =
+      formData.get("administrativeAreaLevel2") ?? "";
+    obj.administrativeAreaLevel1 =
+      formData.get("administrativeAreaLevel1") ?? "";
+    obj.country = formData.get("country") ?? "";
+    obj.postalCode = formData.get("postalCode") ?? "";
+    obj.postalCodeSuffix = formData.get("postalCodeSuffix") ?? "";
+    {
+      // Collect nested object fields with prefix "coordinates."
+      const coordinatesObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("coordinates.")) {
+          const fieldName = key.slice("coordinates.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = coordinatesObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.coordinates = coordinatesObj;
+    }
+    return Site.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      addressLine1: {
+        path: ["addressLine1"] as const,
+        name: "addressLine1",
+        constraints: { required: true },
+
+        get: (data: Data) => data.addressLine1,
+        set: (data: Data, value: string) => {
+          data.addressLine1 = value;
+        },
+        getError: (errors: Errors) => errors?.addressLine1,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.addressLine1 = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.addressLine1 ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.addressLine1 = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      addressLine2: {
+        path: ["addressLine2"] as const,
+        name: "addressLine2",
+        constraints: { required: true },
+
+        get: (data: Data) => data.addressLine2,
+        set: (data: Data, value: string | null) => {
+          data.addressLine2 = value;
+        },
+        getError: (errors: Errors) => errors?.addressLine2,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.addressLine2 = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.addressLine2 ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.addressLine2 = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      sublocalityLevel1: {
+        path: ["sublocalityLevel1"] as const,
+        name: "sublocalityLevel1",
+        constraints: { required: true },
+
+        get: (data: Data) => data.sublocalityLevel1,
+        set: (data: Data, value: string | null) => {
+          data.sublocalityLevel1 = value;
+        },
+        getError: (errors: Errors) => errors?.sublocalityLevel1,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.sublocalityLevel1 = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.sublocalityLevel1 ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.sublocalityLevel1 = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      locality: {
+        path: ["locality"] as const,
+        name: "locality",
+        constraints: { required: true },
+
+        get: (data: Data) => data.locality,
+        set: (data: Data, value: string) => {
+          data.locality = value;
+        },
+        getError: (errors: Errors) => errors?.locality,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.locality = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.locality ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.locality = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      administrativeAreaLevel3: {
+        path: ["administrativeAreaLevel3"] as const,
+        name: "administrativeAreaLevel3",
+        constraints: { required: true },
+
+        get: (data: Data) => data.administrativeAreaLevel3,
+        set: (data: Data, value: string | null) => {
+          data.administrativeAreaLevel3 = value;
+        },
+        getError: (errors: Errors) => errors?.administrativeAreaLevel3,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.administrativeAreaLevel3 = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.administrativeAreaLevel3 ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.administrativeAreaLevel3 = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      administrativeAreaLevel2: {
+        path: ["administrativeAreaLevel2"] as const,
+        name: "administrativeAreaLevel2",
+        constraints: { required: true },
+
+        get: (data: Data) => data.administrativeAreaLevel2,
+        set: (data: Data, value: string | null) => {
+          data.administrativeAreaLevel2 = value;
+        },
+        getError: (errors: Errors) => errors?.administrativeAreaLevel2,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.administrativeAreaLevel2 = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.administrativeAreaLevel2 ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.administrativeAreaLevel2 = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      administrativeAreaLevel1: {
+        path: ["administrativeAreaLevel1"] as const,
+        name: "administrativeAreaLevel1",
+        constraints: { required: true },
+
+        get: (data: Data) => data.administrativeAreaLevel1,
+        set: (data: Data, value: string) => {
+          data.administrativeAreaLevel1 = value;
+        },
+        getError: (errors: Errors) => errors?.administrativeAreaLevel1,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.administrativeAreaLevel1 = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.administrativeAreaLevel1 ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.administrativeAreaLevel1 = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      country: {
+        path: ["country"] as const,
+        name: "country",
+        constraints: { required: true },
+
+        get: (data: Data) => data.country,
+        set: (data: Data, value: string) => {
+          data.country = value;
+        },
+        getError: (errors: Errors) => errors?.country,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.country = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.country ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.country = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      postalCode: {
+        path: ["postalCode"] as const,
+        name: "postalCode",
+        constraints: { required: true },
+
+        get: (data: Data) => data.postalCode,
+        set: (data: Data, value: string) => {
+          data.postalCode = value;
+        },
+        getError: (errors: Errors) => errors?.postalCode,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.postalCode = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.postalCode ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.postalCode = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      postalCodeSuffix: {
+        path: ["postalCodeSuffix"] as const,
+        name: "postalCodeSuffix",
+        constraints: { required: true },
+
+        get: (data: Data) => data.postalCodeSuffix,
+        set: (data: Data, value: string | null) => {
+          data.postalCodeSuffix = value;
+        },
+        getError: (errors: Errors) => errors?.postalCodeSuffix,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.postalCodeSuffix = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.postalCodeSuffix ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.postalCodeSuffix = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      coordinates: {
+        path: ["coordinates"] as const,
+        name: "coordinates",
+        constraints: { required: true },
+
+        get: (data: Data) => data.coordinates,
+        set: (data: Data, value: Coordinates) => {
+          data.coordinates = value;
+        },
+        getError: (errors: Errors) => errors?.coordinates,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.coordinates = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.coordinates ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.coordinates = value;
+        },
+        validate: (_value: Coordinates): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -1160,7 +2628,7 @@ export namespace Metadata {
 }
 
 export namespace Metadata {
-  export function toJson(self: Metadata): string {
+  export function toStringifiedJSON(self: Metadata): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -1192,23 +2660,28 @@ export namespace Metadata {
 }
 
 export namespace Metadata {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Metadata, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Metadata.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Metadata.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -1258,8 +2731,152 @@ export namespace Metadata {
       const __raw_roles = obj["roles"];
       instance.roles = __raw_roles;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Metadata;
   }
+}
+
+export namespace Metadata {
+  export type Data = Metadata;
+  export type Errors = {
+    _errors?: Array<string>;
+    createdAt?: Array<string>;
+    lastLogin?: Array<string>;
+    isActive?: Array<string>;
+    roles?: { _errors?: Array<string>; [index: number]: Array<string> };
+  };
+  export type Tainted = {
+    createdAt?: boolean;
+    lastLogin?: boolean;
+    isActive?: boolean;
+    roles?: { [index: number]: boolean };
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.createdAt = formData.get("createdAt") ?? "";
+    obj.lastLogin = formData.get("lastLogin") ?? "";
+    {
+      const isActiveVal = formData.get("isActive");
+      obj.isActive =
+        isActiveVal === "true" || isActiveVal === "on" || isActiveVal === "1";
+    }
+    obj.roles = formData.getAll("roles") as Array<string>;
+    return Metadata.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      createdAt: {
+        path: ["createdAt"] as const,
+        name: "createdAt",
+        constraints: { required: true },
+
+        get: (data: Data) => data.createdAt,
+        set: (data: Data, value: string) => {
+          data.createdAt = value;
+        },
+        getError: (errors: Errors) => errors?.createdAt,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.createdAt = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.createdAt ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.createdAt = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      lastLogin: {
+        path: ["lastLogin"] as const,
+        name: "lastLogin",
+        constraints: { required: true },
+
+        get: (data: Data) => data.lastLogin,
+        set: (data: Data, value: string | null) => {
+          data.lastLogin = value;
+        },
+        getError: (errors: Errors) => errors?.lastLogin,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.lastLogin = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.lastLogin ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.lastLogin = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      isActive: {
+        path: ["isActive"] as const,
+        name: "isActive",
+        constraints: { required: true },
+
+        get: (data: Data) => data.isActive,
+        set: (data: Data, value: boolean) => {
+          data.isActive = value;
+        },
+        getError: (errors: Errors) => errors?.isActive,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.isActive = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.isActive ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.isActive = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      roles: {
+        path: ["roles"] as const,
+        name: "roles",
+        constraints: { required: true },
+
+        get: (data: Data) => data.roles,
+        set: (data: Data, value: string[]) => {
+          data.roles = value;
+        },
+        getError: (errors: Errors) => errors?.roles,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.roles = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.roles ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.roles = value;
+        },
+        validate: (_value: string[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["roles"], index] as const,
+          name: `roles.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.roles[index],
+          set: (data: Data, value: string) => {
+            data.roles[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.roles as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.roles ??= {};
+            (errors.roles as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.roles?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.roles ??= {};
+            tainted.roles[index] = value;
+          },
+          validate: (_value: string): Array<string> => [],
+        }),
+        push: (data: Data, item: string) => {
+          data.roles.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.roles.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.roles[a], data.roles[b]] = [data.roles[b], data.roles[a]];
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -1269,7 +2886,7 @@ export interface ColumnConfig {
 }
 
 export namespace ColumnConfig {
-  export function toJson(self: ColumnConfig): string {
+  export function toStringifiedJSON(self: ColumnConfig): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -1293,23 +2910,28 @@ export namespace ColumnConfig {
 }
 
 export namespace ColumnConfig {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<ColumnConfig, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "ColumnConfig.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "ColumnConfig.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -1354,8 +2976,95 @@ export namespace ColumnConfig {
         instance.dataPath = __raw_dataPath;
       }
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as ColumnConfig;
   }
+}
+
+export namespace ColumnConfig {
+  export type Data = ColumnConfig;
+  export type Errors = {
+    _errors?: Array<string>;
+    heading?: Array<string>;
+    dataPath?: DataPath.Errors;
+  };
+  export type Tainted = { heading?: boolean; dataPath?: DataPath.Tainted };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.heading = formData.get("heading") ?? "";
+    {
+      // Collect nested object fields with prefix "dataPath."
+      const dataPathObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("dataPath.")) {
+          const fieldName = key.slice("dataPath.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = dataPathObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.dataPath = dataPathObj;
+    }
+    return ColumnConfig.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      heading: {
+        path: ["heading"] as const,
+        name: "heading",
+        constraints: { required: true },
+
+        get: (data: Data) => data.heading,
+        set: (data: Data, value: string) => {
+          data.heading = value;
+        },
+        getError: (errors: Errors) => errors?.heading,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.heading = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.heading ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.heading = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      dataPath: {
+        path: ["dataPath"] as const,
+        name: "dataPath",
+        constraints: { required: true },
+
+        get: (data: Data) => data.dataPath,
+        set: (data: Data, value: DataPath) => {
+          data.dataPath = value;
+        },
+        getError: (errors: Errors) => errors?.dataPath,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.dataPath = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.dataPath ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.dataPath = value;
+        },
+        validate: (_value: DataPath): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -1382,7 +3091,7 @@ export namespace PhoneNumber {
 }
 
 export namespace PhoneNumber {
-  export function toJson(self: PhoneNumber): string {
+  export function toStringifiedJSON(self: PhoneNumber): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -1406,23 +3115,28 @@ export namespace PhoneNumber {
 }
 
 export namespace PhoneNumber {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<PhoneNumber, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "PhoneNumber.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "PhoneNumber.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -1485,8 +3199,160 @@ export namespace PhoneNumber {
       const __raw_canCall = obj["canCall"];
       instance.canCall = __raw_canCall;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as PhoneNumber;
   }
+}
+
+export namespace PhoneNumber {
+  export type Data = PhoneNumber;
+  export type Errors = {
+    _errors?: Array<string>;
+    main?: Array<string>;
+    phoneType?: Array<string>;
+    number?: Array<string>;
+    canText?: Array<string>;
+    canCall?: Array<string>;
+  };
+  export type Tainted = {
+    main?: boolean;
+    phoneType?: boolean;
+    number?: boolean;
+    canText?: boolean;
+    canCall?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const mainVal = formData.get("main");
+      obj.main = mainVal === "true" || mainVal === "on" || mainVal === "1";
+    }
+    obj.phoneType = formData.get("phoneType") ?? "";
+    obj.number = formData.get("number") ?? "";
+    {
+      const canTextVal = formData.get("canText");
+      obj.canText =
+        canTextVal === "true" || canTextVal === "on" || canTextVal === "1";
+    }
+    {
+      const canCallVal = formData.get("canCall");
+      obj.canCall =
+        canCallVal === "true" || canCallVal === "on" || canCallVal === "1";
+    }
+    return PhoneNumber.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      main: {
+        path: ["main"] as const,
+        name: "main",
+        constraints: { required: true },
+
+        get: (data: Data) => data.main,
+        set: (data: Data, value: boolean) => {
+          data.main = value;
+        },
+        getError: (errors: Errors) => errors?.main,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.main = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.main ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.main = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      phoneType: {
+        path: ["phoneType"] as const,
+        name: "phoneType",
+        constraints: { required: true },
+
+        get: (data: Data) => data.phoneType,
+        set: (data: Data, value: string) => {
+          data.phoneType = value;
+        },
+        getError: (errors: Errors) => errors?.phoneType,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.phoneType = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.phoneType ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.phoneType = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      number: {
+        path: ["number"] as const,
+        name: "number",
+        constraints: { required: true },
+
+        get: (data: Data) => data.number,
+        set: (data: Data, value: string) => {
+          data.number = value;
+        },
+        getError: (errors: Errors) => errors?.number,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.number = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.number ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.number = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      canText: {
+        path: ["canText"] as const,
+        name: "canText",
+        constraints: { required: true },
+
+        get: (data: Data) => data.canText,
+        set: (data: Data, value: boolean) => {
+          data.canText = value;
+        },
+        getError: (errors: Errors) => errors?.canText,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.canText = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.canText ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.canText = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      canCall: {
+        path: ["canCall"] as const,
+        name: "canCall",
+        constraints: { required: true },
+
+        get: (data: Data) => data.canCall,
+        set: (data: Data, value: boolean) => {
+          data.canCall = value;
+        },
+        getError: (errors: Errors) => errors?.canCall,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.canCall = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.canCall ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.canCall = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -1501,7 +3367,7 @@ export namespace Gradient {
 }
 
 export namespace Gradient {
-  export function toJson(self: Gradient): string {
+  export function toStringifiedJSON(self: Gradient): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -1521,23 +3387,28 @@ export namespace Gradient {
 }
 
 export namespace Gradient {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Gradient, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Gradient.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Gradient.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -1566,8 +3437,51 @@ export namespace Gradient {
       const __raw_startHue = obj["startHue"];
       instance.startHue = __raw_startHue;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Gradient;
   }
+}
+
+export namespace Gradient {
+  export type Data = Gradient;
+  export type Errors = { _errors?: Array<string>; startHue?: Array<string> };
+  export type Tainted = { startHue?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const startHueStr = formData.get("startHue");
+      obj.startHue = startHueStr ? parseFloat(startHueStr as string) : 0;
+      if (obj.startHue !== undefined && Number.isNaN(obj.startHue))
+        obj.startHue = 0;
+    }
+    return Gradient.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      startHue: {
+        path: ["startHue"] as const,
+        name: "startHue",
+        constraints: { required: true },
+
+        get: (data: Data) => data.startHue,
+        set: (data: Data, value: number) => {
+          data.startHue = value;
+        },
+        getError: (errors: Errors) => errors?.startHue,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.startHue = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.startHue ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.startHue = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -1587,7 +3501,7 @@ export interface Product {
 }
 
 export namespace Product {
-  export function toJson(self: Product): string {
+  export function toStringifiedJSON(self: Product): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -1640,23 +3554,28 @@ export namespace Product {
 }
 
 export namespace Product {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Product, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Product.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Product.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -1756,8 +3675,293 @@ export namespace Product {
         instance.defaults = __raw_defaults;
       }
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Product;
   }
+}
+
+export namespace Product {
+  export type Data = Product;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    name?: Array<string>;
+    quickCode?: Array<string>;
+    group?: Array<string>;
+    subgroup?: Array<string>;
+    unit?: Array<string>;
+    active?: Array<string>;
+    commission?: Array<string>;
+    favorite?: Array<string>;
+    defaults?: ProductDefaults.Errors;
+  };
+  export type Tainted = {
+    id?: boolean;
+    name?: boolean;
+    quickCode?: boolean;
+    group?: boolean;
+    subgroup?: boolean;
+    unit?: boolean;
+    active?: boolean;
+    commission?: boolean;
+    favorite?: boolean;
+    defaults?: ProductDefaults.Tainted;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.name = formData.get("name") ?? "";
+    obj.quickCode = formData.get("quickCode") ?? "";
+    obj.group = formData.get("group") ?? "";
+    obj.subgroup = formData.get("subgroup") ?? "";
+    obj.unit = formData.get("unit") ?? "";
+    {
+      const activeVal = formData.get("active");
+      obj.active =
+        activeVal === "true" || activeVal === "on" || activeVal === "1";
+    }
+    {
+      const commissionVal = formData.get("commission");
+      obj.commission =
+        commissionVal === "true" ||
+        commissionVal === "on" ||
+        commissionVal === "1";
+    }
+    {
+      const favoriteVal = formData.get("favorite");
+      obj.favorite =
+        favoriteVal === "true" || favoriteVal === "on" || favoriteVal === "1";
+    }
+    {
+      // Collect nested object fields with prefix "defaults."
+      const defaultsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("defaults.")) {
+          const fieldName = key.slice("defaults.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = defaultsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.defaults = defaultsObj;
+    }
+    return Product.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      name: {
+        path: ["name"] as const,
+        name: "name",
+        constraints: { required: true },
+
+        get: (data: Data) => data.name,
+        set: (data: Data, value: string) => {
+          data.name = value;
+        },
+        getError: (errors: Errors) => errors?.name,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.name = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.name ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.name = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      quickCode: {
+        path: ["quickCode"] as const,
+        name: "quickCode",
+        constraints: { required: true },
+
+        get: (data: Data) => data.quickCode,
+        set: (data: Data, value: string) => {
+          data.quickCode = value;
+        },
+        getError: (errors: Errors) => errors?.quickCode,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.quickCode = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.quickCode ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.quickCode = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      group: {
+        path: ["group"] as const,
+        name: "group",
+        constraints: { required: true },
+
+        get: (data: Data) => data.group,
+        set: (data: Data, value: string | null) => {
+          data.group = value;
+        },
+        getError: (errors: Errors) => errors?.group,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.group = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.group ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.group = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      subgroup: {
+        path: ["subgroup"] as const,
+        name: "subgroup",
+        constraints: { required: true },
+
+        get: (data: Data) => data.subgroup,
+        set: (data: Data, value: string | null) => {
+          data.subgroup = value;
+        },
+        getError: (errors: Errors) => errors?.subgroup,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.subgroup = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.subgroup ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.subgroup = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      unit: {
+        path: ["unit"] as const,
+        name: "unit",
+        constraints: { required: true },
+
+        get: (data: Data) => data.unit,
+        set: (data: Data, value: string | null) => {
+          data.unit = value;
+        },
+        getError: (errors: Errors) => errors?.unit,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.unit = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.unit ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.unit = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      active: {
+        path: ["active"] as const,
+        name: "active",
+        constraints: { required: true },
+
+        get: (data: Data) => data.active,
+        set: (data: Data, value: boolean) => {
+          data.active = value;
+        },
+        getError: (errors: Errors) => errors?.active,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.active = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.active ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.active = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      commission: {
+        path: ["commission"] as const,
+        name: "commission",
+        constraints: { required: true },
+
+        get: (data: Data) => data.commission,
+        set: (data: Data, value: boolean) => {
+          data.commission = value;
+        },
+        getError: (errors: Errors) => errors?.commission,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.commission = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.commission ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.commission = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      favorite: {
+        path: ["favorite"] as const,
+        name: "favorite",
+        constraints: { required: true },
+
+        get: (data: Data) => data.favorite,
+        set: (data: Data, value: boolean) => {
+          data.favorite = value;
+        },
+        getError: (errors: Errors) => errors?.favorite,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.favorite = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.favorite ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.favorite = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      defaults: {
+        path: ["defaults"] as const,
+        name: "defaults",
+        constraints: { required: true },
+
+        get: (data: Data) => data.defaults,
+        set: (data: Data, value: ProductDefaults) => {
+          data.defaults = value;
+        },
+        getError: (errors: Errors) => errors?.defaults,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.defaults = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.defaults ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.defaults = value;
+        },
+        validate: (_value: ProductDefaults): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -1772,7 +3976,7 @@ export namespace YearlyRecurrenceRule {
 }
 
 export namespace YearlyRecurrenceRule {
-  export function toJson(self: YearlyRecurrenceRule): string {
+  export function toStringifiedJSON(self: YearlyRecurrenceRule): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -1795,23 +3999,28 @@ export namespace YearlyRecurrenceRule {
 }
 
 export namespace YearlyRecurrenceRule {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<YearlyRecurrenceRule, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "YearlyRecurrenceRule.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "YearlyRecurrenceRule.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -1842,8 +4051,59 @@ export namespace YearlyRecurrenceRule {
       const __raw_quantityOfYears = obj["quantityOfYears"];
       instance.quantityOfYears = __raw_quantityOfYears;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as YearlyRecurrenceRule;
   }
+}
+
+export namespace YearlyRecurrenceRule {
+  export type Data = YearlyRecurrenceRule;
+  export type Errors = {
+    _errors?: Array<string>;
+    quantityOfYears?: Array<string>;
+  };
+  export type Tainted = { quantityOfYears?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const quantityOfYearsStr = formData.get("quantityOfYears");
+      obj.quantityOfYears = quantityOfYearsStr
+        ? parseFloat(quantityOfYearsStr as string)
+        : 0;
+      if (
+        obj.quantityOfYears !== undefined &&
+        Number.isNaN(obj.quantityOfYears)
+      )
+        obj.quantityOfYears = 0;
+    }
+    return YearlyRecurrenceRule.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      quantityOfYears: {
+        path: ["quantityOfYears"] as const,
+        name: "quantityOfYears",
+        constraints: { required: true },
+
+        get: (data: Data) => data.quantityOfYears,
+        set: (data: Data, value: number) => {
+          data.quantityOfYears = value;
+        },
+        getError: (errors: Errors) => errors?.quantityOfYears,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.quantityOfYears = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.quantityOfYears ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.quantityOfYears = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -1863,7 +4123,7 @@ export namespace AppointmentNotifications {
 }
 
 export namespace AppointmentNotifications {
-  export function toJson(self: AppointmentNotifications): string {
+  export function toStringifiedJSON(self: AppointmentNotifications): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -1889,23 +4149,28 @@ export namespace AppointmentNotifications {
 }
 
 export namespace AppointmentNotifications {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<AppointmentNotifications, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "AppointmentNotifications.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "AppointmentNotifications.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -1951,8 +4216,88 @@ export namespace AppointmentNotifications {
       instance.allScheduleChangeNotifications =
         __raw_allScheduleChangeNotifications;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as AppointmentNotifications;
   }
+}
+
+export namespace AppointmentNotifications {
+  export type Data = AppointmentNotifications;
+  export type Errors = {
+    _errors?: Array<string>;
+    personalScheduleChangeNotifications?: Array<string>;
+    allScheduleChangeNotifications?: Array<string>;
+  };
+  export type Tainted = {
+    personalScheduleChangeNotifications?: boolean;
+    allScheduleChangeNotifications?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.personalScheduleChangeNotifications =
+      formData.get("personalScheduleChangeNotifications") ?? "";
+    obj.allScheduleChangeNotifications =
+      formData.get("allScheduleChangeNotifications") ?? "";
+    return AppointmentNotifications.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      personalScheduleChangeNotifications: {
+        path: ["personalScheduleChangeNotifications"] as const,
+        name: "personalScheduleChangeNotifications",
+        constraints: { required: true },
+
+        get: (data: Data) => data.personalScheduleChangeNotifications,
+        set: (data: Data, value: string) => {
+          data.personalScheduleChangeNotifications = value;
+        },
+        getError: (errors: Errors) =>
+          errors?.personalScheduleChangeNotifications,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.personalScheduleChangeNotifications = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.personalScheduleChangeNotifications ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.personalScheduleChangeNotifications = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      allScheduleChangeNotifications: {
+        path: ["allScheduleChangeNotifications"] as const,
+        name: "allScheduleChangeNotifications",
+        constraints: { required: true },
+
+        get: (data: Data) => data.allScheduleChangeNotifications,
+        set: (data: Data, value: string) => {
+          data.allScheduleChangeNotifications = value;
+        },
+        getError: (errors: Errors) => errors?.allScheduleChangeNotifications,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.allScheduleChangeNotifications = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.allScheduleChangeNotifications ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.allScheduleChangeNotifications = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -1968,7 +4313,7 @@ export namespace DirectionHue {
 }
 
 export namespace DirectionHue {
-  export function toJson(self: DirectionHue): string {
+  export function toStringifiedJSON(self: DirectionHue): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -1989,23 +4334,28 @@ export namespace DirectionHue {
 }
 
 export namespace DirectionHue {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<DirectionHue, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "DirectionHue.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "DirectionHue.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -2043,8 +4393,79 @@ export namespace DirectionHue {
       const __raw_hue = obj["hue"];
       instance.hue = __raw_hue;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as DirectionHue;
   }
+}
+
+export namespace DirectionHue {
+  export type Data = DirectionHue;
+  export type Errors = {
+    _errors?: Array<string>;
+    bearing?: Array<string>;
+    hue?: Array<string>;
+  };
+  export type Tainted = { bearing?: boolean; hue?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const bearingStr = formData.get("bearing");
+      obj.bearing = bearingStr ? parseFloat(bearingStr as string) : 0;
+      if (obj.bearing !== undefined && Number.isNaN(obj.bearing))
+        obj.bearing = 0;
+    }
+    {
+      const hueStr = formData.get("hue");
+      obj.hue = hueStr ? parseFloat(hueStr as string) : 0;
+      if (obj.hue !== undefined && Number.isNaN(obj.hue)) obj.hue = 0;
+    }
+    return DirectionHue.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      bearing: {
+        path: ["bearing"] as const,
+        name: "bearing",
+        constraints: { required: true },
+
+        get: (data: Data) => data.bearing,
+        set: (data: Data, value: number) => {
+          data.bearing = value;
+        },
+        getError: (errors: Errors) => errors?.bearing,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.bearing = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.bearing ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.bearing = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      hue: {
+        path: ["hue"] as const,
+        name: "hue",
+        constraints: { required: true },
+
+        get: (data: Data) => data.hue,
+        set: (data: Data, value: number) => {
+          data.hue = value;
+        },
+        getError: (errors: Errors) => errors?.hue,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.hue = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.hue ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.hue = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -2062,7 +4483,7 @@ export namespace MonthlyRecurrenceRule {
 }
 
 export namespace MonthlyRecurrenceRule {
-  export function toJson(self: MonthlyRecurrenceRule): string {
+  export function toStringifiedJSON(self: MonthlyRecurrenceRule): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -2087,23 +4508,28 @@ export namespace MonthlyRecurrenceRule {
 }
 
 export namespace MonthlyRecurrenceRule {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<MonthlyRecurrenceRule, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "MonthlyRecurrenceRule.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "MonthlyRecurrenceRule.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -2154,8 +4580,114 @@ export namespace MonthlyRecurrenceRule {
       const __raw_name = obj["name"];
       instance.name = __raw_name;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as MonthlyRecurrenceRule;
   }
+}
+
+export namespace MonthlyRecurrenceRule {
+  export type Data = MonthlyRecurrenceRule;
+  export type Errors = {
+    _errors?: Array<string>;
+    quantityOfMonths?: Array<string>;
+    day?: Array<string>;
+    name?: Array<string>;
+  };
+  export type Tainted = {
+    quantityOfMonths?: boolean;
+    day?: boolean;
+    name?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const quantityOfMonthsStr = formData.get("quantityOfMonths");
+      obj.quantityOfMonths = quantityOfMonthsStr
+        ? parseFloat(quantityOfMonthsStr as string)
+        : 0;
+      if (
+        obj.quantityOfMonths !== undefined &&
+        Number.isNaN(obj.quantityOfMonths)
+      )
+        obj.quantityOfMonths = 0;
+    }
+    {
+      const dayStr = formData.get("day");
+      obj.day = dayStr ? parseFloat(dayStr as string) : 0;
+      if (obj.day !== undefined && Number.isNaN(obj.day)) obj.day = 0;
+    }
+    obj.name = formData.get("name") ?? "";
+    return MonthlyRecurrenceRule.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      quantityOfMonths: {
+        path: ["quantityOfMonths"] as const,
+        name: "quantityOfMonths",
+        constraints: { required: true },
+
+        get: (data: Data) => data.quantityOfMonths,
+        set: (data: Data, value: number) => {
+          data.quantityOfMonths = value;
+        },
+        getError: (errors: Errors) => errors?.quantityOfMonths,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.quantityOfMonths = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.quantityOfMonths ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.quantityOfMonths = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      day: {
+        path: ["day"] as const,
+        name: "day",
+        constraints: { required: true },
+
+        get: (data: Data) => data.day,
+        set: (data: Data, value: number) => {
+          data.day = value;
+        },
+        getError: (errors: Errors) => errors?.day,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.day = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.day ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.day = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      name: {
+        path: ["name"] as const,
+        name: "name",
+        constraints: { required: true },
+
+        get: (data: Data) => data.name,
+        set: (data: Data, value: string) => {
+          data.name = value;
+        },
+        getError: (errors: Errors) => errors?.name,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.name = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.name ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.name = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -2167,7 +4699,7 @@ export interface Represents {
 }
 
 export namespace Represents {
-  export function toJson(self: Represents): string {
+  export function toStringifiedJSON(self: Represents): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -2190,23 +4722,28 @@ export namespace Represents {
 }
 
 export namespace Represents {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Represents, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Represents.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Represents.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -2258,8 +4795,117 @@ export namespace Represents {
       const __raw_dateStarted = obj["dateStarted"];
       instance.dateStarted = __raw_dateStarted;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Represents;
   }
+}
+
+export namespace Represents {
+  export type Data = Represents;
+  export type Errors = {
+    _errors?: Array<string>;
+    in?: Array<string>;
+    out?: Array<string>;
+    id?: Array<string>;
+    dateStarted?: Array<string>;
+  };
+  export type Tainted = {
+    in?: boolean;
+    out?: boolean;
+    id?: boolean;
+    dateStarted?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.in = formData.get("in") ?? "";
+    obj.out = formData.get("out") ?? "";
+    obj.id = formData.get("id") ?? "";
+    obj.dateStarted = formData.get("dateStarted") ?? "";
+    return Represents.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      in: {
+        path: ["in"] as const,
+        name: "in",
+        constraints: { required: true },
+
+        get: (data: Data) => data.in,
+        set: (data: Data, value: string | Employee) => {
+          data.in = value;
+        },
+        getError: (errors: Errors) => errors?.in,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.in = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.in ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.in = value;
+        },
+        validate: (_value: string | Employee): Array<string> => [],
+      },
+      out: {
+        path: ["out"] as const,
+        name: "out",
+        constraints: { required: true },
+
+        get: (data: Data) => data.out,
+        set: (data: Data, value: string | Account) => {
+          data.out = value;
+        },
+        getError: (errors: Errors) => errors?.out,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.out = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.out ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.out = value;
+        },
+        validate: (_value: string | Account): Array<string> => [],
+      },
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      dateStarted: {
+        path: ["dateStarted"] as const,
+        name: "dateStarted",
+        constraints: { required: true },
+
+        get: (data: Data) => data.dateStarted,
+        set: (data: Data, value: string) => {
+          data.dateStarted = value;
+        },
+        getError: (errors: Errors) => errors?.dateStarted,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.dateStarted = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.dateStarted ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.dateStarted = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -2275,7 +4921,7 @@ export namespace Payment {
 }
 
 export namespace Payment {
-  export function toJson(self: Payment): string {
+  export function toStringifiedJSON(self: Payment): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -2296,23 +4942,28 @@ export namespace Payment {
 }
 
 export namespace Payment {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Payment, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Payment.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Payment.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -2348,8 +4999,70 @@ export namespace Payment {
       const __raw_date = obj["date"];
       instance.date = __raw_date;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Payment;
   }
+}
+
+export namespace Payment {
+  export type Data = Payment;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    date?: Array<string>;
+  };
+  export type Tainted = { id?: boolean; date?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.date = formData.get("date") ?? "";
+    return Payment.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      date: {
+        path: ["date"] as const,
+        name: "date",
+        constraints: { required: true },
+
+        get: (data: Data) => data.date,
+        set: (data: Data, value: string) => {
+          data.date = value;
+        },
+        getError: (errors: Errors) => errors?.date,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.date = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.date ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.date = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -2369,7 +5082,7 @@ export interface Settings {
 }
 
 export namespace Settings {
-  export function toJson(self: Settings): string {
+  export function toStringifiedJSON(self: Settings): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -2446,23 +5159,28 @@ export namespace Settings {
 }
 
 export namespace Settings {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Settings, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Settings.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Settings.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -2669,8 +5387,505 @@ export namespace Settings {
         instance.homePage = __raw_homePage;
       }
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Settings;
   }
+}
+
+export namespace Settings {
+  export type Data = Settings;
+  export type Errors = {
+    _errors?: Array<string>;
+    appointmentNotifications?: Array<string>;
+    commissions?: Array<string>;
+    scheduleSettings?: ScheduleSettings.Errors;
+    accountOverviewSettings?: OverviewSettings.Errors;
+    serviceOverviewSettings?: OverviewSettings.Errors;
+    appointmentOverviewSettings?: OverviewSettings.Errors;
+    leadOverviewSettings?: OverviewSettings.Errors;
+    packageOverviewSettings?: OverviewSettings.Errors;
+    productOverviewSettings?: OverviewSettings.Errors;
+    orderOverviewSettings?: OverviewSettings.Errors;
+    taxRateOverviewSettings?: OverviewSettings.Errors;
+    homePage?: Page.Errors;
+  };
+  export type Tainted = {
+    appointmentNotifications?: boolean;
+    commissions?: boolean;
+    scheduleSettings?: ScheduleSettings.Tainted;
+    accountOverviewSettings?: OverviewSettings.Tainted;
+    serviceOverviewSettings?: OverviewSettings.Tainted;
+    appointmentOverviewSettings?: OverviewSettings.Tainted;
+    leadOverviewSettings?: OverviewSettings.Tainted;
+    packageOverviewSettings?: OverviewSettings.Tainted;
+    productOverviewSettings?: OverviewSettings.Tainted;
+    orderOverviewSettings?: OverviewSettings.Tainted;
+    taxRateOverviewSettings?: OverviewSettings.Tainted;
+    homePage?: Page.Tainted;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.appointmentNotifications =
+      formData.get("appointmentNotifications") ?? "";
+    obj.commissions = formData.get("commissions") ?? "";
+    {
+      // Collect nested object fields with prefix "scheduleSettings."
+      const scheduleSettingsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("scheduleSettings.")) {
+          const fieldName = key.slice("scheduleSettings.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = scheduleSettingsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.scheduleSettings = scheduleSettingsObj;
+    }
+    {
+      // Collect nested object fields with prefix "accountOverviewSettings."
+      const accountOverviewSettingsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("accountOverviewSettings.")) {
+          const fieldName = key.slice("accountOverviewSettings.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = accountOverviewSettingsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.accountOverviewSettings = accountOverviewSettingsObj;
+    }
+    {
+      // Collect nested object fields with prefix "serviceOverviewSettings."
+      const serviceOverviewSettingsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("serviceOverviewSettings.")) {
+          const fieldName = key.slice("serviceOverviewSettings.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = serviceOverviewSettingsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.serviceOverviewSettings = serviceOverviewSettingsObj;
+    }
+    {
+      // Collect nested object fields with prefix "appointmentOverviewSettings."
+      const appointmentOverviewSettingsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("appointmentOverviewSettings.")) {
+          const fieldName = key.slice("appointmentOverviewSettings.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = appointmentOverviewSettingsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.appointmentOverviewSettings = appointmentOverviewSettingsObj;
+    }
+    {
+      // Collect nested object fields with prefix "leadOverviewSettings."
+      const leadOverviewSettingsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("leadOverviewSettings.")) {
+          const fieldName = key.slice("leadOverviewSettings.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = leadOverviewSettingsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.leadOverviewSettings = leadOverviewSettingsObj;
+    }
+    {
+      // Collect nested object fields with prefix "packageOverviewSettings."
+      const packageOverviewSettingsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("packageOverviewSettings.")) {
+          const fieldName = key.slice("packageOverviewSettings.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = packageOverviewSettingsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.packageOverviewSettings = packageOverviewSettingsObj;
+    }
+    {
+      // Collect nested object fields with prefix "productOverviewSettings."
+      const productOverviewSettingsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("productOverviewSettings.")) {
+          const fieldName = key.slice("productOverviewSettings.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = productOverviewSettingsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.productOverviewSettings = productOverviewSettingsObj;
+    }
+    {
+      // Collect nested object fields with prefix "orderOverviewSettings."
+      const orderOverviewSettingsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("orderOverviewSettings.")) {
+          const fieldName = key.slice("orderOverviewSettings.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = orderOverviewSettingsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.orderOverviewSettings = orderOverviewSettingsObj;
+    }
+    {
+      // Collect nested object fields with prefix "taxRateOverviewSettings."
+      const taxRateOverviewSettingsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("taxRateOverviewSettings.")) {
+          const fieldName = key.slice("taxRateOverviewSettings.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = taxRateOverviewSettingsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.taxRateOverviewSettings = taxRateOverviewSettingsObj;
+    }
+    {
+      // Collect nested object fields with prefix "homePage."
+      const homePageObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("homePage.")) {
+          const fieldName = key.slice("homePage.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = homePageObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.homePage = homePageObj;
+    }
+    return Settings.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      appointmentNotifications: {
+        path: ["appointmentNotifications"] as const,
+        name: "appointmentNotifications",
+        constraints: { required: true },
+
+        get: (data: Data) => data.appointmentNotifications,
+        set: (data: Data, value: AppointmentNotifications | null) => {
+          data.appointmentNotifications = value;
+        },
+        getError: (errors: Errors) => errors?.appointmentNotifications,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.appointmentNotifications = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.appointmentNotifications ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.appointmentNotifications = value;
+        },
+        validate: (
+          _value: AppointmentNotifications | null,
+        ): Array<string> => [],
+      },
+      commissions: {
+        path: ["commissions"] as const,
+        name: "commissions",
+        constraints: { required: true },
+
+        get: (data: Data) => data.commissions,
+        set: (data: Data, value: Commissions | null) => {
+          data.commissions = value;
+        },
+        getError: (errors: Errors) => errors?.commissions,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.commissions = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.commissions ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.commissions = value;
+        },
+        validate: (_value: Commissions | null): Array<string> => [],
+      },
+      scheduleSettings: {
+        path: ["scheduleSettings"] as const,
+        name: "scheduleSettings",
+        constraints: { required: true },
+
+        get: (data: Data) => data.scheduleSettings,
+        set: (data: Data, value: ScheduleSettings) => {
+          data.scheduleSettings = value;
+        },
+        getError: (errors: Errors) => errors?.scheduleSettings,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.scheduleSettings = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.scheduleSettings ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.scheduleSettings = value;
+        },
+        validate: (_value: ScheduleSettings): Array<string> => [],
+      },
+      accountOverviewSettings: {
+        path: ["accountOverviewSettings"] as const,
+        name: "accountOverviewSettings",
+        constraints: { required: true },
+
+        get: (data: Data) => data.accountOverviewSettings,
+        set: (data: Data, value: OverviewSettings) => {
+          data.accountOverviewSettings = value;
+        },
+        getError: (errors: Errors) => errors?.accountOverviewSettings,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.accountOverviewSettings = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.accountOverviewSettings ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.accountOverviewSettings = value;
+        },
+        validate: (_value: OverviewSettings): Array<string> => [],
+      },
+      serviceOverviewSettings: {
+        path: ["serviceOverviewSettings"] as const,
+        name: "serviceOverviewSettings",
+        constraints: { required: true },
+
+        get: (data: Data) => data.serviceOverviewSettings,
+        set: (data: Data, value: OverviewSettings) => {
+          data.serviceOverviewSettings = value;
+        },
+        getError: (errors: Errors) => errors?.serviceOverviewSettings,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.serviceOverviewSettings = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.serviceOverviewSettings ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.serviceOverviewSettings = value;
+        },
+        validate: (_value: OverviewSettings): Array<string> => [],
+      },
+      appointmentOverviewSettings: {
+        path: ["appointmentOverviewSettings"] as const,
+        name: "appointmentOverviewSettings",
+        constraints: { required: true },
+
+        get: (data: Data) => data.appointmentOverviewSettings,
+        set: (data: Data, value: OverviewSettings) => {
+          data.appointmentOverviewSettings = value;
+        },
+        getError: (errors: Errors) => errors?.appointmentOverviewSettings,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.appointmentOverviewSettings = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.appointmentOverviewSettings ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.appointmentOverviewSettings = value;
+        },
+        validate: (_value: OverviewSettings): Array<string> => [],
+      },
+      leadOverviewSettings: {
+        path: ["leadOverviewSettings"] as const,
+        name: "leadOverviewSettings",
+        constraints: { required: true },
+
+        get: (data: Data) => data.leadOverviewSettings,
+        set: (data: Data, value: OverviewSettings) => {
+          data.leadOverviewSettings = value;
+        },
+        getError: (errors: Errors) => errors?.leadOverviewSettings,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.leadOverviewSettings = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.leadOverviewSettings ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.leadOverviewSettings = value;
+        },
+        validate: (_value: OverviewSettings): Array<string> => [],
+      },
+      packageOverviewSettings: {
+        path: ["packageOverviewSettings"] as const,
+        name: "packageOverviewSettings",
+        constraints: { required: true },
+
+        get: (data: Data) => data.packageOverviewSettings,
+        set: (data: Data, value: OverviewSettings) => {
+          data.packageOverviewSettings = value;
+        },
+        getError: (errors: Errors) => errors?.packageOverviewSettings,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.packageOverviewSettings = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.packageOverviewSettings ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.packageOverviewSettings = value;
+        },
+        validate: (_value: OverviewSettings): Array<string> => [],
+      },
+      productOverviewSettings: {
+        path: ["productOverviewSettings"] as const,
+        name: "productOverviewSettings",
+        constraints: { required: true },
+
+        get: (data: Data) => data.productOverviewSettings,
+        set: (data: Data, value: OverviewSettings) => {
+          data.productOverviewSettings = value;
+        },
+        getError: (errors: Errors) => errors?.productOverviewSettings,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.productOverviewSettings = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.productOverviewSettings ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.productOverviewSettings = value;
+        },
+        validate: (_value: OverviewSettings): Array<string> => [],
+      },
+      orderOverviewSettings: {
+        path: ["orderOverviewSettings"] as const,
+        name: "orderOverviewSettings",
+        constraints: { required: true },
+
+        get: (data: Data) => data.orderOverviewSettings,
+        set: (data: Data, value: OverviewSettings) => {
+          data.orderOverviewSettings = value;
+        },
+        getError: (errors: Errors) => errors?.orderOverviewSettings,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.orderOverviewSettings = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.orderOverviewSettings ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.orderOverviewSettings = value;
+        },
+        validate: (_value: OverviewSettings): Array<string> => [],
+      },
+      taxRateOverviewSettings: {
+        path: ["taxRateOverviewSettings"] as const,
+        name: "taxRateOverviewSettings",
+        constraints: { required: true },
+
+        get: (data: Data) => data.taxRateOverviewSettings,
+        set: (data: Data, value: OverviewSettings) => {
+          data.taxRateOverviewSettings = value;
+        },
+        getError: (errors: Errors) => errors?.taxRateOverviewSettings,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.taxRateOverviewSettings = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.taxRateOverviewSettings ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.taxRateOverviewSettings = value;
+        },
+        validate: (_value: OverviewSettings): Array<string> => [],
+      },
+      homePage: {
+        path: ["homePage"] as const,
+        name: "homePage",
+        constraints: { required: true },
+
+        get: (data: Data) => data.homePage,
+        set: (data: Data, value: Page) => {
+          data.homePage = value;
+        },
+        getError: (errors: Errors) => errors?.homePage,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.homePage = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.homePage ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.homePage = value;
+        },
+        validate: (_value: Page): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -2687,7 +5902,7 @@ export namespace Color {
 }
 
 export namespace Color {
-  export function toJson(self: Color): string {
+  export function toStringifiedJSON(self: Color): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -2709,21 +5924,28 @@ export namespace Color {
 }
 
 export namespace Color {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Color, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err(["Color.fromJson: root cannot be a forward reference"]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Color.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -2766,8 +5988,103 @@ export namespace Color {
       const __raw_blue = obj["blue"];
       instance.blue = __raw_blue;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Color;
   }
+}
+
+export namespace Color {
+  export type Data = Color;
+  export type Errors = {
+    _errors?: Array<string>;
+    red?: Array<string>;
+    green?: Array<string>;
+    blue?: Array<string>;
+  };
+  export type Tainted = { red?: boolean; green?: boolean; blue?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const redStr = formData.get("red");
+      obj.red = redStr ? parseFloat(redStr as string) : 0;
+      if (obj.red !== undefined && Number.isNaN(obj.red)) obj.red = 0;
+    }
+    {
+      const greenStr = formData.get("green");
+      obj.green = greenStr ? parseFloat(greenStr as string) : 0;
+      if (obj.green !== undefined && Number.isNaN(obj.green)) obj.green = 0;
+    }
+    {
+      const blueStr = formData.get("blue");
+      obj.blue = blueStr ? parseFloat(blueStr as string) : 0;
+      if (obj.blue !== undefined && Number.isNaN(obj.blue)) obj.blue = 0;
+    }
+    return Color.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      red: {
+        path: ["red"] as const,
+        name: "red",
+        constraints: { required: true },
+
+        get: (data: Data) => data.red,
+        set: (data: Data, value: number) => {
+          data.red = value;
+        },
+        getError: (errors: Errors) => errors?.red,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.red = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.red ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.red = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      green: {
+        path: ["green"] as const,
+        name: "green",
+        constraints: { required: true },
+
+        get: (data: Data) => data.green,
+        set: (data: Data, value: number) => {
+          data.green = value;
+        },
+        getError: (errors: Errors) => errors?.green,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.green = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.green ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.green = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      blue: {
+        path: ["blue"] as const,
+        name: "blue",
+        constraints: { required: true },
+
+        get: (data: Data) => data.blue,
+        set: (data: Data, value: number) => {
+          data.blue = value;
+        },
+        getError: (errors: Errors) => errors?.blue,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.blue = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.blue ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.blue = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -2782,7 +6099,7 @@ export namespace CompanyName {
 }
 
 export namespace CompanyName {
-  export function toJson(self: CompanyName): string {
+  export function toStringifiedJSON(self: CompanyName): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -2802,23 +6119,28 @@ export namespace CompanyName {
 }
 
 export namespace CompanyName {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<CompanyName, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "CompanyName.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "CompanyName.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -2849,8 +6171,51 @@ export namespace CompanyName {
       const __raw_companyName = obj["companyName"];
       instance.companyName = __raw_companyName;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as CompanyName;
   }
+}
+
+export namespace CompanyName {
+  export type Data = CompanyName;
+  export type Errors = { _errors?: Array<string>; companyName?: Array<string> };
+  export type Tainted = { companyName?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.companyName = formData.get("companyName") ?? "";
+    return CompanyName.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      companyName: {
+        path: ["companyName"] as const,
+        name: "companyName",
+        constraints: { required: true },
+
+        get: (data: Data) => data.companyName,
+        set: (data: Data, value: string) => {
+          data.companyName = value;
+        },
+        getError: (errors: Errors) => errors?.companyName,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.companyName = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.companyName ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.companyName = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -2873,7 +6238,7 @@ export interface Appointment {
 }
 
 export namespace Appointment {
-  export function toJson(self: Appointment): string {
+  export function toStringifiedJSON(self: Appointment): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -2928,23 +6293,28 @@ export namespace Appointment {
 }
 
 export namespace Appointment {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Appointment, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Appointment.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Appointment.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -3090,8 +6460,460 @@ export namespace Appointment {
       const __raw_recurrenceRule = obj["recurrenceRule"];
       instance.recurrenceRule = __raw_recurrenceRule;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Appointment;
   }
+}
+
+export namespace Appointment {
+  export type Data = Appointment;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    title?: Array<string>;
+    status?: Status.Errors;
+    begins?: Array<string>;
+    duration?: Array<string>;
+    timeZone?: Array<string>;
+    offsetMs?: Array<string>;
+    allDay?: Array<string>;
+    multiDay?: Array<string>;
+    employees?: { _errors?: Array<string>; [index: number]: Array<string> };
+    location?: Array<string>;
+    description?: Array<string>;
+    colors?: Colors.Errors;
+    recurrenceRule?: Array<string>;
+  };
+  export type Tainted = {
+    id?: boolean;
+    title?: boolean;
+    status?: Status.Tainted;
+    begins?: boolean;
+    duration?: boolean;
+    timeZone?: boolean;
+    offsetMs?: boolean;
+    allDay?: boolean;
+    multiDay?: boolean;
+    employees?: { [index: number]: boolean };
+    location?: boolean;
+    description?: boolean;
+    colors?: Colors.Tainted;
+    recurrenceRule?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.title = formData.get("title") ?? "";
+    {
+      // Collect nested object fields with prefix "status."
+      const statusObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("status.")) {
+          const fieldName = key.slice("status.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = statusObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.status = statusObj;
+    }
+    obj.begins = formData.get("begins") ?? "";
+    {
+      const durationStr = formData.get("duration");
+      obj.duration = durationStr ? parseFloat(durationStr as string) : 0;
+      if (obj.duration !== undefined && Number.isNaN(obj.duration))
+        obj.duration = 0;
+    }
+    obj.timeZone = formData.get("timeZone") ?? "";
+    {
+      const offsetMsStr = formData.get("offsetMs");
+      obj.offsetMs = offsetMsStr ? parseFloat(offsetMsStr as string) : 0;
+      if (obj.offsetMs !== undefined && Number.isNaN(obj.offsetMs))
+        obj.offsetMs = 0;
+    }
+    {
+      const allDayVal = formData.get("allDay");
+      obj.allDay =
+        allDayVal === "true" || allDayVal === "on" || allDayVal === "1";
+    }
+    {
+      const multiDayVal = formData.get("multiDay");
+      obj.multiDay =
+        multiDayVal === "true" || multiDayVal === "on" || multiDayVal === "1";
+    }
+    {
+      // Collect array items from indexed form fields
+      const employeesItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("employees." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("employees." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("employees." + idx + ".")) {
+              const fieldName = key.slice(
+                "employees.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          employeesItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.employees = employeesItems;
+    }
+    obj.location = formData.get("location") ?? "";
+    obj.description = formData.get("description") ?? "";
+    {
+      // Collect nested object fields with prefix "colors."
+      const colorsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("colors.")) {
+          const fieldName = key.slice("colors.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = colorsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.colors = colorsObj;
+    }
+    obj.recurrenceRule = formData.get("recurrenceRule") ?? "";
+    return Appointment.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      title: {
+        path: ["title"] as const,
+        name: "title",
+        constraints: { required: true },
+
+        get: (data: Data) => data.title,
+        set: (data: Data, value: string) => {
+          data.title = value;
+        },
+        getError: (errors: Errors) => errors?.title,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.title = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.title ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.title = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      status: {
+        path: ["status"] as const,
+        name: "status",
+        constraints: { required: true },
+
+        get: (data: Data) => data.status,
+        set: (data: Data, value: Status) => {
+          data.status = value;
+        },
+        getError: (errors: Errors) => errors?.status,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.status = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.status ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.status = value;
+        },
+        validate: (_value: Status): Array<string> => [],
+      },
+      begins: {
+        path: ["begins"] as const,
+        name: "begins",
+        constraints: { required: true },
+
+        get: (data: Data) => data.begins,
+        set: (data: Data, value: string) => {
+          data.begins = value;
+        },
+        getError: (errors: Errors) => errors?.begins,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.begins = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.begins ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.begins = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      duration: {
+        path: ["duration"] as const,
+        name: "duration",
+        constraints: { required: true },
+
+        get: (data: Data) => data.duration,
+        set: (data: Data, value: number) => {
+          data.duration = value;
+        },
+        getError: (errors: Errors) => errors?.duration,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.duration = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.duration ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.duration = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      timeZone: {
+        path: ["timeZone"] as const,
+        name: "timeZone",
+        constraints: { required: true },
+
+        get: (data: Data) => data.timeZone,
+        set: (data: Data, value: string) => {
+          data.timeZone = value;
+        },
+        getError: (errors: Errors) => errors?.timeZone,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.timeZone = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.timeZone ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.timeZone = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      offsetMs: {
+        path: ["offsetMs"] as const,
+        name: "offsetMs",
+        constraints: { required: true },
+
+        get: (data: Data) => data.offsetMs,
+        set: (data: Data, value: number) => {
+          data.offsetMs = value;
+        },
+        getError: (errors: Errors) => errors?.offsetMs,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.offsetMs = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.offsetMs ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.offsetMs = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      allDay: {
+        path: ["allDay"] as const,
+        name: "allDay",
+        constraints: { required: true },
+
+        get: (data: Data) => data.allDay,
+        set: (data: Data, value: boolean) => {
+          data.allDay = value;
+        },
+        getError: (errors: Errors) => errors?.allDay,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.allDay = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.allDay ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.allDay = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      multiDay: {
+        path: ["multiDay"] as const,
+        name: "multiDay",
+        constraints: { required: true },
+
+        get: (data: Data) => data.multiDay,
+        set: (data: Data, value: boolean) => {
+          data.multiDay = value;
+        },
+        getError: (errors: Errors) => errors?.multiDay,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.multiDay = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.multiDay ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.multiDay = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      employees: {
+        path: ["employees"] as const,
+        name: "employees",
+        constraints: { required: true },
+
+        get: (data: Data) => data.employees,
+        set: (data: Data, value: (string | Employee)[]) => {
+          data.employees = value;
+        },
+        getError: (errors: Errors) => errors?.employees,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.employees = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.employees ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.employees = value;
+        },
+        validate: (_value: (string | Employee)[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["employees"], index] as const,
+          name: `employees.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.employees[index],
+          set: (data: Data, value: string | Employee) => {
+            data.employees[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.employees as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.employees ??= {};
+            (errors.employees as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.employees?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.employees ??= {};
+            tainted.employees[index] = value;
+          },
+          validate: (_value: string | Employee): Array<string> => [],
+        }),
+        push: (data: Data, item: string | Employee) => {
+          data.employees.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.employees.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.employees[a], data.employees[b]] = [
+            data.employees[b],
+            data.employees[a],
+          ];
+        },
+      },
+      location: {
+        path: ["location"] as const,
+        name: "location",
+        constraints: { required: true },
+
+        get: (data: Data) => data.location,
+        set: (data: Data, value: string | Site) => {
+          data.location = value;
+        },
+        getError: (errors: Errors) => errors?.location,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.location = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.location ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.location = value;
+        },
+        validate: (_value: string | Site): Array<string> => [],
+      },
+      description: {
+        path: ["description"] as const,
+        name: "description",
+        constraints: { required: true },
+
+        get: (data: Data) => data.description,
+        set: (data: Data, value: string | null) => {
+          data.description = value;
+        },
+        getError: (errors: Errors) => errors?.description,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.description = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.description ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.description = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      colors: {
+        path: ["colors"] as const,
+        name: "colors",
+        constraints: { required: true },
+
+        get: (data: Data) => data.colors,
+        set: (data: Data, value: Colors) => {
+          data.colors = value;
+        },
+        getError: (errors: Errors) => errors?.colors,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.colors = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.colors ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.colors = value;
+        },
+        validate: (_value: Colors): Array<string> => [],
+      },
+      recurrenceRule: {
+        path: ["recurrenceRule"] as const,
+        name: "recurrenceRule",
+        constraints: { required: true },
+
+        get: (data: Data) => data.recurrenceRule,
+        set: (data: Data, value: RecurrenceRule | null) => {
+          data.recurrenceRule = value;
+        },
+        getError: (errors: Errors) => errors?.recurrenceRule,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.recurrenceRule = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.recurrenceRule ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.recurrenceRule = value;
+        },
+        validate: (_value: RecurrenceRule | null): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -3107,7 +6929,7 @@ export namespace Package {
 }
 
 export namespace Package {
-  export function toJson(self: Package): string {
+  export function toStringifiedJSON(self: Package): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -3128,23 +6950,28 @@ export namespace Package {
 }
 
 export namespace Package {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Package, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Package.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Package.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -3180,8 +7007,70 @@ export namespace Package {
       const __raw_date = obj["date"];
       instance.date = __raw_date;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Package;
   }
+}
+
+export namespace Package {
+  export type Data = Package;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    date?: Array<string>;
+  };
+  export type Tainted = { id?: boolean; date?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.date = formData.get("date") ?? "";
+    return Package.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      date: {
+        path: ["date"] as const,
+        name: "date",
+        constraints: { required: true },
+
+        get: (data: Data) => data.date,
+        set: (data: Data, value: string) => {
+          data.date = value;
+        },
+        getError: (errors: Errors) => errors?.date,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.date = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.date ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.date = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -3193,7 +7082,7 @@ export interface ScheduleSettings {
 }
 
 export namespace ScheduleSettings {
-  export function toJson(self: ScheduleSettings): string {
+  export function toStringifiedJSON(self: ScheduleSettings): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -3224,23 +7113,28 @@ export namespace ScheduleSettings {
 }
 
 export namespace ScheduleSettings {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<ScheduleSettings, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "ScheduleSettings.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "ScheduleSettings.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -3303,8 +7197,186 @@ export namespace ScheduleSettings {
       const __raw_detailedCards = obj["detailedCards"];
       instance.detailedCards = __raw_detailedCards;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as ScheduleSettings;
   }
+}
+
+export namespace ScheduleSettings {
+  export type Data = ScheduleSettings;
+  export type Errors = {
+    _errors?: Array<string>;
+    daysPerWeek?: Array<string>;
+    rowHeight?: RowHeight.Errors;
+    visibleRoutes?: { _errors?: Array<string>; [index: number]: Array<string> };
+    detailedCards?: Array<string>;
+  };
+  export type Tainted = {
+    daysPerWeek?: boolean;
+    rowHeight?: RowHeight.Tainted;
+    visibleRoutes?: { [index: number]: boolean };
+    detailedCards?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const daysPerWeekStr = formData.get("daysPerWeek");
+      obj.daysPerWeek = daysPerWeekStr
+        ? parseFloat(daysPerWeekStr as string)
+        : 0;
+      if (obj.daysPerWeek !== undefined && Number.isNaN(obj.daysPerWeek))
+        obj.daysPerWeek = 0;
+    }
+    {
+      // Collect nested object fields with prefix "rowHeight."
+      const rowHeightObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("rowHeight.")) {
+          const fieldName = key.slice("rowHeight.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = rowHeightObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.rowHeight = rowHeightObj;
+    }
+    obj.visibleRoutes = formData.getAll("visibleRoutes") as Array<string>;
+    {
+      const detailedCardsVal = formData.get("detailedCards");
+      obj.detailedCards =
+        detailedCardsVal === "true" ||
+        detailedCardsVal === "on" ||
+        detailedCardsVal === "1";
+    }
+    return ScheduleSettings.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      daysPerWeek: {
+        path: ["daysPerWeek"] as const,
+        name: "daysPerWeek",
+        constraints: { required: true },
+
+        get: (data: Data) => data.daysPerWeek,
+        set: (data: Data, value: number) => {
+          data.daysPerWeek = value;
+        },
+        getError: (errors: Errors) => errors?.daysPerWeek,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.daysPerWeek = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.daysPerWeek ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.daysPerWeek = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      rowHeight: {
+        path: ["rowHeight"] as const,
+        name: "rowHeight",
+        constraints: { required: true },
+
+        get: (data: Data) => data.rowHeight,
+        set: (data: Data, value: RowHeight) => {
+          data.rowHeight = value;
+        },
+        getError: (errors: Errors) => errors?.rowHeight,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.rowHeight = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.rowHeight ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.rowHeight = value;
+        },
+        validate: (_value: RowHeight): Array<string> => [],
+      },
+      visibleRoutes: {
+        path: ["visibleRoutes"] as const,
+        name: "visibleRoutes",
+        constraints: { required: true },
+
+        get: (data: Data) => data.visibleRoutes,
+        set: (data: Data, value: string[]) => {
+          data.visibleRoutes = value;
+        },
+        getError: (errors: Errors) => errors?.visibleRoutes,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.visibleRoutes = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.visibleRoutes ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.visibleRoutes = value;
+        },
+        validate: (_value: string[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["visibleRoutes"], index] as const,
+          name: `visibleRoutes.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.visibleRoutes[index],
+          set: (data: Data, value: string) => {
+            data.visibleRoutes[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.visibleRoutes as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.visibleRoutes ??= {};
+            (errors.visibleRoutes as Record<number, Array<string>>)[index] =
+              value!;
+          },
+          getTainted: (tainted: Tainted) =>
+            tainted.visibleRoutes?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.visibleRoutes ??= {};
+            tainted.visibleRoutes[index] = value;
+          },
+          validate: (_value: string): Array<string> => [],
+        }),
+        push: (data: Data, item: string) => {
+          data.visibleRoutes.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.visibleRoutes.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.visibleRoutes[a], data.visibleRoutes[b]] = [
+            data.visibleRoutes[b],
+            data.visibleRoutes[a],
+          ];
+        },
+      },
+      detailedCards: {
+        path: ["detailedCards"] as const,
+        name: "detailedCards",
+        constraints: { required: true },
+
+        get: (data: Data) => data.detailedCards,
+        set: (data: Data, value: boolean) => {
+          data.detailedCards = value;
+        },
+        getError: (errors: Errors) => errors?.detailedCards,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.detailedCards = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.detailedCards ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.detailedCards = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -3319,7 +7391,7 @@ export namespace DailyRecurrenceRule {
 }
 
 export namespace DailyRecurrenceRule {
-  export function toJson(self: DailyRecurrenceRule): string {
+  export function toStringifiedJSON(self: DailyRecurrenceRule): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -3342,23 +7414,28 @@ export namespace DailyRecurrenceRule {
 }
 
 export namespace DailyRecurrenceRule {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<DailyRecurrenceRule, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "DailyRecurrenceRule.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "DailyRecurrenceRule.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -3389,8 +7466,56 @@ export namespace DailyRecurrenceRule {
       const __raw_quantityOfDays = obj["quantityOfDays"];
       instance.quantityOfDays = __raw_quantityOfDays;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as DailyRecurrenceRule;
   }
+}
+
+export namespace DailyRecurrenceRule {
+  export type Data = DailyRecurrenceRule;
+  export type Errors = {
+    _errors?: Array<string>;
+    quantityOfDays?: Array<string>;
+  };
+  export type Tainted = { quantityOfDays?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const quantityOfDaysStr = formData.get("quantityOfDays");
+      obj.quantityOfDays = quantityOfDaysStr
+        ? parseFloat(quantityOfDaysStr as string)
+        : 0;
+      if (obj.quantityOfDays !== undefined && Number.isNaN(obj.quantityOfDays))
+        obj.quantityOfDays = 0;
+    }
+    return DailyRecurrenceRule.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      quantityOfDays: {
+        path: ["quantityOfDays"] as const,
+        name: "quantityOfDays",
+        constraints: { required: true },
+
+        get: (data: Data) => data.quantityOfDays,
+        set: (data: Data, value: number) => {
+          data.quantityOfDays = value;
+        },
+        getError: (errors: Errors) => errors?.quantityOfDays,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.quantityOfDays = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.quantityOfDays ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.quantityOfDays = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -3403,7 +7528,7 @@ export interface SignUpCredentials {
 }
 
 export namespace SignUpCredentials {
-  export function toJson(self: SignUpCredentials): string {
+  export function toStringifiedJSON(self: SignUpCredentials): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -3442,23 +7567,28 @@ export namespace SignUpCredentials {
 }
 
 export namespace SignUpCredentials {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<SignUpCredentials, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "SignUpCredentials.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "SignUpCredentials.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -3545,8 +7675,225 @@ export namespace SignUpCredentials {
       const __raw_rememberMe = obj["rememberMe"];
       instance.rememberMe = __raw_rememberMe;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as SignUpCredentials;
   }
+}
+
+export namespace SignUpCredentials {
+  export type Data = SignUpCredentials;
+  export type Errors = {
+    _errors?: Array<string>;
+    firstName?: FirstName.Errors;
+    lastName?: LastName.Errors;
+    email?: EmailParts.Errors;
+    password?: Password.Errors;
+    rememberMe?: Array<string>;
+  };
+  export type Tainted = {
+    firstName?: FirstName.Tainted;
+    lastName?: LastName.Tainted;
+    email?: EmailParts.Tainted;
+    password?: Password.Tainted;
+    rememberMe?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      // Collect nested object fields with prefix "firstName."
+      const firstNameObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("firstName.")) {
+          const fieldName = key.slice("firstName.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = firstNameObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.firstName = firstNameObj;
+    }
+    {
+      // Collect nested object fields with prefix "lastName."
+      const lastNameObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("lastName.")) {
+          const fieldName = key.slice("lastName.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = lastNameObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.lastName = lastNameObj;
+    }
+    {
+      // Collect nested object fields with prefix "email."
+      const emailObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("email.")) {
+          const fieldName = key.slice("email.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = emailObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.email = emailObj;
+    }
+    {
+      // Collect nested object fields with prefix "password."
+      const passwordObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("password.")) {
+          const fieldName = key.slice("password.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = passwordObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.password = passwordObj;
+    }
+    {
+      const rememberMeVal = formData.get("rememberMe");
+      obj.rememberMe =
+        rememberMeVal === "true" ||
+        rememberMeVal === "on" ||
+        rememberMeVal === "1";
+    }
+    return SignUpCredentials.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      firstName: {
+        path: ["firstName"] as const,
+        name: "firstName",
+        constraints: { required: true },
+
+        get: (data: Data) => data.firstName,
+        set: (data: Data, value: FirstName) => {
+          data.firstName = value;
+        },
+        getError: (errors: Errors) => errors?.firstName,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.firstName = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.firstName ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.firstName = value;
+        },
+        validate: (_value: FirstName): Array<string> => [],
+      },
+      lastName: {
+        path: ["lastName"] as const,
+        name: "lastName",
+        constraints: { required: true },
+
+        get: (data: Data) => data.lastName,
+        set: (data: Data, value: LastName) => {
+          data.lastName = value;
+        },
+        getError: (errors: Errors) => errors?.lastName,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.lastName = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.lastName ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.lastName = value;
+        },
+        validate: (_value: LastName): Array<string> => [],
+      },
+      email: {
+        path: ["email"] as const,
+        name: "email",
+        constraints: { required: true },
+
+        get: (data: Data) => data.email,
+        set: (data: Data, value: EmailParts) => {
+          data.email = value;
+        },
+        getError: (errors: Errors) => errors?.email,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.email = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.email ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.email = value;
+        },
+        validate: (_value: EmailParts): Array<string> => [],
+      },
+      password: {
+        path: ["password"] as const,
+        name: "password",
+        constraints: { required: true },
+
+        get: (data: Data) => data.password,
+        set: (data: Data, value: Password) => {
+          data.password = value;
+        },
+        getError: (errors: Errors) => errors?.password,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.password = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.password ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.password = value;
+        },
+        validate: (_value: Password): Array<string> => [],
+      },
+      rememberMe: {
+        path: ["rememberMe"] as const,
+        name: "rememberMe",
+        constraints: { required: true },
+
+        get: (data: Data) => data.rememberMe,
+        set: (data: Data, value: boolean) => {
+          data.rememberMe = value;
+        },
+        getError: (errors: Errors) => errors?.rememberMe,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.rememberMe = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.rememberMe ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.rememberMe = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -3558,7 +7905,7 @@ export interface OverviewSettings {
 }
 
 export namespace OverviewSettings {
-  export function toJson(self: OverviewSettings): string {
+  export function toStringifiedJSON(self: OverviewSettings): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -3592,23 +7939,28 @@ export namespace OverviewSettings {
 }
 
 export namespace OverviewSettings {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<OverviewSettings, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "OverviewSettings.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "OverviewSettings.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -3679,8 +8031,227 @@ export namespace OverviewSettings {
       const __raw_columnConfigs = obj["columnConfigs"];
       instance.columnConfigs = __raw_columnConfigs;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as OverviewSettings;
   }
+}
+
+export namespace OverviewSettings {
+  export type Data = OverviewSettings;
+  export type Errors = {
+    _errors?: Array<string>;
+    rowHeight?: RowHeight.Errors;
+    cardOrRow?: OverviewDisplay.Errors;
+    perPage?: Array<string>;
+    columnConfigs?: {
+      _errors?: Array<string>;
+      [index: number]: ColumnConfig.Errors;
+    };
+  };
+  export type Tainted = {
+    rowHeight?: RowHeight.Tainted;
+    cardOrRow?: OverviewDisplay.Tainted;
+    perPage?: boolean;
+    columnConfigs?: { [index: number]: ColumnConfig.Tainted };
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      // Collect nested object fields with prefix "rowHeight."
+      const rowHeightObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("rowHeight.")) {
+          const fieldName = key.slice("rowHeight.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = rowHeightObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.rowHeight = rowHeightObj;
+    }
+    {
+      // Collect nested object fields with prefix "cardOrRow."
+      const cardOrRowObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("cardOrRow.")) {
+          const fieldName = key.slice("cardOrRow.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = cardOrRowObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.cardOrRow = cardOrRowObj;
+    }
+    {
+      const perPageStr = formData.get("perPage");
+      obj.perPage = perPageStr ? parseFloat(perPageStr as string) : 0;
+      if (obj.perPage !== undefined && Number.isNaN(obj.perPage))
+        obj.perPage = 0;
+    }
+    {
+      // Collect array items from indexed form fields
+      const columnConfigsItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("columnConfigs." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("columnConfigs." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("columnConfigs." + idx + ".")) {
+              const fieldName = key.slice(
+                "columnConfigs.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          columnConfigsItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.columnConfigs = columnConfigsItems;
+    }
+    return OverviewSettings.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      rowHeight: {
+        path: ["rowHeight"] as const,
+        name: "rowHeight",
+        constraints: { required: true },
+
+        get: (data: Data) => data.rowHeight,
+        set: (data: Data, value: RowHeight) => {
+          data.rowHeight = value;
+        },
+        getError: (errors: Errors) => errors?.rowHeight,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.rowHeight = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.rowHeight ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.rowHeight = value;
+        },
+        validate: (_value: RowHeight): Array<string> => [],
+      },
+      cardOrRow: {
+        path: ["cardOrRow"] as const,
+        name: "cardOrRow",
+        constraints: { required: true },
+
+        get: (data: Data) => data.cardOrRow,
+        set: (data: Data, value: OverviewDisplay) => {
+          data.cardOrRow = value;
+        },
+        getError: (errors: Errors) => errors?.cardOrRow,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.cardOrRow = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.cardOrRow ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.cardOrRow = value;
+        },
+        validate: (_value: OverviewDisplay): Array<string> => [],
+      },
+      perPage: {
+        path: ["perPage"] as const,
+        name: "perPage",
+        constraints: { required: true },
+
+        get: (data: Data) => data.perPage,
+        set: (data: Data, value: number) => {
+          data.perPage = value;
+        },
+        getError: (errors: Errors) => errors?.perPage,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.perPage = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.perPage ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.perPage = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      columnConfigs: {
+        path: ["columnConfigs"] as const,
+        name: "columnConfigs",
+        constraints: { required: true },
+
+        get: (data: Data) => data.columnConfigs,
+        set: (data: Data, value: ColumnConfig[]) => {
+          data.columnConfigs = value;
+        },
+        getError: (errors: Errors) => errors?.columnConfigs,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.columnConfigs = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.columnConfigs ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.columnConfigs = value;
+        },
+        validate: (_value: ColumnConfig[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["columnConfigs"], index] as const,
+          name: `columnConfigs.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.columnConfigs[index],
+          set: (data: Data, value: ColumnConfig) => {
+            data.columnConfigs[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.columnConfigs as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.columnConfigs ??= {};
+            (errors.columnConfigs as Record<number, Array<string>>)[index] =
+              value!;
+          },
+          getTainted: (tainted: Tainted) =>
+            tainted.columnConfigs?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.columnConfigs ??= {};
+            tainted.columnConfigs[index] = value;
+          },
+          validate: (_value: ColumnConfig): Array<string> => [],
+        }),
+        push: (data: Data, item: ColumnConfig) => {
+          data.columnConfigs.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.columnConfigs.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.columnConfigs[a], data.columnConfigs[b]] = [
+            data.columnConfigs[b],
+            data.columnConfigs[a],
+          ];
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -3695,7 +8266,7 @@ export namespace FirstName {
 }
 
 export namespace FirstName {
-  export function toJson(self: FirstName): string {
+  export function toStringifiedJSON(self: FirstName): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -3715,23 +8286,28 @@ export namespace FirstName {
 }
 
 export namespace FirstName {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<FirstName, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "FirstName.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "FirstName.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -3760,8 +8336,51 @@ export namespace FirstName {
       const __raw_name = obj["name"];
       instance.name = __raw_name;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as FirstName;
   }
+}
+
+export namespace FirstName {
+  export type Data = FirstName;
+  export type Errors = { _errors?: Array<string>; name?: Array<string> };
+  export type Tainted = { name?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.name = formData.get("name") ?? "";
+    return FirstName.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      name: {
+        path: ["name"] as const,
+        name: "name",
+        constraints: { required: true },
+
+        get: (data: Data) => data.name,
+        set: (data: Data, value: string) => {
+          data.name = value;
+        },
+        getError: (errors: Errors) => errors?.name,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.name = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.name ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.name = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -3795,7 +8414,7 @@ export interface Account {
 }
 
 export namespace Account {
-  export function toJson(self: Account): string {
+  export function toStringifiedJSON(self: Account): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -3872,23 +8491,28 @@ export namespace Account {
 }
 
 export namespace Account {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Account, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Account.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Account.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -4099,8 +8723,896 @@ export namespace Account {
       const __raw_dateAdded = obj["dateAdded"];
       instance.dateAdded = __raw_dateAdded;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Account;
   }
+}
+
+export namespace Account {
+  export type Data = Account;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    taxRate?: Array<string>;
+    site?: Array<string>;
+    salesRep?: Array<string>;
+    orders?: { _errors?: Array<string>; [index: number]: Ordered.Errors };
+    activity?: { _errors?: Array<string>; [index: number]: Did.Errors };
+    customFields?: { _errors?: Array<string>; [index: number]: Array<string> };
+    accountName?: AccountName.Errors;
+    sector?: Sector.Errors;
+    memo?: Array<string>;
+    phones?: { _errors?: Array<string>; [index: number]: PhoneNumber.Errors };
+    email?: Email.Errors;
+    leadSource?: Array<string>;
+    colors?: Colors.Errors;
+    needsReview?: Array<string>;
+    hasAlert?: Array<string>;
+    accountType?: Array<string>;
+    subtype?: Array<string>;
+    isTaxExempt?: Array<string>;
+    paymentTerms?: Array<string>;
+    tags?: { _errors?: Array<string>; [index: number]: Array<string> };
+    dateAdded?: Array<string>;
+  };
+  export type Tainted = {
+    id?: boolean;
+    taxRate?: boolean;
+    site?: boolean;
+    salesRep?: boolean;
+    orders?: { [index: number]: Ordered.Tainted };
+    activity?: { [index: number]: Did.Tainted };
+    customFields?: { [index: number]: boolean };
+    accountName?: AccountName.Tainted;
+    sector?: Sector.Tainted;
+    memo?: boolean;
+    phones?: { [index: number]: PhoneNumber.Tainted };
+    email?: Email.Tainted;
+    leadSource?: boolean;
+    colors?: Colors.Tainted;
+    needsReview?: boolean;
+    hasAlert?: boolean;
+    accountType?: boolean;
+    subtype?: boolean;
+    isTaxExempt?: boolean;
+    paymentTerms?: boolean;
+    tags?: { [index: number]: boolean };
+    dateAdded?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.taxRate = formData.get("taxRate") ?? "";
+    obj.site = formData.get("site") ?? "";
+    obj.salesRep = formData.get("salesRep") ?? "";
+    {
+      // Collect array items from indexed form fields
+      const ordersItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("orders." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("orders." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("orders." + idx + ".")) {
+              const fieldName = key.slice(
+                "orders.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          ordersItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.orders = ordersItems;
+    }
+    {
+      // Collect array items from indexed form fields
+      const activityItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("activity." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("activity." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("activity." + idx + ".")) {
+              const fieldName = key.slice(
+                "activity.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          activityItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.activity = activityItems;
+    }
+    {
+      // Collect array items from indexed form fields
+      const customFieldsItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("customFields." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("customFields." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("customFields." + idx + ".")) {
+              const fieldName = key.slice(
+                "customFields.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          customFieldsItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.customFields = customFieldsItems;
+    }
+    {
+      // Collect nested object fields with prefix "accountName."
+      const accountNameObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("accountName.")) {
+          const fieldName = key.slice("accountName.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = accountNameObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.accountName = accountNameObj;
+    }
+    {
+      // Collect nested object fields with prefix "sector."
+      const sectorObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("sector.")) {
+          const fieldName = key.slice("sector.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = sectorObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.sector = sectorObj;
+    }
+    obj.memo = formData.get("memo") ?? "";
+    {
+      // Collect array items from indexed form fields
+      const phonesItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("phones." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("phones." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("phones." + idx + ".")) {
+              const fieldName = key.slice(
+                "phones.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          phonesItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.phones = phonesItems;
+    }
+    {
+      // Collect nested object fields with prefix "email."
+      const emailObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("email.")) {
+          const fieldName = key.slice("email.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = emailObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.email = emailObj;
+    }
+    obj.leadSource = formData.get("leadSource") ?? "";
+    {
+      // Collect nested object fields with prefix "colors."
+      const colorsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("colors.")) {
+          const fieldName = key.slice("colors.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = colorsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.colors = colorsObj;
+    }
+    {
+      const needsReviewVal = formData.get("needsReview");
+      obj.needsReview =
+        needsReviewVal === "true" ||
+        needsReviewVal === "on" ||
+        needsReviewVal === "1";
+    }
+    {
+      const hasAlertVal = formData.get("hasAlert");
+      obj.hasAlert =
+        hasAlertVal === "true" || hasAlertVal === "on" || hasAlertVal === "1";
+    }
+    obj.accountType = formData.get("accountType") ?? "";
+    obj.subtype = formData.get("subtype") ?? "";
+    {
+      const isTaxExemptVal = formData.get("isTaxExempt");
+      obj.isTaxExempt =
+        isTaxExemptVal === "true" ||
+        isTaxExemptVal === "on" ||
+        isTaxExemptVal === "1";
+    }
+    obj.paymentTerms = formData.get("paymentTerms") ?? "";
+    obj.tags = formData.getAll("tags") as Array<string>;
+    obj.dateAdded = formData.get("dateAdded") ?? "";
+    return Account.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      taxRate: {
+        path: ["taxRate"] as const,
+        name: "taxRate",
+        constraints: { required: true },
+
+        get: (data: Data) => data.taxRate,
+        set: (data: Data, value: string | TaxRate) => {
+          data.taxRate = value;
+        },
+        getError: (errors: Errors) => errors?.taxRate,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.taxRate = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.taxRate ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.taxRate = value;
+        },
+        validate: (_value: string | TaxRate): Array<string> => [],
+      },
+      site: {
+        path: ["site"] as const,
+        name: "site",
+        constraints: { required: true },
+
+        get: (data: Data) => data.site,
+        set: (data: Data, value: string | Site) => {
+          data.site = value;
+        },
+        getError: (errors: Errors) => errors?.site,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.site = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.site ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.site = value;
+        },
+        validate: (_value: string | Site): Array<string> => [],
+      },
+      salesRep: {
+        path: ["salesRep"] as const,
+        name: "salesRep",
+        constraints: { required: true },
+
+        get: (data: Data) => data.salesRep,
+        set: (data: Data, value: Represents[] | null) => {
+          data.salesRep = value;
+        },
+        getError: (errors: Errors) => errors?.salesRep,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.salesRep = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.salesRep ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.salesRep = value;
+        },
+        validate: (_value: Represents[] | null): Array<string> => [],
+      },
+      orders: {
+        path: ["orders"] as const,
+        name: "orders",
+        constraints: { required: true },
+
+        get: (data: Data) => data.orders,
+        set: (data: Data, value: Ordered[]) => {
+          data.orders = value;
+        },
+        getError: (errors: Errors) => errors?.orders,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.orders = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.orders ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.orders = value;
+        },
+        validate: (_value: Ordered[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["orders"], index] as const,
+          name: `orders.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.orders[index],
+          set: (data: Data, value: Ordered) => {
+            data.orders[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.orders as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.orders ??= {};
+            (errors.orders as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.orders?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.orders ??= {};
+            tainted.orders[index] = value;
+          },
+          validate: (_value: Ordered): Array<string> => [],
+        }),
+        push: (data: Data, item: Ordered) => {
+          data.orders.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.orders.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.orders[a], data.orders[b]] = [data.orders[b], data.orders[a]];
+        },
+      },
+      activity: {
+        path: ["activity"] as const,
+        name: "activity",
+        constraints: { required: true },
+
+        get: (data: Data) => data.activity,
+        set: (data: Data, value: Did[]) => {
+          data.activity = value;
+        },
+        getError: (errors: Errors) => errors?.activity,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.activity = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.activity ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.activity = value;
+        },
+        validate: (_value: Did[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["activity"], index] as const,
+          name: `activity.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.activity[index],
+          set: (data: Data, value: Did) => {
+            data.activity[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.activity as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.activity ??= {};
+            (errors.activity as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.activity?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.activity ??= {};
+            tainted.activity[index] = value;
+          },
+          validate: (_value: Did): Array<string> => [],
+        }),
+        push: (data: Data, item: Did) => {
+          data.activity.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.activity.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.activity[a], data.activity[b]] = [
+            data.activity[b],
+            data.activity[a],
+          ];
+        },
+      },
+      customFields: {
+        path: ["customFields"] as const,
+        name: "customFields",
+        constraints: { required: true },
+
+        get: (data: Data) => data.customFields,
+        set: (data: Data, value: [string, string][]) => {
+          data.customFields = value;
+        },
+        getError: (errors: Errors) => errors?.customFields,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.customFields = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.customFields ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.customFields = value;
+        },
+        validate: (_value: [string, string][]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["customFields"], index] as const,
+          name: `customFields.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.customFields[index],
+          set: (data: Data, value: [string, string]) => {
+            data.customFields[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.customFields as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.customFields ??= {};
+            (errors.customFields as Record<number, Array<string>>)[index] =
+              value!;
+          },
+          getTainted: (tainted: Tainted) =>
+            tainted.customFields?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.customFields ??= {};
+            tainted.customFields[index] = value;
+          },
+          validate: (_value: [string, string]): Array<string> => [],
+        }),
+        push: (data: Data, item: [string, string]) => {
+          data.customFields.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.customFields.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.customFields[a], data.customFields[b]] = [
+            data.customFields[b],
+            data.customFields[a],
+          ];
+        },
+      },
+      accountName: {
+        path: ["accountName"] as const,
+        name: "accountName",
+        constraints: { required: true },
+
+        get: (data: Data) => data.accountName,
+        set: (data: Data, value: AccountName) => {
+          data.accountName = value;
+        },
+        getError: (errors: Errors) => errors?.accountName,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.accountName = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.accountName ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.accountName = value;
+        },
+        validate: (_value: AccountName): Array<string> => [],
+      },
+      sector: {
+        path: ["sector"] as const,
+        name: "sector",
+        constraints: { required: true },
+
+        get: (data: Data) => data.sector,
+        set: (data: Data, value: Sector) => {
+          data.sector = value;
+        },
+        getError: (errors: Errors) => errors?.sector,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.sector = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.sector ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.sector = value;
+        },
+        validate: (_value: Sector): Array<string> => [],
+      },
+      memo: {
+        path: ["memo"] as const,
+        name: "memo",
+        constraints: { required: true },
+
+        get: (data: Data) => data.memo,
+        set: (data: Data, value: string | null) => {
+          data.memo = value;
+        },
+        getError: (errors: Errors) => errors?.memo,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.memo = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.memo ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.memo = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      phones: {
+        path: ["phones"] as const,
+        name: "phones",
+        constraints: { required: true },
+
+        get: (data: Data) => data.phones,
+        set: (data: Data, value: PhoneNumber[]) => {
+          data.phones = value;
+        },
+        getError: (errors: Errors) => errors?.phones,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.phones = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.phones ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.phones = value;
+        },
+        validate: (_value: PhoneNumber[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["phones"], index] as const,
+          name: `phones.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.phones[index],
+          set: (data: Data, value: PhoneNumber) => {
+            data.phones[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.phones as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.phones ??= {};
+            (errors.phones as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.phones?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.phones ??= {};
+            tainted.phones[index] = value;
+          },
+          validate: (_value: PhoneNumber): Array<string> => [],
+        }),
+        push: (data: Data, item: PhoneNumber) => {
+          data.phones.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.phones.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.phones[a], data.phones[b]] = [data.phones[b], data.phones[a]];
+        },
+      },
+      email: {
+        path: ["email"] as const,
+        name: "email",
+        constraints: { required: true },
+
+        get: (data: Data) => data.email,
+        set: (data: Data, value: Email) => {
+          data.email = value;
+        },
+        getError: (errors: Errors) => errors?.email,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.email = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.email ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.email = value;
+        },
+        validate: (_value: Email): Array<string> => [],
+      },
+      leadSource: {
+        path: ["leadSource"] as const,
+        name: "leadSource",
+        constraints: { required: true },
+
+        get: (data: Data) => data.leadSource,
+        set: (data: Data, value: string) => {
+          data.leadSource = value;
+        },
+        getError: (errors: Errors) => errors?.leadSource,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.leadSource = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.leadSource ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.leadSource = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      colors: {
+        path: ["colors"] as const,
+        name: "colors",
+        constraints: { required: true },
+
+        get: (data: Data) => data.colors,
+        set: (data: Data, value: Colors) => {
+          data.colors = value;
+        },
+        getError: (errors: Errors) => errors?.colors,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.colors = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.colors ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.colors = value;
+        },
+        validate: (_value: Colors): Array<string> => [],
+      },
+      needsReview: {
+        path: ["needsReview"] as const,
+        name: "needsReview",
+        constraints: { required: true },
+
+        get: (data: Data) => data.needsReview,
+        set: (data: Data, value: boolean) => {
+          data.needsReview = value;
+        },
+        getError: (errors: Errors) => errors?.needsReview,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.needsReview = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.needsReview ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.needsReview = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      hasAlert: {
+        path: ["hasAlert"] as const,
+        name: "hasAlert",
+        constraints: { required: true },
+
+        get: (data: Data) => data.hasAlert,
+        set: (data: Data, value: boolean) => {
+          data.hasAlert = value;
+        },
+        getError: (errors: Errors) => errors?.hasAlert,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.hasAlert = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.hasAlert ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.hasAlert = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      accountType: {
+        path: ["accountType"] as const,
+        name: "accountType",
+        constraints: { required: true },
+
+        get: (data: Data) => data.accountType,
+        set: (data: Data, value: string) => {
+          data.accountType = value;
+        },
+        getError: (errors: Errors) => errors?.accountType,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.accountType = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.accountType ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.accountType = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      subtype: {
+        path: ["subtype"] as const,
+        name: "subtype",
+        constraints: { required: true },
+
+        get: (data: Data) => data.subtype,
+        set: (data: Data, value: string) => {
+          data.subtype = value;
+        },
+        getError: (errors: Errors) => errors?.subtype,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.subtype = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.subtype ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.subtype = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      isTaxExempt: {
+        path: ["isTaxExempt"] as const,
+        name: "isTaxExempt",
+        constraints: { required: true },
+
+        get: (data: Data) => data.isTaxExempt,
+        set: (data: Data, value: boolean) => {
+          data.isTaxExempt = value;
+        },
+        getError: (errors: Errors) => errors?.isTaxExempt,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.isTaxExempt = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.isTaxExempt ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.isTaxExempt = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      paymentTerms: {
+        path: ["paymentTerms"] as const,
+        name: "paymentTerms",
+        constraints: { required: true },
+
+        get: (data: Data) => data.paymentTerms,
+        set: (data: Data, value: string) => {
+          data.paymentTerms = value;
+        },
+        getError: (errors: Errors) => errors?.paymentTerms,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.paymentTerms = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.paymentTerms ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.paymentTerms = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      tags: {
+        path: ["tags"] as const,
+        name: "tags",
+        constraints: { required: true },
+
+        get: (data: Data) => data.tags,
+        set: (data: Data, value: string[]) => {
+          data.tags = value;
+        },
+        getError: (errors: Errors) => errors?.tags,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.tags = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.tags ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.tags = value;
+        },
+        validate: (_value: string[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["tags"], index] as const,
+          name: `tags.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.tags[index],
+          set: (data: Data, value: string) => {
+            data.tags[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.tags as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.tags ??= {};
+            (errors.tags as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.tags?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.tags ??= {};
+            tainted.tags[index] = value;
+          },
+          validate: (_value: string): Array<string> => [],
+        }),
+        push: (data: Data, item: string) => {
+          data.tags.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.tags.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.tags[a], data.tags[b]] = [data.tags[b], data.tags[a]];
+        },
+      },
+      dateAdded: {
+        path: ["dateAdded"] as const,
+        name: "dateAdded",
+        constraints: { required: true },
+
+        get: (data: Data) => data.dateAdded,
+        set: (data: Data, value: string) => {
+          data.dateAdded = value;
+        },
+        getError: (errors: Errors) => errors?.dateAdded,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.dateAdded = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.dateAdded ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.dateAdded = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -4117,7 +9629,7 @@ export namespace Edited {
 }
 
 export namespace Edited {
-  export function toJson(self: Edited): string {
+  export function toStringifiedJSON(self: Edited): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -4153,23 +9665,28 @@ export namespace Edited {
 }
 
 export namespace Edited {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Edited, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Edited.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Edited.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -4212,8 +9729,100 @@ export namespace Edited {
       const __raw_newValue = obj["newValue"];
       instance.newValue = __raw_newValue;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Edited;
   }
+}
+
+export namespace Edited {
+  export type Data = Edited;
+  export type Errors = {
+    _errors?: Array<string>;
+    fieldName?: Array<string>;
+    oldValue?: Array<string>;
+    newValue?: Array<string>;
+  };
+  export type Tainted = {
+    fieldName?: boolean;
+    oldValue?: boolean;
+    newValue?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.fieldName = formData.get("fieldName") ?? "";
+    obj.oldValue = formData.get("oldValue") ?? "";
+    obj.newValue = formData.get("newValue") ?? "";
+    return Edited.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      fieldName: {
+        path: ["fieldName"] as const,
+        name: "fieldName",
+        constraints: { required: true },
+
+        get: (data: Data) => data.fieldName,
+        set: (data: Data, value: string) => {
+          data.fieldName = value;
+        },
+        getError: (errors: Errors) => errors?.fieldName,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.fieldName = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.fieldName ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.fieldName = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      oldValue: {
+        path: ["oldValue"] as const,
+        name: "oldValue",
+        constraints: { required: true },
+
+        get: (data: Data) => data.oldValue,
+        set: (data: Data, value: string | null) => {
+          data.oldValue = value;
+        },
+        getError: (errors: Errors) => errors?.oldValue,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.oldValue = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.oldValue ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.oldValue = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      newValue: {
+        path: ["newValue"] as const,
+        name: "newValue",
+        constraints: { required: true },
+
+        get: (data: Data) => data.newValue,
+        set: (data: Data, value: string | null) => {
+          data.newValue = value;
+        },
+        getError: (errors: Errors) => errors?.newValue,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.newValue = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.newValue ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.newValue = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -4257,7 +9866,7 @@ export interface Order {
 }
 
 export namespace Order {
-  export function toJson(self: Order): string {
+  export function toStringifiedJSON(self: Order): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -4330,21 +9939,28 @@ export namespace Order {
 }
 
 export namespace Order {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Order, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err(["Order.fromJson: root cannot be a forward reference"]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Order.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -4574,8 +10190,982 @@ export namespace Order {
       const __raw_commissions = obj["commissions"];
       instance.commissions = __raw_commissions;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Order;
   }
+}
+
+export namespace Order {
+  export type Data = Order;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    account?: Array<string>;
+    stage?: OrderStage.Errors;
+    number?: Array<string>;
+    payments?: { _errors?: Array<string>; [index: number]: Array<string> };
+    opportunity?: Array<string>;
+    reference?: Array<string>;
+    leadSource?: Array<string>;
+    salesRep?: Array<string>;
+    group?: Array<string>;
+    subgroup?: Array<string>;
+    isPosted?: Array<string>;
+    needsReview?: Array<string>;
+    actionItem?: Array<string>;
+    upsale?: Array<string>;
+    dateCreated?: Array<string>;
+    appointment?: Array<string>;
+    lastTechs?: { _errors?: Array<string>; [index: number]: Array<string> };
+    package?: Array<string>;
+    promotion?: Array<string>;
+    balance?: Array<string>;
+    due?: Array<string>;
+    total?: Array<string>;
+    site?: Array<string>;
+    billedItems?: {
+      _errors?: Array<string>;
+      [index: number]: BilledItem.Errors;
+    };
+    memo?: Array<string>;
+    discount?: Array<string>;
+    tip?: Array<string>;
+    commissions?: { _errors?: Array<string>; [index: number]: Array<string> };
+  };
+  export type Tainted = {
+    id?: boolean;
+    account?: boolean;
+    stage?: OrderStage.Tainted;
+    number?: boolean;
+    payments?: { [index: number]: boolean };
+    opportunity?: boolean;
+    reference?: boolean;
+    leadSource?: boolean;
+    salesRep?: boolean;
+    group?: boolean;
+    subgroup?: boolean;
+    isPosted?: boolean;
+    needsReview?: boolean;
+    actionItem?: boolean;
+    upsale?: boolean;
+    dateCreated?: boolean;
+    appointment?: boolean;
+    lastTechs?: { [index: number]: boolean };
+    package?: boolean;
+    promotion?: boolean;
+    balance?: boolean;
+    due?: boolean;
+    total?: boolean;
+    site?: boolean;
+    billedItems?: { [index: number]: BilledItem.Tainted };
+    memo?: boolean;
+    discount?: boolean;
+    tip?: boolean;
+    commissions?: { [index: number]: boolean };
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.account = formData.get("account") ?? "";
+    {
+      // Collect nested object fields with prefix "stage."
+      const stageObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("stage.")) {
+          const fieldName = key.slice("stage.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = stageObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.stage = stageObj;
+    }
+    {
+      const numberStr = formData.get("number");
+      obj.number = numberStr ? parseFloat(numberStr as string) : 0;
+      if (obj.number !== undefined && Number.isNaN(obj.number)) obj.number = 0;
+    }
+    {
+      // Collect array items from indexed form fields
+      const paymentsItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("payments." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("payments." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("payments." + idx + ".")) {
+              const fieldName = key.slice(
+                "payments.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          paymentsItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.payments = paymentsItems;
+    }
+    obj.opportunity = formData.get("opportunity") ?? "";
+    obj.reference = formData.get("reference") ?? "";
+    obj.leadSource = formData.get("leadSource") ?? "";
+    obj.salesRep = formData.get("salesRep") ?? "";
+    obj.group = formData.get("group") ?? "";
+    obj.subgroup = formData.get("subgroup") ?? "";
+    {
+      const isPostedVal = formData.get("isPosted");
+      obj.isPosted =
+        isPostedVal === "true" || isPostedVal === "on" || isPostedVal === "1";
+    }
+    {
+      const needsReviewVal = formData.get("needsReview");
+      obj.needsReview =
+        needsReviewVal === "true" ||
+        needsReviewVal === "on" ||
+        needsReviewVal === "1";
+    }
+    obj.actionItem = formData.get("actionItem") ?? "";
+    {
+      const upsaleStr = formData.get("upsale");
+      obj.upsale = upsaleStr ? parseFloat(upsaleStr as string) : 0;
+      if (obj.upsale !== undefined && Number.isNaN(obj.upsale)) obj.upsale = 0;
+    }
+    obj.dateCreated = formData.get("dateCreated") ?? "";
+    obj.appointment = formData.get("appointment") ?? "";
+    {
+      // Collect array items from indexed form fields
+      const lastTechsItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("lastTechs." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("lastTechs." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("lastTechs." + idx + ".")) {
+              const fieldName = key.slice(
+                "lastTechs.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          lastTechsItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.lastTechs = lastTechsItems;
+    }
+    obj.package = formData.get("package") ?? "";
+    obj.promotion = formData.get("promotion") ?? "";
+    {
+      const balanceStr = formData.get("balance");
+      obj.balance = balanceStr ? parseFloat(balanceStr as string) : 0;
+      if (obj.balance !== undefined && Number.isNaN(obj.balance))
+        obj.balance = 0;
+    }
+    obj.due = formData.get("due") ?? "";
+    {
+      const totalStr = formData.get("total");
+      obj.total = totalStr ? parseFloat(totalStr as string) : 0;
+      if (obj.total !== undefined && Number.isNaN(obj.total)) obj.total = 0;
+    }
+    obj.site = formData.get("site") ?? "";
+    {
+      // Collect array items from indexed form fields
+      const billedItemsItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("billedItems." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("billedItems." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("billedItems." + idx + ".")) {
+              const fieldName = key.slice(
+                "billedItems.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          billedItemsItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.billedItems = billedItemsItems;
+    }
+    obj.memo = formData.get("memo") ?? "";
+    {
+      const discountStr = formData.get("discount");
+      obj.discount = discountStr ? parseFloat(discountStr as string) : 0;
+      if (obj.discount !== undefined && Number.isNaN(obj.discount))
+        obj.discount = 0;
+    }
+    {
+      const tipStr = formData.get("tip");
+      obj.tip = tipStr ? parseFloat(tipStr as string) : 0;
+      if (obj.tip !== undefined && Number.isNaN(obj.tip)) obj.tip = 0;
+    }
+    obj.commissions = formData
+      .getAll("commissions")
+      .map((v) => parseFloat(v as string))
+      .filter((n) => !Number.isNaN(n));
+    return Order.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      account: {
+        path: ["account"] as const,
+        name: "account",
+        constraints: { required: true },
+
+        get: (data: Data) => data.account,
+        set: (data: Data, value: string | Account) => {
+          data.account = value;
+        },
+        getError: (errors: Errors) => errors?.account,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.account = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.account ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.account = value;
+        },
+        validate: (_value: string | Account): Array<string> => [],
+      },
+      stage: {
+        path: ["stage"] as const,
+        name: "stage",
+        constraints: { required: true },
+
+        get: (data: Data) => data.stage,
+        set: (data: Data, value: OrderStage) => {
+          data.stage = value;
+        },
+        getError: (errors: Errors) => errors?.stage,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.stage = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.stage ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.stage = value;
+        },
+        validate: (_value: OrderStage): Array<string> => [],
+      },
+      number: {
+        path: ["number"] as const,
+        name: "number",
+        constraints: { required: true },
+
+        get: (data: Data) => data.number,
+        set: (data: Data, value: number) => {
+          data.number = value;
+        },
+        getError: (errors: Errors) => errors?.number,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.number = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.number ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.number = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      payments: {
+        path: ["payments"] as const,
+        name: "payments",
+        constraints: { required: true },
+
+        get: (data: Data) => data.payments,
+        set: (data: Data, value: (string | Payment)[]) => {
+          data.payments = value;
+        },
+        getError: (errors: Errors) => errors?.payments,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.payments = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.payments ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.payments = value;
+        },
+        validate: (_value: (string | Payment)[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["payments"], index] as const,
+          name: `payments.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.payments[index],
+          set: (data: Data, value: string | Payment) => {
+            data.payments[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.payments as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.payments ??= {};
+            (errors.payments as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.payments?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.payments ??= {};
+            tainted.payments[index] = value;
+          },
+          validate: (_value: string | Payment): Array<string> => [],
+        }),
+        push: (data: Data, item: string | Payment) => {
+          data.payments.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.payments.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.payments[a], data.payments[b]] = [
+            data.payments[b],
+            data.payments[a],
+          ];
+        },
+      },
+      opportunity: {
+        path: ["opportunity"] as const,
+        name: "opportunity",
+        constraints: { required: true },
+
+        get: (data: Data) => data.opportunity,
+        set: (data: Data, value: string) => {
+          data.opportunity = value;
+        },
+        getError: (errors: Errors) => errors?.opportunity,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.opportunity = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.opportunity ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.opportunity = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      reference: {
+        path: ["reference"] as const,
+        name: "reference",
+        constraints: { required: true },
+
+        get: (data: Data) => data.reference,
+        set: (data: Data, value: string) => {
+          data.reference = value;
+        },
+        getError: (errors: Errors) => errors?.reference,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.reference = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.reference ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.reference = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      leadSource: {
+        path: ["leadSource"] as const,
+        name: "leadSource",
+        constraints: { required: true },
+
+        get: (data: Data) => data.leadSource,
+        set: (data: Data, value: string) => {
+          data.leadSource = value;
+        },
+        getError: (errors: Errors) => errors?.leadSource,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.leadSource = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.leadSource ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.leadSource = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      salesRep: {
+        path: ["salesRep"] as const,
+        name: "salesRep",
+        constraints: { required: true },
+
+        get: (data: Data) => data.salesRep,
+        set: (data: Data, value: string | Employee) => {
+          data.salesRep = value;
+        },
+        getError: (errors: Errors) => errors?.salesRep,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.salesRep = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.salesRep ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.salesRep = value;
+        },
+        validate: (_value: string | Employee): Array<string> => [],
+      },
+      group: {
+        path: ["group"] as const,
+        name: "group",
+        constraints: { required: true },
+
+        get: (data: Data) => data.group,
+        set: (data: Data, value: string) => {
+          data.group = value;
+        },
+        getError: (errors: Errors) => errors?.group,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.group = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.group ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.group = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      subgroup: {
+        path: ["subgroup"] as const,
+        name: "subgroup",
+        constraints: { required: true },
+
+        get: (data: Data) => data.subgroup,
+        set: (data: Data, value: string) => {
+          data.subgroup = value;
+        },
+        getError: (errors: Errors) => errors?.subgroup,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.subgroup = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.subgroup ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.subgroup = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      isPosted: {
+        path: ["isPosted"] as const,
+        name: "isPosted",
+        constraints: { required: true },
+
+        get: (data: Data) => data.isPosted,
+        set: (data: Data, value: boolean) => {
+          data.isPosted = value;
+        },
+        getError: (errors: Errors) => errors?.isPosted,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.isPosted = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.isPosted ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.isPosted = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      needsReview: {
+        path: ["needsReview"] as const,
+        name: "needsReview",
+        constraints: { required: true },
+
+        get: (data: Data) => data.needsReview,
+        set: (data: Data, value: boolean) => {
+          data.needsReview = value;
+        },
+        getError: (errors: Errors) => errors?.needsReview,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.needsReview = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.needsReview ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.needsReview = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      actionItem: {
+        path: ["actionItem"] as const,
+        name: "actionItem",
+        constraints: { required: true },
+
+        get: (data: Data) => data.actionItem,
+        set: (data: Data, value: string) => {
+          data.actionItem = value;
+        },
+        getError: (errors: Errors) => errors?.actionItem,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.actionItem = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.actionItem ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.actionItem = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      upsale: {
+        path: ["upsale"] as const,
+        name: "upsale",
+        constraints: { required: true },
+
+        get: (data: Data) => data.upsale,
+        set: (data: Data, value: number) => {
+          data.upsale = value;
+        },
+        getError: (errors: Errors) => errors?.upsale,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.upsale = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.upsale ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.upsale = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      dateCreated: {
+        path: ["dateCreated"] as const,
+        name: "dateCreated",
+        constraints: { required: true },
+
+        get: (data: Data) => data.dateCreated,
+        set: (data: Data, value: string) => {
+          data.dateCreated = value;
+        },
+        getError: (errors: Errors) => errors?.dateCreated,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.dateCreated = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.dateCreated ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.dateCreated = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      appointment: {
+        path: ["appointment"] as const,
+        name: "appointment",
+        constraints: { required: true },
+
+        get: (data: Data) => data.appointment,
+        set: (data: Data, value: string | Appointment) => {
+          data.appointment = value;
+        },
+        getError: (errors: Errors) => errors?.appointment,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.appointment = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.appointment ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.appointment = value;
+        },
+        validate: (_value: string | Appointment): Array<string> => [],
+      },
+      lastTechs: {
+        path: ["lastTechs"] as const,
+        name: "lastTechs",
+        constraints: { required: true },
+
+        get: (data: Data) => data.lastTechs,
+        set: (data: Data, value: (string | Employee)[]) => {
+          data.lastTechs = value;
+        },
+        getError: (errors: Errors) => errors?.lastTechs,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.lastTechs = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.lastTechs ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.lastTechs = value;
+        },
+        validate: (_value: (string | Employee)[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["lastTechs"], index] as const,
+          name: `lastTechs.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.lastTechs[index],
+          set: (data: Data, value: string | Employee) => {
+            data.lastTechs[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.lastTechs as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.lastTechs ??= {};
+            (errors.lastTechs as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.lastTechs?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.lastTechs ??= {};
+            tainted.lastTechs[index] = value;
+          },
+          validate: (_value: string | Employee): Array<string> => [],
+        }),
+        push: (data: Data, item: string | Employee) => {
+          data.lastTechs.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.lastTechs.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.lastTechs[a], data.lastTechs[b]] = [
+            data.lastTechs[b],
+            data.lastTechs[a],
+          ];
+        },
+      },
+      package: {
+        path: ["package"] as const,
+        name: "package",
+        constraints: { required: true },
+
+        get: (data: Data) => data.package,
+        set: (data: Data, value: (string | Package)[] | null) => {
+          data.package = value;
+        },
+        getError: (errors: Errors) => errors?.package,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.package = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.package ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.package = value;
+        },
+        validate: (_value: (string | Package)[] | null): Array<string> => [],
+      },
+      promotion: {
+        path: ["promotion"] as const,
+        name: "promotion",
+        constraints: { required: true },
+
+        get: (data: Data) => data.promotion,
+        set: (data: Data, value: (string | Promotion)[] | null) => {
+          data.promotion = value;
+        },
+        getError: (errors: Errors) => errors?.promotion,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.promotion = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.promotion ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.promotion = value;
+        },
+        validate: (_value: (string | Promotion)[] | null): Array<string> => [],
+      },
+      balance: {
+        path: ["balance"] as const,
+        name: "balance",
+        constraints: { required: true },
+
+        get: (data: Data) => data.balance,
+        set: (data: Data, value: number) => {
+          data.balance = value;
+        },
+        getError: (errors: Errors) => errors?.balance,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.balance = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.balance ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.balance = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      due: {
+        path: ["due"] as const,
+        name: "due",
+        constraints: { required: true },
+
+        get: (data: Data) => data.due,
+        set: (data: Data, value: string) => {
+          data.due = value;
+        },
+        getError: (errors: Errors) => errors?.due,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.due = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.due ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.due = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      total: {
+        path: ["total"] as const,
+        name: "total",
+        constraints: { required: true },
+
+        get: (data: Data) => data.total,
+        set: (data: Data, value: number) => {
+          data.total = value;
+        },
+        getError: (errors: Errors) => errors?.total,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.total = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.total ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.total = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      site: {
+        path: ["site"] as const,
+        name: "site",
+        constraints: { required: true },
+
+        get: (data: Data) => data.site,
+        set: (data: Data, value: string | Site) => {
+          data.site = value;
+        },
+        getError: (errors: Errors) => errors?.site,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.site = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.site ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.site = value;
+        },
+        validate: (_value: string | Site): Array<string> => [],
+      },
+      billedItems: {
+        path: ["billedItems"] as const,
+        name: "billedItems",
+        constraints: { required: true },
+
+        get: (data: Data) => data.billedItems,
+        set: (data: Data, value: BilledItem[]) => {
+          data.billedItems = value;
+        },
+        getError: (errors: Errors) => errors?.billedItems,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.billedItems = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.billedItems ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.billedItems = value;
+        },
+        validate: (_value: BilledItem[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["billedItems"], index] as const,
+          name: `billedItems.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.billedItems[index],
+          set: (data: Data, value: BilledItem) => {
+            data.billedItems[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.billedItems as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.billedItems ??= {};
+            (errors.billedItems as Record<number, Array<string>>)[index] =
+              value!;
+          },
+          getTainted: (tainted: Tainted) =>
+            tainted.billedItems?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.billedItems ??= {};
+            tainted.billedItems[index] = value;
+          },
+          validate: (_value: BilledItem): Array<string> => [],
+        }),
+        push: (data: Data, item: BilledItem) => {
+          data.billedItems.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.billedItems.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.billedItems[a], data.billedItems[b]] = [
+            data.billedItems[b],
+            data.billedItems[a],
+          ];
+        },
+      },
+      memo: {
+        path: ["memo"] as const,
+        name: "memo",
+        constraints: { required: true },
+
+        get: (data: Data) => data.memo,
+        set: (data: Data, value: string) => {
+          data.memo = value;
+        },
+        getError: (errors: Errors) => errors?.memo,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.memo = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.memo ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.memo = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      discount: {
+        path: ["discount"] as const,
+        name: "discount",
+        constraints: { required: true },
+
+        get: (data: Data) => data.discount,
+        set: (data: Data, value: number) => {
+          data.discount = value;
+        },
+        getError: (errors: Errors) => errors?.discount,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.discount = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.discount ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.discount = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      tip: {
+        path: ["tip"] as const,
+        name: "tip",
+        constraints: { required: true },
+
+        get: (data: Data) => data.tip,
+        set: (data: Data, value: number) => {
+          data.tip = value;
+        },
+        getError: (errors: Errors) => errors?.tip,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.tip = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.tip ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.tip = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      commissions: {
+        path: ["commissions"] as const,
+        name: "commissions",
+        constraints: { required: true },
+
+        get: (data: Data) => data.commissions,
+        set: (data: Data, value: number[]) => {
+          data.commissions = value;
+        },
+        getError: (errors: Errors) => errors?.commissions,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.commissions = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.commissions ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.commissions = value;
+        },
+        validate: (_value: number[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["commissions"], index] as const,
+          name: `commissions.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.commissions[index],
+          set: (data: Data, value: number) => {
+            data.commissions[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.commissions as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.commissions ??= {};
+            (errors.commissions as Record<number, Array<string>>)[index] =
+              value!;
+          },
+          getTainted: (tainted: Tainted) =>
+            tainted.commissions?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.commissions ??= {};
+            tainted.commissions[index] = value;
+          },
+          validate: (_value: number): Array<string> => [],
+        }),
+        push: (data: Data, item: number) => {
+          data.commissions.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.commissions.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.commissions[a], data.commissions[b]] = [
+            data.commissions[b],
+            data.commissions[a],
+          ];
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -4591,7 +11181,7 @@ export namespace Commented {
 }
 
 export namespace Commented {
-  export function toJson(self: Commented): string {
+  export function toStringifiedJSON(self: Commented): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -4619,23 +11209,28 @@ export namespace Commented {
 }
 
 export namespace Commented {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Commented, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Commented.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Commented.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -4671,8 +11266,75 @@ export namespace Commented {
       const __raw_replyTo = obj["replyTo"];
       instance.replyTo = __raw_replyTo;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Commented;
   }
+}
+
+export namespace Commented {
+  export type Data = Commented;
+  export type Errors = {
+    _errors?: Array<string>;
+    comment?: Array<string>;
+    replyTo?: Array<string>;
+  };
+  export type Tainted = { comment?: boolean; replyTo?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.comment = formData.get("comment") ?? "";
+    obj.replyTo = formData.get("replyTo") ?? "";
+    return Commented.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      comment: {
+        path: ["comment"] as const,
+        name: "comment",
+        constraints: { required: true },
+
+        get: (data: Data) => data.comment,
+        set: (data: Data, value: string) => {
+          data.comment = value;
+        },
+        getError: (errors: Errors) => errors?.comment,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.comment = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.comment ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.comment = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      replyTo: {
+        path: ["replyTo"] as const,
+        name: "replyTo",
+        constraints: { required: true },
+
+        get: (data: Data) => data.replyTo,
+        set: (data: Data, value: string | null) => {
+          data.replyTo = value;
+        },
+        getError: (errors: Errors) => errors?.replyTo,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.replyTo = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.replyTo ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.replyTo = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -4687,7 +11349,7 @@ export namespace Custom {
 }
 
 export namespace Custom {
-  export function toJson(self: Custom): string {
+  export function toStringifiedJSON(self: Custom): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -4709,23 +11371,28 @@ export namespace Custom {
 }
 
 export namespace Custom {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Custom, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Custom.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Custom.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -4754,8 +11421,114 @@ export namespace Custom {
       const __raw_mappings = obj["mappings"];
       instance.mappings = __raw_mappings;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Custom;
   }
+}
+
+export namespace Custom {
+  export type Data = Custom;
+  export type Errors = {
+    _errors?: Array<string>;
+    mappings?: {
+      _errors?: Array<string>;
+      [index: number]: DirectionHue.Errors;
+    };
+  };
+  export type Tainted = {
+    mappings?: { [index: number]: DirectionHue.Tainted };
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      // Collect array items from indexed form fields
+      const mappingsItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("mappings." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("mappings." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("mappings." + idx + ".")) {
+              const fieldName = key.slice(
+                "mappings.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          mappingsItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.mappings = mappingsItems;
+    }
+    return Custom.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      mappings: {
+        path: ["mappings"] as const,
+        name: "mappings",
+        constraints: { required: true },
+
+        get: (data: Data) => data.mappings,
+        set: (data: Data, value: DirectionHue[]) => {
+          data.mappings = value;
+        },
+        getError: (errors: Errors) => errors?.mappings,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.mappings = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.mappings ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.mappings = value;
+        },
+        validate: (_value: DirectionHue[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["mappings"], index] as const,
+          name: `mappings.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.mappings[index],
+          set: (data: Data, value: DirectionHue) => {
+            data.mappings[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.mappings as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.mappings ??= {};
+            (errors.mappings as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.mappings?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.mappings ??= {};
+            tainted.mappings[index] = value;
+          },
+          validate: (_value: DirectionHue): Array<string> => [],
+        }),
+        push: (data: Data, item: DirectionHue) => {
+          data.mappings.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.mappings.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.mappings[a], data.mappings[b]] = [
+            data.mappings[b],
+            data.mappings[a],
+          ];
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -4774,7 +11547,7 @@ export namespace Colors {
 }
 
 export namespace Colors {
-  export function toJson(self: Colors): string {
+  export function toStringifiedJSON(self: Colors): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -4796,23 +11569,28 @@ export namespace Colors {
 }
 
 export namespace Colors {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Colors, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Colors.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Colors.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -4855,8 +11633,106 @@ export namespace Colors {
       const __raw_active = obj["active"];
       instance.active = __raw_active;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Colors;
   }
+}
+
+export namespace Colors {
+  export type Data = Colors;
+  export type Errors = {
+    _errors?: Array<string>;
+    main?: Array<string>;
+    hover?: Array<string>;
+    active?: Array<string>;
+  };
+  export type Tainted = { main?: boolean; hover?: boolean; active?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.main = formData.get("main") ?? "";
+    obj.hover = formData.get("hover") ?? "";
+    obj.active = formData.get("active") ?? "";
+    return Colors.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      main: {
+        path: ["main"] as const,
+        name: "main",
+        constraints: { required: true },
+
+        get: (data: Data) => data.main,
+        set: (data: Data, value: string) => {
+          data.main = value;
+        },
+        getError: (errors: Errors) => errors?.main,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.main = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.main ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.main = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      hover: {
+        path: ["hover"] as const,
+        name: "hover",
+        constraints: { required: true },
+
+        get: (data: Data) => data.hover,
+        set: (data: Data, value: string) => {
+          data.hover = value;
+        },
+        getError: (errors: Errors) => errors?.hover,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.hover = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.hover ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.hover = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      active: {
+        path: ["active"] as const,
+        name: "active",
+        constraints: { required: true },
+
+        get: (data: Data) => data.active,
+        set: (data: Data, value: string) => {
+          data.active = value;
+        },
+        getError: (errors: Errors) => errors?.active,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.active = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.active ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.active = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -4873,7 +11749,7 @@ export namespace ProductDefaults {
 }
 
 export namespace ProductDefaults {
-  export function toJson(self: ProductDefaults): string {
+  export function toStringifiedJSON(self: ProductDefaults): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -4894,23 +11770,28 @@ export namespace ProductDefaults {
 }
 
 export namespace ProductDefaults {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<ProductDefaults, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "ProductDefaults.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "ProductDefaults.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -4950,8 +11831,79 @@ export namespace ProductDefaults {
       const __raw_description = obj["description"];
       instance.description = __raw_description;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as ProductDefaults;
   }
+}
+
+export namespace ProductDefaults {
+  export type Data = ProductDefaults;
+  export type Errors = {
+    _errors?: Array<string>;
+    price?: Array<string>;
+    description?: Array<string>;
+  };
+  export type Tainted = { price?: boolean; description?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const priceStr = formData.get("price");
+      obj.price = priceStr ? parseFloat(priceStr as string) : 0;
+      if (obj.price !== undefined && Number.isNaN(obj.price)) obj.price = 0;
+    }
+    obj.description = formData.get("description") ?? "";
+    return ProductDefaults.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      price: {
+        path: ["price"] as const,
+        name: "price",
+        constraints: { required: true },
+
+        get: (data: Data) => data.price,
+        set: (data: Data, value: number) => {
+          data.price = value;
+        },
+        getError: (errors: Errors) => errors?.price,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.price = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.price ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.price = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      description: {
+        path: ["description"] as const,
+        name: "description",
+        constraints: { required: true },
+
+        get: (data: Data) => data.description,
+        set: (data: Data, value: string) => {
+          data.description = value;
+        },
+        getError: (errors: Errors) => errors?.description,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.description = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.description ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.description = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -4967,7 +11919,7 @@ export namespace Viewed {
 }
 
 export namespace Viewed {
-  export function toJson(self: Viewed): string {
+  export function toStringifiedJSON(self: Viewed): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -5002,23 +11954,28 @@ export namespace Viewed {
 }
 
 export namespace Viewed {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Viewed, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Viewed.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Viewed.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -5056,8 +12013,80 @@ export namespace Viewed {
       const __raw_source = obj["source"];
       instance.source = __raw_source;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Viewed;
   }
+}
+
+export namespace Viewed {
+  export type Data = Viewed;
+  export type Errors = {
+    _errors?: Array<string>;
+    durationSeconds?: Array<string>;
+    source?: Array<string>;
+  };
+  export type Tainted = { durationSeconds?: boolean; source?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const durationSecondsStr = formData.get("durationSeconds");
+      obj.durationSeconds = durationSecondsStr
+        ? parseFloat(durationSecondsStr as string)
+        : 0;
+      if (
+        obj.durationSeconds !== undefined &&
+        Number.isNaN(obj.durationSeconds)
+      )
+        obj.durationSeconds = 0;
+    }
+    obj.source = formData.get("source") ?? "";
+    return Viewed.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      durationSeconds: {
+        path: ["durationSeconds"] as const,
+        name: "durationSeconds",
+        constraints: { required: true },
+
+        get: (data: Data) => data.durationSeconds,
+        set: (data: Data, value: number | null) => {
+          data.durationSeconds = value;
+        },
+        getError: (errors: Errors) => errors?.durationSeconds,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.durationSeconds = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.durationSeconds ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.durationSeconds = value;
+        },
+        validate: (_value: number | null): Array<string> => [],
+      },
+      source: {
+        path: ["source"] as const,
+        name: "source",
+        constraints: { required: true },
+
+        get: (data: Data) => data.source,
+        set: (data: Data, value: string | null) => {
+          data.source = value;
+        },
+        getError: (errors: Errors) => errors?.source,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.source = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.source ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.source = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -5073,7 +12102,7 @@ export namespace WeeklyRecurrenceRule {
 }
 
 export namespace WeeklyRecurrenceRule {
-  export function toJson(self: WeeklyRecurrenceRule): string {
+  export function toStringifiedJSON(self: WeeklyRecurrenceRule): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -5099,23 +12128,28 @@ export namespace WeeklyRecurrenceRule {
 }
 
 export namespace WeeklyRecurrenceRule {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<WeeklyRecurrenceRule, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "WeeklyRecurrenceRule.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "WeeklyRecurrenceRule.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -5155,8 +12189,143 @@ export namespace WeeklyRecurrenceRule {
       const __raw_weekdays = obj["weekdays"];
       instance.weekdays = __raw_weekdays;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as WeeklyRecurrenceRule;
   }
+}
+
+export namespace WeeklyRecurrenceRule {
+  export type Data = WeeklyRecurrenceRule;
+  export type Errors = {
+    _errors?: Array<string>;
+    quantityOfWeeks?: Array<string>;
+    weekdays?: { _errors?: Array<string>; [index: number]: Weekday.Errors };
+  };
+  export type Tainted = {
+    quantityOfWeeks?: boolean;
+    weekdays?: { [index: number]: Weekday.Tainted };
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const quantityOfWeeksStr = formData.get("quantityOfWeeks");
+      obj.quantityOfWeeks = quantityOfWeeksStr
+        ? parseFloat(quantityOfWeeksStr as string)
+        : 0;
+      if (
+        obj.quantityOfWeeks !== undefined &&
+        Number.isNaN(obj.quantityOfWeeks)
+      )
+        obj.quantityOfWeeks = 0;
+    }
+    {
+      // Collect array items from indexed form fields
+      const weekdaysItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("weekdays." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("weekdays." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("weekdays." + idx + ".")) {
+              const fieldName = key.slice(
+                "weekdays.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          weekdaysItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.weekdays = weekdaysItems;
+    }
+    return WeeklyRecurrenceRule.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      quantityOfWeeks: {
+        path: ["quantityOfWeeks"] as const,
+        name: "quantityOfWeeks",
+        constraints: { required: true },
+
+        get: (data: Data) => data.quantityOfWeeks,
+        set: (data: Data, value: number) => {
+          data.quantityOfWeeks = value;
+        },
+        getError: (errors: Errors) => errors?.quantityOfWeeks,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.quantityOfWeeks = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.quantityOfWeeks ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.quantityOfWeeks = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      weekdays: {
+        path: ["weekdays"] as const,
+        name: "weekdays",
+        constraints: { required: true },
+
+        get: (data: Data) => data.weekdays,
+        set: (data: Data, value: Weekday[]) => {
+          data.weekdays = value;
+        },
+        getError: (errors: Errors) => errors?.weekdays,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.weekdays = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.weekdays ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.weekdays = value;
+        },
+        validate: (_value: Weekday[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["weekdays"], index] as const,
+          name: `weekdays.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.weekdays[index],
+          set: (data: Data, value: Weekday) => {
+            data.weekdays[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.weekdays as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.weekdays ??= {};
+            (errors.weekdays as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.weekdays?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.weekdays ??= {};
+            tainted.weekdays[index] = value;
+          },
+          validate: (_value: Weekday): Array<string> => [],
+        }),
+        push: (data: Data, item: Weekday) => {
+          data.weekdays.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.weekdays.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.weekdays[a], data.weekdays[b]] = [
+            data.weekdays[b],
+            data.weekdays[a],
+          ];
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -5173,7 +12342,7 @@ export namespace Paid {
 }
 
 export namespace Paid {
-  export function toJson(self: Paid): string {
+  export function toStringifiedJSON(self: Paid): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -5216,21 +12385,28 @@ export namespace Paid {
 }
 
 export namespace Paid {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Paid, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err(["Paid.fromJson: root cannot be a forward reference"]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Paid.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -5273,8 +12449,99 @@ export namespace Paid {
       const __raw_paymentMethod = obj["paymentMethod"];
       instance.paymentMethod = __raw_paymentMethod;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Paid;
   }
+}
+
+export namespace Paid {
+  export type Data = Paid;
+  export type Errors = {
+    _errors?: Array<string>;
+    amount?: Array<string>;
+    currency?: Array<string>;
+    paymentMethod?: Array<string>;
+  };
+  export type Tainted = {
+    amount?: boolean;
+    currency?: boolean;
+    paymentMethod?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const amountStr = formData.get("amount");
+      obj.amount = amountStr ? parseFloat(amountStr as string) : 0;
+      if (obj.amount !== undefined && Number.isNaN(obj.amount)) obj.amount = 0;
+    }
+    obj.currency = formData.get("currency") ?? "";
+    obj.paymentMethod = formData.get("paymentMethod") ?? "";
+    return Paid.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      amount: {
+        path: ["amount"] as const,
+        name: "amount",
+        constraints: { required: true },
+
+        get: (data: Data) => data.amount,
+        set: (data: Data, value: number | null) => {
+          data.amount = value;
+        },
+        getError: (errors: Errors) => errors?.amount,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.amount = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.amount ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.amount = value;
+        },
+        validate: (_value: number | null): Array<string> => [],
+      },
+      currency: {
+        path: ["currency"] as const,
+        name: "currency",
+        constraints: { required: true },
+
+        get: (data: Data) => data.currency,
+        set: (data: Data, value: string | null) => {
+          data.currency = value;
+        },
+        getError: (errors: Errors) => errors?.currency,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.currency = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.currency ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.currency = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      paymentMethod: {
+        path: ["paymentMethod"] as const,
+        name: "paymentMethod",
+        constraints: { required: true },
+
+        get: (data: Data) => data.paymentMethod,
+        set: (data: Data, value: string | null) => {
+          data.paymentMethod = value;
+        },
+        getError: (errors: Errors) => errors?.paymentMethod,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.paymentMethod = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.paymentMethod ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.paymentMethod = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -5298,7 +12565,7 @@ export interface TaxRate {
 }
 
 export namespace TaxRate {
-  export function toJson(self: TaxRate): string {
+  export function toStringifiedJSON(self: TaxRate): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -5327,23 +12594,28 @@ export namespace TaxRate {
 }
 
 export namespace TaxRate {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<TaxRate, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "TaxRate.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "TaxRate.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -5439,8 +12711,287 @@ export namespace TaxRate {
       const __raw_taxComponents = obj["taxComponents"];
       instance.taxComponents = __raw_taxComponents;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as TaxRate;
   }
+}
+
+export namespace TaxRate {
+  export type Data = TaxRate;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    name?: Array<string>;
+    taxAgency?: Array<string>;
+    zip?: Array<string>;
+    city?: Array<string>;
+    county?: Array<string>;
+    state?: Array<string>;
+    isActive?: Array<string>;
+    description?: Array<string>;
+    taxComponents?: Array<string>;
+  };
+  export type Tainted = {
+    id?: boolean;
+    name?: boolean;
+    taxAgency?: boolean;
+    zip?: boolean;
+    city?: boolean;
+    county?: boolean;
+    state?: boolean;
+    isActive?: boolean;
+    description?: boolean;
+    taxComponents?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.name = formData.get("name") ?? "";
+    obj.taxAgency = formData.get("taxAgency") ?? "";
+    {
+      const zipStr = formData.get("zip");
+      obj.zip = zipStr ? parseFloat(zipStr as string) : 0;
+      if (obj.zip !== undefined && Number.isNaN(obj.zip)) obj.zip = 0;
+    }
+    obj.city = formData.get("city") ?? "";
+    obj.county = formData.get("county") ?? "";
+    obj.state = formData.get("state") ?? "";
+    {
+      const isActiveVal = formData.get("isActive");
+      obj.isActive =
+        isActiveVal === "true" || isActiveVal === "on" || isActiveVal === "1";
+    }
+    obj.description = formData.get("description") ?? "";
+    obj.taxComponents = formData.get("taxComponents") ?? "";
+    return TaxRate.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      name: {
+        path: ["name"] as const,
+        name: "name",
+        constraints: { required: true },
+
+        get: (data: Data) => data.name,
+        set: (data: Data, value: string) => {
+          data.name = value;
+        },
+        getError: (errors: Errors) => errors?.name,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.name = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.name ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.name = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      taxAgency: {
+        path: ["taxAgency"] as const,
+        name: "taxAgency",
+        constraints: { required: true },
+
+        get: (data: Data) => data.taxAgency,
+        set: (data: Data, value: string) => {
+          data.taxAgency = value;
+        },
+        getError: (errors: Errors) => errors?.taxAgency,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.taxAgency = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.taxAgency ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.taxAgency = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      zip: {
+        path: ["zip"] as const,
+        name: "zip",
+        constraints: { required: true },
+
+        get: (data: Data) => data.zip,
+        set: (data: Data, value: number) => {
+          data.zip = value;
+        },
+        getError: (errors: Errors) => errors?.zip,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.zip = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.zip ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.zip = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      city: {
+        path: ["city"] as const,
+        name: "city",
+        constraints: { required: true },
+
+        get: (data: Data) => data.city,
+        set: (data: Data, value: string) => {
+          data.city = value;
+        },
+        getError: (errors: Errors) => errors?.city,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.city = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.city ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.city = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      county: {
+        path: ["county"] as const,
+        name: "county",
+        constraints: { required: true },
+
+        get: (data: Data) => data.county,
+        set: (data: Data, value: string) => {
+          data.county = value;
+        },
+        getError: (errors: Errors) => errors?.county,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.county = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.county ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.county = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      state: {
+        path: ["state"] as const,
+        name: "state",
+        constraints: { required: true },
+
+        get: (data: Data) => data.state,
+        set: (data: Data, value: string) => {
+          data.state = value;
+        },
+        getError: (errors: Errors) => errors?.state,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.state = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.state ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.state = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      isActive: {
+        path: ["isActive"] as const,
+        name: "isActive",
+        constraints: { required: true },
+
+        get: (data: Data) => data.isActive,
+        set: (data: Data, value: boolean) => {
+          data.isActive = value;
+        },
+        getError: (errors: Errors) => errors?.isActive,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.isActive = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.isActive ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.isActive = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      description: {
+        path: ["description"] as const,
+        name: "description",
+        constraints: { required: true },
+
+        get: (data: Data) => data.description,
+        set: (data: Data, value: string) => {
+          data.description = value;
+        },
+        getError: (errors: Errors) => errors?.description,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.description = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.description ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.description = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      taxComponents: {
+        path: ["taxComponents"] as const,
+        name: "taxComponents",
+        constraints: { required: true },
+
+        get: (data: Data) => data.taxComponents,
+        set: (data: Data, value: { [key: string]: number }) => {
+          data.taxComponents = value;
+        },
+        getError: (errors: Errors) => errors?.taxComponents,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.taxComponents = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.taxComponents ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.taxComponents = value;
+        },
+        validate: (_value: { [key: string]: number }): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -5461,7 +13012,7 @@ export namespace Address {
 }
 
 export namespace Address {
-  export function toJson(self: Address): string {
+  export function toStringifiedJSON(self: Address): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -5484,23 +13035,28 @@ export namespace Address {
 }
 
 export namespace Address {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Address, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Address.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Address.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -5550,8 +13106,137 @@ export namespace Address {
       const __raw_zipcode = obj["zipcode"];
       instance.zipcode = __raw_zipcode;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Address;
   }
+}
+
+export namespace Address {
+  export type Data = Address;
+  export type Errors = {
+    _errors?: Array<string>;
+    street?: Array<string>;
+    city?: Array<string>;
+    state?: Array<string>;
+    zipcode?: Array<string>;
+  };
+  export type Tainted = {
+    street?: boolean;
+    city?: boolean;
+    state?: boolean;
+    zipcode?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.street = formData.get("street") ?? "";
+    obj.city = formData.get("city") ?? "";
+    obj.state = formData.get("state") ?? "";
+    obj.zipcode = formData.get("zipcode") ?? "";
+    return Address.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      street: {
+        path: ["street"] as const,
+        name: "street",
+        constraints: { required: true },
+
+        get: (data: Data) => data.street,
+        set: (data: Data, value: string) => {
+          data.street = value;
+        },
+        getError: (errors: Errors) => errors?.street,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.street = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.street ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.street = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      city: {
+        path: ["city"] as const,
+        name: "city",
+        constraints: { required: true },
+
+        get: (data: Data) => data.city,
+        set: (data: Data, value: string) => {
+          data.city = value;
+        },
+        getError: (errors: Errors) => errors?.city,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.city = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.city ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.city = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      state: {
+        path: ["state"] as const,
+        name: "state",
+        constraints: { required: true },
+
+        get: (data: Data) => data.state,
+        set: (data: Data, value: string) => {
+          data.state = value;
+        },
+        getError: (errors: Errors) => errors?.state,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.state = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.state ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.state = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      zipcode: {
+        path: ["zipcode"] as const,
+        name: "zipcode",
+        constraints: { required: true },
+
+        get: (data: Data) => data.zipcode,
+        set: (data: Data, value: string) => {
+          data.zipcode = value;
+        },
+        getError: (errors: Errors) => errors?.zipcode,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.zipcode = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.zipcode ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.zipcode = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -5596,7 +13281,7 @@ export interface Lead {
 }
 
 export namespace Lead {
-  export function toJson(self: Lead): string {
+  export function toStringifiedJSON(self: Lead): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -5734,21 +13419,28 @@ export namespace Lead {
 }
 
 export namespace Lead {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Lead, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err(["Lead.fromJson: root cannot be a forward reference"]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Lead.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -6027,8 +13719,1067 @@ export namespace Lead {
       const __raw_customFields = obj["customFields"];
       instance.customFields = __raw_customFields;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Lead;
   }
+}
+
+export namespace Lead {
+  export type Data = Lead;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    number?: Array<string>;
+    accepted?: Array<string>;
+    probability?: Array<string>;
+    priority?: Priority.Errors;
+    dueDate?: Array<string>;
+    closeDate?: Array<string>;
+    value?: Array<string>;
+    stage?: LeadStage.Errors;
+    status?: Array<string>;
+    description?: Array<string>;
+    nextStep?: NextStep.Errors;
+    favorite?: Array<string>;
+    dateAdded?: Array<string>;
+    taxRate?: Array<string>;
+    sector?: Sector.Errors;
+    leadName?: AccountName.Errors;
+    phones?: { _errors?: Array<string>; [index: number]: PhoneNumber.Errors };
+    email?: Email.Errors;
+    leadSource?: Array<string>;
+    site?: Array<string>;
+    memo?: Array<string>;
+    needsReview?: Array<string>;
+    hasAlert?: Array<string>;
+    salesRep?: Array<string>;
+    color?: Array<string>;
+    accountType?: Array<string>;
+    subtype?: Array<string>;
+    isTaxExempt?: Array<string>;
+    paymentTerms?: Array<string>;
+    tags?: { _errors?: Array<string>; [index: number]: Array<string> };
+    customFields?: { _errors?: Array<string>; [index: number]: Array<string> };
+  };
+  export type Tainted = {
+    id?: boolean;
+    number?: boolean;
+    accepted?: boolean;
+    probability?: boolean;
+    priority?: Priority.Tainted;
+    dueDate?: boolean;
+    closeDate?: boolean;
+    value?: boolean;
+    stage?: LeadStage.Tainted;
+    status?: boolean;
+    description?: boolean;
+    nextStep?: NextStep.Tainted;
+    favorite?: boolean;
+    dateAdded?: boolean;
+    taxRate?: boolean;
+    sector?: Sector.Tainted;
+    leadName?: AccountName.Tainted;
+    phones?: { [index: number]: PhoneNumber.Tainted };
+    email?: Email.Tainted;
+    leadSource?: boolean;
+    site?: boolean;
+    memo?: boolean;
+    needsReview?: boolean;
+    hasAlert?: boolean;
+    salesRep?: boolean;
+    color?: boolean;
+    accountType?: boolean;
+    subtype?: boolean;
+    isTaxExempt?: boolean;
+    paymentTerms?: boolean;
+    tags?: { [index: number]: boolean };
+    customFields?: { [index: number]: boolean };
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    {
+      const numberStr = formData.get("number");
+      obj.number = numberStr ? parseFloat(numberStr as string) : 0;
+      if (obj.number !== undefined && Number.isNaN(obj.number)) obj.number = 0;
+    }
+    {
+      const acceptedVal = formData.get("accepted");
+      obj.accepted =
+        acceptedVal === "true" || acceptedVal === "on" || acceptedVal === "1";
+    }
+    {
+      const probabilityStr = formData.get("probability");
+      obj.probability = probabilityStr
+        ? parseFloat(probabilityStr as string)
+        : 0;
+      if (obj.probability !== undefined && Number.isNaN(obj.probability))
+        obj.probability = 0;
+    }
+    {
+      // Collect nested object fields with prefix "priority."
+      const priorityObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("priority.")) {
+          const fieldName = key.slice("priority.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = priorityObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.priority = priorityObj;
+    }
+    obj.dueDate = formData.get("dueDate") ?? "";
+    obj.closeDate = formData.get("closeDate") ?? "";
+    {
+      const valueStr = formData.get("value");
+      obj.value = valueStr ? parseFloat(valueStr as string) : 0;
+      if (obj.value !== undefined && Number.isNaN(obj.value)) obj.value = 0;
+    }
+    {
+      // Collect nested object fields with prefix "stage."
+      const stageObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("stage.")) {
+          const fieldName = key.slice("stage.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = stageObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.stage = stageObj;
+    }
+    obj.status = formData.get("status") ?? "";
+    obj.description = formData.get("description") ?? "";
+    {
+      // Collect nested object fields with prefix "nextStep."
+      const nextStepObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("nextStep.")) {
+          const fieldName = key.slice("nextStep.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = nextStepObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.nextStep = nextStepObj;
+    }
+    {
+      const favoriteVal = formData.get("favorite");
+      obj.favorite =
+        favoriteVal === "true" || favoriteVal === "on" || favoriteVal === "1";
+    }
+    obj.dateAdded = formData.get("dateAdded") ?? "";
+    obj.taxRate = formData.get("taxRate") ?? "";
+    {
+      // Collect nested object fields with prefix "sector."
+      const sectorObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("sector.")) {
+          const fieldName = key.slice("sector.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = sectorObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.sector = sectorObj;
+    }
+    {
+      // Collect nested object fields with prefix "leadName."
+      const leadNameObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("leadName.")) {
+          const fieldName = key.slice("leadName.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = leadNameObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.leadName = leadNameObj;
+    }
+    {
+      // Collect array items from indexed form fields
+      const phonesItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("phones." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("phones." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("phones." + idx + ".")) {
+              const fieldName = key.slice(
+                "phones.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          phonesItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.phones = phonesItems;
+    }
+    {
+      // Collect nested object fields with prefix "email."
+      const emailObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("email.")) {
+          const fieldName = key.slice("email.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = emailObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.email = emailObj;
+    }
+    obj.leadSource = formData.get("leadSource") ?? "";
+    obj.site = formData.get("site") ?? "";
+    obj.memo = formData.get("memo") ?? "";
+    {
+      const needsReviewVal = formData.get("needsReview");
+      obj.needsReview =
+        needsReviewVal === "true" ||
+        needsReviewVal === "on" ||
+        needsReviewVal === "1";
+    }
+    {
+      const hasAlertVal = formData.get("hasAlert");
+      obj.hasAlert =
+        hasAlertVal === "true" || hasAlertVal === "on" || hasAlertVal === "1";
+    }
+    obj.salesRep = formData.get("salesRep") ?? "";
+    obj.color = formData.get("color") ?? "";
+    obj.accountType = formData.get("accountType") ?? "";
+    obj.subtype = formData.get("subtype") ?? "";
+    {
+      const isTaxExemptVal = formData.get("isTaxExempt");
+      obj.isTaxExempt =
+        isTaxExemptVal === "true" ||
+        isTaxExemptVal === "on" ||
+        isTaxExemptVal === "1";
+    }
+    obj.paymentTerms = formData.get("paymentTerms") ?? "";
+    obj.tags = formData.getAll("tags") as Array<string>;
+    {
+      // Collect array items from indexed form fields
+      const customFieldsItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("customFields." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("customFields." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("customFields." + idx + ".")) {
+              const fieldName = key.slice(
+                "customFields.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          customFieldsItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.customFields = customFieldsItems;
+    }
+    return Lead.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      number: {
+        path: ["number"] as const,
+        name: "number",
+        constraints: { required: true },
+
+        get: (data: Data) => data.number,
+        set: (data: Data, value: number | null) => {
+          data.number = value;
+        },
+        getError: (errors: Errors) => errors?.number,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.number = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.number ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.number = value;
+        },
+        validate: (_value: number | null): Array<string> => [],
+      },
+      accepted: {
+        path: ["accepted"] as const,
+        name: "accepted",
+        constraints: { required: true },
+
+        get: (data: Data) => data.accepted,
+        set: (data: Data, value: boolean) => {
+          data.accepted = value;
+        },
+        getError: (errors: Errors) => errors?.accepted,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.accepted = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.accepted ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.accepted = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      probability: {
+        path: ["probability"] as const,
+        name: "probability",
+        constraints: { required: true },
+
+        get: (data: Data) => data.probability,
+        set: (data: Data, value: number) => {
+          data.probability = value;
+        },
+        getError: (errors: Errors) => errors?.probability,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.probability = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.probability ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.probability = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      priority: {
+        path: ["priority"] as const,
+        name: "priority",
+        constraints: { required: true },
+
+        get: (data: Data) => data.priority,
+        set: (data: Data, value: Priority) => {
+          data.priority = value;
+        },
+        getError: (errors: Errors) => errors?.priority,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.priority = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.priority ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.priority = value;
+        },
+        validate: (_value: Priority): Array<string> => [],
+      },
+      dueDate: {
+        path: ["dueDate"] as const,
+        name: "dueDate",
+        constraints: { required: true },
+
+        get: (data: Data) => data.dueDate,
+        set: (data: Data, value: string | null) => {
+          data.dueDate = value;
+        },
+        getError: (errors: Errors) => errors?.dueDate,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.dueDate = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.dueDate ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.dueDate = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      closeDate: {
+        path: ["closeDate"] as const,
+        name: "closeDate",
+        constraints: { required: true },
+
+        get: (data: Data) => data.closeDate,
+        set: (data: Data, value: string | null) => {
+          data.closeDate = value;
+        },
+        getError: (errors: Errors) => errors?.closeDate,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.closeDate = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.closeDate ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.closeDate = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      value: {
+        path: ["value"] as const,
+        name: "value",
+        constraints: { required: true },
+
+        get: (data: Data) => data.value,
+        set: (data: Data, value: number) => {
+          data.value = value;
+        },
+        getError: (errors: Errors) => errors?.value,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.value = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.value ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.value = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      stage: {
+        path: ["stage"] as const,
+        name: "stage",
+        constraints: { required: true },
+
+        get: (data: Data) => data.stage,
+        set: (data: Data, value: LeadStage) => {
+          data.stage = value;
+        },
+        getError: (errors: Errors) => errors?.stage,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.stage = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.stage ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.stage = value;
+        },
+        validate: (_value: LeadStage): Array<string> => [],
+      },
+      status: {
+        path: ["status"] as const,
+        name: "status",
+        constraints: { required: true },
+
+        get: (data: Data) => data.status,
+        set: (data: Data, value: string) => {
+          data.status = value;
+        },
+        getError: (errors: Errors) => errors?.status,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.status = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.status ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.status = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      description: {
+        path: ["description"] as const,
+        name: "description",
+        constraints: { required: true },
+
+        get: (data: Data) => data.description,
+        set: (data: Data, value: string | null) => {
+          data.description = value;
+        },
+        getError: (errors: Errors) => errors?.description,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.description = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.description ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.description = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      nextStep: {
+        path: ["nextStep"] as const,
+        name: "nextStep",
+        constraints: { required: true },
+
+        get: (data: Data) => data.nextStep,
+        set: (data: Data, value: NextStep) => {
+          data.nextStep = value;
+        },
+        getError: (errors: Errors) => errors?.nextStep,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.nextStep = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.nextStep ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.nextStep = value;
+        },
+        validate: (_value: NextStep): Array<string> => [],
+      },
+      favorite: {
+        path: ["favorite"] as const,
+        name: "favorite",
+        constraints: { required: true },
+
+        get: (data: Data) => data.favorite,
+        set: (data: Data, value: boolean) => {
+          data.favorite = value;
+        },
+        getError: (errors: Errors) => errors?.favorite,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.favorite = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.favorite ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.favorite = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      dateAdded: {
+        path: ["dateAdded"] as const,
+        name: "dateAdded",
+        constraints: { required: true },
+
+        get: (data: Data) => data.dateAdded,
+        set: (data: Data, value: string | null) => {
+          data.dateAdded = value;
+        },
+        getError: (errors: Errors) => errors?.dateAdded,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.dateAdded = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.dateAdded ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.dateAdded = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      taxRate: {
+        path: ["taxRate"] as const,
+        name: "taxRate",
+        constraints: { required: true },
+
+        get: (data: Data) => data.taxRate,
+        set: (data: Data, value: (string | TaxRate) | null) => {
+          data.taxRate = value;
+        },
+        getError: (errors: Errors) => errors?.taxRate,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.taxRate = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.taxRate ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.taxRate = value;
+        },
+        validate: (_value: (string | TaxRate) | null): Array<string> => [],
+      },
+      sector: {
+        path: ["sector"] as const,
+        name: "sector",
+        constraints: { required: true },
+
+        get: (data: Data) => data.sector,
+        set: (data: Data, value: Sector) => {
+          data.sector = value;
+        },
+        getError: (errors: Errors) => errors?.sector,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.sector = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.sector ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.sector = value;
+        },
+        validate: (_value: Sector): Array<string> => [],
+      },
+      leadName: {
+        path: ["leadName"] as const,
+        name: "leadName",
+        constraints: { required: true },
+
+        get: (data: Data) => data.leadName,
+        set: (data: Data, value: AccountName) => {
+          data.leadName = value;
+        },
+        getError: (errors: Errors) => errors?.leadName,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.leadName = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.leadName ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.leadName = value;
+        },
+        validate: (_value: AccountName): Array<string> => [],
+      },
+      phones: {
+        path: ["phones"] as const,
+        name: "phones",
+        constraints: { required: true },
+
+        get: (data: Data) => data.phones,
+        set: (data: Data, value: PhoneNumber[]) => {
+          data.phones = value;
+        },
+        getError: (errors: Errors) => errors?.phones,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.phones = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.phones ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.phones = value;
+        },
+        validate: (_value: PhoneNumber[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["phones"], index] as const,
+          name: `phones.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.phones[index],
+          set: (data: Data, value: PhoneNumber) => {
+            data.phones[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.phones as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.phones ??= {};
+            (errors.phones as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.phones?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.phones ??= {};
+            tainted.phones[index] = value;
+          },
+          validate: (_value: PhoneNumber): Array<string> => [],
+        }),
+        push: (data: Data, item: PhoneNumber) => {
+          data.phones.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.phones.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.phones[a], data.phones[b]] = [data.phones[b], data.phones[a]];
+        },
+      },
+      email: {
+        path: ["email"] as const,
+        name: "email",
+        constraints: { required: true },
+
+        get: (data: Data) => data.email,
+        set: (data: Data, value: Email) => {
+          data.email = value;
+        },
+        getError: (errors: Errors) => errors?.email,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.email = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.email ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.email = value;
+        },
+        validate: (_value: Email): Array<string> => [],
+      },
+      leadSource: {
+        path: ["leadSource"] as const,
+        name: "leadSource",
+        constraints: { required: true },
+
+        get: (data: Data) => data.leadSource,
+        set: (data: Data, value: string | null) => {
+          data.leadSource = value;
+        },
+        getError: (errors: Errors) => errors?.leadSource,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.leadSource = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.leadSource ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.leadSource = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      site: {
+        path: ["site"] as const,
+        name: "site",
+        constraints: { required: true },
+
+        get: (data: Data) => data.site,
+        set: (data: Data, value: string | Site) => {
+          data.site = value;
+        },
+        getError: (errors: Errors) => errors?.site,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.site = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.site ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.site = value;
+        },
+        validate: (_value: string | Site): Array<string> => [],
+      },
+      memo: {
+        path: ["memo"] as const,
+        name: "memo",
+        constraints: { required: true },
+
+        get: (data: Data) => data.memo,
+        set: (data: Data, value: string) => {
+          data.memo = value;
+        },
+        getError: (errors: Errors) => errors?.memo,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.memo = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.memo ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.memo = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      needsReview: {
+        path: ["needsReview"] as const,
+        name: "needsReview",
+        constraints: { required: true },
+
+        get: (data: Data) => data.needsReview,
+        set: (data: Data, value: boolean) => {
+          data.needsReview = value;
+        },
+        getError: (errors: Errors) => errors?.needsReview,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.needsReview = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.needsReview ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.needsReview = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      hasAlert: {
+        path: ["hasAlert"] as const,
+        name: "hasAlert",
+        constraints: { required: true },
+
+        get: (data: Data) => data.hasAlert,
+        set: (data: Data, value: boolean) => {
+          data.hasAlert = value;
+        },
+        getError: (errors: Errors) => errors?.hasAlert,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.hasAlert = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.hasAlert ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.hasAlert = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      salesRep: {
+        path: ["salesRep"] as const,
+        name: "salesRep",
+        constraints: { required: true },
+
+        get: (data: Data) => data.salesRep,
+        set: (data: Data, value: Represents[] | null) => {
+          data.salesRep = value;
+        },
+        getError: (errors: Errors) => errors?.salesRep,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.salesRep = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.salesRep ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.salesRep = value;
+        },
+        validate: (_value: Represents[] | null): Array<string> => [],
+      },
+      color: {
+        path: ["color"] as const,
+        name: "color",
+        constraints: { required: true },
+
+        get: (data: Data) => data.color,
+        set: (data: Data, value: string | null) => {
+          data.color = value;
+        },
+        getError: (errors: Errors) => errors?.color,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.color = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.color ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.color = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      accountType: {
+        path: ["accountType"] as const,
+        name: "accountType",
+        constraints: { required: true },
+
+        get: (data: Data) => data.accountType,
+        set: (data: Data, value: string) => {
+          data.accountType = value;
+        },
+        getError: (errors: Errors) => errors?.accountType,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.accountType = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.accountType ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.accountType = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      subtype: {
+        path: ["subtype"] as const,
+        name: "subtype",
+        constraints: { required: true },
+
+        get: (data: Data) => data.subtype,
+        set: (data: Data, value: string) => {
+          data.subtype = value;
+        },
+        getError: (errors: Errors) => errors?.subtype,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.subtype = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.subtype ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.subtype = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      isTaxExempt: {
+        path: ["isTaxExempt"] as const,
+        name: "isTaxExempt",
+        constraints: { required: true },
+
+        get: (data: Data) => data.isTaxExempt,
+        set: (data: Data, value: boolean) => {
+          data.isTaxExempt = value;
+        },
+        getError: (errors: Errors) => errors?.isTaxExempt,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.isTaxExempt = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.isTaxExempt ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.isTaxExempt = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      paymentTerms: {
+        path: ["paymentTerms"] as const,
+        name: "paymentTerms",
+        constraints: { required: true },
+
+        get: (data: Data) => data.paymentTerms,
+        set: (data: Data, value: string) => {
+          data.paymentTerms = value;
+        },
+        getError: (errors: Errors) => errors?.paymentTerms,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.paymentTerms = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.paymentTerms ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.paymentTerms = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      tags: {
+        path: ["tags"] as const,
+        name: "tags",
+        constraints: { required: true },
+
+        get: (data: Data) => data.tags,
+        set: (data: Data, value: string[]) => {
+          data.tags = value;
+        },
+        getError: (errors: Errors) => errors?.tags,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.tags = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.tags ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.tags = value;
+        },
+        validate: (_value: string[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["tags"], index] as const,
+          name: `tags.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.tags[index],
+          set: (data: Data, value: string) => {
+            data.tags[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.tags as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.tags ??= {};
+            (errors.tags as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.tags?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.tags ??= {};
+            tainted.tags[index] = value;
+          },
+          validate: (_value: string): Array<string> => [],
+        }),
+        push: (data: Data, item: string) => {
+          data.tags.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.tags.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.tags[a], data.tags[b]] = [data.tags[b], data.tags[a]];
+        },
+      },
+      customFields: {
+        path: ["customFields"] as const,
+        name: "customFields",
+        constraints: { required: true },
+
+        get: (data: Data) => data.customFields,
+        set: (data: Data, value: [string, string][]) => {
+          data.customFields = value;
+        },
+        getError: (errors: Errors) => errors?.customFields,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.customFields = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.customFields ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.customFields = value;
+        },
+        validate: (_value: [string, string][]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["customFields"], index] as const,
+          name: `customFields.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.customFields[index],
+          set: (data: Data, value: [string, string]) => {
+            data.customFields[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.customFields as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.customFields ??= {};
+            (errors.customFields as Record<number, Array<string>>)[index] =
+              value!;
+          },
+          getTainted: (tainted: Tainted) =>
+            tainted.customFields?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.customFields ??= {};
+            tainted.customFields[index] = value;
+          },
+          validate: (_value: [string, string]): Array<string> => [],
+        }),
+        push: (data: Data, item: [string, string]) => {
+          data.customFields.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.customFields.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.customFields[a], data.customFields[b]] = [
+            data.customFields[b],
+            data.customFields[a],
+          ];
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -6045,7 +14796,7 @@ export namespace AppPermissions {
 }
 
 export namespace AppPermissions {
-  export function toJson(self: AppPermissions): string {
+  export function toStringifiedJSON(self: AppPermissions): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -6073,23 +14824,28 @@ export namespace AppPermissions {
 }
 
 export namespace AppPermissions {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<AppPermissions, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "AppPermissions.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "AppPermissions.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -6138,8 +14894,274 @@ export namespace AppPermissions {
       const __raw_data = obj["data"];
       instance.data = __raw_data;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as AppPermissions;
   }
+}
+
+export namespace AppPermissions {
+  export type Data = AppPermissions;
+  export type Errors = {
+    _errors?: Array<string>;
+    applications?: {
+      _errors?: Array<string>;
+      [index: number]: Applications.Errors;
+    };
+    pages?: { _errors?: Array<string>; [index: number]: Page.Errors };
+    data?: { _errors?: Array<string>; [index: number]: Table.Errors };
+  };
+  export type Tainted = {
+    applications?: { [index: number]: Applications.Tainted };
+    pages?: { [index: number]: Page.Tainted };
+    data?: { [index: number]: Table.Tainted };
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      // Collect array items from indexed form fields
+      const applicationsItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("applications." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("applications." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("applications." + idx + ".")) {
+              const fieldName = key.slice(
+                "applications.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          applicationsItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.applications = applicationsItems;
+    }
+    {
+      // Collect array items from indexed form fields
+      const pagesItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("pages." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("pages." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("pages." + idx + ".")) {
+              const fieldName = key.slice(
+                "pages.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          pagesItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.pages = pagesItems;
+    }
+    {
+      // Collect array items from indexed form fields
+      const dataItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("data." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("data." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("data." + idx + ".")) {
+              const fieldName = key.slice(
+                "data.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          dataItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.data = dataItems;
+    }
+    return AppPermissions.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      applications: {
+        path: ["applications"] as const,
+        name: "applications",
+        constraints: { required: true },
+
+        get: (data: Data) => data.applications,
+        set: (data: Data, value: Applications[]) => {
+          data.applications = value;
+        },
+        getError: (errors: Errors) => errors?.applications,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.applications = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.applications ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.applications = value;
+        },
+        validate: (_value: Applications[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["applications"], index] as const,
+          name: `applications.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.applications[index],
+          set: (data: Data, value: Applications) => {
+            data.applications[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.applications as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.applications ??= {};
+            (errors.applications as Record<number, Array<string>>)[index] =
+              value!;
+          },
+          getTainted: (tainted: Tainted) =>
+            tainted.applications?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.applications ??= {};
+            tainted.applications[index] = value;
+          },
+          validate: (_value: Applications): Array<string> => [],
+        }),
+        push: (data: Data, item: Applications) => {
+          data.applications.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.applications.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.applications[a], data.applications[b]] = [
+            data.applications[b],
+            data.applications[a],
+          ];
+        },
+      },
+      pages: {
+        path: ["pages"] as const,
+        name: "pages",
+        constraints: { required: true },
+
+        get: (data: Data) => data.pages,
+        set: (data: Data, value: Page[]) => {
+          data.pages = value;
+        },
+        getError: (errors: Errors) => errors?.pages,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.pages = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.pages ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.pages = value;
+        },
+        validate: (_value: Page[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["pages"], index] as const,
+          name: `pages.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.pages[index],
+          set: (data: Data, value: Page) => {
+            data.pages[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.pages as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.pages ??= {};
+            (errors.pages as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.pages?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.pages ??= {};
+            tainted.pages[index] = value;
+          },
+          validate: (_value: Page): Array<string> => [],
+        }),
+        push: (data: Data, item: Page) => {
+          data.pages.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.pages.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.pages[a], data.pages[b]] = [data.pages[b], data.pages[a]];
+        },
+      },
+      data: {
+        path: ["data"] as const,
+        name: "data",
+        constraints: { required: true },
+
+        get: (data: Data) => data.data,
+        set: (data: Data, value: Table[]) => {
+          data.data = value;
+        },
+        getError: (errors: Errors) => errors?.data,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.data = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.data ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.data = value;
+        },
+        validate: (_value: Table[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["data"], index] as const,
+          name: `data.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.data[index],
+          set: (data: Data, value: Table) => {
+            data.data[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.data as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.data ??= {};
+            (errors.data as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.data?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.data ??= {};
+            tainted.data[index] = value;
+          },
+          validate: (_value: Table): Array<string> => [],
+        }),
+        push: (data: Data, item: Table) => {
+          data.data.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.data.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.data[a], data.data[b]] = [data.data[b], data.data[a]];
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -6187,7 +15209,7 @@ export interface Company {
 }
 
 export namespace Company {
-  export function toJson(self: Company): string {
+  export function toStringifiedJSON(self: Company): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -6249,23 +15271,28 @@ export namespace Company {
 }
 
 export namespace Company {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Company, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Company.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Company.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -6542,8 +15569,886 @@ export namespace Company {
         instance.colorsConfig = __raw_colorsConfig;
       }
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Company;
   }
+}
+
+export namespace Company {
+  export type Data = Company;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    legalName?: Array<string>;
+    headquarters?: Array<string>;
+    phones?: { _errors?: Array<string>; [index: number]: PhoneNumber.Errors };
+    fax?: Array<string>;
+    email?: Array<string>;
+    website?: Array<string>;
+    taxId?: Array<string>;
+    referenceNumber?: Array<string>;
+    postalCodeLookup?: Array<string>;
+    timeZone?: Array<string>;
+    defaultTax?: Array<string>;
+    defaultTaxLocation?: Array<string>;
+    defaultAreaCode?: Array<string>;
+    defaultAccountType?: Array<string>;
+    lookupFormatting?: Array<string>;
+    accountNameFormat?: Array<string>;
+    merchantServiceProvider?: Array<string>;
+    dateDisplayStyle?: Array<string>;
+    hasAutoCommission?: Array<string>;
+    hasAutoDaylightSavings?: Array<string>;
+    hasAutoFmsTracking?: Array<string>;
+    hasNotifications?: Array<string>;
+    hasRequiredLeadSource?: Array<string>;
+    hasRequiredEmail?: Array<string>;
+    hasSortServiceItemsAlphabetically?: Array<string>;
+    hasAttachOrderToAppointmentEmails?: Array<string>;
+    scheduleInterval?: Array<string>;
+    colorsConfig?: ColorsConfig.Errors;
+  };
+  export type Tainted = {
+    id?: boolean;
+    legalName?: boolean;
+    headquarters?: boolean;
+    phones?: { [index: number]: PhoneNumber.Tainted };
+    fax?: boolean;
+    email?: boolean;
+    website?: boolean;
+    taxId?: boolean;
+    referenceNumber?: boolean;
+    postalCodeLookup?: boolean;
+    timeZone?: boolean;
+    defaultTax?: boolean;
+    defaultTaxLocation?: boolean;
+    defaultAreaCode?: boolean;
+    defaultAccountType?: boolean;
+    lookupFormatting?: boolean;
+    accountNameFormat?: boolean;
+    merchantServiceProvider?: boolean;
+    dateDisplayStyle?: boolean;
+    hasAutoCommission?: boolean;
+    hasAutoDaylightSavings?: boolean;
+    hasAutoFmsTracking?: boolean;
+    hasNotifications?: boolean;
+    hasRequiredLeadSource?: boolean;
+    hasRequiredEmail?: boolean;
+    hasSortServiceItemsAlphabetically?: boolean;
+    hasAttachOrderToAppointmentEmails?: boolean;
+    scheduleInterval?: boolean;
+    colorsConfig?: ColorsConfig.Tainted;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.legalName = formData.get("legalName") ?? "";
+    obj.headquarters = formData.get("headquarters") ?? "";
+    {
+      // Collect array items from indexed form fields
+      const phonesItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("phones." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("phones." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("phones." + idx + ".")) {
+              const fieldName = key.slice(
+                "phones.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          phonesItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.phones = phonesItems;
+    }
+    obj.fax = formData.get("fax") ?? "";
+    obj.email = formData.get("email") ?? "";
+    obj.website = formData.get("website") ?? "";
+    obj.taxId = formData.get("taxId") ?? "";
+    {
+      const referenceNumberStr = formData.get("referenceNumber");
+      obj.referenceNumber = referenceNumberStr
+        ? parseFloat(referenceNumberStr as string)
+        : 0;
+      if (
+        obj.referenceNumber !== undefined &&
+        Number.isNaN(obj.referenceNumber)
+      )
+        obj.referenceNumber = 0;
+    }
+    obj.postalCodeLookup = formData.get("postalCodeLookup") ?? "";
+    obj.timeZone = formData.get("timeZone") ?? "";
+    obj.defaultTax = formData.get("defaultTax") ?? "";
+    obj.defaultTaxLocation = formData.get("defaultTaxLocation") ?? "";
+    {
+      const defaultAreaCodeStr = formData.get("defaultAreaCode");
+      obj.defaultAreaCode = defaultAreaCodeStr
+        ? parseFloat(defaultAreaCodeStr as string)
+        : 0;
+      if (
+        obj.defaultAreaCode !== undefined &&
+        Number.isNaN(obj.defaultAreaCode)
+      )
+        obj.defaultAreaCode = 0;
+    }
+    obj.defaultAccountType = formData.get("defaultAccountType") ?? "";
+    obj.lookupFormatting = formData.get("lookupFormatting") ?? "";
+    obj.accountNameFormat = formData.get("accountNameFormat") ?? "";
+    obj.merchantServiceProvider = formData.get("merchantServiceProvider") ?? "";
+    obj.dateDisplayStyle = formData.get("dateDisplayStyle") ?? "";
+    {
+      const hasAutoCommissionVal = formData.get("hasAutoCommission");
+      obj.hasAutoCommission =
+        hasAutoCommissionVal === "true" ||
+        hasAutoCommissionVal === "on" ||
+        hasAutoCommissionVal === "1";
+    }
+    {
+      const hasAutoDaylightSavingsVal = formData.get("hasAutoDaylightSavings");
+      obj.hasAutoDaylightSavings =
+        hasAutoDaylightSavingsVal === "true" ||
+        hasAutoDaylightSavingsVal === "on" ||
+        hasAutoDaylightSavingsVal === "1";
+    }
+    {
+      const hasAutoFmsTrackingVal = formData.get("hasAutoFmsTracking");
+      obj.hasAutoFmsTracking =
+        hasAutoFmsTrackingVal === "true" ||
+        hasAutoFmsTrackingVal === "on" ||
+        hasAutoFmsTrackingVal === "1";
+    }
+    {
+      const hasNotificationsVal = formData.get("hasNotifications");
+      obj.hasNotifications =
+        hasNotificationsVal === "true" ||
+        hasNotificationsVal === "on" ||
+        hasNotificationsVal === "1";
+    }
+    {
+      const hasRequiredLeadSourceVal = formData.get("hasRequiredLeadSource");
+      obj.hasRequiredLeadSource =
+        hasRequiredLeadSourceVal === "true" ||
+        hasRequiredLeadSourceVal === "on" ||
+        hasRequiredLeadSourceVal === "1";
+    }
+    {
+      const hasRequiredEmailVal = formData.get("hasRequiredEmail");
+      obj.hasRequiredEmail =
+        hasRequiredEmailVal === "true" ||
+        hasRequiredEmailVal === "on" ||
+        hasRequiredEmailVal === "1";
+    }
+    {
+      const hasSortServiceItemsAlphabeticallyVal = formData.get(
+        "hasSortServiceItemsAlphabetically",
+      );
+      obj.hasSortServiceItemsAlphabetically =
+        hasSortServiceItemsAlphabeticallyVal === "true" ||
+        hasSortServiceItemsAlphabeticallyVal === "on" ||
+        hasSortServiceItemsAlphabeticallyVal === "1";
+    }
+    {
+      const hasAttachOrderToAppointmentEmailsVal = formData.get(
+        "hasAttachOrderToAppointmentEmails",
+      );
+      obj.hasAttachOrderToAppointmentEmails =
+        hasAttachOrderToAppointmentEmailsVal === "true" ||
+        hasAttachOrderToAppointmentEmailsVal === "on" ||
+        hasAttachOrderToAppointmentEmailsVal === "1";
+    }
+    {
+      const scheduleIntervalStr = formData.get("scheduleInterval");
+      obj.scheduleInterval = scheduleIntervalStr
+        ? parseFloat(scheduleIntervalStr as string)
+        : 0;
+      if (
+        obj.scheduleInterval !== undefined &&
+        Number.isNaN(obj.scheduleInterval)
+      )
+        obj.scheduleInterval = 0;
+    }
+    {
+      // Collect nested object fields with prefix "colorsConfig."
+      const colorsConfigObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("colorsConfig.")) {
+          const fieldName = key.slice("colorsConfig.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = colorsConfigObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.colorsConfig = colorsConfigObj;
+    }
+    return Company.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      legalName: {
+        path: ["legalName"] as const,
+        name: "legalName",
+        constraints: { required: true },
+
+        get: (data: Data) => data.legalName,
+        set: (data: Data, value: string) => {
+          data.legalName = value;
+        },
+        getError: (errors: Errors) => errors?.legalName,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.legalName = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.legalName ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.legalName = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      headquarters: {
+        path: ["headquarters"] as const,
+        name: "headquarters",
+        constraints: { required: true },
+
+        get: (data: Data) => data.headquarters,
+        set: (data: Data, value: string | Site) => {
+          data.headquarters = value;
+        },
+        getError: (errors: Errors) => errors?.headquarters,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.headquarters = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.headquarters ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.headquarters = value;
+        },
+        validate: (_value: string | Site): Array<string> => [],
+      },
+      phones: {
+        path: ["phones"] as const,
+        name: "phones",
+        constraints: { required: true },
+
+        get: (data: Data) => data.phones,
+        set: (data: Data, value: PhoneNumber[]) => {
+          data.phones = value;
+        },
+        getError: (errors: Errors) => errors?.phones,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.phones = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.phones ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.phones = value;
+        },
+        validate: (_value: PhoneNumber[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["phones"], index] as const,
+          name: `phones.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.phones[index],
+          set: (data: Data, value: PhoneNumber) => {
+            data.phones[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.phones as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.phones ??= {};
+            (errors.phones as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.phones?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.phones ??= {};
+            tainted.phones[index] = value;
+          },
+          validate: (_value: PhoneNumber): Array<string> => [],
+        }),
+        push: (data: Data, item: PhoneNumber) => {
+          data.phones.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.phones.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.phones[a], data.phones[b]] = [data.phones[b], data.phones[a]];
+        },
+      },
+      fax: {
+        path: ["fax"] as const,
+        name: "fax",
+        constraints: { required: true },
+
+        get: (data: Data) => data.fax,
+        set: (data: Data, value: string) => {
+          data.fax = value;
+        },
+        getError: (errors: Errors) => errors?.fax,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.fax = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.fax ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.fax = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      email: {
+        path: ["email"] as const,
+        name: "email",
+        constraints: { required: true },
+
+        get: (data: Data) => data.email,
+        set: (data: Data, value: string) => {
+          data.email = value;
+        },
+        getError: (errors: Errors) => errors?.email,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.email = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.email ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.email = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      website: {
+        path: ["website"] as const,
+        name: "website",
+        constraints: { required: true },
+
+        get: (data: Data) => data.website,
+        set: (data: Data, value: string) => {
+          data.website = value;
+        },
+        getError: (errors: Errors) => errors?.website,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.website = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.website ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.website = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      taxId: {
+        path: ["taxId"] as const,
+        name: "taxId",
+        constraints: { required: true },
+
+        get: (data: Data) => data.taxId,
+        set: (data: Data, value: string) => {
+          data.taxId = value;
+        },
+        getError: (errors: Errors) => errors?.taxId,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.taxId = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.taxId ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.taxId = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      referenceNumber: {
+        path: ["referenceNumber"] as const,
+        name: "referenceNumber",
+        constraints: { required: true },
+
+        get: (data: Data) => data.referenceNumber,
+        set: (data: Data, value: number) => {
+          data.referenceNumber = value;
+        },
+        getError: (errors: Errors) => errors?.referenceNumber,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.referenceNumber = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.referenceNumber ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.referenceNumber = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      postalCodeLookup: {
+        path: ["postalCodeLookup"] as const,
+        name: "postalCodeLookup",
+        constraints: { required: true },
+
+        get: (data: Data) => data.postalCodeLookup,
+        set: (data: Data, value: string) => {
+          data.postalCodeLookup = value;
+        },
+        getError: (errors: Errors) => errors?.postalCodeLookup,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.postalCodeLookup = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.postalCodeLookup ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.postalCodeLookup = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      timeZone: {
+        path: ["timeZone"] as const,
+        name: "timeZone",
+        constraints: { required: true },
+
+        get: (data: Data) => data.timeZone,
+        set: (data: Data, value: string) => {
+          data.timeZone = value;
+        },
+        getError: (errors: Errors) => errors?.timeZone,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.timeZone = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.timeZone ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.timeZone = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      defaultTax: {
+        path: ["defaultTax"] as const,
+        name: "defaultTax",
+        constraints: { required: true },
+
+        get: (data: Data) => data.defaultTax,
+        set: (data: Data, value: string | TaxRate) => {
+          data.defaultTax = value;
+        },
+        getError: (errors: Errors) => errors?.defaultTax,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.defaultTax = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.defaultTax ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.defaultTax = value;
+        },
+        validate: (_value: string | TaxRate): Array<string> => [],
+      },
+      defaultTaxLocation: {
+        path: ["defaultTaxLocation"] as const,
+        name: "defaultTaxLocation",
+        constraints: { required: true },
+
+        get: (data: Data) => data.defaultTaxLocation,
+        set: (data: Data, value: string) => {
+          data.defaultTaxLocation = value;
+        },
+        getError: (errors: Errors) => errors?.defaultTaxLocation,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.defaultTaxLocation = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.defaultTaxLocation ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.defaultTaxLocation = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      defaultAreaCode: {
+        path: ["defaultAreaCode"] as const,
+        name: "defaultAreaCode",
+        constraints: { required: true },
+
+        get: (data: Data) => data.defaultAreaCode,
+        set: (data: Data, value: number) => {
+          data.defaultAreaCode = value;
+        },
+        getError: (errors: Errors) => errors?.defaultAreaCode,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.defaultAreaCode = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.defaultAreaCode ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.defaultAreaCode = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      defaultAccountType: {
+        path: ["defaultAccountType"] as const,
+        name: "defaultAccountType",
+        constraints: { required: true },
+
+        get: (data: Data) => data.defaultAccountType,
+        set: (data: Data, value: string) => {
+          data.defaultAccountType = value;
+        },
+        getError: (errors: Errors) => errors?.defaultAccountType,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.defaultAccountType = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.defaultAccountType ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.defaultAccountType = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      lookupFormatting: {
+        path: ["lookupFormatting"] as const,
+        name: "lookupFormatting",
+        constraints: { required: true },
+
+        get: (data: Data) => data.lookupFormatting,
+        set: (data: Data, value: string) => {
+          data.lookupFormatting = value;
+        },
+        getError: (errors: Errors) => errors?.lookupFormatting,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.lookupFormatting = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.lookupFormatting ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.lookupFormatting = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      accountNameFormat: {
+        path: ["accountNameFormat"] as const,
+        name: "accountNameFormat",
+        constraints: { required: true },
+
+        get: (data: Data) => data.accountNameFormat,
+        set: (data: Data, value: string) => {
+          data.accountNameFormat = value;
+        },
+        getError: (errors: Errors) => errors?.accountNameFormat,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.accountNameFormat = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.accountNameFormat ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.accountNameFormat = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      merchantServiceProvider: {
+        path: ["merchantServiceProvider"] as const,
+        name: "merchantServiceProvider",
+        constraints: { required: true },
+
+        get: (data: Data) => data.merchantServiceProvider,
+        set: (data: Data, value: string | null) => {
+          data.merchantServiceProvider = value;
+        },
+        getError: (errors: Errors) => errors?.merchantServiceProvider,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.merchantServiceProvider = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.merchantServiceProvider ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.merchantServiceProvider = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      dateDisplayStyle: {
+        path: ["dateDisplayStyle"] as const,
+        name: "dateDisplayStyle",
+        constraints: { required: true },
+
+        get: (data: Data) => data.dateDisplayStyle,
+        set: (data: Data, value: string) => {
+          data.dateDisplayStyle = value;
+        },
+        getError: (errors: Errors) => errors?.dateDisplayStyle,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.dateDisplayStyle = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.dateDisplayStyle ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.dateDisplayStyle = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      hasAutoCommission: {
+        path: ["hasAutoCommission"] as const,
+        name: "hasAutoCommission",
+        constraints: { required: true },
+
+        get: (data: Data) => data.hasAutoCommission,
+        set: (data: Data, value: boolean) => {
+          data.hasAutoCommission = value;
+        },
+        getError: (errors: Errors) => errors?.hasAutoCommission,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.hasAutoCommission = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.hasAutoCommission ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.hasAutoCommission = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      hasAutoDaylightSavings: {
+        path: ["hasAutoDaylightSavings"] as const,
+        name: "hasAutoDaylightSavings",
+        constraints: { required: true },
+
+        get: (data: Data) => data.hasAutoDaylightSavings,
+        set: (data: Data, value: boolean) => {
+          data.hasAutoDaylightSavings = value;
+        },
+        getError: (errors: Errors) => errors?.hasAutoDaylightSavings,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.hasAutoDaylightSavings = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.hasAutoDaylightSavings ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.hasAutoDaylightSavings = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      hasAutoFmsTracking: {
+        path: ["hasAutoFmsTracking"] as const,
+        name: "hasAutoFmsTracking",
+        constraints: { required: true },
+
+        get: (data: Data) => data.hasAutoFmsTracking,
+        set: (data: Data, value: boolean) => {
+          data.hasAutoFmsTracking = value;
+        },
+        getError: (errors: Errors) => errors?.hasAutoFmsTracking,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.hasAutoFmsTracking = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.hasAutoFmsTracking ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.hasAutoFmsTracking = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      hasNotifications: {
+        path: ["hasNotifications"] as const,
+        name: "hasNotifications",
+        constraints: { required: true },
+
+        get: (data: Data) => data.hasNotifications,
+        set: (data: Data, value: boolean) => {
+          data.hasNotifications = value;
+        },
+        getError: (errors: Errors) => errors?.hasNotifications,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.hasNotifications = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.hasNotifications ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.hasNotifications = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      hasRequiredLeadSource: {
+        path: ["hasRequiredLeadSource"] as const,
+        name: "hasRequiredLeadSource",
+        constraints: { required: true },
+
+        get: (data: Data) => data.hasRequiredLeadSource,
+        set: (data: Data, value: boolean) => {
+          data.hasRequiredLeadSource = value;
+        },
+        getError: (errors: Errors) => errors?.hasRequiredLeadSource,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.hasRequiredLeadSource = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.hasRequiredLeadSource ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.hasRequiredLeadSource = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      hasRequiredEmail: {
+        path: ["hasRequiredEmail"] as const,
+        name: "hasRequiredEmail",
+        constraints: { required: true },
+
+        get: (data: Data) => data.hasRequiredEmail,
+        set: (data: Data, value: boolean) => {
+          data.hasRequiredEmail = value;
+        },
+        getError: (errors: Errors) => errors?.hasRequiredEmail,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.hasRequiredEmail = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.hasRequiredEmail ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.hasRequiredEmail = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      hasSortServiceItemsAlphabetically: {
+        path: ["hasSortServiceItemsAlphabetically"] as const,
+        name: "hasSortServiceItemsAlphabetically",
+        constraints: { required: true },
+
+        get: (data: Data) => data.hasSortServiceItemsAlphabetically,
+        set: (data: Data, value: boolean) => {
+          data.hasSortServiceItemsAlphabetically = value;
+        },
+        getError: (errors: Errors) => errors?.hasSortServiceItemsAlphabetically,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.hasSortServiceItemsAlphabetically = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.hasSortServiceItemsAlphabetically ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.hasSortServiceItemsAlphabetically = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      hasAttachOrderToAppointmentEmails: {
+        path: ["hasAttachOrderToAppointmentEmails"] as const,
+        name: "hasAttachOrderToAppointmentEmails",
+        constraints: { required: true },
+
+        get: (data: Data) => data.hasAttachOrderToAppointmentEmails,
+        set: (data: Data, value: boolean) => {
+          data.hasAttachOrderToAppointmentEmails = value;
+        },
+        getError: (errors: Errors) => errors?.hasAttachOrderToAppointmentEmails,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.hasAttachOrderToAppointmentEmails = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.hasAttachOrderToAppointmentEmails ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.hasAttachOrderToAppointmentEmails = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      scheduleInterval: {
+        path: ["scheduleInterval"] as const,
+        name: "scheduleInterval",
+        constraints: { required: true },
+
+        get: (data: Data) => data.scheduleInterval,
+        set: (data: Data, value: number) => {
+          data.scheduleInterval = value;
+        },
+        getError: (errors: Errors) => errors?.scheduleInterval,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.scheduleInterval = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.scheduleInterval ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.scheduleInterval = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      colorsConfig: {
+        path: ["colorsConfig"] as const,
+        name: "colorsConfig",
+        constraints: { required: true },
+
+        get: (data: Data) => data.colorsConfig,
+        set: (data: Data, value: ColorsConfig) => {
+          data.colorsConfig = value;
+        },
+        getError: (errors: Errors) => errors?.colorsConfig,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.colorsConfig = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.colorsConfig ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.colorsConfig = value;
+        },
+        validate: (_value: ColorsConfig): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -6574,7 +16479,7 @@ export namespace Ordinal {
 }
 
 export namespace Ordinal {
-  export function toJson(self: Ordinal): string {
+  export function toStringifiedJSON(self: Ordinal): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -6601,23 +16506,28 @@ export namespace Ordinal {
 }
 
 export namespace Ordinal {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Ordinal, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Ordinal.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Ordinal.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -6695,8 +16605,241 @@ export namespace Ordinal {
       const __raw_northwest = obj["northwest"];
       instance.northwest = __raw_northwest;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Ordinal;
   }
+}
+
+export namespace Ordinal {
+  export type Data = Ordinal;
+  export type Errors = {
+    _errors?: Array<string>;
+    north?: Array<string>;
+    northeast?: Array<string>;
+    east?: Array<string>;
+    southeast?: Array<string>;
+    south?: Array<string>;
+    southwest?: Array<string>;
+    west?: Array<string>;
+    northwest?: Array<string>;
+  };
+  export type Tainted = {
+    north?: boolean;
+    northeast?: boolean;
+    east?: boolean;
+    southeast?: boolean;
+    south?: boolean;
+    southwest?: boolean;
+    west?: boolean;
+    northwest?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const northStr = formData.get("north");
+      obj.north = northStr ? parseFloat(northStr as string) : 0;
+      if (obj.north !== undefined && Number.isNaN(obj.north)) obj.north = 0;
+    }
+    {
+      const northeastStr = formData.get("northeast");
+      obj.northeast = northeastStr ? parseFloat(northeastStr as string) : 0;
+      if (obj.northeast !== undefined && Number.isNaN(obj.northeast))
+        obj.northeast = 0;
+    }
+    {
+      const eastStr = formData.get("east");
+      obj.east = eastStr ? parseFloat(eastStr as string) : 0;
+      if (obj.east !== undefined && Number.isNaN(obj.east)) obj.east = 0;
+    }
+    {
+      const southeastStr = formData.get("southeast");
+      obj.southeast = southeastStr ? parseFloat(southeastStr as string) : 0;
+      if (obj.southeast !== undefined && Number.isNaN(obj.southeast))
+        obj.southeast = 0;
+    }
+    {
+      const southStr = formData.get("south");
+      obj.south = southStr ? parseFloat(southStr as string) : 0;
+      if (obj.south !== undefined && Number.isNaN(obj.south)) obj.south = 0;
+    }
+    {
+      const southwestStr = formData.get("southwest");
+      obj.southwest = southwestStr ? parseFloat(southwestStr as string) : 0;
+      if (obj.southwest !== undefined && Number.isNaN(obj.southwest))
+        obj.southwest = 0;
+    }
+    {
+      const westStr = formData.get("west");
+      obj.west = westStr ? parseFloat(westStr as string) : 0;
+      if (obj.west !== undefined && Number.isNaN(obj.west)) obj.west = 0;
+    }
+    {
+      const northwestStr = formData.get("northwest");
+      obj.northwest = northwestStr ? parseFloat(northwestStr as string) : 0;
+      if (obj.northwest !== undefined && Number.isNaN(obj.northwest))
+        obj.northwest = 0;
+    }
+    return Ordinal.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      north: {
+        path: ["north"] as const,
+        name: "north",
+        constraints: { required: true },
+
+        get: (data: Data) => data.north,
+        set: (data: Data, value: number) => {
+          data.north = value;
+        },
+        getError: (errors: Errors) => errors?.north,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.north = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.north ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.north = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      northeast: {
+        path: ["northeast"] as const,
+        name: "northeast",
+        constraints: { required: true },
+
+        get: (data: Data) => data.northeast,
+        set: (data: Data, value: number) => {
+          data.northeast = value;
+        },
+        getError: (errors: Errors) => errors?.northeast,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.northeast = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.northeast ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.northeast = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      east: {
+        path: ["east"] as const,
+        name: "east",
+        constraints: { required: true },
+
+        get: (data: Data) => data.east,
+        set: (data: Data, value: number) => {
+          data.east = value;
+        },
+        getError: (errors: Errors) => errors?.east,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.east = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.east ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.east = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      southeast: {
+        path: ["southeast"] as const,
+        name: "southeast",
+        constraints: { required: true },
+
+        get: (data: Data) => data.southeast,
+        set: (data: Data, value: number) => {
+          data.southeast = value;
+        },
+        getError: (errors: Errors) => errors?.southeast,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.southeast = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.southeast ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.southeast = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      south: {
+        path: ["south"] as const,
+        name: "south",
+        constraints: { required: true },
+
+        get: (data: Data) => data.south,
+        set: (data: Data, value: number) => {
+          data.south = value;
+        },
+        getError: (errors: Errors) => errors?.south,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.south = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.south ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.south = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      southwest: {
+        path: ["southwest"] as const,
+        name: "southwest",
+        constraints: { required: true },
+
+        get: (data: Data) => data.southwest,
+        set: (data: Data, value: number) => {
+          data.southwest = value;
+        },
+        getError: (errors: Errors) => errors?.southwest,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.southwest = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.southwest ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.southwest = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      west: {
+        path: ["west"] as const,
+        name: "west",
+        constraints: { required: true },
+
+        get: (data: Data) => data.west,
+        set: (data: Data, value: number) => {
+          data.west = value;
+        },
+        getError: (errors: Errors) => errors?.west,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.west = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.west ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.west = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      northwest: {
+        path: ["northwest"] as const,
+        name: "northwest",
+        constraints: { required: true },
+
+        get: (data: Data) => data.northwest,
+        set: (data: Data, value: number) => {
+          data.northwest = value;
+        },
+        getError: (errors: Errors) => errors?.northwest,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.northwest = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.northwest ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.northwest = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -6711,7 +16854,7 @@ export namespace Password {
 }
 
 export namespace Password {
-  export function toJson(self: Password): string {
+  export function toStringifiedJSON(self: Password): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -6731,23 +16874,28 @@ export namespace Password {
 }
 
 export namespace Password {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Password, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Password.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Password.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -6776,8 +16924,51 @@ export namespace Password {
       const __raw_password = obj["password"];
       instance.password = __raw_password;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Password;
   }
+}
+
+export namespace Password {
+  export type Data = Password;
+  export type Errors = { _errors?: Array<string>; password?: Array<string> };
+  export type Tainted = { password?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.password = formData.get("password") ?? "";
+    return Password.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      password: {
+        path: ["password"] as const,
+        name: "password",
+        constraints: { required: true },
+
+        get: (data: Data) => data.password,
+        set: (data: Data, value: string) => {
+          data.password = value;
+        },
+        getError: (errors: Errors) => errors?.password,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.password = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.password ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.password = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -6792,7 +16983,7 @@ export namespace Created {
 }
 
 export namespace Created {
-  export function toJson(self: Created): string {
+  export function toStringifiedJSON(self: Created): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -6819,23 +17010,28 @@ export namespace Created {
 }
 
 export namespace Created {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Created, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Created.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Created.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -6866,8 +17062,46 @@ export namespace Created {
       const __raw_initialData = obj["initialData"];
       instance.initialData = __raw_initialData;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Created;
   }
+}
+
+export namespace Created {
+  export type Data = Created;
+  export type Errors = { _errors?: Array<string>; initialData?: Array<string> };
+  export type Tainted = { initialData?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.initialData = formData.get("initialData") ?? "";
+    return Created.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      initialData: {
+        path: ["initialData"] as const,
+        name: "initialData",
+        constraints: { required: true },
+
+        get: (data: Data) => data.initialData,
+        set: (data: Data, value: string | null) => {
+          data.initialData = value;
+        },
+        getError: (errors: Errors) => errors?.initialData,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.initialData = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.initialData ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.initialData = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -6897,7 +17131,7 @@ export interface Employee {
 }
 
 export namespace Employee {
-  export function toJson(self: Employee): string {
+  export function toStringifiedJSON(self: Employee): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -6968,23 +17202,28 @@ export namespace Employee {
 }
 
 export namespace Employee {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Employee, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Employee.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Employee.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -7159,8 +17398,621 @@ export namespace Employee {
         instance.settings = __raw_settings;
       }
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Employee;
   }
+}
+
+export namespace Employee {
+  export type Data = Employee;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    imageUrl?: Array<string>;
+    name?: Array<string>;
+    phones?: { _errors?: Array<string>; [index: number]: PhoneNumber.Errors };
+    role?: Array<string>;
+    title?: JobTitle.Errors;
+    email?: Email.Errors;
+    address?: Array<string>;
+    username?: Array<string>;
+    route?: Array<string>;
+    ratePerHour?: Array<string>;
+    active?: Array<string>;
+    isTechnician?: Array<string>;
+    isSalesRep?: Array<string>;
+    description?: Array<string>;
+    linkedinUrl?: Array<string>;
+    attendance?: { _errors?: Array<string>; [index: number]: Array<string> };
+    settings?: Settings.Errors;
+  };
+  export type Tainted = {
+    id?: boolean;
+    imageUrl?: boolean;
+    name?: boolean;
+    phones?: { [index: number]: PhoneNumber.Tainted };
+    role?: boolean;
+    title?: JobTitle.Tainted;
+    email?: Email.Tainted;
+    address?: boolean;
+    username?: boolean;
+    route?: boolean;
+    ratePerHour?: boolean;
+    active?: boolean;
+    isTechnician?: boolean;
+    isSalesRep?: boolean;
+    description?: boolean;
+    linkedinUrl?: boolean;
+    attendance?: { [index: number]: boolean };
+    settings?: Settings.Tainted;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.imageUrl = formData.get("imageUrl") ?? "";
+    obj.name = formData.get("name") ?? "";
+    {
+      // Collect array items from indexed form fields
+      const phonesItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("phones." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("phones." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("phones." + idx + ".")) {
+              const fieldName = key.slice(
+                "phones.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          phonesItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.phones = phonesItems;
+    }
+    obj.role = formData.get("role") ?? "";
+    {
+      // Collect nested object fields with prefix "title."
+      const titleObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("title.")) {
+          const fieldName = key.slice("title.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = titleObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.title = titleObj;
+    }
+    {
+      // Collect nested object fields with prefix "email."
+      const emailObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("email.")) {
+          const fieldName = key.slice("email.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = emailObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.email = emailObj;
+    }
+    obj.address = formData.get("address") ?? "";
+    obj.username = formData.get("username") ?? "";
+    obj.route = formData.get("route") ?? "";
+    {
+      const ratePerHourStr = formData.get("ratePerHour");
+      obj.ratePerHour = ratePerHourStr
+        ? parseFloat(ratePerHourStr as string)
+        : 0;
+      if (obj.ratePerHour !== undefined && Number.isNaN(obj.ratePerHour))
+        obj.ratePerHour = 0;
+    }
+    {
+      const activeVal = formData.get("active");
+      obj.active =
+        activeVal === "true" || activeVal === "on" || activeVal === "1";
+    }
+    {
+      const isTechnicianVal = formData.get("isTechnician");
+      obj.isTechnician =
+        isTechnicianVal === "true" ||
+        isTechnicianVal === "on" ||
+        isTechnicianVal === "1";
+    }
+    {
+      const isSalesRepVal = formData.get("isSalesRep");
+      obj.isSalesRep =
+        isSalesRepVal === "true" ||
+        isSalesRepVal === "on" ||
+        isSalesRepVal === "1";
+    }
+    obj.description = formData.get("description") ?? "";
+    obj.linkedinUrl = formData.get("linkedinUrl") ?? "";
+    obj.attendance = formData.getAll("attendance") as Array<string>;
+    {
+      // Collect nested object fields with prefix "settings."
+      const settingsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("settings.")) {
+          const fieldName = key.slice("settings.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = settingsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.settings = settingsObj;
+    }
+    return Employee.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      imageUrl: {
+        path: ["imageUrl"] as const,
+        name: "imageUrl",
+        constraints: { required: true },
+
+        get: (data: Data) => data.imageUrl,
+        set: (data: Data, value: string | null) => {
+          data.imageUrl = value;
+        },
+        getError: (errors: Errors) => errors?.imageUrl,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.imageUrl = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.imageUrl ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.imageUrl = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      name: {
+        path: ["name"] as const,
+        name: "name",
+        constraints: { required: true },
+
+        get: (data: Data) => data.name,
+        set: (data: Data, value: string) => {
+          data.name = value;
+        },
+        getError: (errors: Errors) => errors?.name,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.name = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.name ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.name = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      phones: {
+        path: ["phones"] as const,
+        name: "phones",
+        constraints: { required: true },
+
+        get: (data: Data) => data.phones,
+        set: (data: Data, value: PhoneNumber[]) => {
+          data.phones = value;
+        },
+        getError: (errors: Errors) => errors?.phones,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.phones = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.phones ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.phones = value;
+        },
+        validate: (_value: PhoneNumber[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["phones"], index] as const,
+          name: `phones.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.phones[index],
+          set: (data: Data, value: PhoneNumber) => {
+            data.phones[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.phones as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.phones ??= {};
+            (errors.phones as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.phones?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.phones ??= {};
+            tainted.phones[index] = value;
+          },
+          validate: (_value: PhoneNumber): Array<string> => [],
+        }),
+        push: (data: Data, item: PhoneNumber) => {
+          data.phones.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.phones.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.phones[a], data.phones[b]] = [data.phones[b], data.phones[a]];
+        },
+      },
+      role: {
+        path: ["role"] as const,
+        name: "role",
+        constraints: { required: true },
+
+        get: (data: Data) => data.role,
+        set: (data: Data, value: string) => {
+          data.role = value;
+        },
+        getError: (errors: Errors) => errors?.role,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.role = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.role ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.role = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      title: {
+        path: ["title"] as const,
+        name: "title",
+        constraints: { required: true },
+
+        get: (data: Data) => data.title,
+        set: (data: Data, value: JobTitle) => {
+          data.title = value;
+        },
+        getError: (errors: Errors) => errors?.title,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.title = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.title ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.title = value;
+        },
+        validate: (_value: JobTitle): Array<string> => [],
+      },
+      email: {
+        path: ["email"] as const,
+        name: "email",
+        constraints: { required: true },
+
+        get: (data: Data) => data.email,
+        set: (data: Data, value: Email) => {
+          data.email = value;
+        },
+        getError: (errors: Errors) => errors?.email,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.email = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.email ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.email = value;
+        },
+        validate: (_value: Email): Array<string> => [],
+      },
+      address: {
+        path: ["address"] as const,
+        name: "address",
+        constraints: { required: true },
+
+        get: (data: Data) => data.address,
+        set: (data: Data, value: string) => {
+          data.address = value;
+        },
+        getError: (errors: Errors) => errors?.address,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.address = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.address ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.address = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      username: {
+        path: ["username"] as const,
+        name: "username",
+        constraints: { required: true },
+
+        get: (data: Data) => data.username,
+        set: (data: Data, value: string) => {
+          data.username = value;
+        },
+        getError: (errors: Errors) => errors?.username,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.username = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.username ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.username = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      route: {
+        path: ["route"] as const,
+        name: "route",
+        constraints: { required: true },
+
+        get: (data: Data) => data.route,
+        set: (data: Data, value: string | Route) => {
+          data.route = value;
+        },
+        getError: (errors: Errors) => errors?.route,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.route = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.route ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.route = value;
+        },
+        validate: (_value: string | Route): Array<string> => [],
+      },
+      ratePerHour: {
+        path: ["ratePerHour"] as const,
+        name: "ratePerHour",
+        constraints: { required: true },
+
+        get: (data: Data) => data.ratePerHour,
+        set: (data: Data, value: number) => {
+          data.ratePerHour = value;
+        },
+        getError: (errors: Errors) => errors?.ratePerHour,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.ratePerHour = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.ratePerHour ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.ratePerHour = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      active: {
+        path: ["active"] as const,
+        name: "active",
+        constraints: { required: true },
+
+        get: (data: Data) => data.active,
+        set: (data: Data, value: boolean) => {
+          data.active = value;
+        },
+        getError: (errors: Errors) => errors?.active,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.active = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.active ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.active = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      isTechnician: {
+        path: ["isTechnician"] as const,
+        name: "isTechnician",
+        constraints: { required: true },
+
+        get: (data: Data) => data.isTechnician,
+        set: (data: Data, value: boolean) => {
+          data.isTechnician = value;
+        },
+        getError: (errors: Errors) => errors?.isTechnician,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.isTechnician = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.isTechnician ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.isTechnician = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      isSalesRep: {
+        path: ["isSalesRep"] as const,
+        name: "isSalesRep",
+        constraints: { required: true },
+
+        get: (data: Data) => data.isSalesRep,
+        set: (data: Data, value: boolean) => {
+          data.isSalesRep = value;
+        },
+        getError: (errors: Errors) => errors?.isSalesRep,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.isSalesRep = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.isSalesRep ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.isSalesRep = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      description: {
+        path: ["description"] as const,
+        name: "description",
+        constraints: { required: true },
+
+        get: (data: Data) => data.description,
+        set: (data: Data, value: string | null) => {
+          data.description = value;
+        },
+        getError: (errors: Errors) => errors?.description,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.description = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.description ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.description = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      linkedinUrl: {
+        path: ["linkedinUrl"] as const,
+        name: "linkedinUrl",
+        constraints: { required: true },
+
+        get: (data: Data) => data.linkedinUrl,
+        set: (data: Data, value: string | null) => {
+          data.linkedinUrl = value;
+        },
+        getError: (errors: Errors) => errors?.linkedinUrl,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.linkedinUrl = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.linkedinUrl ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.linkedinUrl = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      attendance: {
+        path: ["attendance"] as const,
+        name: "attendance",
+        constraints: { required: true },
+
+        get: (data: Data) => data.attendance,
+        set: (data: Data, value: string[]) => {
+          data.attendance = value;
+        },
+        getError: (errors: Errors) => errors?.attendance,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.attendance = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.attendance ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.attendance = value;
+        },
+        validate: (_value: string[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["attendance"], index] as const,
+          name: `attendance.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.attendance[index],
+          set: (data: Data, value: string) => {
+            data.attendance[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.attendance as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.attendance ??= {};
+            (errors.attendance as Record<number, Array<string>>)[index] =
+              value!;
+          },
+          getTainted: (tainted: Tainted) =>
+            tainted.attendance?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.attendance ??= {};
+            tainted.attendance[index] = value;
+          },
+          validate: (_value: string): Array<string> => [],
+        }),
+        push: (data: Data, item: string) => {
+          data.attendance.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.attendance.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.attendance[a], data.attendance[b]] = [
+            data.attendance[b],
+            data.attendance[a],
+          ];
+        },
+      },
+      settings: {
+        path: ["settings"] as const,
+        name: "settings",
+        constraints: { required: true },
+
+        get: (data: Data) => data.settings,
+        set: (data: Data, value: Settings) => {
+          data.settings = value;
+        },
+        getError: (errors: Errors) => errors?.settings,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.settings = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.settings ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.settings = value;
+        },
+        validate: (_value: Settings): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -7177,7 +18029,7 @@ export namespace Commissions {
 }
 
 export namespace Commissions {
-  export function toJson(self: Commissions): string {
+  export function toStringifiedJSON(self: Commissions): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -7198,23 +18050,28 @@ export namespace Commissions {
 }
 
 export namespace Commissions {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Commissions, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Commissions.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Commissions.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -7254,8 +18111,80 @@ export namespace Commissions {
       const __raw_salesRep = obj["salesRep"];
       instance.salesRep = __raw_salesRep;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Commissions;
   }
+}
+
+export namespace Commissions {
+  export type Data = Commissions;
+  export type Errors = {
+    _errors?: Array<string>;
+    technician?: Array<string>;
+    salesRep?: Array<string>;
+  };
+  export type Tainted = { technician?: boolean; salesRep?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.technician = formData.get("technician") ?? "";
+    obj.salesRep = formData.get("salesRep") ?? "";
+    return Commissions.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      technician: {
+        path: ["technician"] as const,
+        name: "technician",
+        constraints: { required: true },
+
+        get: (data: Data) => data.technician,
+        set: (data: Data, value: string) => {
+          data.technician = value;
+        },
+        getError: (errors: Errors) => errors?.technician,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.technician = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.technician ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.technician = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      salesRep: {
+        path: ["salesRep"] as const,
+        name: "salesRep",
+        constraints: { required: true },
+
+        get: (data: Data) => data.salesRep,
+        set: (data: Data, value: string) => {
+          data.salesRep = value;
+        },
+        getError: (errors: Errors) => errors?.salesRep,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.salesRep = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.salesRep ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.salesRep = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -7274,7 +18203,7 @@ export namespace Number {
 }
 
 export namespace Number {
-  export function toJson(self: Number): string {
+  export function toStringifiedJSON(self: Number): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -7296,23 +18225,28 @@ export namespace Number {
 }
 
 export namespace Number {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Number, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Number.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Number.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -7355,8 +18289,110 @@ export namespace Number {
       const __raw_localNumber = obj["localNumber"];
       instance.localNumber = __raw_localNumber;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Number;
   }
+}
+
+export namespace Number {
+  export type Data = Number;
+  export type Errors = {
+    _errors?: Array<string>;
+    countryCode?: Array<string>;
+    areaCode?: Array<string>;
+    localNumber?: Array<string>;
+  };
+  export type Tainted = {
+    countryCode?: boolean;
+    areaCode?: boolean;
+    localNumber?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.countryCode = formData.get("countryCode") ?? "";
+    obj.areaCode = formData.get("areaCode") ?? "";
+    obj.localNumber = formData.get("localNumber") ?? "";
+    return Number.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      countryCode: {
+        path: ["countryCode"] as const,
+        name: "countryCode",
+        constraints: { required: true },
+
+        get: (data: Data) => data.countryCode,
+        set: (data: Data, value: string) => {
+          data.countryCode = value;
+        },
+        getError: (errors: Errors) => errors?.countryCode,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.countryCode = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.countryCode ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.countryCode = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      areaCode: {
+        path: ["areaCode"] as const,
+        name: "areaCode",
+        constraints: { required: true },
+
+        get: (data: Data) => data.areaCode,
+        set: (data: Data, value: string) => {
+          data.areaCode = value;
+        },
+        getError: (errors: Errors) => errors?.areaCode,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.areaCode = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.areaCode ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.areaCode = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      localNumber: {
+        path: ["localNumber"] as const,
+        name: "localNumber",
+        constraints: { required: true },
+
+        get: (data: Data) => data.localNumber,
+        set: (data: Data, value: string) => {
+          data.localNumber = value;
+        },
+        getError: (errors: Errors) => errors?.localNumber,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.localNumber = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.localNumber ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.localNumber = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -7372,7 +18408,7 @@ export namespace DataPath {
 }
 
 export namespace DataPath {
-  export function toJson(self: DataPath): string {
+  export function toStringifiedJSON(self: DataPath): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -7402,23 +18438,28 @@ export namespace DataPath {
 }
 
 export namespace DataPath {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<DataPath, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "DataPath.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "DataPath.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -7454,8 +18495,104 @@ export namespace DataPath {
       const __raw_formatter = obj["formatter"];
       instance.formatter = __raw_formatter;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as DataPath;
   }
+}
+
+export namespace DataPath {
+  export type Data = DataPath;
+  export type Errors = {
+    _errors?: Array<string>;
+    path?: { _errors?: Array<string>; [index: number]: Array<string> };
+    formatter?: Array<string>;
+  };
+  export type Tainted = {
+    path?: { [index: number]: boolean };
+    formatter?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.path = formData.getAll("path") as Array<string>;
+    obj.formatter = formData.get("formatter") ?? "";
+    return DataPath.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      path: {
+        path: ["path"] as const,
+        name: "path",
+        constraints: { required: true },
+
+        get: (data: Data) => data.path,
+        set: (data: Data, value: string[]) => {
+          data.path = value;
+        },
+        getError: (errors: Errors) => errors?.path,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.path = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.path ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.path = value;
+        },
+        validate: (_value: string[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["path"], index] as const,
+          name: `path.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.path[index],
+          set: (data: Data, value: string) => {
+            data.path[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.path as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.path ??= {};
+            (errors.path as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.path?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.path ??= {};
+            tainted.path[index] = value;
+          },
+          validate: (_value: string): Array<string> => [],
+        }),
+        push: (data: Data, item: string) => {
+          data.path.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.path.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.path[a], data.path[b]] = [data.path[b], data.path[a]];
+        },
+      },
+      formatter: {
+        path: ["formatter"] as const,
+        name: "formatter",
+        constraints: { required: true },
+
+        get: (data: Data) => data.formatter,
+        set: (data: Data, value: string | null) => {
+          data.formatter = value;
+        },
+        getError: (errors: Errors) => errors?.formatter,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.formatter = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.formatter ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.formatter = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -7495,7 +18632,7 @@ export namespace Route {
 }
 
 export namespace Route {
-  export function toJson(self: Route): string {
+  export function toStringifiedJSON(self: Route): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -7548,21 +18685,28 @@ export namespace Route {
 }
 
 export namespace Route {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Route, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err(["Route.fromJson: root cannot be a forward reference"]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Route.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -7663,8 +18807,338 @@ export namespace Route {
       const __raw_color = obj["color"];
       instance.color = __raw_color;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Route;
   }
+}
+
+export namespace Route {
+  export type Data = Route;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    techs?: Array<string>;
+    active?: Array<string>;
+    name?: Array<string>;
+    phone?: Array<string>;
+    position?: Array<string>;
+    serviceRoute?: Array<string>;
+    defaultDurationHours?: Array<string>;
+    tags?: { _errors?: Array<string>; [index: number]: Array<string> };
+    icon?: Array<string>;
+    color?: Array<string>;
+  };
+  export type Tainted = {
+    id?: boolean;
+    techs?: boolean;
+    active?: boolean;
+    name?: boolean;
+    phone?: boolean;
+    position?: boolean;
+    serviceRoute?: boolean;
+    defaultDurationHours?: boolean;
+    tags?: { [index: number]: boolean };
+    icon?: boolean;
+    color?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.techs = formData.get("techs") ?? "";
+    {
+      const activeVal = formData.get("active");
+      obj.active =
+        activeVal === "true" || activeVal === "on" || activeVal === "1";
+    }
+    obj.name = formData.get("name") ?? "";
+    obj.phone = formData.get("phone") ?? "";
+    obj.position = formData.get("position") ?? "";
+    {
+      const serviceRouteVal = formData.get("serviceRoute");
+      obj.serviceRoute =
+        serviceRouteVal === "true" ||
+        serviceRouteVal === "on" ||
+        serviceRouteVal === "1";
+    }
+    {
+      const defaultDurationHoursStr = formData.get("defaultDurationHours");
+      obj.defaultDurationHours = defaultDurationHoursStr
+        ? parseFloat(defaultDurationHoursStr as string)
+        : 0;
+      if (
+        obj.defaultDurationHours !== undefined &&
+        Number.isNaN(obj.defaultDurationHours)
+      )
+        obj.defaultDurationHours = 0;
+    }
+    obj.tags = formData.getAll("tags") as Array<string>;
+    obj.icon = formData.get("icon") ?? "";
+    obj.color = formData.get("color") ?? "";
+    return Route.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      techs: {
+        path: ["techs"] as const,
+        name: "techs",
+        constraints: { required: true },
+
+        get: (data: Data) => data.techs,
+        set: (data: Data, value: (string | Employee)[] | null) => {
+          data.techs = value;
+        },
+        getError: (errors: Errors) => errors?.techs,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.techs = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.techs ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.techs = value;
+        },
+        validate: (_value: (string | Employee)[] | null): Array<string> => [],
+      },
+      active: {
+        path: ["active"] as const,
+        name: "active",
+        constraints: { required: true },
+
+        get: (data: Data) => data.active,
+        set: (data: Data, value: boolean) => {
+          data.active = value;
+        },
+        getError: (errors: Errors) => errors?.active,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.active = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.active ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.active = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      name: {
+        path: ["name"] as const,
+        name: "name",
+        constraints: { required: true },
+
+        get: (data: Data) => data.name,
+        set: (data: Data, value: string) => {
+          data.name = value;
+        },
+        getError: (errors: Errors) => errors?.name,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.name = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.name ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.name = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      phone: {
+        path: ["phone"] as const,
+        name: "phone",
+        constraints: { required: true },
+
+        get: (data: Data) => data.phone,
+        set: (data: Data, value: string) => {
+          data.phone = value;
+        },
+        getError: (errors: Errors) => errors?.phone,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.phone = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.phone ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.phone = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      position: {
+        path: ["position"] as const,
+        name: "position",
+        constraints: { required: true },
+
+        get: (data: Data) => data.position,
+        set: (data: Data, value: string) => {
+          data.position = value;
+        },
+        getError: (errors: Errors) => errors?.position,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.position = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.position ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.position = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      serviceRoute: {
+        path: ["serviceRoute"] as const,
+        name: "serviceRoute",
+        constraints: { required: true },
+
+        get: (data: Data) => data.serviceRoute,
+        set: (data: Data, value: boolean) => {
+          data.serviceRoute = value;
+        },
+        getError: (errors: Errors) => errors?.serviceRoute,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.serviceRoute = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.serviceRoute ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.serviceRoute = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      defaultDurationHours: {
+        path: ["defaultDurationHours"] as const,
+        name: "defaultDurationHours",
+        constraints: { required: true },
+
+        get: (data: Data) => data.defaultDurationHours,
+        set: (data: Data, value: number) => {
+          data.defaultDurationHours = value;
+        },
+        getError: (errors: Errors) => errors?.defaultDurationHours,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.defaultDurationHours = value;
+        },
+        getTainted: (tainted: Tainted) =>
+          tainted?.defaultDurationHours ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.defaultDurationHours = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      tags: {
+        path: ["tags"] as const,
+        name: "tags",
+        constraints: { required: true },
+
+        get: (data: Data) => data.tags,
+        set: (data: Data, value: string[]) => {
+          data.tags = value;
+        },
+        getError: (errors: Errors) => errors?.tags,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.tags = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.tags ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.tags = value;
+        },
+        validate: (_value: string[]): Array<string> => [],
+
+        at: (index: number) => ({
+          path: [...["tags"], index] as const,
+          name: `tags.${index}`,
+          constraints: { required: true },
+          get: (data: Data) => data.tags[index],
+          set: (data: Data, value: string) => {
+            data.tags[index] = value;
+          },
+          getError: (errors: Errors) =>
+            (errors.tags as Record<number, Array<string>>)?.[index],
+          setError: (errors: Errors, value: Array<string> | undefined) => {
+            errors.tags ??= {};
+            (errors.tags as Record<number, Array<string>>)[index] = value!;
+          },
+          getTainted: (tainted: Tainted) => tainted.tags?.[index] ?? false,
+          setTainted: (tainted: Tainted, value: boolean) => {
+            tainted.tags ??= {};
+            tainted.tags[index] = value;
+          },
+          validate: (_value: string): Array<string> => [],
+        }),
+        push: (data: Data, item: string) => {
+          data.tags.push(item);
+        },
+        remove: (data: Data, index: number) => {
+          data.tags.splice(index, 1);
+        },
+        swap: (data: Data, a: number, b: number) => {
+          [data.tags[a], data.tags[b]] = [data.tags[b], data.tags[a]];
+        },
+      },
+      icon: {
+        path: ["icon"] as const,
+        name: "icon",
+        constraints: { required: true },
+
+        get: (data: Data) => data.icon,
+        set: (data: Data, value: string | null) => {
+          data.icon = value;
+        },
+        getError: (errors: Errors) => errors?.icon,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.icon = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.icon ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.icon = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      color: {
+        path: ["color"] as const,
+        name: "color",
+        constraints: { required: true },
+
+        get: (data: Data) => data.color,
+        set: (data: Data, value: string | null) => {
+          data.color = value;
+        },
+        getError: (errors: Errors) => errors?.color,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.color = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.color ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.color = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -7683,7 +19157,7 @@ export namespace EmailParts {
 }
 
 export namespace EmailParts {
-  export function toJson(self: EmailParts): string {
+  export function toStringifiedJSON(self: EmailParts): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -7705,23 +19179,28 @@ export namespace EmailParts {
 }
 
 export namespace EmailParts {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<EmailParts, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "EmailParts.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "EmailParts.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -7768,8 +19247,110 @@ export namespace EmailParts {
       const __raw_topLevelDomain = obj["topLevelDomain"];
       instance.topLevelDomain = __raw_topLevelDomain;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as EmailParts;
   }
+}
+
+export namespace EmailParts {
+  export type Data = EmailParts;
+  export type Errors = {
+    _errors?: Array<string>;
+    local?: Array<string>;
+    domainName?: Array<string>;
+    topLevelDomain?: Array<string>;
+  };
+  export type Tainted = {
+    local?: boolean;
+    domainName?: boolean;
+    topLevelDomain?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.local = formData.get("local") ?? "";
+    obj.domainName = formData.get("domainName") ?? "";
+    obj.topLevelDomain = formData.get("topLevelDomain") ?? "";
+    return EmailParts.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      local: {
+        path: ["local"] as const,
+        name: "local",
+        constraints: { required: true },
+
+        get: (data: Data) => data.local,
+        set: (data: Data, value: string) => {
+          data.local = value;
+        },
+        getError: (errors: Errors) => errors?.local,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.local = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.local ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.local = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      domainName: {
+        path: ["domainName"] as const,
+        name: "domainName",
+        constraints: { required: true },
+
+        get: (data: Data) => data.domainName,
+        set: (data: Data, value: string) => {
+          data.domainName = value;
+        },
+        getError: (errors: Errors) => errors?.domainName,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.domainName = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.domainName ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.domainName = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+      topLevelDomain: {
+        path: ["topLevelDomain"] as const,
+        name: "topLevelDomain",
+        constraints: { required: true },
+
+        get: (data: Data) => data.topLevelDomain,
+        set: (data: Data, value: string) => {
+          data.topLevelDomain = value;
+        },
+        getError: (errors: Errors) => errors?.topLevelDomain,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.topLevelDomain = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.topLevelDomain ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.topLevelDomain = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -7785,7 +19366,7 @@ export namespace Sent {
 }
 
 export namespace Sent {
-  export function toJson(self: Sent): string {
+  export function toStringifiedJSON(self: Sent): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -7820,21 +19401,28 @@ export namespace Sent {
 }
 
 export namespace Sent {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Sent, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err(["Sent.fromJson: root cannot be a forward reference"]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Sent.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -7870,8 +19458,70 @@ export namespace Sent {
       const __raw_method = obj["method"];
       instance.method = __raw_method;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Sent;
   }
+}
+
+export namespace Sent {
+  export type Data = Sent;
+  export type Errors = {
+    _errors?: Array<string>;
+    recipient?: Array<string>;
+    method?: Array<string>;
+  };
+  export type Tainted = { recipient?: boolean; method?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.recipient = formData.get("recipient") ?? "";
+    obj.method = formData.get("method") ?? "";
+    return Sent.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      recipient: {
+        path: ["recipient"] as const,
+        name: "recipient",
+        constraints: { required: true },
+
+        get: (data: Data) => data.recipient,
+        set: (data: Data, value: string | null) => {
+          data.recipient = value;
+        },
+        getError: (errors: Errors) => errors?.recipient,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.recipient = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.recipient ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.recipient = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+      method: {
+        path: ["method"] as const,
+        name: "method",
+        constraints: { required: true },
+
+        get: (data: Data) => data.method,
+        set: (data: Data, value: string | null) => {
+          data.method = value;
+        },
+        getError: (errors: Errors) => errors?.method,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.method = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.method ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.method = value;
+        },
+        validate: (_value: string | null): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -7883,7 +19533,7 @@ export interface BilledItem {
 }
 
 export namespace BilledItem {
-  export function toJson(self: BilledItem): string {
+  export function toStringifiedJSON(self: BilledItem): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -7909,23 +19559,28 @@ export namespace BilledItem {
 }
 
 export namespace BilledItem {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<BilledItem, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "BilledItem.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "BilledItem.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -7982,8 +19637,149 @@ export namespace BilledItem {
       const __raw_upsale = obj["upsale"];
       instance.upsale = __raw_upsale;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as BilledItem;
   }
+}
+
+export namespace BilledItem {
+  export type Data = BilledItem;
+  export type Errors = {
+    _errors?: Array<string>;
+    item?: Item.Errors;
+    quantity?: Array<string>;
+    taxed?: Array<string>;
+    upsale?: Array<string>;
+  };
+  export type Tainted = {
+    item?: Item.Tainted;
+    quantity?: boolean;
+    taxed?: boolean;
+    upsale?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      // Collect nested object fields with prefix "item."
+      const itemObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("item.")) {
+          const fieldName = key.slice("item.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = itemObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.item = itemObj;
+    }
+    {
+      const quantityStr = formData.get("quantity");
+      obj.quantity = quantityStr ? parseFloat(quantityStr as string) : 0;
+      if (obj.quantity !== undefined && Number.isNaN(obj.quantity))
+        obj.quantity = 0;
+    }
+    {
+      const taxedVal = formData.get("taxed");
+      obj.taxed = taxedVal === "true" || taxedVal === "on" || taxedVal === "1";
+    }
+    {
+      const upsaleVal = formData.get("upsale");
+      obj.upsale =
+        upsaleVal === "true" || upsaleVal === "on" || upsaleVal === "1";
+    }
+    return BilledItem.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      item: {
+        path: ["item"] as const,
+        name: "item",
+        constraints: { required: true },
+
+        get: (data: Data) => data.item,
+        set: (data: Data, value: Item) => {
+          data.item = value;
+        },
+        getError: (errors: Errors) => errors?.item,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.item = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.item ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.item = value;
+        },
+        validate: (_value: Item): Array<string> => [],
+      },
+      quantity: {
+        path: ["quantity"] as const,
+        name: "quantity",
+        constraints: { required: true },
+
+        get: (data: Data) => data.quantity,
+        set: (data: Data, value: number) => {
+          data.quantity = value;
+        },
+        getError: (errors: Errors) => errors?.quantity,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.quantity = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.quantity ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.quantity = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      taxed: {
+        path: ["taxed"] as const,
+        name: "taxed",
+        constraints: { required: true },
+
+        get: (data: Data) => data.taxed,
+        set: (data: Data, value: boolean) => {
+          data.taxed = value;
+        },
+        getError: (errors: Errors) => errors?.taxed,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.taxed = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.taxed ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.taxed = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      upsale: {
+        path: ["upsale"] as const,
+        name: "upsale",
+        constraints: { required: true },
+
+        get: (data: Data) => data.upsale,
+        set: (data: Data, value: boolean) => {
+          data.upsale = value;
+        },
+        getError: (errors: Errors) => errors?.upsale,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.upsale = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.upsale ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.upsale = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -7999,7 +19795,7 @@ export namespace Coordinates {
 }
 
 export namespace Coordinates {
-  export function toJson(self: Coordinates): string {
+  export function toStringifiedJSON(self: Coordinates): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -8020,23 +19816,28 @@ export namespace Coordinates {
 }
 
 export namespace Coordinates {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Coordinates, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Coordinates.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Coordinates.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -8072,8 +19873,78 @@ export namespace Coordinates {
       const __raw_lng = obj["lng"];
       instance.lng = __raw_lng;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Coordinates;
   }
+}
+
+export namespace Coordinates {
+  export type Data = Coordinates;
+  export type Errors = {
+    _errors?: Array<string>;
+    lat?: Array<string>;
+    lng?: Array<string>;
+  };
+  export type Tainted = { lat?: boolean; lng?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const latStr = formData.get("lat");
+      obj.lat = latStr ? parseFloat(latStr as string) : 0;
+      if (obj.lat !== undefined && Number.isNaN(obj.lat)) obj.lat = 0;
+    }
+    {
+      const lngStr = formData.get("lng");
+      obj.lng = lngStr ? parseFloat(lngStr as string) : 0;
+      if (obj.lng !== undefined && Number.isNaN(obj.lng)) obj.lng = 0;
+    }
+    return Coordinates.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      lat: {
+        path: ["lat"] as const,
+        name: "lat",
+        constraints: { required: true },
+
+        get: (data: Data) => data.lat,
+        set: (data: Data, value: number) => {
+          data.lat = value;
+        },
+        getError: (errors: Errors) => errors?.lat,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.lat = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.lat ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.lat = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      lng: {
+        path: ["lng"] as const,
+        name: "lng",
+        constraints: { required: true },
+
+        get: (data: Data) => data.lng,
+        set: (data: Data, value: number) => {
+          data.lng = value;
+        },
+        getError: (errors: Errors) => errors?.lng,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.lng = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.lng ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.lng = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -8085,7 +19956,7 @@ export interface Ordered {
 }
 
 export namespace Ordered {
-  export function toJson(self: Ordered): string {
+  export function toStringifiedJSON(self: Ordered): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -8108,23 +19979,28 @@ export namespace Ordered {
 }
 
 export namespace Ordered {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Ordered, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Ordered.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Ordered.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -8174,8 +20050,117 @@ export namespace Ordered {
       const __raw_date = obj["date"];
       instance.date = __raw_date;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Ordered;
   }
+}
+
+export namespace Ordered {
+  export type Data = Ordered;
+  export type Errors = {
+    _errors?: Array<string>;
+    id?: Array<string>;
+    in?: Array<string>;
+    out?: Array<string>;
+    date?: Array<string>;
+  };
+  export type Tainted = {
+    id?: boolean;
+    in?: boolean;
+    out?: boolean;
+    date?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.in = formData.get("in") ?? "";
+    obj.out = formData.get("out") ?? "";
+    obj.date = formData.get("date") ?? "";
+    return Ordered.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: (data: Data) => data.id,
+        set: (data: Data, value: string) => {
+          data.id = value;
+        },
+        getError: (errors: Errors) => errors?.id,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.id = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.id ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.id = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      in: {
+        path: ["in"] as const,
+        name: "in",
+        constraints: { required: true },
+
+        get: (data: Data) => data.in,
+        set: (data: Data, value: string | Account) => {
+          data.in = value;
+        },
+        getError: (errors: Errors) => errors?.in,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.in = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.in ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.in = value;
+        },
+        validate: (_value: string | Account): Array<string> => [],
+      },
+      out: {
+        path: ["out"] as const,
+        name: "out",
+        constraints: { required: true },
+
+        get: (data: Data) => data.out,
+        set: (data: Data, value: string | Order) => {
+          data.out = value;
+        },
+        getError: (errors: Errors) => errors?.out,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.out = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.out ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.out = value;
+        },
+        validate: (_value: string | Order): Array<string> => [],
+      },
+      date: {
+        path: ["date"] as const,
+        name: "date",
+        constraints: { required: true },
+
+        get: (data: Data) => data.date,
+        set: (data: Data, value: string) => {
+          data.date = value;
+        },
+        getError: (errors: Errors) => errors?.date,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.date = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.date ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.date = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -8192,7 +20177,7 @@ export namespace Email {
 }
 
 export namespace Email {
-  export function toJson(self: Email): string {
+  export function toStringifiedJSON(self: Email): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -8213,21 +20198,28 @@ export namespace Email {
 }
 
 export namespace Email {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Email, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err(["Email.fromJson: root cannot be a forward reference"]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Email.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -8263,8 +20255,79 @@ export namespace Email {
       const __raw_emailString = obj["emailString"];
       instance.emailString = __raw_emailString;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Email;
   }
+}
+
+export namespace Email {
+  export type Data = Email;
+  export type Errors = {
+    _errors?: Array<string>;
+    canEmail?: Array<string>;
+    emailString?: Array<string>;
+  };
+  export type Tainted = { canEmail?: boolean; emailString?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const canEmailVal = formData.get("canEmail");
+      obj.canEmail =
+        canEmailVal === "true" || canEmailVal === "on" || canEmailVal === "1";
+    }
+    obj.emailString = formData.get("emailString") ?? "";
+    return Email.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      canEmail: {
+        path: ["canEmail"] as const,
+        name: "canEmail",
+        constraints: { required: true },
+
+        get: (data: Data) => data.canEmail,
+        set: (data: Data, value: boolean) => {
+          data.canEmail = value;
+        },
+        getError: (errors: Errors) => errors?.canEmail,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.canEmail = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.canEmail ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.canEmail = value;
+        },
+        validate: (_value: boolean): Array<string> => [],
+      },
+      emailString: {
+        path: ["emailString"] as const,
+        name: "emailString",
+        constraints: { required: true },
+
+        get: (data: Data) => data.emailString,
+        set: (data: Data, value: string) => {
+          data.emailString = value;
+        },
+        getError: (errors: Errors) => errors?.emailString,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.emailString = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.emailString ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.emailString = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -8277,7 +20340,7 @@ export interface RecurrenceRule {
 }
 
 export namespace RecurrenceRule {
-  export function toJson(self: RecurrenceRule): string {
+  export function toStringifiedJSON(self: RecurrenceRule): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -8325,23 +20388,28 @@ export namespace RecurrenceRule {
 }
 
 export namespace RecurrenceRule {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<RecurrenceRule, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "RecurrenceRule.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "RecurrenceRule.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -8413,8 +20481,159 @@ export namespace RecurrenceRule {
       const __raw_additionalInstances = obj["additionalInstances"];
       instance.additionalInstances = __raw_additionalInstances;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as RecurrenceRule;
   }
+}
+
+export namespace RecurrenceRule {
+  export type Data = RecurrenceRule;
+  export type Errors = {
+    _errors?: Array<string>;
+    interval?: Interval.Errors;
+    recurrenceBegins?: Array<string>;
+    recurrenceEnds?: Array<string>;
+    cancelledInstances?: Array<string>;
+    additionalInstances?: Array<string>;
+  };
+  export type Tainted = {
+    interval?: Interval.Tainted;
+    recurrenceBegins?: boolean;
+    recurrenceEnds?: boolean;
+    cancelledInstances?: boolean;
+    additionalInstances?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      // Collect nested object fields with prefix "interval."
+      const intervalObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("interval.")) {
+          const fieldName = key.slice("interval.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = intervalObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.interval = intervalObj;
+    }
+    obj.recurrenceBegins = formData.get("recurrenceBegins") ?? "";
+    obj.recurrenceEnds = formData.get("recurrenceEnds") ?? "";
+    obj.cancelledInstances = formData.get("cancelledInstances") ?? "";
+    obj.additionalInstances = formData.get("additionalInstances") ?? "";
+    return RecurrenceRule.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      interval: {
+        path: ["interval"] as const,
+        name: "interval",
+        constraints: { required: true },
+
+        get: (data: Data) => data.interval,
+        set: (data: Data, value: Interval) => {
+          data.interval = value;
+        },
+        getError: (errors: Errors) => errors?.interval,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.interval = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.interval ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.interval = value;
+        },
+        validate: (_value: Interval): Array<string> => [],
+      },
+      recurrenceBegins: {
+        path: ["recurrenceBegins"] as const,
+        name: "recurrenceBegins",
+        constraints: { required: true },
+
+        get: (data: Data) => data.recurrenceBegins,
+        set: (data: Data, value: string) => {
+          data.recurrenceBegins = value;
+        },
+        getError: (errors: Errors) => errors?.recurrenceBegins,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.recurrenceBegins = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.recurrenceBegins ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.recurrenceBegins = value;
+        },
+        validate: (_value: string): Array<string> => [],
+      },
+      recurrenceEnds: {
+        path: ["recurrenceEnds"] as const,
+        name: "recurrenceEnds",
+        constraints: { required: true },
+
+        get: (data: Data) => data.recurrenceEnds,
+        set: (data: Data, value: RecurrenceEnd | null) => {
+          data.recurrenceEnds = value;
+        },
+        getError: (errors: Errors) => errors?.recurrenceEnds,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.recurrenceEnds = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.recurrenceEnds ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.recurrenceEnds = value;
+        },
+        validate: (_value: RecurrenceEnd | null): Array<string> => [],
+      },
+      cancelledInstances: {
+        path: ["cancelledInstances"] as const,
+        name: "cancelledInstances",
+        constraints: { required: true },
+
+        get: (data: Data) => data.cancelledInstances,
+        set: (data: Data, value: string[] | null) => {
+          data.cancelledInstances = value;
+        },
+        getError: (errors: Errors) => errors?.cancelledInstances,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.cancelledInstances = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.cancelledInstances ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.cancelledInstances = value;
+        },
+        validate: (_value: string[] | null): Array<string> => [],
+      },
+      additionalInstances: {
+        path: ["additionalInstances"] as const,
+        name: "additionalInstances",
+        constraints: { required: true },
+
+        get: (data: Data) => data.additionalInstances,
+        set: (data: Data, value: string[] | null) => {
+          data.additionalInstances = value;
+        },
+        getError: (errors: Errors) => errors?.additionalInstances,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.additionalInstances = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.additionalInstances ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.additionalInstances = value;
+        },
+        validate: (_value: string[] | null): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -8429,7 +20648,7 @@ export namespace LastName {
 }
 
 export namespace LastName {
-  export function toJson(self: LastName): string {
+  export function toStringifiedJSON(self: LastName): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -8449,23 +20668,28 @@ export namespace LastName {
 }
 
 export namespace LastName {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<LastName, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "LastName.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "LastName.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -8494,8 +20718,51 @@ export namespace LastName {
       const __raw_name = obj["name"];
       instance.name = __raw_name;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as LastName;
   }
+}
+
+export namespace LastName {
+  export type Data = LastName;
+  export type Errors = { _errors?: Array<string>; name?: Array<string> };
+  export type Tainted = { name?: boolean };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    obj.name = formData.get("name") ?? "";
+    return LastName.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      name: {
+        path: ["name"] as const,
+        name: "name",
+        constraints: { required: true },
+
+        get: (data: Data) => data.name,
+        set: (data: Data, value: string) => {
+          data.name = value;
+        },
+        getError: (errors: Errors) => errors?.name,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.name = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.name ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.name = value;
+        },
+        validate: (value: string): Array<string> => {
+          const errors: Array<string> = [];
+          if (typeof value === "string" && value.length === 0)
+            errors.push("Must not be empty");
+          return errors;
+        },
+      },
+    } as const;
 }
 
 /**  */
@@ -8513,7 +20780,7 @@ export namespace Cardinal {
 }
 
 export namespace Cardinal {
-  export function toJson(self: Cardinal): string {
+  export function toStringifiedJSON(self: Cardinal): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -8536,23 +20803,28 @@ export namespace Cardinal {
 }
 
 export namespace Cardinal {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<Cardinal, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "Cardinal.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "Cardinal.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -8602,8 +20874,133 @@ export namespace Cardinal {
       const __raw_west = obj["west"];
       instance.west = __raw_west;
     }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
+    }
     return instance as Cardinal;
   }
+}
+
+export namespace Cardinal {
+  export type Data = Cardinal;
+  export type Errors = {
+    _errors?: Array<string>;
+    north?: Array<string>;
+    east?: Array<string>;
+    south?: Array<string>;
+    west?: Array<string>;
+  };
+  export type Tainted = {
+    north?: boolean;
+    east?: boolean;
+    south?: boolean;
+    west?: boolean;
+  };
+  /** ParsesFormDataandvalidatesit,returningaResultwiththeparseddataorerrors.DelegatesvalidationtofromJSON()from@derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Data, Errors> {
+    const obj: Record<string, unknown> = {};
+    {
+      const northStr = formData.get("north");
+      obj.north = northStr ? parseFloat(northStr as string) : 0;
+      if (obj.north !== undefined && Number.isNaN(obj.north)) obj.north = 0;
+    }
+    {
+      const eastStr = formData.get("east");
+      obj.east = eastStr ? parseFloat(eastStr as string) : 0;
+      if (obj.east !== undefined && Number.isNaN(obj.east)) obj.east = 0;
+    }
+    {
+      const southStr = formData.get("south");
+      obj.south = southStr ? parseFloat(southStr as string) : 0;
+      if (obj.south !== undefined && Number.isNaN(obj.south)) obj.south = 0;
+    }
+    {
+      const westStr = formData.get("west");
+      obj.west = westStr ? parseFloat(westStr as string) : 0;
+      if (obj.west !== undefined && Number.isNaN(obj.west)) obj.west = 0;
+    }
+    return Cardinal.fromJSON(obj);
+  }
+  /** Fielddescriptorswithtype-safeaccessorsandvalidation. */ export const fields =
+    {
+      north: {
+        path: ["north"] as const,
+        name: "north",
+        constraints: { required: true },
+
+        get: (data: Data) => data.north,
+        set: (data: Data, value: number) => {
+          data.north = value;
+        },
+        getError: (errors: Errors) => errors?.north,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.north = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.north ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.north = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      east: {
+        path: ["east"] as const,
+        name: "east",
+        constraints: { required: true },
+
+        get: (data: Data) => data.east,
+        set: (data: Data, value: number) => {
+          data.east = value;
+        },
+        getError: (errors: Errors) => errors?.east,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.east = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.east ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.east = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      south: {
+        path: ["south"] as const,
+        name: "south",
+        constraints: { required: true },
+
+        get: (data: Data) => data.south,
+        set: (data: Data, value: number) => {
+          data.south = value;
+        },
+        getError: (errors: Errors) => errors?.south,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.south = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.south ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.south = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+      west: {
+        path: ["west"] as const,
+        name: "west",
+        constraints: { required: true },
+
+        get: (data: Data) => data.west,
+        set: (data: Data, value: number) => {
+          data.west = value;
+        },
+        getError: (errors: Errors) => errors?.west,
+        setError: (errors: Errors, value: Array<string> | undefined) => {
+          errors.west = value;
+        },
+        getTainted: (tainted: Tainted) => tainted?.west ?? false,
+        setTainted: (tainted: Tainted, value: boolean) => {
+          tainted.west = value;
+        },
+        validate: (_value: number): Array<string> => [],
+      },
+    } as const;
 }
 
 /**  */
@@ -8614,7 +21011,10 @@ export type Interval =
   | YearlyRecurrenceRule;
 
 export namespace Interval {
-  export function fromJson(json: string, opts?: DeserializeOptions): Interval {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Interval {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);
@@ -8666,7 +21066,10 @@ export type Page =
   | "UserHome";
 
 export namespace Page {
-  export function fromJson(json: string, opts?: DeserializeOptions): Page {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Page {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);
@@ -8698,7 +21101,10 @@ export type UserRole =
   | "InformationTechnology";
 
 export namespace UserRole {
-  export function fromJson(json: string, opts?: DeserializeOptions): UserRole {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): UserRole {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);
@@ -8742,7 +21148,10 @@ export type Target =
   | Ordered;
 
 export namespace Target {
-  export function fromJson(json: string, opts?: DeserializeOptions): Target {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Target {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);
@@ -8769,7 +21178,7 @@ export namespace Target {
 export type RecurrenceEnd = number | string;
 
 export namespace RecurrenceEnd {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): RecurrenceEnd {
@@ -8802,7 +21211,7 @@ export namespace RecurrenceEnd {
 export type OverviewDisplay = "Card" | "Table";
 
 export namespace OverviewDisplay {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): OverviewDisplay {
@@ -8835,7 +21244,7 @@ export namespace OverviewDisplay {
 export type IntervalUnit = "Day" | "Week" | "Month" | "Year";
 
 export namespace IntervalUnit {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): IntervalUnit {
@@ -8868,7 +21277,10 @@ export namespace IntervalUnit {
 export type Sector = "Residential" | "Commercial";
 
 export namespace Sector {
-  export function fromJson(json: string, opts?: DeserializeOptions): Sector {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Sector {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);
@@ -8902,7 +21314,10 @@ export type Weekday =
   | "Sunday";
 
 export namespace Weekday {
-  export function fromJson(json: string, opts?: DeserializeOptions): Weekday {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Weekday {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);
@@ -8929,7 +21344,10 @@ export namespace Weekday {
 export type Status = "Scheduled" | "OnDeck" | "Waiting";
 
 export namespace Status {
-  export function fromJson(json: string, opts?: DeserializeOptions): Status {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Status {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);
@@ -8960,7 +21378,10 @@ export type NextStep =
   | "Negotiation";
 
 export namespace NextStep {
-  export function fromJson(json: string, opts?: DeserializeOptions): NextStep {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): NextStep {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);
@@ -8992,7 +21413,10 @@ export type LeadStage =
   | "Negotiation";
 
 export namespace LeadStage {
-  export function fromJson(json: string, opts?: DeserializeOptions): LeadStage {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): LeadStage {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);
@@ -9022,7 +21446,7 @@ export namespace LeadStage {
 export type AccountName = CompanyName | PersonName;
 
 export namespace AccountName {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): AccountName {
@@ -9055,7 +21479,10 @@ export namespace AccountName {
 export type Priority = "High" | "Medium" | "Low";
 
 export namespace Priority {
-  export function fromJson(json: string, opts?: DeserializeOptions): Priority {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Priority {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);
@@ -9089,7 +21516,7 @@ export type Applications =
   | "Website";
 
 export namespace Applications {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Applications {
@@ -9126,7 +21553,10 @@ export type JobTitle =
   | "InformationTechnology";
 
 export namespace JobTitle {
-  export function fromJson(json: string, opts?: DeserializeOptions): JobTitle {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): JobTitle {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);
@@ -9153,7 +21583,7 @@ export namespace JobTitle {
 export type ColorsConfig = Cardinal | Ordinal | Custom | Gradient;
 
 export namespace ColorsConfig {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): ColorsConfig {
@@ -9186,7 +21616,7 @@ export namespace ColorsConfig {
 export type WeekOfMonth = "First" | "Second" | "Third" | "Fourth" | "Last";
 
 export namespace WeekOfMonth {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): WeekOfMonth {
@@ -9219,7 +21649,7 @@ export namespace WeekOfMonth {
 export type ActivityType = Created | Edited | Sent | Viewed | Commented | Paid;
 
 export namespace ActivityType {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): ActivityType {
@@ -9252,7 +21682,10 @@ export namespace ActivityType {
 export type RowHeight = "ExtraSmall" | "Small" | "Medium" | "Large";
 
 export namespace RowHeight {
-  export function fromJson(json: string, opts?: DeserializeOptions): RowHeight {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): RowHeight {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);
@@ -9282,7 +21715,7 @@ export namespace RowHeight {
 export type OrderStage = "Estimate" | "Active" | "Invoice";
 
 export namespace OrderStage {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): OrderStage {
@@ -9333,7 +21766,10 @@ export type Table =
   | "Ordered";
 
 export namespace Table {
-  export function fromJson(json: string, opts?: DeserializeOptions): Table {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Table {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);
@@ -9360,7 +21796,10 @@ export namespace Table {
 export type Item = (string | Product) | (string | Service);
 
 export namespace Item {
-  export function fromJson(json: string, opts?: DeserializeOptions): Item {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Item {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);
@@ -9387,7 +21826,10 @@ export namespace Item {
 export type Actor = User | Employee | Account;
 
 export namespace Actor {
-  export function fromJson(json: string, opts?: DeserializeOptions): Actor {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Actor {
     const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
     const result = __deserialize(raw, ctx);

@@ -26,7 +26,7 @@ export class MacroUser {
     return "MacroUser { " + parts.join(", ") + " }";
 }
 
-  toJson(): string {
+  toStringifiedJSON(): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(this.__serialize(ctx));
 }
@@ -73,20 +73,25 @@ export class MacroUser {
     this.apiToken = props.apiToken;
 }
 
-  static fromJson(json: string, opts?: DeserializeOptions): Result<MacroUser, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = MacroUser.__deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-        return Result.err([
-            "MacroUser.fromJson: root cannot be a forward reference"
-        ]);
+  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<MacroUser, string[]> {
+    try {
+        const ctx = DeserializeContext.create();
+        const raw = JSON.parse(json);
+        const resultOrRef = MacroUser.__deserialize(raw, ctx);
+        if (PendingRef.is(resultOrRef)) {
+            return Result.err([
+                "MacroUser.fromStringifiedJSON: root cannot be a forward reference"
+            ]);
+        }
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+        return Result.ok(resultOrRef);
+    } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-        ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
 }
 
   static __deserialize(value: any, ctx: DeserializeContext): MacroUser | PendingRef {
@@ -147,6 +152,9 @@ export class MacroUser {
     {
         const __raw_apiToken = obj["apiToken"];
         (instance as any).apiToken = __raw_apiToken;
+    }
+    if (errors.length > 0) {
+        throw new Error(errors.join("; "));
     }
     return instance;
 }

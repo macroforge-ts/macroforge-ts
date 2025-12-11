@@ -172,6 +172,11 @@ try {
   // Step 2: Clean build all packages (workspace uses local macroforge via symlink)
   console.log("\n[2/6] Clean building all packages...");
 
+  // Pull latest website from origin before making any config changes
+  // This must happen before addExternalConfig() so our changes aren't overwritten
+  console.log("  Pulling latest website from origin...");
+  execSync("git pull origin", { cwd: websiteDir, stdio: "inherit" });
+
   // Add external config for local file: dependency build
   console.log("  Configuring website for local build...");
   addExternalConfig();

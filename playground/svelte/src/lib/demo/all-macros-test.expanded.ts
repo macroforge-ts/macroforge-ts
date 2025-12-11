@@ -62,7 +62,7 @@ export namespace SvelteAllMacrosTest {
 }
 
 export namespace SvelteAllMacrosTest {
-  export function toJson(self: SvelteAllMacrosTest): string {
+  export function toStringifiedJSON(self: SvelteAllMacrosTest): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
@@ -90,23 +90,28 @@ export namespace SvelteAllMacrosTest {
 }
 
 export namespace SvelteAllMacrosTest {
-  export function fromJson(
+  export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Result<SvelteAllMacrosTest, string[]> {
-    const ctx = DeserializeContext.create();
-    const raw = JSON.parse(json);
-    const resultOrRef = __deserialize(raw, ctx);
-    if (PendingRef.is(resultOrRef)) {
-      return Result.err([
-        "SvelteAllMacrosTest.fromJson: root cannot be a forward reference",
-      ]);
+    try {
+      const ctx = DeserializeContext.create();
+      const raw = JSON.parse(json);
+      const resultOrRef = __deserialize(raw, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          "SvelteAllMacrosTest.fromStringifiedJSON: root cannot be a forward reference",
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err(message.split("; "));
     }
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
-    }
-    return Result.ok(resultOrRef);
   }
   export function __deserialize(
     value: any,
@@ -181,6 +186,9 @@ export namespace SvelteAllMacrosTest {
     {
       const __raw_enabled = obj["enabled"];
       instance.enabled = __raw_enabled;
+    }
+    if (errors.length > 0) {
+      throw new Error(errors.join("; "));
     }
     return instance as SvelteAllMacrosTest;
   }
