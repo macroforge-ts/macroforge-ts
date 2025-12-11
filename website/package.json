@@ -33,9 +33,7 @@
 		"@sveltejs/adapter-node": "^5.4.0",
 		"clsx": "^2.1.1",
 		"lucide-svelte": "^0.556.0",
-
-		"macroforge": "^0.1.29",
-
+		"macroforge": "^0.1.30",
 		"mode-watcher": "^1.1.0",
 		"tailwind-merge": "^3.4.0",
 		"tailwind-variants": "^3.2.2"
