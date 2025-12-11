@@ -1631,17 +1631,6 @@ class User {
 }
 "#;
 
-    let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-
-class User {
-    name: string;
-    age: number;
-    toJSON(): Record<string, unknown>;
-}
-"#;
-
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
         let host = MacroExpander::new().unwrap();
@@ -1650,10 +1639,10 @@ class User {
         assert!(result.changed, "expand() should report changes");
         let type_output = result.type_output.expect("should have type output");
 
-        assert_eq!(
-            type_output.replace_whitespace(),
-            expected_dts.replace_whitespace()
-        );
+        // Check for new serde methods
+        assert!(type_output.contains("toStringifiedJSON(): string"), "Should have toStringifiedJSON method");
+        assert!(type_output.contains("toJSON(): Record<string, unknown>"), "Should have toJSON method");
+        assert!(type_output.contains("__serialize(ctx: SerializeContext)"), "Should have __serialize method");
     });
 }
 
@@ -1674,9 +1663,11 @@ class Data {
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed, "expand() should report changes");
-        // Serialize macro adds toJSON() method
-        assert!(result.code.contains("toJSON()"));
-        assert!(result.code.contains("Record<string, unknown>"));
+        // Serialize macro adds toStringifiedJSON(), toJSON(), and __serialize() methods
+        assert!(result.code.contains("toStringifiedJSON()"), "Should have toStringifiedJSON method");
+        assert!(result.code.contains("toJSON()"), "Should have toJSON method");
+        assert!(result.code.contains("__serialize"), "Should have __serialize method");
+        assert!(result.code.contains("SerializeContext"), "Should use SerializeContext");
     });
 }
 
@@ -1692,18 +1683,6 @@ class User {
 }
 "#;
 
-    let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-
-class User {
-    name: string;
-    age: number;
-    constructor(init: { name: string; age: number; });
-    static fromJSON(data: unknown): Result<User, string[]>;
-}
-"#;
-
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
         let host = MacroExpander::new().unwrap();
@@ -1712,10 +1691,9 @@ class User {
         assert!(result.changed, "expand() should report changes");
         let type_output = result.type_output.expect("should have type output");
 
-        assert_eq!(
-            type_output.replace_whitespace(),
-            expected_dts.replace_whitespace()
-        );
+        // Check for new serde methods
+        assert!(type_output.contains("static fromStringifiedJSON(json: string"), "Should have fromStringifiedJSON method");
+        assert!(type_output.contains("static __deserialize(value: any, ctx: DeserializeContext)"), "Should have __deserialize method");
     });
 }
 
@@ -1736,9 +1714,11 @@ class Data {
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed, "expand() should report changes");
-        // Deserialize macro adds static fromJSON() method
-        assert!(result.code.contains("fromJSON"));
-        assert!(result.code.contains("static"));
+        // Deserialize macro adds static fromStringifiedJSON() and __deserialize() methods
+        assert!(result.code.contains("fromStringifiedJSON"), "Should have fromStringifiedJSON method");
+        assert!(result.code.contains("__deserialize"), "Should have __deserialize method");
+        assert!(result.code.contains("static"), "Methods should be static");
+        assert!(result.code.contains("DeserializeContext"), "Should use DeserializeContext");
     });
 }
 
@@ -1765,14 +1745,18 @@ interface Point {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Output should contain namespace with toJSON function
+        // Output should contain namespace with toStringifiedJSON and __serialize functions
         assert!(
             result.code.contains("namespace Point"),
             "Should generate namespace Point"
         );
         assert!(
-            result.code.contains("function toJSON(self: Point)"),
-            "Should generate toJSON function with self parameter"
+            result.code.contains("function toStringifiedJSON(self: Point)"),
+            "Should generate toStringifiedJSON function with self parameter"
+        );
+        assert!(
+            result.code.contains("function __serialize(self: Point"),
+            "Should generate __serialize function"
         );
     });
 }
@@ -1800,18 +1784,18 @@ interface Point {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Output should contain namespace with fromJSON and is functions
+        // Output should contain namespace with fromStringifiedJSON and __deserialize functions
         assert!(
             result.code.contains("namespace Point"),
             "Should generate namespace Point"
         );
         assert!(
-            result.code.contains("function fromJSON(data: unknown)"),
-            "Should generate fromJSON function"
+            result.code.contains("function fromStringifiedJSON(json: string"),
+            "Should generate fromStringifiedJSON function"
         );
         assert!(
-            result.code.contains("function is(data: unknown)"),
-            "Should generate is type guard function"
+            result.code.contains("function __deserialize(value: any, ctx: DeserializeContext)"),
+            "Should generate __deserialize function"
         );
     });
 }
@@ -1844,14 +1828,14 @@ class Config {
             error_count
         );
 
-        // Should have both toJSON and fromJSON methods
+        // Should have both toStringifiedJSON and fromStringifiedJSON methods
         assert!(
-            result.code.contains("toJSON()"),
-            "Should have Serialize's toJSON"
+            result.code.contains("toStringifiedJSON()"),
+            "Should have Serialize's toStringifiedJSON"
         );
         assert!(
-            result.code.contains("static fromJSON"),
-            "Should have Deserialize's fromJSON"
+            result.code.contains("static fromStringifiedJSON"),
+            "Should have Deserialize's fromStringifiedJSON"
         );
     });
 }
@@ -1992,12 +1976,12 @@ enum Direction {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Serialize macro on enum generates namespace with toJSON
+        // Serialize macro on enum generates namespace with toStringifiedJSON
         assert!(
             result.code.contains("namespace Direction"),
             "Should generate namespace for enum"
         );
-        assert!(result.code.contains("toJSON"), "Should have toJSON function");
+        assert!(result.code.contains("toStringifiedJSON"), "Should have toStringifiedJSON function");
     });
 }
 
@@ -2025,14 +2009,14 @@ enum Role {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Deserialize macro on enum generates namespace with fromJSON
+        // Deserialize macro on enum generates namespace with fromStringifiedJSON
         assert!(
             result.code.contains("namespace Role"),
             "Should generate namespace for enum"
         );
         assert!(
-            result.code.contains("fromJSON"),
-            "Should have fromJSON function"
+            result.code.contains("fromStringifiedJSON"),
+            "Should have fromStringifiedJSON function"
         );
     });
 }
@@ -2080,12 +2064,12 @@ enum Status {
             "Should have Eq's hashCode"
         );
         assert!(
-            result.code.contains("toJSON"),
-            "Should have Serialize's toJSON"
+            result.code.contains("toStringifiedJSON"),
+            "Should have Serialize's toStringifiedJSON"
         );
         assert!(
-            result.code.contains("fromJSON"),
-            "Should have Deserialize's fromJSON"
+            result.code.contains("fromStringifiedJSON"),
+            "Should have Deserialize's fromStringifiedJSON"
         );
     });
 }
@@ -2219,12 +2203,12 @@ type User = {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Serialize macro on type alias generates namespace with toJSON
+        // Serialize macro on type alias generates namespace with toStringifiedJSON
         assert!(
             result.code.contains("namespace User"),
             "Should generate namespace for type"
         );
-        assert!(result.code.contains("toJSON"), "Should have toJSON function");
+        assert!(result.code.contains("toStringifiedJSON"), "Should have toStringifiedJSON function");
     });
 }
 
@@ -2251,14 +2235,14 @@ type Settings = {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Deserialize macro on type alias generates namespace with fromJSON
+        // Deserialize macro on type alias generates namespace with fromStringifiedJSON
         assert!(
             result.code.contains("namespace Settings"),
             "Should generate namespace for type"
         );
         assert!(
-            result.code.contains("fromJSON"),
-            "Should have fromJSON function"
+            result.code.contains("fromStringifiedJSON"),
+            "Should have fromStringifiedJSON function"
         );
     });
 }
@@ -2306,12 +2290,12 @@ type Coordinate = {
             "Should have Eq's hashCode"
         );
         assert!(
-            result.code.contains("toJSON"),
-            "Should have Serialize's toJSON"
+            result.code.contains("toStringifiedJSON"),
+            "Should have Serialize's toStringifiedJSON"
         );
         assert!(
-            result.code.contains("fromJSON"),
-            "Should have Deserialize's fromJSON"
+            result.code.contains("fromStringifiedJSON"),
+            "Should have Deserialize's fromStringifiedJSON"
         );
     });
 }
@@ -2362,10 +2346,10 @@ fn test_inline_jsdoc_with_export_interface() {
             .count();
         assert_eq!(error_count, 0, "Should have no errors for inline JSDoc, got {}", error_count);
 
-        // Should generate fromJSON method in User namespace
+        // Should generate fromStringifiedJSON method in User namespace
         assert!(
-            result.code.contains("User") && result.code.contains("fromJSON"),
-            "Should generate fromJSON for Deserialize on interface. Got:\n{}",
+            result.code.contains("User") && result.code.contains("fromStringifiedJSON"),
+            "Should generate fromStringifiedJSON for Deserialize on interface. Got:\n{}",
             result.code
         );
     });

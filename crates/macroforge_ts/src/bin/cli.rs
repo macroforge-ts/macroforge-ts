@@ -31,6 +31,9 @@ enum Command {
         /// Use only built-in Rust macros (faster, but no external macro support)
         #[arg(long)]
         builtin_only: bool,
+        /// Suppress output when no macros are found (exit silently with code 2)
+        #[arg(long, short = 'q')]
+        quiet: bool,
     },
     /// Run tsc with macro expansion baked into file reads (tsc --noEmit semantics)
     Tsc {
@@ -50,7 +53,8 @@ fn main() -> Result<()> {
             types_out,
             print,
             builtin_only,
-        } => expand_file(input, out, types_out, print, builtin_only),
+            quiet,
+        } => expand_file(input, out, types_out, print, builtin_only, quiet),
         Command::Tsc { project } => run_tsc_wrapper(project),
     }
 }
@@ -61,11 +65,12 @@ fn expand_file(
     types_out: Option<PathBuf>,
     print: bool,
     builtin_only: bool,
+    quiet: bool,
 ) -> Result<()> {
     // Default: use Node.js for full macro support (including external macros)
     // With --builtin-only: use fast Rust expander (built-in macros only)
     if !builtin_only {
-        return expand_file_via_node(input, out, types_out, print);
+        return expand_file_via_node(input, out, types_out, print, quiet);
     }
 
     let expander = MacroExpander::new().context("failed to initialize macro expander")?;
@@ -77,7 +82,9 @@ fn expand_file(
         .map_err(|err| anyhow!(format!("{err:?}")))?;
 
     if !expansion.changed {
-        eprintln!("[macroforge] no macros found in {}", input.display());
+        if !quiet {
+            eprintln!("[macroforge] no macros found in {}", input.display());
+        }
         std::process::exit(2);
     }
 
@@ -93,6 +100,7 @@ fn expand_file_via_node(
     out: Option<PathBuf>,
     types_out: Option<PathBuf>,
     print: bool,
+    quiet: bool,
 ) -> Result<()> {
     let script = r#"
 const { createRequire } = require('module');
@@ -157,20 +165,22 @@ try {
         .unwrap_or(false);
 
     if !has_expansions {
-        eprintln!("[macroforge] no macros found in {}", input.display());
+        if !quiet {
+            eprintln!("[macroforge] no macros found in {}", input.display());
+        }
         std::process::exit(2);
     }
 
     // Write outputs only if macros were expanded
-    if let Some(out_path) = out {
-        if has_expansions {
-            write_file(&out_path, code)?;
-            println!(
-                "[macroforge] wrote expanded output for {} to {}",
-                input.display(),
-                out_path.display()
-            );
-        }
+    if let Some(out_path) = out
+        && has_expansions
+    {
+        write_file(&out_path, code)?;
+        println!(
+            "[macroforge] wrote expanded output for {} to {}",
+            input.display(),
+            out_path.display()
+        );
     }
 
     if print && has_expansions {
@@ -178,19 +188,19 @@ try {
         println!("{}", code);
     }
 
-    if let Some(types_str) = types {
-        if has_expansions {
-            if let Some(types_path) = types_out {
-                write_file(&types_path, types_str)?;
-                println!(
-                    "[macroforge] wrote type output for {} to {}",
-                    input.display(),
-                    types_path.display()
-                );
-            } else if print {
-                println!("// --- {} (.d.ts) ---", input.display());
-                println!("{}", types_str);
-            }
+    if let Some(types_str) = types
+        && has_expansions
+    {
+        if let Some(types_path) = types_out {
+            write_file(&types_path, types_str)?;
+            println!(
+                "[macroforge] wrote type output for {} to {}",
+                input.display(),
+                types_path.display()
+            );
+        } else if print {
+            println!("// --- {} (.d.ts) ---", input.display());
+            println!("{}", types_str);
         }
     }
 

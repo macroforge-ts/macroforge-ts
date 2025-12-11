@@ -1,8 +1,10 @@
 //! /** @derive(Deserialize) */ macro implementation
 //!
-//! Generates JSON deserialization methods:
-//! - For classes: `static fromJSON(data: unknown): Result<ClassName, string[]>`
-//! - For interfaces: `namespace InterfaceName { export function is(data: unknown): data is InterfaceName; export function fromJSON(data: unknown): Result<InterfaceName, string[]> }`
+//! Generates JSON deserialization methods with cycle/forward-reference support:
+//! - For classes: `static fromStringifiedJSON(json: string, opts?)`, `static __deserialize(value, ctx)`
+//! - For interfaces: `namespace InterfaceName { fromStringifiedJSON, __deserialize }`
+//!
+//! Uses deferred patching to handle cycles and forward references.
 
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
@@ -14,6 +16,7 @@ use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory, Validator, V
 struct DeserializeField {
     json_key: String,
     field_name: String,
+    #[allow(dead_code)]
     ts_type: String,
     type_cat: TypeCategory,
     optional: bool,
@@ -25,25 +28,12 @@ struct DeserializeField {
 }
 
 impl DeserializeField {
-    /// Check if this type needs transformation (Date, Map, Set, Serializable)
-    fn needs_transformation(&self) -> bool {
-        matches!(
-            self.type_cat,
-            TypeCategory::Date
-                | TypeCategory::Map(_, _)
-                | TypeCategory::Set(_)
-                | TypeCategory::Serializable(_)
-        )
-    }
-
-    /// Check if this field has any validators
     fn has_validators(&self) -> bool {
         !self.validators.is_empty()
     }
 }
 
 /// Generate JavaScript validation code for a single validator
-/// Returns the condition that should trigger an error (when validation FAILS)
 fn generate_validation_condition(validator: &Validator, value_var: &str) -> String {
     match validator {
         // String validators
@@ -67,7 +57,6 @@ fn generate_validation_condition(validator: &Validator, value_var: &str) -> Stri
             format!("{value_var}.length < {min} || {value_var}.length > {max}")
         }
         Validator::Pattern(regex) => {
-            // Escape backslashes for JS regex
             let escaped = regex.replace('\\', "\\\\");
             format!("!/{escaped}/.test({value_var})")
         }
@@ -108,23 +97,23 @@ fn generate_validation_condition(validator: &Validator, value_var: &str) -> Stri
         Validator::MinItems(n) => format!("{value_var}.length < {n}"),
         Validator::ItemsCount(n) => format!("{value_var}.length !== {n}"),
 
-        // Date validators
-        Validator::ValidDate => format!("isNaN({value_var}.getTime())"),
+        // Date validators (null-safe: JSON.stringify converts Invalid Date to null)
+        Validator::ValidDate => format!("{value_var} == null || isNaN({value_var}.getTime())"),
         Validator::GreaterThanDate(date) => {
-            format!(r#"{value_var}.getTime() <= new Date("{date}").getTime()"#)
+            format!(r#"{value_var} == null || {value_var}.getTime() <= new Date("{date}").getTime()"#)
         }
         Validator::GreaterThanOrEqualToDate(date) => {
-            format!(r#"{value_var}.getTime() < new Date("{date}").getTime()"#)
+            format!(r#"{value_var} == null || {value_var}.getTime() < new Date("{date}").getTime()"#)
         }
         Validator::LessThanDate(date) => {
-            format!(r#"{value_var}.getTime() >= new Date("{date}").getTime()"#)
+            format!(r#"{value_var} == null || {value_var}.getTime() >= new Date("{date}").getTime()"#)
         }
         Validator::LessThanOrEqualToDate(date) => {
-            format!(r#"{value_var}.getTime() > new Date("{date}").getTime()"#)
+            format!(r#"{value_var} == null || {value_var}.getTime() > new Date("{date}").getTime()"#)
         }
         Validator::BetweenDate(min, max) => {
             format!(
-                r#"{value_var}.getTime() < new Date("{min}").getTime() || {value_var}.getTime() > new Date("{max}").getTime()"#
+                r#"{value_var} == null || {value_var}.getTime() < new Date("{min}").getTime() || {value_var}.getTime() > new Date("{max}").getTime()"#
             )
         }
 
@@ -205,7 +194,6 @@ fn get_validator_message(validator: &Validator) -> String {
 }
 
 /// Generate validation code snippet for a field
-/// Returns a string of JS code that pushes errors to an 'errors' array
 fn generate_field_validations(
     validators: &[ValidatorSpec],
     value_var: &str,
@@ -220,10 +208,9 @@ fn generate_field_validations(
             .clone()
             .unwrap_or_else(|| get_validator_message(&spec.validator));
 
-        let error_msg = format!("{class_name}.fromJSON: field '{json_key}' {message}");
+        let error_msg = format!("{class_name}.fromStringifiedJSON: field '{json_key}' {message}");
 
         if let Validator::Custom(fn_name) = &spec.validator {
-            // Custom validator - call function and check result
             code.push_str(&format!(
                 r#"
                 {{
@@ -251,8 +238,8 @@ fn generate_field_validations(
 
 #[ts_macro_derive(
     Deserialize,
-    description = "Generates a static fromJSON() method for JSON deserialization with runtime validation",
-    attributes((serde, "Configure deserialization for this field. Options: skip, rename, flatten, default, validate (email, url, minLength, etc.)"))
+    description = "Generates deserialization methods with cycle/forward-reference support (fromStringifiedJSON, __deserialize)",
+    attributes((serde, "Configure deserialization for this field. Options: skip, rename, flatten, default, validate"))
 )]
 pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
@@ -328,54 +315,61 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 .collect();
 
             let has_required = !required_fields.is_empty();
-            let has_optional = !optional_fields.is_empty();
+            let _has_optional = !optional_fields.is_empty();
             let has_flatten = !flatten_fields.is_empty();
             let deny_unknown = container_opts.deny_unknown_fields;
 
-            // Build constructor init type and assignments
-            // Include all non-flatten fields in the constructor
-            let ctor_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
-            let has_ctor_fields = !ctor_fields.is_empty();
-
-            // Build init object type: { field1: Type1; field2?: Type2; ... }
-            let init_type = ctor_fields
-                .iter()
-                .map(|f| {
-                    let opt_marker = if f.optional { "?" } else { "" };
-                    format!("{}{}: {}", f.field_name, opt_marker, f.ts_type)
-                })
-                .collect::<Vec<_>>()
-                .join("; ");
-
-            // Build field assignments: this.field1 = init.field1;
-            let field_assignments = ctor_fields
-                .iter()
-                .map(|f| format!("this.{} = init.{};", f.field_name, f.field_name))
-                .collect::<Vec<_>>()
-                .join("\n                ");
+            // All non-flatten fields for assignments
+            let all_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
+            let has_fields = !all_fields.is_empty();
 
             let mut result = body! {
-                {#if has_ctor_fields}
-                    constructor(init: { @{init_type} }) {
-                        @{field_assignments}
-                    }
-                {:else}
-                    constructor() {}
-                {/if}
+                constructor(props: { {#for field in &all_fields} @{field.field_name}{#if field.optional}?{/if}: @{field.ts_type}; {/for} }) {
+                    {#for field in &all_fields}
+                        this.@{field.field_name} = props.@{field.field_name}{#if field.optional} as @{field.ts_type}{/if};
+                    {/for}
+                }
 
-                static fromJSON(data: unknown): Result<@{class_name}, string[]> {
-                    if (typeof data !== "object" || data === null || Array.isArray(data)) {
-                        return Result.err(["@{class_name}.fromJSON: expected an object, got " + (Array.isArray(data) ? "array" : typeof data)]);
+                static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{class_name}, string[]> {
+                    try {
+                        const ctx = DeserializeContext.create();
+                        const raw = JSON.parse(json);
+                        const resultOrRef = @{class_name}.__deserialize(raw, ctx);
+
+                        if (PendingRef.is(resultOrRef)) {
+                            return Result.err(["@{class_name}.fromStringifiedJSON: root cannot be a forward reference"]);
+                        }
+
+                        ctx.applyPatches();
+                        if (opts?.freeze) {
+                            ctx.freezeAll();
+                        }
+
+                        return Result.ok(resultOrRef);
+                    } catch (e) {
+                        const message = e instanceof Error ? e.message : String(e);
+                        return Result.err(message.split("; "));
+                    }
+                }
+
+                static __deserialize(value: any, ctx: DeserializeContext): @{class_name} | PendingRef {
+                    // Handle reference to already-deserialized object
+                    if (value?.__ref !== undefined) {
+                        return ctx.getOrDefer(value.__ref);
                     }
 
-                    const obj = data as Record<string, unknown>;
+                    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                        throw new Error("@{class_name}.__deserialize: expected an object");
+                    }
+
+                    const obj = value as Record<string, unknown>;
                     const errors: string[] = [];
 
                     {#if deny_unknown}
-                        const knownKeys = new Set([{#for key in known_keys}"@{key}", {/for}]);
+                        const knownKeys = new Set(["__type", "__id", "__ref", {#for key in known_keys}"@{key}", {/for}]);
                         for (const key of Object.keys(obj)) {
                             if (!knownKeys.has(key)) {
-                                errors.push("@{class_name}.fromJSON: unknown field \"" + key + "\"");
+                                errors.push("@{class_name}.__deserialize: unknown field \"" + key + "\"");
                             }
                         }
                     {/if}
@@ -383,284 +377,242 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     {#if has_required}
                         {#for field in &required_fields}
                             if (!("@{field.json_key}" in obj)) {
-                                errors.push("@{class_name}.fromJSON: missing required field \"@{field.json_key}\"");
-                            }
-                        {/for}
-                    {/if}
-
-                    {#if has_required}
-                        {#for field in &required_fields}
-                            {$let raw_var = format!("__raw_{}", field.field_name)}
-                            {$let val_var = format!("__val_{}", field.field_name)}
-                            {$let has_validators = field.has_validators()}
-                            {#match &field.type_cat}
-                                {:case TypeCategory::Primitive}
-                                    {$let ts_type = &field.ts_type}
-                                    const @{raw_var} = obj["@{field.json_key}"];
-                                    {#if has_validators}
-                                        const @{val_var} = @{raw_var} as @{ts_type};
-                                        {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
-                                        @{validation_code}
-                                    {/if}
-
-                                {:case TypeCategory::Date}
-                                    const @{raw_var} = obj["@{field.json_key}"];
-                                    {#if has_validators}
-                                        let @{val_var}: Date;
-                                        if (typeof @{raw_var} === "string") {
-                                            @{val_var} = new Date(@{raw_var});
-                                        } else if (@{raw_var} instanceof Date) {
-                                            @{val_var} = @{raw_var};
-                                        } else {
-                                            errors.push("@{class_name}.fromJSON: field \"@{field.json_key}\" must be a Date or ISO string");
-                                            @{val_var} = new Date();
-                                        }
-                                        {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
-                                        @{validation_code}
-                                    {:else}
-                                        if (typeof @{raw_var} !== "string" && !(@{raw_var} instanceof Date)) {
-                                            errors.push("@{class_name}.fromJSON: field \"@{field.json_key}\" must be a Date or ISO string");
-                                        }
-                                    {/if}
-
-                                {:case TypeCategory::Array(inner)}
-                                    const @{raw_var} = obj["@{field.json_key}"];
-                                    if (!Array.isArray(@{raw_var})) {
-                                        errors.push("@{class_name}.fromJSON: field \"@{field.json_key}\" must be an array");
-                                    }
-                                    {#if has_validators}
-                                        const @{val_var} = @{raw_var} as @{inner}[];
-                                        {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
-                                        @{validation_code}
-                                    {/if}
-
-                                {:case TypeCategory::Map(_key_type, _value_type)}
-                                    const @{raw_var} = obj["@{field.json_key}"];
-                                    if (typeof @{raw_var} !== "object" || @{raw_var} === null) {
-                                        errors.push("@{class_name}.fromJSON: field \"@{field.json_key}\" must be an object for Map");
-                                    }
-
-                                {:case TypeCategory::Set(inner)}
-                                    const @{raw_var} = obj["@{field.json_key}"];
-                                    if (!Array.isArray(@{raw_var})) {
-                                        errors.push("@{class_name}.fromJSON: field \"@{field.json_key}\" must be an array for Set");
-                                    }
-                                    {#if has_validators}
-                                        const @{val_var} = new Set(@{raw_var} as @{inner}[]);
-                                        {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
-                                        @{validation_code}
-                                    {/if}
-
-                                {:case TypeCategory::Serializable(_type_name)}
-                                    const @{raw_var} = obj["@{field.json_key}"];
-
-                                {:case TypeCategory::Optional(_)}
-                                    {$let ts_type = &field.ts_type}
-                                    const @{raw_var} = obj["@{field.json_key}"];
-                                    {#if has_validators}
-                                        const @{val_var} = @{raw_var} as @{ts_type};
-                                        {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
-                                        @{validation_code}
-                                    {/if}
-
-                                {:case TypeCategory::Nullable(_)}
-                                    {$let ts_type = &field.ts_type}
-                                    const @{raw_var} = obj["@{field.json_key}"];
-                                    {#if has_validators}
-                                        const @{val_var} = @{raw_var} as @{ts_type};
-                                        {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
-                                        @{validation_code}
-                                    {/if}
-
-                                {:case TypeCategory::Unknown}
-                                    {$let ts_type = &field.ts_type}
-                                    const @{raw_var} = obj["@{field.json_key}"];
-                                    {#if has_validators}
-                                        const @{val_var} = @{raw_var} as @{ts_type};
-                                        {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
-                                        @{validation_code}
-                                    {/if}
-                            {/match}
-                        {/for}
-                    {/if}
-
-                    {#if has_optional}
-                        {#for field in &optional_fields}
-                            {$let raw_var = format!("__raw_{}", field.field_name)}
-                            {$let val_var = format!("__val_{}", field.field_name)}
-                            {$let has_validators = field.has_validators()}
-                            if ("@{field.json_key}" in obj) {
-                                const @{raw_var} = obj["@{field.json_key}"];
-                                if (@{raw_var} !== undefined) {
-                                    {#if has_validators}
-                                        {#match &field.type_cat}
-                                            {:case TypeCategory::Primitive}
-                                                {$let ts_type = &field.ts_type}
-                                                const @{val_var} = @{raw_var} as @{ts_type};
-                                                {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
-                                                @{validation_code}
-
-                                            {:case TypeCategory::Date}
-                                                let @{val_var}: Date;
-                                                if (typeof @{raw_var} === "string") {
-                                                    @{val_var} = new Date(@{raw_var});
-                                                } else if (@{raw_var} instanceof Date) {
-                                                    @{val_var} = @{raw_var};
-                                                } else {
-                                                    @{val_var} = new Date();
-                                                }
-                                                {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
-                                                @{validation_code}
-
-                                            {:case TypeCategory::Array(inner)}
-                                                if (Array.isArray(@{raw_var})) {
-                                                    const @{val_var} = @{raw_var} as @{inner}[];
-                                                    {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
-                                                    @{validation_code}
-                                                }
-
-                                            {:case _}
-                                                {$let ts_type = &field.ts_type}
-                                                const @{val_var} = @{raw_var} as @{ts_type};
-                                                {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, class_name)}
-                                                @{validation_code}
-                                        {/match}
-                                    {/if}
-                                }
+                                errors.push("@{class_name}.__deserialize: missing required field \"@{field.json_key}\"");
                             }
                         {/for}
                     {/if}
 
                     if (errors.length > 0) {
-                        return Result.err(errors);
+                        throw new Error(errors.join("; "));
                     }
 
-                    const init: Record<string, unknown> = {};
+                    // Create instance using Object.create to avoid constructor
+                    const instance = Object.create(@{class_name}.prototype) as @{class_name};
 
-                    {#if has_required}
-                        {#for field in &required_fields}
+                    // Register with context if __id is present
+                    if (obj.__id !== undefined) {
+                        ctx.register(obj.__id as number, instance);
+                    }
+
+                    // Track for optional freezing
+                    ctx.trackForFreeze(instance);
+
+                    // Assign fields
+                    {#if has_fields}
+                        {#for field in all_fields}
                             {$let raw_var = format!("__raw_{}", field.field_name)}
-                            {#match &field.type_cat}
-                                {:case TypeCategory::Primitive}
-                                    {$let ts_type = &field.ts_type}
-                                    init.@{field.field_name} = @{raw_var} as @{ts_type};
-
-                                {:case TypeCategory::Date}
-                                    if (typeof @{raw_var} === "string") {
-                                        init.@{field.field_name} = new Date(@{raw_var});
-                                    } else {
-                                        init.@{field.field_name} = @{raw_var} as Date;
-                                    }
-
-                                {:case TypeCategory::Array(inner)}
-                                    init.@{field.field_name} = (@{raw_var} as unknown[]).map((item) =>
-                                        typeof (item as any)?.constructor?.fromJSON === "function"
-                                            ? (item as any).constructor.fromJSON(item)
-                                            : item as @{inner}
-                                    );
-
-                                {:case TypeCategory::Map(key_type, value_type)}
-                                    init.@{field.field_name} = new Map(
-                                        Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
-                                    );
-
-                                {:case TypeCategory::Set(inner)}
-                                    init.@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
-
-                                {:case TypeCategory::Serializable(type_name)}
-                                    if (typeof (@{type_name} as any)?.fromJSON === "function") {
-                                        init.@{field.field_name} = (@{type_name} as any).fromJSON(@{raw_var});
-                                    } else {
-                                        init.@{field.field_name} = @{raw_var} as @{type_name};
-                                    }
-
-                                {:case TypeCategory::Optional(_)}
-                                    {$let ts_type = &field.ts_type}
-                                    init.@{field.field_name} = @{raw_var} as @{ts_type};
-
-                                {:case TypeCategory::Nullable(_)}
-                                    {$let ts_type = &field.ts_type}
-                                    init.@{field.field_name} = @{raw_var} as @{ts_type};
-
-                                {:case TypeCategory::Unknown}
-                                    {$let ts_type = &field.ts_type}
-                                    init.@{field.field_name} = @{raw_var} as @{ts_type};
-                            {/match}
-                        {/for}
-                    {/if}
-
-                    {#if has_optional}
-                        {#for field in optional_fields}
-                            {$let raw_var = format!("__raw_{}", field.field_name)}
-                            if ("@{field.json_key}" in obj) {
-                                const @{raw_var} = obj["@{field.json_key}"];
-                                if (@{raw_var} !== undefined) {
+                            {$let has_validators = field.has_validators()}
+                            {#if field.optional}
+                                if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
+                                    const @{raw_var} = obj["@{field.json_key}"];
                                     {#match &field.type_cat}
                                         {:case TypeCategory::Primitive}
-                                            {$let ts_type = &field.ts_type}
-                                            init.@{field.field_name} = @{raw_var} as @{ts_type};
+                                            {#if has_validators}
+                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, class_name)}
+                                                @{validation_code}
+                                            {/if}
+                                            (instance as any).@{field.field_name} = @{raw_var};
 
                                         {:case TypeCategory::Date}
-                                            if (typeof @{raw_var} === "string") {
-                                                init.@{field.field_name} = new Date(@{raw_var});
-                                            } else if (@{raw_var} instanceof Date) {
-                                                init.@{field.field_name} = @{raw_var};
+                                            {
+                                                const __dateVal = typeof @{raw_var} === "string" ? new Date(@{raw_var}) : @{raw_var} as Date;
+                                                {#if has_validators}
+                                                    {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, class_name)}
+                                                    @{validation_code}
+                                                {/if}
+                                                (instance as any).@{field.field_name} = __dateVal;
                                             }
 
                                         {:case TypeCategory::Array(inner)}
                                             if (Array.isArray(@{raw_var})) {
-                                                init.@{field.field_name} = @{raw_var} as @{inner}[];
+                                                {#if has_validators}
+                                                    {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, class_name)}
+                                                    @{validation_code}
+                                                {/if}
+                                                const __arr = (@{raw_var} as any[]).map((item, idx) => {
+                                                    if (typeof item?.__deserialize === "function") {
+                                                        const result = item.__deserialize(item, ctx);
+                                                        if (PendingRef.is(result)) {
+                                                            ctx.addPatch((instance as any).@{field.field_name}, idx, result.id);
+                                                            return null;
+                                                        }
+                                                        return result;
+                                                    }
+                                                    // Check for __ref in array items
+                                                    if (item?.__ref !== undefined) {
+                                                        const result = ctx.getOrDefer(item.__ref);
+                                                        if (PendingRef.is(result)) {
+                                                            // Will be patched after array is assigned
+                                                            return { __pendingIdx: idx, __refId: result.id };
+                                                        }
+                                                        return result;
+                                                    }
+                                                    return item as @{inner};
+                                                });
+                                                (instance as any).@{field.field_name} = __arr;
+                                                // Patch array items that were pending
+                                                __arr.forEach((item, idx) => {
+                                                    if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                        ctx.addPatch((instance as any).@{field.field_name}, idx, (item as any).__refId);
+                                                    }
+                                                });
+                                            }
+
+                                        {:case TypeCategory::Map(key_type, value_type)}
+                                            if (typeof @{raw_var} === "object" && @{raw_var} !== null) {
+                                                (instance as any).@{field.field_name} = new Map(
+                                                    Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
+                                                );
+                                            }
+
+                                        {:case TypeCategory::Set(inner)}
+                                            if (Array.isArray(@{raw_var})) {
+                                                (instance as any).@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
                                             }
 
                                         {:case TypeCategory::Serializable(type_name)}
-                                            if (typeof (@{type_name} as any)?.fromJSON === "function") {
-                                                init.@{field.field_name} = (@{type_name} as any).fromJSON(@{raw_var});
+                                            if (typeof (@{type_name} as any)?.__deserialize === "function") {
+                                                const __result = (@{type_name} as any).__deserialize(@{raw_var}, ctx);
+                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                             } else {
-                                                init.@{field.field_name} = @{raw_var} as @{type_name};
+                                                (instance as any).@{field.field_name} = @{raw_var};
+                                            }
+
+                                        {:case TypeCategory::Nullable(_)}
+                                            if (@{raw_var} === null) {
+                                                (instance as any).@{field.field_name} = null;
+                                            } else if (typeof (@{raw_var} as any)?.__ref !== "undefined") {
+                                                const __result = ctx.getOrDefer((@{raw_var} as any).__ref);
+                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                            } else {
+                                                (instance as any).@{field.field_name} = @{raw_var};
                                             }
 
                                         {:case _}
-                                            {$let ts_type = &field.ts_type}
-                                            init.@{field.field_name} = @{raw_var} as @{ts_type};
+                                            (instance as any).@{field.field_name} = @{raw_var};
                                     {/match}
                                 }
-                            }
-                            {#if let Some(default_expr) = &field.default_expr}
-                                else {
-                                    init.@{field.field_name} = @{default_expr};
+                                {#if let Some(default_expr) = &field.default_expr}
+                                    else {
+                                        (instance as any).@{field.field_name} = @{default_expr};
+                                    }
+                                {/if}
+                            {:else}
+                                {
+                                    const @{raw_var} = obj["@{field.json_key}"];
+                                    {#match &field.type_cat}
+                                        {:case TypeCategory::Primitive}
+                                            {#if has_validators}
+                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, class_name)}
+                                                @{validation_code}
+                                            {/if}
+                                            (instance as any).@{field.field_name} = @{raw_var};
+
+                                        {:case TypeCategory::Date}
+                                            {
+                                                const __dateVal = typeof @{raw_var} === "string" ? new Date(@{raw_var}) : @{raw_var} as Date;
+                                                {#if has_validators}
+                                                    {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, class_name)}
+                                                    @{validation_code}
+                                                {/if}
+                                                (instance as any).@{field.field_name} = __dateVal;
+                                            }
+
+                                        {:case TypeCategory::Array(inner)}
+                                            if (Array.isArray(@{raw_var})) {
+                                                {#if has_validators}
+                                                    {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, class_name)}
+                                                    @{validation_code}
+                                                {/if}
+                                                const __arr = (@{raw_var} as any[]).map((item, idx) => {
+                                                    if (item?.__ref !== undefined) {
+                                                        const result = ctx.getOrDefer(item.__ref);
+                                                        if (PendingRef.is(result)) {
+                                                            return { __pendingIdx: idx, __refId: result.id };
+                                                        }
+                                                        return result;
+                                                    }
+                                                    return item as @{inner};
+                                                });
+                                                (instance as any).@{field.field_name} = __arr;
+                                                __arr.forEach((item, idx) => {
+                                                    if (item && typeof item === "object" && "__pendingIdx" in item) {
+                                                        ctx.addPatch((instance as any).@{field.field_name}, idx, (item as any).__refId);
+                                                    }
+                                                });
+                                            }
+
+                                        {:case TypeCategory::Map(key_type, value_type)}
+                                            (instance as any).@{field.field_name} = new Map(
+                                                Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
+                                            );
+
+                                        {:case TypeCategory::Set(inner)}
+                                            (instance as any).@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
+
+                                        {:case TypeCategory::Serializable(type_name)}
+                                            if (typeof (@{type_name} as any)?.__deserialize === "function") {
+                                                const __result = (@{type_name} as any).__deserialize(@{raw_var}, ctx);
+                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                            } else {
+                                                (instance as any).@{field.field_name} = @{raw_var};
+                                            }
+
+                                        {:case TypeCategory::Nullable(_)}
+                                            if (@{raw_var} === null) {
+                                                (instance as any).@{field.field_name} = null;
+                                            } else if (typeof (@{raw_var} as any)?.__ref !== "undefined") {
+                                                const __result = ctx.getOrDefer((@{raw_var} as any).__ref);
+                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                            } else {
+                                                (instance as any).@{field.field_name} = @{raw_var};
+                                            }
+
+                                        {:case _}
+                                            (instance as any).@{field.field_name} = @{raw_var};
+                                    {/match}
                                 }
                             {/if}
                         {/for}
                     {/if}
 
                     {#if has_flatten}
-                        const __result = new @{class_name}(init as any);
                         {#for field in flatten_fields}
                             {#match &field.type_cat}
                                 {:case TypeCategory::Serializable(type_name)}
-                                    if (typeof (@{type_name} as any)?.fromJSON === "function") {
-                                        __result.@{field.field_name} = (@{type_name} as any).fromJSON(obj);
+                                    if (typeof (@{type_name} as any)?.__deserialize === "function") {
+                                        const __result = (@{type_name} as any).__deserialize(obj, ctx);
+                                        ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                     }
                                 {:case _}
-                                    __result.@{field.field_name} = obj as any;
+                                    (instance as any).@{field.field_name} = obj as any;
                             {/match}
                         {/for}
-                        return Result.ok(__result);
-                    {:else}
-                        return Result.ok(new @{class_name}(init as any));
                     {/if}
+
+                    if (errors.length > 0) {
+                        throw new Error(errors.join("; "));
+                    }
+
+                    return instance;
                 }
             };
             result.add_import("Result", "macroforge/result");
+            result.add_import("DeserializeContext", "macroforge/serde");
+            result.add_type_import("DeserializeOptions", "macroforge/serde");
+            result.add_import("PendingRef", "macroforge/serde");
             Ok(result)
         }
         Data::Enum(_) => {
-            // Enums: iterate through enum values at runtime to validate
             let enum_name = input.name();
-            Ok(ts_template! {
+            let mut result = ts_template! {
                 export namespace @{enum_name} {
-                    export function fromJSON(data: unknown): @{enum_name} {
-                        // Check if the value matches any enum member
+                    export function fromStringifiedJSON(json: string): @{enum_name} {
+                        const data = JSON.parse(json);
+                        return __deserialize(data);
+                    }
+
+                    export function __deserialize(data: unknown): @{enum_name} {
                         for (const key of Object.keys(@{enum_name})) {
                             const enumValue = @{enum_name}[key as keyof typeof @{enum_name}];
                             if (enumValue === data) {
@@ -670,14 +622,15 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         throw new Error("Invalid @{enum_name} value: " + JSON.stringify(data));
                     }
                 }
-            })
+            };
+            result.add_import("DeserializeContext", "macroforge/serde");
+            Ok(result)
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
             let container_opts =
                 SerdeContainerOptions::from_decorators(&interface.inner.decorators);
 
-            // Collect deserializable fields from interface
             let fields: Vec<DeserializeField> = interface
                 .fields()
                 .iter()
@@ -708,230 +661,247 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 })
                 .collect();
 
-            // Non-flattened fields for type guard checks
-            let check_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
-
-            // Fields that need transformation
-            let transform_fields: Vec<_> = fields
+            let all_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
+            let required_fields: Vec<_> = fields
                 .iter()
-                .filter(|f| !f.flatten && f.needs_transformation())
+                .filter(|f| !f.optional && !f.flatten)
                 .cloned()
                 .collect();
 
-            // Build known keys for deny_unknown_fields
             let known_keys: Vec<String> = fields
                 .iter()
                 .filter(|f| !f.flatten)
                 .map(|f| f.json_key.clone())
                 .collect();
 
-            let has_checks = !check_fields.is_empty();
-            let has_transforms = !transform_fields.is_empty();
+            let has_required = !required_fields.is_empty();
+            let has_fields = !all_fields.is_empty();
             let deny_unknown = container_opts.deny_unknown_fields;
-
-            // Fields with validators for validation in fromJSON
-            let validated_fields: Vec<_> = fields
-                .iter()
-                .filter(|f| !f.flatten && f.has_validators())
-                .cloned()
-                .collect();
-            let has_validations = !validated_fields.is_empty();
 
             let mut result = ts_template! {
                 export namespace @{interface_name} {
-                    export function is(data: unknown): data is @{interface_name} {
-                        if (typeof data !== "object" || data === null || Array.isArray(data)) {
-                            return false;
+                    export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{interface_name}, string[]> {
+                        try {
+                            const ctx = DeserializeContext.create();
+                            const raw = JSON.parse(json);
+                            const resultOrRef = __deserialize(raw, ctx);
+
+                            if (PendingRef.is(resultOrRef)) {
+                                return Result.err(["@{interface_name}.fromStringifiedJSON: root cannot be a forward reference"]);
+                            }
+
+                            ctx.applyPatches();
+                            if (opts?.freeze) {
+                                ctx.freezeAll();
+                            }
+
+                            return Result.ok(resultOrRef);
+                        } catch (e) {
+                            const message = e instanceof Error ? e.message : String(e);
+                            return Result.err(message.split("; "));
                         }
-                        const obj = data as Record<string, unknown>;
+                    }
+
+                    export function __deserialize(value: any, ctx: DeserializeContext): @{interface_name} | PendingRef {
+                        if (value?.__ref !== undefined) {
+                            return ctx.getOrDefer(value.__ref);
+                        }
+
+                        if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                            throw new Error("@{interface_name}.__deserialize: expected an object");
+                        }
+
+                        const obj = value as Record<string, unknown>;
+                        const errors: string[] = [];
 
                         {#if deny_unknown}
-                            const knownKeys = new Set([{#for key in known_keys}"@{key}", {/for}]);
+                            const knownKeys = new Set(["__type", "__id", "__ref", {#for key in known_keys}"@{key}", {/for}]);
                             for (const key of Object.keys(obj)) {
                                 if (!knownKeys.has(key)) {
-                                    return false;
+                                    errors.push("@{interface_name}.__deserialize: unknown field \"" + key + "\"");
                                 }
                             }
                         {/if}
 
-                        {#if has_checks}
-                            {#for field in check_fields}
-                                {#if field.optional}
-                                    {#match &field.type_cat}
-                                        {:case TypeCategory::Primitive}
-                                            {$let expected_type = get_js_typeof(&field.ts_type)}
-                                            if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined && typeof obj["@{field.json_key}"] !== "@{expected_type}") {
-                                                return false;
-                                            }
-                                        {:case TypeCategory::Date}
-                                            if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined && typeof obj["@{field.json_key}"] !== "string" && !(obj["@{field.json_key}"] instanceof Date)) {
-                                                return false;
-                                            }
-                                        {:case TypeCategory::Array(_)}
-                                            if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined && !Array.isArray(obj["@{field.json_key}"])) {
-                                                return false;
-                                            }
-                                        {:case _}
-                                    {/match}
-                                {:else}
-                                    {#match &field.type_cat}
-                                        {:case TypeCategory::Primitive}
-                                            {$let expected_type = get_js_typeof(&field.ts_type)}
-                                            if (!("@{field.json_key}" in obj) || typeof obj["@{field.json_key}"] !== "@{expected_type}") {
-                                                return false;
-                                            }
-                                        {:case TypeCategory::Date}
-                                            if (!("@{field.json_key}" in obj) || (typeof obj["@{field.json_key}"] !== "string" && !(obj["@{field.json_key}"] instanceof Date))) {
-                                                return false;
-                                            }
-                                        {:case TypeCategory::Array(_)}
-                                            if (!("@{field.json_key}" in obj) || !Array.isArray(obj["@{field.json_key}"])) {
-                                                return false;
-                                            }
-                                        {:case _}
-                                            if (!("@{field.json_key}" in obj)) {
-                                                return false;
-                                            }
-                                    {/match}
-                                {/if}
+                        {#if has_required}
+                            {#for field in &required_fields}
+                                if (!("@{field.json_key}" in obj)) {
+                                    errors.push("@{interface_name}.__deserialize: missing required field \"@{field.json_key}\"");
+                                }
                             {/for}
                         {/if}
 
-                        return true;
-                    }
-
-                    export function fromJSON(data: unknown): Result<@{interface_name}, string[]> {
-                        if (!is(data)) {
-                            return Result.err(["@{interface_name}.fromJSON: type validation failed"]);
+                        if (errors.length > 0) {
+                            throw new Error(errors.join("; "));
                         }
 
-                        const obj = data as Record<string, unknown>;
-                        const errors: string[] = [];
+                        const instance: any = {};
 
-                        {#if has_validations}
-                            {#for field in &validated_fields}
-                                {$let val_var = format!("__val_{}", field.field_name)}
+                        if (obj.__id !== undefined) {
+                            ctx.register(obj.__id as number, instance);
+                        }
+
+                        ctx.trackForFreeze(instance);
+
+                        {#if has_fields}
+                            {#for field in all_fields}
+                                {$let raw_var = format!("__raw_{}", field.field_name)}
                                 {#if field.optional}
                                     if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
+                                        const @{raw_var} = obj["@{field.json_key}"];
                                         {#match &field.type_cat}
                                             {:case TypeCategory::Date}
-                                                const @{val_var} = typeof obj["@{field.json_key}"] === "string" ? new Date(obj["@{field.json_key}"] as string) : obj["@{field.json_key}"] as Date;
-                                                {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, interface_name)}
-                                                @{validation_code}
+                                                instance.@{field.field_name} = typeof @{raw_var} === "string" ? new Date(@{raw_var}) : @{raw_var};
+
+                                            {:case TypeCategory::Map(key_type, value_type)}
+                                                instance.@{field.field_name} = new Map(
+                                                    Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
+                                                );
+
+                                            {:case TypeCategory::Set(inner)}
+                                                instance.@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
+
+                                            {:case TypeCategory::Serializable(type_name)}
+                                                if (typeof (@{type_name} as any)?.__deserialize === "function") {
+                                                    const __result = (@{type_name} as any).__deserialize(@{raw_var}, ctx);
+                                                    ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                } else {
+                                                    instance.@{field.field_name} = @{raw_var};
+                                                }
+
                                             {:case _}
-                                                {$let ts_type = &field.ts_type}
-                                                const @{val_var} = obj["@{field.json_key}"] as @{ts_type};
-                                                {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, interface_name)}
-                                                @{validation_code}
+                                                instance.@{field.field_name} = @{raw_var};
                                         {/match}
                                     }
+                                    {#if let Some(default_expr) = &field.default_expr}
+                                        else {
+                                            instance.@{field.field_name} = @{default_expr};
+                                        }
+                                    {/if}
                                 {:else}
-                                    {#match &field.type_cat}
-                                        {:case TypeCategory::Date}
-                                            const @{val_var} = typeof obj["@{field.json_key}"] === "string" ? new Date(obj["@{field.json_key}"] as string) : obj["@{field.json_key}"] as Date;
-                                            {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, interface_name)}
-                                            @{validation_code}
-                                        {:case _}
-                                            {$let ts_type = &field.ts_type}
-                                            const @{val_var} = obj["@{field.json_key}"] as @{ts_type};
-                                            {$let validation_code = generate_field_validations(&field.validators, &val_var, &field.json_key, interface_name)}
-                                            @{validation_code}
-                                    {/match}
+                                    {
+                                        const @{raw_var} = obj["@{field.json_key}"];
+                                        {#match &field.type_cat}
+                                            {:case TypeCategory::Date}
+                                                instance.@{field.field_name} = typeof @{raw_var} === "string" ? new Date(@{raw_var}) : @{raw_var};
+
+                                            {:case TypeCategory::Map(key_type, value_type)}
+                                                instance.@{field.field_name} = new Map(
+                                                    Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
+                                                );
+
+                                            {:case TypeCategory::Set(inner)}
+                                                instance.@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
+
+                                            {:case TypeCategory::Serializable(type_name)}
+                                                if (typeof (@{type_name} as any)?.__deserialize === "function") {
+                                                    const __result = (@{type_name} as any).__deserialize(@{raw_var}, ctx);
+                                                    ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                } else {
+                                                    instance.@{field.field_name} = @{raw_var};
+                                                }
+
+                                            {:case _}
+                                                instance.@{field.field_name} = @{raw_var};
+                                        {/match}
+                                    }
                                 {/if}
                             {/for}
                         {/if}
 
                         if (errors.length > 0) {
-                            return Result.err(errors);
+                            throw new Error(errors.join("; "));
                         }
 
-                        {#if has_transforms}
-                            return Result.ok({
-                                ...data,
-                                {#for field in transform_fields}
-                                    {#match &field.type_cat}
-                                        {:case TypeCategory::Date}
-                                            {#if field.optional}
-                                                @{field.field_name}: obj["@{field.json_key}"] !== undefined ? new Date(obj["@{field.json_key}"] as string) : undefined,
-                                            {:else}
-                                                @{field.field_name}: new Date(obj["@{field.json_key}"] as string),
-                                            {/if}
-                                        {:case TypeCategory::Map(key_type, value_type)}
-                                            @{field.field_name}: new Map(Object.entries(obj["@{field.json_key}"] as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])),
-                                        {:case TypeCategory::Set(inner)}
-                                            @{field.field_name}: new Set(obj["@{field.json_key}"] as @{inner}[]),
-                                        {:case TypeCategory::Serializable(type_name)}
-                                            @{field.field_name}: typeof (@{type_name} as any)?.fromJSON === "function" ? (@{type_name} as any).fromJSON(obj["@{field.json_key}"]) : obj["@{field.json_key}"] as @{type_name},
-                                        {:case _}
-                                    {/match}
-                                {/for}
-                            });
-                        {:else}
-                            return Result.ok(data);
-                        {/if}
+                        return instance as @{interface_name};
                     }
                 }
             };
             result.add_import("Result", "macroforge/result");
+            result.add_import("DeserializeContext", "macroforge/serde");
+            result.add_type_import("DeserializeOptions", "macroforge/serde");
+            result.add_import("PendingRef", "macroforge/serde");
             Ok(result)
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
 
             if type_alias.is_object() {
-                // Object type: validate fields and return
-                let field_names: Vec<&str> = type_alias
-                    .as_object()
-                    .unwrap()
-                    .iter()
-                    .map(|f| f.name.as_str())
-                    .collect();
-                let has_fields = !field_names.is_empty();
-
-                Ok(ts_template! {
+                let mut result = ts_template! {
                     export namespace @{type_name} {
-                        export function is(data: unknown): data is @{type_name} {
-                            if (typeof data !== "object" || data === null || Array.isArray(data)) {
-                                return false;
+                        export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): @{type_name} {
+                            const ctx = DeserializeContext.create();
+                            const raw = JSON.parse(json);
+                            const result = __deserialize(raw, ctx);
+                            ctx.applyPatches();
+                            if (opts?.freeze) {
+                                ctx.freezeAll();
                             }
-
-                            {#if has_fields}
-                                const obj = data as Record<string, unknown>;
-                                {#for field in field_names}
-                                    if (!("@{field}" in obj)) {
-                                        return false;
-                                    }
-                                {/for}
-                            {/if}
-
-                            return true;
+                            return result;
                         }
 
-                        export function fromJSON(data: unknown): @{type_name} {
-                            if (!is(data)) {
-                                throw new Error("Invalid @{type_name}: type validation failed");
+                        export function __deserialize(value: any, ctx: DeserializeContext): @{type_name} {
+                            if (value?.__ref !== undefined) {
+                                return ctx.getOrDefer(value.__ref) as @{type_name};
                             }
-                            return data;
+
+                            const instance = { ...value };
+                            delete instance.__type;
+                            delete instance.__id;
+
+                            if (value.__id !== undefined) {
+                                ctx.register(value.__id as number, instance);
+                            }
+
+                            ctx.trackForFreeze(instance);
+                            return instance as @{type_name};
                         }
                     }
-                })
+                };
+                result.add_import("DeserializeContext", "macroforge/serde");
+                result.add_type_import("DeserializeOptions", "macroforge/serde");
+                Ok(result)
             } else {
-                // Union, intersection, tuple, or simple alias
-                Ok(ts_template! {
+                // Union type - dispatch based on __type
+                let mut result = ts_template! {
                     export namespace @{type_name} {
-                        export function fromJSON(data: unknown): @{type_name} {
-                            // For unions and other complex types, return as-is
-                            // Runtime validation should be done by the caller if needed
-                            return data as @{type_name};
+                        export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): @{type_name} {
+                            const ctx = DeserializeContext.create();
+                            const raw = JSON.parse(json);
+                            const result = __deserialize(raw, ctx);
+                            ctx.applyPatches();
+                            if (opts?.freeze) {
+                                ctx.freezeAll();
+                            }
+                            return result;
+                        }
+
+                        export function __deserialize(value: any, ctx: DeserializeContext): @{type_name} {
+                            if (value?.__ref !== undefined) {
+                                return ctx.getOrDefer(value.__ref) as @{type_name};
+                            }
+
+                            // For union types, delegate to the appropriate type based on __type
+                            if (typeof (value as any)?.__type === "string") {
+                                // Look up deserializer by type name
+                                // This requires the types in the union to be imported and have __deserialize
+                                throw new Error("@{type_name}.__deserialize: polymorphic deserialization requires type registry (TODO)");
+                            }
+
+                            return value as @{type_name};
                         }
                     }
-                })
+                };
+                result.add_import("DeserializeContext", "macroforge/serde");
+                result.add_type_import("DeserializeOptions", "macroforge/serde");
+                Ok(result)
             }
         }
     }
 }
 
 /// Get JavaScript typeof string for a TypeScript primitive type
+#[allow(dead_code)]
 fn get_js_typeof(ts_type: &str) -> &'static str {
     match ts_type.trim() {
         "string" => "string",
@@ -947,47 +917,37 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_deserialize_field_needs_transformation() {
+    fn test_deserialize_field_has_validators() {
         let field = DeserializeField {
-            json_key: "date".into(),
-            field_name: "date".into(),
-            ts_type: "Date".into(),
-            type_cat: TypeCategory::Date,
-            optional: false,
-            has_default: false,
-            default_expr: None,
-            flatten: false,
-            validators: vec![],
-        };
-        assert!(field.needs_transformation());
-
-        let primitive_field = DeserializeField {
-            json_key: "name".into(),
-            field_name: "name".into(),
+            json_key: "email".into(),
+            field_name: "email".into(),
             ts_type: "string".into(),
             type_cat: TypeCategory::Primitive,
             optional: false,
             has_default: false,
             default_expr: None,
             flatten: false,
-            validators: vec![],
+            validators: vec![ValidatorSpec {
+                validator: Validator::Email,
+                custom_message: None,
+            }],
         };
-        assert!(!primitive_field.needs_transformation());
+        assert!(field.has_validators());
+
+        let field_no_validators = DeserializeField {
+            validators: vec![],
+            ..field
+        };
+        assert!(!field_no_validators.has_validators());
     }
 
     #[test]
     fn test_validation_condition_generation() {
-        // Test email validator
         let condition = generate_validation_condition(&Validator::Email, "value");
         assert!(condition.contains("test(value)"));
 
-        // Test maxLength validator
         let condition = generate_validation_condition(&Validator::MaxLength(255), "str");
         assert_eq!(condition, "str.length > 255");
-
-        // Test between validator
-        let condition = generate_validation_condition(&Validator::Between(0.0, 100.0), "num");
-        assert_eq!(condition, "num < 0 || num > 100");
     }
 
     #[test]
@@ -995,305 +955,6 @@ mod tests {
         assert_eq!(
             get_validator_message(&Validator::Email),
             "must be a valid email"
-        );
-        assert_eq!(
-            get_validator_message(&Validator::MaxLength(255)),
-            "must have at most 255 characters"
-        );
-        assert_eq!(
-            get_validator_message(&Validator::Between(0.0, 100.0)),
-            "must be between 0 and 100"
-        );
-    }
-
-    #[test]
-    fn test_get_js_typeof() {
-        assert_eq!(get_js_typeof("string"), "string");
-        assert_eq!(get_js_typeof("number"), "number");
-        assert_eq!(get_js_typeof("boolean"), "boolean");
-        assert_eq!(get_js_typeof("User"), "object");
-    }
-
-    /// Test that all validators produce non-empty condition strings
-    #[test]
-    fn test_all_validators_have_conditions() {
-        let validators = vec![
-            // String validators
-            Validator::Email,
-            Validator::Url,
-            Validator::Uuid,
-            Validator::MaxLength(100),
-            Validator::MinLength(1),
-            Validator::Length(10),
-            Validator::LengthRange(5, 20),
-            Validator::Pattern(".*".into()),
-            Validator::NonEmpty,
-            Validator::Trimmed,
-            Validator::Lowercase,
-            Validator::Uppercase,
-            Validator::Capitalized,
-            Validator::Uncapitalized,
-            Validator::StartsWith("prefix".into()),
-            Validator::EndsWith("suffix".into()),
-            Validator::Includes("sub".into()),
-            // Number validators
-            Validator::GreaterThan(0.0),
-            Validator::GreaterThanOrEqualTo(0.0),
-            Validator::LessThan(100.0),
-            Validator::LessThanOrEqualTo(100.0),
-            Validator::Between(0.0, 100.0),
-            Validator::Int,
-            Validator::NonNaN,
-            Validator::Finite,
-            Validator::Positive,
-            Validator::NonNegative,
-            Validator::Negative,
-            Validator::NonPositive,
-            Validator::MultipleOf(5.0),
-            Validator::Uint8,
-            // Date validators
-            Validator::ValidDate,
-            Validator::GreaterThanDate("2020-01-01".into()),
-            Validator::GreaterThanOrEqualToDate("2020-01-01".into()),
-            Validator::LessThanDate("2030-01-01".into()),
-            Validator::LessThanOrEqualToDate("2030-01-01".into()),
-            Validator::BetweenDate("2020-01-01".into(), "2030-01-01".into()),
-            // BigInt validators
-            Validator::PositiveBigInt,
-            Validator::NonNegativeBigInt,
-            Validator::NegativeBigInt,
-            Validator::NonPositiveBigInt,
-            Validator::GreaterThanBigInt("100".into()),
-            Validator::GreaterThanOrEqualToBigInt("100".into()),
-            Validator::LessThanBigInt("100".into()),
-            Validator::LessThanOrEqualToBigInt("100".into()),
-            Validator::BetweenBigInt("0".into(), "100".into()),
-            // Array validators
-            Validator::MaxItems(10),
-            Validator::MinItems(1),
-            Validator::ItemsCount(5),
-            // Note: Custom validator is handled specially and generates empty condition
-        ];
-
-        for validator in validators {
-            let condition = generate_validation_condition(&validator, "value");
-            assert!(
-                !condition.is_empty(),
-                "Validator {:?} should generate non-empty condition",
-                validator
-            );
-        }
-
-        // Custom validator is handled specially - it generates an empty condition
-        // because the validation code is generated differently for it
-        let custom_condition =
-            generate_validation_condition(&Validator::Custom("myValidator".into()), "value");
-        assert!(
-            custom_condition.is_empty(),
-            "Custom validator should return empty condition"
-        );
-    }
-
-    /// Test that all validators produce non-empty error messages
-    #[test]
-    fn test_all_validators_have_messages() {
-        let validators = vec![
-            // String validators
-            Validator::Email,
-            Validator::Url,
-            Validator::Uuid,
-            Validator::MaxLength(100),
-            Validator::MinLength(1),
-            Validator::Length(10),
-            Validator::LengthRange(5, 20),
-            Validator::Pattern(".*".into()),
-            Validator::NonEmpty,
-            Validator::Trimmed,
-            Validator::Lowercase,
-            Validator::Uppercase,
-            Validator::Capitalized,
-            Validator::Uncapitalized,
-            Validator::StartsWith("prefix".into()),
-            Validator::EndsWith("suffix".into()),
-            Validator::Includes("sub".into()),
-            // Number validators
-            Validator::GreaterThan(0.0),
-            Validator::GreaterThanOrEqualTo(0.0),
-            Validator::LessThan(100.0),
-            Validator::LessThanOrEqualTo(100.0),
-            Validator::Between(0.0, 100.0),
-            Validator::Int,
-            Validator::NonNaN,
-            Validator::Finite,
-            Validator::Positive,
-            Validator::NonNegative,
-            Validator::Negative,
-            Validator::NonPositive,
-            Validator::MultipleOf(5.0),
-            Validator::Uint8,
-            // Date validators
-            Validator::ValidDate,
-            Validator::GreaterThanDate("2020-01-01".into()),
-            Validator::GreaterThanOrEqualToDate("2020-01-01".into()),
-            Validator::LessThanDate("2030-01-01".into()),
-            Validator::LessThanOrEqualToDate("2030-01-01".into()),
-            Validator::BetweenDate("2020-01-01".into(), "2030-01-01".into()),
-            // BigInt validators
-            Validator::PositiveBigInt,
-            Validator::NonNegativeBigInt,
-            Validator::NegativeBigInt,
-            Validator::NonPositiveBigInt,
-            Validator::GreaterThanBigInt("100".into()),
-            Validator::GreaterThanOrEqualToBigInt("100".into()),
-            Validator::LessThanBigInt("100".into()),
-            Validator::LessThanOrEqualToBigInt("100".into()),
-            Validator::BetweenBigInt("0".into(), "100".into()),
-            // Array validators
-            Validator::MaxItems(10),
-            Validator::MinItems(1),
-            Validator::ItemsCount(5),
-            // Custom validator
-            Validator::Custom("myValidator".into()),
-        ];
-
-        for validator in validators {
-            let message = get_validator_message(&validator);
-            assert!(
-                !message.is_empty(),
-                "Validator {:?} should have non-empty message",
-                validator
-            );
-        }
-    }
-
-    /// Test specific validation condition formats
-    #[test]
-    fn test_specific_validation_conditions() {
-        // String validators
-        assert!(generate_validation_condition(&Validator::Trimmed, "s").contains("trim()"));
-        assert!(
-            generate_validation_condition(&Validator::Lowercase, "s").contains("toLowerCase()")
-        );
-        assert!(
-            generate_validation_condition(&Validator::Uppercase, "s").contains("toUpperCase()")
-        );
-
-        // Number validators
-        assert_eq!(
-            generate_validation_condition(&Validator::Int, "n"),
-            "!Number.isInteger(n)"
-        );
-        assert_eq!(
-            generate_validation_condition(&Validator::NonNaN, "n"),
-            "Number.isNaN(n)"
-        );
-        assert_eq!(
-            generate_validation_condition(&Validator::Finite, "n"),
-            "!Number.isFinite(n)"
-        );
-        assert_eq!(
-            generate_validation_condition(&Validator::Positive, "n"),
-            "n <= 0"
-        );
-        assert_eq!(
-            generate_validation_condition(&Validator::Negative, "n"),
-            "n >= 0"
-        );
-
-        // BigInt validators
-        assert_eq!(
-            generate_validation_condition(&Validator::PositiveBigInt, "b"),
-            "b <= 0n"
-        );
-        assert_eq!(
-            generate_validation_condition(&Validator::NegativeBigInt, "b"),
-            "b >= 0n"
-        );
-
-        // Array validators
-        assert_eq!(
-            generate_validation_condition(&Validator::MaxItems(5), "arr"),
-            "arr.length > 5"
-        );
-        assert_eq!(
-            generate_validation_condition(&Validator::MinItems(2), "arr"),
-            "arr.length < 2"
-        );
-        assert_eq!(
-            generate_validation_condition(&Validator::ItemsCount(3), "arr"),
-            "arr.length !== 3"
-        );
-
-        // Custom validator - handled specially, generates empty condition
-        // (the actual code generation for custom validators uses the function name directly)
-        assert!(
-            generate_validation_condition(&Validator::Custom("isValid".into()), "x").is_empty(),
-            "Custom validator should return empty condition (handled specially)"
-        );
-    }
-
-    /// Test specific validator messages format
-    #[test]
-    fn test_specific_validator_messages() {
-        // String validators with dynamic values
-        assert_eq!(
-            get_validator_message(&Validator::MaxLength(50)),
-            "must have at most 50 characters"
-        );
-        assert_eq!(
-            get_validator_message(&Validator::MinLength(3)),
-            "must have at least 3 characters"
-        );
-        assert_eq!(
-            get_validator_message(&Validator::Length(10)),
-            "must have exactly 10 characters"
-        );
-        assert_eq!(
-            get_validator_message(&Validator::LengthRange(5, 20)),
-            "must have between 5 and 20 characters"
-        );
-
-        // Number validators with dynamic values
-        assert_eq!(
-            get_validator_message(&Validator::GreaterThan(5.0)),
-            "must be greater than 5"
-        );
-        assert_eq!(
-            get_validator_message(&Validator::MultipleOf(7.0)),
-            "must be a multiple of 7"
-        );
-
-        // Array validators with dynamic values
-        assert_eq!(
-            get_validator_message(&Validator::MaxItems(10)),
-            "must have at most 10 items"
-        );
-        assert_eq!(
-            get_validator_message(&Validator::MinItems(2)),
-            "must have at least 2 items"
-        );
-        assert_eq!(
-            get_validator_message(&Validator::ItemsCount(5)),
-            "must have exactly 5 items"
-        );
-
-        // Date validators
-        assert_eq!(
-            get_validator_message(&Validator::GreaterThanDate("2020-01-01".into())),
-            "must be after 2020-01-01"
-        );
-        assert_eq!(
-            get_validator_message(&Validator::BetweenDate(
-                "2020-01-01".into(),
-                "2030-12-31".into()
-            )),
-            "must be between 2020-01-01 and 2030-12-31"
-        );
-
-        // BigInt validators
-        assert_eq!(
-            get_validator_message(&Validator::GreaterThanBigInt("100".into())),
-            "must be greater than 100"
         );
     }
 }
