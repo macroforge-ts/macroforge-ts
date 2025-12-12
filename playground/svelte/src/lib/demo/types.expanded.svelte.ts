@@ -450,8 +450,8 @@ export namespace User {
         },
         validate: (): Array<string> => {
           const result = User.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -478,8 +478,8 @@ export namespace User {
         },
         validate: (): Array<string> => {
           const result = User.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "email")
               .map((e) => e.message);
@@ -506,8 +506,8 @@ export namespace User {
         },
         validate: (): Array<string> => {
           const result = User.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "firstName")
               .map((e) => e.message);
@@ -534,8 +534,8 @@ export namespace User {
         },
         validate: (): Array<string> => {
           const result = User.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "lastName")
               .map((e) => e.message);
@@ -562,8 +562,8 @@ export namespace User {
         },
         validate: (): Array<string> => {
           const result = User.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "password")
               .map((e) => e.message);
@@ -590,8 +590,8 @@ export namespace User {
         },
         validate: (): Array<string> => {
           const result = User.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "metadata")
               .map((e) => e.message);
@@ -618,8 +618,8 @@ export namespace User {
         },
         validate: (): Array<string> => {
           const result = User.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "settings")
               .map((e) => e.message);
@@ -646,8 +646,8 @@ export namespace User {
         },
         validate: (): Array<string> => {
           const result = User.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "role")
               .map((e) => e.message);
@@ -674,8 +674,8 @@ export namespace User {
         },
         validate: (): Array<string> => {
           const result = User.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "emailVerified")
               .map((e) => e.message);
@@ -702,8 +702,8 @@ export namespace User {
         },
         validate: (): Array<string> => {
           const result = User.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "verificationToken")
               .map((e) => e.message);
@@ -730,8 +730,8 @@ export namespace User {
         },
         validate: (): Array<string> => {
           const result = User.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "verificationExpires")
               .map((e) => e.message);
@@ -758,8 +758,8 @@ export namespace User {
         },
         validate: (): Array<string> => {
           const result = User.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "passwordResetToken")
               .map((e) => e.message);
@@ -786,8 +786,8 @@ export namespace User {
         },
         validate: (): Array<string> => {
           const result = User.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "passwordResetExpires")
               .map((e) => e.message);
@@ -814,8 +814,8 @@ export namespace User {
         },
         validate: (): Array<string> => {
           const result = User.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "permissions")
               .map((e) => e.message);
@@ -1302,8 +1302,8 @@ export namespace Service {
         },
         validate: (): Array<string> => {
           const result = Service.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -1330,8 +1330,8 @@ export namespace Service {
         },
         validate: (): Array<string> => {
           const result = Service.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "name")
               .map((e) => e.message);
@@ -1358,8 +1358,8 @@ export namespace Service {
         },
         validate: (): Array<string> => {
           const result = Service.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "quickCode")
               .map((e) => e.message);
@@ -1386,8 +1386,8 @@ export namespace Service {
         },
         validate: (): Array<string> => {
           const result = Service.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "group")
               .map((e) => e.message);
@@ -1414,8 +1414,8 @@ export namespace Service {
         },
         validate: (): Array<string> => {
           const result = Service.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "subgroup")
               .map((e) => e.message);
@@ -1442,8 +1442,8 @@ export namespace Service {
         },
         validate: (): Array<string> => {
           const result = Service.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "unit")
               .map((e) => e.message);
@@ -1470,8 +1470,8 @@ export namespace Service {
         },
         validate: (): Array<string> => {
           const result = Service.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "active")
               .map((e) => e.message);
@@ -1498,8 +1498,8 @@ export namespace Service {
         },
         validate: (): Array<string> => {
           const result = Service.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "commission")
               .map((e) => e.message);
@@ -1526,8 +1526,8 @@ export namespace Service {
         },
         validate: (): Array<string> => {
           const result = Service.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "favorite")
               .map((e) => e.message);
@@ -1554,8 +1554,8 @@ export namespace Service {
         },
         validate: (): Array<string> => {
           const result = Service.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "averageTime")
               .map((e) => e.message);
@@ -1582,8 +1582,8 @@ export namespace Service {
         },
         validate: (): Array<string> => {
           const result = Service.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "defaults")
               .map((e) => e.message);
@@ -1876,8 +1876,8 @@ export namespace ServiceDefaults {
         },
         validate: (): Array<string> => {
           const result = ServiceDefaults.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "price")
               .map((e) => e.message);
@@ -1904,8 +1904,8 @@ export namespace ServiceDefaults {
         },
         validate: (): Array<string> => {
           const result = ServiceDefaults.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "description")
               .map((e) => e.message);
@@ -2228,8 +2228,8 @@ export namespace Did {
         },
         validate: (): Array<string> => {
           const result = Did.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "in")
               .map((e) => e.message);
@@ -2256,8 +2256,8 @@ export namespace Did {
         },
         validate: (): Array<string> => {
           const result = Did.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "out")
               .map((e) => e.message);
@@ -2284,8 +2284,8 @@ export namespace Did {
         },
         validate: (): Array<string> => {
           const result = Did.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -2312,8 +2312,8 @@ export namespace Did {
         },
         validate: (): Array<string> => {
           const result = Did.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "activityType")
               .map((e) => e.message);
@@ -2340,8 +2340,8 @@ export namespace Did {
         },
         validate: (): Array<string> => {
           const result = Did.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "createdAt")
               .map((e) => e.message);
@@ -2368,8 +2368,8 @@ export namespace Did {
         },
         validate: (): Array<string> => {
           const result = Did.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "metadata")
               .map((e) => e.message);
@@ -2640,8 +2640,8 @@ export namespace PersonName {
         },
         validate: (): Array<string> => {
           const result = PersonName.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "firstName")
               .map((e) => e.message);
@@ -2668,8 +2668,8 @@ export namespace PersonName {
         },
         validate: (): Array<string> => {
           const result = PersonName.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "lastName")
               .map((e) => e.message);
@@ -2914,8 +2914,8 @@ export namespace Promotion {
         },
         validate: (): Array<string> => {
           const result = Promotion.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -2942,8 +2942,8 @@ export namespace Promotion {
         },
         validate: (): Array<string> => {
           const result = Promotion.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "date")
               .map((e) => e.message);
@@ -3389,8 +3389,8 @@ export namespace Site {
         },
         validate: (): Array<string> => {
           const result = Site.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -3417,8 +3417,8 @@ export namespace Site {
         },
         validate: (): Array<string> => {
           const result = Site.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "addressLine1")
               .map((e) => e.message);
@@ -3445,8 +3445,8 @@ export namespace Site {
         },
         validate: (): Array<string> => {
           const result = Site.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "addressLine2")
               .map((e) => e.message);
@@ -3473,8 +3473,8 @@ export namespace Site {
         },
         validate: (): Array<string> => {
           const result = Site.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "sublocalityLevel1")
               .map((e) => e.message);
@@ -3501,8 +3501,8 @@ export namespace Site {
         },
         validate: (): Array<string> => {
           const result = Site.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "locality")
               .map((e) => e.message);
@@ -3529,8 +3529,8 @@ export namespace Site {
         },
         validate: (): Array<string> => {
           const result = Site.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "administrativeAreaLevel3")
               .map((e) => e.message);
@@ -3557,8 +3557,8 @@ export namespace Site {
         },
         validate: (): Array<string> => {
           const result = Site.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "administrativeAreaLevel2")
               .map((e) => e.message);
@@ -3585,8 +3585,8 @@ export namespace Site {
         },
         validate: (): Array<string> => {
           const result = Site.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "administrativeAreaLevel1")
               .map((e) => e.message);
@@ -3613,8 +3613,8 @@ export namespace Site {
         },
         validate: (): Array<string> => {
           const result = Site.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "country")
               .map((e) => e.message);
@@ -3641,8 +3641,8 @@ export namespace Site {
         },
         validate: (): Array<string> => {
           const result = Site.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "postalCode")
               .map((e) => e.message);
@@ -3669,8 +3669,8 @@ export namespace Site {
         },
         validate: (): Array<string> => {
           const result = Site.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "postalCodeSuffix")
               .map((e) => e.message);
@@ -3697,8 +3697,8 @@ export namespace Site {
         },
         validate: (): Array<string> => {
           const result = Site.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "coordinates")
               .map((e) => e.message);
@@ -4017,8 +4017,8 @@ export namespace Metadata {
         },
         validate: (): Array<string> => {
           const result = Metadata.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "createdAt")
               .map((e) => e.message);
@@ -4045,8 +4045,8 @@ export namespace Metadata {
         },
         validate: (): Array<string> => {
           const result = Metadata.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "lastLogin")
               .map((e) => e.message);
@@ -4073,8 +4073,8 @@ export namespace Metadata {
         },
         validate: (): Array<string> => {
           const result = Metadata.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "isActive")
               .map((e) => e.message);
@@ -4101,8 +4101,8 @@ export namespace Metadata {
         },
         validate: (): Array<string> => {
           const result = Metadata.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "roles")
               .map((e) => e.message);
@@ -4392,8 +4392,8 @@ export namespace ColumnConfig {
         },
         validate: (): Array<string> => {
           const result = ColumnConfig.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "heading")
               .map((e) => e.message);
@@ -4420,8 +4420,8 @@ export namespace ColumnConfig {
         },
         validate: (): Array<string> => {
           const result = ColumnConfig.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "dataPath")
               .map((e) => e.message);
@@ -4734,8 +4734,8 @@ export namespace PhoneNumber {
         },
         validate: (): Array<string> => {
           const result = PhoneNumber.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "main")
               .map((e) => e.message);
@@ -4762,8 +4762,8 @@ export namespace PhoneNumber {
         },
         validate: (): Array<string> => {
           const result = PhoneNumber.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "phoneType")
               .map((e) => e.message);
@@ -4790,8 +4790,8 @@ export namespace PhoneNumber {
         },
         validate: (): Array<string> => {
           const result = PhoneNumber.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "number")
               .map((e) => e.message);
@@ -4818,8 +4818,8 @@ export namespace PhoneNumber {
         },
         validate: (): Array<string> => {
           const result = PhoneNumber.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "canText")
               .map((e) => e.message);
@@ -4846,8 +4846,8 @@ export namespace PhoneNumber {
         },
         validate: (): Array<string> => {
           const result = PhoneNumber.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "canCall")
               .map((e) => e.message);
@@ -5095,8 +5095,8 @@ export namespace Gradient {
         },
         validate: (): Array<string> => {
           const result = Gradient.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "startHue")
               .map((e) => e.message);
@@ -5489,8 +5489,8 @@ export namespace Product {
         },
         validate: (): Array<string> => {
           const result = Product.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -5517,8 +5517,8 @@ export namespace Product {
         },
         validate: (): Array<string> => {
           const result = Product.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "name")
               .map((e) => e.message);
@@ -5545,8 +5545,8 @@ export namespace Product {
         },
         validate: (): Array<string> => {
           const result = Product.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "quickCode")
               .map((e) => e.message);
@@ -5573,8 +5573,8 @@ export namespace Product {
         },
         validate: (): Array<string> => {
           const result = Product.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "group")
               .map((e) => e.message);
@@ -5601,8 +5601,8 @@ export namespace Product {
         },
         validate: (): Array<string> => {
           const result = Product.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "subgroup")
               .map((e) => e.message);
@@ -5629,8 +5629,8 @@ export namespace Product {
         },
         validate: (): Array<string> => {
           const result = Product.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "unit")
               .map((e) => e.message);
@@ -5657,8 +5657,8 @@ export namespace Product {
         },
         validate: (): Array<string> => {
           const result = Product.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "active")
               .map((e) => e.message);
@@ -5685,8 +5685,8 @@ export namespace Product {
         },
         validate: (): Array<string> => {
           const result = Product.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "commission")
               .map((e) => e.message);
@@ -5713,8 +5713,8 @@ export namespace Product {
         },
         validate: (): Array<string> => {
           const result = Product.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "favorite")
               .map((e) => e.message);
@@ -5741,8 +5741,8 @@ export namespace Product {
         },
         validate: (): Array<string> => {
           const result = Product.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "defaults")
               .map((e) => e.message);
@@ -6030,8 +6030,8 @@ export namespace YearlyRecurrenceRule {
         },
         validate: (): Array<string> => {
           const result = YearlyRecurrenceRule.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "quantityOfYears")
               .map((e) => e.message);
@@ -6322,8 +6322,8 @@ export namespace AppointmentNotifications {
         },
         validate: (): Array<string> => {
           const result = AppointmentNotifications.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "personalScheduleChangeNotifications")
               .map((e) => e.message);
@@ -6350,8 +6350,8 @@ export namespace AppointmentNotifications {
         },
         validate: (): Array<string> => {
           const result = AppointmentNotifications.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "allScheduleChangeNotifications")
               .map((e) => e.message);
@@ -6602,8 +6602,8 @@ export namespace DirectionHue {
         },
         validate: (): Array<string> => {
           const result = DirectionHue.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "bearing")
               .map((e) => e.message);
@@ -6630,8 +6630,8 @@ export namespace DirectionHue {
         },
         validate: (): Array<string> => {
           const result = DirectionHue.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "hue")
               .map((e) => e.message);
@@ -6912,8 +6912,8 @@ export namespace MonthlyRecurrenceRule {
         },
         validate: (): Array<string> => {
           const result = MonthlyRecurrenceRule.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "quantityOfMonths")
               .map((e) => e.message);
@@ -6940,8 +6940,8 @@ export namespace MonthlyRecurrenceRule {
         },
         validate: (): Array<string> => {
           const result = MonthlyRecurrenceRule.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "day")
               .map((e) => e.message);
@@ -6968,8 +6968,8 @@ export namespace MonthlyRecurrenceRule {
         },
         validate: (): Array<string> => {
           const result = MonthlyRecurrenceRule.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "name")
               .map((e) => e.message);
@@ -7253,8 +7253,8 @@ export namespace Represents {
         },
         validate: (): Array<string> => {
           const result = Represents.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "in")
               .map((e) => e.message);
@@ -7281,8 +7281,8 @@ export namespace Represents {
         },
         validate: (): Array<string> => {
           const result = Represents.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "out")
               .map((e) => e.message);
@@ -7309,8 +7309,8 @@ export namespace Represents {
         },
         validate: (): Array<string> => {
           const result = Represents.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -7337,8 +7337,8 @@ export namespace Represents {
         },
         validate: (): Array<string> => {
           const result = Represents.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "dateStarted")
               .map((e) => e.message);
@@ -7585,8 +7585,8 @@ export namespace Payment {
         },
         validate: (): Array<string> => {
           const result = Payment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -7613,8 +7613,8 @@ export namespace Payment {
         },
         validate: (): Array<string> => {
           const result = Payment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "date")
               .map((e) => e.message);
@@ -8151,8 +8151,8 @@ export namespace Settings {
         },
         validate: (): Array<string> => {
           const result = Settings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "appointmentNotifications")
               .map((e) => e.message);
@@ -8179,8 +8179,8 @@ export namespace Settings {
         },
         validate: (): Array<string> => {
           const result = Settings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "commissions")
               .map((e) => e.message);
@@ -8207,8 +8207,8 @@ export namespace Settings {
         },
         validate: (): Array<string> => {
           const result = Settings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "scheduleSettings")
               .map((e) => e.message);
@@ -8235,8 +8235,8 @@ export namespace Settings {
         },
         validate: (): Array<string> => {
           const result = Settings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "accountOverviewSettings")
               .map((e) => e.message);
@@ -8263,8 +8263,8 @@ export namespace Settings {
         },
         validate: (): Array<string> => {
           const result = Settings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "serviceOverviewSettings")
               .map((e) => e.message);
@@ -8291,8 +8291,8 @@ export namespace Settings {
         },
         validate: (): Array<string> => {
           const result = Settings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "appointmentOverviewSettings")
               .map((e) => e.message);
@@ -8319,8 +8319,8 @@ export namespace Settings {
         },
         validate: (): Array<string> => {
           const result = Settings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "leadOverviewSettings")
               .map((e) => e.message);
@@ -8347,8 +8347,8 @@ export namespace Settings {
         },
         validate: (): Array<string> => {
           const result = Settings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "packageOverviewSettings")
               .map((e) => e.message);
@@ -8375,8 +8375,8 @@ export namespace Settings {
         },
         validate: (): Array<string> => {
           const result = Settings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "productOverviewSettings")
               .map((e) => e.message);
@@ -8403,8 +8403,8 @@ export namespace Settings {
         },
         validate: (): Array<string> => {
           const result = Settings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "orderOverviewSettings")
               .map((e) => e.message);
@@ -8431,8 +8431,8 @@ export namespace Settings {
         },
         validate: (): Array<string> => {
           const result = Settings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "taxRateOverviewSettings")
               .map((e) => e.message);
@@ -8459,8 +8459,8 @@ export namespace Settings {
         },
         validate: (): Array<string> => {
           const result = Settings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "homePage")
               .map((e) => e.message);
@@ -8924,8 +8924,8 @@ export namespace Color {
         },
         validate: (): Array<string> => {
           const result = Color.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "red")
               .map((e) => e.message);
@@ -8952,8 +8952,8 @@ export namespace Color {
         },
         validate: (): Array<string> => {
           const result = Color.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "green")
               .map((e) => e.message);
@@ -8980,8 +8980,8 @@ export namespace Color {
         },
         validate: (): Array<string> => {
           const result = Color.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "blue")
               .map((e) => e.message);
@@ -9229,8 +9229,8 @@ export namespace CompanyName {
         },
         validate: (): Array<string> => {
           const result = CompanyName.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "companyName")
               .map((e) => e.message);
@@ -9676,8 +9676,8 @@ export namespace Appointment {
         },
         validate: (): Array<string> => {
           const result = Appointment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -9704,8 +9704,8 @@ export namespace Appointment {
         },
         validate: (): Array<string> => {
           const result = Appointment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "title")
               .map((e) => e.message);
@@ -9732,8 +9732,8 @@ export namespace Appointment {
         },
         validate: (): Array<string> => {
           const result = Appointment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "status")
               .map((e) => e.message);
@@ -9760,8 +9760,8 @@ export namespace Appointment {
         },
         validate: (): Array<string> => {
           const result = Appointment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "begins")
               .map((e) => e.message);
@@ -9788,8 +9788,8 @@ export namespace Appointment {
         },
         validate: (): Array<string> => {
           const result = Appointment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "duration")
               .map((e) => e.message);
@@ -9816,8 +9816,8 @@ export namespace Appointment {
         },
         validate: (): Array<string> => {
           const result = Appointment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "timeZone")
               .map((e) => e.message);
@@ -9844,8 +9844,8 @@ export namespace Appointment {
         },
         validate: (): Array<string> => {
           const result = Appointment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "offsetMs")
               .map((e) => e.message);
@@ -9872,8 +9872,8 @@ export namespace Appointment {
         },
         validate: (): Array<string> => {
           const result = Appointment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "allDay")
               .map((e) => e.message);
@@ -9900,8 +9900,8 @@ export namespace Appointment {
         },
         validate: (): Array<string> => {
           const result = Appointment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "multiDay")
               .map((e) => e.message);
@@ -9928,8 +9928,8 @@ export namespace Appointment {
         },
         validate: (): Array<string> => {
           const result = Appointment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "employees")
               .map((e) => e.message);
@@ -9989,8 +9989,8 @@ export namespace Appointment {
         },
         validate: (): Array<string> => {
           const result = Appointment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "location")
               .map((e) => e.message);
@@ -10017,8 +10017,8 @@ export namespace Appointment {
         },
         validate: (): Array<string> => {
           const result = Appointment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "description")
               .map((e) => e.message);
@@ -10045,8 +10045,8 @@ export namespace Appointment {
         },
         validate: (): Array<string> => {
           const result = Appointment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "colors")
               .map((e) => e.message);
@@ -10073,8 +10073,8 @@ export namespace Appointment {
         },
         validate: (): Array<string> => {
           const result = Appointment.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "recurrenceRule")
               .map((e) => e.message);
@@ -10415,8 +10415,8 @@ export namespace Package {
         },
         validate: (): Array<string> => {
           const result = Package.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -10443,8 +10443,8 @@ export namespace Package {
         },
         validate: (): Array<string> => {
           const result = Package.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "date")
               .map((e) => e.message);
@@ -10745,8 +10745,8 @@ export namespace ScheduleSettings {
         },
         validate: (): Array<string> => {
           const result = ScheduleSettings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "daysPerWeek")
               .map((e) => e.message);
@@ -10773,8 +10773,8 @@ export namespace ScheduleSettings {
         },
         validate: (): Array<string> => {
           const result = ScheduleSettings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "rowHeight")
               .map((e) => e.message);
@@ -10801,8 +10801,8 @@ export namespace ScheduleSettings {
         },
         validate: (): Array<string> => {
           const result = ScheduleSettings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "visibleRoutes")
               .map((e) => e.message);
@@ -10863,8 +10863,8 @@ export namespace ScheduleSettings {
         },
         validate: (): Array<string> => {
           const result = ScheduleSettings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "detailedCards")
               .map((e) => e.message);
@@ -11143,8 +11143,8 @@ export namespace DailyRecurrenceRule {
         },
         validate: (): Array<string> => {
           const result = DailyRecurrenceRule.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "quantityOfDays")
               .map((e) => e.message);
@@ -11479,8 +11479,8 @@ export namespace SignUpCredentials {
         },
         validate: (): Array<string> => {
           const result = SignUpCredentials.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "firstName")
               .map((e) => e.message);
@@ -11507,8 +11507,8 @@ export namespace SignUpCredentials {
         },
         validate: (): Array<string> => {
           const result = SignUpCredentials.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "lastName")
               .map((e) => e.message);
@@ -11535,8 +11535,8 @@ export namespace SignUpCredentials {
         },
         validate: (): Array<string> => {
           const result = SignUpCredentials.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "email")
               .map((e) => e.message);
@@ -11563,8 +11563,8 @@ export namespace SignUpCredentials {
         },
         validate: (): Array<string> => {
           const result = SignUpCredentials.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "password")
               .map((e) => e.message);
@@ -11591,8 +11591,8 @@ export namespace SignUpCredentials {
         },
         validate: (): Array<string> => {
           const result = SignUpCredentials.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "rememberMe")
               .map((e) => e.message);
@@ -11993,8 +11993,8 @@ export namespace OverviewSettings {
         },
         validate: (): Array<string> => {
           const result = OverviewSettings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "rowHeight")
               .map((e) => e.message);
@@ -12021,8 +12021,8 @@ export namespace OverviewSettings {
         },
         validate: (): Array<string> => {
           const result = OverviewSettings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "cardOrRow")
               .map((e) => e.message);
@@ -12049,8 +12049,8 @@ export namespace OverviewSettings {
         },
         validate: (): Array<string> => {
           const result = OverviewSettings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "perPage")
               .map((e) => e.message);
@@ -12077,8 +12077,8 @@ export namespace OverviewSettings {
         },
         validate: (): Array<string> => {
           const result = OverviewSettings.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "columnConfigs")
               .map((e) => e.message);
@@ -12419,8 +12419,8 @@ export namespace FirstName {
         },
         validate: (): Array<string> => {
           const result = FirstName.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "name")
               .map((e) => e.message);
@@ -12996,8 +12996,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -13024,8 +13024,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "taxRate")
               .map((e) => e.message);
@@ -13052,8 +13052,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "site")
               .map((e) => e.message);
@@ -13080,8 +13080,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "salesRep")
               .map((e) => e.message);
@@ -13108,8 +13108,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "orders")
               .map((e) => e.message);
@@ -13166,8 +13166,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "activity")
               .map((e) => e.message);
@@ -13227,8 +13227,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "customFields")
               .map((e) => e.message);
@@ -13289,8 +13289,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "accountName")
               .map((e) => e.message);
@@ -13317,8 +13317,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "sector")
               .map((e) => e.message);
@@ -13345,8 +13345,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "memo")
               .map((e) => e.message);
@@ -13373,8 +13373,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "phones")
               .map((e) => e.message);
@@ -13431,8 +13431,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "email")
               .map((e) => e.message);
@@ -13459,8 +13459,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "leadSource")
               .map((e) => e.message);
@@ -13487,8 +13487,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "colors")
               .map((e) => e.message);
@@ -13515,8 +13515,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "needsReview")
               .map((e) => e.message);
@@ -13543,8 +13543,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "hasAlert")
               .map((e) => e.message);
@@ -13571,8 +13571,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "accountType")
               .map((e) => e.message);
@@ -13599,8 +13599,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "subtype")
               .map((e) => e.message);
@@ -13627,8 +13627,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "isTaxExempt")
               .map((e) => e.message);
@@ -13655,8 +13655,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "paymentTerms")
               .map((e) => e.message);
@@ -13683,8 +13683,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "tags")
               .map((e) => e.message);
@@ -13741,8 +13741,8 @@ export namespace Account {
         },
         validate: (): Array<string> => {
           const result = Account.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "dateAdded")
               .map((e) => e.message);
@@ -14229,8 +14229,8 @@ export namespace Edited {
         },
         validate: (): Array<string> => {
           const result = Edited.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "fieldName")
               .map((e) => e.message);
@@ -14257,8 +14257,8 @@ export namespace Edited {
         },
         validate: (): Array<string> => {
           const result = Edited.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "oldValue")
               .map((e) => e.message);
@@ -14285,8 +14285,8 @@ export namespace Edited {
         },
         validate: (): Array<string> => {
           const result = Edited.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "newValue")
               .map((e) => e.message);
@@ -14931,8 +14931,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -14959,8 +14959,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "account")
               .map((e) => e.message);
@@ -14987,8 +14987,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "stage")
               .map((e) => e.message);
@@ -15015,8 +15015,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "number")
               .map((e) => e.message);
@@ -15043,8 +15043,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "payments")
               .map((e) => e.message);
@@ -15104,8 +15104,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "opportunity")
               .map((e) => e.message);
@@ -15132,8 +15132,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "reference")
               .map((e) => e.message);
@@ -15160,8 +15160,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "leadSource")
               .map((e) => e.message);
@@ -15188,8 +15188,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "salesRep")
               .map((e) => e.message);
@@ -15216,8 +15216,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "group")
               .map((e) => e.message);
@@ -15244,8 +15244,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "subgroup")
               .map((e) => e.message);
@@ -15272,8 +15272,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "isPosted")
               .map((e) => e.message);
@@ -15300,8 +15300,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "needsReview")
               .map((e) => e.message);
@@ -15328,8 +15328,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "actionItem")
               .map((e) => e.message);
@@ -15356,8 +15356,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "upsale")
               .map((e) => e.message);
@@ -15384,8 +15384,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "dateCreated")
               .map((e) => e.message);
@@ -15412,8 +15412,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "appointment")
               .map((e) => e.message);
@@ -15440,8 +15440,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "lastTechs")
               .map((e) => e.message);
@@ -15501,8 +15501,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "package")
               .map((e) => e.message);
@@ -15529,8 +15529,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "promotion")
               .map((e) => e.message);
@@ -15557,8 +15557,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "balance")
               .map((e) => e.message);
@@ -15585,8 +15585,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "due")
               .map((e) => e.message);
@@ -15613,8 +15613,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "total")
               .map((e) => e.message);
@@ -15641,8 +15641,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "site")
               .map((e) => e.message);
@@ -15669,8 +15669,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "billedItems")
               .map((e) => e.message);
@@ -15731,8 +15731,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "memo")
               .map((e) => e.message);
@@ -15759,8 +15759,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "discount")
               .map((e) => e.message);
@@ -15787,8 +15787,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "tip")
               .map((e) => e.message);
@@ -15815,8 +15815,8 @@ export namespace Order {
         },
         validate: (): Array<string> => {
           const result = Order.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "commissions")
               .map((e) => e.message);
@@ -16266,8 +16266,8 @@ export namespace Commented {
         },
         validate: (): Array<string> => {
           const result = Commented.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "comment")
               .map((e) => e.message);
@@ -16294,8 +16294,8 @@ export namespace Commented {
         },
         validate: (): Array<string> => {
           const result = Commented.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "replyTo")
               .map((e) => e.message);
@@ -16531,8 +16531,8 @@ export namespace Custom {
         },
         validate: (): Array<string> => {
           const result = Custom.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "mappings")
               .map((e) => e.message);
@@ -16845,8 +16845,8 @@ export namespace Colors {
         },
         validate: (): Array<string> => {
           const result = Colors.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "main")
               .map((e) => e.message);
@@ -16873,8 +16873,8 @@ export namespace Colors {
         },
         validate: (): Array<string> => {
           const result = Colors.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "hover")
               .map((e) => e.message);
@@ -16901,8 +16901,8 @@ export namespace Colors {
         },
         validate: (): Array<string> => {
           const result = Colors.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "active")
               .map((e) => e.message);
@@ -17153,8 +17153,8 @@ export namespace ProductDefaults {
         },
         validate: (): Array<string> => {
           const result = ProductDefaults.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "price")
               .map((e) => e.message);
@@ -17181,8 +17181,8 @@ export namespace ProductDefaults {
         },
         validate: (): Array<string> => {
           const result = ProductDefaults.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "description")
               .map((e) => e.message);
@@ -17445,8 +17445,8 @@ export namespace Viewed {
         },
         validate: (): Array<string> => {
           const result = Viewed.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "durationSeconds")
               .map((e) => e.message);
@@ -17473,8 +17473,8 @@ export namespace Viewed {
         },
         validate: (): Array<string> => {
           const result = Viewed.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "source")
               .map((e) => e.message);
@@ -17746,8 +17746,8 @@ export namespace WeeklyRecurrenceRule {
         },
         validate: (): Array<string> => {
           const result = WeeklyRecurrenceRule.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "quantityOfWeeks")
               .map((e) => e.message);
@@ -17774,8 +17774,8 @@ export namespace WeeklyRecurrenceRule {
         },
         validate: (): Array<string> => {
           const result = WeeklyRecurrenceRule.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "weekdays")
               .map((e) => e.message);
@@ -18121,8 +18121,8 @@ export namespace Paid {
         },
         validate: (): Array<string> => {
           const result = Paid.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "amount")
               .map((e) => e.message);
@@ -18149,8 +18149,8 @@ export namespace Paid {
         },
         validate: (): Array<string> => {
           const result = Paid.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "currency")
               .map((e) => e.message);
@@ -18177,8 +18177,8 @@ export namespace Paid {
         },
         validate: (): Array<string> => {
           const result = Paid.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "paymentMethod")
               .map((e) => e.message);
@@ -18548,8 +18548,8 @@ export namespace TaxRate {
         },
         validate: (): Array<string> => {
           const result = TaxRate.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -18576,8 +18576,8 @@ export namespace TaxRate {
         },
         validate: (): Array<string> => {
           const result = TaxRate.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "name")
               .map((e) => e.message);
@@ -18604,8 +18604,8 @@ export namespace TaxRate {
         },
         validate: (): Array<string> => {
           const result = TaxRate.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "taxAgency")
               .map((e) => e.message);
@@ -18632,8 +18632,8 @@ export namespace TaxRate {
         },
         validate: (): Array<string> => {
           const result = TaxRate.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "zip")
               .map((e) => e.message);
@@ -18660,8 +18660,8 @@ export namespace TaxRate {
         },
         validate: (): Array<string> => {
           const result = TaxRate.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "city")
               .map((e) => e.message);
@@ -18688,8 +18688,8 @@ export namespace TaxRate {
         },
         validate: (): Array<string> => {
           const result = TaxRate.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "county")
               .map((e) => e.message);
@@ -18716,8 +18716,8 @@ export namespace TaxRate {
         },
         validate: (): Array<string> => {
           const result = TaxRate.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "state")
               .map((e) => e.message);
@@ -18744,8 +18744,8 @@ export namespace TaxRate {
         },
         validate: (): Array<string> => {
           const result = TaxRate.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "isActive")
               .map((e) => e.message);
@@ -18772,8 +18772,8 @@ export namespace TaxRate {
         },
         validate: (): Array<string> => {
           const result = TaxRate.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "description")
               .map((e) => e.message);
@@ -18800,8 +18800,8 @@ export namespace TaxRate {
         },
         validate: (): Array<string> => {
           const result = TaxRate.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "taxComponents")
               .map((e) => e.message);
@@ -19087,8 +19087,8 @@ export namespace Address {
         },
         validate: (): Array<string> => {
           const result = Address.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "street")
               .map((e) => e.message);
@@ -19115,8 +19115,8 @@ export namespace Address {
         },
         validate: (): Array<string> => {
           const result = Address.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "city")
               .map((e) => e.message);
@@ -19143,8 +19143,8 @@ export namespace Address {
         },
         validate: (): Array<string> => {
           const result = Address.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "state")
               .map((e) => e.message);
@@ -19171,8 +19171,8 @@ export namespace Address {
         },
         validate: (): Array<string> => {
           const result = Address.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "zipcode")
               .map((e) => e.message);
@@ -19942,8 +19942,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -19970,8 +19970,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "number")
               .map((e) => e.message);
@@ -19998,8 +19998,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "accepted")
               .map((e) => e.message);
@@ -20026,8 +20026,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "probability")
               .map((e) => e.message);
@@ -20054,8 +20054,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "priority")
               .map((e) => e.message);
@@ -20082,8 +20082,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "dueDate")
               .map((e) => e.message);
@@ -20110,8 +20110,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "closeDate")
               .map((e) => e.message);
@@ -20138,8 +20138,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "value")
               .map((e) => e.message);
@@ -20166,8 +20166,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "stage")
               .map((e) => e.message);
@@ -20194,8 +20194,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "status")
               .map((e) => e.message);
@@ -20222,8 +20222,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "description")
               .map((e) => e.message);
@@ -20250,8 +20250,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "nextStep")
               .map((e) => e.message);
@@ -20278,8 +20278,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "favorite")
               .map((e) => e.message);
@@ -20306,8 +20306,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "dateAdded")
               .map((e) => e.message);
@@ -20334,8 +20334,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "taxRate")
               .map((e) => e.message);
@@ -20362,8 +20362,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "sector")
               .map((e) => e.message);
@@ -20390,8 +20390,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "leadName")
               .map((e) => e.message);
@@ -20418,8 +20418,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "phones")
               .map((e) => e.message);
@@ -20476,8 +20476,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "email")
               .map((e) => e.message);
@@ -20504,8 +20504,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "leadSource")
               .map((e) => e.message);
@@ -20532,8 +20532,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "site")
               .map((e) => e.message);
@@ -20560,8 +20560,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "memo")
               .map((e) => e.message);
@@ -20588,8 +20588,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "needsReview")
               .map((e) => e.message);
@@ -20616,8 +20616,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "hasAlert")
               .map((e) => e.message);
@@ -20644,8 +20644,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "salesRep")
               .map((e) => e.message);
@@ -20672,8 +20672,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "color")
               .map((e) => e.message);
@@ -20700,8 +20700,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "accountType")
               .map((e) => e.message);
@@ -20728,8 +20728,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "subtype")
               .map((e) => e.message);
@@ -20756,8 +20756,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "isTaxExempt")
               .map((e) => e.message);
@@ -20784,8 +20784,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "paymentTerms")
               .map((e) => e.message);
@@ -20812,8 +20812,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "tags")
               .map((e) => e.message);
@@ -20870,8 +20870,8 @@ export namespace Lead {
         },
         validate: (): Array<string> => {
           const result = Lead.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "customFields")
               .map((e) => e.message);
@@ -21419,8 +21419,8 @@ export namespace AppPermissions {
         },
         validate: (): Array<string> => {
           const result = AppPermissions.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "applications")
               .map((e) => e.message);
@@ -21481,8 +21481,8 @@ export namespace AppPermissions {
         },
         validate: (): Array<string> => {
           const result = AppPermissions.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "pages")
               .map((e) => e.message);
@@ -21539,8 +21539,8 @@ export namespace AppPermissions {
         },
         validate: (): Array<string> => {
           const result = AppPermissions.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "data")
               .map((e) => e.message);
@@ -22344,8 +22344,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -22372,8 +22372,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "legalName")
               .map((e) => e.message);
@@ -22400,8 +22400,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "headquarters")
               .map((e) => e.message);
@@ -22428,8 +22428,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "phones")
               .map((e) => e.message);
@@ -22486,8 +22486,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "fax")
               .map((e) => e.message);
@@ -22514,8 +22514,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "email")
               .map((e) => e.message);
@@ -22542,8 +22542,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "website")
               .map((e) => e.message);
@@ -22570,8 +22570,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "taxId")
               .map((e) => e.message);
@@ -22598,8 +22598,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "referenceNumber")
               .map((e) => e.message);
@@ -22626,8 +22626,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "postalCodeLookup")
               .map((e) => e.message);
@@ -22654,8 +22654,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "timeZone")
               .map((e) => e.message);
@@ -22682,8 +22682,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "defaultTax")
               .map((e) => e.message);
@@ -22710,8 +22710,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "defaultTaxLocation")
               .map((e) => e.message);
@@ -22738,8 +22738,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "defaultAreaCode")
               .map((e) => e.message);
@@ -22766,8 +22766,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "defaultAccountType")
               .map((e) => e.message);
@@ -22794,8 +22794,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "lookupFormatting")
               .map((e) => e.message);
@@ -22822,8 +22822,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "accountNameFormat")
               .map((e) => e.message);
@@ -22850,8 +22850,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "merchantServiceProvider")
               .map((e) => e.message);
@@ -22878,8 +22878,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "dateDisplayStyle")
               .map((e) => e.message);
@@ -22906,8 +22906,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "hasAutoCommission")
               .map((e) => e.message);
@@ -22934,8 +22934,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "hasAutoDaylightSavings")
               .map((e) => e.message);
@@ -22962,8 +22962,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "hasAutoFmsTracking")
               .map((e) => e.message);
@@ -22990,8 +22990,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "hasNotifications")
               .map((e) => e.message);
@@ -23018,8 +23018,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "hasRequiredLeadSource")
               .map((e) => e.message);
@@ -23046,8 +23046,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "hasRequiredEmail")
               .map((e) => e.message);
@@ -23074,8 +23074,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "hasSortServiceItemsAlphabetically")
               .map((e) => e.message);
@@ -23102,8 +23102,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "hasAttachOrderToAppointmentEmails")
               .map((e) => e.message);
@@ -23130,8 +23130,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "scheduleInterval")
               .map((e) => e.message);
@@ -23158,8 +23158,8 @@ export namespace Company {
         },
         validate: (): Array<string> => {
           const result = Company.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "colorsConfig")
               .map((e) => e.message);
@@ -23643,8 +23643,8 @@ export namespace Ordinal {
         },
         validate: (): Array<string> => {
           const result = Ordinal.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "north")
               .map((e) => e.message);
@@ -23671,8 +23671,8 @@ export namespace Ordinal {
         },
         validate: (): Array<string> => {
           const result = Ordinal.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "northeast")
               .map((e) => e.message);
@@ -23699,8 +23699,8 @@ export namespace Ordinal {
         },
         validate: (): Array<string> => {
           const result = Ordinal.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "east")
               .map((e) => e.message);
@@ -23727,8 +23727,8 @@ export namespace Ordinal {
         },
         validate: (): Array<string> => {
           const result = Ordinal.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "southeast")
               .map((e) => e.message);
@@ -23755,8 +23755,8 @@ export namespace Ordinal {
         },
         validate: (): Array<string> => {
           const result = Ordinal.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "south")
               .map((e) => e.message);
@@ -23783,8 +23783,8 @@ export namespace Ordinal {
         },
         validate: (): Array<string> => {
           const result = Ordinal.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "southwest")
               .map((e) => e.message);
@@ -23811,8 +23811,8 @@ export namespace Ordinal {
         },
         validate: (): Array<string> => {
           const result = Ordinal.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "west")
               .map((e) => e.message);
@@ -23839,8 +23839,8 @@ export namespace Ordinal {
         },
         validate: (): Array<string> => {
           const result = Ordinal.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "northwest")
               .map((e) => e.message);
@@ -24116,8 +24116,8 @@ export namespace Password {
         },
         validate: (): Array<string> => {
           const result = Password.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "password")
               .map((e) => e.message);
@@ -24357,8 +24357,8 @@ export namespace Created {
         },
         validate: (): Array<string> => {
           const result = Created.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "initialData")
               .map((e) => e.message);
@@ -24871,8 +24871,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -24899,8 +24899,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "imageUrl")
               .map((e) => e.message);
@@ -24927,8 +24927,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "name")
               .map((e) => e.message);
@@ -24955,8 +24955,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "phones")
               .map((e) => e.message);
@@ -25013,8 +25013,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "role")
               .map((e) => e.message);
@@ -25041,8 +25041,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "title")
               .map((e) => e.message);
@@ -25069,8 +25069,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "email")
               .map((e) => e.message);
@@ -25097,8 +25097,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "address")
               .map((e) => e.message);
@@ -25125,8 +25125,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "username")
               .map((e) => e.message);
@@ -25153,8 +25153,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "route")
               .map((e) => e.message);
@@ -25181,8 +25181,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "ratePerHour")
               .map((e) => e.message);
@@ -25209,8 +25209,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "active")
               .map((e) => e.message);
@@ -25237,8 +25237,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "isTechnician")
               .map((e) => e.message);
@@ -25265,8 +25265,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "isSalesRep")
               .map((e) => e.message);
@@ -25293,8 +25293,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "description")
               .map((e) => e.message);
@@ -25321,8 +25321,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "linkedinUrl")
               .map((e) => e.message);
@@ -25349,8 +25349,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "attendance")
               .map((e) => e.message);
@@ -25411,8 +25411,8 @@ export namespace Employee {
         },
         validate: (): Array<string> => {
           const result = Employee.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "settings")
               .map((e) => e.message);
@@ -25784,8 +25784,8 @@ export namespace Commissions {
         },
         validate: (): Array<string> => {
           const result = Commissions.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "technician")
               .map((e) => e.message);
@@ -25812,8 +25812,8 @@ export namespace Commissions {
         },
         validate: (): Array<string> => {
           const result = Commissions.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "salesRep")
               .map((e) => e.message);
@@ -26068,8 +26068,8 @@ export namespace Number {
         },
         validate: (): Array<string> => {
           const result = Number.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "countryCode")
               .map((e) => e.message);
@@ -26096,8 +26096,8 @@ export namespace Number {
         },
         validate: (): Array<string> => {
           const result = Number.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "areaCode")
               .map((e) => e.message);
@@ -26124,8 +26124,8 @@ export namespace Number {
         },
         validate: (): Array<string> => {
           const result = Number.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "localNumber")
               .map((e) => e.message);
@@ -26380,8 +26380,8 @@ export namespace DataPath {
         },
         validate: (): Array<string> => {
           const result = DataPath.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "path")
               .map((e) => e.message);
@@ -26438,8 +26438,8 @@ export namespace DataPath {
         },
         validate: (): Array<string> => {
           const result = DataPath.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "formatter")
               .map((e) => e.message);
@@ -26833,8 +26833,8 @@ export namespace Route {
         },
         validate: (): Array<string> => {
           const result = Route.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -26861,8 +26861,8 @@ export namespace Route {
         },
         validate: (): Array<string> => {
           const result = Route.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "techs")
               .map((e) => e.message);
@@ -26889,8 +26889,8 @@ export namespace Route {
         },
         validate: (): Array<string> => {
           const result = Route.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "active")
               .map((e) => e.message);
@@ -26917,8 +26917,8 @@ export namespace Route {
         },
         validate: (): Array<string> => {
           const result = Route.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "name")
               .map((e) => e.message);
@@ -26945,8 +26945,8 @@ export namespace Route {
         },
         validate: (): Array<string> => {
           const result = Route.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "phone")
               .map((e) => e.message);
@@ -26973,8 +26973,8 @@ export namespace Route {
         },
         validate: (): Array<string> => {
           const result = Route.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "position")
               .map((e) => e.message);
@@ -27001,8 +27001,8 @@ export namespace Route {
         },
         validate: (): Array<string> => {
           const result = Route.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "serviceRoute")
               .map((e) => e.message);
@@ -27029,8 +27029,8 @@ export namespace Route {
         },
         validate: (): Array<string> => {
           const result = Route.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "defaultDurationHours")
               .map((e) => e.message);
@@ -27057,8 +27057,8 @@ export namespace Route {
         },
         validate: (): Array<string> => {
           const result = Route.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "tags")
               .map((e) => e.message);
@@ -27115,8 +27115,8 @@ export namespace Route {
         },
         validate: (): Array<string> => {
           const result = Route.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "icon")
               .map((e) => e.message);
@@ -27143,8 +27143,8 @@ export namespace Route {
         },
         validate: (): Array<string> => {
           const result = Route.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "color")
               .map((e) => e.message);
@@ -27435,8 +27435,8 @@ export namespace EmailParts {
         },
         validate: (): Array<string> => {
           const result = EmailParts.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "local")
               .map((e) => e.message);
@@ -27463,8 +27463,8 @@ export namespace EmailParts {
         },
         validate: (): Array<string> => {
           const result = EmailParts.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "domainName")
               .map((e) => e.message);
@@ -27491,8 +27491,8 @@ export namespace EmailParts {
         },
         validate: (): Array<string> => {
           const result = EmailParts.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "topLevelDomain")
               .map((e) => e.message);
@@ -27749,8 +27749,8 @@ export namespace Sent {
         },
         validate: (): Array<string> => {
           const result = Sent.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "recipient")
               .map((e) => e.message);
@@ -27777,8 +27777,8 @@ export namespace Sent {
         },
         validate: (): Array<string> => {
           const result = Sent.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "method")
               .map((e) => e.message);
@@ -28059,8 +28059,8 @@ export namespace BilledItem {
         },
         validate: (): Array<string> => {
           const result = BilledItem.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "item")
               .map((e) => e.message);
@@ -28087,8 +28087,8 @@ export namespace BilledItem {
         },
         validate: (): Array<string> => {
           const result = BilledItem.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "quantity")
               .map((e) => e.message);
@@ -28115,8 +28115,8 @@ export namespace BilledItem {
         },
         validate: (): Array<string> => {
           const result = BilledItem.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "taxed")
               .map((e) => e.message);
@@ -28143,8 +28143,8 @@ export namespace BilledItem {
         },
         validate: (): Array<string> => {
           const result = BilledItem.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "upsale")
               .map((e) => e.message);
@@ -28424,8 +28424,8 @@ export namespace Coordinates {
         },
         validate: (): Array<string> => {
           const result = Coordinates.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "lat")
               .map((e) => e.message);
@@ -28452,8 +28452,8 @@ export namespace Coordinates {
         },
         validate: (): Array<string> => {
           const result = Coordinates.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "lng")
               .map((e) => e.message);
@@ -28730,8 +28730,8 @@ export namespace Ordered {
         },
         validate: (): Array<string> => {
           const result = Ordered.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "id")
               .map((e) => e.message);
@@ -28758,8 +28758,8 @@ export namespace Ordered {
         },
         validate: (): Array<string> => {
           const result = Ordered.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "in")
               .map((e) => e.message);
@@ -28786,8 +28786,8 @@ export namespace Ordered {
         },
         validate: (): Array<string> => {
           const result = Ordered.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "out")
               .map((e) => e.message);
@@ -28814,8 +28814,8 @@ export namespace Ordered {
         },
         validate: (): Array<string> => {
           const result = Ordered.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "date")
               .map((e) => e.message);
@@ -29060,8 +29060,8 @@ export namespace Email {
         },
         validate: (): Array<string> => {
           const result = Email.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "canEmail")
               .map((e) => e.message);
@@ -29088,8 +29088,8 @@ export namespace Email {
         },
         validate: (): Array<string> => {
           const result = Email.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "emailString")
               .map((e) => e.message);
@@ -29428,8 +29428,8 @@ export namespace RecurrenceRule {
         },
         validate: (): Array<string> => {
           const result = RecurrenceRule.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "interval")
               .map((e) => e.message);
@@ -29456,8 +29456,8 @@ export namespace RecurrenceRule {
         },
         validate: (): Array<string> => {
           const result = RecurrenceRule.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "recurrenceBegins")
               .map((e) => e.message);
@@ -29484,8 +29484,8 @@ export namespace RecurrenceRule {
         },
         validate: (): Array<string> => {
           const result = RecurrenceRule.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "recurrenceEnds")
               .map((e) => e.message);
@@ -29512,8 +29512,8 @@ export namespace RecurrenceRule {
         },
         validate: (): Array<string> => {
           const result = RecurrenceRule.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "cancelledInstances")
               .map((e) => e.message);
@@ -29540,8 +29540,8 @@ export namespace RecurrenceRule {
         },
         validate: (): Array<string> => {
           const result = RecurrenceRule.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "additionalInstances")
               .map((e) => e.message);
@@ -29798,8 +29798,8 @@ export namespace LastName {
         },
         validate: (): Array<string> => {
           const result = LastName.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "name")
               .map((e) => e.message);
@@ -30065,8 +30065,8 @@ export namespace Cardinal {
         },
         validate: (): Array<string> => {
           const result = Cardinal.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "north")
               .map((e) => e.message);
@@ -30093,8 +30093,8 @@ export namespace Cardinal {
         },
         validate: (): Array<string> => {
           const result = Cardinal.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "east")
               .map((e) => e.message);
@@ -30121,8 +30121,8 @@ export namespace Cardinal {
         },
         validate: (): Array<string> => {
           const result = Cardinal.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "south")
               .map((e) => e.message);
@@ -30149,8 +30149,8 @@ export namespace Cardinal {
         },
         validate: (): Array<string> => {
           const result = Cardinal.fromObject(data);
-          if (result.isErr()) {
-            const allErrors = result.unwrapErr();
+          if (Result.isErr(result)) {
+            const allErrors = Result.unwrapErr(result);
             return allErrors
               .filter((e) => e.field === "west")
               .map((e) => e.message);
