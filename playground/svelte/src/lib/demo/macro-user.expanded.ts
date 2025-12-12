@@ -1,5 +1,5 @@
 import { SerializeContext } from "macroforge/serde";
-import { Result } from "../../../../../crates/macroforge_ts/js/utils";
+import { Result } from "macroforge/utils";
 import { DeserializeContext } from "macroforge/serde";
 import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";

@@ -523,8 +523,8 @@ fn generate_field_validate_function(field_name: &str, interface_name: &str) -> S
     format!(
         r#"validate: (): Array<string> => {{
                         const result = {interface_name}.fromObject(data);
-                        if (result.isErr()) {{
-                            const allErrors = result.unwrapErr();
+                        if (Result.isErr(result)) {{
+                            const allErrors = Result.unwrapErr(result);
                             return allErrors.filter(e => e.field === "{field_name}").map(e => e.message);
                         }}
                         return [];
