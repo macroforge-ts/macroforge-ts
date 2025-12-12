@@ -1,6 +1,6 @@
 //! Parses Gigaform decorators and field configurations from TypeScript interfaces.
 
-use macroforge_ts::ts_syn::{DataInterface, DeriveInput, InterfaceFieldIR};
+use macroforge_ts::ts_syn::{Attribute, DataClass, DataInterface, DeriveInput, FieldIR, InterfaceFieldIR, Visibility};
 use serde::Deserialize;
 
 /// Container-level options from `@gigaform({ ... })` decorator.
@@ -33,6 +33,65 @@ pub struct GigaformFieldOptions {
     /// i18n key for field placeholder
     pub placeholder_key: Option<String>,
 }
+
+// =============================================================================
+// Union Configuration Types
+// =============================================================================
+
+/// Configuration for a discriminated union form.
+#[derive(Debug, Clone)]
+pub struct UnionConfig {
+    /// How the union is discriminated
+    pub mode: UnionMode,
+    /// Per-variant configurations
+    pub variants: Vec<UnionVariantConfig>,
+}
+
+/// How a union is discriminated.
+#[derive(Debug, Clone)]
+pub enum UnionMode {
+    /// Tagged union with explicit discriminant field: @serde({ tag: "kind" })
+    Tagged { field: String },
+    /// Untagged union - infer variant from structure: @serde({ untagged: true })
+    Untagged,
+}
+
+/// Configuration for a single union variant.
+#[derive(Debug, Clone)]
+pub struct UnionVariantConfig {
+    /// The discriminant value for this variant (e.g., "card", "bank")
+    pub discriminant_value: String,
+    /// Fields specific to this variant
+    pub fields: Vec<ParsedField>,
+}
+
+// =============================================================================
+// Enum Configuration Types
+// =============================================================================
+
+/// Configuration for an enum step/variant form.
+#[derive(Debug, Clone)]
+pub struct EnumFormConfig {
+    /// Parsed variants with their metadata
+    pub variants: Vec<EnumVariantFormConfig>,
+}
+
+/// Configuration for a single enum variant.
+#[derive(Debug, Clone)]
+pub struct EnumVariantFormConfig {
+    /// Variant name (e.g., "PersonalInfo")
+    pub name: String,
+    /// Display label (Title Case of name, e.g., "Personal Info")
+    pub label: String,
+    /// Optional description from @gigaform({ description: "..." })
+    pub description: Option<String>,
+    /// The enum value expression (for accessing EnumName.VariantName)
+    pub value_expr: String,
+}
+
+// =============================================================================
+// Field Configuration Types
+// =============================================================================
 
 /// Parsed field information with all metadata.
 #[derive(Debug, Clone)]
@@ -404,29 +463,230 @@ pub fn parse_fields(interface: &DataInterface, _options: &GigaformOptions) -> Ve
     interface
         .fields()
         .iter()
-        .map(parse_field)
+        .map(parse_interface_field)
         .collect()
 }
 
-/// Parses a single field.
-fn parse_field(field: &InterfaceFieldIR) -> ParsedField {
-    let name = field.name.clone();
-    let ts_type = field.ts_type.clone();
-    let optional = field.optional;
+/// Parses all fields from a class (public fields only).
+pub fn parse_fields_from_class(class: &DataClass, _options: &GigaformOptions) -> Vec<ParsedField> {
+    class
+        .fields()
+        .iter()
+        .filter(|f| f.visibility == Visibility::Public)
+        .map(parse_class_field)
+        .collect()
+}
+
+/// Parses all fields from a type alias object body.
+pub fn parse_fields_from_type_alias(fields: &[InterfaceFieldIR], _options: &GigaformOptions) -> Vec<ParsedField> {
+    fields.iter().map(parse_interface_field).collect()
+}
+
+/// Creates a synthetic field for non-object type aliases (e.g., `type ID = string` → field "0").
+/// This allows treating scalar type aliases as single-field forms.
+pub fn create_synthetic_field(
+    field_name: &str,
+    inner_type: &str,
+    container_attrs: &[Attribute],
+    _options: &GigaformOptions,
+) -> Vec<ParsedField> {
+    // Convert Attributes to DecoratorIRs for the synthetic field
+    // (e.g., @serde validators on the type alias apply to field "0")
+    let decorators: Vec<_> = container_attrs.iter().map(|a| a.inner.clone()).collect();
+    let field = parse_field_common(field_name, inner_type, false, &decorators);
+    vec![field]
+}
+
+// =============================================================================
+// Union Parsing Functions
+// =============================================================================
+
+/// Parses a discriminated union type alias.
+/// Returns UnionConfig if successfully parsed, or an error message.
+pub fn parse_union_config(
+    members: &[macroforge_ts::ts_syn::TypeMember],
+    container_attrs: &[Attribute],
+    _options: &GigaformOptions,
+) -> Result<UnionConfig, String> {
+    // Check for @serde({ tag: "..." }) or @serde({ untagged: true })
+    let serde_opts = parse_serde_container_options(container_attrs);
+
+    let mode = if let Some(tag_field) = serde_opts.tag {
+        UnionMode::Tagged { field: tag_field }
+    } else if serde_opts.untagged {
+        UnionMode::Untagged
+    } else {
+        return Err("Union types require @serde({ tag: \"fieldName\" }) or @serde({ untagged: true })".to_string());
+    };
+
+    // Parse variants based on mode
+    let variants = match &mode {
+        UnionMode::Tagged { field } => parse_tagged_union_variants(members, field)?,
+        UnionMode::Untagged => parse_untagged_union_variants(members)?,
+    };
+
+    Ok(UnionConfig { mode, variants })
+}
+
+/// Serde container-level options relevant to unions.
+#[derive(Debug, Default)]
+struct SerdeContainerOpts {
+    tag: Option<String>,
+    untagged: bool,
+}
+
+/// Parses @serde({ tag: "...", untagged: true }) from container attributes.
+fn parse_serde_container_options(attrs: &[Attribute]) -> SerdeContainerOpts {
+    let mut opts = SerdeContainerOpts::default();
+
+    for attr in attrs {
+        if attr.name() == "serde" {
+            let json = parse_decorator_args(&attr.inner.args_src);
+            if let Some(tag) = json.get("tag").and_then(|v| v.as_str()) {
+                opts.tag = Some(tag.to_string());
+            }
+            if let Some(untagged) = json.get("untagged").and_then(|v| v.as_bool()) {
+                opts.untagged = untagged;
+            }
+        }
+    }
+
+    opts
+}
+
+/// Parses variants from a tagged union.
+fn parse_tagged_union_variants(
+    members: &[macroforge_ts::ts_syn::TypeMember],
+    tag_field: &str,
+) -> Result<Vec<UnionVariantConfig>, String> {
+    let mut variants = Vec::new();
+
+    for member in members {
+        let fields = member.as_object().ok_or_else(|| {
+            "Tagged union variants must be object types".to_string()
+        })?;
+
+        // Find the discriminant field
+        let discriminant_field = fields.iter()
+            .find(|f| f.name == tag_field)
+            .ok_or_else(|| format!("Variant missing discriminant field '{}'", tag_field))?;
+
+        // Extract literal value from the discriminant field type (e.g., `"card"` from `type: "card"`)
+        let discriminant_value = extract_literal_from_type(&discriminant_field.ts_type)
+            .ok_or_else(|| format!("Discriminant field '{}' must have a literal type", tag_field))?;
+
+        // Parse other fields (excluding the discriminant)
+        let variant_fields: Vec<ParsedField> = fields.iter()
+            .filter(|f| f.name != tag_field)
+            .map(parse_interface_field)
+            .collect();
+
+        variants.push(UnionVariantConfig {
+            discriminant_value,
+            fields: variant_fields,
+        });
+    }
+
+    Ok(variants)
+}
+
+/// Parses variants from an untagged union (infer by unique fields).
+fn parse_untagged_union_variants(
+    members: &[macroforge_ts::ts_syn::TypeMember],
+) -> Result<Vec<UnionVariantConfig>, String> {
+    // For untagged unions, we use the first unique field of each variant as an identifier
+    let mut variants = Vec::new();
+    let mut all_field_names: Vec<Vec<String>> = Vec::new();
+
+    // First pass: collect all field names per variant
+    for member in members {
+        let fields = member.as_object().ok_or_else(|| {
+            "Untagged union variants must be object types".to_string()
+        })?;
+        all_field_names.push(fields.iter().map(|f| f.name.clone()).collect());
+    }
+
+    // Second pass: find unique field for each variant
+    for (i, member) in members.iter().enumerate() {
+        let fields = member.as_object().unwrap();
+        let my_fields = &all_field_names[i];
+
+        // Find a field that's unique to this variant
+        let unique_field = my_fields.iter().find(|field_name| {
+            all_field_names.iter().enumerate()
+                .filter(|(j, _)| *j != i)
+                .all(|(_, other_fields)| !other_fields.contains(field_name))
+        });
+
+        let discriminant_value = unique_field
+            .ok_or_else(|| "Untagged union variants must be distinguishable by unique fields".to_string())?
+            .clone();
+
+        let variant_fields: Vec<ParsedField> = fields.iter()
+            .map(parse_interface_field)
+            .collect();
+
+        variants.push(UnionVariantConfig {
+            discriminant_value,
+            fields: variant_fields,
+        });
+    }
+
+    Ok(variants)
+}
+
+/// Extracts a literal string value from a TypeScript type annotation.
+/// e.g., `"card"` -> Some("card"), `string` -> None
+fn extract_literal_from_type(ts_type: &str) -> Option<String> {
+    let trimmed = ts_type.trim();
+
+    // Check for string literal: "value" or 'value'
+    if (trimmed.starts_with('"') && trimmed.ends_with('"'))
+        || (trimmed.starts_with('\'') && trimmed.ends_with('\''))
+    {
+        return Some(trimmed[1..trimmed.len()-1].to_string());
+    }
+
+    None
+}
+
+// =============================================================================
+// Field Parsing Functions
+// =============================================================================
+
+/// Parses a single interface field.
+fn parse_interface_field(field: &InterfaceFieldIR) -> ParsedField {
+    parse_field_common(&field.name, &field.ts_type, field.optional, &field.decorators)
+}
+
+/// Parses a single class field.
+fn parse_class_field(field: &FieldIR) -> ParsedField {
+    parse_field_common(&field.name, &field.ts_type, field.optional, &field.decorators)
+}
+
+/// Common field parsing logic shared by interface and class fields.
+fn parse_field_common(
+    name: &str,
+    ts_type: &str,
+    optional: bool,
+    decorators: &[macroforge_ts::ts_syn::DecoratorIR],
+) -> ParsedField {
+    let name = name.to_string();
+    let ts_type = ts_type.to_string();
 
     // Determine if this is a nested or array type
     let (is_nested, nested_type) = detect_nested_type(&ts_type);
     let (is_array, array_element_type) = detect_array_type(&ts_type);
 
     // Parse @serde validators
-    let validators = parse_serde_validators(field);
+    let validators = parse_serde_validators_from_decorators(decorators);
 
     // Parse @gigaform field options
-    let field_options = parse_gigaform_field_options(field);
+    let field_options = parse_gigaform_field_options_from_decorators(decorators);
     let async_validators = field_options.validate_async.clone().unwrap_or_default();
 
     // Parse controller
-    let controller = parse_field_controller(field);
+    let controller = parse_field_controller_from_decorators(decorators, &ts_type);
 
     ParsedField {
         name,
@@ -519,11 +779,11 @@ fn detect_array_type(ts_type: &str) -> (bool, Option<String>) {
     (false, None)
 }
 
-/// Parses @serde({ validate: [...] }) validators from a field.
-fn parse_serde_validators(field: &InterfaceFieldIR) -> Vec<ValidatorSpec> {
+/// Parses @serde({ validate: [...] }) validators from decorators.
+fn parse_serde_validators_from_decorators(decorators: &[macroforge_ts::ts_syn::DecoratorIR]) -> Vec<ValidatorSpec> {
     let mut validators = Vec::new();
 
-    for decorator in &field.decorators {
+    for decorator in decorators {
         if decorator.name == "serde" {
             let json_value = parse_decorator_args(&decorator.args_src);
             if let Some(validate_array) = json_value.get("validate").and_then(|v| v.as_array()) {
@@ -603,9 +863,9 @@ fn parse_validator_args(args_str: &str) -> Vec<String> {
         .collect()
 }
 
-/// Parses @gigaform field-level options.
-fn parse_gigaform_field_options(field: &InterfaceFieldIR) -> GigaformFieldOptions {
-    for decorator in &field.decorators {
+/// Parses @gigaform field-level options from decorators.
+fn parse_gigaform_field_options_from_decorators(decorators: &[macroforge_ts::ts_syn::DecoratorIR]) -> GigaformFieldOptions {
+    for decorator in decorators {
         if decorator.name == "gigaform" {
             let json_value = parse_decorator_args(&decorator.args_src);
             if let Ok(opts) = serde_json::from_value(json_value) {
@@ -616,12 +876,15 @@ fn parse_gigaform_field_options(field: &InterfaceFieldIR) -> GigaformFieldOption
     GigaformFieldOptions::default()
 }
 
-/// Parses a field's controller decorator.
-pub fn parse_field_controller(field: &InterfaceFieldIR) -> Option<ParsedController> {
+/// Parses a field's controller decorator from decorators.
+fn parse_field_controller_from_decorators(
+    decorators: &[macroforge_ts::ts_syn::DecoratorIR],
+    ts_type: &str,
+) -> Option<ParsedController> {
     // Check each controller type's decorator
     for controller_type in ControllerType::all() {
         let decorator_name = controller_type.decorator_name();
-        if let Some(decorator) = field.decorators.iter().find(|d| d.name == decorator_name) {
+        if let Some(decorator) = decorators.iter().find(|d| d.name == decorator_name) {
             let json_value = parse_decorator_args(&decorator.args_src);
             let options = deserialize_controller_options(*controller_type, json_value);
             return Some(ParsedController { options });
@@ -629,7 +892,7 @@ pub fn parse_field_controller(field: &InterfaceFieldIR) -> Option<ParsedControll
     }
 
     // Fallback: infer controller type from TypeScript type
-    infer_controller_from_type(&field.ts_type)
+    infer_controller_from_type(ts_type)
 }
 
 /// Deserializes JSON into the appropriate controller options struct.
@@ -794,6 +1057,94 @@ fn convert_js_object_to_json(js_obj: &str) -> String {
                 }
             }
             _ => result.push(c),
+        }
+    }
+
+    result
+}
+
+// =============================================================================
+// Enum Parsing Functions
+// =============================================================================
+
+use macroforge_ts::ts_syn::EnumIR;
+
+/// Parses an enum into form configuration.
+pub fn parse_enum_config(enum_ir: &EnumIR) -> EnumFormConfig {
+    let variants = enum_ir
+        .variants
+        .iter()
+        .map(|variant| {
+            // Try to get custom label from @gigaform({ label: "..." }) decorator
+            let label = parse_variant_label(&variant.decorators).unwrap_or_else(|| {
+                to_title_case(&variant.name)
+            });
+
+            // Try to get description from @gigaform({ description: "..." }) decorator
+            let description = parse_variant_description(&variant.decorators);
+
+            EnumVariantFormConfig {
+                name: variant.name.clone(),
+                label,
+                description,
+                value_expr: format!("{}.{}", enum_ir.name, variant.name),
+            }
+        })
+        .collect();
+
+    EnumFormConfig { variants }
+}
+
+/// Parses a custom label from @gigaform decorator on a variant.
+fn parse_variant_label(decorators: &[macroforge_ts::ts_syn::DecoratorIR]) -> Option<String> {
+    for decorator in decorators {
+        if decorator.name == "gigaform" {
+            let json_value = parse_decorator_args(&decorator.args_src);
+            if let Some(label) = json_value.get("label").and_then(|v| v.as_str()) {
+                return Some(label.to_string());
+            }
+        }
+    }
+    None
+}
+
+/// Parses a description from @gigaform decorator on a variant.
+fn parse_variant_description(decorators: &[macroforge_ts::ts_syn::DecoratorIR]) -> Option<String> {
+    for decorator in decorators {
+        if decorator.name == "gigaform" {
+            let json_value = parse_decorator_args(&decorator.args_src);
+            if let Some(desc) = json_value.get("description").and_then(|v| v.as_str()) {
+                return Some(desc.to_string());
+            }
+        }
+    }
+    None
+}
+
+/// Converts a PascalCase or camelCase identifier to Title Case.
+/// e.g., "PersonalInfo" -> "Personal Info", "firstName" -> "First Name"
+pub fn to_title_case(s: &str) -> String {
+    let mut result = String::new();
+    let mut prev_was_upper = false;
+
+    for (i, c) in s.chars().enumerate() {
+        if c.is_uppercase() {
+            // Add space before uppercase if not at start and previous wasn't uppercase
+            if i > 0 && !prev_was_upper {
+                result.push(' ');
+            }
+            // Also add space if this uppercase follows uppercase but next is lowercase
+            // e.g., "HTMLParser" -> "HTML Parser"
+            result.push(c);
+            prev_was_upper = true;
+        } else {
+            // Lowercase first char should be uppercased
+            if i == 0 {
+                result.push(c.to_ascii_uppercase());
+            } else {
+                result.push(c);
+            }
+            prev_was_upper = false;
         }
     }
 

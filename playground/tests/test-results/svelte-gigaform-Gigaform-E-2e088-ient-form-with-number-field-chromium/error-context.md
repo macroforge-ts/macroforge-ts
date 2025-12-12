@@ -1,0 +1,70 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - heading "Basic Field Operations" [level=1] [ref=e3]
+  - paragraph [ref=e4]: Testing PhoneNumber, Gradient, and Coordinates forms with basic field types.
+  - link "← Back to Gigaform Tests" [ref=e5] [cursor=pointer]:
+    - /url: /gigaform
+  - generic [ref=e6]:
+    - heading "PhoneNumber Form" [level=2] [ref=e7]
+    - paragraph [ref=e8]: "Tests: string fields, boolean fields, required constraints, validation"
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]:
+          - generic [ref=e12]: Phone Type
+          - textbox "Phone Type" [ref=e13]:
+            - /placeholder: Mobile, Home, Work...
+          - generic [ref=e14]: "Tainted: false"
+        - generic [ref=e15]:
+          - generic [ref=e16]: Number
+          - textbox "Number" [ref=e17]:
+            - /placeholder: 555-123-4567
+      - generic [ref=e18]:
+        - generic [ref=e20] [cursor=pointer]:
+          - checkbox "Main Phone" [ref=e21]
+          - text: Main Phone
+        - generic [ref=e23] [cursor=pointer]:
+          - checkbox "Can Text" [ref=e24]
+          - text: Can Text
+        - generic [ref=e26] [cursor=pointer]:
+          - checkbox "Can Call" [ref=e27]
+          - text: Can Call
+      - generic [ref=e28]:
+        - button "Submit" [ref=e29] [cursor=pointer]
+        - button "Reset" [ref=e30] [cursor=pointer]
+        - button "Validate Phone Type" [ref=e31] [cursor=pointer]
+    - generic [ref=e33]:
+      - strong [ref=e34]: "Current Data:"
+      - generic [ref=e35]: "{ \"main\": false, \"phoneType\": \"\", \"number\": \"\", \"canText\": false, \"canCall\": false }"
+  - generic [ref=e36]:
+    - heading "Gradient Form" [level=2] [ref=e37]
+    - paragraph [ref=e38]: "Tests: single number field"
+    - generic [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]: Start Hue (0-360)
+        - spinbutton "Start Hue (0-360)" [ref=e42]: "180"
+      - generic [ref=e43]:
+        - button "Submit" [active] [ref=e44] [cursor=pointer]
+        - button "Reset" [ref=e45] [cursor=pointer]
+    - generic [ref=e47]:
+      - strong [ref=e48]: "Current Data:"
+      - generic [ref=e49]: "{ \"startHue\": 180 }"
+  - generic [ref=e50]:
+    - heading "Coordinates Form" [level=2] [ref=e51]
+    - paragraph [ref=e52]: "Tests: two number fields (lat, lng)"
+    - generic [ref=e53]:
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - generic [ref=e56]: Latitude
+          - spinbutton "Latitude" [ref=e57]: "0"
+        - generic [ref=e58]:
+          - generic [ref=e59]: Longitude
+          - spinbutton "Longitude" [ref=e60]: "0"
+      - generic [ref=e61]:
+        - button "Submit" [ref=e62] [cursor=pointer]
+        - button "Reset" [ref=e63] [cursor=pointer]
+    - generic [ref=e65]:
+      - strong [ref=e66]: "Current Data:"
+      - generic [ref=e67]: "{ \"lat\": 0, \"lng\": 0 }"
+```

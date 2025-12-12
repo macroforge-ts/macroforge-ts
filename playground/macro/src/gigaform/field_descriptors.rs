@@ -3,7 +3,8 @@
 use macroforge_ts::macros::ts_template;
 use macroforge_ts::ts_syn::TsStream;
 
-use crate::gigaform::parser::{BaseControllerOptions, GigaformOptions, ParsedField, ValidatorSpec};
+use crate::gigaform::parser::{BaseControllerOptions, GigaformOptions, ParsedField, UnionConfig, UnionMode, ValidatorSpec};
+use crate::gigaform::GenericInfo;
 
 /// Generates the createForm factory function that returns a Gigaform instance.
 pub fn generate_factory(interface_name: &str, fields: &[ParsedField], options: &GigaformOptions) -> TsStream {
@@ -49,6 +50,221 @@ pub fn generate_factory(interface_name: &str, fields: &[ParsedField], options: &
         }
     }
 }
+
+/// Generates the createForm factory with generic support.
+pub fn generate_factory_with_generics(
+    interface_name: &str,
+    fields: &[ParsedField],
+    options: &GigaformOptions,
+    generics: &GenericInfo,
+) -> TsStream {
+    if generics.is_empty() {
+        return generate_factory(interface_name, fields, options);
+    }
+
+    let field_controllers = generate_field_controllers(fields, options, interface_name);
+    let default_init = generate_default_init(interface_name, options);
+    let generic_decl = generics.decl();
+    let generic_args = generics.args();
+
+    ts_template! {
+        {>> "Creates a new Gigaform instance with reactive state and field controllers." <<}
+        export function createForm@{generic_decl}(overrides?: Partial<@{interface_name}@{generic_args}>): Gigaform@{generic_args} {
+            // Reactive state using Svelte 5 $state
+            let data = $state({ @{default_init}, ...overrides });
+            let errors = $state<Errors@{generic_args}>({});
+            let tainted = $state<Tainted@{generic_args}>({});
+
+            // Field controllers with closures capturing reactive state
+            const fields: FieldControllers@{generic_args} = {
+                @{field_controllers}
+            };
+
+            // Validate the entire form using Deserialize's fromJSON
+            function validate(): Result<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
+                return @{interface_name}.fromJSON@{generic_args}(data);
+            }
+
+            // Reset form to defaults
+            function reset(newOverrides?: Partial<@{interface_name}@{generic_args}>): void {
+                data = { @{default_init}, ...newOverrides };
+                errors = {};
+                tainted = {};
+            }
+
+            return {
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                fields,
+                validate,
+                reset,
+            };
+        }
+    }
+}
+
+// =============================================================================
+// Union Factory Generation
+// =============================================================================
+
+/// Generates the createForm factory for a discriminated union with generic support.
+pub fn generate_union_factory_with_generics(
+    type_name: &str,
+    config: &UnionConfig,
+    options: &GigaformOptions,
+    _generics: &GenericInfo,
+) -> TsStream {
+    // Unions typically don't have type parameters
+    generate_union_factory(type_name, config, options)
+}
+
+/// Generates the createForm factory for a discriminated union.
+pub fn generate_union_factory(type_name: &str, config: &UnionConfig, options: &GigaformOptions) -> TsStream {
+    let variant_literals = config.variants.iter()
+        .map(|v| format!("\"{}\"", v.discriminant_value))
+        .collect::<Vec<_>>()
+        .join(" | ");
+
+    let discriminant_field = match &config.mode {
+        UnionMode::Tagged { field } => field.as_str(),
+        UnionMode::Untagged => "_variant",
+    };
+
+    let first_variant = config.variants.first()
+        .map(|v| v.discriminant_value.as_str())
+        .unwrap_or("unknown");
+
+    let _default_init = generate_default_init(type_name, options);
+
+    // Generate per-variant field controllers
+    let variant_controllers = generate_union_variant_controllers(config, options, type_name);
+
+    // Generate getDefaultForVariant function
+    let default_for_variant = generate_default_for_variant(type_name, config, discriminant_field);
+
+    ts_template! {
+        {>> "Gets default value for a specific variant" <<}
+        @{default_for_variant}
+
+        {>> "Creates a new discriminated union Gigaform with variant switching" <<}
+        export function createForm(initial?: @{type_name}): Gigaform {
+            // Detect initial variant from discriminant
+            const initialVariant: @{variant_literals} = (initial as any)?.@{discriminant_field} ?? "@{first_variant}";
+
+            // Reactive state using Svelte 5 $state
+            let currentVariant = $state<@{variant_literals}>(initialVariant);
+            let data = $state<@{type_name}>(initial ?? getDefaultForVariant(initialVariant));
+            let errors = $state<Errors>({} as Errors);
+            let tainted = $state<Tainted>({} as Tainted);
+
+            // Per-variant field controllers
+            const variants: VariantFields = {
+                @{variant_controllers}
+            };
+
+            // Switch to a different variant
+            function switchVariant(variant: @{variant_literals}): void {
+                currentVariant = variant;
+                data = getDefaultForVariant(variant);
+                errors = {} as Errors;
+                tainted = {} as Tainted;
+            }
+
+            // Validate the entire form
+            function validate(): Result<@{type_name}, Array<{ field: string; message: string }>> {
+                return @{type_name}.fromJSON(data);
+            }
+
+            // Reset form
+            function reset(overrides?: Partial<@{type_name}>): void {
+                data = overrides ? { ...getDefaultForVariant(currentVariant), ...overrides } : getDefaultForVariant(currentVariant);
+                errors = {} as Errors;
+                tainted = {} as Tainted;
+            }
+
+            return {
+                get currentVariant() { return currentVariant; },
+                get data() { return data; },
+                set data(v) { data = v; },
+                get errors() { return errors; },
+                set errors(v) { errors = v; },
+                get tainted() { return tainted; },
+                set tainted(v) { tainted = v; },
+                variants,
+                switchVariant,
+                validate,
+                reset,
+            };
+        }
+    }
+}
+
+/// Generates the getDefaultForVariant function.
+fn generate_default_for_variant(type_name: &str, config: &UnionConfig, discriminant_field: &str) -> String {
+    let cases = config.variants.iter().map(|variant| {
+        let value = &variant.discriminant_value;
+        format!(
+            r#"case "{value}": return {{ {discriminant_field}: "{value}" }} as {type_name};"#
+        )
+    }).collect::<Vec<_>>().join("\n            ");
+
+    let first_value = config.variants.first()
+        .map(|v| v.discriminant_value.as_str())
+        .unwrap_or("unknown");
+
+    format!(
+        r#"function getDefaultForVariant(variant: string): {type_name} {{
+        switch (variant) {{
+            {cases}
+            default: return {{ {discriminant_field}: "{first_value}" }} as {type_name};
+        }}
+    }}"#
+    )
+}
+
+/// Generates per-variant field controllers.
+fn generate_union_variant_controllers(config: &UnionConfig, options: &GigaformOptions, type_name: &str) -> String {
+    config.variants.iter().map(|variant| {
+        let value = &variant.discriminant_value;
+        let variant_name = to_pascal_case(&variant.discriminant_value);
+        let field_controllers = generate_field_controllers(&variant.fields, options, type_name);
+
+        format!(
+            r#"{value}: {{
+                    fields: {{
+                        {field_controllers}
+                    }} as {variant_name}FieldControllers
+                }}"#
+        )
+    }).collect::<Vec<_>>().join(",\n                ")
+}
+
+/// Converts a string to PascalCase.
+fn to_pascal_case(s: &str) -> String {
+    let mut result = String::new();
+    let mut capitalize_next = true;
+
+    for c in s.chars() {
+        if c == '_' || c == '-' || c == ' ' {
+            capitalize_next = true;
+        } else if capitalize_next {
+            result.push(c.to_ascii_uppercase());
+            capitalize_next = false;
+        } else {
+            result.push(c);
+        }
+    }
+
+    result
+}
+
+// =============================================================================
+// Standard Field Factory Generation
+// =============================================================================
 
 /// Generates the default initialization expression.
 fn generate_default_init(interface_name: &str, options: &GigaformOptions) -> String {
@@ -351,4 +567,50 @@ fn build_optional_accessor_path(prefix: &[&str], field_name: &str) -> String {
     let mut parts = prefix.to_vec();
     parts.push(field_name);
     parts.iter().map(|p| format!("?.{p}")).collect()
+}
+
+// =============================================================================
+// Enum Factory Generation
+// =============================================================================
+
+use crate::gigaform::parser::EnumFormConfig;
+
+/// Generates the createForm factory for an enum step form.
+pub fn generate_enum_factory(enum_name: &str, config: &EnumFormConfig) -> TsStream {
+    let first_variant = config
+        .variants
+        .first()
+        .map(|v| v.value_expr.as_str())
+        .unwrap_or("0");
+
+    ts_template! {
+        {>> "Creates a new enum step form with navigation controls" <<}
+        export function createForm(initialStep?: @{enum_name}): Gigaform {
+            let currentStep = $state<@{enum_name}>(initialStep ?? @{first_variant});
+
+            return {
+                get currentStep() { return currentStep; },
+                steps: variants,
+                setStep(step: @{enum_name}): void {
+                    currentStep = step;
+                },
+                nextStep(): boolean {
+                    const idx = variants.findIndex(v => v.value === currentStep);
+                    if (idx < variants.length - 1) {
+                        currentStep = variants[idx + 1].value;
+                        return true;
+                    }
+                    return false;
+                },
+                prevStep(): boolean {
+                    const idx = variants.findIndex(v => v.value === currentStep);
+                    if (idx > 0) {
+                        currentStep = variants[idx - 1].value;
+                        return true;
+                    }
+                    return false;
+                },
+            };
+        }
+    }
 }

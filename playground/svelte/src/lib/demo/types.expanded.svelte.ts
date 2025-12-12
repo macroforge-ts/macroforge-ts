@@ -16,14 +16,38 @@ export interface User {
   lastName: string;
   password: string | null;
   metadata: Metadata | null;
+
   settings: Settings;
+
   role: UserRole;
   emailVerified: boolean;
   verificationToken: string | null;
   verificationExpires: string | null;
   passwordResetToken: string | null;
   passwordResetExpires: string | null;
+
   permissions: AppPermissions;
+}
+
+export namespace User {
+  export function defaultValue(): User {
+    return {
+      id: "",
+      email: null,
+      firstName: "",
+      lastName: "",
+      password: null,
+      metadata: null,
+      settings: Settings.defaultValue(),
+      role: "Administrator",
+      emailVerified: false,
+      verificationToken: null,
+      verificationExpires: null,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      permissions: AppPermissions.defaultValue(),
+    } as User;
+  }
 }
 
 export namespace User {
@@ -923,7 +947,26 @@ export interface Service {
   commission: boolean;
   favorite: boolean;
   averageTime: string | null;
+
   defaults: ServiceDefaults;
+}
+
+export namespace Service {
+  export function defaultValue(): Service {
+    return {
+      id: "",
+      name: "",
+      quickCode: "",
+      group: null,
+      subgroup: null,
+      unit: null,
+      active: false,
+      commission: false,
+      favorite: false,
+      averageTime: null,
+      defaults: ServiceDefaults.defaultValue(),
+    } as Service;
+  }
 }
 
 export namespace Service {
@@ -1877,11 +1920,26 @@ export namespace ServiceDefaults {
 /**  */
 export interface Did {
   in: string | Actor;
+
   out: string | Target;
   id: string;
+
   activityType: ActivityType;
   createdAt: string;
   metadata: string | null;
+}
+
+export namespace Did {
+  export function defaultValue(): Did {
+    return {
+      in: "",
+      out: "",
+      id: "",
+      activityType: Created.defaultValue(),
+      createdAt: "",
+      metadata: null,
+    } as Did;
+  }
 }
 
 export namespace Did {
@@ -2863,7 +2921,27 @@ export interface Site {
 
   postalCode: string;
   postalCodeSuffix: string | null;
+
   coordinates: Coordinates;
+}
+
+export namespace Site {
+  export function defaultValue(): Site {
+    return {
+      id: "",
+      addressLine1: "",
+      addressLine2: null,
+      sublocalityLevel1: null,
+      locality: "",
+      administrativeAreaLevel3: null,
+      administrativeAreaLevel2: null,
+      administrativeAreaLevel1: "",
+      country: "",
+      postalCode: "",
+      postalCodeSuffix: null,
+      coordinates: Coordinates.defaultValue(),
+    } as Site;
+  }
 }
 
 export namespace Site {
@@ -3992,7 +4070,14 @@ export namespace Metadata {
 /**  */
 export interface ColumnConfig {
   heading: string;
+
   dataPath: DataPath;
+}
+
+export namespace ColumnConfig {
+  export function defaultValue(): ColumnConfig {
+    return { heading: "", dataPath: DataPath.defaultValue() } as ColumnConfig;
+  }
 }
 
 export namespace ColumnConfig {
@@ -4908,7 +4993,25 @@ export interface Product {
   active: boolean;
   commission: boolean;
   favorite: boolean;
+
   defaults: ProductDefaults;
+}
+
+export namespace Product {
+  export function defaultValue(): Product {
+    return {
+      id: "",
+      name: "",
+      quickCode: "",
+      group: null,
+      subgroup: null,
+      unit: null,
+      active: false,
+      commission: false,
+      favorite: false,
+      defaults: ProductDefaults.defaultValue(),
+    } as Product;
+  }
 }
 
 export namespace Product {
@@ -6672,9 +6775,16 @@ export namespace MonthlyRecurrenceRule {
 /**  */
 export interface Represents {
   in: string | Employee;
+
   out: string | Account;
   id: string;
   dateStarted: string;
+}
+
+export namespace Represents {
+  export function defaultValue(): Represents {
+    return { in: "", out: "", id: "", dateStarted: "" } as Represents;
+  }
 }
 
 export namespace Represents {
@@ -7263,16 +7373,45 @@ export namespace Payment {
 export interface Settings {
   appointmentNotifications: AppointmentNotifications | null;
   commissions: Commissions | null;
+
   scheduleSettings: ScheduleSettings;
+
   accountOverviewSettings: OverviewSettings;
+
   serviceOverviewSettings: OverviewSettings;
+
   appointmentOverviewSettings: OverviewSettings;
+
   leadOverviewSettings: OverviewSettings;
+
   packageOverviewSettings: OverviewSettings;
+
   productOverviewSettings: OverviewSettings;
+
   orderOverviewSettings: OverviewSettings;
+
   taxRateOverviewSettings: OverviewSettings;
+
   homePage: Page;
+}
+
+export namespace Settings {
+  export function defaultValue(): Settings {
+    return {
+      appointmentNotifications: null,
+      commissions: null,
+      scheduleSettings: ScheduleSettings.defaultValue(),
+      accountOverviewSettings: OverviewSettings.defaultValue(),
+      serviceOverviewSettings: OverviewSettings.defaultValue(),
+      appointmentOverviewSettings: OverviewSettings.defaultValue(),
+      leadOverviewSettings: OverviewSettings.defaultValue(),
+      packageOverviewSettings: OverviewSettings.defaultValue(),
+      productOverviewSettings: OverviewSettings.defaultValue(),
+      orderOverviewSettings: OverviewSettings.defaultValue(),
+      taxRateOverviewSettings: OverviewSettings.defaultValue(),
+      homePage: "UserHome",
+    } as Settings;
+  }
 }
 
 export namespace Settings {
@@ -8810,6 +8949,7 @@ export interface Appointment {
   id: string;
 
   title: string;
+
   status: Status;
   begins: string;
   duration: number;
@@ -8818,10 +8958,33 @@ export interface Appointment {
   allDay: boolean;
   multiDay: boolean;
   employees: (string | Employee)[];
+
   location: string | Site;
   description: string | null;
+
   colors: Colors;
   recurrenceRule: RecurrenceRule | null;
+}
+
+export namespace Appointment {
+  export function defaultValue(): Appointment {
+    return {
+      id: "",
+      title: "",
+      status: "Scheduled",
+      begins: "",
+      duration: 0,
+      timeZone: "",
+      offsetMs: 0,
+      allDay: false,
+      multiDay: false,
+      employees: [],
+      location: "",
+      description: null,
+      colors: { main: "#000000", hover: "#333333", text: "#ffffff" },
+      recurrenceRule: null,
+    } as Appointment;
+  }
 }
 
 export namespace Appointment {
@@ -9966,9 +10129,21 @@ export namespace Package {
 /**  */
 export interface ScheduleSettings {
   daysPerWeek: number;
+
   rowHeight: RowHeight;
   visibleRoutes: string[];
   detailedCards: boolean;
+}
+
+export namespace ScheduleSettings {
+  export function defaultValue(): ScheduleSettings {
+    return {
+      daysPerWeek: 0,
+      rowHeight: "Medium",
+      visibleRoutes: [],
+      detailedCards: false,
+    } as ScheduleSettings;
+  }
 }
 
 export namespace ScheduleSettings {
@@ -10626,10 +10801,25 @@ export namespace DailyRecurrenceRule {
 /**  */
 export interface SignUpCredentials {
   firstName: FirstName;
+
   lastName: LastName;
+
   email: EmailParts;
+
   password: Password;
   rememberMe: boolean;
+}
+
+export namespace SignUpCredentials {
+  export function defaultValue(): SignUpCredentials {
+    return {
+      firstName: FirstName.defaultValue(),
+      lastName: LastName.defaultValue(),
+      email: EmailParts.defaultValue(),
+      password: Password.defaultValue(),
+      rememberMe: false,
+    } as SignUpCredentials;
+  }
 }
 
 export namespace SignUpCredentials {
@@ -11128,9 +11318,21 @@ export namespace SignUpCredentials {
 /**  */
 export interface OverviewSettings {
   rowHeight: RowHeight;
+
   cardOrRow: OverviewDisplay;
   perPage: number;
   columnConfigs: ColumnConfig[];
+}
+
+export namespace OverviewSettings {
+  export function defaultValue(): OverviewSettings {
+    return {
+      rowHeight: "Medium",
+      cardOrRow: "Table",
+      perPage: 0,
+      columnConfigs: [],
+    } as OverviewSettings;
+  }
 }
 
 export namespace OverviewSettings {
@@ -11821,19 +12023,25 @@ export namespace FirstName {
 /**  */
 export interface Account {
   id: string;
+
   taxRate: string | TaxRate;
+
   site: string | Site;
   salesRep: Represents[] | null;
   orders: Ordered[];
   activity: Did[];
   customFields: [string, string][];
+
   accountName: AccountName;
+
   sector: Sector;
   memo: string | null;
   phones: PhoneNumber[];
+
   email: Email;
 
   leadSource: string;
+
   colors: Colors;
   needsReview: boolean;
   hasAlert: boolean;
@@ -11846,6 +12054,35 @@ export interface Account {
   paymentTerms: string;
   tags: string[];
   dateAdded: string;
+}
+
+export namespace Account {
+  export function defaultValue(): Account {
+    return {
+      id: "",
+      taxRate: "",
+      site: "",
+      salesRep: null,
+      orders: [],
+      activity: [],
+      customFields: [],
+      accountName: CompanyName.defaultValue(),
+      sector: "Residential",
+      memo: null,
+      phones: [],
+      email: Email.defaultValue(),
+      leadSource: "",
+      colors: Colors.defaultValue(),
+      needsReview: false,
+      hasAlert: false,
+      accountType: "",
+      subtype: "",
+      isTaxExempt: false,
+      paymentTerms: "",
+      tags: [],
+      dateAdded: "",
+    } as Account;
+  }
 }
 
 export namespace Account {
@@ -13625,7 +13862,9 @@ export namespace Edited {
 /**  */
 export interface Order {
   id: string;
+
   account: string | Account;
+
   stage: OrderStage;
   number: number;
   payments: (string | Payment)[];
@@ -13635,6 +13874,7 @@ export interface Order {
   reference: string;
 
   leadSource: string;
+
   salesRep: string | Employee;
 
   group: string;
@@ -13646,6 +13886,7 @@ export interface Order {
   actionItem: string;
   upsale: number;
   dateCreated: string;
+
   appointment: string | Appointment;
   lastTechs: (string | Employee)[];
   package: (string | Package)[] | null;
@@ -13653,6 +13894,7 @@ export interface Order {
   balance: number;
   due: string;
   total: number;
+
   site: string | Site;
   billedItems: BilledItem[];
 
@@ -13660,6 +13902,42 @@ export interface Order {
   discount: number;
   tip: number;
   commissions: number[];
+}
+
+export namespace Order {
+  export function defaultValue(): Order {
+    return {
+      id: "",
+      account: "",
+      stage: "Estimate",
+      number: 0,
+      payments: [],
+      opportunity: "",
+      reference: "",
+      leadSource: "",
+      salesRep: "",
+      group: "",
+      subgroup: "",
+      isPosted: false,
+      needsReview: false,
+      actionItem: "",
+      upsale: 0,
+      dateCreated: "",
+      appointment: "",
+      lastTechs: [],
+      package: null,
+      promotion: null,
+      balance: 0,
+      due: "",
+      total: 0,
+      site: "",
+      billedItems: [],
+      memo: "",
+      discount: 0,
+      tip: 0,
+      commissions: [],
+    } as Order;
+  }
 }
 
 export namespace Order {
@@ -17362,7 +17640,25 @@ export interface TaxRate {
   isActive: boolean;
 
   description: string;
+
   taxComponents: { [key: string]: number };
+}
+
+export namespace TaxRate {
+  export function defaultValue(): TaxRate {
+    return {
+      id: "",
+      name: "",
+      taxAgency: "",
+      zip: 0,
+      city: "",
+      county: "",
+      state: "",
+      isActive: false,
+      description: "",
+      taxComponents: {},
+    } as TaxRate;
+  }
 }
 
 export namespace TaxRate {
@@ -18292,23 +18588,30 @@ export interface Lead {
   number: number | null;
   accepted: boolean;
   probability: number;
+
   priority: Priority;
   dueDate: string | null;
   closeDate: string | null;
   value: number;
+
   stage: LeadStage;
 
   status: string;
   description: string | null;
+
   nextStep: NextStep;
   favorite: boolean;
   dateAdded: string | null;
   taxRate: (string | TaxRate) | null;
+
   sector: Sector;
+
   leadName: AccountName;
   phones: PhoneNumber[];
+
   email: Email;
   leadSource: string | null;
+
   site: string | Site;
 
   memo: string;
@@ -18325,6 +18628,45 @@ export interface Lead {
   paymentTerms: string;
   tags: string[];
   customFields: [string, string][];
+}
+
+export namespace Lead {
+  export function defaultValue(): Lead {
+    return {
+      id: "",
+      number: null,
+      accepted: false,
+      probability: 0,
+      priority: "Medium",
+      dueDate: null,
+      closeDate: null,
+      value: 0,
+      stage: "Open",
+      status: "",
+      description: null,
+      nextStep: "InitialContact",
+      favorite: false,
+      dateAdded: null,
+      taxRate: null,
+      sector: "Residential",
+      leadName: CompanyName.defaultValue(),
+      phones: [],
+      email: Email.defaultValue(),
+      leadSource: null,
+      site: "",
+      memo: "",
+      needsReview: false,
+      hasAlert: false,
+      salesRep: null,
+      color: null,
+      accountType: "",
+      subtype: "",
+      isTaxExempt: false,
+      paymentTerms: "",
+      tags: [],
+      customFields: [],
+    } as Lead;
+  }
 }
 
 export namespace Lead {
@@ -20689,6 +21031,7 @@ export interface Company {
   id: string;
 
   legalName: string;
+
   headquarters: string | Site;
   phones: PhoneNumber[];
 
@@ -20703,6 +21046,7 @@ export interface Company {
 
   postalCodeLookup: string;
   timeZone: string;
+
   defaultTax: string | TaxRate;
 
   defaultTaxLocation: string;
@@ -20725,7 +21069,44 @@ export interface Company {
   hasSortServiceItemsAlphabetically: boolean;
   hasAttachOrderToAppointmentEmails: boolean;
   scheduleInterval: number;
+
   colorsConfig: ColorsConfig;
+}
+
+export namespace Company {
+  export function defaultValue(): Company {
+    return {
+      id: "",
+      legalName: "",
+      headquarters: "",
+      phones: [],
+      fax: "",
+      email: "",
+      website: "",
+      taxId: "",
+      referenceNumber: 0,
+      postalCodeLookup: "",
+      timeZone: "",
+      defaultTax: "",
+      defaultTaxLocation: "",
+      defaultAreaCode: 0,
+      defaultAccountType: "",
+      lookupFormatting: "",
+      accountNameFormat: "",
+      merchantServiceProvider: null,
+      dateDisplayStyle: "",
+      hasAutoCommission: false,
+      hasAutoDaylightSavings: false,
+      hasAutoFmsTracking: false,
+      hasNotifications: false,
+      hasRequiredLeadSource: false,
+      hasRequiredEmail: false,
+      hasSortServiceItemsAlphabetically: false,
+      hasAttachOrderToAppointmentEmails: false,
+      scheduleInterval: 0,
+      colorsConfig: Gradient.defaultValue(),
+    } as Company;
+  }
 }
 
 export namespace Company {
@@ -23299,12 +23680,15 @@ export interface Employee {
   phones: PhoneNumber[];
 
   role: string;
+
   title: JobTitle;
+
   email: Email;
 
   address: string;
 
   username: string;
+
   route: string | Route;
   ratePerHour: number;
   active: boolean;
@@ -23313,7 +23697,33 @@ export interface Employee {
   description: string | null;
   linkedinUrl: string | null;
   attendance: string[];
+
   settings: Settings;
+}
+
+export namespace Employee {
+  export function defaultValue(): Employee {
+    return {
+      id: "",
+      imageUrl: null,
+      name: "",
+      phones: [],
+      role: "",
+      title: "Technician",
+      email: Email.defaultValue(),
+      address: "",
+      username: "",
+      route: "",
+      ratePerHour: 0,
+      active: false,
+      isTechnician: false,
+      isSalesRep: false,
+      description: null,
+      linkedinUrl: null,
+      attendance: [],
+      settings: Settings.defaultValue(),
+    } as Employee;
+  }
 }
 
 export namespace Employee {
@@ -26579,6 +26989,12 @@ export interface BilledItem {
 }
 
 export namespace BilledItem {
+  export function defaultValue(): BilledItem {
+    return { item: "", quantity: 0, taxed: false, upsale: false } as BilledItem;
+  }
+}
+
+export namespace BilledItem {
   export function toStringifiedJSON(self: BilledItem): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
@@ -27216,9 +27632,17 @@ export namespace Coordinates {
 /**  */
 export interface Ordered {
   id: string;
+
   in: string | Account;
+
   out: string | Order;
   date: string;
+}
+
+export namespace Ordered {
+  export function defaultValue(): Ordered {
+    return { id: "", in: "", out: "", date: "" } as Ordered;
+  }
 }
 
 export namespace Ordered {
@@ -27812,6 +28236,18 @@ export interface RecurrenceRule {
   recurrenceEnds: RecurrenceEnd | null;
   cancelledInstances: string[] | null;
   additionalInstances: string[] | null;
+}
+
+export namespace RecurrenceRule {
+  export function defaultValue(): RecurrenceRule {
+    return {
+      interval: DailyRecurrenceRule.defaultValue(),
+      recurrenceBegins: "",
+      recurrenceEnds: null,
+      cancelledInstances: null,
+      additionalInstances: null,
+    } as RecurrenceRule;
+  }
 }
 
 export namespace RecurrenceRule {

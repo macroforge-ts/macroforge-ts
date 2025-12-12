@@ -10,13 +10,16 @@ export interface User {
   lastName: string;
   password: string | null;
   metadata: Metadata | null;
+  /** @default(Settings.defaultValue()) */
   settings: Settings;
+  /** @default("Administrator") */
   role: UserRole;
   emailVerified: boolean;
   verificationToken: string | null;
   verificationExpires: string | null;
   passwordResetToken: string | null;
   passwordResetExpires: string | null;
+  /** @default(AppPermissions.defaultValue()) */
   permissions: AppPermissions;
 }
 
@@ -34,6 +37,7 @@ export interface Service {
   commission: boolean;
   favorite: boolean;
   averageTime: string | null;
+  /** @default(ServiceDefaults.defaultValue()) */
   defaults: ServiceDefaults;
 }
 
@@ -46,9 +50,12 @@ export interface ServiceDefaults {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Did {
+  /** @default("") */
   in: string | Actor;
+  /** @default("") */
   out: string | Target;
   id: string;
+  /** @default(Created.defaultValue()) */
   activityType: ActivityType;
   createdAt: string;
   metadata: string | null;
@@ -86,6 +93,7 @@ export interface Site {
   /** @serde({ validate: ["nonEmpty"] }) */
   postalCode: string;
   postalCodeSuffix: string | null;
+  /** @default(Coordinates.defaultValue()) */
   coordinates: Coordinates;
 }
 
@@ -101,6 +109,7 @@ export interface Metadata {
 export interface ColumnConfig {
   /** @serde({ validate: ["nonEmpty"] }) */
   heading: string;
+  /** @default(DataPath.defaultValue()) */
   dataPath: DataPath;
 }
 
@@ -133,6 +142,7 @@ export interface Product {
   active: boolean;
   commission: boolean;
   favorite: boolean;
+  /** @default(ProductDefaults.defaultValue()) */
   defaults: ProductDefaults;
 }
 
@@ -165,7 +175,9 @@ export interface MonthlyRecurrenceRule {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Represents {
+  /** @default("") */
   in: string | Employee;
+  /** @default("") */
   out: string | Account;
   id: string;
   dateStarted: string;
@@ -181,15 +193,25 @@ export interface Payment {
 export interface Settings {
   appointmentNotifications: AppointmentNotifications | null;
   commissions: Commissions | null;
+  /** @default(ScheduleSettings.defaultValue()) */
   scheduleSettings: ScheduleSettings;
+  /** @default(OverviewSettings.defaultValue()) */
   accountOverviewSettings: OverviewSettings;
+  /** @default(OverviewSettings.defaultValue()) */
   serviceOverviewSettings: OverviewSettings;
+  /** @default(OverviewSettings.defaultValue()) */
   appointmentOverviewSettings: OverviewSettings;
+  /** @default(OverviewSettings.defaultValue()) */
   leadOverviewSettings: OverviewSettings;
+  /** @default(OverviewSettings.defaultValue()) */
   packageOverviewSettings: OverviewSettings;
+  /** @default(OverviewSettings.defaultValue()) */
   productOverviewSettings: OverviewSettings;
+  /** @default(OverviewSettings.defaultValue()) */
   orderOverviewSettings: OverviewSettings;
+  /** @default(OverviewSettings.defaultValue()) */
   taxRateOverviewSettings: OverviewSettings;
+  /** @default("UserHome") */
   homePage: Page;
 }
 
@@ -211,6 +233,7 @@ export interface Appointment {
   id: string;
   /** @serde({ validate: ["nonEmpty"] }) */
   title: string;
+  /** @default("Scheduled") */
   status: Status;
   begins: string;
   duration: number;
@@ -219,8 +242,10 @@ export interface Appointment {
   allDay: boolean;
   multiDay: boolean;
   employees: (string | Employee)[];
+  /** @default("") */
   location: string | Site;
   description: string | null;
+  /** @default({ main: "#000000", hover: "#333333", text: "#ffffff" }) */
   colors: Colors;
   recurrenceRule: RecurrenceRule | null;
 }
@@ -234,6 +259,7 @@ export interface Package {
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface ScheduleSettings {
   daysPerWeek: number;
+  /** @default("Medium") */
   rowHeight: RowHeight;
   visibleRoutes: string[];
   detailedCards: boolean;
@@ -246,16 +272,22 @@ export interface DailyRecurrenceRule {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface SignUpCredentials {
+  /** @default(FirstName.defaultValue()) */
   firstName: FirstName;
+  /** @default(LastName.defaultValue()) */
   lastName: LastName;
+  /** @default(EmailParts.defaultValue()) */
   email: EmailParts;
+  /** @default(Password.defaultValue()) */
   password: Password;
   rememberMe: boolean;
 }
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface OverviewSettings {
+  /** @default("Medium") */
   rowHeight: RowHeight;
+  /** @default("Table") */
   cardOrRow: OverviewDisplay;
   perPage: number;
   columnConfigs: ColumnConfig[];
@@ -270,19 +302,25 @@ export interface FirstName {
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Account {
   id: string;
+  /** @default("") */
   taxRate: string | TaxRate;
+  /** @default("") */
   site: string | Site;
   salesRep: Represents[] | null;
   orders: Ordered[];
   activity: Did[];
   customFields: [string, string][];
+  /** @default(CompanyName.defaultValue()) */
   accountName: AccountName;
+  /** @default("Residential") */
   sector: Sector;
   memo: string | null;
   phones: PhoneNumber[];
+  /** @default(Email.defaultValue()) */
   email: Email;
   /** @serde({ validate: ["nonEmpty"] }) */
   leadSource: string;
+  /** @default(Colors.defaultValue()) */
   colors: Colors;
   needsReview: boolean;
   hasAlert: boolean;
@@ -308,7 +346,9 @@ export interface Edited {
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Order {
   id: string;
+  /** @default("") */
   account: string | Account;
+  /** @default("Estimate") */
   stage: OrderStage;
   number: number;
   payments: (string | Payment)[];
@@ -318,6 +358,7 @@ export interface Order {
   reference: string;
   /** @serde({ validate: ["nonEmpty"] }) */
   leadSource: string;
+  /** @default("") */
   salesRep: string | Employee;
   /** @serde({ validate: ["nonEmpty"] }) */
   group: string;
@@ -329,6 +370,7 @@ export interface Order {
   actionItem: string;
   upsale: number;
   dateCreated: string;
+  /** @default("") */
   appointment: string | Appointment;
   lastTechs: (string | Employee)[];
   package: (string | Package)[] | null;
@@ -336,6 +378,7 @@ export interface Order {
   balance: number;
   due: string;
   total: number;
+  /** @default("") */
   site: string | Site;
   billedItems: BilledItem[];
   /** @serde({ validate: ["nonEmpty"] }) */
@@ -410,6 +453,7 @@ export interface TaxRate {
   isActive: boolean;
   /** @serde({ validate: ["nonEmpty"] }) */
   description: string;
+  /** @default({}) */
   taxComponents: { [key: string]: number };
 }
 
@@ -431,23 +475,30 @@ export interface Lead {
   number: number | null;
   accepted: boolean;
   probability: number;
+  /** @default("Medium") */
   priority: Priority;
   dueDate: string | null;
   closeDate: string | null;
   value: number;
+  /** @default("Open") */
   stage: LeadStage;
   /** @serde({ validate: ["nonEmpty"] }) */
   status: string;
   description: string | null;
+  /** @default("InitialContact") */
   nextStep: NextStep;
   favorite: boolean;
   dateAdded: string | null;
   taxRate: (string | TaxRate) | null;
+  /** @default("Residential") */
   sector: Sector;
+  /** @default(CompanyName.defaultValue()) */
   leadName: AccountName;
   phones: PhoneNumber[];
+  /** @default(Email.defaultValue()) */
   email: Email;
   leadSource: string | null;
+  /** @default("") */
   site: string | Site;
   /** @serde({ validate: ["nonEmpty"] }) */
   memo: string;
@@ -478,6 +529,7 @@ export interface Company {
   id: string;
   /** @serde({ validate: ["nonEmpty"] }) */
   legalName: string;
+  /** @default("") */
   headquarters: string | Site;
   phones: PhoneNumber[];
   /** @serde({ validate: ["nonEmpty"] }) */
@@ -492,6 +544,7 @@ export interface Company {
   /** @serde({ validate: ["nonEmpty"] }) */
   postalCodeLookup: string;
   timeZone: string;
+  /** @default("") */
   defaultTax: string | TaxRate;
   /** @serde({ validate: ["nonEmpty"] }) */
   defaultTaxLocation: string;
@@ -514,6 +567,7 @@ export interface Company {
   hasSortServiceItemsAlphabetically: boolean;
   hasAttachOrderToAppointmentEmails: boolean;
   scheduleInterval: number;
+  /** @default(Gradient.defaultValue()) */
   colorsConfig: ColorsConfig;
 }
 
@@ -549,12 +603,15 @@ export interface Employee {
   phones: PhoneNumber[];
   /** @serde({ validate: ["nonEmpty"] }) */
   role: string;
+  /** @default("Technician") */
   title: JobTitle;
+  /** @default(Email.defaultValue()) */
   email: Email;
   /** @serde({ validate: ["nonEmpty"] }) */
   address: string;
   /** @serde({ validate: ["nonEmpty"] }) */
   username: string;
+  /** @default("") */
   route: string | Route;
   ratePerHour: number;
   active: boolean;
@@ -563,6 +620,7 @@ export interface Employee {
   description: string | null;
   linkedinUrl: string | null;
   attendance: string[];
+  /** @default(Settings.defaultValue()) */
   settings: Settings;
 }
 
@@ -626,6 +684,7 @@ export interface Sent {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface BilledItem {
+  /** @default("") */
   item: Item;
   quantity: number;
   taxed: boolean;
@@ -641,7 +700,9 @@ export interface Coordinates {
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Ordered {
   id: string;
+  /** @default("") */
   in: string | Account;
+  /** @default("") */
   out: string | Order;
   date: string;
 }
@@ -655,6 +716,7 @@ export interface Email {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface RecurrenceRule {
+  /** @default(DailyRecurrenceRule.defaultValue()) */
   interval: Interval;
   recurrenceBegins: string;
   recurrenceEnds: RecurrenceEnd | null;

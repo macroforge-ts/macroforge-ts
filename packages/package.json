@@ -11,6 +11,10 @@
 		"svelte-preprocessor",
 		"mcp-server"
 	],
+	"scripts": {
+		"clean": "rm -rf node_modules */node_modules ../crates/macroforge_ts/node_modules",
+		"cleanbuild": "npm run clean && npm install && npm run cleanbuild -ws --if-present"
+	},
 	"devDependencies": {
 		"@napi-rs/cli": "^3.4.1",
 		"@types/bun": "latest"

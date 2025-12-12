@@ -16,7 +16,10 @@
 		"build": "npx -y -p @napi-rs/cli napi build --platform --release --package playground-macros",
 		"prepare": "npm run build",
 		"clean": "rm -rf *.node",
-		"cleanbuild": "rm -rf *.node && npx -y -p @napi-rs/cli napi build --platform --release --package playground-macros"
+		"cleanbuild": "rm -rf *.node node_modules && npm install && npx -y -p @napi-rs/cli napi build --platform --release --package playground-macros"
+	},
+	"dependencies": {
+		"macroforge": "file:../../crates/macroforge_ts"
 	},
 	"engines": {
 		"node": ">= 18"

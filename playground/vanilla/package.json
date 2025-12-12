@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "clean": "rm -rf node_modules",
+    "cleanbuild": "npm run clean && npm install && npm run build"
   },
   "dependencies": {
     "macroforge": "file:../../crates/macroforge_ts",

@@ -72,161 +72,45 @@ function removeExternalConfig() {
 }
 
 const steps = [
+  // Clean root node_modules for a complete reset
   {
     label: "remove root node_modules",
     cmd: "rm -rf node_modules",
     cwd: root,
   },
+  // Clean and build packages workspace (includes crates/macroforge_ts)
   {
-    label: "remove packages node_modules",
-    cmd: "rm -rf node_modules",
+    label: "cleanbuild packages workspace",
+    cmd: "npm run cleanbuild",
     cwd: path.join(root, "packages"),
   },
-  {
-    label: "remove packages/vite-plugin node_modules",
-    cmd: "rm -rf node_modules",
-    cwd: path.join(root, "packages", "vite-plugin"),
-  },
-  {
-    label: "remove packages/typescript-plugin node_modules",
-    cmd: "rm -rf node_modules",
-    cwd: path.join(root, "packages", "typescript-plugin"),
-  },
-  {
-    label: "remove packages/svelte-language-server node_modules",
-    cmd: "rm -rf node_modules",
-    cwd: path.join(root, "packages", "svelte-language-server"),
-  },
-  {
-    label: "remove playground/svelte node_modules",
-    cmd: "rm -rf node_modules",
-    cwd: path.join(root, "playground", "svelte"),
-  },
-  {
-    label: "remove playground/svelte .svelte-kit",
-    cmd: "rm -rf .svelte-kit",
-    cwd: path.join(root, "playground", "svelte"),
-  },
-  {
-    label: "remove playground/vanilla node_modules",
-    cmd: "rm -rf node_modules",
-    cwd: path.join(root, "playground", "vanilla"),
-  },
-  {
-    label: "remove playground/macro node_modules",
-    cmd: "rm -rf node_modules",
-    cwd: path.join(root, "playground", "macro"),
-  },
-  {
-    label: "remove tests/e2e/fixtures/ts-project node_modules",
-    cmd: "rm -rf node_modules",
-    cwd: path.join(root, "tests", "e2e", "fixtures", "ts-project"),
-  },
-  // Build crates BEFORE installing packages so they get the fresh native module
-  {
-    label: "clean extension.wasm (vtsls-macroforge)",
-    cmd: "rm -f extension.wasm",
-    cwd: path.join(root, "crates", "extensions", "vtsls-macroforge"),
-  },
-  {
-    label: "clean extension.wasm (svelte-macroforge)",
-    cmd: "rm -f extension.wasm",
-    cwd: path.join(root, "crates", "extensions", "svelte-macroforge"),
-  },
-  {
-    label: "clean crates/macroforge_ts",
-    cmd: "rm -f macroforge.*.node pkg/*.node",
-    cwd: path.join(root, "crates", "macroforge_ts"),
-  },
-  {
-    label: "build crates/macroforge_ts",
-    cmd: "npx -y -p @napi-rs/cli napi build --platform --release",
-    cwd: path.join(root, "crates", "macroforge_ts"),
-  },
-  // Now install packages after crates are built
-  {
-    label: "install packages workspace deps",
-    cmd: "npm install",
-    cwd: path.join(root, "packages"),
-  },
-  {
-    label: "clean packages/vite-plugin",
-    cmd: "npm run clean",
-    cwd: path.join(root, "packages", "vite-plugin"),
-  },
-  {
-    label: "build packages/vite-plugin",
-    cmd: "npm run build",
-    cwd: path.join(root, "packages", "vite-plugin"),
-  },
-  {
-    label: "clean packages/typescript-plugin",
-    cmd: "npm run clean",
-    cwd: path.join(root, "packages", "typescript-plugin"),
-  },
-  {
-    label: "build packages/typescript-plugin",
-    cmd: "npm run build",
-    cwd: path.join(root, "packages", "typescript-plugin"),
-  },
-  {
-    label: "clean packages/svelte-language-server",
-    cmd: "npm run clean",
-    cwd: path.join(root, "packages", "svelte-language-server"),
-  },
-  {
-    label: "build packages/svelte-language-server",
-    cmd: "npm run build",
-    cwd: path.join(root, "packages", "svelte-language-server"),
-  },
-  {
-    label: "install playground/macro deps",
-    cmd: "npm install",
-    cwd: path.join(root, "playground", "macro"),
-  },
+  // Clean and build playground/macro
   {
     label: "cleanbuild playground/macro",
     cmd: "npm run cleanbuild",
     cwd: path.join(root, "playground", "macro"),
   },
+  // Clean and build playground/svelte
   {
-    label: "install playground/svelte deps",
-    cmd: "npm install",
+    label: "cleanbuild playground/svelte",
+    cmd: "npm run cleanbuild",
     cwd: path.join(root, "playground", "svelte"),
   },
+  // Clean and build playground/vanilla
   {
-    label: "build playground/svelte",
-    cmd: "npm run build",
-    cwd: path.join(root, "playground", "svelte"),
-  },
-  {
-    label: "install playground/vanilla deps",
-    cmd: "npm install",
+    label: "cleanbuild playground/vanilla",
+    cmd: "npm run cleanbuild",
     cwd: path.join(root, "playground", "vanilla"),
   },
-  {
-    label: "build playground/vanilla",
-    cmd: "npm run build",
-    cwd: path.join(root, "playground", "vanilla"),
-  },
+  // Website handling
   {
     label: "git pull website from origin",
     cmd: "git pull origin",
     cwd: path.join(root, "website"),
   },
   {
-    label: "remove website node_modules",
-    cmd: "rm -rf node_modules",
-    cwd: path.join(root, "website"),
-  },
-  {
-    label: "remove website .svelte-kit",
-    cmd: "rm -rf .svelte-kit",
-    cwd: path.join(root, "website"),
-  },
-  {
-    label: "install website deps",
-    cmd: "npm install",
+    label: "cleanbuild website",
+    cmd: "rm -rf node_modules .svelte-kit && npm install",
     cwd: path.join(root, "website"),
   },
   {
