@@ -39,10 +39,8 @@ export interface DeserializeContext {
   register(id: number, instance: any): void;
   /** Get an object by ID, or return a PendingRef if not yet available */
   getOrDefer(refId: number): any;
-  /** Assign a value to a property, deferring if it's a PendingRef */
-  assignOrDefer(target: any, prop: string | number, value: any): void;
-  /** Manually add a patch for later resolution */
-  addPatch(target: any, prop: string | number, refId: number): void;
+  /** Defer a patch using a setter callback (called when ref is resolved) */
+  deferPatch(refId: number, setter: (val: any) => void): void;
   /** Track an object for optional freezing */
   trackForFreeze(obj: object): void;
   /** Apply all deferred patches (call after deserialization is complete) */
@@ -54,7 +52,7 @@ export interface DeserializeContext {
 export namespace DeserializeContext {
   export function create(): DeserializeContext {
     const registry = new Map<number, any>();
-    const patches: Array<{ target: any; prop: string | number; refId: number }> = [];
+    const patches: Array<{ refId: number; setter: (val: any) => void }> = [];
     const toFreeze: object[] = [];
 
     return {
@@ -69,17 +67,8 @@ export namespace DeserializeContext {
         return PendingRef.create(refId);
       },
 
-      assignOrDefer: (target, prop, value) => {
-        if (PendingRef.is(value)) {
-          target[prop] = null;
-          patches.push({ target, prop, refId: value.id });
-        } else {
-          target[prop] = value;
-        }
-      },
-
-      addPatch: (target, prop, refId) => {
-        patches.push({ target, prop, refId });
+      deferPatch: (refId, setter) => {
+        patches.push({ refId, setter });
       },
 
       trackForFreeze: (obj) => {
@@ -87,11 +76,11 @@ export namespace DeserializeContext {
       },
 
       applyPatches: () => {
-        for (const { target, prop, refId } of patches) {
+        for (const { refId, setter } of patches) {
           if (!registry.has(refId)) {
             throw new Error(`Unresolved reference: __ref ${refId}`);
           }
-          target[prop] = registry.get(refId);
+          setter(registry.get(refId));
         }
       },
 

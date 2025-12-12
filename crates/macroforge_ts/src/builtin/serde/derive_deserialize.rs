@@ -322,6 +322,14 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let all_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
             let has_fields = !all_fields.is_empty();
 
+            // Fields with validators for per-field validation
+            let fields_with_validators: Vec<_> = all_fields
+                .iter()
+                .filter(|f| f.has_validators())
+                .cloned()
+                .collect();
+            let has_validators = !fields_with_validators.is_empty();
+
             let mut result = body! {
                 constructor(props: { {#for field in &all_fields} @{field.field_name}{#if field.optional}?{/if}: @{field.ts_type}; {/for} }) {
                     {#for field in &all_fields}
@@ -425,7 +433,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, class_name)}
                                                 @{validation_code}
                                             {/if}
-                                            (instance as any).@{field.field_name} = @{raw_var};
+                                            instance.@{field.field_name} = @{raw_var};
 
                                         {:case TypeCategory::Date}
                                             {
@@ -434,7 +442,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, class_name)}
                                                     @{validation_code}
                                                 {/if}
-                                                (instance as any).@{field.field_name} = __dateVal;
+                                                instance.@{field.field_name} = __dateVal;
                                             }
 
                                         {:case TypeCategory::Array(inner)}
@@ -447,7 +455,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     if (typeof item?.__deserialize === "function") {
                                                         const result = item.__deserialize(item, ctx);
                                                         if (PendingRef.is(result)) {
-                                                            ctx.addPatch((instance as any).@{field.field_name}, idx, result.id);
+                                                            ctx.deferPatch(result.id, (v) => { instance.@{field.field_name}[idx] = v; });
                                                             return null;
                                                         }
                                                         return result;
@@ -463,52 +471,62 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     }
                                                     return item as @{inner};
                                                 });
-                                                (instance as any).@{field.field_name} = __arr;
+                                                instance.@{field.field_name} = __arr;
                                                 // Patch array items that were pending
                                                 __arr.forEach((item, idx) => {
                                                     if (item && typeof item === "object" && "__pendingIdx" in item) {
-                                                        ctx.addPatch((instance as any).@{field.field_name}, idx, (item as any).__refId);
+                                                        ctx.deferPatch((item as any).__refId, (v) => { instance.@{field.field_name}[idx] = v; });
                                                     }
                                                 });
                                             }
 
                                         {:case TypeCategory::Map(key_type, value_type)}
                                             if (typeof @{raw_var} === "object" && @{raw_var} !== null) {
-                                                (instance as any).@{field.field_name} = new Map(
+                                                instance.@{field.field_name} = new Map(
                                                     Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
                                                 );
                                             }
 
                                         {:case TypeCategory::Set(inner)}
                                             if (Array.isArray(@{raw_var})) {
-                                                (instance as any).@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
+                                                instance.@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
                                             }
 
                                         {:case TypeCategory::Serializable(type_name)}
                                             if (typeof (@{type_name} as any)?.__deserialize === "function") {
                                                 const __result = (@{type_name} as any).__deserialize(@{raw_var}, ctx);
-                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                if (PendingRef.is(__result)) {
+                                                    instance.@{field.field_name} = null as @{field.ts_type};
+                                                    ctx.deferPatch(__result.id, (v) => { instance.@{field.field_name} = v; });
+                                                } else {
+                                                    instance.@{field.field_name} = __result;
+                                                }
                                             } else {
-                                                (instance as any).@{field.field_name} = @{raw_var};
+                                                instance.@{field.field_name} = @{raw_var};
                                             }
 
                                         {:case TypeCategory::Nullable(_)}
                                             if (@{raw_var} === null) {
-                                                (instance as any).@{field.field_name} = null;
+                                                instance.@{field.field_name} = null;
                                             } else if (typeof (@{raw_var} as any)?.__ref !== "undefined") {
                                                 const __result = ctx.getOrDefer((@{raw_var} as any).__ref);
-                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                if (PendingRef.is(__result)) {
+                                                    instance.@{field.field_name} = null as @{field.ts_type};
+                                                    ctx.deferPatch(__result.id, (v) => { instance.@{field.field_name} = v; });
+                                                } else {
+                                                    instance.@{field.field_name} = __result;
+                                                }
                                             } else {
-                                                (instance as any).@{field.field_name} = @{raw_var};
+                                                instance.@{field.field_name} = @{raw_var};
                                             }
 
                                         {:case _}
-                                            (instance as any).@{field.field_name} = @{raw_var};
+                                            instance.@{field.field_name} = @{raw_var};
                                     {/match}
                                 }
                                 {#if let Some(default_expr) = &field.default_expr}
                                     else {
-                                        (instance as any).@{field.field_name} = @{default_expr};
+                                        instance.@{field.field_name} = @{default_expr};
                                     }
                                 {/if}
                             {:else}
@@ -520,7 +538,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, class_name)}
                                                 @{validation_code}
                                             {/if}
-                                            (instance as any).@{field.field_name} = @{raw_var};
+                                            instance.@{field.field_name} = @{raw_var};
 
                                         {:case TypeCategory::Date}
                                             {
@@ -529,7 +547,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, class_name)}
                                                     @{validation_code}
                                                 {/if}
-                                                (instance as any).@{field.field_name} = __dateVal;
+                                                instance.@{field.field_name} = __dateVal;
                                             }
 
                                         {:case TypeCategory::Array(inner)}
@@ -548,42 +566,52 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     }
                                                     return item as @{inner};
                                                 });
-                                                (instance as any).@{field.field_name} = __arr;
+                                                instance.@{field.field_name} = __arr;
                                                 __arr.forEach((item, idx) => {
                                                     if (item && typeof item === "object" && "__pendingIdx" in item) {
-                                                        ctx.addPatch((instance as any).@{field.field_name}, idx, (item as any).__refId);
+                                                        ctx.deferPatch((item as any).__refId, (v) => { instance.@{field.field_name}[idx] = v; });
                                                     }
                                                 });
                                             }
 
                                         {:case TypeCategory::Map(key_type, value_type)}
-                                            (instance as any).@{field.field_name} = new Map(
+                                            instance.@{field.field_name} = new Map(
                                                 Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
                                             );
 
                                         {:case TypeCategory::Set(inner)}
-                                            (instance as any).@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
+                                            instance.@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
 
                                         {:case TypeCategory::Serializable(type_name)}
                                             if (typeof (@{type_name} as any)?.__deserialize === "function") {
                                                 const __result = (@{type_name} as any).__deserialize(@{raw_var}, ctx);
-                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                if (PendingRef.is(__result)) {
+                                                    instance.@{field.field_name} = null as @{field.ts_type};
+                                                    ctx.deferPatch(__result.id, (v) => { instance.@{field.field_name} = v; });
+                                                } else {
+                                                    instance.@{field.field_name} = __result;
+                                                }
                                             } else {
-                                                (instance as any).@{field.field_name} = @{raw_var};
+                                                instance.@{field.field_name} = @{raw_var};
                                             }
 
                                         {:case TypeCategory::Nullable(_)}
                                             if (@{raw_var} === null) {
-                                                (instance as any).@{field.field_name} = null;
+                                                instance.@{field.field_name} = null;
                                             } else if (typeof (@{raw_var} as any)?.__ref !== "undefined") {
                                                 const __result = ctx.getOrDefer((@{raw_var} as any).__ref);
-                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                if (PendingRef.is(__result)) {
+                                                    instance.@{field.field_name} = null as @{field.ts_type};
+                                                    ctx.deferPatch(__result.id, (v) => { instance.@{field.field_name} = v; });
+                                                } else {
+                                                    instance.@{field.field_name} = __result;
+                                                }
                                             } else {
-                                                (instance as any).@{field.field_name} = @{raw_var};
+                                                instance.@{field.field_name} = @{raw_var};
                                             }
 
                                         {:case _}
-                                            (instance as any).@{field.field_name} = @{raw_var};
+                                            instance.@{field.field_name} = @{raw_var};
                                     {/match}
                                 }
                             {/if}
@@ -596,10 +624,15 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 {:case TypeCategory::Serializable(type_name)}
                                     if (typeof (@{type_name} as any)?.__deserialize === "function") {
                                         const __result = (@{type_name} as any).__deserialize(obj, ctx);
-                                        ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                        if (PendingRef.is(__result)) {
+                                            instance.@{field.field_name} = null as @{field.ts_type};
+                                            ctx.deferPatch(__result.id, (v) => { instance.@{field.field_name} = v; });
+                                        } else {
+                                            instance.@{field.field_name} = __result;
+                                        }
                                     }
                                 {:case _}
-                                    (instance as any).@{field.field_name} = obj as any;
+                                    instance.@{field.field_name} = obj as any;
                             {/match}
                         {/for}
                     {/if}
@@ -610,6 +643,40 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                     return instance;
                 }
+
+                {#if has_validators}
+                static validateField<K extends keyof @{class_name}>(
+                    field: K,
+                    value: @{class_name}[K]
+                ): Array<{ field: string; message: string }> {
+                    const errors: Array<{ field: string; message: string }> = [];
+                    switch (field) {
+                        {#for field in &fields_with_validators}
+                        case "@{field.field_name}": {
+                            const __val = value as @{field.ts_type};
+                            {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, class_name)}
+                            @{validation_code}
+                            break;
+                        }
+                        {/for}
+                    }
+                    return errors;
+                }
+
+                static validateFields(
+                    partial: Partial<@{class_name}>
+                ): Array<{ field: string; message: string }> {
+                    const errors: Array<{ field: string; message: string }> = [];
+                    {#for field in &fields_with_validators}
+                    if ("@{field.field_name}" in partial && partial.@{field.field_name} !== undefined) {
+                        const __val = partial.@{field.field_name} as @{field.ts_type};
+                        {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, class_name)}
+                        @{validation_code}
+                    }
+                    {/for}
+                    return errors;
+                }
+                {/if}
             };
             result.add_import("Result", "macroforge/utils");
             result.add_import("DeserializeContext", "macroforge/serde");
@@ -794,7 +861,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             {:case TypeCategory::Serializable(type_name)}
                                                 if (typeof (@{type_name} as any)?.__deserialize === "function") {
                                                     const __result = (@{type_name} as any).__deserialize(@{raw_var}, ctx);
-                                                    ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                    if (PendingRef.is(__result)) {
+                                                        instance.@{field.field_name} = null;
+                                                        ctx.deferPatch(__result.id, (v) => { instance.@{field.field_name} = v; });
+                                                    } else {
+                                                        instance.@{field.field_name} = __result;
+                                                    }
                                                 } else {
                                                     instance.@{field.field_name} = @{raw_var};
                                                 }
@@ -826,7 +898,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             {:case TypeCategory::Serializable(type_name)}
                                                 if (typeof (@{type_name} as any)?.__deserialize === "function") {
                                                     const __result = (@{type_name} as any).__deserialize(@{raw_var}, ctx);
-                                                    ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                    if (PendingRef.is(__result)) {
+                                                        instance.@{field.field_name} = null;
+                                                        ctx.deferPatch(__result.id, (v) => { instance.@{field.field_name} = v; });
+                                                    } else {
+                                                        instance.@{field.field_name} = __result;
+                                                    }
                                                 } else {
                                                     instance.@{field.field_name} = @{raw_var};
                                                 }
