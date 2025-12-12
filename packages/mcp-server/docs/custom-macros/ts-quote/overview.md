@@ -5,9 +5,11 @@
 ## Available Macros
 
 | `ts_template!` 
-| Any TypeScript code 
-| General code generation 
+            | Any TypeScript code 
+            | General code generation 
+        
 
-| `body!` 
-| Class body members 
-| Methods and properties
+        
+            | `body!` 
+            | Class body members 
+            | Methods and properties

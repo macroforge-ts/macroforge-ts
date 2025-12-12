@@ -1,8 +1,14 @@
+// Early declarations using var for hoisting
+var moduleCache = new Map();
+var expandSync;
+var Result;
+
 import { test, describe, beforeEach, afterEach, beforeAll, afterAll } from "bun:test";
 import { expect } from "bun:test";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs";
+import { createRequire } from "node:module";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,11 +16,14 @@ const playgroundRoot = path.resolve(__dirname, "..", "..");
 const repoRoot = path.resolve(playgroundRoot, "..");
 const vanillaRoot = path.join(playgroundRoot, "vanilla");
 
+// Use require for synchronous loading
+const require = createRequire(import.meta.url);
 const swcMacrosPath = path.join(repoRoot, "crates/macroforge_ts/index.js");
-const { expandSync } = await import(swcMacrosPath);
+const utilsPath = path.join(repoRoot, "crates/macroforge_ts/js/utils/index.mjs");
 
-// Cache for compiled modules
-const moduleCache = new Map();
+// Initialize after imports
+expandSync = require(swcMacrosPath).expandSync;
+Result = require(utilsPath).Result;
 
 /**
  * Expand macros in a TypeScript file and compile it using Bun's transpiler
@@ -74,9 +83,13 @@ export async function loadValidatorModule(moduleName) {
  * @param {string} messageSubstring - Expected substring in error message
  */
 export function assertValidationError(result, fieldName, messageSubstring) {
-  expect(result.isErr()).toBe(true);
-  const errors = result.unwrapErr();
-  const hasExpectedError = errors.some((e) => e.includes(messageSubstring));
+  expect(Result.isErr(result)).toBe(true);
+  const errors = Result.unwrapErr(result);
+  // Errors are now structured as {field, message} objects
+  const hasExpectedError = errors.some((e) => {
+    const msg = typeof e === "string" ? e : e.message;
+    return msg.includes(messageSubstring);
+  });
   expect(hasExpectedError).toBe(true);
 }
 
@@ -86,13 +99,15 @@ export function assertValidationError(result, fieldName, messageSubstring) {
  * @param {string} fieldName - Field name for error context
  */
 export function assertValidationSuccess(result, fieldName) {
-  if (result.isErr()) {
-    const errors = result.unwrapErr();
+  if (Result.isErr(result)) {
+    const errors = Result.unwrapErr(result);
+    // Errors are now structured as {field, message} objects
+    const errorMsgs = errors.map((e) => (typeof e === "string" ? e : `${e.field}: ${e.message}`));
     throw new Error(
-      `Expected validation to succeed for "${fieldName}", but got errors: ${errors.join("; ")}`
+      `Expected validation to succeed for "${fieldName}", but got errors: ${errorMsgs.join("; ")}`
     );
   }
-  expect(result.isOk()).toBe(true);
+  expect(Result.isOk(result)).toBe(true);
 }
 
 /**
@@ -101,13 +116,20 @@ export function assertValidationSuccess(result, fieldName) {
  * @param {number} expectedCount - Expected number of errors
  */
 export function assertErrorCount(result, expectedCount) {
-  expect(result.isErr()).toBe(true);
-  const errors = result.unwrapErr();
+  expect(Result.isErr(result)).toBe(true);
+  const errors = Result.unwrapErr(result);
   expect(errors.length).toBe(expectedCount);
 }
 
 // Re-export with node:test compatible names
-const before = beforeAll;
-const after = afterAll;
-
-export { test, describe, before, after, beforeEach, afterEach, beforeAll, afterAll, expect };
+export {
+  test,
+  describe,
+  beforeAll as before,
+  afterAll as after,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  afterAll,
+  expect
+};

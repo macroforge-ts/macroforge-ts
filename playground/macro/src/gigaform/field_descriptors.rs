@@ -228,6 +228,37 @@ pub fn generate_union_factory(type_name: &str, config: &UnionConfig, options: &G
     }
 }
 
+/// Returns the default value expression for a type ref in a union.
+/// For primitive types, returns the primitive default (0, "", false, etc.)
+/// For named types, returns TypeName.defaultValue()
+fn get_type_ref_default(type_ref: &str, cast_type: &str) -> String {
+    let tr = type_ref.trim();
+    match tr {
+        "number" => format!("0 as {cast_type}"),
+        "string" => format!("\"\" as {cast_type}"),
+        "boolean" => format!("false as {cast_type}"),
+        "bigint" => format!("0n as {cast_type}"),
+        "undefined" => format!("undefined as {cast_type}"),
+        "null" => format!("null as {cast_type}"),
+        "symbol" => format!("Symbol() as {cast_type}"),
+        "object" => format!("{{}} as {cast_type}"),
+        "any" | "unknown" => format!("undefined as {cast_type}"),
+        "void" | "never" => format!("undefined as {cast_type}"),
+        // Generic type like RecordLink<Service> -> RecordLink.defaultValue<Service>()
+        _ if tr.contains('<') => {
+            if let Some(bracket_pos) = tr.find('<') {
+                let base_type = &tr[..bracket_pos];
+                let type_args = &tr[bracket_pos..]; // includes the <>
+                format!("{base_type}.defaultValue{type_args}() as {cast_type}")
+            } else {
+                format!("{tr}.defaultValue() as {cast_type}")
+            }
+        }
+        // Named type - use TypeName.defaultValue()
+        _ => format!("{tr}.defaultValue() as {cast_type}"),
+    }
+}
+
 /// Generates the getDefaultForVariant function.
 fn generate_default_for_variant(type_name: &str, config: &UnionConfig, discriminant_field: &str) -> String {
     // Determine how to generate the default value based on the discriminant field
@@ -242,7 +273,8 @@ fn generate_default_for_variant(type_name: &str, config: &UnionConfig, discrimin
         if is_literal_union {
             format!(r#"case "{value}": return "{value}" as {type_name};"#)
         } else if is_type_ref_union {
-            format!(r#"case "{value}": return {value}.defaultValue() as {type_name};"#)
+            let default_expr = get_type_ref_default(value, type_name);
+            format!(r#"case "{value}": return {default_expr};"#)
         } else {
             format!(r#"case "{value}": return {{ {discriminant_field}: "{value}" }} as {type_name};"#)
         }
@@ -255,7 +287,8 @@ fn generate_default_for_variant(type_name: &str, config: &UnionConfig, discrimin
     let default_return = if is_literal_union {
         format!(r#"return "{first_value}" as {type_name};"#)
     } else if is_type_ref_union {
-        format!(r#"return {first_value}.defaultValue() as {type_name};"#)
+        let default_expr = get_type_ref_default(first_value, type_name);
+        format!(r#"return {default_expr};"#)
     } else {
         format!(r#"return {{ {discriminant_field}: "{first_value}" }} as {type_name};"#)
     };

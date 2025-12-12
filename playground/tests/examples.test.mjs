@@ -226,6 +226,7 @@ test("Macro expansion formats code correctly", async () => {
   });
 
   // Check each method is on its own line
+  // vanilla uses @derive(JSON) from @playground/macro which generates toJSON()
   const toStringLine = lines.find((l) => l.includes("toString()"));
   const toJSONLine = lines.find((l) => l.includes("toJSON()"));
 
@@ -325,7 +326,7 @@ test(
           since: "2025-02-01",
           apiToken: "token_qa",
         });
-        assert.deepEqual(svelteUser.toJSON(), {
+        assert.deepEqual(svelteUser.toObject(), {
           __type: "MacroUser",
           __id: 0,
           id: "usr_55",
@@ -355,7 +356,7 @@ test(
           "/src/lib/demo/macro-user.ts",
         );
         assert.ok(
-          transformed?.code.includes("toJSON()"),
+          transformed?.code.includes("toObject()"),
           "Derived methods should appear in transformed code",
         );
       },

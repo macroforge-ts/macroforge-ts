@@ -51,7 +51,7 @@ const showcaseUser = new MacroUser(
 );
 
 export const showcaseUserSummary = showcaseUser.toString();
-export const showcaseUserJson = showcaseUser.toJSON();
+export const showcaseUserJson = showcaseUser.toObject();
 
 export class Account extends Schema.Class<Account>("Account")({
   id: Schema.propertySignature(Schema.String).annotations({

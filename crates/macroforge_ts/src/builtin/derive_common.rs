@@ -134,6 +134,16 @@ pub fn get_type_default(ts_type: &str) -> String {
         t if t.starts_with("Map<") => "new Map()".to_string(),
         t if t.starts_with("Set<") => "new Set()".to_string(),
         "Date" => "new Date()".to_string(),
+        // Generic type like RecordLink<Service> -> RecordLink.defaultValue<Service>()
+        t if t.contains('<') => {
+            if let Some(bracket_pos) = t.find('<') {
+                let base_type = &t[..bracket_pos];
+                let type_args = &t[bracket_pos..];
+                format!("{}.defaultValue{}()", base_type, type_args)
+            } else {
+                format!("{}.defaultValue()", t)
+            }
+        }
         // Unknown types: assume they implement Default trait with defaultValue() method
         type_name => format!("{}.defaultValue()", type_name),
     }

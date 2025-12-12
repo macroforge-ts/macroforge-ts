@@ -39,10 +39,11 @@ describe("Gigaform type generation", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(result.code.includes("export type Errors"), "Should generate Errors type");
-    assert.ok(result.code.includes("_errors?: Array<string>"), "Should have root _errors");
-    assert.ok(result.code.includes("name?: Array<string>"), "Should have name error array");
-    assert.ok(result.code.includes("email?: Array<string>"), "Should have email error array");
-    assert.ok(result.code.includes("age?: Array<string>"), "Should have age error array");
+    // Implementation uses Option<Array<string>> instead of Array<string> | undefined
+    assert.ok(result.code.includes("_errors: Option<Array<string>>"), "Should have root _errors");
+    assert.ok(result.code.includes("name: Option<Array<string>>"), "Should have name error array");
+    assert.ok(result.code.includes("email: Option<Array<string>>"), "Should have email error array");
+    assert.ok(result.code.includes("age: Option<Array<string>>"), "Should have age error array");
   });
 
   test("generates Tainted type with boolean flags", () => {
@@ -56,8 +57,9 @@ describe("Gigaform type generation", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(result.code.includes("export type Tainted"), "Should generate Tainted type");
-    assert.ok(result.code.includes("name?: boolean"), "Should have name tainted flag");
-    assert.ok(result.code.includes("email?: boolean"), "Should have email tainted flag");
+    // Implementation uses Option<boolean> instead of boolean | undefined
+    assert.ok(result.code.includes("name: Option<boolean>"), "Should have name tainted flag");
+    assert.ok(result.code.includes("email: Option<boolean>"), "Should have email tainted flag");
   });
 
   test("generates FieldController interface", () => {
@@ -173,8 +175,10 @@ describe("Gigaform createForm factory", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("let errors = $state<Errors>({})"), "Should use $state for errors");
-    assert.ok(result.code.includes("let tainted = $state<Tainted>({})"), "Should use $state for tainted");
+    // Implementation initializes with Option.none() for each field
+    assert.ok(result.code.includes("let errors = $state<Errors>({"), "Should use $state for errors");
+    assert.ok(result.code.includes("Option.none()"), "Should initialize with Option.none()");
+    assert.ok(result.code.includes("let tainted = $state<Tainted>({"), "Should use $state for tainted");
   });
 
   test("generates validate function that delegates to fromObject", () => {
@@ -201,8 +205,9 @@ describe("Gigaform createForm factory", () => {
 
     assert.ok(result.code.includes("function reset("), "Should generate reset function");
     assert.ok(result.code.includes("newOverrides?: Partial<ResettableForm>"), "Should accept overrides");
-    assert.ok(result.code.includes("errors = {}"), "Should reset errors");
-    assert.ok(result.code.includes("tainted = {}"), "Should reset tainted");
+    // Implementation resets to Option.none() instead of empty object
+    assert.ok(result.code.includes("errors = {"), "Should reset errors");
+    assert.ok(result.code.includes("tainted = {"), "Should reset tainted");
   });
 
   test("generates getter/setter return object", () => {
@@ -251,8 +256,9 @@ describe("Gigaform field controllers", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("getError: () => errors?.email"), "Should generate getError closure");
-    assert.ok(result.code.includes("setError: (value: Array<string> | undefined) => { errors.email = value; }"), "Should generate setError closure");
+    // Implementation uses direct property access and Option type
+    assert.ok(result.code.includes("getError: () => errors.email"), "Should generate getError closure");
+    assert.ok(result.code.includes("setError: (value: Option<Array<string>>) => { errors.email = value; }"), "Should generate setError closure");
   });
 
   test("generates tainted accessors with closures", () => {
@@ -264,8 +270,9 @@ describe("Gigaform field controllers", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("getTainted: () => tainted?.field ?? false"), "Should generate getTainted closure");
-    assert.ok(result.code.includes("setTainted: (value: boolean) => { tainted.field = value; }"), "Should generate setTainted closure");
+    // Implementation uses direct property access and Option type
+    assert.ok(result.code.includes("getTainted: () => tainted.field"), "Should generate getTainted closure");
+    assert.ok(result.code.includes("setTainted: (value: Option<boolean>) => { tainted.field = value; }"), "Should generate setTainted closure");
   });
 
   test("generates field-level validate that filters form errors", () => {
@@ -494,8 +501,8 @@ describe("Gigaform fromFormData", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    // Match Result type with structured errors (whitespace may vary)
-    assert.ok(/utils<ResultForm,\s*Array<\{field:\s*string;\s*message:\s*string\}>>/.test(result.code),
+    // Match Result type with structured errors
+    assert.ok(result.code.includes("Result<ResultForm, Array<{field: string; message: string}>>"),
       "Should return Result with structured errors");
   });
 

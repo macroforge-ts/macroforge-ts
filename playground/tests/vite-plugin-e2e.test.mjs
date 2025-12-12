@@ -68,6 +68,7 @@ describe("Transform Pipeline", () => {
         result.code.includes("toString()"),
         "Should include generated toString method"
       );
+      // vanilla uses @derive(JSON) which generates toJSON()
       assert.ok(
         result.code.includes("toJSON()"),
         "Should include generated toJSON method"
@@ -150,7 +151,7 @@ describe("SSR Module Loading", () => {
       assert.ok(str.includes("identifier: 1"), "Should respect @debug rename");
       assert.ok(!str.includes("authToken"), "Should skip fields marked with skip: true");
 
-      // Verify JSON macro generated toJSON
+      // Verify JSON macro generated toJSON (vanilla uses @derive(JSON))
       assert.equal(typeof user.toJSON, "function", "Should have toJSON method");
       const json = user.toJSON();
       assert.equal(json.id, 1);
@@ -188,9 +189,9 @@ describe("SSR Module Loading", () => {
 
       // Verify methods work
       assert.equal(typeof user.toString, "function");
-      assert.equal(typeof user.toJSON, "function");
+      assert.equal(typeof user.toObject, "function");
 
-      const json = user.toJSON();
+      const json = user.toObject();
       assert.equal(json.id, "usr_1");
       assert.equal(json.name, "Svelte Tester");
     });

@@ -338,66 +338,12 @@
     "parent_id": "ts-quote"
   },
   {
-    "id": "ts-quote/identifier-concatenation-content",
-    "title": "Template Syntax: Identifier Concatenation: `&#123;| content |&#125;`",
+    "id": "ts-quote/interpolation-expr",
+    "title": "Template Syntax: Interpolation: `@&#123;expr&#125;`",
     "category": "custom-macros",
     "category_title": "Custom Macros",
-    "path": "custom-macros/ts-quote/identifier-concatenation-content.md",
-    "use_cases": "ts_quote, template, getuser, setname",
-    "parent_id": "ts-quote"
-  },
-  {
-    "id": "ts-quote/comments-and",
-    "title": "Template Syntax: Comments: `&#123;> ... <&#125;` and `&#123;>> ... <<&#125;`",
-    "category": "custom-macros",
-    "category_title": "Custom Macros",
-    "path": "custom-macros/ts-quote/comments-and.md",
-    "use_cases": "ts_quote, template, \n\n**generates:**\n\n",
-    "parent_id": "ts-quote"
-  },
-  {
-    "id": "ts-quote/string-interpolation-text-expr",
-    "title": "Template Syntax: String Interpolation: `\"text @&#123;expr&#125;\"`",
-    "category": "custom-macros",
-    "category_title": "Custom Macros",
-    "path": "custom-macros/ts-quote/string-interpolation-text-expr.md",
-    "use_cases": "ts_quote, template, format!(), \n\n**generates:**\n\n",
-    "parent_id": "ts-quote"
-  },
-  {
-    "id": "ts-quote/backtick-template-literals",
-    "title": "Template Syntax: Backtick Template Literals: `\"'^...^'\"`",
-    "category": "custom-macros",
-    "category_title": "Custom Macros",
-    "path": "custom-macros/ts-quote/backtick-template-literals.md",
-    "use_cases": "ts_quote, template, \"'^...^'\", '^...^', ${\"${}\"}",
-    "parent_id": "ts-quote"
-  },
-  {
-    "id": "ts-quote/conditionals-ifif",
-    "title": "Template Syntax: Conditionals: `&#123;#if&#125;...&#123;/if&#125;`",
-    "category": "custom-macros",
-    "category_title": "Custom Macros",
-    "path": "custom-macros/ts-quote/conditionals-ifif.md",
-    "use_cases": "ts_quote, template",
-    "parent_id": "ts-quote"
-  },
-  {
-    "id": "ts-quote/pattern-matching-if-let",
-    "title": "Template Syntax: Pattern Matching: `&#123;#if let&#125;`",
-    "category": "custom-macros",
-    "category_title": "Custom Macros",
-    "path": "custom-macros/ts-quote/pattern-matching-if-let.md",
-    "use_cases": "ts_quote, template, option, result",
-    "parent_id": "ts-quote"
-  },
-  {
-    "id": "ts-quote/match-expressions-match",
-    "title": "Template Syntax: Match Expressions: `&#123;#match&#125;`",
-    "category": "custom-macros",
-    "category_title": "Custom Macros",
-    "path": "custom-macros/ts-quote/match-expressions-match.md",
-    "use_cases": "ts_quote, template, &#123;#match&#125;, match, \n\n**generates:**\n\n",
+    "path": "custom-macros/ts-quote/interpolation-expr.md",
+    "use_cases": "ts_quote, template, @&#123;expr&#125;, \n\n**generates:**\n\n",
     "parent_id": "ts-quote"
   },
   {
@@ -419,21 +365,21 @@
     "parent_id": "ts-quote"
   },
   {
+    "id": "ts-quote/local-constants-let",
+    "title": "Template Syntax: Local Constants: `&#123;$let&#125;`",
+    "category": "custom-macros",
+    "category_title": "Custom Macros",
+    "path": "custom-macros/ts-quote/local-constants-let.md",
+    "use_cases": "ts_quote, template, &#123;$let&#125;, :\n\n",
+    "parent_id": "ts-quote"
+  },
+  {
     "id": "ts-quote/side-effects-do",
     "title": "Template Syntax: Side Effects: `&#123;$do&#125;`",
     "category": "custom-macros",
     "category_title": "Custom Macros",
     "path": "custom-macros/ts-quote/side-effects-do.md",
     "use_cases": "ts_quote, template, &#123;$do&#125;",
-    "parent_id": "ts-quote"
-  },
-  {
-    "id": "ts-quote/tsstream-injection-typescript",
-    "title": "Template Syntax: TsStream Injection: `&#123;$typescript&#125;`",
-    "category": "custom-macros",
-    "category_title": "Custom Macros",
-    "path": "custom-macros/ts-quote/tsstream-injection-typescript.md",
-    "use_cases": "ts_quote, template, &#123;$typescript&#125;, add_import()",
     "parent_id": "ts-quote"
   },
   {
@@ -456,17 +402,11 @@
     "chunk_ids": [
       "ts-quote/overview",
       "ts-quote/quick-reference",
-      "ts-quote/identifier-concatenation-content",
-      "ts-quote/comments-and",
-      "ts-quote/string-interpolation-text-expr",
-      "ts-quote/backtick-template-literals",
-      "ts-quote/conditionals-ifif",
-      "ts-quote/pattern-matching-if-let",
-      "ts-quote/match-expressions-match",
+      "ts-quote/interpolation-expr",
       "ts-quote/iteration-for",
       "ts-quote/while-loops-while",
+      "ts-quote/local-constants-let",
       "ts-quote/side-effects-do",
-      "ts-quote/tsstream-injection-typescript",
       "ts-quote/complete-example-json-derive-macro"
     ]
   },

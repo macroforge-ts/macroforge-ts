@@ -869,10 +869,11 @@ export type Table =
     | 'Represents'
     | 'Ordered';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform)
- * @default("")
- */
-export type Item = (string | Product) | (string | Service);
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type Item = RecordLink<Product> | /** @default */ RecordLink<Service>;
+
+/** @derive(Default, Serialize, Deserialize) */
+export type RecordLink<T> = /** @default */ string | T;
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type Actor = /** @default */ User | Employee | Account;
