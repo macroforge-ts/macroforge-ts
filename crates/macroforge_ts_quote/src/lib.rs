@@ -415,8 +415,8 @@ fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
 /// # Syntax
 ///
 /// - `@{expr}` - Interpolate expressions (converts to string)
-/// - `{> comment <}` - Block comment: outputs `/* comment */`
-/// - `{>> doc <<}` - Doc comment: outputs `/** doc */` (for JSDoc)
+/// - `{> "comment" <}` - Block comment: outputs `/* comment */` (string preserves whitespace)
+/// - `{>> "doc" <<}` - Doc comment: outputs `/** doc */` (string preserves whitespace)
 /// - `@@{` - Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)
 /// - `"'^template ${js}^'"` - JS backtick template literal (outputs `` `template ${js}` ``)
 /// - `{#if cond}...{/if}` - Conditional blocks
