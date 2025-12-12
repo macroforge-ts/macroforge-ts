@@ -4,6 +4,7 @@ import { DeserializeContext } from "macroforge/serde";
 import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
 import { PendingRef } from "macroforge/serde";
+import { Option } from "macroforge/utils";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface User {
@@ -348,38 +349,38 @@ export namespace User {
 
 export namespace User {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    email?: Array<string>;
-    firstName?: Array<string>;
-    lastName?: Array<string>;
-    password?: Array<string>;
-    metadata?: Array<string>;
-    settings?: Settings.Errors;
-    role?: UserRole.Errors;
-    emailVerified?: Array<string>;
-    verificationToken?: Array<string>;
-    verificationExpires?: Array<string>;
-    passwordResetToken?: Array<string>;
-    passwordResetExpires?: Array<string>;
-    permissions?: AppPermissions.Errors;
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    email: Option<Array<string>>;
+    firstName: Option<Array<string>>;
+    lastName: Option<Array<string>>;
+    password: Option<Array<string>>;
+    metadata: Option<Array<string>>;
+    settings: Option<Array<string>>;
+    role: Option<Array<string>>;
+    emailVerified: Option<Array<string>>;
+    verificationToken: Option<Array<string>>;
+    verificationExpires: Option<Array<string>>;
+    passwordResetToken: Option<Array<string>>;
+    passwordResetExpires: Option<Array<string>>;
+    permissions: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      id?: boolean;
-      email?: boolean;
-      firstName?: boolean;
-      lastName?: boolean;
-      password?: boolean;
-      metadata?: boolean;
-      settings?: Settings.Tainted;
-      role?: UserRole.Tainted;
-      emailVerified?: boolean;
-      verificationToken?: boolean;
-      verificationExpires?: boolean;
-      passwordResetToken?: boolean;
-      passwordResetExpires?: boolean;
-      permissions?: AppPermissions.Tainted;
+      id: Option<boolean>;
+      email: Option<boolean>;
+      firstName: Option<boolean>;
+      lastName: Option<boolean>;
+      password: Option<boolean>;
+      metadata: Option<boolean>;
+      settings: Option<boolean>;
+      role: Option<boolean>;
+      emailVerified: Option<boolean>;
+      verificationToken: Option<boolean>;
+      verificationExpires: Option<boolean>;
+      passwordResetToken: Option<boolean>;
+      passwordResetExpires: Option<boolean>;
+      permissions: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -394,10 +395,10 @@ export namespace User {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -428,8 +429,39 @@ export namespace User {
     overrides?: Partial<User>,
   ): Gigaform {
     let data = $state({ ...User.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      email: Option.none(),
+      firstName: Option.none(),
+      lastName: Option.none(),
+      password: Option.none(),
+      metadata: Option.none(),
+      settings: Option.none(),
+      role: Option.none(),
+      emailVerified: Option.none(),
+      verificationToken: Option.none(),
+      verificationExpires: Option.none(),
+      passwordResetToken: Option.none(),
+      passwordResetExpires: Option.none(),
+      permissions: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      email: Option.none(),
+      firstName: Option.none(),
+      lastName: Option.none(),
+      password: Option.none(),
+      metadata: Option.none(),
+      settings: Option.none(),
+      role: Option.none(),
+      emailVerified: Option.none(),
+      verificationToken: Option.none(),
+      verificationExpires: Option.none(),
+      passwordResetToken: Option.none(),
+      passwordResetExpires: Option.none(),
+      permissions: Option.none(),
+    });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -440,12 +472,12 @@ export namespace User {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -468,12 +500,12 @@ export namespace User {
         set: (value: string | null) => {
           data.email = value;
         },
-        getError: () => errors?.email,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.email,
+        setError: (value: Option<Array<string>>) => {
           errors.email = value;
         },
-        getTainted: () => tainted?.email ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.email,
+        setTainted: (value: Option<boolean>) => {
           tainted.email = value;
         },
         validate: (): Array<string> => {
@@ -496,12 +528,12 @@ export namespace User {
         set: (value: string) => {
           data.firstName = value;
         },
-        getError: () => errors?.firstName,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.firstName,
+        setError: (value: Option<Array<string>>) => {
           errors.firstName = value;
         },
-        getTainted: () => tainted?.firstName ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.firstName,
+        setTainted: (value: Option<boolean>) => {
           tainted.firstName = value;
         },
         validate: (): Array<string> => {
@@ -524,12 +556,12 @@ export namespace User {
         set: (value: string) => {
           data.lastName = value;
         },
-        getError: () => errors?.lastName,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.lastName,
+        setError: (value: Option<Array<string>>) => {
           errors.lastName = value;
         },
-        getTainted: () => tainted?.lastName ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.lastName,
+        setTainted: (value: Option<boolean>) => {
           tainted.lastName = value;
         },
         validate: (): Array<string> => {
@@ -552,12 +584,12 @@ export namespace User {
         set: (value: string | null) => {
           data.password = value;
         },
-        getError: () => errors?.password,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.password,
+        setError: (value: Option<Array<string>>) => {
           errors.password = value;
         },
-        getTainted: () => tainted?.password ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.password,
+        setTainted: (value: Option<boolean>) => {
           tainted.password = value;
         },
         validate: (): Array<string> => {
@@ -580,12 +612,12 @@ export namespace User {
         set: (value: Metadata | null) => {
           data.metadata = value;
         },
-        getError: () => errors?.metadata,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.metadata,
+        setError: (value: Option<Array<string>>) => {
           errors.metadata = value;
         },
-        getTainted: () => tainted?.metadata ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.metadata,
+        setTainted: (value: Option<boolean>) => {
           tainted.metadata = value;
         },
         validate: (): Array<string> => {
@@ -608,12 +640,12 @@ export namespace User {
         set: (value: Settings) => {
           data.settings = value;
         },
-        getError: () => errors?.settings,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.settings,
+        setError: (value: Option<Array<string>>) => {
           errors.settings = value;
         },
-        getTainted: () => tainted?.settings ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.settings,
+        setTainted: (value: Option<boolean>) => {
           tainted.settings = value;
         },
         validate: (): Array<string> => {
@@ -636,12 +668,12 @@ export namespace User {
         set: (value: UserRole) => {
           data.role = value;
         },
-        getError: () => errors?.role,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.role,
+        setError: (value: Option<Array<string>>) => {
           errors.role = value;
         },
-        getTainted: () => tainted?.role ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.role,
+        setTainted: (value: Option<boolean>) => {
           tainted.role = value;
         },
         validate: (): Array<string> => {
@@ -664,12 +696,12 @@ export namespace User {
         set: (value: boolean) => {
           data.emailVerified = value;
         },
-        getError: () => errors?.emailVerified,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.emailVerified,
+        setError: (value: Option<Array<string>>) => {
           errors.emailVerified = value;
         },
-        getTainted: () => tainted?.emailVerified ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.emailVerified,
+        setTainted: (value: Option<boolean>) => {
           tainted.emailVerified = value;
         },
         validate: (): Array<string> => {
@@ -692,12 +724,12 @@ export namespace User {
         set: (value: string | null) => {
           data.verificationToken = value;
         },
-        getError: () => errors?.verificationToken,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.verificationToken,
+        setError: (value: Option<Array<string>>) => {
           errors.verificationToken = value;
         },
-        getTainted: () => tainted?.verificationToken ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.verificationToken,
+        setTainted: (value: Option<boolean>) => {
           tainted.verificationToken = value;
         },
         validate: (): Array<string> => {
@@ -720,12 +752,12 @@ export namespace User {
         set: (value: string | null) => {
           data.verificationExpires = value;
         },
-        getError: () => errors?.verificationExpires,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.verificationExpires,
+        setError: (value: Option<Array<string>>) => {
           errors.verificationExpires = value;
         },
-        getTainted: () => tainted?.verificationExpires ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.verificationExpires,
+        setTainted: (value: Option<boolean>) => {
           tainted.verificationExpires = value;
         },
         validate: (): Array<string> => {
@@ -748,12 +780,12 @@ export namespace User {
         set: (value: string | null) => {
           data.passwordResetToken = value;
         },
-        getError: () => errors?.passwordResetToken,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.passwordResetToken,
+        setError: (value: Option<Array<string>>) => {
           errors.passwordResetToken = value;
         },
-        getTainted: () => tainted?.passwordResetToken ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.passwordResetToken,
+        setTainted: (value: Option<boolean>) => {
           tainted.passwordResetToken = value;
         },
         validate: (): Array<string> => {
@@ -776,12 +808,12 @@ export namespace User {
         set: (value: string | null) => {
           data.passwordResetExpires = value;
         },
-        getError: () => errors?.passwordResetExpires,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.passwordResetExpires,
+        setError: (value: Option<Array<string>>) => {
           errors.passwordResetExpires = value;
         },
-        getTainted: () => tainted?.passwordResetExpires ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.passwordResetExpires,
+        setTainted: (value: Option<boolean>) => {
           tainted.passwordResetExpires = value;
         },
         validate: (): Array<string> => {
@@ -804,12 +836,12 @@ export namespace User {
         set: (value: AppPermissions) => {
           data.permissions = value;
         },
-        getError: () => errors?.permissions,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.permissions,
+        setError: (value: Option<Array<string>>) => {
           errors.permissions = value;
         },
-        getTainted: () => tainted?.permissions ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.permissions,
+        setTainted: (value: Option<boolean>) => {
           tainted.permissions = value;
         },
         validate: (): Array<string> => {
@@ -832,8 +864,39 @@ export namespace User {
     }
     function reset(newOverrides?: Partial<User>): void {
       data = { ...User.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        email: Option.none(),
+        firstName: Option.none(),
+        lastName: Option.none(),
+        password: Option.none(),
+        metadata: Option.none(),
+        settings: Option.none(),
+        role: Option.none(),
+        emailVerified: Option.none(),
+        verificationToken: Option.none(),
+        verificationExpires: Option.none(),
+        passwordResetToken: Option.none(),
+        passwordResetExpires: Option.none(),
+        permissions: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        email: Option.none(),
+        firstName: Option.none(),
+        lastName: Option.none(),
+        password: Option.none(),
+        metadata: Option.none(),
+        settings: Option.none(),
+        role: Option.none(),
+        emailVerified: Option.none(),
+        verificationToken: Option.none(),
+        verificationExpires: Option.none(),
+        passwordResetToken: Option.none(),
+        passwordResetExpires: Option.none(),
+        permissions: Option.none(),
+      };
     }
     return {
       get data() {
@@ -1209,32 +1272,32 @@ export namespace Service {
 
 export namespace Service {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    name?: Array<string>;
-    quickCode?: Array<string>;
-    group?: Array<string>;
-    subgroup?: Array<string>;
-    unit?: Array<string>;
-    active?: Array<string>;
-    commission?: Array<string>;
-    favorite?: Array<string>;
-    averageTime?: Array<string>;
-    defaults?: ServiceDefaults.Errors;
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    name: Option<Array<string>>;
+    quickCode: Option<Array<string>>;
+    group: Option<Array<string>>;
+    subgroup: Option<Array<string>>;
+    unit: Option<Array<string>>;
+    active: Option<Array<string>>;
+    commission: Option<Array<string>>;
+    favorite: Option<Array<string>>;
+    averageTime: Option<Array<string>>;
+    defaults: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      id?: boolean;
-      name?: boolean;
-      quickCode?: boolean;
-      group?: boolean;
-      subgroup?: boolean;
-      unit?: boolean;
-      active?: boolean;
-      commission?: boolean;
-      favorite?: boolean;
-      averageTime?: boolean;
-      defaults?: ServiceDefaults.Tainted;
+      id: Option<boolean>;
+      name: Option<boolean>;
+      quickCode: Option<boolean>;
+      group: Option<boolean>;
+      subgroup: Option<boolean>;
+      unit: Option<boolean>;
+      active: Option<boolean>;
+      commission: Option<boolean>;
+      favorite: Option<boolean>;
+      averageTime: Option<boolean>;
+      defaults: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -1249,10 +1312,10 @@ export namespace Service {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -1280,8 +1343,33 @@ export namespace Service {
     overrides?: Partial<Service>,
   ): Gigaform {
     let data = $state({ ...Service.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      name: Option.none(),
+      quickCode: Option.none(),
+      group: Option.none(),
+      subgroup: Option.none(),
+      unit: Option.none(),
+      active: Option.none(),
+      commission: Option.none(),
+      favorite: Option.none(),
+      averageTime: Option.none(),
+      defaults: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      name: Option.none(),
+      quickCode: Option.none(),
+      group: Option.none(),
+      subgroup: Option.none(),
+      unit: Option.none(),
+      active: Option.none(),
+      commission: Option.none(),
+      favorite: Option.none(),
+      averageTime: Option.none(),
+      defaults: Option.none(),
+    });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -1292,12 +1380,12 @@ export namespace Service {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -1320,12 +1408,12 @@ export namespace Service {
         set: (value: string) => {
           data.name = value;
         },
-        getError: () => errors?.name,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.name,
+        setError: (value: Option<Array<string>>) => {
           errors.name = value;
         },
-        getTainted: () => tainted?.name ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.name,
+        setTainted: (value: Option<boolean>) => {
           tainted.name = value;
         },
         validate: (): Array<string> => {
@@ -1348,12 +1436,12 @@ export namespace Service {
         set: (value: string) => {
           data.quickCode = value;
         },
-        getError: () => errors?.quickCode,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.quickCode,
+        setError: (value: Option<Array<string>>) => {
           errors.quickCode = value;
         },
-        getTainted: () => tainted?.quickCode ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.quickCode,
+        setTainted: (value: Option<boolean>) => {
           tainted.quickCode = value;
         },
         validate: (): Array<string> => {
@@ -1376,12 +1464,12 @@ export namespace Service {
         set: (value: string | null) => {
           data.group = value;
         },
-        getError: () => errors?.group,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.group,
+        setError: (value: Option<Array<string>>) => {
           errors.group = value;
         },
-        getTainted: () => tainted?.group ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.group,
+        setTainted: (value: Option<boolean>) => {
           tainted.group = value;
         },
         validate: (): Array<string> => {
@@ -1404,12 +1492,12 @@ export namespace Service {
         set: (value: string | null) => {
           data.subgroup = value;
         },
-        getError: () => errors?.subgroup,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.subgroup,
+        setError: (value: Option<Array<string>>) => {
           errors.subgroup = value;
         },
-        getTainted: () => tainted?.subgroup ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.subgroup,
+        setTainted: (value: Option<boolean>) => {
           tainted.subgroup = value;
         },
         validate: (): Array<string> => {
@@ -1432,12 +1520,12 @@ export namespace Service {
         set: (value: string | null) => {
           data.unit = value;
         },
-        getError: () => errors?.unit,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.unit,
+        setError: (value: Option<Array<string>>) => {
           errors.unit = value;
         },
-        getTainted: () => tainted?.unit ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.unit,
+        setTainted: (value: Option<boolean>) => {
           tainted.unit = value;
         },
         validate: (): Array<string> => {
@@ -1460,12 +1548,12 @@ export namespace Service {
         set: (value: boolean) => {
           data.active = value;
         },
-        getError: () => errors?.active,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.active,
+        setError: (value: Option<Array<string>>) => {
           errors.active = value;
         },
-        getTainted: () => tainted?.active ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.active,
+        setTainted: (value: Option<boolean>) => {
           tainted.active = value;
         },
         validate: (): Array<string> => {
@@ -1488,12 +1576,12 @@ export namespace Service {
         set: (value: boolean) => {
           data.commission = value;
         },
-        getError: () => errors?.commission,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.commission,
+        setError: (value: Option<Array<string>>) => {
           errors.commission = value;
         },
-        getTainted: () => tainted?.commission ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.commission,
+        setTainted: (value: Option<boolean>) => {
           tainted.commission = value;
         },
         validate: (): Array<string> => {
@@ -1516,12 +1604,12 @@ export namespace Service {
         set: (value: boolean) => {
           data.favorite = value;
         },
-        getError: () => errors?.favorite,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.favorite,
+        setError: (value: Option<Array<string>>) => {
           errors.favorite = value;
         },
-        getTainted: () => tainted?.favorite ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.favorite,
+        setTainted: (value: Option<boolean>) => {
           tainted.favorite = value;
         },
         validate: (): Array<string> => {
@@ -1544,12 +1632,12 @@ export namespace Service {
         set: (value: string | null) => {
           data.averageTime = value;
         },
-        getError: () => errors?.averageTime,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.averageTime,
+        setError: (value: Option<Array<string>>) => {
           errors.averageTime = value;
         },
-        getTainted: () => tainted?.averageTime ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.averageTime,
+        setTainted: (value: Option<boolean>) => {
           tainted.averageTime = value;
         },
         validate: (): Array<string> => {
@@ -1572,12 +1660,12 @@ export namespace Service {
         set: (value: ServiceDefaults) => {
           data.defaults = value;
         },
-        getError: () => errors?.defaults,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.defaults,
+        setError: (value: Option<Array<string>>) => {
           errors.defaults = value;
         },
-        getTainted: () => tainted?.defaults ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.defaults,
+        setTainted: (value: Option<boolean>) => {
           tainted.defaults = value;
         },
         validate: (): Array<string> => {
@@ -1600,8 +1688,33 @@ export namespace Service {
     }
     function reset(newOverrides?: Partial<Service>): void {
       data = { ...Service.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        name: Option.none(),
+        quickCode: Option.none(),
+        group: Option.none(),
+        subgroup: Option.none(),
+        unit: Option.none(),
+        active: Option.none(),
+        commission: Option.none(),
+        favorite: Option.none(),
+        averageTime: Option.none(),
+        defaults: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        name: Option.none(),
+        quickCode: Option.none(),
+        group: Option.none(),
+        subgroup: Option.none(),
+        unit: Option.none(),
+        active: Option.none(),
+        commission: Option.none(),
+        favorite: Option.none(),
+        averageTime: Option.none(),
+        defaults: Option.none(),
+      };
     }
     return {
       get data() {
@@ -1810,12 +1923,12 @@ export namespace ServiceDefaults {
 
 export namespace ServiceDefaults {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    price?: Array<string>;
-    description?: Array<string>;
+    _errors: Option<Array<string>>;
+    price: Option<Array<string>>;
+    description: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { price?: boolean; description?: boolean };
+    { price: Option<boolean>; description: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -1829,10 +1942,10 @@ export namespace ServiceDefaults {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -1854,8 +1967,15 @@ export namespace ServiceDefaults {
     overrides?: Partial<ServiceDefaults>,
   ): Gigaform {
     let data = $state({ ...ServiceDefaults.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      price: Option.none(),
+      description: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      price: Option.none(),
+      description: Option.none(),
+    });
     const fields: FieldControllers = {
       price: {
         path: ["price"] as const,
@@ -1866,12 +1986,12 @@ export namespace ServiceDefaults {
         set: (value: number) => {
           data.price = value;
         },
-        getError: () => errors?.price,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.price,
+        setError: (value: Option<Array<string>>) => {
           errors.price = value;
         },
-        getTainted: () => tainted?.price ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.price,
+        setTainted: (value: Option<boolean>) => {
           tainted.price = value;
         },
         validate: (): Array<string> => {
@@ -1894,12 +2014,12 @@ export namespace ServiceDefaults {
         set: (value: string) => {
           data.description = value;
         },
-        getError: () => errors?.description,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.description,
+        setError: (value: Option<Array<string>>) => {
           errors.description = value;
         },
-        getTainted: () => tainted?.description ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.description,
+        setTainted: (value: Option<boolean>) => {
           tainted.description = value;
         },
         validate: (): Array<string> => {
@@ -1922,8 +2042,12 @@ export namespace ServiceDefaults {
     }
     function reset(newOverrides?: Partial<ServiceDefaults>): void {
       data = { ...ServiceDefaults.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        price: Option.none(),
+        description: Option.none(),
+      };
+      tainted = { price: Option.none(), description: Option.none() };
     }
     return {
       get data() {
@@ -2150,22 +2274,22 @@ export namespace Did {
 
 export namespace Did {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    in?: Array<string>;
-    out?: Array<string>;
-    id?: Array<string>;
-    activityType?: ActivityType.Errors;
-    createdAt?: Array<string>;
-    metadata?: Array<string>;
+    _errors: Option<Array<string>>;
+    in: Option<Array<string>>;
+    out: Option<Array<string>>;
+    id: Option<Array<string>>;
+    activityType: Option<Array<string>>;
+    createdAt: Option<Array<string>>;
+    metadata: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      in?: boolean;
-      out?: boolean;
-      id?: boolean;
-      activityType?: ActivityType.Tainted;
-      createdAt?: boolean;
-      metadata?: boolean;
+      in: Option<boolean>;
+      out: Option<boolean>;
+      id: Option<boolean>;
+      activityType: Option<boolean>;
+      createdAt: Option<boolean>;
+      metadata: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -2180,10 +2304,10 @@ export namespace Did {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -2206,8 +2330,23 @@ export namespace Did {
     overrides?: Partial<Did>,
   ): Gigaform {
     let data = $state({ ...Did.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      in: Option.none(),
+      out: Option.none(),
+      id: Option.none(),
+      activityType: Option.none(),
+      createdAt: Option.none(),
+      metadata: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      in: Option.none(),
+      out: Option.none(),
+      id: Option.none(),
+      activityType: Option.none(),
+      createdAt: Option.none(),
+      metadata: Option.none(),
+    });
     const fields: FieldControllers = {
       in: {
         path: ["in"] as const,
@@ -2218,12 +2357,12 @@ export namespace Did {
         set: (value: string | Actor) => {
           data.in = value;
         },
-        getError: () => errors?.in,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.in,
+        setError: (value: Option<Array<string>>) => {
           errors.in = value;
         },
-        getTainted: () => tainted?.in ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.in,
+        setTainted: (value: Option<boolean>) => {
           tainted.in = value;
         },
         validate: (): Array<string> => {
@@ -2246,12 +2385,12 @@ export namespace Did {
         set: (value: string | Target) => {
           data.out = value;
         },
-        getError: () => errors?.out,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.out,
+        setError: (value: Option<Array<string>>) => {
           errors.out = value;
         },
-        getTainted: () => tainted?.out ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.out,
+        setTainted: (value: Option<boolean>) => {
           tainted.out = value;
         },
         validate: (): Array<string> => {
@@ -2274,12 +2413,12 @@ export namespace Did {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -2302,12 +2441,12 @@ export namespace Did {
         set: (value: ActivityType) => {
           data.activityType = value;
         },
-        getError: () => errors?.activityType,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.activityType,
+        setError: (value: Option<Array<string>>) => {
           errors.activityType = value;
         },
-        getTainted: () => tainted?.activityType ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.activityType,
+        setTainted: (value: Option<boolean>) => {
           tainted.activityType = value;
         },
         validate: (): Array<string> => {
@@ -2330,12 +2469,12 @@ export namespace Did {
         set: (value: string) => {
           data.createdAt = value;
         },
-        getError: () => errors?.createdAt,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.createdAt,
+        setError: (value: Option<Array<string>>) => {
           errors.createdAt = value;
         },
-        getTainted: () => tainted?.createdAt ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.createdAt,
+        setTainted: (value: Option<boolean>) => {
           tainted.createdAt = value;
         },
         validate: (): Array<string> => {
@@ -2358,12 +2497,12 @@ export namespace Did {
         set: (value: string | null) => {
           data.metadata = value;
         },
-        getError: () => errors?.metadata,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.metadata,
+        setError: (value: Option<Array<string>>) => {
           errors.metadata = value;
         },
-        getTainted: () => tainted?.metadata ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.metadata,
+        setTainted: (value: Option<boolean>) => {
           tainted.metadata = value;
         },
         validate: (): Array<string> => {
@@ -2386,8 +2525,23 @@ export namespace Did {
     }
     function reset(newOverrides?: Partial<Did>): void {
       data = { ...Did.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        in: Option.none(),
+        out: Option.none(),
+        id: Option.none(),
+        activityType: Option.none(),
+        createdAt: Option.none(),
+        metadata: Option.none(),
+      };
+      tainted = {
+        in: Option.none(),
+        out: Option.none(),
+        id: Option.none(),
+        activityType: Option.none(),
+        createdAt: Option.none(),
+        metadata: Option.none(),
+      };
     }
     return {
       get data() {
@@ -2577,12 +2731,12 @@ export namespace PersonName {
 
 export namespace PersonName {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    firstName?: Array<string>;
-    lastName?: Array<string>;
+    _errors: Option<Array<string>>;
+    firstName: Option<Array<string>>;
+    lastName: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { firstName?: boolean; lastName?: boolean };
+    { firstName: Option<boolean>; lastName: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -2596,10 +2750,10 @@ export namespace PersonName {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -2618,8 +2772,15 @@ export namespace PersonName {
     overrides?: Partial<PersonName>,
   ): Gigaform {
     let data = $state({ ...PersonName.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      firstName: Option.none(),
+      lastName: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      firstName: Option.none(),
+      lastName: Option.none(),
+    });
     const fields: FieldControllers = {
       firstName: {
         path: ["firstName"] as const,
@@ -2630,12 +2791,12 @@ export namespace PersonName {
         set: (value: string) => {
           data.firstName = value;
         },
-        getError: () => errors?.firstName,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.firstName,
+        setError: (value: Option<Array<string>>) => {
           errors.firstName = value;
         },
-        getTainted: () => tainted?.firstName ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.firstName,
+        setTainted: (value: Option<boolean>) => {
           tainted.firstName = value;
         },
         validate: (): Array<string> => {
@@ -2658,12 +2819,12 @@ export namespace PersonName {
         set: (value: string) => {
           data.lastName = value;
         },
-        getError: () => errors?.lastName,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.lastName,
+        setError: (value: Option<Array<string>>) => {
           errors.lastName = value;
         },
-        getTainted: () => tainted?.lastName ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.lastName,
+        setTainted: (value: Option<boolean>) => {
           tainted.lastName = value;
         },
         validate: (): Array<string> => {
@@ -2686,8 +2847,12 @@ export namespace PersonName {
     }
     function reset(newOverrides?: Partial<PersonName>): void {
       data = { ...PersonName.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        firstName: Option.none(),
+        lastName: Option.none(),
+      };
+      tainted = { firstName: Option.none(), lastName: Option.none() };
     }
     return {
       get data() {
@@ -2851,12 +3016,12 @@ export namespace Promotion {
 
 export namespace Promotion {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    date?: Array<string>;
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    date: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { id?: boolean; date?: boolean };
+    { id: Option<boolean>; date: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -2870,10 +3035,10 @@ export namespace Promotion {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -2892,8 +3057,12 @@ export namespace Promotion {
     overrides?: Partial<Promotion>,
   ): Gigaform {
     let data = $state({ ...Promotion.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      date: Option.none(),
+    });
+    let tainted = $state<Tainted>({ id: Option.none(), date: Option.none() });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -2904,12 +3073,12 @@ export namespace Promotion {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -2932,12 +3101,12 @@ export namespace Promotion {
         set: (value: string) => {
           data.date = value;
         },
-        getError: () => errors?.date,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.date,
+        setError: (value: Option<Array<string>>) => {
           errors.date = value;
         },
-        getTainted: () => tainted?.date ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.date,
+        setTainted: (value: Option<boolean>) => {
           tainted.date = value;
         },
         validate: (): Array<string> => {
@@ -2960,8 +3129,12 @@ export namespace Promotion {
     }
     function reset(newOverrides?: Partial<Promotion>): void {
       data = { ...Promotion.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        date: Option.none(),
+      };
+      tainted = { id: Option.none(), date: Option.none() };
     }
     return {
       get data() {
@@ -3293,34 +3466,34 @@ export namespace Site {
 
 export namespace Site {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    addressLine1?: Array<string>;
-    addressLine2?: Array<string>;
-    sublocalityLevel1?: Array<string>;
-    locality?: Array<string>;
-    administrativeAreaLevel3?: Array<string>;
-    administrativeAreaLevel2?: Array<string>;
-    administrativeAreaLevel1?: Array<string>;
-    country?: Array<string>;
-    postalCode?: Array<string>;
-    postalCodeSuffix?: Array<string>;
-    coordinates?: Coordinates.Errors;
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    addressLine1: Option<Array<string>>;
+    addressLine2: Option<Array<string>>;
+    sublocalityLevel1: Option<Array<string>>;
+    locality: Option<Array<string>>;
+    administrativeAreaLevel3: Option<Array<string>>;
+    administrativeAreaLevel2: Option<Array<string>>;
+    administrativeAreaLevel1: Option<Array<string>>;
+    country: Option<Array<string>>;
+    postalCode: Option<Array<string>>;
+    postalCodeSuffix: Option<Array<string>>;
+    coordinates: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      id?: boolean;
-      addressLine1?: boolean;
-      addressLine2?: boolean;
-      sublocalityLevel1?: boolean;
-      locality?: boolean;
-      administrativeAreaLevel3?: boolean;
-      administrativeAreaLevel2?: boolean;
-      administrativeAreaLevel1?: boolean;
-      country?: boolean;
-      postalCode?: boolean;
-      postalCodeSuffix?: boolean;
-      coordinates?: Coordinates.Tainted;
+      id: Option<boolean>;
+      addressLine1: Option<boolean>;
+      addressLine2: Option<boolean>;
+      sublocalityLevel1: Option<boolean>;
+      locality: Option<boolean>;
+      administrativeAreaLevel3: Option<boolean>;
+      administrativeAreaLevel2: Option<boolean>;
+      administrativeAreaLevel1: Option<boolean>;
+      country: Option<boolean>;
+      postalCode: Option<boolean>;
+      postalCodeSuffix: Option<boolean>;
+      coordinates: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -3335,10 +3508,10 @@ export namespace Site {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -3367,8 +3540,35 @@ export namespace Site {
     overrides?: Partial<Site>,
   ): Gigaform {
     let data = $state({ ...Site.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      addressLine1: Option.none(),
+      addressLine2: Option.none(),
+      sublocalityLevel1: Option.none(),
+      locality: Option.none(),
+      administrativeAreaLevel3: Option.none(),
+      administrativeAreaLevel2: Option.none(),
+      administrativeAreaLevel1: Option.none(),
+      country: Option.none(),
+      postalCode: Option.none(),
+      postalCodeSuffix: Option.none(),
+      coordinates: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      addressLine1: Option.none(),
+      addressLine2: Option.none(),
+      sublocalityLevel1: Option.none(),
+      locality: Option.none(),
+      administrativeAreaLevel3: Option.none(),
+      administrativeAreaLevel2: Option.none(),
+      administrativeAreaLevel1: Option.none(),
+      country: Option.none(),
+      postalCode: Option.none(),
+      postalCodeSuffix: Option.none(),
+      coordinates: Option.none(),
+    });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -3379,12 +3579,12 @@ export namespace Site {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -3407,12 +3607,12 @@ export namespace Site {
         set: (value: string) => {
           data.addressLine1 = value;
         },
-        getError: () => errors?.addressLine1,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.addressLine1,
+        setError: (value: Option<Array<string>>) => {
           errors.addressLine1 = value;
         },
-        getTainted: () => tainted?.addressLine1 ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.addressLine1,
+        setTainted: (value: Option<boolean>) => {
           tainted.addressLine1 = value;
         },
         validate: (): Array<string> => {
@@ -3435,12 +3635,12 @@ export namespace Site {
         set: (value: string | null) => {
           data.addressLine2 = value;
         },
-        getError: () => errors?.addressLine2,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.addressLine2,
+        setError: (value: Option<Array<string>>) => {
           errors.addressLine2 = value;
         },
-        getTainted: () => tainted?.addressLine2 ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.addressLine2,
+        setTainted: (value: Option<boolean>) => {
           tainted.addressLine2 = value;
         },
         validate: (): Array<string> => {
@@ -3463,12 +3663,12 @@ export namespace Site {
         set: (value: string | null) => {
           data.sublocalityLevel1 = value;
         },
-        getError: () => errors?.sublocalityLevel1,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.sublocalityLevel1,
+        setError: (value: Option<Array<string>>) => {
           errors.sublocalityLevel1 = value;
         },
-        getTainted: () => tainted?.sublocalityLevel1 ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.sublocalityLevel1,
+        setTainted: (value: Option<boolean>) => {
           tainted.sublocalityLevel1 = value;
         },
         validate: (): Array<string> => {
@@ -3491,12 +3691,12 @@ export namespace Site {
         set: (value: string) => {
           data.locality = value;
         },
-        getError: () => errors?.locality,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.locality,
+        setError: (value: Option<Array<string>>) => {
           errors.locality = value;
         },
-        getTainted: () => tainted?.locality ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.locality,
+        setTainted: (value: Option<boolean>) => {
           tainted.locality = value;
         },
         validate: (): Array<string> => {
@@ -3519,12 +3719,12 @@ export namespace Site {
         set: (value: string | null) => {
           data.administrativeAreaLevel3 = value;
         },
-        getError: () => errors?.administrativeAreaLevel3,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.administrativeAreaLevel3,
+        setError: (value: Option<Array<string>>) => {
           errors.administrativeAreaLevel3 = value;
         },
-        getTainted: () => tainted?.administrativeAreaLevel3 ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.administrativeAreaLevel3,
+        setTainted: (value: Option<boolean>) => {
           tainted.administrativeAreaLevel3 = value;
         },
         validate: (): Array<string> => {
@@ -3547,12 +3747,12 @@ export namespace Site {
         set: (value: string | null) => {
           data.administrativeAreaLevel2 = value;
         },
-        getError: () => errors?.administrativeAreaLevel2,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.administrativeAreaLevel2,
+        setError: (value: Option<Array<string>>) => {
           errors.administrativeAreaLevel2 = value;
         },
-        getTainted: () => tainted?.administrativeAreaLevel2 ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.administrativeAreaLevel2,
+        setTainted: (value: Option<boolean>) => {
           tainted.administrativeAreaLevel2 = value;
         },
         validate: (): Array<string> => {
@@ -3575,12 +3775,12 @@ export namespace Site {
         set: (value: string) => {
           data.administrativeAreaLevel1 = value;
         },
-        getError: () => errors?.administrativeAreaLevel1,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.administrativeAreaLevel1,
+        setError: (value: Option<Array<string>>) => {
           errors.administrativeAreaLevel1 = value;
         },
-        getTainted: () => tainted?.administrativeAreaLevel1 ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.administrativeAreaLevel1,
+        setTainted: (value: Option<boolean>) => {
           tainted.administrativeAreaLevel1 = value;
         },
         validate: (): Array<string> => {
@@ -3603,12 +3803,12 @@ export namespace Site {
         set: (value: string) => {
           data.country = value;
         },
-        getError: () => errors?.country,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.country,
+        setError: (value: Option<Array<string>>) => {
           errors.country = value;
         },
-        getTainted: () => tainted?.country ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.country,
+        setTainted: (value: Option<boolean>) => {
           tainted.country = value;
         },
         validate: (): Array<string> => {
@@ -3631,12 +3831,12 @@ export namespace Site {
         set: (value: string) => {
           data.postalCode = value;
         },
-        getError: () => errors?.postalCode,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.postalCode,
+        setError: (value: Option<Array<string>>) => {
           errors.postalCode = value;
         },
-        getTainted: () => tainted?.postalCode ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.postalCode,
+        setTainted: (value: Option<boolean>) => {
           tainted.postalCode = value;
         },
         validate: (): Array<string> => {
@@ -3659,12 +3859,12 @@ export namespace Site {
         set: (value: string | null) => {
           data.postalCodeSuffix = value;
         },
-        getError: () => errors?.postalCodeSuffix,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.postalCodeSuffix,
+        setError: (value: Option<Array<string>>) => {
           errors.postalCodeSuffix = value;
         },
-        getTainted: () => tainted?.postalCodeSuffix ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.postalCodeSuffix,
+        setTainted: (value: Option<boolean>) => {
           tainted.postalCodeSuffix = value;
         },
         validate: (): Array<string> => {
@@ -3687,12 +3887,12 @@ export namespace Site {
         set: (value: Coordinates) => {
           data.coordinates = value;
         },
-        getError: () => errors?.coordinates,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.coordinates,
+        setError: (value: Option<Array<string>>) => {
           errors.coordinates = value;
         },
-        getTainted: () => tainted?.coordinates ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.coordinates,
+        setTainted: (value: Option<boolean>) => {
           tainted.coordinates = value;
         },
         validate: (): Array<string> => {
@@ -3715,8 +3915,35 @@ export namespace Site {
     }
     function reset(newOverrides?: Partial<Site>): void {
       data = { ...Site.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        addressLine1: Option.none(),
+        addressLine2: Option.none(),
+        sublocalityLevel1: Option.none(),
+        locality: Option.none(),
+        administrativeAreaLevel3: Option.none(),
+        administrativeAreaLevel2: Option.none(),
+        administrativeAreaLevel1: Option.none(),
+        country: Option.none(),
+        postalCode: Option.none(),
+        postalCodeSuffix: Option.none(),
+        coordinates: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        addressLine1: Option.none(),
+        addressLine2: Option.none(),
+        sublocalityLevel1: Option.none(),
+        locality: Option.none(),
+        administrativeAreaLevel3: Option.none(),
+        administrativeAreaLevel2: Option.none(),
+        administrativeAreaLevel1: Option.none(),
+        country: Option.none(),
+        postalCode: Option.none(),
+        postalCodeSuffix: Option.none(),
+        coordinates: Option.none(),
+      };
     }
     return {
       get data() {
@@ -3945,18 +4172,18 @@ export namespace Metadata {
 
 export namespace Metadata {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    createdAt?: Array<string>;
-    lastLogin?: Array<string>;
-    isActive?: Array<string>;
-    roles?: { _errors?: Array<string>; [index: number]: Array<string> };
+    _errors: Option<Array<string>>;
+    createdAt: Option<Array<string>>;
+    lastLogin: Option<Array<string>>;
+    isActive: Option<Array<string>>;
+    roles: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      createdAt?: boolean;
-      lastLogin?: boolean;
-      isActive?: boolean;
-      roles?: { [index: number]: boolean };
+      createdAt: Option<boolean>;
+      lastLogin: Option<boolean>;
+      isActive: Option<boolean>;
+      roles: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -3971,10 +4198,10 @@ export namespace Metadata {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -3995,8 +4222,19 @@ export namespace Metadata {
     overrides?: Partial<Metadata>,
   ): Gigaform {
     let data = $state({ ...Metadata.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      createdAt: Option.none(),
+      lastLogin: Option.none(),
+      isActive: Option.none(),
+      roles: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      createdAt: Option.none(),
+      lastLogin: Option.none(),
+      isActive: Option.none(),
+      roles: Option.none(),
+    });
     const fields: FieldControllers = {
       createdAt: {
         path: ["createdAt"] as const,
@@ -4007,12 +4245,12 @@ export namespace Metadata {
         set: (value: string) => {
           data.createdAt = value;
         },
-        getError: () => errors?.createdAt,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.createdAt,
+        setError: (value: Option<Array<string>>) => {
           errors.createdAt = value;
         },
-        getTainted: () => tainted?.createdAt ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.createdAt,
+        setTainted: (value: Option<boolean>) => {
           tainted.createdAt = value;
         },
         validate: (): Array<string> => {
@@ -4035,12 +4273,12 @@ export namespace Metadata {
         set: (value: string | null) => {
           data.lastLogin = value;
         },
-        getError: () => errors?.lastLogin,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.lastLogin,
+        setError: (value: Option<Array<string>>) => {
           errors.lastLogin = value;
         },
-        getTainted: () => tainted?.lastLogin ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.lastLogin,
+        setTainted: (value: Option<boolean>) => {
           tainted.lastLogin = value;
         },
         validate: (): Array<string> => {
@@ -4063,12 +4301,12 @@ export namespace Metadata {
         set: (value: boolean) => {
           data.isActive = value;
         },
-        getError: () => errors?.isActive,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.isActive,
+        setError: (value: Option<Array<string>>) => {
           errors.isActive = value;
         },
-        getTainted: () => tainted?.isActive ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.isActive,
+        setTainted: (value: Option<boolean>) => {
           tainted.isActive = value;
         },
         validate: (): Array<string> => {
@@ -4091,12 +4329,12 @@ export namespace Metadata {
         set: (value: string[]) => {
           data.roles = value;
         },
-        getError: () => errors?.roles,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.roles,
+        setError: (value: Option<Array<string>>) => {
           errors.roles = value;
         },
-        getTainted: () => tainted?.roles ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.roles,
+        setTainted: (value: Option<boolean>) => {
           tainted.roles = value;
         },
         validate: (): Array<string> => {
@@ -4117,16 +4355,13 @@ export namespace Metadata {
           set: (value: string) => {
             data.roles[index] = value;
           },
-          getError: () =>
-            (errors.roles as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.roles ??= {};
-            (errors.roles as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.roles,
+          setError: (value: Option<Array<string>>) => {
+            errors.roles = value;
           },
-          getTainted: () => tainted.roles?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.roles ??= {};
-            tainted.roles[index] = value;
+          getTainted: () => tainted.roles,
+          setTainted: (value: Option<boolean>) => {
+            tainted.roles = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -4149,8 +4384,19 @@ export namespace Metadata {
     }
     function reset(newOverrides?: Partial<Metadata>): void {
       data = { ...Metadata.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        createdAt: Option.none(),
+        lastLogin: Option.none(),
+        isActive: Option.none(),
+        roles: Option.none(),
+      };
+      tainted = {
+        createdAt: Option.none(),
+        lastLogin: Option.none(),
+        isActive: Option.none(),
+        roles: Option.none(),
+      };
     }
     return {
       get data() {
@@ -4329,12 +4575,12 @@ export namespace ColumnConfig {
 
 export namespace ColumnConfig {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    heading?: Array<string>;
-    dataPath?: DataPath.Errors;
+    _errors: Option<Array<string>>;
+    heading: Option<Array<string>>;
+    dataPath: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { heading?: boolean; dataPath?: DataPath.Tainted };
+    { heading: Option<boolean>; dataPath: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -4348,10 +4594,10 @@ export namespace ColumnConfig {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -4370,8 +4616,15 @@ export namespace ColumnConfig {
     overrides?: Partial<ColumnConfig>,
   ): Gigaform {
     let data = $state({ ...ColumnConfig.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      heading: Option.none(),
+      dataPath: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      heading: Option.none(),
+      dataPath: Option.none(),
+    });
     const fields: FieldControllers = {
       heading: {
         path: ["heading"] as const,
@@ -4382,12 +4635,12 @@ export namespace ColumnConfig {
         set: (value: string) => {
           data.heading = value;
         },
-        getError: () => errors?.heading,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.heading,
+        setError: (value: Option<Array<string>>) => {
           errors.heading = value;
         },
-        getTainted: () => tainted?.heading ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.heading,
+        setTainted: (value: Option<boolean>) => {
           tainted.heading = value;
         },
         validate: (): Array<string> => {
@@ -4410,12 +4663,12 @@ export namespace ColumnConfig {
         set: (value: DataPath) => {
           data.dataPath = value;
         },
-        getError: () => errors?.dataPath,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.dataPath,
+        setError: (value: Option<Array<string>>) => {
           errors.dataPath = value;
         },
-        getTainted: () => tainted?.dataPath ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.dataPath,
+        setTainted: (value: Option<boolean>) => {
           tainted.dataPath = value;
         },
         validate: (): Array<string> => {
@@ -4438,8 +4691,12 @@ export namespace ColumnConfig {
     }
     function reset(newOverrides?: Partial<ColumnConfig>): void {
       data = { ...ColumnConfig.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        heading: Option.none(),
+        dataPath: Option.none(),
+      };
+      tainted = { heading: Option.none(), dataPath: Option.none() };
     }
     return {
       get data() {
@@ -4659,20 +4916,20 @@ export namespace PhoneNumber {
 
 export namespace PhoneNumber {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    main?: Array<string>;
-    phoneType?: Array<string>;
-    number?: Array<string>;
-    canText?: Array<string>;
-    canCall?: Array<string>;
+    _errors: Option<Array<string>>;
+    main: Option<Array<string>>;
+    phoneType: Option<Array<string>>;
+    number: Option<Array<string>>;
+    canText: Option<Array<string>>;
+    canCall: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      main?: boolean;
-      phoneType?: boolean;
-      number?: boolean;
-      canText?: boolean;
-      canCall?: boolean;
+      main: Option<boolean>;
+      phoneType: Option<boolean>;
+      number: Option<boolean>;
+      canText: Option<boolean>;
+      canCall: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -4687,10 +4944,10 @@ export namespace PhoneNumber {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -4712,8 +4969,21 @@ export namespace PhoneNumber {
     overrides?: Partial<PhoneNumber>,
   ): Gigaform {
     let data = $state({ ...PhoneNumber.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      main: Option.none(),
+      phoneType: Option.none(),
+      number: Option.none(),
+      canText: Option.none(),
+      canCall: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      main: Option.none(),
+      phoneType: Option.none(),
+      number: Option.none(),
+      canText: Option.none(),
+      canCall: Option.none(),
+    });
     const fields: FieldControllers = {
       main: {
         path: ["main"] as const,
@@ -4724,12 +4994,12 @@ export namespace PhoneNumber {
         set: (value: boolean) => {
           data.main = value;
         },
-        getError: () => errors?.main,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.main,
+        setError: (value: Option<Array<string>>) => {
           errors.main = value;
         },
-        getTainted: () => tainted?.main ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.main,
+        setTainted: (value: Option<boolean>) => {
           tainted.main = value;
         },
         validate: (): Array<string> => {
@@ -4752,12 +5022,12 @@ export namespace PhoneNumber {
         set: (value: string) => {
           data.phoneType = value;
         },
-        getError: () => errors?.phoneType,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.phoneType,
+        setError: (value: Option<Array<string>>) => {
           errors.phoneType = value;
         },
-        getTainted: () => tainted?.phoneType ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.phoneType,
+        setTainted: (value: Option<boolean>) => {
           tainted.phoneType = value;
         },
         validate: (): Array<string> => {
@@ -4780,12 +5050,12 @@ export namespace PhoneNumber {
         set: (value: string) => {
           data.number = value;
         },
-        getError: () => errors?.number,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.number,
+        setError: (value: Option<Array<string>>) => {
           errors.number = value;
         },
-        getTainted: () => tainted?.number ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.number,
+        setTainted: (value: Option<boolean>) => {
           tainted.number = value;
         },
         validate: (): Array<string> => {
@@ -4808,12 +5078,12 @@ export namespace PhoneNumber {
         set: (value: boolean) => {
           data.canText = value;
         },
-        getError: () => errors?.canText,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.canText,
+        setError: (value: Option<Array<string>>) => {
           errors.canText = value;
         },
-        getTainted: () => tainted?.canText ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.canText,
+        setTainted: (value: Option<boolean>) => {
           tainted.canText = value;
         },
         validate: (): Array<string> => {
@@ -4836,12 +5106,12 @@ export namespace PhoneNumber {
         set: (value: boolean) => {
           data.canCall = value;
         },
-        getError: () => errors?.canCall,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.canCall,
+        setError: (value: Option<Array<string>>) => {
           errors.canCall = value;
         },
-        getTainted: () => tainted?.canCall ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.canCall,
+        setTainted: (value: Option<boolean>) => {
           tainted.canCall = value;
         },
         validate: (): Array<string> => {
@@ -4864,8 +5134,21 @@ export namespace PhoneNumber {
     }
     function reset(newOverrides?: Partial<PhoneNumber>): void {
       data = { ...PhoneNumber.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        main: Option.none(),
+        phoneType: Option.none(),
+        number: Option.none(),
+        canText: Option.none(),
+        canCall: Option.none(),
+      };
+      tainted = {
+        main: Option.none(),
+        phoneType: Option.none(),
+        number: Option.none(),
+        canText: Option.none(),
+        canCall: Option.none(),
+      };
     }
     return {
       get data() {
@@ -5034,11 +5317,11 @@ export namespace Gradient {
 
 export namespace Gradient {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    startHue?: Array<string>;
+    _errors: Option<Array<string>>;
+    startHue: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { startHue?: boolean };
+    { startHue: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -5052,10 +5335,10 @@ export namespace Gradient {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -5073,8 +5356,11 @@ export namespace Gradient {
     overrides?: Partial<Gradient>,
   ): Gigaform {
     let data = $state({ ...Gradient.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      startHue: Option.none(),
+    });
+    let tainted = $state<Tainted>({ startHue: Option.none() });
     const fields: FieldControllers = {
       startHue: {
         path: ["startHue"] as const,
@@ -5085,12 +5371,12 @@ export namespace Gradient {
         set: (value: number) => {
           data.startHue = value;
         },
-        getError: () => errors?.startHue,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.startHue,
+        setError: (value: Option<Array<string>>) => {
           errors.startHue = value;
         },
-        getTainted: () => tainted?.startHue ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.startHue,
+        setTainted: (value: Option<boolean>) => {
           tainted.startHue = value;
         },
         validate: (): Array<string> => {
@@ -5113,8 +5399,8 @@ export namespace Gradient {
     }
     function reset(newOverrides?: Partial<Gradient>): void {
       data = { ...Gradient.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = { _errors: Option.none(), startHue: Option.none() };
+      tainted = { startHue: Option.none() };
     }
     return {
       get data() {
@@ -5399,30 +5685,30 @@ export namespace Product {
 
 export namespace Product {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    name?: Array<string>;
-    quickCode?: Array<string>;
-    group?: Array<string>;
-    subgroup?: Array<string>;
-    unit?: Array<string>;
-    active?: Array<string>;
-    commission?: Array<string>;
-    favorite?: Array<string>;
-    defaults?: ProductDefaults.Errors;
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    name: Option<Array<string>>;
+    quickCode: Option<Array<string>>;
+    group: Option<Array<string>>;
+    subgroup: Option<Array<string>>;
+    unit: Option<Array<string>>;
+    active: Option<Array<string>>;
+    commission: Option<Array<string>>;
+    favorite: Option<Array<string>>;
+    defaults: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      id?: boolean;
-      name?: boolean;
-      quickCode?: boolean;
-      group?: boolean;
-      subgroup?: boolean;
-      unit?: boolean;
-      active?: boolean;
-      commission?: boolean;
-      favorite?: boolean;
-      defaults?: ProductDefaults.Tainted;
+      id: Option<boolean>;
+      name: Option<boolean>;
+      quickCode: Option<boolean>;
+      group: Option<boolean>;
+      subgroup: Option<boolean>;
+      unit: Option<boolean>;
+      active: Option<boolean>;
+      commission: Option<boolean>;
+      favorite: Option<boolean>;
+      defaults: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -5437,10 +5723,10 @@ export namespace Product {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -5467,8 +5753,31 @@ export namespace Product {
     overrides?: Partial<Product>,
   ): Gigaform {
     let data = $state({ ...Product.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      name: Option.none(),
+      quickCode: Option.none(),
+      group: Option.none(),
+      subgroup: Option.none(),
+      unit: Option.none(),
+      active: Option.none(),
+      commission: Option.none(),
+      favorite: Option.none(),
+      defaults: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      name: Option.none(),
+      quickCode: Option.none(),
+      group: Option.none(),
+      subgroup: Option.none(),
+      unit: Option.none(),
+      active: Option.none(),
+      commission: Option.none(),
+      favorite: Option.none(),
+      defaults: Option.none(),
+    });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -5479,12 +5788,12 @@ export namespace Product {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -5507,12 +5816,12 @@ export namespace Product {
         set: (value: string) => {
           data.name = value;
         },
-        getError: () => errors?.name,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.name,
+        setError: (value: Option<Array<string>>) => {
           errors.name = value;
         },
-        getTainted: () => tainted?.name ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.name,
+        setTainted: (value: Option<boolean>) => {
           tainted.name = value;
         },
         validate: (): Array<string> => {
@@ -5535,12 +5844,12 @@ export namespace Product {
         set: (value: string) => {
           data.quickCode = value;
         },
-        getError: () => errors?.quickCode,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.quickCode,
+        setError: (value: Option<Array<string>>) => {
           errors.quickCode = value;
         },
-        getTainted: () => tainted?.quickCode ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.quickCode,
+        setTainted: (value: Option<boolean>) => {
           tainted.quickCode = value;
         },
         validate: (): Array<string> => {
@@ -5563,12 +5872,12 @@ export namespace Product {
         set: (value: string | null) => {
           data.group = value;
         },
-        getError: () => errors?.group,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.group,
+        setError: (value: Option<Array<string>>) => {
           errors.group = value;
         },
-        getTainted: () => tainted?.group ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.group,
+        setTainted: (value: Option<boolean>) => {
           tainted.group = value;
         },
         validate: (): Array<string> => {
@@ -5591,12 +5900,12 @@ export namespace Product {
         set: (value: string | null) => {
           data.subgroup = value;
         },
-        getError: () => errors?.subgroup,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.subgroup,
+        setError: (value: Option<Array<string>>) => {
           errors.subgroup = value;
         },
-        getTainted: () => tainted?.subgroup ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.subgroup,
+        setTainted: (value: Option<boolean>) => {
           tainted.subgroup = value;
         },
         validate: (): Array<string> => {
@@ -5619,12 +5928,12 @@ export namespace Product {
         set: (value: string | null) => {
           data.unit = value;
         },
-        getError: () => errors?.unit,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.unit,
+        setError: (value: Option<Array<string>>) => {
           errors.unit = value;
         },
-        getTainted: () => tainted?.unit ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.unit,
+        setTainted: (value: Option<boolean>) => {
           tainted.unit = value;
         },
         validate: (): Array<string> => {
@@ -5647,12 +5956,12 @@ export namespace Product {
         set: (value: boolean) => {
           data.active = value;
         },
-        getError: () => errors?.active,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.active,
+        setError: (value: Option<Array<string>>) => {
           errors.active = value;
         },
-        getTainted: () => tainted?.active ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.active,
+        setTainted: (value: Option<boolean>) => {
           tainted.active = value;
         },
         validate: (): Array<string> => {
@@ -5675,12 +5984,12 @@ export namespace Product {
         set: (value: boolean) => {
           data.commission = value;
         },
-        getError: () => errors?.commission,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.commission,
+        setError: (value: Option<Array<string>>) => {
           errors.commission = value;
         },
-        getTainted: () => tainted?.commission ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.commission,
+        setTainted: (value: Option<boolean>) => {
           tainted.commission = value;
         },
         validate: (): Array<string> => {
@@ -5703,12 +6012,12 @@ export namespace Product {
         set: (value: boolean) => {
           data.favorite = value;
         },
-        getError: () => errors?.favorite,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.favorite,
+        setError: (value: Option<Array<string>>) => {
           errors.favorite = value;
         },
-        getTainted: () => tainted?.favorite ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.favorite,
+        setTainted: (value: Option<boolean>) => {
           tainted.favorite = value;
         },
         validate: (): Array<string> => {
@@ -5731,12 +6040,12 @@ export namespace Product {
         set: (value: ProductDefaults) => {
           data.defaults = value;
         },
-        getError: () => errors?.defaults,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.defaults,
+        setError: (value: Option<Array<string>>) => {
           errors.defaults = value;
         },
-        getTainted: () => tainted?.defaults ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.defaults,
+        setTainted: (value: Option<boolean>) => {
           tainted.defaults = value;
         },
         validate: (): Array<string> => {
@@ -5759,8 +6068,31 @@ export namespace Product {
     }
     function reset(newOverrides?: Partial<Product>): void {
       data = { ...Product.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        name: Option.none(),
+        quickCode: Option.none(),
+        group: Option.none(),
+        subgroup: Option.none(),
+        unit: Option.none(),
+        active: Option.none(),
+        commission: Option.none(),
+        favorite: Option.none(),
+        defaults: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        name: Option.none(),
+        quickCode: Option.none(),
+        group: Option.none(),
+        subgroup: Option.none(),
+        unit: Option.none(),
+        active: Option.none(),
+        commission: Option.none(),
+        favorite: Option.none(),
+        defaults: Option.none(),
+      };
     }
     return {
       get data() {
@@ -5966,11 +6298,11 @@ export namespace YearlyRecurrenceRule {
 
 export namespace YearlyRecurrenceRule {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    quantityOfYears?: Array<string>;
+    _errors: Option<Array<string>>;
+    quantityOfYears: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { quantityOfYears?: boolean };
+    { quantityOfYears: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -5984,10 +6316,10 @@ export namespace YearlyRecurrenceRule {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -6008,8 +6340,11 @@ export namespace YearlyRecurrenceRule {
     overrides?: Partial<YearlyRecurrenceRule>,
   ): Gigaform {
     let data = $state({ ...YearlyRecurrenceRule.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      quantityOfYears: Option.none(),
+    });
+    let tainted = $state<Tainted>({ quantityOfYears: Option.none() });
     const fields: FieldControllers = {
       quantityOfYears: {
         path: ["quantityOfYears"] as const,
@@ -6020,12 +6355,12 @@ export namespace YearlyRecurrenceRule {
         set: (value: number) => {
           data.quantityOfYears = value;
         },
-        getError: () => errors?.quantityOfYears,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.quantityOfYears,
+        setError: (value: Option<Array<string>>) => {
           errors.quantityOfYears = value;
         },
-        getTainted: () => tainted?.quantityOfYears ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.quantityOfYears,
+        setTainted: (value: Option<boolean>) => {
           tainted.quantityOfYears = value;
         },
         validate: (): Array<string> => {
@@ -6048,8 +6383,8 @@ export namespace YearlyRecurrenceRule {
     }
     function reset(newOverrides?: Partial<YearlyRecurrenceRule>): void {
       data = { ...YearlyRecurrenceRule.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = { _errors: Option.none(), quantityOfYears: Option.none() };
+      tainted = { quantityOfYears: Option.none() };
     }
     return {
       get data() {
@@ -6250,14 +6585,14 @@ export namespace AppointmentNotifications {
 
 export namespace AppointmentNotifications {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    personalScheduleChangeNotifications?: Array<string>;
-    allScheduleChangeNotifications?: Array<string>;
+    _errors: Option<Array<string>>;
+    personalScheduleChangeNotifications: Option<Array<string>>;
+    allScheduleChangeNotifications: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      personalScheduleChangeNotifications?: boolean;
-      allScheduleChangeNotifications?: boolean;
+      personalScheduleChangeNotifications: Option<boolean>;
+      allScheduleChangeNotifications: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -6272,10 +6607,10 @@ export namespace AppointmentNotifications {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -6300,8 +6635,15 @@ export namespace AppointmentNotifications {
       ...AppointmentNotifications.defaultValue(),
       ...overrides,
     });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      personalScheduleChangeNotifications: Option.none(),
+      allScheduleChangeNotifications: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      personalScheduleChangeNotifications: Option.none(),
+      allScheduleChangeNotifications: Option.none(),
+    });
     const fields: FieldControllers = {
       personalScheduleChangeNotifications: {
         path: ["personalScheduleChangeNotifications"] as const,
@@ -6312,12 +6654,12 @@ export namespace AppointmentNotifications {
         set: (value: string) => {
           data.personalScheduleChangeNotifications = value;
         },
-        getError: () => errors?.personalScheduleChangeNotifications,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.personalScheduleChangeNotifications,
+        setError: (value: Option<Array<string>>) => {
           errors.personalScheduleChangeNotifications = value;
         },
-        getTainted: () => tainted?.personalScheduleChangeNotifications ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.personalScheduleChangeNotifications,
+        setTainted: (value: Option<boolean>) => {
           tainted.personalScheduleChangeNotifications = value;
         },
         validate: (): Array<string> => {
@@ -6340,12 +6682,12 @@ export namespace AppointmentNotifications {
         set: (value: string) => {
           data.allScheduleChangeNotifications = value;
         },
-        getError: () => errors?.allScheduleChangeNotifications,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.allScheduleChangeNotifications,
+        setError: (value: Option<Array<string>>) => {
           errors.allScheduleChangeNotifications = value;
         },
-        getTainted: () => tainted?.allScheduleChangeNotifications ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.allScheduleChangeNotifications,
+        setTainted: (value: Option<boolean>) => {
           tainted.allScheduleChangeNotifications = value;
         },
         validate: (): Array<string> => {
@@ -6368,8 +6710,15 @@ export namespace AppointmentNotifications {
     }
     function reset(newOverrides?: Partial<AppointmentNotifications>): void {
       data = { ...AppointmentNotifications.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        personalScheduleChangeNotifications: Option.none(),
+        allScheduleChangeNotifications: Option.none(),
+      };
+      tainted = {
+        personalScheduleChangeNotifications: Option.none(),
+        allScheduleChangeNotifications: Option.none(),
+      };
     }
     return {
       get data() {
@@ -6539,12 +6888,12 @@ export namespace DirectionHue {
 
 export namespace DirectionHue {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    bearing?: Array<string>;
-    hue?: Array<string>;
+    _errors: Option<Array<string>>;
+    bearing: Option<Array<string>>;
+    hue: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { bearing?: boolean; hue?: boolean };
+    { bearing: Option<boolean>; hue: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -6558,10 +6907,10 @@ export namespace DirectionHue {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -6580,8 +6929,15 @@ export namespace DirectionHue {
     overrides?: Partial<DirectionHue>,
   ): Gigaform {
     let data = $state({ ...DirectionHue.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      bearing: Option.none(),
+      hue: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      bearing: Option.none(),
+      hue: Option.none(),
+    });
     const fields: FieldControllers = {
       bearing: {
         path: ["bearing"] as const,
@@ -6592,12 +6948,12 @@ export namespace DirectionHue {
         set: (value: number) => {
           data.bearing = value;
         },
-        getError: () => errors?.bearing,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.bearing,
+        setError: (value: Option<Array<string>>) => {
           errors.bearing = value;
         },
-        getTainted: () => tainted?.bearing ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.bearing,
+        setTainted: (value: Option<boolean>) => {
           tainted.bearing = value;
         },
         validate: (): Array<string> => {
@@ -6620,12 +6976,12 @@ export namespace DirectionHue {
         set: (value: number) => {
           data.hue = value;
         },
-        getError: () => errors?.hue,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.hue,
+        setError: (value: Option<Array<string>>) => {
           errors.hue = value;
         },
-        getTainted: () => tainted?.hue ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.hue,
+        setTainted: (value: Option<boolean>) => {
           tainted.hue = value;
         },
         validate: (): Array<string> => {
@@ -6648,8 +7004,12 @@ export namespace DirectionHue {
     }
     function reset(newOverrides?: Partial<DirectionHue>): void {
       data = { ...DirectionHue.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        bearing: Option.none(),
+        hue: Option.none(),
+      };
+      tainted = { bearing: Option.none(), hue: Option.none() };
     }
     return {
       get data() {
@@ -6841,13 +7201,17 @@ export namespace MonthlyRecurrenceRule {
 
 export namespace MonthlyRecurrenceRule {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    quantityOfMonths?: Array<string>;
-    day?: Array<string>;
-    name?: Array<string>;
+    _errors: Option<Array<string>>;
+    quantityOfMonths: Option<Array<string>>;
+    day: Option<Array<string>>;
+    name: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { quantityOfMonths?: boolean; day?: boolean; name?: boolean };
+    {
+      quantityOfMonths: Option<boolean>;
+      day: Option<boolean>;
+      name: Option<boolean>;
+    };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -6861,10 +7225,10 @@ export namespace MonthlyRecurrenceRule {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -6890,8 +7254,17 @@ export namespace MonthlyRecurrenceRule {
       ...MonthlyRecurrenceRule.defaultValue(),
       ...overrides,
     });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      quantityOfMonths: Option.none(),
+      day: Option.none(),
+      name: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      quantityOfMonths: Option.none(),
+      day: Option.none(),
+      name: Option.none(),
+    });
     const fields: FieldControllers = {
       quantityOfMonths: {
         path: ["quantityOfMonths"] as const,
@@ -6902,12 +7275,12 @@ export namespace MonthlyRecurrenceRule {
         set: (value: number) => {
           data.quantityOfMonths = value;
         },
-        getError: () => errors?.quantityOfMonths,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.quantityOfMonths,
+        setError: (value: Option<Array<string>>) => {
           errors.quantityOfMonths = value;
         },
-        getTainted: () => tainted?.quantityOfMonths ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.quantityOfMonths,
+        setTainted: (value: Option<boolean>) => {
           tainted.quantityOfMonths = value;
         },
         validate: (): Array<string> => {
@@ -6930,12 +7303,12 @@ export namespace MonthlyRecurrenceRule {
         set: (value: number) => {
           data.day = value;
         },
-        getError: () => errors?.day,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.day,
+        setError: (value: Option<Array<string>>) => {
           errors.day = value;
         },
-        getTainted: () => tainted?.day ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.day,
+        setTainted: (value: Option<boolean>) => {
           tainted.day = value;
         },
         validate: (): Array<string> => {
@@ -6958,12 +7331,12 @@ export namespace MonthlyRecurrenceRule {
         set: (value: string) => {
           data.name = value;
         },
-        getError: () => errors?.name,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.name,
+        setError: (value: Option<Array<string>>) => {
           errors.name = value;
         },
-        getTainted: () => tainted?.name ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.name,
+        setTainted: (value: Option<boolean>) => {
           tainted.name = value;
         },
         validate: (): Array<string> => {
@@ -6986,8 +7359,17 @@ export namespace MonthlyRecurrenceRule {
     }
     function reset(newOverrides?: Partial<MonthlyRecurrenceRule>): void {
       data = { ...MonthlyRecurrenceRule.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        quantityOfMonths: Option.none(),
+        day: Option.none(),
+        name: Option.none(),
+      };
+      tainted = {
+        quantityOfMonths: Option.none(),
+        day: Option.none(),
+        name: Option.none(),
+      };
     }
     return {
       get data() {
@@ -7186,14 +7568,19 @@ export namespace Represents {
 
 export namespace Represents {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    in?: Array<string>;
-    out?: Array<string>;
-    id?: Array<string>;
-    dateStarted?: Array<string>;
+    _errors: Option<Array<string>>;
+    in: Option<Array<string>>;
+    out: Option<Array<string>>;
+    id: Option<Array<string>>;
+    dateStarted: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { in?: boolean; out?: boolean; id?: boolean; dateStarted?: boolean };
+    {
+      in: Option<boolean>;
+      out: Option<boolean>;
+      id: Option<boolean>;
+      dateStarted: Option<boolean>;
+    };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -7207,10 +7594,10 @@ export namespace Represents {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -7231,8 +7618,19 @@ export namespace Represents {
     overrides?: Partial<Represents>,
   ): Gigaform {
     let data = $state({ ...Represents.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      in: Option.none(),
+      out: Option.none(),
+      id: Option.none(),
+      dateStarted: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      in: Option.none(),
+      out: Option.none(),
+      id: Option.none(),
+      dateStarted: Option.none(),
+    });
     const fields: FieldControllers = {
       in: {
         path: ["in"] as const,
@@ -7243,12 +7641,12 @@ export namespace Represents {
         set: (value: string | Employee) => {
           data.in = value;
         },
-        getError: () => errors?.in,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.in,
+        setError: (value: Option<Array<string>>) => {
           errors.in = value;
         },
-        getTainted: () => tainted?.in ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.in,
+        setTainted: (value: Option<boolean>) => {
           tainted.in = value;
         },
         validate: (): Array<string> => {
@@ -7271,12 +7669,12 @@ export namespace Represents {
         set: (value: string | Account) => {
           data.out = value;
         },
-        getError: () => errors?.out,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.out,
+        setError: (value: Option<Array<string>>) => {
           errors.out = value;
         },
-        getTainted: () => tainted?.out ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.out,
+        setTainted: (value: Option<boolean>) => {
           tainted.out = value;
         },
         validate: (): Array<string> => {
@@ -7299,12 +7697,12 @@ export namespace Represents {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -7327,12 +7725,12 @@ export namespace Represents {
         set: (value: string) => {
           data.dateStarted = value;
         },
-        getError: () => errors?.dateStarted,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.dateStarted,
+        setError: (value: Option<Array<string>>) => {
           errors.dateStarted = value;
         },
-        getTainted: () => tainted?.dateStarted ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.dateStarted,
+        setTainted: (value: Option<boolean>) => {
           tainted.dateStarted = value;
         },
         validate: (): Array<string> => {
@@ -7355,8 +7753,19 @@ export namespace Represents {
     }
     function reset(newOverrides?: Partial<Represents>): void {
       data = { ...Represents.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        in: Option.none(),
+        out: Option.none(),
+        id: Option.none(),
+        dateStarted: Option.none(),
+      };
+      tainted = {
+        in: Option.none(),
+        out: Option.none(),
+        id: Option.none(),
+        dateStarted: Option.none(),
+      };
     }
     return {
       get data() {
@@ -7522,12 +7931,12 @@ export namespace Payment {
 
 export namespace Payment {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    date?: Array<string>;
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    date: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { id?: boolean; date?: boolean };
+    { id: Option<boolean>; date: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -7541,10 +7950,10 @@ export namespace Payment {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -7563,8 +7972,12 @@ export namespace Payment {
     overrides?: Partial<Payment>,
   ): Gigaform {
     let data = $state({ ...Payment.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      date: Option.none(),
+    });
+    let tainted = $state<Tainted>({ id: Option.none(), date: Option.none() });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -7575,12 +7988,12 @@ export namespace Payment {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -7603,12 +8016,12 @@ export namespace Payment {
         set: (value: string) => {
           data.date = value;
         },
-        getError: () => errors?.date,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.date,
+        setError: (value: Option<Array<string>>) => {
           errors.date = value;
         },
-        getTainted: () => tainted?.date ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.date,
+        setTainted: (value: Option<boolean>) => {
           tainted.date = value;
         },
         validate: (): Array<string> => {
@@ -7631,8 +8044,12 @@ export namespace Payment {
     }
     function reset(newOverrides?: Partial<Payment>): void {
       data = { ...Payment.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        date: Option.none(),
+      };
+      tainted = { id: Option.none(), date: Option.none() };
     }
     return {
       get data() {
@@ -8055,34 +8472,34 @@ export namespace Settings {
 
 export namespace Settings {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    appointmentNotifications?: Array<string>;
-    commissions?: Array<string>;
-    scheduleSettings?: ScheduleSettings.Errors;
-    accountOverviewSettings?: OverviewSettings.Errors;
-    serviceOverviewSettings?: OverviewSettings.Errors;
-    appointmentOverviewSettings?: OverviewSettings.Errors;
-    leadOverviewSettings?: OverviewSettings.Errors;
-    packageOverviewSettings?: OverviewSettings.Errors;
-    productOverviewSettings?: OverviewSettings.Errors;
-    orderOverviewSettings?: OverviewSettings.Errors;
-    taxRateOverviewSettings?: OverviewSettings.Errors;
-    homePage?: Page.Errors;
+    _errors: Option<Array<string>>;
+    appointmentNotifications: Option<Array<string>>;
+    commissions: Option<Array<string>>;
+    scheduleSettings: Option<Array<string>>;
+    accountOverviewSettings: Option<Array<string>>;
+    serviceOverviewSettings: Option<Array<string>>;
+    appointmentOverviewSettings: Option<Array<string>>;
+    leadOverviewSettings: Option<Array<string>>;
+    packageOverviewSettings: Option<Array<string>>;
+    productOverviewSettings: Option<Array<string>>;
+    orderOverviewSettings: Option<Array<string>>;
+    taxRateOverviewSettings: Option<Array<string>>;
+    homePage: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      appointmentNotifications?: boolean;
-      commissions?: boolean;
-      scheduleSettings?: ScheduleSettings.Tainted;
-      accountOverviewSettings?: OverviewSettings.Tainted;
-      serviceOverviewSettings?: OverviewSettings.Tainted;
-      appointmentOverviewSettings?: OverviewSettings.Tainted;
-      leadOverviewSettings?: OverviewSettings.Tainted;
-      packageOverviewSettings?: OverviewSettings.Tainted;
-      productOverviewSettings?: OverviewSettings.Tainted;
-      orderOverviewSettings?: OverviewSettings.Tainted;
-      taxRateOverviewSettings?: OverviewSettings.Tainted;
-      homePage?: Page.Tainted;
+      appointmentNotifications: Option<boolean>;
+      commissions: Option<boolean>;
+      scheduleSettings: Option<boolean>;
+      accountOverviewSettings: Option<boolean>;
+      serviceOverviewSettings: Option<boolean>;
+      appointmentOverviewSettings: Option<boolean>;
+      leadOverviewSettings: Option<boolean>;
+      packageOverviewSettings: Option<boolean>;
+      productOverviewSettings: Option<boolean>;
+      orderOverviewSettings: Option<boolean>;
+      taxRateOverviewSettings: Option<boolean>;
+      homePage: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -8097,10 +8514,10 @@ export namespace Settings {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -8129,8 +8546,35 @@ export namespace Settings {
     overrides?: Partial<Settings>,
   ): Gigaform {
     let data = $state({ ...Settings.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      appointmentNotifications: Option.none(),
+      commissions: Option.none(),
+      scheduleSettings: Option.none(),
+      accountOverviewSettings: Option.none(),
+      serviceOverviewSettings: Option.none(),
+      appointmentOverviewSettings: Option.none(),
+      leadOverviewSettings: Option.none(),
+      packageOverviewSettings: Option.none(),
+      productOverviewSettings: Option.none(),
+      orderOverviewSettings: Option.none(),
+      taxRateOverviewSettings: Option.none(),
+      homePage: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      appointmentNotifications: Option.none(),
+      commissions: Option.none(),
+      scheduleSettings: Option.none(),
+      accountOverviewSettings: Option.none(),
+      serviceOverviewSettings: Option.none(),
+      appointmentOverviewSettings: Option.none(),
+      leadOverviewSettings: Option.none(),
+      packageOverviewSettings: Option.none(),
+      productOverviewSettings: Option.none(),
+      orderOverviewSettings: Option.none(),
+      taxRateOverviewSettings: Option.none(),
+      homePage: Option.none(),
+    });
     const fields: FieldControllers = {
       appointmentNotifications: {
         path: ["appointmentNotifications"] as const,
@@ -8141,12 +8585,12 @@ export namespace Settings {
         set: (value: AppointmentNotifications | null) => {
           data.appointmentNotifications = value;
         },
-        getError: () => errors?.appointmentNotifications,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.appointmentNotifications,
+        setError: (value: Option<Array<string>>) => {
           errors.appointmentNotifications = value;
         },
-        getTainted: () => tainted?.appointmentNotifications ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.appointmentNotifications,
+        setTainted: (value: Option<boolean>) => {
           tainted.appointmentNotifications = value;
         },
         validate: (): Array<string> => {
@@ -8169,12 +8613,12 @@ export namespace Settings {
         set: (value: Commissions | null) => {
           data.commissions = value;
         },
-        getError: () => errors?.commissions,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.commissions,
+        setError: (value: Option<Array<string>>) => {
           errors.commissions = value;
         },
-        getTainted: () => tainted?.commissions ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.commissions,
+        setTainted: (value: Option<boolean>) => {
           tainted.commissions = value;
         },
         validate: (): Array<string> => {
@@ -8197,12 +8641,12 @@ export namespace Settings {
         set: (value: ScheduleSettings) => {
           data.scheduleSettings = value;
         },
-        getError: () => errors?.scheduleSettings,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.scheduleSettings,
+        setError: (value: Option<Array<string>>) => {
           errors.scheduleSettings = value;
         },
-        getTainted: () => tainted?.scheduleSettings ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.scheduleSettings,
+        setTainted: (value: Option<boolean>) => {
           tainted.scheduleSettings = value;
         },
         validate: (): Array<string> => {
@@ -8225,12 +8669,12 @@ export namespace Settings {
         set: (value: OverviewSettings) => {
           data.accountOverviewSettings = value;
         },
-        getError: () => errors?.accountOverviewSettings,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.accountOverviewSettings,
+        setError: (value: Option<Array<string>>) => {
           errors.accountOverviewSettings = value;
         },
-        getTainted: () => tainted?.accountOverviewSettings ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.accountOverviewSettings,
+        setTainted: (value: Option<boolean>) => {
           tainted.accountOverviewSettings = value;
         },
         validate: (): Array<string> => {
@@ -8253,12 +8697,12 @@ export namespace Settings {
         set: (value: OverviewSettings) => {
           data.serviceOverviewSettings = value;
         },
-        getError: () => errors?.serviceOverviewSettings,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.serviceOverviewSettings,
+        setError: (value: Option<Array<string>>) => {
           errors.serviceOverviewSettings = value;
         },
-        getTainted: () => tainted?.serviceOverviewSettings ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.serviceOverviewSettings,
+        setTainted: (value: Option<boolean>) => {
           tainted.serviceOverviewSettings = value;
         },
         validate: (): Array<string> => {
@@ -8281,12 +8725,12 @@ export namespace Settings {
         set: (value: OverviewSettings) => {
           data.appointmentOverviewSettings = value;
         },
-        getError: () => errors?.appointmentOverviewSettings,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.appointmentOverviewSettings,
+        setError: (value: Option<Array<string>>) => {
           errors.appointmentOverviewSettings = value;
         },
-        getTainted: () => tainted?.appointmentOverviewSettings ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.appointmentOverviewSettings,
+        setTainted: (value: Option<boolean>) => {
           tainted.appointmentOverviewSettings = value;
         },
         validate: (): Array<string> => {
@@ -8309,12 +8753,12 @@ export namespace Settings {
         set: (value: OverviewSettings) => {
           data.leadOverviewSettings = value;
         },
-        getError: () => errors?.leadOverviewSettings,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.leadOverviewSettings,
+        setError: (value: Option<Array<string>>) => {
           errors.leadOverviewSettings = value;
         },
-        getTainted: () => tainted?.leadOverviewSettings ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.leadOverviewSettings,
+        setTainted: (value: Option<boolean>) => {
           tainted.leadOverviewSettings = value;
         },
         validate: (): Array<string> => {
@@ -8337,12 +8781,12 @@ export namespace Settings {
         set: (value: OverviewSettings) => {
           data.packageOverviewSettings = value;
         },
-        getError: () => errors?.packageOverviewSettings,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.packageOverviewSettings,
+        setError: (value: Option<Array<string>>) => {
           errors.packageOverviewSettings = value;
         },
-        getTainted: () => tainted?.packageOverviewSettings ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.packageOverviewSettings,
+        setTainted: (value: Option<boolean>) => {
           tainted.packageOverviewSettings = value;
         },
         validate: (): Array<string> => {
@@ -8365,12 +8809,12 @@ export namespace Settings {
         set: (value: OverviewSettings) => {
           data.productOverviewSettings = value;
         },
-        getError: () => errors?.productOverviewSettings,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.productOverviewSettings,
+        setError: (value: Option<Array<string>>) => {
           errors.productOverviewSettings = value;
         },
-        getTainted: () => tainted?.productOverviewSettings ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.productOverviewSettings,
+        setTainted: (value: Option<boolean>) => {
           tainted.productOverviewSettings = value;
         },
         validate: (): Array<string> => {
@@ -8393,12 +8837,12 @@ export namespace Settings {
         set: (value: OverviewSettings) => {
           data.orderOverviewSettings = value;
         },
-        getError: () => errors?.orderOverviewSettings,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.orderOverviewSettings,
+        setError: (value: Option<Array<string>>) => {
           errors.orderOverviewSettings = value;
         },
-        getTainted: () => tainted?.orderOverviewSettings ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.orderOverviewSettings,
+        setTainted: (value: Option<boolean>) => {
           tainted.orderOverviewSettings = value;
         },
         validate: (): Array<string> => {
@@ -8421,12 +8865,12 @@ export namespace Settings {
         set: (value: OverviewSettings) => {
           data.taxRateOverviewSettings = value;
         },
-        getError: () => errors?.taxRateOverviewSettings,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.taxRateOverviewSettings,
+        setError: (value: Option<Array<string>>) => {
           errors.taxRateOverviewSettings = value;
         },
-        getTainted: () => tainted?.taxRateOverviewSettings ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.taxRateOverviewSettings,
+        setTainted: (value: Option<boolean>) => {
           tainted.taxRateOverviewSettings = value;
         },
         validate: (): Array<string> => {
@@ -8449,12 +8893,12 @@ export namespace Settings {
         set: (value: Page) => {
           data.homePage = value;
         },
-        getError: () => errors?.homePage,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.homePage,
+        setError: (value: Option<Array<string>>) => {
           errors.homePage = value;
         },
-        getTainted: () => tainted?.homePage ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.homePage,
+        setTainted: (value: Option<boolean>) => {
           tainted.homePage = value;
         },
         validate: (): Array<string> => {
@@ -8477,8 +8921,35 @@ export namespace Settings {
     }
     function reset(newOverrides?: Partial<Settings>): void {
       data = { ...Settings.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        appointmentNotifications: Option.none(),
+        commissions: Option.none(),
+        scheduleSettings: Option.none(),
+        accountOverviewSettings: Option.none(),
+        serviceOverviewSettings: Option.none(),
+        appointmentOverviewSettings: Option.none(),
+        leadOverviewSettings: Option.none(),
+        packageOverviewSettings: Option.none(),
+        productOverviewSettings: Option.none(),
+        orderOverviewSettings: Option.none(),
+        taxRateOverviewSettings: Option.none(),
+        homePage: Option.none(),
+      };
+      tainted = {
+        appointmentNotifications: Option.none(),
+        commissions: Option.none(),
+        scheduleSettings: Option.none(),
+        accountOverviewSettings: Option.none(),
+        serviceOverviewSettings: Option.none(),
+        appointmentOverviewSettings: Option.none(),
+        leadOverviewSettings: Option.none(),
+        packageOverviewSettings: Option.none(),
+        productOverviewSettings: Option.none(),
+        orderOverviewSettings: Option.none(),
+        taxRateOverviewSettings: Option.none(),
+        homePage: Option.none(),
+      };
     }
     return {
       get data() {
@@ -8859,13 +9330,13 @@ export namespace Color {
 
 export namespace Color {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    red?: Array<string>;
-    green?: Array<string>;
-    blue?: Array<string>;
+    _errors: Option<Array<string>>;
+    red: Option<Array<string>>;
+    green: Option<Array<string>>;
+    blue: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { red?: boolean; green?: boolean; blue?: boolean };
+    { red: Option<boolean>; green: Option<boolean>; blue: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -8879,10 +9350,10 @@ export namespace Color {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -8902,8 +9373,17 @@ export namespace Color {
     overrides?: Partial<Color>,
   ): Gigaform {
     let data = $state({ ...Color.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      red: Option.none(),
+      green: Option.none(),
+      blue: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      red: Option.none(),
+      green: Option.none(),
+      blue: Option.none(),
+    });
     const fields: FieldControllers = {
       red: {
         path: ["red"] as const,
@@ -8914,12 +9394,12 @@ export namespace Color {
         set: (value: number) => {
           data.red = value;
         },
-        getError: () => errors?.red,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.red,
+        setError: (value: Option<Array<string>>) => {
           errors.red = value;
         },
-        getTainted: () => tainted?.red ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.red,
+        setTainted: (value: Option<boolean>) => {
           tainted.red = value;
         },
         validate: (): Array<string> => {
@@ -8942,12 +9422,12 @@ export namespace Color {
         set: (value: number) => {
           data.green = value;
         },
-        getError: () => errors?.green,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.green,
+        setError: (value: Option<Array<string>>) => {
           errors.green = value;
         },
-        getTainted: () => tainted?.green ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.green,
+        setTainted: (value: Option<boolean>) => {
           tainted.green = value;
         },
         validate: (): Array<string> => {
@@ -8970,12 +9450,12 @@ export namespace Color {
         set: (value: number) => {
           data.blue = value;
         },
-        getError: () => errors?.blue,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.blue,
+        setError: (value: Option<Array<string>>) => {
           errors.blue = value;
         },
-        getTainted: () => tainted?.blue ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.blue,
+        setTainted: (value: Option<boolean>) => {
           tainted.blue = value;
         },
         validate: (): Array<string> => {
@@ -8998,8 +9478,17 @@ export namespace Color {
     }
     function reset(newOverrides?: Partial<Color>): void {
       data = { ...Color.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        red: Option.none(),
+        green: Option.none(),
+        blue: Option.none(),
+      };
+      tainted = {
+        red: Option.none(),
+        green: Option.none(),
+        blue: Option.none(),
+      };
     }
     return {
       get data() {
@@ -9168,11 +9657,11 @@ export namespace CompanyName {
 
 export namespace CompanyName {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    companyName?: Array<string>;
+    _errors: Option<Array<string>>;
+    companyName: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { companyName?: boolean };
+    { companyName: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -9186,10 +9675,10 @@ export namespace CompanyName {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -9207,8 +9696,11 @@ export namespace CompanyName {
     overrides?: Partial<CompanyName>,
   ): Gigaform {
     let data = $state({ ...CompanyName.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      companyName: Option.none(),
+    });
+    let tainted = $state<Tainted>({ companyName: Option.none() });
     const fields: FieldControllers = {
       companyName: {
         path: ["companyName"] as const,
@@ -9219,12 +9711,12 @@ export namespace CompanyName {
         set: (value: string) => {
           data.companyName = value;
         },
-        getError: () => errors?.companyName,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.companyName,
+        setError: (value: Option<Array<string>>) => {
           errors.companyName = value;
         },
-        getTainted: () => tainted?.companyName ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.companyName,
+        setTainted: (value: Option<boolean>) => {
           tainted.companyName = value;
         },
         validate: (): Array<string> => {
@@ -9247,8 +9739,8 @@ export namespace CompanyName {
     }
     function reset(newOverrides?: Partial<CompanyName>): void {
       data = { ...CompanyName.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = { _errors: Option.none(), companyName: Option.none() };
+      tainted = { companyName: Option.none() };
     }
     return {
       get data() {
@@ -9574,38 +10066,38 @@ export namespace Appointment {
 
 export namespace Appointment {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    title?: Array<string>;
-    status?: Status.Errors;
-    begins?: Array<string>;
-    duration?: Array<string>;
-    timeZone?: Array<string>;
-    offsetMs?: Array<string>;
-    allDay?: Array<string>;
-    multiDay?: Array<string>;
-    employees?: { _errors?: Array<string>; [index: number]: Array<string> };
-    location?: Array<string>;
-    description?: Array<string>;
-    colors?: Colors.Errors;
-    recurrenceRule?: Array<string>;
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    title: Option<Array<string>>;
+    status: Option<Array<string>>;
+    begins: Option<Array<string>>;
+    duration: Option<Array<string>>;
+    timeZone: Option<Array<string>>;
+    offsetMs: Option<Array<string>>;
+    allDay: Option<Array<string>>;
+    multiDay: Option<Array<string>>;
+    employees: Option<Array<string>>;
+    location: Option<Array<string>>;
+    description: Option<Array<string>>;
+    colors: Option<Array<string>>;
+    recurrenceRule: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      id?: boolean;
-      title?: boolean;
-      status?: Status.Tainted;
-      begins?: boolean;
-      duration?: boolean;
-      timeZone?: boolean;
-      offsetMs?: boolean;
-      allDay?: boolean;
-      multiDay?: boolean;
-      employees?: { [index: number]: boolean };
-      location?: boolean;
-      description?: boolean;
-      colors?: Colors.Tainted;
-      recurrenceRule?: boolean;
+      id: Option<boolean>;
+      title: Option<boolean>;
+      status: Option<boolean>;
+      begins: Option<boolean>;
+      duration: Option<boolean>;
+      timeZone: Option<boolean>;
+      offsetMs: Option<boolean>;
+      allDay: Option<boolean>;
+      multiDay: Option<boolean>;
+      employees: Option<boolean>;
+      location: Option<boolean>;
+      description: Option<boolean>;
+      colors: Option<boolean>;
+      recurrenceRule: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -9620,10 +10112,10 @@ export namespace Appointment {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -9654,8 +10146,39 @@ export namespace Appointment {
     overrides?: Partial<Appointment>,
   ): Gigaform {
     let data = $state({ ...Appointment.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      title: Option.none(),
+      status: Option.none(),
+      begins: Option.none(),
+      duration: Option.none(),
+      timeZone: Option.none(),
+      offsetMs: Option.none(),
+      allDay: Option.none(),
+      multiDay: Option.none(),
+      employees: Option.none(),
+      location: Option.none(),
+      description: Option.none(),
+      colors: Option.none(),
+      recurrenceRule: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      title: Option.none(),
+      status: Option.none(),
+      begins: Option.none(),
+      duration: Option.none(),
+      timeZone: Option.none(),
+      offsetMs: Option.none(),
+      allDay: Option.none(),
+      multiDay: Option.none(),
+      employees: Option.none(),
+      location: Option.none(),
+      description: Option.none(),
+      colors: Option.none(),
+      recurrenceRule: Option.none(),
+    });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -9666,12 +10189,12 @@ export namespace Appointment {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -9694,12 +10217,12 @@ export namespace Appointment {
         set: (value: string) => {
           data.title = value;
         },
-        getError: () => errors?.title,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.title,
+        setError: (value: Option<Array<string>>) => {
           errors.title = value;
         },
-        getTainted: () => tainted?.title ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.title,
+        setTainted: (value: Option<boolean>) => {
           tainted.title = value;
         },
         validate: (): Array<string> => {
@@ -9722,12 +10245,12 @@ export namespace Appointment {
         set: (value: Status) => {
           data.status = value;
         },
-        getError: () => errors?.status,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.status,
+        setError: (value: Option<Array<string>>) => {
           errors.status = value;
         },
-        getTainted: () => tainted?.status ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.status,
+        setTainted: (value: Option<boolean>) => {
           tainted.status = value;
         },
         validate: (): Array<string> => {
@@ -9750,12 +10273,12 @@ export namespace Appointment {
         set: (value: string) => {
           data.begins = value;
         },
-        getError: () => errors?.begins,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.begins,
+        setError: (value: Option<Array<string>>) => {
           errors.begins = value;
         },
-        getTainted: () => tainted?.begins ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.begins,
+        setTainted: (value: Option<boolean>) => {
           tainted.begins = value;
         },
         validate: (): Array<string> => {
@@ -9778,12 +10301,12 @@ export namespace Appointment {
         set: (value: number) => {
           data.duration = value;
         },
-        getError: () => errors?.duration,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.duration,
+        setError: (value: Option<Array<string>>) => {
           errors.duration = value;
         },
-        getTainted: () => tainted?.duration ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.duration,
+        setTainted: (value: Option<boolean>) => {
           tainted.duration = value;
         },
         validate: (): Array<string> => {
@@ -9806,12 +10329,12 @@ export namespace Appointment {
         set: (value: string) => {
           data.timeZone = value;
         },
-        getError: () => errors?.timeZone,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.timeZone,
+        setError: (value: Option<Array<string>>) => {
           errors.timeZone = value;
         },
-        getTainted: () => tainted?.timeZone ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.timeZone,
+        setTainted: (value: Option<boolean>) => {
           tainted.timeZone = value;
         },
         validate: (): Array<string> => {
@@ -9834,12 +10357,12 @@ export namespace Appointment {
         set: (value: number) => {
           data.offsetMs = value;
         },
-        getError: () => errors?.offsetMs,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.offsetMs,
+        setError: (value: Option<Array<string>>) => {
           errors.offsetMs = value;
         },
-        getTainted: () => tainted?.offsetMs ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.offsetMs,
+        setTainted: (value: Option<boolean>) => {
           tainted.offsetMs = value;
         },
         validate: (): Array<string> => {
@@ -9862,12 +10385,12 @@ export namespace Appointment {
         set: (value: boolean) => {
           data.allDay = value;
         },
-        getError: () => errors?.allDay,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.allDay,
+        setError: (value: Option<Array<string>>) => {
           errors.allDay = value;
         },
-        getTainted: () => tainted?.allDay ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.allDay,
+        setTainted: (value: Option<boolean>) => {
           tainted.allDay = value;
         },
         validate: (): Array<string> => {
@@ -9890,12 +10413,12 @@ export namespace Appointment {
         set: (value: boolean) => {
           data.multiDay = value;
         },
-        getError: () => errors?.multiDay,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.multiDay,
+        setError: (value: Option<Array<string>>) => {
           errors.multiDay = value;
         },
-        getTainted: () => tainted?.multiDay ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.multiDay,
+        setTainted: (value: Option<boolean>) => {
           tainted.multiDay = value;
         },
         validate: (): Array<string> => {
@@ -9918,12 +10441,12 @@ export namespace Appointment {
         set: (value: (string | Employee)[]) => {
           data.employees = value;
         },
-        getError: () => errors?.employees,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.employees,
+        setError: (value: Option<Array<string>>) => {
           errors.employees = value;
         },
-        getTainted: () => tainted?.employees ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.employees,
+        setTainted: (value: Option<boolean>) => {
           tainted.employees = value;
         },
         validate: (): Array<string> => {
@@ -9944,16 +10467,13 @@ export namespace Appointment {
           set: (value: string | Employee) => {
             data.employees[index] = value;
           },
-          getError: () =>
-            (errors.employees as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.employees ??= {};
-            (errors.employees as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.employees,
+          setError: (value: Option<Array<string>>) => {
+            errors.employees = value;
           },
-          getTainted: () => tainted.employees?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.employees ??= {};
-            tainted.employees[index] = value;
+          getTainted: () => tainted.employees,
+          setTainted: (value: Option<boolean>) => {
+            tainted.employees = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -9979,12 +10499,12 @@ export namespace Appointment {
         set: (value: string | Site) => {
           data.location = value;
         },
-        getError: () => errors?.location,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.location,
+        setError: (value: Option<Array<string>>) => {
           errors.location = value;
         },
-        getTainted: () => tainted?.location ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.location,
+        setTainted: (value: Option<boolean>) => {
           tainted.location = value;
         },
         validate: (): Array<string> => {
@@ -10007,12 +10527,12 @@ export namespace Appointment {
         set: (value: string | null) => {
           data.description = value;
         },
-        getError: () => errors?.description,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.description,
+        setError: (value: Option<Array<string>>) => {
           errors.description = value;
         },
-        getTainted: () => tainted?.description ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.description,
+        setTainted: (value: Option<boolean>) => {
           tainted.description = value;
         },
         validate: (): Array<string> => {
@@ -10035,12 +10555,12 @@ export namespace Appointment {
         set: (value: Colors) => {
           data.colors = value;
         },
-        getError: () => errors?.colors,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.colors,
+        setError: (value: Option<Array<string>>) => {
           errors.colors = value;
         },
-        getTainted: () => tainted?.colors ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.colors,
+        setTainted: (value: Option<boolean>) => {
           tainted.colors = value;
         },
         validate: (): Array<string> => {
@@ -10063,12 +10583,12 @@ export namespace Appointment {
         set: (value: RecurrenceRule | null) => {
           data.recurrenceRule = value;
         },
-        getError: () => errors?.recurrenceRule,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.recurrenceRule,
+        setError: (value: Option<Array<string>>) => {
           errors.recurrenceRule = value;
         },
-        getTainted: () => tainted?.recurrenceRule ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.recurrenceRule,
+        setTainted: (value: Option<boolean>) => {
           tainted.recurrenceRule = value;
         },
         validate: (): Array<string> => {
@@ -10091,8 +10611,39 @@ export namespace Appointment {
     }
     function reset(newOverrides?: Partial<Appointment>): void {
       data = { ...Appointment.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        title: Option.none(),
+        status: Option.none(),
+        begins: Option.none(),
+        duration: Option.none(),
+        timeZone: Option.none(),
+        offsetMs: Option.none(),
+        allDay: Option.none(),
+        multiDay: Option.none(),
+        employees: Option.none(),
+        location: Option.none(),
+        description: Option.none(),
+        colors: Option.none(),
+        recurrenceRule: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        title: Option.none(),
+        status: Option.none(),
+        begins: Option.none(),
+        duration: Option.none(),
+        timeZone: Option.none(),
+        offsetMs: Option.none(),
+        allDay: Option.none(),
+        multiDay: Option.none(),
+        employees: Option.none(),
+        location: Option.none(),
+        description: Option.none(),
+        colors: Option.none(),
+        recurrenceRule: Option.none(),
+      };
     }
     return {
       get data() {
@@ -10352,12 +10903,12 @@ export namespace Package {
 
 export namespace Package {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    date?: Array<string>;
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    date: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { id?: boolean; date?: boolean };
+    { id: Option<boolean>; date: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -10371,10 +10922,10 @@ export namespace Package {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -10393,8 +10944,12 @@ export namespace Package {
     overrides?: Partial<Package>,
   ): Gigaform {
     let data = $state({ ...Package.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      date: Option.none(),
+    });
+    let tainted = $state<Tainted>({ id: Option.none(), date: Option.none() });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -10405,12 +10960,12 @@ export namespace Package {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -10433,12 +10988,12 @@ export namespace Package {
         set: (value: string) => {
           data.date = value;
         },
-        getError: () => errors?.date,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.date,
+        setError: (value: Option<Array<string>>) => {
           errors.date = value;
         },
-        getTainted: () => tainted?.date ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.date,
+        setTainted: (value: Option<boolean>) => {
           tainted.date = value;
         },
         validate: (): Array<string> => {
@@ -10461,8 +11016,12 @@ export namespace Package {
     }
     function reset(newOverrides?: Partial<Package>): void {
       data = { ...Package.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        date: Option.none(),
+      };
+      tainted = { id: Option.none(), date: Option.none() };
     }
     return {
       get data() {
@@ -10670,18 +11229,18 @@ export namespace ScheduleSettings {
 
 export namespace ScheduleSettings {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    daysPerWeek?: Array<string>;
-    rowHeight?: RowHeight.Errors;
-    visibleRoutes?: { _errors?: Array<string>; [index: number]: Array<string> };
-    detailedCards?: Array<string>;
+    _errors: Option<Array<string>>;
+    daysPerWeek: Option<Array<string>>;
+    rowHeight: Option<Array<string>>;
+    visibleRoutes: Option<Array<string>>;
+    detailedCards: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      daysPerWeek?: boolean;
-      rowHeight?: RowHeight.Tainted;
-      visibleRoutes?: { [index: number]: boolean };
-      detailedCards?: boolean;
+      daysPerWeek: Option<boolean>;
+      rowHeight: Option<boolean>;
+      visibleRoutes: Option<boolean>;
+      detailedCards: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -10696,10 +11255,10 @@ export namespace ScheduleSettings {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -10723,8 +11282,19 @@ export namespace ScheduleSettings {
     overrides?: Partial<ScheduleSettings>,
   ): Gigaform {
     let data = $state({ ...ScheduleSettings.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      daysPerWeek: Option.none(),
+      rowHeight: Option.none(),
+      visibleRoutes: Option.none(),
+      detailedCards: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      daysPerWeek: Option.none(),
+      rowHeight: Option.none(),
+      visibleRoutes: Option.none(),
+      detailedCards: Option.none(),
+    });
     const fields: FieldControllers = {
       daysPerWeek: {
         path: ["daysPerWeek"] as const,
@@ -10735,12 +11305,12 @@ export namespace ScheduleSettings {
         set: (value: number) => {
           data.daysPerWeek = value;
         },
-        getError: () => errors?.daysPerWeek,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.daysPerWeek,
+        setError: (value: Option<Array<string>>) => {
           errors.daysPerWeek = value;
         },
-        getTainted: () => tainted?.daysPerWeek ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.daysPerWeek,
+        setTainted: (value: Option<boolean>) => {
           tainted.daysPerWeek = value;
         },
         validate: (): Array<string> => {
@@ -10763,12 +11333,12 @@ export namespace ScheduleSettings {
         set: (value: RowHeight) => {
           data.rowHeight = value;
         },
-        getError: () => errors?.rowHeight,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.rowHeight,
+        setError: (value: Option<Array<string>>) => {
           errors.rowHeight = value;
         },
-        getTainted: () => tainted?.rowHeight ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.rowHeight,
+        setTainted: (value: Option<boolean>) => {
           tainted.rowHeight = value;
         },
         validate: (): Array<string> => {
@@ -10791,12 +11361,12 @@ export namespace ScheduleSettings {
         set: (value: string[]) => {
           data.visibleRoutes = value;
         },
-        getError: () => errors?.visibleRoutes,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.visibleRoutes,
+        setError: (value: Option<Array<string>>) => {
           errors.visibleRoutes = value;
         },
-        getTainted: () => tainted?.visibleRoutes ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.visibleRoutes,
+        setTainted: (value: Option<boolean>) => {
           tainted.visibleRoutes = value;
         },
         validate: (): Array<string> => {
@@ -10817,17 +11387,13 @@ export namespace ScheduleSettings {
           set: (value: string) => {
             data.visibleRoutes[index] = value;
           },
-          getError: () =>
-            (errors.visibleRoutes as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.visibleRoutes ??= {};
-            (errors.visibleRoutes as Record<number, Array<string>>)[index] =
-              value!;
+          getError: () => errors.visibleRoutes,
+          setError: (value: Option<Array<string>>) => {
+            errors.visibleRoutes = value;
           },
-          getTainted: () => tainted.visibleRoutes?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.visibleRoutes ??= {};
-            tainted.visibleRoutes[index] = value;
+          getTainted: () => tainted.visibleRoutes,
+          setTainted: (value: Option<boolean>) => {
+            tainted.visibleRoutes = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -10853,12 +11419,12 @@ export namespace ScheduleSettings {
         set: (value: boolean) => {
           data.detailedCards = value;
         },
-        getError: () => errors?.detailedCards,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.detailedCards,
+        setError: (value: Option<Array<string>>) => {
           errors.detailedCards = value;
         },
-        getTainted: () => tainted?.detailedCards ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.detailedCards,
+        setTainted: (value: Option<boolean>) => {
           tainted.detailedCards = value;
         },
         validate: (): Array<string> => {
@@ -10881,8 +11447,19 @@ export namespace ScheduleSettings {
     }
     function reset(newOverrides?: Partial<ScheduleSettings>): void {
       data = { ...ScheduleSettings.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        daysPerWeek: Option.none(),
+        rowHeight: Option.none(),
+        visibleRoutes: Option.none(),
+        detailedCards: Option.none(),
+      };
+      tainted = {
+        daysPerWeek: Option.none(),
+        rowHeight: Option.none(),
+        visibleRoutes: Option.none(),
+        detailedCards: Option.none(),
+      };
     }
     return {
       get data() {
@@ -11079,11 +11656,11 @@ export namespace DailyRecurrenceRule {
 
 export namespace DailyRecurrenceRule {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    quantityOfDays?: Array<string>;
+    _errors: Option<Array<string>>;
+    quantityOfDays: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { quantityOfDays?: boolean };
+    { quantityOfDays: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -11097,10 +11674,10 @@ export namespace DailyRecurrenceRule {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -11121,8 +11698,11 @@ export namespace DailyRecurrenceRule {
     overrides?: Partial<DailyRecurrenceRule>,
   ): Gigaform {
     let data = $state({ ...DailyRecurrenceRule.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      quantityOfDays: Option.none(),
+    });
+    let tainted = $state<Tainted>({ quantityOfDays: Option.none() });
     const fields: FieldControllers = {
       quantityOfDays: {
         path: ["quantityOfDays"] as const,
@@ -11133,12 +11713,12 @@ export namespace DailyRecurrenceRule {
         set: (value: number) => {
           data.quantityOfDays = value;
         },
-        getError: () => errors?.quantityOfDays,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.quantityOfDays,
+        setError: (value: Option<Array<string>>) => {
           errors.quantityOfDays = value;
         },
-        getTainted: () => tainted?.quantityOfDays ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.quantityOfDays,
+        setTainted: (value: Option<boolean>) => {
           tainted.quantityOfDays = value;
         },
         validate: (): Array<string> => {
@@ -11161,8 +11741,8 @@ export namespace DailyRecurrenceRule {
     }
     function reset(newOverrides?: Partial<DailyRecurrenceRule>): void {
       data = { ...DailyRecurrenceRule.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = { _errors: Option.none(), quantityOfDays: Option.none() };
+      tainted = { quantityOfDays: Option.none() };
     }
     return {
       get data() {
@@ -11401,20 +11981,20 @@ export namespace SignUpCredentials {
 
 export namespace SignUpCredentials {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    firstName?: FirstName.Errors;
-    lastName?: LastName.Errors;
-    email?: EmailParts.Errors;
-    password?: Password.Errors;
-    rememberMe?: Array<string>;
+    _errors: Option<Array<string>>;
+    firstName: Option<Array<string>>;
+    lastName: Option<Array<string>>;
+    email: Option<Array<string>>;
+    password: Option<Array<string>>;
+    rememberMe: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      firstName?: FirstName.Tainted;
-      lastName?: LastName.Tainted;
-      email?: EmailParts.Tainted;
-      password?: Password.Tainted;
-      rememberMe?: boolean;
+      firstName: Option<boolean>;
+      lastName: Option<boolean>;
+      email: Option<boolean>;
+      password: Option<boolean>;
+      rememberMe: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -11429,10 +12009,10 @@ export namespace SignUpCredentials {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -11457,8 +12037,21 @@ export namespace SignUpCredentials {
     overrides?: Partial<SignUpCredentials>,
   ): Gigaform {
     let data = $state({ ...SignUpCredentials.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      firstName: Option.none(),
+      lastName: Option.none(),
+      email: Option.none(),
+      password: Option.none(),
+      rememberMe: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      firstName: Option.none(),
+      lastName: Option.none(),
+      email: Option.none(),
+      password: Option.none(),
+      rememberMe: Option.none(),
+    });
     const fields: FieldControllers = {
       firstName: {
         path: ["firstName"] as const,
@@ -11469,12 +12062,12 @@ export namespace SignUpCredentials {
         set: (value: FirstName) => {
           data.firstName = value;
         },
-        getError: () => errors?.firstName,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.firstName,
+        setError: (value: Option<Array<string>>) => {
           errors.firstName = value;
         },
-        getTainted: () => tainted?.firstName ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.firstName,
+        setTainted: (value: Option<boolean>) => {
           tainted.firstName = value;
         },
         validate: (): Array<string> => {
@@ -11497,12 +12090,12 @@ export namespace SignUpCredentials {
         set: (value: LastName) => {
           data.lastName = value;
         },
-        getError: () => errors?.lastName,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.lastName,
+        setError: (value: Option<Array<string>>) => {
           errors.lastName = value;
         },
-        getTainted: () => tainted?.lastName ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.lastName,
+        setTainted: (value: Option<boolean>) => {
           tainted.lastName = value;
         },
         validate: (): Array<string> => {
@@ -11525,12 +12118,12 @@ export namespace SignUpCredentials {
         set: (value: EmailParts) => {
           data.email = value;
         },
-        getError: () => errors?.email,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.email,
+        setError: (value: Option<Array<string>>) => {
           errors.email = value;
         },
-        getTainted: () => tainted?.email ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.email,
+        setTainted: (value: Option<boolean>) => {
           tainted.email = value;
         },
         validate: (): Array<string> => {
@@ -11553,12 +12146,12 @@ export namespace SignUpCredentials {
         set: (value: Password) => {
           data.password = value;
         },
-        getError: () => errors?.password,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.password,
+        setError: (value: Option<Array<string>>) => {
           errors.password = value;
         },
-        getTainted: () => tainted?.password ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.password,
+        setTainted: (value: Option<boolean>) => {
           tainted.password = value;
         },
         validate: (): Array<string> => {
@@ -11581,12 +12174,12 @@ export namespace SignUpCredentials {
         set: (value: boolean) => {
           data.rememberMe = value;
         },
-        getError: () => errors?.rememberMe,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.rememberMe,
+        setError: (value: Option<Array<string>>) => {
           errors.rememberMe = value;
         },
-        getTainted: () => tainted?.rememberMe ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.rememberMe,
+        setTainted: (value: Option<boolean>) => {
           tainted.rememberMe = value;
         },
         validate: (): Array<string> => {
@@ -11609,8 +12202,21 @@ export namespace SignUpCredentials {
     }
     function reset(newOverrides?: Partial<SignUpCredentials>): void {
       data = { ...SignUpCredentials.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        firstName: Option.none(),
+        lastName: Option.none(),
+        email: Option.none(),
+        password: Option.none(),
+        rememberMe: Option.none(),
+      };
+      tainted = {
+        firstName: Option.none(),
+        lastName: Option.none(),
+        email: Option.none(),
+        password: Option.none(),
+        rememberMe: Option.none(),
+      };
     }
     return {
       get data() {
@@ -11915,21 +12521,18 @@ export namespace OverviewSettings {
 
 export namespace OverviewSettings {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    rowHeight?: RowHeight.Errors;
-    cardOrRow?: OverviewDisplay.Errors;
-    perPage?: Array<string>;
-    columnConfigs?: {
-      _errors?: Array<string>;
-      [index: number]: ColumnConfig.Errors;
-    };
+    _errors: Option<Array<string>>;
+    rowHeight: Option<Array<string>>;
+    cardOrRow: Option<Array<string>>;
+    perPage: Option<Array<string>>;
+    columnConfigs: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      rowHeight?: RowHeight.Tainted;
-      cardOrRow?: OverviewDisplay.Tainted;
-      perPage?: boolean;
-      columnConfigs?: { [index: number]: ColumnConfig.Tainted };
+      rowHeight: Option<boolean>;
+      cardOrRow: Option<boolean>;
+      perPage: Option<boolean>;
+      columnConfigs: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -11944,10 +12547,10 @@ export namespace OverviewSettings {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -11971,8 +12574,19 @@ export namespace OverviewSettings {
     overrides?: Partial<OverviewSettings>,
   ): Gigaform {
     let data = $state({ ...OverviewSettings.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      rowHeight: Option.none(),
+      cardOrRow: Option.none(),
+      perPage: Option.none(),
+      columnConfigs: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      rowHeight: Option.none(),
+      cardOrRow: Option.none(),
+      perPage: Option.none(),
+      columnConfigs: Option.none(),
+    });
     const fields: FieldControllers = {
       rowHeight: {
         path: ["rowHeight"] as const,
@@ -11983,12 +12597,12 @@ export namespace OverviewSettings {
         set: (value: RowHeight) => {
           data.rowHeight = value;
         },
-        getError: () => errors?.rowHeight,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.rowHeight,
+        setError: (value: Option<Array<string>>) => {
           errors.rowHeight = value;
         },
-        getTainted: () => tainted?.rowHeight ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.rowHeight,
+        setTainted: (value: Option<boolean>) => {
           tainted.rowHeight = value;
         },
         validate: (): Array<string> => {
@@ -12011,12 +12625,12 @@ export namespace OverviewSettings {
         set: (value: OverviewDisplay) => {
           data.cardOrRow = value;
         },
-        getError: () => errors?.cardOrRow,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.cardOrRow,
+        setError: (value: Option<Array<string>>) => {
           errors.cardOrRow = value;
         },
-        getTainted: () => tainted?.cardOrRow ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.cardOrRow,
+        setTainted: (value: Option<boolean>) => {
           tainted.cardOrRow = value;
         },
         validate: (): Array<string> => {
@@ -12039,12 +12653,12 @@ export namespace OverviewSettings {
         set: (value: number) => {
           data.perPage = value;
         },
-        getError: () => errors?.perPage,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.perPage,
+        setError: (value: Option<Array<string>>) => {
           errors.perPage = value;
         },
-        getTainted: () => tainted?.perPage ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.perPage,
+        setTainted: (value: Option<boolean>) => {
           tainted.perPage = value;
         },
         validate: (): Array<string> => {
@@ -12067,12 +12681,12 @@ export namespace OverviewSettings {
         set: (value: ColumnConfig[]) => {
           data.columnConfigs = value;
         },
-        getError: () => errors?.columnConfigs,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.columnConfigs,
+        setError: (value: Option<Array<string>>) => {
           errors.columnConfigs = value;
         },
-        getTainted: () => tainted?.columnConfigs ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.columnConfigs,
+        setTainted: (value: Option<boolean>) => {
           tainted.columnConfigs = value;
         },
         validate: (): Array<string> => {
@@ -12093,17 +12707,13 @@ export namespace OverviewSettings {
           set: (value: ColumnConfig) => {
             data.columnConfigs[index] = value;
           },
-          getError: () =>
-            (errors.columnConfigs as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.columnConfigs ??= {};
-            (errors.columnConfigs as Record<number, Array<string>>)[index] =
-              value!;
+          getError: () => errors.columnConfigs,
+          setError: (value: Option<Array<string>>) => {
+            errors.columnConfigs = value;
           },
-          getTainted: () => tainted.columnConfigs?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.columnConfigs ??= {};
-            tainted.columnConfigs[index] = value;
+          getTainted: () => tainted.columnConfigs,
+          setTainted: (value: Option<boolean>) => {
+            tainted.columnConfigs = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -12129,8 +12739,19 @@ export namespace OverviewSettings {
     }
     function reset(newOverrides?: Partial<OverviewSettings>): void {
       data = { ...OverviewSettings.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        rowHeight: Option.none(),
+        cardOrRow: Option.none(),
+        perPage: Option.none(),
+        columnConfigs: Option.none(),
+      };
+      tainted = {
+        rowHeight: Option.none(),
+        cardOrRow: Option.none(),
+        perPage: Option.none(),
+        columnConfigs: Option.none(),
+      };
     }
     return {
       get data() {
@@ -12358,11 +12979,11 @@ export namespace FirstName {
 
 export namespace FirstName {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    name?: Array<string>;
+    _errors: Option<Array<string>>;
+    name: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { name?: boolean };
+    { name: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -12376,10 +12997,10 @@ export namespace FirstName {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -12397,8 +13018,11 @@ export namespace FirstName {
     overrides?: Partial<FirstName>,
   ): Gigaform {
     let data = $state({ ...FirstName.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      name: Option.none(),
+    });
+    let tainted = $state<Tainted>({ name: Option.none() });
     const fields: FieldControllers = {
       name: {
         path: ["name"] as const,
@@ -12409,12 +13033,12 @@ export namespace FirstName {
         set: (value: string) => {
           data.name = value;
         },
-        getError: () => errors?.name,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.name,
+        setError: (value: Option<Array<string>>) => {
           errors.name = value;
         },
-        getTainted: () => tainted?.name ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.name,
+        setTainted: (value: Option<boolean>) => {
           tainted.name = value;
         },
         validate: (): Array<string> => {
@@ -12437,8 +13061,8 @@ export namespace FirstName {
     }
     function reset(newOverrides?: Partial<FirstName>): void {
       data = { ...FirstName.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = { _errors: Option.none(), name: Option.none() };
+      tainted = { name: Option.none() };
     }
     return {
       get data() {
@@ -12870,54 +13494,54 @@ export namespace Account {
 
 export namespace Account {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    taxRate?: Array<string>;
-    site?: Array<string>;
-    salesRep?: Array<string>;
-    orders?: { _errors?: Array<string>; [index: number]: Ordered.Errors };
-    activity?: { _errors?: Array<string>; [index: number]: Did.Errors };
-    customFields?: { _errors?: Array<string>; [index: number]: Array<string> };
-    accountName?: AccountName.Errors;
-    sector?: Sector.Errors;
-    memo?: Array<string>;
-    phones?: { _errors?: Array<string>; [index: number]: PhoneNumber.Errors };
-    email?: Email.Errors;
-    leadSource?: Array<string>;
-    colors?: Colors.Errors;
-    needsReview?: Array<string>;
-    hasAlert?: Array<string>;
-    accountType?: Array<string>;
-    subtype?: Array<string>;
-    isTaxExempt?: Array<string>;
-    paymentTerms?: Array<string>;
-    tags?: { _errors?: Array<string>; [index: number]: Array<string> };
-    dateAdded?: Array<string>;
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    taxRate: Option<Array<string>>;
+    site: Option<Array<string>>;
+    salesRep: Option<Array<string>>;
+    orders: Option<Array<string>>;
+    activity: Option<Array<string>>;
+    customFields: Option<Array<string>>;
+    accountName: Option<Array<string>>;
+    sector: Option<Array<string>>;
+    memo: Option<Array<string>>;
+    phones: Option<Array<string>>;
+    email: Option<Array<string>>;
+    leadSource: Option<Array<string>>;
+    colors: Option<Array<string>>;
+    needsReview: Option<Array<string>>;
+    hasAlert: Option<Array<string>>;
+    accountType: Option<Array<string>>;
+    subtype: Option<Array<string>>;
+    isTaxExempt: Option<Array<string>>;
+    paymentTerms: Option<Array<string>>;
+    tags: Option<Array<string>>;
+    dateAdded: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      id?: boolean;
-      taxRate?: boolean;
-      site?: boolean;
-      salesRep?: boolean;
-      orders?: { [index: number]: Ordered.Tainted };
-      activity?: { [index: number]: Did.Tainted };
-      customFields?: { [index: number]: boolean };
-      accountName?: AccountName.Tainted;
-      sector?: Sector.Tainted;
-      memo?: boolean;
-      phones?: { [index: number]: PhoneNumber.Tainted };
-      email?: Email.Tainted;
-      leadSource?: boolean;
-      colors?: Colors.Tainted;
-      needsReview?: boolean;
-      hasAlert?: boolean;
-      accountType?: boolean;
-      subtype?: boolean;
-      isTaxExempt?: boolean;
-      paymentTerms?: boolean;
-      tags?: { [index: number]: boolean };
-      dateAdded?: boolean;
+      id: Option<boolean>;
+      taxRate: Option<boolean>;
+      site: Option<boolean>;
+      salesRep: Option<boolean>;
+      orders: Option<boolean>;
+      activity: Option<boolean>;
+      customFields: Option<boolean>;
+      accountName: Option<boolean>;
+      sector: Option<boolean>;
+      memo: Option<boolean>;
+      phones: Option<boolean>;
+      email: Option<boolean>;
+      leadSource: Option<boolean>;
+      colors: Option<boolean>;
+      needsReview: Option<boolean>;
+      hasAlert: Option<boolean>;
+      accountType: Option<boolean>;
+      subtype: Option<boolean>;
+      isTaxExempt: Option<boolean>;
+      paymentTerms: Option<boolean>;
+      tags: Option<boolean>;
+      dateAdded: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -12932,10 +13556,10 @@ export namespace Account {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -12974,8 +13598,55 @@ export namespace Account {
     overrides?: Partial<Account>,
   ): Gigaform {
     let data = $state({ ...Account.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      taxRate: Option.none(),
+      site: Option.none(),
+      salesRep: Option.none(),
+      orders: Option.none(),
+      activity: Option.none(),
+      customFields: Option.none(),
+      accountName: Option.none(),
+      sector: Option.none(),
+      memo: Option.none(),
+      phones: Option.none(),
+      email: Option.none(),
+      leadSource: Option.none(),
+      colors: Option.none(),
+      needsReview: Option.none(),
+      hasAlert: Option.none(),
+      accountType: Option.none(),
+      subtype: Option.none(),
+      isTaxExempt: Option.none(),
+      paymentTerms: Option.none(),
+      tags: Option.none(),
+      dateAdded: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      taxRate: Option.none(),
+      site: Option.none(),
+      salesRep: Option.none(),
+      orders: Option.none(),
+      activity: Option.none(),
+      customFields: Option.none(),
+      accountName: Option.none(),
+      sector: Option.none(),
+      memo: Option.none(),
+      phones: Option.none(),
+      email: Option.none(),
+      leadSource: Option.none(),
+      colors: Option.none(),
+      needsReview: Option.none(),
+      hasAlert: Option.none(),
+      accountType: Option.none(),
+      subtype: Option.none(),
+      isTaxExempt: Option.none(),
+      paymentTerms: Option.none(),
+      tags: Option.none(),
+      dateAdded: Option.none(),
+    });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -12986,12 +13657,12 @@ export namespace Account {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -13014,12 +13685,12 @@ export namespace Account {
         set: (value: string | TaxRate) => {
           data.taxRate = value;
         },
-        getError: () => errors?.taxRate,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.taxRate,
+        setError: (value: Option<Array<string>>) => {
           errors.taxRate = value;
         },
-        getTainted: () => tainted?.taxRate ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.taxRate,
+        setTainted: (value: Option<boolean>) => {
           tainted.taxRate = value;
         },
         validate: (): Array<string> => {
@@ -13042,12 +13713,12 @@ export namespace Account {
         set: (value: string | Site) => {
           data.site = value;
         },
-        getError: () => errors?.site,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.site,
+        setError: (value: Option<Array<string>>) => {
           errors.site = value;
         },
-        getTainted: () => tainted?.site ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.site,
+        setTainted: (value: Option<boolean>) => {
           tainted.site = value;
         },
         validate: (): Array<string> => {
@@ -13070,12 +13741,12 @@ export namespace Account {
         set: (value: Represents[] | null) => {
           data.salesRep = value;
         },
-        getError: () => errors?.salesRep,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.salesRep,
+        setError: (value: Option<Array<string>>) => {
           errors.salesRep = value;
         },
-        getTainted: () => tainted?.salesRep ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.salesRep,
+        setTainted: (value: Option<boolean>) => {
           tainted.salesRep = value;
         },
         validate: (): Array<string> => {
@@ -13098,12 +13769,12 @@ export namespace Account {
         set: (value: Ordered[]) => {
           data.orders = value;
         },
-        getError: () => errors?.orders,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.orders,
+        setError: (value: Option<Array<string>>) => {
           errors.orders = value;
         },
-        getTainted: () => tainted?.orders ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.orders,
+        setTainted: (value: Option<boolean>) => {
           tainted.orders = value;
         },
         validate: (): Array<string> => {
@@ -13124,16 +13795,13 @@ export namespace Account {
           set: (value: Ordered) => {
             data.orders[index] = value;
           },
-          getError: () =>
-            (errors.orders as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.orders ??= {};
-            (errors.orders as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.orders,
+          setError: (value: Option<Array<string>>) => {
+            errors.orders = value;
           },
-          getTainted: () => tainted.orders?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.orders ??= {};
-            tainted.orders[index] = value;
+          getTainted: () => tainted.orders,
+          setTainted: (value: Option<boolean>) => {
+            tainted.orders = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -13156,12 +13824,12 @@ export namespace Account {
         set: (value: Did[]) => {
           data.activity = value;
         },
-        getError: () => errors?.activity,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.activity,
+        setError: (value: Option<Array<string>>) => {
           errors.activity = value;
         },
-        getTainted: () => tainted?.activity ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.activity,
+        setTainted: (value: Option<boolean>) => {
           tainted.activity = value;
         },
         validate: (): Array<string> => {
@@ -13182,16 +13850,13 @@ export namespace Account {
           set: (value: Did) => {
             data.activity[index] = value;
           },
-          getError: () =>
-            (errors.activity as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.activity ??= {};
-            (errors.activity as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.activity,
+          setError: (value: Option<Array<string>>) => {
+            errors.activity = value;
           },
-          getTainted: () => tainted.activity?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.activity ??= {};
-            tainted.activity[index] = value;
+          getTainted: () => tainted.activity,
+          setTainted: (value: Option<boolean>) => {
+            tainted.activity = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -13217,12 +13882,12 @@ export namespace Account {
         set: (value: [string, string][]) => {
           data.customFields = value;
         },
-        getError: () => errors?.customFields,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.customFields,
+        setError: (value: Option<Array<string>>) => {
           errors.customFields = value;
         },
-        getTainted: () => tainted?.customFields ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.customFields,
+        setTainted: (value: Option<boolean>) => {
           tainted.customFields = value;
         },
         validate: (): Array<string> => {
@@ -13243,17 +13908,13 @@ export namespace Account {
           set: (value: [string, string]) => {
             data.customFields[index] = value;
           },
-          getError: () =>
-            (errors.customFields as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.customFields ??= {};
-            (errors.customFields as Record<number, Array<string>>)[index] =
-              value!;
+          getError: () => errors.customFields,
+          setError: (value: Option<Array<string>>) => {
+            errors.customFields = value;
           },
-          getTainted: () => tainted.customFields?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.customFields ??= {};
-            tainted.customFields[index] = value;
+          getTainted: () => tainted.customFields,
+          setTainted: (value: Option<boolean>) => {
+            tainted.customFields = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -13279,12 +13940,12 @@ export namespace Account {
         set: (value: AccountName) => {
           data.accountName = value;
         },
-        getError: () => errors?.accountName,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.accountName,
+        setError: (value: Option<Array<string>>) => {
           errors.accountName = value;
         },
-        getTainted: () => tainted?.accountName ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.accountName,
+        setTainted: (value: Option<boolean>) => {
           tainted.accountName = value;
         },
         validate: (): Array<string> => {
@@ -13307,12 +13968,12 @@ export namespace Account {
         set: (value: Sector) => {
           data.sector = value;
         },
-        getError: () => errors?.sector,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.sector,
+        setError: (value: Option<Array<string>>) => {
           errors.sector = value;
         },
-        getTainted: () => tainted?.sector ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.sector,
+        setTainted: (value: Option<boolean>) => {
           tainted.sector = value;
         },
         validate: (): Array<string> => {
@@ -13335,12 +13996,12 @@ export namespace Account {
         set: (value: string | null) => {
           data.memo = value;
         },
-        getError: () => errors?.memo,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.memo,
+        setError: (value: Option<Array<string>>) => {
           errors.memo = value;
         },
-        getTainted: () => tainted?.memo ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.memo,
+        setTainted: (value: Option<boolean>) => {
           tainted.memo = value;
         },
         validate: (): Array<string> => {
@@ -13363,12 +14024,12 @@ export namespace Account {
         set: (value: PhoneNumber[]) => {
           data.phones = value;
         },
-        getError: () => errors?.phones,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.phones,
+        setError: (value: Option<Array<string>>) => {
           errors.phones = value;
         },
-        getTainted: () => tainted?.phones ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.phones,
+        setTainted: (value: Option<boolean>) => {
           tainted.phones = value;
         },
         validate: (): Array<string> => {
@@ -13389,16 +14050,13 @@ export namespace Account {
           set: (value: PhoneNumber) => {
             data.phones[index] = value;
           },
-          getError: () =>
-            (errors.phones as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.phones ??= {};
-            (errors.phones as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.phones,
+          setError: (value: Option<Array<string>>) => {
+            errors.phones = value;
           },
-          getTainted: () => tainted.phones?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.phones ??= {};
-            tainted.phones[index] = value;
+          getTainted: () => tainted.phones,
+          setTainted: (value: Option<boolean>) => {
+            tainted.phones = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -13421,12 +14079,12 @@ export namespace Account {
         set: (value: Email) => {
           data.email = value;
         },
-        getError: () => errors?.email,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.email,
+        setError: (value: Option<Array<string>>) => {
           errors.email = value;
         },
-        getTainted: () => tainted?.email ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.email,
+        setTainted: (value: Option<boolean>) => {
           tainted.email = value;
         },
         validate: (): Array<string> => {
@@ -13449,12 +14107,12 @@ export namespace Account {
         set: (value: string) => {
           data.leadSource = value;
         },
-        getError: () => errors?.leadSource,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.leadSource,
+        setError: (value: Option<Array<string>>) => {
           errors.leadSource = value;
         },
-        getTainted: () => tainted?.leadSource ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.leadSource,
+        setTainted: (value: Option<boolean>) => {
           tainted.leadSource = value;
         },
         validate: (): Array<string> => {
@@ -13477,12 +14135,12 @@ export namespace Account {
         set: (value: Colors) => {
           data.colors = value;
         },
-        getError: () => errors?.colors,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.colors,
+        setError: (value: Option<Array<string>>) => {
           errors.colors = value;
         },
-        getTainted: () => tainted?.colors ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.colors,
+        setTainted: (value: Option<boolean>) => {
           tainted.colors = value;
         },
         validate: (): Array<string> => {
@@ -13505,12 +14163,12 @@ export namespace Account {
         set: (value: boolean) => {
           data.needsReview = value;
         },
-        getError: () => errors?.needsReview,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.needsReview,
+        setError: (value: Option<Array<string>>) => {
           errors.needsReview = value;
         },
-        getTainted: () => tainted?.needsReview ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.needsReview,
+        setTainted: (value: Option<boolean>) => {
           tainted.needsReview = value;
         },
         validate: (): Array<string> => {
@@ -13533,12 +14191,12 @@ export namespace Account {
         set: (value: boolean) => {
           data.hasAlert = value;
         },
-        getError: () => errors?.hasAlert,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.hasAlert,
+        setError: (value: Option<Array<string>>) => {
           errors.hasAlert = value;
         },
-        getTainted: () => tainted?.hasAlert ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.hasAlert,
+        setTainted: (value: Option<boolean>) => {
           tainted.hasAlert = value;
         },
         validate: (): Array<string> => {
@@ -13561,12 +14219,12 @@ export namespace Account {
         set: (value: string) => {
           data.accountType = value;
         },
-        getError: () => errors?.accountType,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.accountType,
+        setError: (value: Option<Array<string>>) => {
           errors.accountType = value;
         },
-        getTainted: () => tainted?.accountType ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.accountType,
+        setTainted: (value: Option<boolean>) => {
           tainted.accountType = value;
         },
         validate: (): Array<string> => {
@@ -13589,12 +14247,12 @@ export namespace Account {
         set: (value: string) => {
           data.subtype = value;
         },
-        getError: () => errors?.subtype,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.subtype,
+        setError: (value: Option<Array<string>>) => {
           errors.subtype = value;
         },
-        getTainted: () => tainted?.subtype ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.subtype,
+        setTainted: (value: Option<boolean>) => {
           tainted.subtype = value;
         },
         validate: (): Array<string> => {
@@ -13617,12 +14275,12 @@ export namespace Account {
         set: (value: boolean) => {
           data.isTaxExempt = value;
         },
-        getError: () => errors?.isTaxExempt,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.isTaxExempt,
+        setError: (value: Option<Array<string>>) => {
           errors.isTaxExempt = value;
         },
-        getTainted: () => tainted?.isTaxExempt ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.isTaxExempt,
+        setTainted: (value: Option<boolean>) => {
           tainted.isTaxExempt = value;
         },
         validate: (): Array<string> => {
@@ -13645,12 +14303,12 @@ export namespace Account {
         set: (value: string) => {
           data.paymentTerms = value;
         },
-        getError: () => errors?.paymentTerms,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.paymentTerms,
+        setError: (value: Option<Array<string>>) => {
           errors.paymentTerms = value;
         },
-        getTainted: () => tainted?.paymentTerms ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.paymentTerms,
+        setTainted: (value: Option<boolean>) => {
           tainted.paymentTerms = value;
         },
         validate: (): Array<string> => {
@@ -13673,12 +14331,12 @@ export namespace Account {
         set: (value: string[]) => {
           data.tags = value;
         },
-        getError: () => errors?.tags,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.tags,
+        setError: (value: Option<Array<string>>) => {
           errors.tags = value;
         },
-        getTainted: () => tainted?.tags ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.tags,
+        setTainted: (value: Option<boolean>) => {
           tainted.tags = value;
         },
         validate: (): Array<string> => {
@@ -13699,16 +14357,13 @@ export namespace Account {
           set: (value: string) => {
             data.tags[index] = value;
           },
-          getError: () =>
-            (errors.tags as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.tags ??= {};
-            (errors.tags as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.tags,
+          setError: (value: Option<Array<string>>) => {
+            errors.tags = value;
           },
-          getTainted: () => tainted.tags?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.tags ??= {};
-            tainted.tags[index] = value;
+          getTainted: () => tainted.tags,
+          setTainted: (value: Option<boolean>) => {
+            tainted.tags = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -13731,12 +14386,12 @@ export namespace Account {
         set: (value: string) => {
           data.dateAdded = value;
         },
-        getError: () => errors?.dateAdded,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.dateAdded,
+        setError: (value: Option<Array<string>>) => {
           errors.dateAdded = value;
         },
-        getTainted: () => tainted?.dateAdded ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.dateAdded,
+        setTainted: (value: Option<boolean>) => {
           tainted.dateAdded = value;
         },
         validate: (): Array<string> => {
@@ -13759,8 +14414,55 @@ export namespace Account {
     }
     function reset(newOverrides?: Partial<Account>): void {
       data = { ...Account.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        taxRate: Option.none(),
+        site: Option.none(),
+        salesRep: Option.none(),
+        orders: Option.none(),
+        activity: Option.none(),
+        customFields: Option.none(),
+        accountName: Option.none(),
+        sector: Option.none(),
+        memo: Option.none(),
+        phones: Option.none(),
+        email: Option.none(),
+        leadSource: Option.none(),
+        colors: Option.none(),
+        needsReview: Option.none(),
+        hasAlert: Option.none(),
+        accountType: Option.none(),
+        subtype: Option.none(),
+        isTaxExempt: Option.none(),
+        paymentTerms: Option.none(),
+        tags: Option.none(),
+        dateAdded: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        taxRate: Option.none(),
+        site: Option.none(),
+        salesRep: Option.none(),
+        orders: Option.none(),
+        activity: Option.none(),
+        customFields: Option.none(),
+        accountName: Option.none(),
+        sector: Option.none(),
+        memo: Option.none(),
+        phones: Option.none(),
+        email: Option.none(),
+        leadSource: Option.none(),
+        colors: Option.none(),
+        needsReview: Option.none(),
+        hasAlert: Option.none(),
+        accountType: Option.none(),
+        subtype: Option.none(),
+        isTaxExempt: Option.none(),
+        paymentTerms: Option.none(),
+        tags: Option.none(),
+        dateAdded: Option.none(),
+      };
     }
     return {
       get data() {
@@ -14164,13 +14866,17 @@ export namespace Edited {
 
 export namespace Edited {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    fieldName?: Array<string>;
-    oldValue?: Array<string>;
-    newValue?: Array<string>;
+    _errors: Option<Array<string>>;
+    fieldName: Option<Array<string>>;
+    oldValue: Option<Array<string>>;
+    newValue: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { fieldName?: boolean; oldValue?: boolean; newValue?: boolean };
+    {
+      fieldName: Option<boolean>;
+      oldValue: Option<boolean>;
+      newValue: Option<boolean>;
+    };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -14184,10 +14890,10 @@ export namespace Edited {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -14207,8 +14913,17 @@ export namespace Edited {
     overrides?: Partial<Edited>,
   ): Gigaform {
     let data = $state({ ...Edited.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      fieldName: Option.none(),
+      oldValue: Option.none(),
+      newValue: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      fieldName: Option.none(),
+      oldValue: Option.none(),
+      newValue: Option.none(),
+    });
     const fields: FieldControllers = {
       fieldName: {
         path: ["fieldName"] as const,
@@ -14219,12 +14934,12 @@ export namespace Edited {
         set: (value: string) => {
           data.fieldName = value;
         },
-        getError: () => errors?.fieldName,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.fieldName,
+        setError: (value: Option<Array<string>>) => {
           errors.fieldName = value;
         },
-        getTainted: () => tainted?.fieldName ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.fieldName,
+        setTainted: (value: Option<boolean>) => {
           tainted.fieldName = value;
         },
         validate: (): Array<string> => {
@@ -14247,12 +14962,12 @@ export namespace Edited {
         set: (value: string | null) => {
           data.oldValue = value;
         },
-        getError: () => errors?.oldValue,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.oldValue,
+        setError: (value: Option<Array<string>>) => {
           errors.oldValue = value;
         },
-        getTainted: () => tainted?.oldValue ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.oldValue,
+        setTainted: (value: Option<boolean>) => {
           tainted.oldValue = value;
         },
         validate: (): Array<string> => {
@@ -14275,12 +14990,12 @@ export namespace Edited {
         set: (value: string | null) => {
           data.newValue = value;
         },
-        getError: () => errors?.newValue,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.newValue,
+        setError: (value: Option<Array<string>>) => {
           errors.newValue = value;
         },
-        getTainted: () => tainted?.newValue ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.newValue,
+        setTainted: (value: Option<boolean>) => {
           tainted.newValue = value;
         },
         validate: (): Array<string> => {
@@ -14303,8 +15018,17 @@ export namespace Edited {
     }
     function reset(newOverrides?: Partial<Edited>): void {
       data = { ...Edited.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        fieldName: Option.none(),
+        oldValue: Option.none(),
+        newValue: Option.none(),
+      };
+      tainted = {
+        fieldName: Option.none(),
+        oldValue: Option.none(),
+        newValue: Option.none(),
+      };
     }
     return {
       get data() {
@@ -14781,71 +15505,68 @@ export namespace Order {
 
 export namespace Order {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    account?: Array<string>;
-    stage?: OrderStage.Errors;
-    number?: Array<string>;
-    payments?: { _errors?: Array<string>; [index: number]: Array<string> };
-    opportunity?: Array<string>;
-    reference?: Array<string>;
-    leadSource?: Array<string>;
-    salesRep?: Array<string>;
-    group?: Array<string>;
-    subgroup?: Array<string>;
-    isPosted?: Array<string>;
-    needsReview?: Array<string>;
-    actionItem?: Array<string>;
-    upsale?: Array<string>;
-    dateCreated?: Array<string>;
-    appointment?: Array<string>;
-    lastTechs?: { _errors?: Array<string>; [index: number]: Array<string> };
-    package?: Array<string>;
-    promotion?: Array<string>;
-    balance?: Array<string>;
-    due?: Array<string>;
-    total?: Array<string>;
-    site?: Array<string>;
-    billedItems?: {
-      _errors?: Array<string>;
-      [index: number]: BilledItem.Errors;
-    };
-    memo?: Array<string>;
-    discount?: Array<string>;
-    tip?: Array<string>;
-    commissions?: { _errors?: Array<string>; [index: number]: Array<string> };
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    account: Option<Array<string>>;
+    stage: Option<Array<string>>;
+    number: Option<Array<string>>;
+    payments: Option<Array<string>>;
+    opportunity: Option<Array<string>>;
+    reference: Option<Array<string>>;
+    leadSource: Option<Array<string>>;
+    salesRep: Option<Array<string>>;
+    group: Option<Array<string>>;
+    subgroup: Option<Array<string>>;
+    isPosted: Option<Array<string>>;
+    needsReview: Option<Array<string>>;
+    actionItem: Option<Array<string>>;
+    upsale: Option<Array<string>>;
+    dateCreated: Option<Array<string>>;
+    appointment: Option<Array<string>>;
+    lastTechs: Option<Array<string>>;
+    package: Option<Array<string>>;
+    promotion: Option<Array<string>>;
+    balance: Option<Array<string>>;
+    due: Option<Array<string>>;
+    total: Option<Array<string>>;
+    site: Option<Array<string>>;
+    billedItems: Option<Array<string>>;
+    memo: Option<Array<string>>;
+    discount: Option<Array<string>>;
+    tip: Option<Array<string>>;
+    commissions: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      id?: boolean;
-      account?: boolean;
-      stage?: OrderStage.Tainted;
-      number?: boolean;
-      payments?: { [index: number]: boolean };
-      opportunity?: boolean;
-      reference?: boolean;
-      leadSource?: boolean;
-      salesRep?: boolean;
-      group?: boolean;
-      subgroup?: boolean;
-      isPosted?: boolean;
-      needsReview?: boolean;
-      actionItem?: boolean;
-      upsale?: boolean;
-      dateCreated?: boolean;
-      appointment?: boolean;
-      lastTechs?: { [index: number]: boolean };
-      package?: boolean;
-      promotion?: boolean;
-      balance?: boolean;
-      due?: boolean;
-      total?: boolean;
-      site?: boolean;
-      billedItems?: { [index: number]: BilledItem.Tainted };
-      memo?: boolean;
-      discount?: boolean;
-      tip?: boolean;
-      commissions?: { [index: number]: boolean };
+      id: Option<boolean>;
+      account: Option<boolean>;
+      stage: Option<boolean>;
+      number: Option<boolean>;
+      payments: Option<boolean>;
+      opportunity: Option<boolean>;
+      reference: Option<boolean>;
+      leadSource: Option<boolean>;
+      salesRep: Option<boolean>;
+      group: Option<boolean>;
+      subgroup: Option<boolean>;
+      isPosted: Option<boolean>;
+      needsReview: Option<boolean>;
+      actionItem: Option<boolean>;
+      upsale: Option<boolean>;
+      dateCreated: Option<boolean>;
+      appointment: Option<boolean>;
+      lastTechs: Option<boolean>;
+      package: Option<boolean>;
+      promotion: Option<boolean>;
+      balance: Option<boolean>;
+      due: Option<boolean>;
+      total: Option<boolean>;
+      site: Option<boolean>;
+      billedItems: Option<boolean>;
+      memo: Option<boolean>;
+      discount: Option<boolean>;
+      tip: Option<boolean>;
+      commissions: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -14860,10 +15581,10 @@ export namespace Order {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -14909,8 +15630,69 @@ export namespace Order {
     overrides?: Partial<Order>,
   ): Gigaform {
     let data = $state({ ...Order.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      account: Option.none(),
+      stage: Option.none(),
+      number: Option.none(),
+      payments: Option.none(),
+      opportunity: Option.none(),
+      reference: Option.none(),
+      leadSource: Option.none(),
+      salesRep: Option.none(),
+      group: Option.none(),
+      subgroup: Option.none(),
+      isPosted: Option.none(),
+      needsReview: Option.none(),
+      actionItem: Option.none(),
+      upsale: Option.none(),
+      dateCreated: Option.none(),
+      appointment: Option.none(),
+      lastTechs: Option.none(),
+      package: Option.none(),
+      promotion: Option.none(),
+      balance: Option.none(),
+      due: Option.none(),
+      total: Option.none(),
+      site: Option.none(),
+      billedItems: Option.none(),
+      memo: Option.none(),
+      discount: Option.none(),
+      tip: Option.none(),
+      commissions: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      account: Option.none(),
+      stage: Option.none(),
+      number: Option.none(),
+      payments: Option.none(),
+      opportunity: Option.none(),
+      reference: Option.none(),
+      leadSource: Option.none(),
+      salesRep: Option.none(),
+      group: Option.none(),
+      subgroup: Option.none(),
+      isPosted: Option.none(),
+      needsReview: Option.none(),
+      actionItem: Option.none(),
+      upsale: Option.none(),
+      dateCreated: Option.none(),
+      appointment: Option.none(),
+      lastTechs: Option.none(),
+      package: Option.none(),
+      promotion: Option.none(),
+      balance: Option.none(),
+      due: Option.none(),
+      total: Option.none(),
+      site: Option.none(),
+      billedItems: Option.none(),
+      memo: Option.none(),
+      discount: Option.none(),
+      tip: Option.none(),
+      commissions: Option.none(),
+    });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -14921,12 +15703,12 @@ export namespace Order {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -14949,12 +15731,12 @@ export namespace Order {
         set: (value: string | Account) => {
           data.account = value;
         },
-        getError: () => errors?.account,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.account,
+        setError: (value: Option<Array<string>>) => {
           errors.account = value;
         },
-        getTainted: () => tainted?.account ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.account,
+        setTainted: (value: Option<boolean>) => {
           tainted.account = value;
         },
         validate: (): Array<string> => {
@@ -14977,12 +15759,12 @@ export namespace Order {
         set: (value: OrderStage) => {
           data.stage = value;
         },
-        getError: () => errors?.stage,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.stage,
+        setError: (value: Option<Array<string>>) => {
           errors.stage = value;
         },
-        getTainted: () => tainted?.stage ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.stage,
+        setTainted: (value: Option<boolean>) => {
           tainted.stage = value;
         },
         validate: (): Array<string> => {
@@ -15005,12 +15787,12 @@ export namespace Order {
         set: (value: number) => {
           data.number = value;
         },
-        getError: () => errors?.number,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.number,
+        setError: (value: Option<Array<string>>) => {
           errors.number = value;
         },
-        getTainted: () => tainted?.number ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.number,
+        setTainted: (value: Option<boolean>) => {
           tainted.number = value;
         },
         validate: (): Array<string> => {
@@ -15033,12 +15815,12 @@ export namespace Order {
         set: (value: (string | Payment)[]) => {
           data.payments = value;
         },
-        getError: () => errors?.payments,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.payments,
+        setError: (value: Option<Array<string>>) => {
           errors.payments = value;
         },
-        getTainted: () => tainted?.payments ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.payments,
+        setTainted: (value: Option<boolean>) => {
           tainted.payments = value;
         },
         validate: (): Array<string> => {
@@ -15059,16 +15841,13 @@ export namespace Order {
           set: (value: string | Payment) => {
             data.payments[index] = value;
           },
-          getError: () =>
-            (errors.payments as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.payments ??= {};
-            (errors.payments as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.payments,
+          setError: (value: Option<Array<string>>) => {
+            errors.payments = value;
           },
-          getTainted: () => tainted.payments?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.payments ??= {};
-            tainted.payments[index] = value;
+          getTainted: () => tainted.payments,
+          setTainted: (value: Option<boolean>) => {
+            tainted.payments = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -15094,12 +15873,12 @@ export namespace Order {
         set: (value: string) => {
           data.opportunity = value;
         },
-        getError: () => errors?.opportunity,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.opportunity,
+        setError: (value: Option<Array<string>>) => {
           errors.opportunity = value;
         },
-        getTainted: () => tainted?.opportunity ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.opportunity,
+        setTainted: (value: Option<boolean>) => {
           tainted.opportunity = value;
         },
         validate: (): Array<string> => {
@@ -15122,12 +15901,12 @@ export namespace Order {
         set: (value: string) => {
           data.reference = value;
         },
-        getError: () => errors?.reference,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.reference,
+        setError: (value: Option<Array<string>>) => {
           errors.reference = value;
         },
-        getTainted: () => tainted?.reference ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.reference,
+        setTainted: (value: Option<boolean>) => {
           tainted.reference = value;
         },
         validate: (): Array<string> => {
@@ -15150,12 +15929,12 @@ export namespace Order {
         set: (value: string) => {
           data.leadSource = value;
         },
-        getError: () => errors?.leadSource,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.leadSource,
+        setError: (value: Option<Array<string>>) => {
           errors.leadSource = value;
         },
-        getTainted: () => tainted?.leadSource ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.leadSource,
+        setTainted: (value: Option<boolean>) => {
           tainted.leadSource = value;
         },
         validate: (): Array<string> => {
@@ -15178,12 +15957,12 @@ export namespace Order {
         set: (value: string | Employee) => {
           data.salesRep = value;
         },
-        getError: () => errors?.salesRep,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.salesRep,
+        setError: (value: Option<Array<string>>) => {
           errors.salesRep = value;
         },
-        getTainted: () => tainted?.salesRep ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.salesRep,
+        setTainted: (value: Option<boolean>) => {
           tainted.salesRep = value;
         },
         validate: (): Array<string> => {
@@ -15206,12 +15985,12 @@ export namespace Order {
         set: (value: string) => {
           data.group = value;
         },
-        getError: () => errors?.group,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.group,
+        setError: (value: Option<Array<string>>) => {
           errors.group = value;
         },
-        getTainted: () => tainted?.group ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.group,
+        setTainted: (value: Option<boolean>) => {
           tainted.group = value;
         },
         validate: (): Array<string> => {
@@ -15234,12 +16013,12 @@ export namespace Order {
         set: (value: string) => {
           data.subgroup = value;
         },
-        getError: () => errors?.subgroup,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.subgroup,
+        setError: (value: Option<Array<string>>) => {
           errors.subgroup = value;
         },
-        getTainted: () => tainted?.subgroup ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.subgroup,
+        setTainted: (value: Option<boolean>) => {
           tainted.subgroup = value;
         },
         validate: (): Array<string> => {
@@ -15262,12 +16041,12 @@ export namespace Order {
         set: (value: boolean) => {
           data.isPosted = value;
         },
-        getError: () => errors?.isPosted,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.isPosted,
+        setError: (value: Option<Array<string>>) => {
           errors.isPosted = value;
         },
-        getTainted: () => tainted?.isPosted ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.isPosted,
+        setTainted: (value: Option<boolean>) => {
           tainted.isPosted = value;
         },
         validate: (): Array<string> => {
@@ -15290,12 +16069,12 @@ export namespace Order {
         set: (value: boolean) => {
           data.needsReview = value;
         },
-        getError: () => errors?.needsReview,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.needsReview,
+        setError: (value: Option<Array<string>>) => {
           errors.needsReview = value;
         },
-        getTainted: () => tainted?.needsReview ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.needsReview,
+        setTainted: (value: Option<boolean>) => {
           tainted.needsReview = value;
         },
         validate: (): Array<string> => {
@@ -15318,12 +16097,12 @@ export namespace Order {
         set: (value: string) => {
           data.actionItem = value;
         },
-        getError: () => errors?.actionItem,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.actionItem,
+        setError: (value: Option<Array<string>>) => {
           errors.actionItem = value;
         },
-        getTainted: () => tainted?.actionItem ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.actionItem,
+        setTainted: (value: Option<boolean>) => {
           tainted.actionItem = value;
         },
         validate: (): Array<string> => {
@@ -15346,12 +16125,12 @@ export namespace Order {
         set: (value: number) => {
           data.upsale = value;
         },
-        getError: () => errors?.upsale,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.upsale,
+        setError: (value: Option<Array<string>>) => {
           errors.upsale = value;
         },
-        getTainted: () => tainted?.upsale ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.upsale,
+        setTainted: (value: Option<boolean>) => {
           tainted.upsale = value;
         },
         validate: (): Array<string> => {
@@ -15374,12 +16153,12 @@ export namespace Order {
         set: (value: string) => {
           data.dateCreated = value;
         },
-        getError: () => errors?.dateCreated,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.dateCreated,
+        setError: (value: Option<Array<string>>) => {
           errors.dateCreated = value;
         },
-        getTainted: () => tainted?.dateCreated ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.dateCreated,
+        setTainted: (value: Option<boolean>) => {
           tainted.dateCreated = value;
         },
         validate: (): Array<string> => {
@@ -15402,12 +16181,12 @@ export namespace Order {
         set: (value: string | Appointment) => {
           data.appointment = value;
         },
-        getError: () => errors?.appointment,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.appointment,
+        setError: (value: Option<Array<string>>) => {
           errors.appointment = value;
         },
-        getTainted: () => tainted?.appointment ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.appointment,
+        setTainted: (value: Option<boolean>) => {
           tainted.appointment = value;
         },
         validate: (): Array<string> => {
@@ -15430,12 +16209,12 @@ export namespace Order {
         set: (value: (string | Employee)[]) => {
           data.lastTechs = value;
         },
-        getError: () => errors?.lastTechs,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.lastTechs,
+        setError: (value: Option<Array<string>>) => {
           errors.lastTechs = value;
         },
-        getTainted: () => tainted?.lastTechs ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.lastTechs,
+        setTainted: (value: Option<boolean>) => {
           tainted.lastTechs = value;
         },
         validate: (): Array<string> => {
@@ -15456,16 +16235,13 @@ export namespace Order {
           set: (value: string | Employee) => {
             data.lastTechs[index] = value;
           },
-          getError: () =>
-            (errors.lastTechs as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.lastTechs ??= {};
-            (errors.lastTechs as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.lastTechs,
+          setError: (value: Option<Array<string>>) => {
+            errors.lastTechs = value;
           },
-          getTainted: () => tainted.lastTechs?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.lastTechs ??= {};
-            tainted.lastTechs[index] = value;
+          getTainted: () => tainted.lastTechs,
+          setTainted: (value: Option<boolean>) => {
+            tainted.lastTechs = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -15491,12 +16267,12 @@ export namespace Order {
         set: (value: (string | Package)[] | null) => {
           data.package = value;
         },
-        getError: () => errors?.package,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.package,
+        setError: (value: Option<Array<string>>) => {
           errors.package = value;
         },
-        getTainted: () => tainted?.package ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.package,
+        setTainted: (value: Option<boolean>) => {
           tainted.package = value;
         },
         validate: (): Array<string> => {
@@ -15519,12 +16295,12 @@ export namespace Order {
         set: (value: (string | Promotion)[] | null) => {
           data.promotion = value;
         },
-        getError: () => errors?.promotion,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.promotion,
+        setError: (value: Option<Array<string>>) => {
           errors.promotion = value;
         },
-        getTainted: () => tainted?.promotion ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.promotion,
+        setTainted: (value: Option<boolean>) => {
           tainted.promotion = value;
         },
         validate: (): Array<string> => {
@@ -15547,12 +16323,12 @@ export namespace Order {
         set: (value: number) => {
           data.balance = value;
         },
-        getError: () => errors?.balance,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.balance,
+        setError: (value: Option<Array<string>>) => {
           errors.balance = value;
         },
-        getTainted: () => tainted?.balance ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.balance,
+        setTainted: (value: Option<boolean>) => {
           tainted.balance = value;
         },
         validate: (): Array<string> => {
@@ -15575,12 +16351,12 @@ export namespace Order {
         set: (value: string) => {
           data.due = value;
         },
-        getError: () => errors?.due,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.due,
+        setError: (value: Option<Array<string>>) => {
           errors.due = value;
         },
-        getTainted: () => tainted?.due ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.due,
+        setTainted: (value: Option<boolean>) => {
           tainted.due = value;
         },
         validate: (): Array<string> => {
@@ -15603,12 +16379,12 @@ export namespace Order {
         set: (value: number) => {
           data.total = value;
         },
-        getError: () => errors?.total,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.total,
+        setError: (value: Option<Array<string>>) => {
           errors.total = value;
         },
-        getTainted: () => tainted?.total ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.total,
+        setTainted: (value: Option<boolean>) => {
           tainted.total = value;
         },
         validate: (): Array<string> => {
@@ -15631,12 +16407,12 @@ export namespace Order {
         set: (value: string | Site) => {
           data.site = value;
         },
-        getError: () => errors?.site,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.site,
+        setError: (value: Option<Array<string>>) => {
           errors.site = value;
         },
-        getTainted: () => tainted?.site ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.site,
+        setTainted: (value: Option<boolean>) => {
           tainted.site = value;
         },
         validate: (): Array<string> => {
@@ -15659,12 +16435,12 @@ export namespace Order {
         set: (value: BilledItem[]) => {
           data.billedItems = value;
         },
-        getError: () => errors?.billedItems,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.billedItems,
+        setError: (value: Option<Array<string>>) => {
           errors.billedItems = value;
         },
-        getTainted: () => tainted?.billedItems ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.billedItems,
+        setTainted: (value: Option<boolean>) => {
           tainted.billedItems = value;
         },
         validate: (): Array<string> => {
@@ -15685,17 +16461,13 @@ export namespace Order {
           set: (value: BilledItem) => {
             data.billedItems[index] = value;
           },
-          getError: () =>
-            (errors.billedItems as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.billedItems ??= {};
-            (errors.billedItems as Record<number, Array<string>>)[index] =
-              value!;
+          getError: () => errors.billedItems,
+          setError: (value: Option<Array<string>>) => {
+            errors.billedItems = value;
           },
-          getTainted: () => tainted.billedItems?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.billedItems ??= {};
-            tainted.billedItems[index] = value;
+          getTainted: () => tainted.billedItems,
+          setTainted: (value: Option<boolean>) => {
+            tainted.billedItems = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -15721,12 +16493,12 @@ export namespace Order {
         set: (value: string) => {
           data.memo = value;
         },
-        getError: () => errors?.memo,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.memo,
+        setError: (value: Option<Array<string>>) => {
           errors.memo = value;
         },
-        getTainted: () => tainted?.memo ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.memo,
+        setTainted: (value: Option<boolean>) => {
           tainted.memo = value;
         },
         validate: (): Array<string> => {
@@ -15749,12 +16521,12 @@ export namespace Order {
         set: (value: number) => {
           data.discount = value;
         },
-        getError: () => errors?.discount,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.discount,
+        setError: (value: Option<Array<string>>) => {
           errors.discount = value;
         },
-        getTainted: () => tainted?.discount ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.discount,
+        setTainted: (value: Option<boolean>) => {
           tainted.discount = value;
         },
         validate: (): Array<string> => {
@@ -15777,12 +16549,12 @@ export namespace Order {
         set: (value: number) => {
           data.tip = value;
         },
-        getError: () => errors?.tip,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.tip,
+        setError: (value: Option<Array<string>>) => {
           errors.tip = value;
         },
-        getTainted: () => tainted?.tip ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.tip,
+        setTainted: (value: Option<boolean>) => {
           tainted.tip = value;
         },
         validate: (): Array<string> => {
@@ -15805,12 +16577,12 @@ export namespace Order {
         set: (value: number[]) => {
           data.commissions = value;
         },
-        getError: () => errors?.commissions,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.commissions,
+        setError: (value: Option<Array<string>>) => {
           errors.commissions = value;
         },
-        getTainted: () => tainted?.commissions ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.commissions,
+        setTainted: (value: Option<boolean>) => {
           tainted.commissions = value;
         },
         validate: (): Array<string> => {
@@ -15831,17 +16603,13 @@ export namespace Order {
           set: (value: number) => {
             data.commissions[index] = value;
           },
-          getError: () =>
-            (errors.commissions as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.commissions ??= {};
-            (errors.commissions as Record<number, Array<string>>)[index] =
-              value!;
+          getError: () => errors.commissions,
+          setError: (value: Option<Array<string>>) => {
+            errors.commissions = value;
           },
-          getTainted: () => tainted.commissions?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.commissions ??= {};
-            tainted.commissions[index] = value;
+          getTainted: () => tainted.commissions,
+          setTainted: (value: Option<boolean>) => {
+            tainted.commissions = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -15867,8 +16635,69 @@ export namespace Order {
     }
     function reset(newOverrides?: Partial<Order>): void {
       data = { ...Order.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        account: Option.none(),
+        stage: Option.none(),
+        number: Option.none(),
+        payments: Option.none(),
+        opportunity: Option.none(),
+        reference: Option.none(),
+        leadSource: Option.none(),
+        salesRep: Option.none(),
+        group: Option.none(),
+        subgroup: Option.none(),
+        isPosted: Option.none(),
+        needsReview: Option.none(),
+        actionItem: Option.none(),
+        upsale: Option.none(),
+        dateCreated: Option.none(),
+        appointment: Option.none(),
+        lastTechs: Option.none(),
+        package: Option.none(),
+        promotion: Option.none(),
+        balance: Option.none(),
+        due: Option.none(),
+        total: Option.none(),
+        site: Option.none(),
+        billedItems: Option.none(),
+        memo: Option.none(),
+        discount: Option.none(),
+        tip: Option.none(),
+        commissions: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        account: Option.none(),
+        stage: Option.none(),
+        number: Option.none(),
+        payments: Option.none(),
+        opportunity: Option.none(),
+        reference: Option.none(),
+        leadSource: Option.none(),
+        salesRep: Option.none(),
+        group: Option.none(),
+        subgroup: Option.none(),
+        isPosted: Option.none(),
+        needsReview: Option.none(),
+        actionItem: Option.none(),
+        upsale: Option.none(),
+        dateCreated: Option.none(),
+        appointment: Option.none(),
+        lastTechs: Option.none(),
+        package: Option.none(),
+        promotion: Option.none(),
+        balance: Option.none(),
+        due: Option.none(),
+        total: Option.none(),
+        site: Option.none(),
+        billedItems: Option.none(),
+        memo: Option.none(),
+        discount: Option.none(),
+        tip: Option.none(),
+        commissions: Option.none(),
+      };
     }
     return {
       get data() {
@@ -16203,12 +17032,12 @@ export namespace Commented {
 
 export namespace Commented {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    comment?: Array<string>;
-    replyTo?: Array<string>;
+    _errors: Option<Array<string>>;
+    comment: Option<Array<string>>;
+    replyTo: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { comment?: boolean; replyTo?: boolean };
+    { comment: Option<boolean>; replyTo: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -16222,10 +17051,10 @@ export namespace Commented {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -16244,8 +17073,15 @@ export namespace Commented {
     overrides?: Partial<Commented>,
   ): Gigaform {
     let data = $state({ ...Commented.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      comment: Option.none(),
+      replyTo: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      comment: Option.none(),
+      replyTo: Option.none(),
+    });
     const fields: FieldControllers = {
       comment: {
         path: ["comment"] as const,
@@ -16256,12 +17092,12 @@ export namespace Commented {
         set: (value: string) => {
           data.comment = value;
         },
-        getError: () => errors?.comment,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.comment,
+        setError: (value: Option<Array<string>>) => {
           errors.comment = value;
         },
-        getTainted: () => tainted?.comment ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.comment,
+        setTainted: (value: Option<boolean>) => {
           tainted.comment = value;
         },
         validate: (): Array<string> => {
@@ -16284,12 +17120,12 @@ export namespace Commented {
         set: (value: string | null) => {
           data.replyTo = value;
         },
-        getError: () => errors?.replyTo,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.replyTo,
+        setError: (value: Option<Array<string>>) => {
           errors.replyTo = value;
         },
-        getTainted: () => tainted?.replyTo ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.replyTo,
+        setTainted: (value: Option<boolean>) => {
           tainted.replyTo = value;
         },
         validate: (): Array<string> => {
@@ -16312,8 +17148,12 @@ export namespace Commented {
     }
     function reset(newOverrides?: Partial<Commented>): void {
       data = { ...Commented.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        comment: Option.none(),
+        replyTo: Option.none(),
+      };
+      tainted = { comment: Option.none(), replyTo: Option.none() };
     }
     return {
       get data() {
@@ -16467,14 +17307,11 @@ export namespace Custom {
 
 export namespace Custom {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    mappings?: {
-      _errors?: Array<string>;
-      [index: number]: DirectionHue.Errors;
-    };
+    _errors: Option<Array<string>>;
+    mappings: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { mappings?: { [index: number]: DirectionHue.Tainted } };
+    { mappings: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -16488,10 +17325,10 @@ export namespace Custom {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -16509,8 +17346,11 @@ export namespace Custom {
     overrides?: Partial<Custom>,
   ): Gigaform {
     let data = $state({ ...Custom.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      mappings: Option.none(),
+    });
+    let tainted = $state<Tainted>({ mappings: Option.none() });
     const fields: FieldControllers = {
       mappings: {
         path: ["mappings"] as const,
@@ -16521,12 +17361,12 @@ export namespace Custom {
         set: (value: DirectionHue[]) => {
           data.mappings = value;
         },
-        getError: () => errors?.mappings,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.mappings,
+        setError: (value: Option<Array<string>>) => {
           errors.mappings = value;
         },
-        getTainted: () => tainted?.mappings ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.mappings,
+        setTainted: (value: Option<boolean>) => {
           tainted.mappings = value;
         },
         validate: (): Array<string> => {
@@ -16547,16 +17387,13 @@ export namespace Custom {
           set: (value: DirectionHue) => {
             data.mappings[index] = value;
           },
-          getError: () =>
-            (errors.mappings as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.mappings ??= {};
-            (errors.mappings as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.mappings,
+          setError: (value: Option<Array<string>>) => {
+            errors.mappings = value;
           },
-          getTainted: () => tainted.mappings?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.mappings ??= {};
-            tainted.mappings[index] = value;
+          getTainted: () => tainted.mappings,
+          setTainted: (value: Option<boolean>) => {
+            tainted.mappings = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -16582,8 +17419,8 @@ export namespace Custom {
     }
     function reset(newOverrides?: Partial<Custom>): void {
       data = { ...Custom.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = { _errors: Option.none(), mappings: Option.none() };
+      tainted = { mappings: Option.none() };
     }
     return {
       get data() {
@@ -16780,13 +17617,13 @@ export namespace Colors {
 
 export namespace Colors {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    main?: Array<string>;
-    hover?: Array<string>;
-    active?: Array<string>;
+    _errors: Option<Array<string>>;
+    main: Option<Array<string>>;
+    hover: Option<Array<string>>;
+    active: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { main?: boolean; hover?: boolean; active?: boolean };
+    { main: Option<boolean>; hover: Option<boolean>; active: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -16800,10 +17637,10 @@ export namespace Colors {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -16823,8 +17660,17 @@ export namespace Colors {
     overrides?: Partial<Colors>,
   ): Gigaform {
     let data = $state({ ...Colors.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      main: Option.none(),
+      hover: Option.none(),
+      active: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      main: Option.none(),
+      hover: Option.none(),
+      active: Option.none(),
+    });
     const fields: FieldControllers = {
       main: {
         path: ["main"] as const,
@@ -16835,12 +17681,12 @@ export namespace Colors {
         set: (value: string) => {
           data.main = value;
         },
-        getError: () => errors?.main,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.main,
+        setError: (value: Option<Array<string>>) => {
           errors.main = value;
         },
-        getTainted: () => tainted?.main ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.main,
+        setTainted: (value: Option<boolean>) => {
           tainted.main = value;
         },
         validate: (): Array<string> => {
@@ -16863,12 +17709,12 @@ export namespace Colors {
         set: (value: string) => {
           data.hover = value;
         },
-        getError: () => errors?.hover,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.hover,
+        setError: (value: Option<Array<string>>) => {
           errors.hover = value;
         },
-        getTainted: () => tainted?.hover ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.hover,
+        setTainted: (value: Option<boolean>) => {
           tainted.hover = value;
         },
         validate: (): Array<string> => {
@@ -16891,12 +17737,12 @@ export namespace Colors {
         set: (value: string) => {
           data.active = value;
         },
-        getError: () => errors?.active,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.active,
+        setError: (value: Option<Array<string>>) => {
           errors.active = value;
         },
-        getTainted: () => tainted?.active ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.active,
+        setTainted: (value: Option<boolean>) => {
           tainted.active = value;
         },
         validate: (): Array<string> => {
@@ -16919,8 +17765,17 @@ export namespace Colors {
     }
     function reset(newOverrides?: Partial<Colors>): void {
       data = { ...Colors.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        main: Option.none(),
+        hover: Option.none(),
+        active: Option.none(),
+      };
+      tainted = {
+        main: Option.none(),
+        hover: Option.none(),
+        active: Option.none(),
+      };
     }
     return {
       get data() {
@@ -17087,12 +17942,12 @@ export namespace ProductDefaults {
 
 export namespace ProductDefaults {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    price?: Array<string>;
-    description?: Array<string>;
+    _errors: Option<Array<string>>;
+    price: Option<Array<string>>;
+    description: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { price?: boolean; description?: boolean };
+    { price: Option<boolean>; description: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -17106,10 +17961,10 @@ export namespace ProductDefaults {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -17131,8 +17986,15 @@ export namespace ProductDefaults {
     overrides?: Partial<ProductDefaults>,
   ): Gigaform {
     let data = $state({ ...ProductDefaults.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      price: Option.none(),
+      description: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      price: Option.none(),
+      description: Option.none(),
+    });
     const fields: FieldControllers = {
       price: {
         path: ["price"] as const,
@@ -17143,12 +18005,12 @@ export namespace ProductDefaults {
         set: (value: number) => {
           data.price = value;
         },
-        getError: () => errors?.price,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.price,
+        setError: (value: Option<Array<string>>) => {
           errors.price = value;
         },
-        getTainted: () => tainted?.price ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.price,
+        setTainted: (value: Option<boolean>) => {
           tainted.price = value;
         },
         validate: (): Array<string> => {
@@ -17171,12 +18033,12 @@ export namespace ProductDefaults {
         set: (value: string) => {
           data.description = value;
         },
-        getError: () => errors?.description,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.description,
+        setError: (value: Option<Array<string>>) => {
           errors.description = value;
         },
-        getTainted: () => tainted?.description ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.description,
+        setTainted: (value: Option<boolean>) => {
           tainted.description = value;
         },
         validate: (): Array<string> => {
@@ -17199,8 +18061,12 @@ export namespace ProductDefaults {
     }
     function reset(newOverrides?: Partial<ProductDefaults>): void {
       data = { ...ProductDefaults.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        price: Option.none(),
+        description: Option.none(),
+      };
+      tainted = { price: Option.none(), description: Option.none() };
     }
     return {
       get data() {
@@ -17382,12 +18248,12 @@ export namespace Viewed {
 
 export namespace Viewed {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    durationSeconds?: Array<string>;
-    source?: Array<string>;
+    _errors: Option<Array<string>>;
+    durationSeconds: Option<Array<string>>;
+    source: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { durationSeconds?: boolean; source?: boolean };
+    { durationSeconds: Option<boolean>; source: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -17401,10 +18267,10 @@ export namespace Viewed {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -17423,8 +18289,15 @@ export namespace Viewed {
     overrides?: Partial<Viewed>,
   ): Gigaform {
     let data = $state({ ...Viewed.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      durationSeconds: Option.none(),
+      source: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      durationSeconds: Option.none(),
+      source: Option.none(),
+    });
     const fields: FieldControllers = {
       durationSeconds: {
         path: ["durationSeconds"] as const,
@@ -17435,12 +18308,12 @@ export namespace Viewed {
         set: (value: number | null) => {
           data.durationSeconds = value;
         },
-        getError: () => errors?.durationSeconds,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.durationSeconds,
+        setError: (value: Option<Array<string>>) => {
           errors.durationSeconds = value;
         },
-        getTainted: () => tainted?.durationSeconds ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.durationSeconds,
+        setTainted: (value: Option<boolean>) => {
           tainted.durationSeconds = value;
         },
         validate: (): Array<string> => {
@@ -17463,12 +18336,12 @@ export namespace Viewed {
         set: (value: string | null) => {
           data.source = value;
         },
-        getError: () => errors?.source,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.source,
+        setError: (value: Option<Array<string>>) => {
           errors.source = value;
         },
-        getTainted: () => tainted?.source ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.source,
+        setTainted: (value: Option<boolean>) => {
           tainted.source = value;
         },
         validate: (): Array<string> => {
@@ -17491,8 +18364,12 @@ export namespace Viewed {
     }
     function reset(newOverrides?: Partial<Viewed>): void {
       data = { ...Viewed.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        durationSeconds: Option.none(),
+        source: Option.none(),
+      };
+      tainted = { durationSeconds: Option.none(), source: Option.none() };
     }
     return {
       get data() {
@@ -17677,15 +18554,12 @@ export namespace WeeklyRecurrenceRule {
 
 export namespace WeeklyRecurrenceRule {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    quantityOfWeeks?: Array<string>;
-    weekdays?: { _errors?: Array<string>; [index: number]: Weekday.Errors };
+    _errors: Option<Array<string>>;
+    quantityOfWeeks: Option<Array<string>>;
+    weekdays: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    {
-      quantityOfWeeks?: boolean;
-      weekdays?: { [index: number]: Weekday.Tainted };
-    };
+    { quantityOfWeeks: Option<boolean>; weekdays: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -17699,10 +18573,10 @@ export namespace WeeklyRecurrenceRule {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -17724,8 +18598,15 @@ export namespace WeeklyRecurrenceRule {
     overrides?: Partial<WeeklyRecurrenceRule>,
   ): Gigaform {
     let data = $state({ ...WeeklyRecurrenceRule.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      quantityOfWeeks: Option.none(),
+      weekdays: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      quantityOfWeeks: Option.none(),
+      weekdays: Option.none(),
+    });
     const fields: FieldControllers = {
       quantityOfWeeks: {
         path: ["quantityOfWeeks"] as const,
@@ -17736,12 +18617,12 @@ export namespace WeeklyRecurrenceRule {
         set: (value: number) => {
           data.quantityOfWeeks = value;
         },
-        getError: () => errors?.quantityOfWeeks,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.quantityOfWeeks,
+        setError: (value: Option<Array<string>>) => {
           errors.quantityOfWeeks = value;
         },
-        getTainted: () => tainted?.quantityOfWeeks ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.quantityOfWeeks,
+        setTainted: (value: Option<boolean>) => {
           tainted.quantityOfWeeks = value;
         },
         validate: (): Array<string> => {
@@ -17764,12 +18645,12 @@ export namespace WeeklyRecurrenceRule {
         set: (value: Weekday[]) => {
           data.weekdays = value;
         },
-        getError: () => errors?.weekdays,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.weekdays,
+        setError: (value: Option<Array<string>>) => {
           errors.weekdays = value;
         },
-        getTainted: () => tainted?.weekdays ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.weekdays,
+        setTainted: (value: Option<boolean>) => {
           tainted.weekdays = value;
         },
         validate: (): Array<string> => {
@@ -17790,16 +18671,13 @@ export namespace WeeklyRecurrenceRule {
           set: (value: Weekday) => {
             data.weekdays[index] = value;
           },
-          getError: () =>
-            (errors.weekdays as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.weekdays ??= {};
-            (errors.weekdays as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.weekdays,
+          setError: (value: Option<Array<string>>) => {
+            errors.weekdays = value;
           },
-          getTainted: () => tainted.weekdays?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.weekdays ??= {};
-            tainted.weekdays[index] = value;
+          getTainted: () => tainted.weekdays,
+          setTainted: (value: Option<boolean>) => {
+            tainted.weekdays = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -17825,8 +18703,12 @@ export namespace WeeklyRecurrenceRule {
     }
     function reset(newOverrides?: Partial<WeeklyRecurrenceRule>): void {
       data = { ...WeeklyRecurrenceRule.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        quantityOfWeeks: Option.none(),
+        weekdays: Option.none(),
+      };
+      tainted = { quantityOfWeeks: Option.none(), weekdays: Option.none() };
     }
     return {
       get data() {
@@ -18056,13 +18938,17 @@ export namespace Paid {
 
 export namespace Paid {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    amount?: Array<string>;
-    currency?: Array<string>;
-    paymentMethod?: Array<string>;
+    _errors: Option<Array<string>>;
+    amount: Option<Array<string>>;
+    currency: Option<Array<string>>;
+    paymentMethod: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { amount?: boolean; currency?: boolean; paymentMethod?: boolean };
+    {
+      amount: Option<boolean>;
+      currency: Option<boolean>;
+      paymentMethod: Option<boolean>;
+    };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -18076,10 +18962,10 @@ export namespace Paid {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -18099,8 +18985,17 @@ export namespace Paid {
     overrides?: Partial<Paid>,
   ): Gigaform {
     let data = $state({ ...Paid.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      amount: Option.none(),
+      currency: Option.none(),
+      paymentMethod: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      amount: Option.none(),
+      currency: Option.none(),
+      paymentMethod: Option.none(),
+    });
     const fields: FieldControllers = {
       amount: {
         path: ["amount"] as const,
@@ -18111,12 +19006,12 @@ export namespace Paid {
         set: (value: number | null) => {
           data.amount = value;
         },
-        getError: () => errors?.amount,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.amount,
+        setError: (value: Option<Array<string>>) => {
           errors.amount = value;
         },
-        getTainted: () => tainted?.amount ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.amount,
+        setTainted: (value: Option<boolean>) => {
           tainted.amount = value;
         },
         validate: (): Array<string> => {
@@ -18139,12 +19034,12 @@ export namespace Paid {
         set: (value: string | null) => {
           data.currency = value;
         },
-        getError: () => errors?.currency,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.currency,
+        setError: (value: Option<Array<string>>) => {
           errors.currency = value;
         },
-        getTainted: () => tainted?.currency ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.currency,
+        setTainted: (value: Option<boolean>) => {
           tainted.currency = value;
         },
         validate: (): Array<string> => {
@@ -18167,12 +19062,12 @@ export namespace Paid {
         set: (value: string | null) => {
           data.paymentMethod = value;
         },
-        getError: () => errors?.paymentMethod,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.paymentMethod,
+        setError: (value: Option<Array<string>>) => {
           errors.paymentMethod = value;
         },
-        getTainted: () => tainted?.paymentMethod ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.paymentMethod,
+        setTainted: (value: Option<boolean>) => {
           tainted.paymentMethod = value;
         },
         validate: (): Array<string> => {
@@ -18195,8 +19090,17 @@ export namespace Paid {
     }
     function reset(newOverrides?: Partial<Paid>): void {
       data = { ...Paid.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        amount: Option.none(),
+        currency: Option.none(),
+        paymentMethod: Option.none(),
+      };
+      tainted = {
+        amount: Option.none(),
+        currency: Option.none(),
+        paymentMethod: Option.none(),
+      };
     }
     return {
       get data() {
@@ -18458,30 +19362,30 @@ export namespace TaxRate {
 
 export namespace TaxRate {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    name?: Array<string>;
-    taxAgency?: Array<string>;
-    zip?: Array<string>;
-    city?: Array<string>;
-    county?: Array<string>;
-    state?: Array<string>;
-    isActive?: Array<string>;
-    description?: Array<string>;
-    taxComponents?: Array<string>;
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    name: Option<Array<string>>;
+    taxAgency: Option<Array<string>>;
+    zip: Option<Array<string>>;
+    city: Option<Array<string>>;
+    county: Option<Array<string>>;
+    state: Option<Array<string>>;
+    isActive: Option<Array<string>>;
+    description: Option<Array<string>>;
+    taxComponents: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      id?: boolean;
-      name?: boolean;
-      taxAgency?: boolean;
-      zip?: boolean;
-      city?: boolean;
-      county?: boolean;
-      state?: boolean;
-      isActive?: boolean;
-      description?: boolean;
-      taxComponents?: boolean;
+      id: Option<boolean>;
+      name: Option<boolean>;
+      taxAgency: Option<boolean>;
+      zip: Option<boolean>;
+      city: Option<boolean>;
+      county: Option<boolean>;
+      state: Option<boolean>;
+      isActive: Option<boolean>;
+      description: Option<boolean>;
+      taxComponents: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -18496,10 +19400,10 @@ export namespace TaxRate {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -18526,8 +19430,31 @@ export namespace TaxRate {
     overrides?: Partial<TaxRate>,
   ): Gigaform {
     let data = $state({ ...TaxRate.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      name: Option.none(),
+      taxAgency: Option.none(),
+      zip: Option.none(),
+      city: Option.none(),
+      county: Option.none(),
+      state: Option.none(),
+      isActive: Option.none(),
+      description: Option.none(),
+      taxComponents: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      name: Option.none(),
+      taxAgency: Option.none(),
+      zip: Option.none(),
+      city: Option.none(),
+      county: Option.none(),
+      state: Option.none(),
+      isActive: Option.none(),
+      description: Option.none(),
+      taxComponents: Option.none(),
+    });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -18538,12 +19465,12 @@ export namespace TaxRate {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -18566,12 +19493,12 @@ export namespace TaxRate {
         set: (value: string) => {
           data.name = value;
         },
-        getError: () => errors?.name,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.name,
+        setError: (value: Option<Array<string>>) => {
           errors.name = value;
         },
-        getTainted: () => tainted?.name ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.name,
+        setTainted: (value: Option<boolean>) => {
           tainted.name = value;
         },
         validate: (): Array<string> => {
@@ -18594,12 +19521,12 @@ export namespace TaxRate {
         set: (value: string) => {
           data.taxAgency = value;
         },
-        getError: () => errors?.taxAgency,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.taxAgency,
+        setError: (value: Option<Array<string>>) => {
           errors.taxAgency = value;
         },
-        getTainted: () => tainted?.taxAgency ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.taxAgency,
+        setTainted: (value: Option<boolean>) => {
           tainted.taxAgency = value;
         },
         validate: (): Array<string> => {
@@ -18622,12 +19549,12 @@ export namespace TaxRate {
         set: (value: number) => {
           data.zip = value;
         },
-        getError: () => errors?.zip,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.zip,
+        setError: (value: Option<Array<string>>) => {
           errors.zip = value;
         },
-        getTainted: () => tainted?.zip ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.zip,
+        setTainted: (value: Option<boolean>) => {
           tainted.zip = value;
         },
         validate: (): Array<string> => {
@@ -18650,12 +19577,12 @@ export namespace TaxRate {
         set: (value: string) => {
           data.city = value;
         },
-        getError: () => errors?.city,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.city,
+        setError: (value: Option<Array<string>>) => {
           errors.city = value;
         },
-        getTainted: () => tainted?.city ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.city,
+        setTainted: (value: Option<boolean>) => {
           tainted.city = value;
         },
         validate: (): Array<string> => {
@@ -18678,12 +19605,12 @@ export namespace TaxRate {
         set: (value: string) => {
           data.county = value;
         },
-        getError: () => errors?.county,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.county,
+        setError: (value: Option<Array<string>>) => {
           errors.county = value;
         },
-        getTainted: () => tainted?.county ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.county,
+        setTainted: (value: Option<boolean>) => {
           tainted.county = value;
         },
         validate: (): Array<string> => {
@@ -18706,12 +19633,12 @@ export namespace TaxRate {
         set: (value: string) => {
           data.state = value;
         },
-        getError: () => errors?.state,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.state,
+        setError: (value: Option<Array<string>>) => {
           errors.state = value;
         },
-        getTainted: () => tainted?.state ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.state,
+        setTainted: (value: Option<boolean>) => {
           tainted.state = value;
         },
         validate: (): Array<string> => {
@@ -18734,12 +19661,12 @@ export namespace TaxRate {
         set: (value: boolean) => {
           data.isActive = value;
         },
-        getError: () => errors?.isActive,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.isActive,
+        setError: (value: Option<Array<string>>) => {
           errors.isActive = value;
         },
-        getTainted: () => tainted?.isActive ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.isActive,
+        setTainted: (value: Option<boolean>) => {
           tainted.isActive = value;
         },
         validate: (): Array<string> => {
@@ -18762,12 +19689,12 @@ export namespace TaxRate {
         set: (value: string) => {
           data.description = value;
         },
-        getError: () => errors?.description,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.description,
+        setError: (value: Option<Array<string>>) => {
           errors.description = value;
         },
-        getTainted: () => tainted?.description ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.description,
+        setTainted: (value: Option<boolean>) => {
           tainted.description = value;
         },
         validate: (): Array<string> => {
@@ -18790,12 +19717,12 @@ export namespace TaxRate {
         set: (value: { [key: string]: number }) => {
           data.taxComponents = value;
         },
-        getError: () => errors?.taxComponents,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.taxComponents,
+        setError: (value: Option<Array<string>>) => {
           errors.taxComponents = value;
         },
-        getTainted: () => tainted?.taxComponents ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.taxComponents,
+        setTainted: (value: Option<boolean>) => {
           tainted.taxComponents = value;
         },
         validate: (): Array<string> => {
@@ -18818,8 +19745,31 @@ export namespace TaxRate {
     }
     function reset(newOverrides?: Partial<TaxRate>): void {
       data = { ...TaxRate.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        name: Option.none(),
+        taxAgency: Option.none(),
+        zip: Option.none(),
+        city: Option.none(),
+        county: Option.none(),
+        state: Option.none(),
+        isActive: Option.none(),
+        description: Option.none(),
+        taxComponents: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        name: Option.none(),
+        taxAgency: Option.none(),
+        zip: Option.none(),
+        city: Option.none(),
+        county: Option.none(),
+        state: Option.none(),
+        isActive: Option.none(),
+        description: Option.none(),
+        taxComponents: Option.none(),
+      };
     }
     return {
       get data() {
@@ -19020,14 +19970,19 @@ export namespace Address {
 
 export namespace Address {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    street?: Array<string>;
-    city?: Array<string>;
-    state?: Array<string>;
-    zipcode?: Array<string>;
+    _errors: Option<Array<string>>;
+    street: Option<Array<string>>;
+    city: Option<Array<string>>;
+    state: Option<Array<string>>;
+    zipcode: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { street?: boolean; city?: boolean; state?: boolean; zipcode?: boolean };
+    {
+      street: Option<boolean>;
+      city: Option<boolean>;
+      state: Option<boolean>;
+      zipcode: Option<boolean>;
+    };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -19041,10 +19996,10 @@ export namespace Address {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -19065,8 +20020,19 @@ export namespace Address {
     overrides?: Partial<Address>,
   ): Gigaform {
     let data = $state({ ...Address.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      street: Option.none(),
+      city: Option.none(),
+      state: Option.none(),
+      zipcode: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      street: Option.none(),
+      city: Option.none(),
+      state: Option.none(),
+      zipcode: Option.none(),
+    });
     const fields: FieldControllers = {
       street: {
         path: ["street"] as const,
@@ -19077,12 +20043,12 @@ export namespace Address {
         set: (value: string) => {
           data.street = value;
         },
-        getError: () => errors?.street,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.street,
+        setError: (value: Option<Array<string>>) => {
           errors.street = value;
         },
-        getTainted: () => tainted?.street ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.street,
+        setTainted: (value: Option<boolean>) => {
           tainted.street = value;
         },
         validate: (): Array<string> => {
@@ -19105,12 +20071,12 @@ export namespace Address {
         set: (value: string) => {
           data.city = value;
         },
-        getError: () => errors?.city,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.city,
+        setError: (value: Option<Array<string>>) => {
           errors.city = value;
         },
-        getTainted: () => tainted?.city ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.city,
+        setTainted: (value: Option<boolean>) => {
           tainted.city = value;
         },
         validate: (): Array<string> => {
@@ -19133,12 +20099,12 @@ export namespace Address {
         set: (value: string) => {
           data.state = value;
         },
-        getError: () => errors?.state,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.state,
+        setError: (value: Option<Array<string>>) => {
           errors.state = value;
         },
-        getTainted: () => tainted?.state ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.state,
+        setTainted: (value: Option<boolean>) => {
           tainted.state = value;
         },
         validate: (): Array<string> => {
@@ -19161,12 +20127,12 @@ export namespace Address {
         set: (value: string) => {
           data.zipcode = value;
         },
-        getError: () => errors?.zipcode,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.zipcode,
+        setError: (value: Option<Array<string>>) => {
           errors.zipcode = value;
         },
-        getTainted: () => tainted?.zipcode ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.zipcode,
+        setTainted: (value: Option<boolean>) => {
           tainted.zipcode = value;
         },
         validate: (): Array<string> => {
@@ -19189,8 +20155,19 @@ export namespace Address {
     }
     function reset(newOverrides?: Partial<Address>): void {
       data = { ...Address.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        street: Option.none(),
+        city: Option.none(),
+        state: Option.none(),
+        zipcode: Option.none(),
+      };
+      tainted = {
+        street: Option.none(),
+        city: Option.none(),
+        state: Option.none(),
+        zipcode: Option.none(),
+      };
     }
     return {
       get data() {
@@ -19786,74 +20763,74 @@ export namespace Lead {
 
 export namespace Lead {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    number?: Array<string>;
-    accepted?: Array<string>;
-    probability?: Array<string>;
-    priority?: Priority.Errors;
-    dueDate?: Array<string>;
-    closeDate?: Array<string>;
-    value?: Array<string>;
-    stage?: LeadStage.Errors;
-    status?: Array<string>;
-    description?: Array<string>;
-    nextStep?: NextStep.Errors;
-    favorite?: Array<string>;
-    dateAdded?: Array<string>;
-    taxRate?: Array<string>;
-    sector?: Sector.Errors;
-    leadName?: AccountName.Errors;
-    phones?: { _errors?: Array<string>; [index: number]: PhoneNumber.Errors };
-    email?: Email.Errors;
-    leadSource?: Array<string>;
-    site?: Array<string>;
-    memo?: Array<string>;
-    needsReview?: Array<string>;
-    hasAlert?: Array<string>;
-    salesRep?: Array<string>;
-    color?: Array<string>;
-    accountType?: Array<string>;
-    subtype?: Array<string>;
-    isTaxExempt?: Array<string>;
-    paymentTerms?: Array<string>;
-    tags?: { _errors?: Array<string>; [index: number]: Array<string> };
-    customFields?: { _errors?: Array<string>; [index: number]: Array<string> };
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    number: Option<Array<string>>;
+    accepted: Option<Array<string>>;
+    probability: Option<Array<string>>;
+    priority: Option<Array<string>>;
+    dueDate: Option<Array<string>>;
+    closeDate: Option<Array<string>>;
+    value: Option<Array<string>>;
+    stage: Option<Array<string>>;
+    status: Option<Array<string>>;
+    description: Option<Array<string>>;
+    nextStep: Option<Array<string>>;
+    favorite: Option<Array<string>>;
+    dateAdded: Option<Array<string>>;
+    taxRate: Option<Array<string>>;
+    sector: Option<Array<string>>;
+    leadName: Option<Array<string>>;
+    phones: Option<Array<string>>;
+    email: Option<Array<string>>;
+    leadSource: Option<Array<string>>;
+    site: Option<Array<string>>;
+    memo: Option<Array<string>>;
+    needsReview: Option<Array<string>>;
+    hasAlert: Option<Array<string>>;
+    salesRep: Option<Array<string>>;
+    color: Option<Array<string>>;
+    accountType: Option<Array<string>>;
+    subtype: Option<Array<string>>;
+    isTaxExempt: Option<Array<string>>;
+    paymentTerms: Option<Array<string>>;
+    tags: Option<Array<string>>;
+    customFields: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      id?: boolean;
-      number?: boolean;
-      accepted?: boolean;
-      probability?: boolean;
-      priority?: Priority.Tainted;
-      dueDate?: boolean;
-      closeDate?: boolean;
-      value?: boolean;
-      stage?: LeadStage.Tainted;
-      status?: boolean;
-      description?: boolean;
-      nextStep?: NextStep.Tainted;
-      favorite?: boolean;
-      dateAdded?: boolean;
-      taxRate?: boolean;
-      sector?: Sector.Tainted;
-      leadName?: AccountName.Tainted;
-      phones?: { [index: number]: PhoneNumber.Tainted };
-      email?: Email.Tainted;
-      leadSource?: boolean;
-      site?: boolean;
-      memo?: boolean;
-      needsReview?: boolean;
-      hasAlert?: boolean;
-      salesRep?: boolean;
-      color?: boolean;
-      accountType?: boolean;
-      subtype?: boolean;
-      isTaxExempt?: boolean;
-      paymentTerms?: boolean;
-      tags?: { [index: number]: boolean };
-      customFields?: { [index: number]: boolean };
+      id: Option<boolean>;
+      number: Option<boolean>;
+      accepted: Option<boolean>;
+      probability: Option<boolean>;
+      priority: Option<boolean>;
+      dueDate: Option<boolean>;
+      closeDate: Option<boolean>;
+      value: Option<boolean>;
+      stage: Option<boolean>;
+      status: Option<boolean>;
+      description: Option<boolean>;
+      nextStep: Option<boolean>;
+      favorite: Option<boolean>;
+      dateAdded: Option<boolean>;
+      taxRate: Option<boolean>;
+      sector: Option<boolean>;
+      leadName: Option<boolean>;
+      phones: Option<boolean>;
+      email: Option<boolean>;
+      leadSource: Option<boolean>;
+      site: Option<boolean>;
+      memo: Option<boolean>;
+      needsReview: Option<boolean>;
+      hasAlert: Option<boolean>;
+      salesRep: Option<boolean>;
+      color: Option<boolean>;
+      accountType: Option<boolean>;
+      subtype: Option<boolean>;
+      isTaxExempt: Option<boolean>;
+      paymentTerms: Option<boolean>;
+      tags: Option<boolean>;
+      customFields: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -19868,10 +20845,10 @@ export namespace Lead {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -19920,8 +20897,75 @@ export namespace Lead {
     overrides?: Partial<Lead>,
   ): Gigaform {
     let data = $state({ ...Lead.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      number: Option.none(),
+      accepted: Option.none(),
+      probability: Option.none(),
+      priority: Option.none(),
+      dueDate: Option.none(),
+      closeDate: Option.none(),
+      value: Option.none(),
+      stage: Option.none(),
+      status: Option.none(),
+      description: Option.none(),
+      nextStep: Option.none(),
+      favorite: Option.none(),
+      dateAdded: Option.none(),
+      taxRate: Option.none(),
+      sector: Option.none(),
+      leadName: Option.none(),
+      phones: Option.none(),
+      email: Option.none(),
+      leadSource: Option.none(),
+      site: Option.none(),
+      memo: Option.none(),
+      needsReview: Option.none(),
+      hasAlert: Option.none(),
+      salesRep: Option.none(),
+      color: Option.none(),
+      accountType: Option.none(),
+      subtype: Option.none(),
+      isTaxExempt: Option.none(),
+      paymentTerms: Option.none(),
+      tags: Option.none(),
+      customFields: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      number: Option.none(),
+      accepted: Option.none(),
+      probability: Option.none(),
+      priority: Option.none(),
+      dueDate: Option.none(),
+      closeDate: Option.none(),
+      value: Option.none(),
+      stage: Option.none(),
+      status: Option.none(),
+      description: Option.none(),
+      nextStep: Option.none(),
+      favorite: Option.none(),
+      dateAdded: Option.none(),
+      taxRate: Option.none(),
+      sector: Option.none(),
+      leadName: Option.none(),
+      phones: Option.none(),
+      email: Option.none(),
+      leadSource: Option.none(),
+      site: Option.none(),
+      memo: Option.none(),
+      needsReview: Option.none(),
+      hasAlert: Option.none(),
+      salesRep: Option.none(),
+      color: Option.none(),
+      accountType: Option.none(),
+      subtype: Option.none(),
+      isTaxExempt: Option.none(),
+      paymentTerms: Option.none(),
+      tags: Option.none(),
+      customFields: Option.none(),
+    });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -19932,12 +20976,12 @@ export namespace Lead {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -19960,12 +21004,12 @@ export namespace Lead {
         set: (value: number | null) => {
           data.number = value;
         },
-        getError: () => errors?.number,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.number,
+        setError: (value: Option<Array<string>>) => {
           errors.number = value;
         },
-        getTainted: () => tainted?.number ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.number,
+        setTainted: (value: Option<boolean>) => {
           tainted.number = value;
         },
         validate: (): Array<string> => {
@@ -19988,12 +21032,12 @@ export namespace Lead {
         set: (value: boolean) => {
           data.accepted = value;
         },
-        getError: () => errors?.accepted,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.accepted,
+        setError: (value: Option<Array<string>>) => {
           errors.accepted = value;
         },
-        getTainted: () => tainted?.accepted ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.accepted,
+        setTainted: (value: Option<boolean>) => {
           tainted.accepted = value;
         },
         validate: (): Array<string> => {
@@ -20016,12 +21060,12 @@ export namespace Lead {
         set: (value: number) => {
           data.probability = value;
         },
-        getError: () => errors?.probability,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.probability,
+        setError: (value: Option<Array<string>>) => {
           errors.probability = value;
         },
-        getTainted: () => tainted?.probability ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.probability,
+        setTainted: (value: Option<boolean>) => {
           tainted.probability = value;
         },
         validate: (): Array<string> => {
@@ -20044,12 +21088,12 @@ export namespace Lead {
         set: (value: Priority) => {
           data.priority = value;
         },
-        getError: () => errors?.priority,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.priority,
+        setError: (value: Option<Array<string>>) => {
           errors.priority = value;
         },
-        getTainted: () => tainted?.priority ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.priority,
+        setTainted: (value: Option<boolean>) => {
           tainted.priority = value;
         },
         validate: (): Array<string> => {
@@ -20072,12 +21116,12 @@ export namespace Lead {
         set: (value: string | null) => {
           data.dueDate = value;
         },
-        getError: () => errors?.dueDate,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.dueDate,
+        setError: (value: Option<Array<string>>) => {
           errors.dueDate = value;
         },
-        getTainted: () => tainted?.dueDate ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.dueDate,
+        setTainted: (value: Option<boolean>) => {
           tainted.dueDate = value;
         },
         validate: (): Array<string> => {
@@ -20100,12 +21144,12 @@ export namespace Lead {
         set: (value: string | null) => {
           data.closeDate = value;
         },
-        getError: () => errors?.closeDate,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.closeDate,
+        setError: (value: Option<Array<string>>) => {
           errors.closeDate = value;
         },
-        getTainted: () => tainted?.closeDate ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.closeDate,
+        setTainted: (value: Option<boolean>) => {
           tainted.closeDate = value;
         },
         validate: (): Array<string> => {
@@ -20128,12 +21172,12 @@ export namespace Lead {
         set: (value: number) => {
           data.value = value;
         },
-        getError: () => errors?.value,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.value,
+        setError: (value: Option<Array<string>>) => {
           errors.value = value;
         },
-        getTainted: () => tainted?.value ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.value,
+        setTainted: (value: Option<boolean>) => {
           tainted.value = value;
         },
         validate: (): Array<string> => {
@@ -20156,12 +21200,12 @@ export namespace Lead {
         set: (value: LeadStage) => {
           data.stage = value;
         },
-        getError: () => errors?.stage,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.stage,
+        setError: (value: Option<Array<string>>) => {
           errors.stage = value;
         },
-        getTainted: () => tainted?.stage ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.stage,
+        setTainted: (value: Option<boolean>) => {
           tainted.stage = value;
         },
         validate: (): Array<string> => {
@@ -20184,12 +21228,12 @@ export namespace Lead {
         set: (value: string) => {
           data.status = value;
         },
-        getError: () => errors?.status,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.status,
+        setError: (value: Option<Array<string>>) => {
           errors.status = value;
         },
-        getTainted: () => tainted?.status ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.status,
+        setTainted: (value: Option<boolean>) => {
           tainted.status = value;
         },
         validate: (): Array<string> => {
@@ -20212,12 +21256,12 @@ export namespace Lead {
         set: (value: string | null) => {
           data.description = value;
         },
-        getError: () => errors?.description,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.description,
+        setError: (value: Option<Array<string>>) => {
           errors.description = value;
         },
-        getTainted: () => tainted?.description ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.description,
+        setTainted: (value: Option<boolean>) => {
           tainted.description = value;
         },
         validate: (): Array<string> => {
@@ -20240,12 +21284,12 @@ export namespace Lead {
         set: (value: NextStep) => {
           data.nextStep = value;
         },
-        getError: () => errors?.nextStep,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.nextStep,
+        setError: (value: Option<Array<string>>) => {
           errors.nextStep = value;
         },
-        getTainted: () => tainted?.nextStep ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.nextStep,
+        setTainted: (value: Option<boolean>) => {
           tainted.nextStep = value;
         },
         validate: (): Array<string> => {
@@ -20268,12 +21312,12 @@ export namespace Lead {
         set: (value: boolean) => {
           data.favorite = value;
         },
-        getError: () => errors?.favorite,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.favorite,
+        setError: (value: Option<Array<string>>) => {
           errors.favorite = value;
         },
-        getTainted: () => tainted?.favorite ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.favorite,
+        setTainted: (value: Option<boolean>) => {
           tainted.favorite = value;
         },
         validate: (): Array<string> => {
@@ -20296,12 +21340,12 @@ export namespace Lead {
         set: (value: string | null) => {
           data.dateAdded = value;
         },
-        getError: () => errors?.dateAdded,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.dateAdded,
+        setError: (value: Option<Array<string>>) => {
           errors.dateAdded = value;
         },
-        getTainted: () => tainted?.dateAdded ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.dateAdded,
+        setTainted: (value: Option<boolean>) => {
           tainted.dateAdded = value;
         },
         validate: (): Array<string> => {
@@ -20324,12 +21368,12 @@ export namespace Lead {
         set: (value: (string | TaxRate) | null) => {
           data.taxRate = value;
         },
-        getError: () => errors?.taxRate,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.taxRate,
+        setError: (value: Option<Array<string>>) => {
           errors.taxRate = value;
         },
-        getTainted: () => tainted?.taxRate ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.taxRate,
+        setTainted: (value: Option<boolean>) => {
           tainted.taxRate = value;
         },
         validate: (): Array<string> => {
@@ -20352,12 +21396,12 @@ export namespace Lead {
         set: (value: Sector) => {
           data.sector = value;
         },
-        getError: () => errors?.sector,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.sector,
+        setError: (value: Option<Array<string>>) => {
           errors.sector = value;
         },
-        getTainted: () => tainted?.sector ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.sector,
+        setTainted: (value: Option<boolean>) => {
           tainted.sector = value;
         },
         validate: (): Array<string> => {
@@ -20380,12 +21424,12 @@ export namespace Lead {
         set: (value: AccountName) => {
           data.leadName = value;
         },
-        getError: () => errors?.leadName,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.leadName,
+        setError: (value: Option<Array<string>>) => {
           errors.leadName = value;
         },
-        getTainted: () => tainted?.leadName ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.leadName,
+        setTainted: (value: Option<boolean>) => {
           tainted.leadName = value;
         },
         validate: (): Array<string> => {
@@ -20408,12 +21452,12 @@ export namespace Lead {
         set: (value: PhoneNumber[]) => {
           data.phones = value;
         },
-        getError: () => errors?.phones,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.phones,
+        setError: (value: Option<Array<string>>) => {
           errors.phones = value;
         },
-        getTainted: () => tainted?.phones ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.phones,
+        setTainted: (value: Option<boolean>) => {
           tainted.phones = value;
         },
         validate: (): Array<string> => {
@@ -20434,16 +21478,13 @@ export namespace Lead {
           set: (value: PhoneNumber) => {
             data.phones[index] = value;
           },
-          getError: () =>
-            (errors.phones as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.phones ??= {};
-            (errors.phones as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.phones,
+          setError: (value: Option<Array<string>>) => {
+            errors.phones = value;
           },
-          getTainted: () => tainted.phones?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.phones ??= {};
-            tainted.phones[index] = value;
+          getTainted: () => tainted.phones,
+          setTainted: (value: Option<boolean>) => {
+            tainted.phones = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -20466,12 +21507,12 @@ export namespace Lead {
         set: (value: Email) => {
           data.email = value;
         },
-        getError: () => errors?.email,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.email,
+        setError: (value: Option<Array<string>>) => {
           errors.email = value;
         },
-        getTainted: () => tainted?.email ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.email,
+        setTainted: (value: Option<boolean>) => {
           tainted.email = value;
         },
         validate: (): Array<string> => {
@@ -20494,12 +21535,12 @@ export namespace Lead {
         set: (value: string | null) => {
           data.leadSource = value;
         },
-        getError: () => errors?.leadSource,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.leadSource,
+        setError: (value: Option<Array<string>>) => {
           errors.leadSource = value;
         },
-        getTainted: () => tainted?.leadSource ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.leadSource,
+        setTainted: (value: Option<boolean>) => {
           tainted.leadSource = value;
         },
         validate: (): Array<string> => {
@@ -20522,12 +21563,12 @@ export namespace Lead {
         set: (value: string | Site) => {
           data.site = value;
         },
-        getError: () => errors?.site,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.site,
+        setError: (value: Option<Array<string>>) => {
           errors.site = value;
         },
-        getTainted: () => tainted?.site ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.site,
+        setTainted: (value: Option<boolean>) => {
           tainted.site = value;
         },
         validate: (): Array<string> => {
@@ -20550,12 +21591,12 @@ export namespace Lead {
         set: (value: string) => {
           data.memo = value;
         },
-        getError: () => errors?.memo,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.memo,
+        setError: (value: Option<Array<string>>) => {
           errors.memo = value;
         },
-        getTainted: () => tainted?.memo ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.memo,
+        setTainted: (value: Option<boolean>) => {
           tainted.memo = value;
         },
         validate: (): Array<string> => {
@@ -20578,12 +21619,12 @@ export namespace Lead {
         set: (value: boolean) => {
           data.needsReview = value;
         },
-        getError: () => errors?.needsReview,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.needsReview,
+        setError: (value: Option<Array<string>>) => {
           errors.needsReview = value;
         },
-        getTainted: () => tainted?.needsReview ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.needsReview,
+        setTainted: (value: Option<boolean>) => {
           tainted.needsReview = value;
         },
         validate: (): Array<string> => {
@@ -20606,12 +21647,12 @@ export namespace Lead {
         set: (value: boolean) => {
           data.hasAlert = value;
         },
-        getError: () => errors?.hasAlert,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.hasAlert,
+        setError: (value: Option<Array<string>>) => {
           errors.hasAlert = value;
         },
-        getTainted: () => tainted?.hasAlert ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.hasAlert,
+        setTainted: (value: Option<boolean>) => {
           tainted.hasAlert = value;
         },
         validate: (): Array<string> => {
@@ -20634,12 +21675,12 @@ export namespace Lead {
         set: (value: Represents[] | null) => {
           data.salesRep = value;
         },
-        getError: () => errors?.salesRep,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.salesRep,
+        setError: (value: Option<Array<string>>) => {
           errors.salesRep = value;
         },
-        getTainted: () => tainted?.salesRep ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.salesRep,
+        setTainted: (value: Option<boolean>) => {
           tainted.salesRep = value;
         },
         validate: (): Array<string> => {
@@ -20662,12 +21703,12 @@ export namespace Lead {
         set: (value: string | null) => {
           data.color = value;
         },
-        getError: () => errors?.color,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.color,
+        setError: (value: Option<Array<string>>) => {
           errors.color = value;
         },
-        getTainted: () => tainted?.color ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.color,
+        setTainted: (value: Option<boolean>) => {
           tainted.color = value;
         },
         validate: (): Array<string> => {
@@ -20690,12 +21731,12 @@ export namespace Lead {
         set: (value: string) => {
           data.accountType = value;
         },
-        getError: () => errors?.accountType,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.accountType,
+        setError: (value: Option<Array<string>>) => {
           errors.accountType = value;
         },
-        getTainted: () => tainted?.accountType ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.accountType,
+        setTainted: (value: Option<boolean>) => {
           tainted.accountType = value;
         },
         validate: (): Array<string> => {
@@ -20718,12 +21759,12 @@ export namespace Lead {
         set: (value: string) => {
           data.subtype = value;
         },
-        getError: () => errors?.subtype,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.subtype,
+        setError: (value: Option<Array<string>>) => {
           errors.subtype = value;
         },
-        getTainted: () => tainted?.subtype ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.subtype,
+        setTainted: (value: Option<boolean>) => {
           tainted.subtype = value;
         },
         validate: (): Array<string> => {
@@ -20746,12 +21787,12 @@ export namespace Lead {
         set: (value: boolean) => {
           data.isTaxExempt = value;
         },
-        getError: () => errors?.isTaxExempt,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.isTaxExempt,
+        setError: (value: Option<Array<string>>) => {
           errors.isTaxExempt = value;
         },
-        getTainted: () => tainted?.isTaxExempt ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.isTaxExempt,
+        setTainted: (value: Option<boolean>) => {
           tainted.isTaxExempt = value;
         },
         validate: (): Array<string> => {
@@ -20774,12 +21815,12 @@ export namespace Lead {
         set: (value: string) => {
           data.paymentTerms = value;
         },
-        getError: () => errors?.paymentTerms,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.paymentTerms,
+        setError: (value: Option<Array<string>>) => {
           errors.paymentTerms = value;
         },
-        getTainted: () => tainted?.paymentTerms ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.paymentTerms,
+        setTainted: (value: Option<boolean>) => {
           tainted.paymentTerms = value;
         },
         validate: (): Array<string> => {
@@ -20802,12 +21843,12 @@ export namespace Lead {
         set: (value: string[]) => {
           data.tags = value;
         },
-        getError: () => errors?.tags,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.tags,
+        setError: (value: Option<Array<string>>) => {
           errors.tags = value;
         },
-        getTainted: () => tainted?.tags ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.tags,
+        setTainted: (value: Option<boolean>) => {
           tainted.tags = value;
         },
         validate: (): Array<string> => {
@@ -20828,16 +21869,13 @@ export namespace Lead {
           set: (value: string) => {
             data.tags[index] = value;
           },
-          getError: () =>
-            (errors.tags as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.tags ??= {};
-            (errors.tags as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.tags,
+          setError: (value: Option<Array<string>>) => {
+            errors.tags = value;
           },
-          getTainted: () => tainted.tags?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.tags ??= {};
-            tainted.tags[index] = value;
+          getTainted: () => tainted.tags,
+          setTainted: (value: Option<boolean>) => {
+            tainted.tags = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -20860,12 +21898,12 @@ export namespace Lead {
         set: (value: [string, string][]) => {
           data.customFields = value;
         },
-        getError: () => errors?.customFields,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.customFields,
+        setError: (value: Option<Array<string>>) => {
           errors.customFields = value;
         },
-        getTainted: () => tainted?.customFields ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.customFields,
+        setTainted: (value: Option<boolean>) => {
           tainted.customFields = value;
         },
         validate: (): Array<string> => {
@@ -20886,17 +21924,13 @@ export namespace Lead {
           set: (value: [string, string]) => {
             data.customFields[index] = value;
           },
-          getError: () =>
-            (errors.customFields as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.customFields ??= {};
-            (errors.customFields as Record<number, Array<string>>)[index] =
-              value!;
+          getError: () => errors.customFields,
+          setError: (value: Option<Array<string>>) => {
+            errors.customFields = value;
           },
-          getTainted: () => tainted.customFields?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.customFields ??= {};
-            tainted.customFields[index] = value;
+          getTainted: () => tainted.customFields,
+          setTainted: (value: Option<boolean>) => {
+            tainted.customFields = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -20922,8 +21956,75 @@ export namespace Lead {
     }
     function reset(newOverrides?: Partial<Lead>): void {
       data = { ...Lead.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        number: Option.none(),
+        accepted: Option.none(),
+        probability: Option.none(),
+        priority: Option.none(),
+        dueDate: Option.none(),
+        closeDate: Option.none(),
+        value: Option.none(),
+        stage: Option.none(),
+        status: Option.none(),
+        description: Option.none(),
+        nextStep: Option.none(),
+        favorite: Option.none(),
+        dateAdded: Option.none(),
+        taxRate: Option.none(),
+        sector: Option.none(),
+        leadName: Option.none(),
+        phones: Option.none(),
+        email: Option.none(),
+        leadSource: Option.none(),
+        site: Option.none(),
+        memo: Option.none(),
+        needsReview: Option.none(),
+        hasAlert: Option.none(),
+        salesRep: Option.none(),
+        color: Option.none(),
+        accountType: Option.none(),
+        subtype: Option.none(),
+        isTaxExempt: Option.none(),
+        paymentTerms: Option.none(),
+        tags: Option.none(),
+        customFields: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        number: Option.none(),
+        accepted: Option.none(),
+        probability: Option.none(),
+        priority: Option.none(),
+        dueDate: Option.none(),
+        closeDate: Option.none(),
+        value: Option.none(),
+        stage: Option.none(),
+        status: Option.none(),
+        description: Option.none(),
+        nextStep: Option.none(),
+        favorite: Option.none(),
+        dateAdded: Option.none(),
+        taxRate: Option.none(),
+        sector: Option.none(),
+        leadName: Option.none(),
+        phones: Option.none(),
+        email: Option.none(),
+        leadSource: Option.none(),
+        site: Option.none(),
+        memo: Option.none(),
+        needsReview: Option.none(),
+        hasAlert: Option.none(),
+        salesRep: Option.none(),
+        color: Option.none(),
+        accountType: Option.none(),
+        subtype: Option.none(),
+        isTaxExempt: Option.none(),
+        paymentTerms: Option.none(),
+        tags: Option.none(),
+        customFields: Option.none(),
+      };
     }
     return {
       get data() {
@@ -21344,19 +22445,16 @@ export namespace AppPermissions {
 
 export namespace AppPermissions {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    applications?: {
-      _errors?: Array<string>;
-      [index: number]: Applications.Errors;
-    };
-    pages?: { _errors?: Array<string>; [index: number]: Page.Errors };
-    data?: { _errors?: Array<string>; [index: number]: Table.Errors };
+    _errors: Option<Array<string>>;
+    applications: Option<Array<string>>;
+    pages: Option<Array<string>>;
+    data: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      applications?: { [index: number]: Applications.Tainted };
-      pages?: { [index: number]: Page.Tainted };
-      data?: { [index: number]: Table.Tainted };
+      applications: Option<boolean>;
+      pages: Option<boolean>;
+      data: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -21371,10 +22469,10 @@ export namespace AppPermissions {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -21397,8 +22495,17 @@ export namespace AppPermissions {
     overrides?: Partial<AppPermissions>,
   ): Gigaform {
     let data = $state({ ...AppPermissions.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      applications: Option.none(),
+      pages: Option.none(),
+      data: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      applications: Option.none(),
+      pages: Option.none(),
+      data: Option.none(),
+    });
     const fields: FieldControllers = {
       applications: {
         path: ["applications"] as const,
@@ -21409,12 +22516,12 @@ export namespace AppPermissions {
         set: (value: Applications[]) => {
           data.applications = value;
         },
-        getError: () => errors?.applications,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.applications,
+        setError: (value: Option<Array<string>>) => {
           errors.applications = value;
         },
-        getTainted: () => tainted?.applications ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.applications,
+        setTainted: (value: Option<boolean>) => {
           tainted.applications = value;
         },
         validate: (): Array<string> => {
@@ -21435,17 +22542,13 @@ export namespace AppPermissions {
           set: (value: Applications) => {
             data.applications[index] = value;
           },
-          getError: () =>
-            (errors.applications as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.applications ??= {};
-            (errors.applications as Record<number, Array<string>>)[index] =
-              value!;
+          getError: () => errors.applications,
+          setError: (value: Option<Array<string>>) => {
+            errors.applications = value;
           },
-          getTainted: () => tainted.applications?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.applications ??= {};
-            tainted.applications[index] = value;
+          getTainted: () => tainted.applications,
+          setTainted: (value: Option<boolean>) => {
+            tainted.applications = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -21471,12 +22574,12 @@ export namespace AppPermissions {
         set: (value: Page[]) => {
           data.pages = value;
         },
-        getError: () => errors?.pages,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.pages,
+        setError: (value: Option<Array<string>>) => {
           errors.pages = value;
         },
-        getTainted: () => tainted?.pages ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.pages,
+        setTainted: (value: Option<boolean>) => {
           tainted.pages = value;
         },
         validate: (): Array<string> => {
@@ -21497,16 +22600,13 @@ export namespace AppPermissions {
           set: (value: Page) => {
             data.pages[index] = value;
           },
-          getError: () =>
-            (errors.pages as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.pages ??= {};
-            (errors.pages as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.pages,
+          setError: (value: Option<Array<string>>) => {
+            errors.pages = value;
           },
-          getTainted: () => tainted.pages?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.pages ??= {};
-            tainted.pages[index] = value;
+          getTainted: () => tainted.pages,
+          setTainted: (value: Option<boolean>) => {
+            tainted.pages = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -21529,12 +22629,12 @@ export namespace AppPermissions {
         set: (value: Table[]) => {
           data.data = value;
         },
-        getError: () => errors?.data,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.data,
+        setError: (value: Option<Array<string>>) => {
           errors.data = value;
         },
-        getTainted: () => tainted?.data ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.data,
+        setTainted: (value: Option<boolean>) => {
           tainted.data = value;
         },
         validate: (): Array<string> => {
@@ -21555,16 +22655,13 @@ export namespace AppPermissions {
           set: (value: Table) => {
             data.data[index] = value;
           },
-          getError: () =>
-            (errors.data as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.data ??= {};
-            (errors.data as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.data,
+          setError: (value: Option<Array<string>>) => {
+            errors.data = value;
           },
-          getTainted: () => tainted.data?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.data ??= {};
-            tainted.data[index] = value;
+          getTainted: () => tainted.data,
+          setTainted: (value: Option<boolean>) => {
+            tainted.data = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -21587,8 +22684,17 @@ export namespace AppPermissions {
     }
     function reset(newOverrides?: Partial<AppPermissions>): void {
       data = { ...AppPermissions.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        applications: Option.none(),
+        pages: Option.none(),
+        data: Option.none(),
+      };
+      tainted = {
+        applications: Option.none(),
+        pages: Option.none(),
+        data: Option.none(),
+      };
     }
     return {
       get data() {
@@ -22197,68 +23303,68 @@ export namespace Company {
 
 export namespace Company {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    legalName?: Array<string>;
-    headquarters?: Array<string>;
-    phones?: { _errors?: Array<string>; [index: number]: PhoneNumber.Errors };
-    fax?: Array<string>;
-    email?: Array<string>;
-    website?: Array<string>;
-    taxId?: Array<string>;
-    referenceNumber?: Array<string>;
-    postalCodeLookup?: Array<string>;
-    timeZone?: Array<string>;
-    defaultTax?: Array<string>;
-    defaultTaxLocation?: Array<string>;
-    defaultAreaCode?: Array<string>;
-    defaultAccountType?: Array<string>;
-    lookupFormatting?: Array<string>;
-    accountNameFormat?: Array<string>;
-    merchantServiceProvider?: Array<string>;
-    dateDisplayStyle?: Array<string>;
-    hasAutoCommission?: Array<string>;
-    hasAutoDaylightSavings?: Array<string>;
-    hasAutoFmsTracking?: Array<string>;
-    hasNotifications?: Array<string>;
-    hasRequiredLeadSource?: Array<string>;
-    hasRequiredEmail?: Array<string>;
-    hasSortServiceItemsAlphabetically?: Array<string>;
-    hasAttachOrderToAppointmentEmails?: Array<string>;
-    scheduleInterval?: Array<string>;
-    colorsConfig?: ColorsConfig.Errors;
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    legalName: Option<Array<string>>;
+    headquarters: Option<Array<string>>;
+    phones: Option<Array<string>>;
+    fax: Option<Array<string>>;
+    email: Option<Array<string>>;
+    website: Option<Array<string>>;
+    taxId: Option<Array<string>>;
+    referenceNumber: Option<Array<string>>;
+    postalCodeLookup: Option<Array<string>>;
+    timeZone: Option<Array<string>>;
+    defaultTax: Option<Array<string>>;
+    defaultTaxLocation: Option<Array<string>>;
+    defaultAreaCode: Option<Array<string>>;
+    defaultAccountType: Option<Array<string>>;
+    lookupFormatting: Option<Array<string>>;
+    accountNameFormat: Option<Array<string>>;
+    merchantServiceProvider: Option<Array<string>>;
+    dateDisplayStyle: Option<Array<string>>;
+    hasAutoCommission: Option<Array<string>>;
+    hasAutoDaylightSavings: Option<Array<string>>;
+    hasAutoFmsTracking: Option<Array<string>>;
+    hasNotifications: Option<Array<string>>;
+    hasRequiredLeadSource: Option<Array<string>>;
+    hasRequiredEmail: Option<Array<string>>;
+    hasSortServiceItemsAlphabetically: Option<Array<string>>;
+    hasAttachOrderToAppointmentEmails: Option<Array<string>>;
+    scheduleInterval: Option<Array<string>>;
+    colorsConfig: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      id?: boolean;
-      legalName?: boolean;
-      headquarters?: boolean;
-      phones?: { [index: number]: PhoneNumber.Tainted };
-      fax?: boolean;
-      email?: boolean;
-      website?: boolean;
-      taxId?: boolean;
-      referenceNumber?: boolean;
-      postalCodeLookup?: boolean;
-      timeZone?: boolean;
-      defaultTax?: boolean;
-      defaultTaxLocation?: boolean;
-      defaultAreaCode?: boolean;
-      defaultAccountType?: boolean;
-      lookupFormatting?: boolean;
-      accountNameFormat?: boolean;
-      merchantServiceProvider?: boolean;
-      dateDisplayStyle?: boolean;
-      hasAutoCommission?: boolean;
-      hasAutoDaylightSavings?: boolean;
-      hasAutoFmsTracking?: boolean;
-      hasNotifications?: boolean;
-      hasRequiredLeadSource?: boolean;
-      hasRequiredEmail?: boolean;
-      hasSortServiceItemsAlphabetically?: boolean;
-      hasAttachOrderToAppointmentEmails?: boolean;
-      scheduleInterval?: boolean;
-      colorsConfig?: ColorsConfig.Tainted;
+      id: Option<boolean>;
+      legalName: Option<boolean>;
+      headquarters: Option<boolean>;
+      phones: Option<boolean>;
+      fax: Option<boolean>;
+      email: Option<boolean>;
+      website: Option<boolean>;
+      taxId: Option<boolean>;
+      referenceNumber: Option<boolean>;
+      postalCodeLookup: Option<boolean>;
+      timeZone: Option<boolean>;
+      defaultTax: Option<boolean>;
+      defaultTaxLocation: Option<boolean>;
+      defaultAreaCode: Option<boolean>;
+      defaultAccountType: Option<boolean>;
+      lookupFormatting: Option<boolean>;
+      accountNameFormat: Option<boolean>;
+      merchantServiceProvider: Option<boolean>;
+      dateDisplayStyle: Option<boolean>;
+      hasAutoCommission: Option<boolean>;
+      hasAutoDaylightSavings: Option<boolean>;
+      hasAutoFmsTracking: Option<boolean>;
+      hasNotifications: Option<boolean>;
+      hasRequiredLeadSource: Option<boolean>;
+      hasRequiredEmail: Option<boolean>;
+      hasSortServiceItemsAlphabetically: Option<boolean>;
+      hasAttachOrderToAppointmentEmails: Option<boolean>;
+      scheduleInterval: Option<boolean>;
+      colorsConfig: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -22273,10 +23379,10 @@ export namespace Company {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -22322,8 +23428,69 @@ export namespace Company {
     overrides?: Partial<Company>,
   ): Gigaform {
     let data = $state({ ...Company.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      legalName: Option.none(),
+      headquarters: Option.none(),
+      phones: Option.none(),
+      fax: Option.none(),
+      email: Option.none(),
+      website: Option.none(),
+      taxId: Option.none(),
+      referenceNumber: Option.none(),
+      postalCodeLookup: Option.none(),
+      timeZone: Option.none(),
+      defaultTax: Option.none(),
+      defaultTaxLocation: Option.none(),
+      defaultAreaCode: Option.none(),
+      defaultAccountType: Option.none(),
+      lookupFormatting: Option.none(),
+      accountNameFormat: Option.none(),
+      merchantServiceProvider: Option.none(),
+      dateDisplayStyle: Option.none(),
+      hasAutoCommission: Option.none(),
+      hasAutoDaylightSavings: Option.none(),
+      hasAutoFmsTracking: Option.none(),
+      hasNotifications: Option.none(),
+      hasRequiredLeadSource: Option.none(),
+      hasRequiredEmail: Option.none(),
+      hasSortServiceItemsAlphabetically: Option.none(),
+      hasAttachOrderToAppointmentEmails: Option.none(),
+      scheduleInterval: Option.none(),
+      colorsConfig: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      legalName: Option.none(),
+      headquarters: Option.none(),
+      phones: Option.none(),
+      fax: Option.none(),
+      email: Option.none(),
+      website: Option.none(),
+      taxId: Option.none(),
+      referenceNumber: Option.none(),
+      postalCodeLookup: Option.none(),
+      timeZone: Option.none(),
+      defaultTax: Option.none(),
+      defaultTaxLocation: Option.none(),
+      defaultAreaCode: Option.none(),
+      defaultAccountType: Option.none(),
+      lookupFormatting: Option.none(),
+      accountNameFormat: Option.none(),
+      merchantServiceProvider: Option.none(),
+      dateDisplayStyle: Option.none(),
+      hasAutoCommission: Option.none(),
+      hasAutoDaylightSavings: Option.none(),
+      hasAutoFmsTracking: Option.none(),
+      hasNotifications: Option.none(),
+      hasRequiredLeadSource: Option.none(),
+      hasRequiredEmail: Option.none(),
+      hasSortServiceItemsAlphabetically: Option.none(),
+      hasAttachOrderToAppointmentEmails: Option.none(),
+      scheduleInterval: Option.none(),
+      colorsConfig: Option.none(),
+    });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -22334,12 +23501,12 @@ export namespace Company {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -22362,12 +23529,12 @@ export namespace Company {
         set: (value: string) => {
           data.legalName = value;
         },
-        getError: () => errors?.legalName,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.legalName,
+        setError: (value: Option<Array<string>>) => {
           errors.legalName = value;
         },
-        getTainted: () => tainted?.legalName ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.legalName,
+        setTainted: (value: Option<boolean>) => {
           tainted.legalName = value;
         },
         validate: (): Array<string> => {
@@ -22390,12 +23557,12 @@ export namespace Company {
         set: (value: string | Site) => {
           data.headquarters = value;
         },
-        getError: () => errors?.headquarters,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.headquarters,
+        setError: (value: Option<Array<string>>) => {
           errors.headquarters = value;
         },
-        getTainted: () => tainted?.headquarters ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.headquarters,
+        setTainted: (value: Option<boolean>) => {
           tainted.headquarters = value;
         },
         validate: (): Array<string> => {
@@ -22418,12 +23585,12 @@ export namespace Company {
         set: (value: PhoneNumber[]) => {
           data.phones = value;
         },
-        getError: () => errors?.phones,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.phones,
+        setError: (value: Option<Array<string>>) => {
           errors.phones = value;
         },
-        getTainted: () => tainted?.phones ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.phones,
+        setTainted: (value: Option<boolean>) => {
           tainted.phones = value;
         },
         validate: (): Array<string> => {
@@ -22444,16 +23611,13 @@ export namespace Company {
           set: (value: PhoneNumber) => {
             data.phones[index] = value;
           },
-          getError: () =>
-            (errors.phones as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.phones ??= {};
-            (errors.phones as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.phones,
+          setError: (value: Option<Array<string>>) => {
+            errors.phones = value;
           },
-          getTainted: () => tainted.phones?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.phones ??= {};
-            tainted.phones[index] = value;
+          getTainted: () => tainted.phones,
+          setTainted: (value: Option<boolean>) => {
+            tainted.phones = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -22476,12 +23640,12 @@ export namespace Company {
         set: (value: string) => {
           data.fax = value;
         },
-        getError: () => errors?.fax,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.fax,
+        setError: (value: Option<Array<string>>) => {
           errors.fax = value;
         },
-        getTainted: () => tainted?.fax ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.fax,
+        setTainted: (value: Option<boolean>) => {
           tainted.fax = value;
         },
         validate: (): Array<string> => {
@@ -22504,12 +23668,12 @@ export namespace Company {
         set: (value: string) => {
           data.email = value;
         },
-        getError: () => errors?.email,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.email,
+        setError: (value: Option<Array<string>>) => {
           errors.email = value;
         },
-        getTainted: () => tainted?.email ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.email,
+        setTainted: (value: Option<boolean>) => {
           tainted.email = value;
         },
         validate: (): Array<string> => {
@@ -22532,12 +23696,12 @@ export namespace Company {
         set: (value: string) => {
           data.website = value;
         },
-        getError: () => errors?.website,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.website,
+        setError: (value: Option<Array<string>>) => {
           errors.website = value;
         },
-        getTainted: () => tainted?.website ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.website,
+        setTainted: (value: Option<boolean>) => {
           tainted.website = value;
         },
         validate: (): Array<string> => {
@@ -22560,12 +23724,12 @@ export namespace Company {
         set: (value: string) => {
           data.taxId = value;
         },
-        getError: () => errors?.taxId,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.taxId,
+        setError: (value: Option<Array<string>>) => {
           errors.taxId = value;
         },
-        getTainted: () => tainted?.taxId ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.taxId,
+        setTainted: (value: Option<boolean>) => {
           tainted.taxId = value;
         },
         validate: (): Array<string> => {
@@ -22588,12 +23752,12 @@ export namespace Company {
         set: (value: number) => {
           data.referenceNumber = value;
         },
-        getError: () => errors?.referenceNumber,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.referenceNumber,
+        setError: (value: Option<Array<string>>) => {
           errors.referenceNumber = value;
         },
-        getTainted: () => tainted?.referenceNumber ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.referenceNumber,
+        setTainted: (value: Option<boolean>) => {
           tainted.referenceNumber = value;
         },
         validate: (): Array<string> => {
@@ -22616,12 +23780,12 @@ export namespace Company {
         set: (value: string) => {
           data.postalCodeLookup = value;
         },
-        getError: () => errors?.postalCodeLookup,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.postalCodeLookup,
+        setError: (value: Option<Array<string>>) => {
           errors.postalCodeLookup = value;
         },
-        getTainted: () => tainted?.postalCodeLookup ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.postalCodeLookup,
+        setTainted: (value: Option<boolean>) => {
           tainted.postalCodeLookup = value;
         },
         validate: (): Array<string> => {
@@ -22644,12 +23808,12 @@ export namespace Company {
         set: (value: string) => {
           data.timeZone = value;
         },
-        getError: () => errors?.timeZone,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.timeZone,
+        setError: (value: Option<Array<string>>) => {
           errors.timeZone = value;
         },
-        getTainted: () => tainted?.timeZone ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.timeZone,
+        setTainted: (value: Option<boolean>) => {
           tainted.timeZone = value;
         },
         validate: (): Array<string> => {
@@ -22672,12 +23836,12 @@ export namespace Company {
         set: (value: string | TaxRate) => {
           data.defaultTax = value;
         },
-        getError: () => errors?.defaultTax,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.defaultTax,
+        setError: (value: Option<Array<string>>) => {
           errors.defaultTax = value;
         },
-        getTainted: () => tainted?.defaultTax ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.defaultTax,
+        setTainted: (value: Option<boolean>) => {
           tainted.defaultTax = value;
         },
         validate: (): Array<string> => {
@@ -22700,12 +23864,12 @@ export namespace Company {
         set: (value: string) => {
           data.defaultTaxLocation = value;
         },
-        getError: () => errors?.defaultTaxLocation,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.defaultTaxLocation,
+        setError: (value: Option<Array<string>>) => {
           errors.defaultTaxLocation = value;
         },
-        getTainted: () => tainted?.defaultTaxLocation ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.defaultTaxLocation,
+        setTainted: (value: Option<boolean>) => {
           tainted.defaultTaxLocation = value;
         },
         validate: (): Array<string> => {
@@ -22728,12 +23892,12 @@ export namespace Company {
         set: (value: number) => {
           data.defaultAreaCode = value;
         },
-        getError: () => errors?.defaultAreaCode,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.defaultAreaCode,
+        setError: (value: Option<Array<string>>) => {
           errors.defaultAreaCode = value;
         },
-        getTainted: () => tainted?.defaultAreaCode ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.defaultAreaCode,
+        setTainted: (value: Option<boolean>) => {
           tainted.defaultAreaCode = value;
         },
         validate: (): Array<string> => {
@@ -22756,12 +23920,12 @@ export namespace Company {
         set: (value: string) => {
           data.defaultAccountType = value;
         },
-        getError: () => errors?.defaultAccountType,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.defaultAccountType,
+        setError: (value: Option<Array<string>>) => {
           errors.defaultAccountType = value;
         },
-        getTainted: () => tainted?.defaultAccountType ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.defaultAccountType,
+        setTainted: (value: Option<boolean>) => {
           tainted.defaultAccountType = value;
         },
         validate: (): Array<string> => {
@@ -22784,12 +23948,12 @@ export namespace Company {
         set: (value: string) => {
           data.lookupFormatting = value;
         },
-        getError: () => errors?.lookupFormatting,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.lookupFormatting,
+        setError: (value: Option<Array<string>>) => {
           errors.lookupFormatting = value;
         },
-        getTainted: () => tainted?.lookupFormatting ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.lookupFormatting,
+        setTainted: (value: Option<boolean>) => {
           tainted.lookupFormatting = value;
         },
         validate: (): Array<string> => {
@@ -22812,12 +23976,12 @@ export namespace Company {
         set: (value: string) => {
           data.accountNameFormat = value;
         },
-        getError: () => errors?.accountNameFormat,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.accountNameFormat,
+        setError: (value: Option<Array<string>>) => {
           errors.accountNameFormat = value;
         },
-        getTainted: () => tainted?.accountNameFormat ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.accountNameFormat,
+        setTainted: (value: Option<boolean>) => {
           tainted.accountNameFormat = value;
         },
         validate: (): Array<string> => {
@@ -22840,12 +24004,12 @@ export namespace Company {
         set: (value: string | null) => {
           data.merchantServiceProvider = value;
         },
-        getError: () => errors?.merchantServiceProvider,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.merchantServiceProvider,
+        setError: (value: Option<Array<string>>) => {
           errors.merchantServiceProvider = value;
         },
-        getTainted: () => tainted?.merchantServiceProvider ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.merchantServiceProvider,
+        setTainted: (value: Option<boolean>) => {
           tainted.merchantServiceProvider = value;
         },
         validate: (): Array<string> => {
@@ -22868,12 +24032,12 @@ export namespace Company {
         set: (value: string) => {
           data.dateDisplayStyle = value;
         },
-        getError: () => errors?.dateDisplayStyle,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.dateDisplayStyle,
+        setError: (value: Option<Array<string>>) => {
           errors.dateDisplayStyle = value;
         },
-        getTainted: () => tainted?.dateDisplayStyle ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.dateDisplayStyle,
+        setTainted: (value: Option<boolean>) => {
           tainted.dateDisplayStyle = value;
         },
         validate: (): Array<string> => {
@@ -22896,12 +24060,12 @@ export namespace Company {
         set: (value: boolean) => {
           data.hasAutoCommission = value;
         },
-        getError: () => errors?.hasAutoCommission,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.hasAutoCommission,
+        setError: (value: Option<Array<string>>) => {
           errors.hasAutoCommission = value;
         },
-        getTainted: () => tainted?.hasAutoCommission ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.hasAutoCommission,
+        setTainted: (value: Option<boolean>) => {
           tainted.hasAutoCommission = value;
         },
         validate: (): Array<string> => {
@@ -22924,12 +24088,12 @@ export namespace Company {
         set: (value: boolean) => {
           data.hasAutoDaylightSavings = value;
         },
-        getError: () => errors?.hasAutoDaylightSavings,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.hasAutoDaylightSavings,
+        setError: (value: Option<Array<string>>) => {
           errors.hasAutoDaylightSavings = value;
         },
-        getTainted: () => tainted?.hasAutoDaylightSavings ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.hasAutoDaylightSavings,
+        setTainted: (value: Option<boolean>) => {
           tainted.hasAutoDaylightSavings = value;
         },
         validate: (): Array<string> => {
@@ -22952,12 +24116,12 @@ export namespace Company {
         set: (value: boolean) => {
           data.hasAutoFmsTracking = value;
         },
-        getError: () => errors?.hasAutoFmsTracking,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.hasAutoFmsTracking,
+        setError: (value: Option<Array<string>>) => {
           errors.hasAutoFmsTracking = value;
         },
-        getTainted: () => tainted?.hasAutoFmsTracking ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.hasAutoFmsTracking,
+        setTainted: (value: Option<boolean>) => {
           tainted.hasAutoFmsTracking = value;
         },
         validate: (): Array<string> => {
@@ -22980,12 +24144,12 @@ export namespace Company {
         set: (value: boolean) => {
           data.hasNotifications = value;
         },
-        getError: () => errors?.hasNotifications,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.hasNotifications,
+        setError: (value: Option<Array<string>>) => {
           errors.hasNotifications = value;
         },
-        getTainted: () => tainted?.hasNotifications ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.hasNotifications,
+        setTainted: (value: Option<boolean>) => {
           tainted.hasNotifications = value;
         },
         validate: (): Array<string> => {
@@ -23008,12 +24172,12 @@ export namespace Company {
         set: (value: boolean) => {
           data.hasRequiredLeadSource = value;
         },
-        getError: () => errors?.hasRequiredLeadSource,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.hasRequiredLeadSource,
+        setError: (value: Option<Array<string>>) => {
           errors.hasRequiredLeadSource = value;
         },
-        getTainted: () => tainted?.hasRequiredLeadSource ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.hasRequiredLeadSource,
+        setTainted: (value: Option<boolean>) => {
           tainted.hasRequiredLeadSource = value;
         },
         validate: (): Array<string> => {
@@ -23036,12 +24200,12 @@ export namespace Company {
         set: (value: boolean) => {
           data.hasRequiredEmail = value;
         },
-        getError: () => errors?.hasRequiredEmail,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.hasRequiredEmail,
+        setError: (value: Option<Array<string>>) => {
           errors.hasRequiredEmail = value;
         },
-        getTainted: () => tainted?.hasRequiredEmail ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.hasRequiredEmail,
+        setTainted: (value: Option<boolean>) => {
           tainted.hasRequiredEmail = value;
         },
         validate: (): Array<string> => {
@@ -23064,12 +24228,12 @@ export namespace Company {
         set: (value: boolean) => {
           data.hasSortServiceItemsAlphabetically = value;
         },
-        getError: () => errors?.hasSortServiceItemsAlphabetically,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.hasSortServiceItemsAlphabetically,
+        setError: (value: Option<Array<string>>) => {
           errors.hasSortServiceItemsAlphabetically = value;
         },
-        getTainted: () => tainted?.hasSortServiceItemsAlphabetically ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.hasSortServiceItemsAlphabetically,
+        setTainted: (value: Option<boolean>) => {
           tainted.hasSortServiceItemsAlphabetically = value;
         },
         validate: (): Array<string> => {
@@ -23092,12 +24256,12 @@ export namespace Company {
         set: (value: boolean) => {
           data.hasAttachOrderToAppointmentEmails = value;
         },
-        getError: () => errors?.hasAttachOrderToAppointmentEmails,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.hasAttachOrderToAppointmentEmails,
+        setError: (value: Option<Array<string>>) => {
           errors.hasAttachOrderToAppointmentEmails = value;
         },
-        getTainted: () => tainted?.hasAttachOrderToAppointmentEmails ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.hasAttachOrderToAppointmentEmails,
+        setTainted: (value: Option<boolean>) => {
           tainted.hasAttachOrderToAppointmentEmails = value;
         },
         validate: (): Array<string> => {
@@ -23120,12 +24284,12 @@ export namespace Company {
         set: (value: number) => {
           data.scheduleInterval = value;
         },
-        getError: () => errors?.scheduleInterval,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.scheduleInterval,
+        setError: (value: Option<Array<string>>) => {
           errors.scheduleInterval = value;
         },
-        getTainted: () => tainted?.scheduleInterval ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.scheduleInterval,
+        setTainted: (value: Option<boolean>) => {
           tainted.scheduleInterval = value;
         },
         validate: (): Array<string> => {
@@ -23148,12 +24312,12 @@ export namespace Company {
         set: (value: ColorsConfig) => {
           data.colorsConfig = value;
         },
-        getError: () => errors?.colorsConfig,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.colorsConfig,
+        setError: (value: Option<Array<string>>) => {
           errors.colorsConfig = value;
         },
-        getTainted: () => tainted?.colorsConfig ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.colorsConfig,
+        setTainted: (value: Option<boolean>) => {
           tainted.colorsConfig = value;
         },
         validate: (): Array<string> => {
@@ -23176,8 +24340,69 @@ export namespace Company {
     }
     function reset(newOverrides?: Partial<Company>): void {
       data = { ...Company.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        legalName: Option.none(),
+        headquarters: Option.none(),
+        phones: Option.none(),
+        fax: Option.none(),
+        email: Option.none(),
+        website: Option.none(),
+        taxId: Option.none(),
+        referenceNumber: Option.none(),
+        postalCodeLookup: Option.none(),
+        timeZone: Option.none(),
+        defaultTax: Option.none(),
+        defaultTaxLocation: Option.none(),
+        defaultAreaCode: Option.none(),
+        defaultAccountType: Option.none(),
+        lookupFormatting: Option.none(),
+        accountNameFormat: Option.none(),
+        merchantServiceProvider: Option.none(),
+        dateDisplayStyle: Option.none(),
+        hasAutoCommission: Option.none(),
+        hasAutoDaylightSavings: Option.none(),
+        hasAutoFmsTracking: Option.none(),
+        hasNotifications: Option.none(),
+        hasRequiredLeadSource: Option.none(),
+        hasRequiredEmail: Option.none(),
+        hasSortServiceItemsAlphabetically: Option.none(),
+        hasAttachOrderToAppointmentEmails: Option.none(),
+        scheduleInterval: Option.none(),
+        colorsConfig: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        legalName: Option.none(),
+        headquarters: Option.none(),
+        phones: Option.none(),
+        fax: Option.none(),
+        email: Option.none(),
+        website: Option.none(),
+        taxId: Option.none(),
+        referenceNumber: Option.none(),
+        postalCodeLookup: Option.none(),
+        timeZone: Option.none(),
+        defaultTax: Option.none(),
+        defaultTaxLocation: Option.none(),
+        defaultAreaCode: Option.none(),
+        defaultAccountType: Option.none(),
+        lookupFormatting: Option.none(),
+        accountNameFormat: Option.none(),
+        merchantServiceProvider: Option.none(),
+        dateDisplayStyle: Option.none(),
+        hasAutoCommission: Option.none(),
+        hasAutoDaylightSavings: Option.none(),
+        hasAutoFmsTracking: Option.none(),
+        hasNotifications: Option.none(),
+        hasRequiredLeadSource: Option.none(),
+        hasRequiredEmail: Option.none(),
+        hasSortServiceItemsAlphabetically: Option.none(),
+        hasAttachOrderToAppointmentEmails: Option.none(),
+        scheduleInterval: Option.none(),
+        colorsConfig: Option.none(),
+      };
     }
     return {
       get data() {
@@ -23559,26 +24784,26 @@ export namespace Ordinal {
 
 export namespace Ordinal {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    north?: Array<string>;
-    northeast?: Array<string>;
-    east?: Array<string>;
-    southeast?: Array<string>;
-    south?: Array<string>;
-    southwest?: Array<string>;
-    west?: Array<string>;
-    northwest?: Array<string>;
+    _errors: Option<Array<string>>;
+    north: Option<Array<string>>;
+    northeast: Option<Array<string>>;
+    east: Option<Array<string>>;
+    southeast: Option<Array<string>>;
+    south: Option<Array<string>>;
+    southwest: Option<Array<string>>;
+    west: Option<Array<string>>;
+    northwest: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      north?: boolean;
-      northeast?: boolean;
-      east?: boolean;
-      southeast?: boolean;
-      south?: boolean;
-      southwest?: boolean;
-      west?: boolean;
-      northwest?: boolean;
+      north: Option<boolean>;
+      northeast: Option<boolean>;
+      east: Option<boolean>;
+      southeast: Option<boolean>;
+      south: Option<boolean>;
+      southwest: Option<boolean>;
+      west: Option<boolean>;
+      northwest: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -23593,10 +24818,10 @@ export namespace Ordinal {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -23621,8 +24846,27 @@ export namespace Ordinal {
     overrides?: Partial<Ordinal>,
   ): Gigaform {
     let data = $state({ ...Ordinal.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      north: Option.none(),
+      northeast: Option.none(),
+      east: Option.none(),
+      southeast: Option.none(),
+      south: Option.none(),
+      southwest: Option.none(),
+      west: Option.none(),
+      northwest: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      north: Option.none(),
+      northeast: Option.none(),
+      east: Option.none(),
+      southeast: Option.none(),
+      south: Option.none(),
+      southwest: Option.none(),
+      west: Option.none(),
+      northwest: Option.none(),
+    });
     const fields: FieldControllers = {
       north: {
         path: ["north"] as const,
@@ -23633,12 +24877,12 @@ export namespace Ordinal {
         set: (value: number) => {
           data.north = value;
         },
-        getError: () => errors?.north,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.north,
+        setError: (value: Option<Array<string>>) => {
           errors.north = value;
         },
-        getTainted: () => tainted?.north ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.north,
+        setTainted: (value: Option<boolean>) => {
           tainted.north = value;
         },
         validate: (): Array<string> => {
@@ -23661,12 +24905,12 @@ export namespace Ordinal {
         set: (value: number) => {
           data.northeast = value;
         },
-        getError: () => errors?.northeast,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.northeast,
+        setError: (value: Option<Array<string>>) => {
           errors.northeast = value;
         },
-        getTainted: () => tainted?.northeast ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.northeast,
+        setTainted: (value: Option<boolean>) => {
           tainted.northeast = value;
         },
         validate: (): Array<string> => {
@@ -23689,12 +24933,12 @@ export namespace Ordinal {
         set: (value: number) => {
           data.east = value;
         },
-        getError: () => errors?.east,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.east,
+        setError: (value: Option<Array<string>>) => {
           errors.east = value;
         },
-        getTainted: () => tainted?.east ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.east,
+        setTainted: (value: Option<boolean>) => {
           tainted.east = value;
         },
         validate: (): Array<string> => {
@@ -23717,12 +24961,12 @@ export namespace Ordinal {
         set: (value: number) => {
           data.southeast = value;
         },
-        getError: () => errors?.southeast,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.southeast,
+        setError: (value: Option<Array<string>>) => {
           errors.southeast = value;
         },
-        getTainted: () => tainted?.southeast ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.southeast,
+        setTainted: (value: Option<boolean>) => {
           tainted.southeast = value;
         },
         validate: (): Array<string> => {
@@ -23745,12 +24989,12 @@ export namespace Ordinal {
         set: (value: number) => {
           data.south = value;
         },
-        getError: () => errors?.south,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.south,
+        setError: (value: Option<Array<string>>) => {
           errors.south = value;
         },
-        getTainted: () => tainted?.south ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.south,
+        setTainted: (value: Option<boolean>) => {
           tainted.south = value;
         },
         validate: (): Array<string> => {
@@ -23773,12 +25017,12 @@ export namespace Ordinal {
         set: (value: number) => {
           data.southwest = value;
         },
-        getError: () => errors?.southwest,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.southwest,
+        setError: (value: Option<Array<string>>) => {
           errors.southwest = value;
         },
-        getTainted: () => tainted?.southwest ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.southwest,
+        setTainted: (value: Option<boolean>) => {
           tainted.southwest = value;
         },
         validate: (): Array<string> => {
@@ -23801,12 +25045,12 @@ export namespace Ordinal {
         set: (value: number) => {
           data.west = value;
         },
-        getError: () => errors?.west,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.west,
+        setError: (value: Option<Array<string>>) => {
           errors.west = value;
         },
-        getTainted: () => tainted?.west ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.west,
+        setTainted: (value: Option<boolean>) => {
           tainted.west = value;
         },
         validate: (): Array<string> => {
@@ -23829,12 +25073,12 @@ export namespace Ordinal {
         set: (value: number) => {
           data.northwest = value;
         },
-        getError: () => errors?.northwest,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.northwest,
+        setError: (value: Option<Array<string>>) => {
           errors.northwest = value;
         },
-        getTainted: () => tainted?.northwest ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.northwest,
+        setTainted: (value: Option<boolean>) => {
           tainted.northwest = value;
         },
         validate: (): Array<string> => {
@@ -23857,8 +25101,27 @@ export namespace Ordinal {
     }
     function reset(newOverrides?: Partial<Ordinal>): void {
       data = { ...Ordinal.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        north: Option.none(),
+        northeast: Option.none(),
+        east: Option.none(),
+        southeast: Option.none(),
+        south: Option.none(),
+        southwest: Option.none(),
+        west: Option.none(),
+        northwest: Option.none(),
+      };
+      tainted = {
+        north: Option.none(),
+        northeast: Option.none(),
+        east: Option.none(),
+        southeast: Option.none(),
+        south: Option.none(),
+        southwest: Option.none(),
+        west: Option.none(),
+        northwest: Option.none(),
+      };
     }
     return {
       get data() {
@@ -24055,11 +25318,11 @@ export namespace Password {
 
 export namespace Password {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    password?: Array<string>;
+    _errors: Option<Array<string>>;
+    password: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { password?: boolean };
+    { password: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -24073,10 +25336,10 @@ export namespace Password {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -24094,8 +25357,11 @@ export namespace Password {
     overrides?: Partial<Password>,
   ): Gigaform {
     let data = $state({ ...Password.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      password: Option.none(),
+    });
+    let tainted = $state<Tainted>({ password: Option.none() });
     const fields: FieldControllers = {
       password: {
         path: ["password"] as const,
@@ -24106,12 +25372,12 @@ export namespace Password {
         set: (value: string) => {
           data.password = value;
         },
-        getError: () => errors?.password,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.password,
+        setError: (value: Option<Array<string>>) => {
           errors.password = value;
         },
-        getTainted: () => tainted?.password ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.password,
+        setTainted: (value: Option<boolean>) => {
           tainted.password = value;
         },
         validate: (): Array<string> => {
@@ -24134,8 +25400,8 @@ export namespace Password {
     }
     function reset(newOverrides?: Partial<Password>): void {
       data = { ...Password.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = { _errors: Option.none(), password: Option.none() };
+      tainted = { password: Option.none() };
     }
     return {
       get data() {
@@ -24296,11 +25562,11 @@ export namespace Created {
 
 export namespace Created {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    initialData?: Array<string>;
+    _errors: Option<Array<string>>;
+    initialData: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { initialData?: boolean };
+    { initialData: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -24314,10 +25580,10 @@ export namespace Created {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -24335,8 +25601,11 @@ export namespace Created {
     overrides?: Partial<Created>,
   ): Gigaform {
     let data = $state({ ...Created.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      initialData: Option.none(),
+    });
+    let tainted = $state<Tainted>({ initialData: Option.none() });
     const fields: FieldControllers = {
       initialData: {
         path: ["initialData"] as const,
@@ -24347,12 +25616,12 @@ export namespace Created {
         set: (value: string | null) => {
           data.initialData = value;
         },
-        getError: () => errors?.initialData,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.initialData,
+        setError: (value: Option<Array<string>>) => {
           errors.initialData = value;
         },
-        getTainted: () => tainted?.initialData ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.initialData,
+        setTainted: (value: Option<boolean>) => {
           tainted.initialData = value;
         },
         validate: (): Array<string> => {
@@ -24375,8 +25644,8 @@ export namespace Created {
     }
     function reset(newOverrides?: Partial<Created>): void {
       data = { ...Created.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = { _errors: Option.none(), initialData: Option.none() };
+      tainted = { initialData: Option.none() };
     }
     return {
       get data() {
@@ -24757,46 +26026,46 @@ export namespace Employee {
 
 export namespace Employee {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    imageUrl?: Array<string>;
-    name?: Array<string>;
-    phones?: { _errors?: Array<string>; [index: number]: PhoneNumber.Errors };
-    role?: Array<string>;
-    title?: JobTitle.Errors;
-    email?: Email.Errors;
-    address?: Array<string>;
-    username?: Array<string>;
-    route?: Array<string>;
-    ratePerHour?: Array<string>;
-    active?: Array<string>;
-    isTechnician?: Array<string>;
-    isSalesRep?: Array<string>;
-    description?: Array<string>;
-    linkedinUrl?: Array<string>;
-    attendance?: { _errors?: Array<string>; [index: number]: Array<string> };
-    settings?: Settings.Errors;
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    imageUrl: Option<Array<string>>;
+    name: Option<Array<string>>;
+    phones: Option<Array<string>>;
+    role: Option<Array<string>>;
+    title: Option<Array<string>>;
+    email: Option<Array<string>>;
+    address: Option<Array<string>>;
+    username: Option<Array<string>>;
+    route: Option<Array<string>>;
+    ratePerHour: Option<Array<string>>;
+    active: Option<Array<string>>;
+    isTechnician: Option<Array<string>>;
+    isSalesRep: Option<Array<string>>;
+    description: Option<Array<string>>;
+    linkedinUrl: Option<Array<string>>;
+    attendance: Option<Array<string>>;
+    settings: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      id?: boolean;
-      imageUrl?: boolean;
-      name?: boolean;
-      phones?: { [index: number]: PhoneNumber.Tainted };
-      role?: boolean;
-      title?: JobTitle.Tainted;
-      email?: Email.Tainted;
-      address?: boolean;
-      username?: boolean;
-      route?: boolean;
-      ratePerHour?: boolean;
-      active?: boolean;
-      isTechnician?: boolean;
-      isSalesRep?: boolean;
-      description?: boolean;
-      linkedinUrl?: boolean;
-      attendance?: { [index: number]: boolean };
-      settings?: Settings.Tainted;
+      id: Option<boolean>;
+      imageUrl: Option<boolean>;
+      name: Option<boolean>;
+      phones: Option<boolean>;
+      role: Option<boolean>;
+      title: Option<boolean>;
+      email: Option<boolean>;
+      address: Option<boolean>;
+      username: Option<boolean>;
+      route: Option<boolean>;
+      ratePerHour: Option<boolean>;
+      active: Option<boolean>;
+      isTechnician: Option<boolean>;
+      isSalesRep: Option<boolean>;
+      description: Option<boolean>;
+      linkedinUrl: Option<boolean>;
+      attendance: Option<boolean>;
+      settings: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -24811,10 +26080,10 @@ export namespace Employee {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -24849,8 +26118,47 @@ export namespace Employee {
     overrides?: Partial<Employee>,
   ): Gigaform {
     let data = $state({ ...Employee.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      imageUrl: Option.none(),
+      name: Option.none(),
+      phones: Option.none(),
+      role: Option.none(),
+      title: Option.none(),
+      email: Option.none(),
+      address: Option.none(),
+      username: Option.none(),
+      route: Option.none(),
+      ratePerHour: Option.none(),
+      active: Option.none(),
+      isTechnician: Option.none(),
+      isSalesRep: Option.none(),
+      description: Option.none(),
+      linkedinUrl: Option.none(),
+      attendance: Option.none(),
+      settings: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      imageUrl: Option.none(),
+      name: Option.none(),
+      phones: Option.none(),
+      role: Option.none(),
+      title: Option.none(),
+      email: Option.none(),
+      address: Option.none(),
+      username: Option.none(),
+      route: Option.none(),
+      ratePerHour: Option.none(),
+      active: Option.none(),
+      isTechnician: Option.none(),
+      isSalesRep: Option.none(),
+      description: Option.none(),
+      linkedinUrl: Option.none(),
+      attendance: Option.none(),
+      settings: Option.none(),
+    });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -24861,12 +26169,12 @@ export namespace Employee {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -24889,12 +26197,12 @@ export namespace Employee {
         set: (value: string | null) => {
           data.imageUrl = value;
         },
-        getError: () => errors?.imageUrl,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.imageUrl,
+        setError: (value: Option<Array<string>>) => {
           errors.imageUrl = value;
         },
-        getTainted: () => tainted?.imageUrl ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.imageUrl,
+        setTainted: (value: Option<boolean>) => {
           tainted.imageUrl = value;
         },
         validate: (): Array<string> => {
@@ -24917,12 +26225,12 @@ export namespace Employee {
         set: (value: string) => {
           data.name = value;
         },
-        getError: () => errors?.name,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.name,
+        setError: (value: Option<Array<string>>) => {
           errors.name = value;
         },
-        getTainted: () => tainted?.name ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.name,
+        setTainted: (value: Option<boolean>) => {
           tainted.name = value;
         },
         validate: (): Array<string> => {
@@ -24945,12 +26253,12 @@ export namespace Employee {
         set: (value: PhoneNumber[]) => {
           data.phones = value;
         },
-        getError: () => errors?.phones,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.phones,
+        setError: (value: Option<Array<string>>) => {
           errors.phones = value;
         },
-        getTainted: () => tainted?.phones ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.phones,
+        setTainted: (value: Option<boolean>) => {
           tainted.phones = value;
         },
         validate: (): Array<string> => {
@@ -24971,16 +26279,13 @@ export namespace Employee {
           set: (value: PhoneNumber) => {
             data.phones[index] = value;
           },
-          getError: () =>
-            (errors.phones as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.phones ??= {};
-            (errors.phones as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.phones,
+          setError: (value: Option<Array<string>>) => {
+            errors.phones = value;
           },
-          getTainted: () => tainted.phones?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.phones ??= {};
-            tainted.phones[index] = value;
+          getTainted: () => tainted.phones,
+          setTainted: (value: Option<boolean>) => {
+            tainted.phones = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -25003,12 +26308,12 @@ export namespace Employee {
         set: (value: string) => {
           data.role = value;
         },
-        getError: () => errors?.role,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.role,
+        setError: (value: Option<Array<string>>) => {
           errors.role = value;
         },
-        getTainted: () => tainted?.role ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.role,
+        setTainted: (value: Option<boolean>) => {
           tainted.role = value;
         },
         validate: (): Array<string> => {
@@ -25031,12 +26336,12 @@ export namespace Employee {
         set: (value: JobTitle) => {
           data.title = value;
         },
-        getError: () => errors?.title,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.title,
+        setError: (value: Option<Array<string>>) => {
           errors.title = value;
         },
-        getTainted: () => tainted?.title ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.title,
+        setTainted: (value: Option<boolean>) => {
           tainted.title = value;
         },
         validate: (): Array<string> => {
@@ -25059,12 +26364,12 @@ export namespace Employee {
         set: (value: Email) => {
           data.email = value;
         },
-        getError: () => errors?.email,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.email,
+        setError: (value: Option<Array<string>>) => {
           errors.email = value;
         },
-        getTainted: () => tainted?.email ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.email,
+        setTainted: (value: Option<boolean>) => {
           tainted.email = value;
         },
         validate: (): Array<string> => {
@@ -25087,12 +26392,12 @@ export namespace Employee {
         set: (value: string) => {
           data.address = value;
         },
-        getError: () => errors?.address,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.address,
+        setError: (value: Option<Array<string>>) => {
           errors.address = value;
         },
-        getTainted: () => tainted?.address ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.address,
+        setTainted: (value: Option<boolean>) => {
           tainted.address = value;
         },
         validate: (): Array<string> => {
@@ -25115,12 +26420,12 @@ export namespace Employee {
         set: (value: string) => {
           data.username = value;
         },
-        getError: () => errors?.username,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.username,
+        setError: (value: Option<Array<string>>) => {
           errors.username = value;
         },
-        getTainted: () => tainted?.username ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.username,
+        setTainted: (value: Option<boolean>) => {
           tainted.username = value;
         },
         validate: (): Array<string> => {
@@ -25143,12 +26448,12 @@ export namespace Employee {
         set: (value: string | Route) => {
           data.route = value;
         },
-        getError: () => errors?.route,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.route,
+        setError: (value: Option<Array<string>>) => {
           errors.route = value;
         },
-        getTainted: () => tainted?.route ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.route,
+        setTainted: (value: Option<boolean>) => {
           tainted.route = value;
         },
         validate: (): Array<string> => {
@@ -25171,12 +26476,12 @@ export namespace Employee {
         set: (value: number) => {
           data.ratePerHour = value;
         },
-        getError: () => errors?.ratePerHour,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.ratePerHour,
+        setError: (value: Option<Array<string>>) => {
           errors.ratePerHour = value;
         },
-        getTainted: () => tainted?.ratePerHour ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.ratePerHour,
+        setTainted: (value: Option<boolean>) => {
           tainted.ratePerHour = value;
         },
         validate: (): Array<string> => {
@@ -25199,12 +26504,12 @@ export namespace Employee {
         set: (value: boolean) => {
           data.active = value;
         },
-        getError: () => errors?.active,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.active,
+        setError: (value: Option<Array<string>>) => {
           errors.active = value;
         },
-        getTainted: () => tainted?.active ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.active,
+        setTainted: (value: Option<boolean>) => {
           tainted.active = value;
         },
         validate: (): Array<string> => {
@@ -25227,12 +26532,12 @@ export namespace Employee {
         set: (value: boolean) => {
           data.isTechnician = value;
         },
-        getError: () => errors?.isTechnician,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.isTechnician,
+        setError: (value: Option<Array<string>>) => {
           errors.isTechnician = value;
         },
-        getTainted: () => tainted?.isTechnician ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.isTechnician,
+        setTainted: (value: Option<boolean>) => {
           tainted.isTechnician = value;
         },
         validate: (): Array<string> => {
@@ -25255,12 +26560,12 @@ export namespace Employee {
         set: (value: boolean) => {
           data.isSalesRep = value;
         },
-        getError: () => errors?.isSalesRep,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.isSalesRep,
+        setError: (value: Option<Array<string>>) => {
           errors.isSalesRep = value;
         },
-        getTainted: () => tainted?.isSalesRep ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.isSalesRep,
+        setTainted: (value: Option<boolean>) => {
           tainted.isSalesRep = value;
         },
         validate: (): Array<string> => {
@@ -25283,12 +26588,12 @@ export namespace Employee {
         set: (value: string | null) => {
           data.description = value;
         },
-        getError: () => errors?.description,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.description,
+        setError: (value: Option<Array<string>>) => {
           errors.description = value;
         },
-        getTainted: () => tainted?.description ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.description,
+        setTainted: (value: Option<boolean>) => {
           tainted.description = value;
         },
         validate: (): Array<string> => {
@@ -25311,12 +26616,12 @@ export namespace Employee {
         set: (value: string | null) => {
           data.linkedinUrl = value;
         },
-        getError: () => errors?.linkedinUrl,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.linkedinUrl,
+        setError: (value: Option<Array<string>>) => {
           errors.linkedinUrl = value;
         },
-        getTainted: () => tainted?.linkedinUrl ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.linkedinUrl,
+        setTainted: (value: Option<boolean>) => {
           tainted.linkedinUrl = value;
         },
         validate: (): Array<string> => {
@@ -25339,12 +26644,12 @@ export namespace Employee {
         set: (value: string[]) => {
           data.attendance = value;
         },
-        getError: () => errors?.attendance,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.attendance,
+        setError: (value: Option<Array<string>>) => {
           errors.attendance = value;
         },
-        getTainted: () => tainted?.attendance ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.attendance,
+        setTainted: (value: Option<boolean>) => {
           tainted.attendance = value;
         },
         validate: (): Array<string> => {
@@ -25365,17 +26670,13 @@ export namespace Employee {
           set: (value: string) => {
             data.attendance[index] = value;
           },
-          getError: () =>
-            (errors.attendance as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.attendance ??= {};
-            (errors.attendance as Record<number, Array<string>>)[index] =
-              value!;
+          getError: () => errors.attendance,
+          setError: (value: Option<Array<string>>) => {
+            errors.attendance = value;
           },
-          getTainted: () => tainted.attendance?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.attendance ??= {};
-            tainted.attendance[index] = value;
+          getTainted: () => tainted.attendance,
+          setTainted: (value: Option<boolean>) => {
+            tainted.attendance = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -25401,12 +26702,12 @@ export namespace Employee {
         set: (value: Settings) => {
           data.settings = value;
         },
-        getError: () => errors?.settings,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.settings,
+        setError: (value: Option<Array<string>>) => {
           errors.settings = value;
         },
-        getTainted: () => tainted?.settings ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.settings,
+        setTainted: (value: Option<boolean>) => {
           tainted.settings = value;
         },
         validate: (): Array<string> => {
@@ -25429,8 +26730,47 @@ export namespace Employee {
     }
     function reset(newOverrides?: Partial<Employee>): void {
       data = { ...Employee.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        imageUrl: Option.none(),
+        name: Option.none(),
+        phones: Option.none(),
+        role: Option.none(),
+        title: Option.none(),
+        email: Option.none(),
+        address: Option.none(),
+        username: Option.none(),
+        route: Option.none(),
+        ratePerHour: Option.none(),
+        active: Option.none(),
+        isTechnician: Option.none(),
+        isSalesRep: Option.none(),
+        description: Option.none(),
+        linkedinUrl: Option.none(),
+        attendance: Option.none(),
+        settings: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        imageUrl: Option.none(),
+        name: Option.none(),
+        phones: Option.none(),
+        role: Option.none(),
+        title: Option.none(),
+        email: Option.none(),
+        address: Option.none(),
+        username: Option.none(),
+        route: Option.none(),
+        ratePerHour: Option.none(),
+        active: Option.none(),
+        isTechnician: Option.none(),
+        isSalesRep: Option.none(),
+        description: Option.none(),
+        linkedinUrl: Option.none(),
+        attendance: Option.none(),
+        settings: Option.none(),
+      };
     }
     return {
       get data() {
@@ -25721,12 +27061,12 @@ export namespace Commissions {
 
 export namespace Commissions {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    technician?: Array<string>;
-    salesRep?: Array<string>;
+    _errors: Option<Array<string>>;
+    technician: Option<Array<string>>;
+    salesRep: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { technician?: boolean; salesRep?: boolean };
+    { technician: Option<boolean>; salesRep: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -25740,10 +27080,10 @@ export namespace Commissions {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -25762,8 +27102,15 @@ export namespace Commissions {
     overrides?: Partial<Commissions>,
   ): Gigaform {
     let data = $state({ ...Commissions.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      technician: Option.none(),
+      salesRep: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      technician: Option.none(),
+      salesRep: Option.none(),
+    });
     const fields: FieldControllers = {
       technician: {
         path: ["technician"] as const,
@@ -25774,12 +27121,12 @@ export namespace Commissions {
         set: (value: string) => {
           data.technician = value;
         },
-        getError: () => errors?.technician,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.technician,
+        setError: (value: Option<Array<string>>) => {
           errors.technician = value;
         },
-        getTainted: () => tainted?.technician ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.technician,
+        setTainted: (value: Option<boolean>) => {
           tainted.technician = value;
         },
         validate: (): Array<string> => {
@@ -25802,12 +27149,12 @@ export namespace Commissions {
         set: (value: string) => {
           data.salesRep = value;
         },
-        getError: () => errors?.salesRep,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.salesRep,
+        setError: (value: Option<Array<string>>) => {
           errors.salesRep = value;
         },
-        getTainted: () => tainted?.salesRep ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.salesRep,
+        setTainted: (value: Option<boolean>) => {
           tainted.salesRep = value;
         },
         validate: (): Array<string> => {
@@ -25830,8 +27177,12 @@ export namespace Commissions {
     }
     function reset(newOverrides?: Partial<Commissions>): void {
       data = { ...Commissions.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        technician: Option.none(),
+        salesRep: Option.none(),
+      };
+      tainted = { technician: Option.none(), salesRep: Option.none() };
     }
     return {
       get data() {
@@ -26003,13 +27354,17 @@ export namespace Number {
 
 export namespace Number {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    countryCode?: Array<string>;
-    areaCode?: Array<string>;
-    localNumber?: Array<string>;
+    _errors: Option<Array<string>>;
+    countryCode: Option<Array<string>>;
+    areaCode: Option<Array<string>>;
+    localNumber: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { countryCode?: boolean; areaCode?: boolean; localNumber?: boolean };
+    {
+      countryCode: Option<boolean>;
+      areaCode: Option<boolean>;
+      localNumber: Option<boolean>;
+    };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -26023,10 +27378,10 @@ export namespace Number {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -26046,8 +27401,17 @@ export namespace Number {
     overrides?: Partial<Number>,
   ): Gigaform {
     let data = $state({ ...Number.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      countryCode: Option.none(),
+      areaCode: Option.none(),
+      localNumber: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      countryCode: Option.none(),
+      areaCode: Option.none(),
+      localNumber: Option.none(),
+    });
     const fields: FieldControllers = {
       countryCode: {
         path: ["countryCode"] as const,
@@ -26058,12 +27422,12 @@ export namespace Number {
         set: (value: string) => {
           data.countryCode = value;
         },
-        getError: () => errors?.countryCode,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.countryCode,
+        setError: (value: Option<Array<string>>) => {
           errors.countryCode = value;
         },
-        getTainted: () => tainted?.countryCode ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.countryCode,
+        setTainted: (value: Option<boolean>) => {
           tainted.countryCode = value;
         },
         validate: (): Array<string> => {
@@ -26086,12 +27450,12 @@ export namespace Number {
         set: (value: string) => {
           data.areaCode = value;
         },
-        getError: () => errors?.areaCode,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.areaCode,
+        setError: (value: Option<Array<string>>) => {
           errors.areaCode = value;
         },
-        getTainted: () => tainted?.areaCode ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.areaCode,
+        setTainted: (value: Option<boolean>) => {
           tainted.areaCode = value;
         },
         validate: (): Array<string> => {
@@ -26114,12 +27478,12 @@ export namespace Number {
         set: (value: string) => {
           data.localNumber = value;
         },
-        getError: () => errors?.localNumber,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.localNumber,
+        setError: (value: Option<Array<string>>) => {
           errors.localNumber = value;
         },
-        getTainted: () => tainted?.localNumber ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.localNumber,
+        setTainted: (value: Option<boolean>) => {
           tainted.localNumber = value;
         },
         validate: (): Array<string> => {
@@ -26142,8 +27506,17 @@ export namespace Number {
     }
     function reset(newOverrides?: Partial<Number>): void {
       data = { ...Number.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        countryCode: Option.none(),
+        areaCode: Option.none(),
+        localNumber: Option.none(),
+      };
+      tainted = {
+        countryCode: Option.none(),
+        areaCode: Option.none(),
+        localNumber: Option.none(),
+      };
     }
     return {
       get data() {
@@ -26317,12 +27690,12 @@ export namespace DataPath {
 
 export namespace DataPath {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    path?: { _errors?: Array<string>; [index: number]: Array<string> };
-    formatter?: Array<string>;
+    _errors: Option<Array<string>>;
+    path: Option<Array<string>>;
+    formatter: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { path?: { [index: number]: boolean }; formatter?: boolean };
+    { path: Option<boolean>; formatter: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -26336,10 +27709,10 @@ export namespace DataPath {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -26358,8 +27731,15 @@ export namespace DataPath {
     overrides?: Partial<DataPath>,
   ): Gigaform {
     let data = $state({ ...DataPath.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      path: Option.none(),
+      formatter: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      path: Option.none(),
+      formatter: Option.none(),
+    });
     const fields: FieldControllers = {
       path: {
         path: ["path"] as const,
@@ -26370,12 +27750,12 @@ export namespace DataPath {
         set: (value: string[]) => {
           data.path = value;
         },
-        getError: () => errors?.path,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.path,
+        setError: (value: Option<Array<string>>) => {
           errors.path = value;
         },
-        getTainted: () => tainted?.path ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.path,
+        setTainted: (value: Option<boolean>) => {
           tainted.path = value;
         },
         validate: (): Array<string> => {
@@ -26396,16 +27776,13 @@ export namespace DataPath {
           set: (value: string) => {
             data.path[index] = value;
           },
-          getError: () =>
-            (errors.path as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.path ??= {};
-            (errors.path as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.path,
+          setError: (value: Option<Array<string>>) => {
+            errors.path = value;
           },
-          getTainted: () => tainted.path?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.path ??= {};
-            tainted.path[index] = value;
+          getTainted: () => tainted.path,
+          setTainted: (value: Option<boolean>) => {
+            tainted.path = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -26428,12 +27805,12 @@ export namespace DataPath {
         set: (value: string | null) => {
           data.formatter = value;
         },
-        getError: () => errors?.formatter,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.formatter,
+        setError: (value: Option<Array<string>>) => {
           errors.formatter = value;
         },
-        getTainted: () => tainted?.formatter ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.formatter,
+        setTainted: (value: Option<boolean>) => {
           tainted.formatter = value;
         },
         validate: (): Array<string> => {
@@ -26456,8 +27833,12 @@ export namespace DataPath {
     }
     function reset(newOverrides?: Partial<DataPath>): void {
       data = { ...DataPath.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        path: Option.none(),
+        formatter: Option.none(),
+      };
+      tainted = { path: Option.none(), formatter: Option.none() };
     }
     return {
       get data() {
@@ -26740,32 +28121,32 @@ export namespace Route {
 
 export namespace Route {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    techs?: Array<string>;
-    active?: Array<string>;
-    name?: Array<string>;
-    phone?: Array<string>;
-    position?: Array<string>;
-    serviceRoute?: Array<string>;
-    defaultDurationHours?: Array<string>;
-    tags?: { _errors?: Array<string>; [index: number]: Array<string> };
-    icon?: Array<string>;
-    color?: Array<string>;
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    techs: Option<Array<string>>;
+    active: Option<Array<string>>;
+    name: Option<Array<string>>;
+    phone: Option<Array<string>>;
+    position: Option<Array<string>>;
+    serviceRoute: Option<Array<string>>;
+    defaultDurationHours: Option<Array<string>>;
+    tags: Option<Array<string>>;
+    icon: Option<Array<string>>;
+    color: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      id?: boolean;
-      techs?: boolean;
-      active?: boolean;
-      name?: boolean;
-      phone?: boolean;
-      position?: boolean;
-      serviceRoute?: boolean;
-      defaultDurationHours?: boolean;
-      tags?: { [index: number]: boolean };
-      icon?: boolean;
-      color?: boolean;
+      id: Option<boolean>;
+      techs: Option<boolean>;
+      active: Option<boolean>;
+      name: Option<boolean>;
+      phone: Option<boolean>;
+      position: Option<boolean>;
+      serviceRoute: Option<boolean>;
+      defaultDurationHours: Option<boolean>;
+      tags: Option<boolean>;
+      icon: Option<boolean>;
+      color: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -26780,10 +28161,10 @@ export namespace Route {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -26811,8 +28192,33 @@ export namespace Route {
     overrides?: Partial<Route>,
   ): Gigaform {
     let data = $state({ ...Route.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      techs: Option.none(),
+      active: Option.none(),
+      name: Option.none(),
+      phone: Option.none(),
+      position: Option.none(),
+      serviceRoute: Option.none(),
+      defaultDurationHours: Option.none(),
+      tags: Option.none(),
+      icon: Option.none(),
+      color: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      techs: Option.none(),
+      active: Option.none(),
+      name: Option.none(),
+      phone: Option.none(),
+      position: Option.none(),
+      serviceRoute: Option.none(),
+      defaultDurationHours: Option.none(),
+      tags: Option.none(),
+      icon: Option.none(),
+      color: Option.none(),
+    });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -26823,12 +28229,12 @@ export namespace Route {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -26851,12 +28257,12 @@ export namespace Route {
         set: (value: (string | Employee)[] | null) => {
           data.techs = value;
         },
-        getError: () => errors?.techs,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.techs,
+        setError: (value: Option<Array<string>>) => {
           errors.techs = value;
         },
-        getTainted: () => tainted?.techs ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.techs,
+        setTainted: (value: Option<boolean>) => {
           tainted.techs = value;
         },
         validate: (): Array<string> => {
@@ -26879,12 +28285,12 @@ export namespace Route {
         set: (value: boolean) => {
           data.active = value;
         },
-        getError: () => errors?.active,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.active,
+        setError: (value: Option<Array<string>>) => {
           errors.active = value;
         },
-        getTainted: () => tainted?.active ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.active,
+        setTainted: (value: Option<boolean>) => {
           tainted.active = value;
         },
         validate: (): Array<string> => {
@@ -26907,12 +28313,12 @@ export namespace Route {
         set: (value: string) => {
           data.name = value;
         },
-        getError: () => errors?.name,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.name,
+        setError: (value: Option<Array<string>>) => {
           errors.name = value;
         },
-        getTainted: () => tainted?.name ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.name,
+        setTainted: (value: Option<boolean>) => {
           tainted.name = value;
         },
         validate: (): Array<string> => {
@@ -26935,12 +28341,12 @@ export namespace Route {
         set: (value: string) => {
           data.phone = value;
         },
-        getError: () => errors?.phone,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.phone,
+        setError: (value: Option<Array<string>>) => {
           errors.phone = value;
         },
-        getTainted: () => tainted?.phone ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.phone,
+        setTainted: (value: Option<boolean>) => {
           tainted.phone = value;
         },
         validate: (): Array<string> => {
@@ -26963,12 +28369,12 @@ export namespace Route {
         set: (value: string) => {
           data.position = value;
         },
-        getError: () => errors?.position,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.position,
+        setError: (value: Option<Array<string>>) => {
           errors.position = value;
         },
-        getTainted: () => tainted?.position ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.position,
+        setTainted: (value: Option<boolean>) => {
           tainted.position = value;
         },
         validate: (): Array<string> => {
@@ -26991,12 +28397,12 @@ export namespace Route {
         set: (value: boolean) => {
           data.serviceRoute = value;
         },
-        getError: () => errors?.serviceRoute,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.serviceRoute,
+        setError: (value: Option<Array<string>>) => {
           errors.serviceRoute = value;
         },
-        getTainted: () => tainted?.serviceRoute ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.serviceRoute,
+        setTainted: (value: Option<boolean>) => {
           tainted.serviceRoute = value;
         },
         validate: (): Array<string> => {
@@ -27019,12 +28425,12 @@ export namespace Route {
         set: (value: number) => {
           data.defaultDurationHours = value;
         },
-        getError: () => errors?.defaultDurationHours,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.defaultDurationHours,
+        setError: (value: Option<Array<string>>) => {
           errors.defaultDurationHours = value;
         },
-        getTainted: () => tainted?.defaultDurationHours ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.defaultDurationHours,
+        setTainted: (value: Option<boolean>) => {
           tainted.defaultDurationHours = value;
         },
         validate: (): Array<string> => {
@@ -27047,12 +28453,12 @@ export namespace Route {
         set: (value: string[]) => {
           data.tags = value;
         },
-        getError: () => errors?.tags,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.tags,
+        setError: (value: Option<Array<string>>) => {
           errors.tags = value;
         },
-        getTainted: () => tainted?.tags ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.tags,
+        setTainted: (value: Option<boolean>) => {
           tainted.tags = value;
         },
         validate: (): Array<string> => {
@@ -27073,16 +28479,13 @@ export namespace Route {
           set: (value: string) => {
             data.tags[index] = value;
           },
-          getError: () =>
-            (errors.tags as Record<number, Array<string>>)?.[index],
-          setError: (value: Array<string> | undefined) => {
-            errors.tags ??= {};
-            (errors.tags as Record<number, Array<string>>)[index] = value!;
+          getError: () => errors.tags,
+          setError: (value: Option<Array<string>>) => {
+            errors.tags = value;
           },
-          getTainted: () => tainted.tags?.[index] ?? false,
-          setTainted: (value: boolean) => {
-            tainted.tags ??= {};
-            tainted.tags[index] = value;
+          getTainted: () => tainted.tags,
+          setTainted: (value: Option<boolean>) => {
+            tainted.tags = value;
           },
           validate: (): Array<string> => [],
         }),
@@ -27105,12 +28508,12 @@ export namespace Route {
         set: (value: string | null) => {
           data.icon = value;
         },
-        getError: () => errors?.icon,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.icon,
+        setError: (value: Option<Array<string>>) => {
           errors.icon = value;
         },
-        getTainted: () => tainted?.icon ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.icon,
+        setTainted: (value: Option<boolean>) => {
           tainted.icon = value;
         },
         validate: (): Array<string> => {
@@ -27133,12 +28536,12 @@ export namespace Route {
         set: (value: string | null) => {
           data.color = value;
         },
-        getError: () => errors?.color,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.color,
+        setError: (value: Option<Array<string>>) => {
           errors.color = value;
         },
-        getTainted: () => tainted?.color ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.color,
+        setTainted: (value: Option<boolean>) => {
           tainted.color = value;
         },
         validate: (): Array<string> => {
@@ -27161,8 +28564,33 @@ export namespace Route {
     }
     function reset(newOverrides?: Partial<Route>): void {
       data = { ...Route.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        techs: Option.none(),
+        active: Option.none(),
+        name: Option.none(),
+        phone: Option.none(),
+        position: Option.none(),
+        serviceRoute: Option.none(),
+        defaultDurationHours: Option.none(),
+        tags: Option.none(),
+        icon: Option.none(),
+        color: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        techs: Option.none(),
+        active: Option.none(),
+        name: Option.none(),
+        phone: Option.none(),
+        position: Option.none(),
+        serviceRoute: Option.none(),
+        defaultDurationHours: Option.none(),
+        tags: Option.none(),
+        icon: Option.none(),
+        color: Option.none(),
+      };
     }
     return {
       get data() {
@@ -27370,13 +28798,17 @@ export namespace EmailParts {
 
 export namespace EmailParts {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    local?: Array<string>;
-    domainName?: Array<string>;
-    topLevelDomain?: Array<string>;
+    _errors: Option<Array<string>>;
+    local: Option<Array<string>>;
+    domainName: Option<Array<string>>;
+    topLevelDomain: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { local?: boolean; domainName?: boolean; topLevelDomain?: boolean };
+    {
+      local: Option<boolean>;
+      domainName: Option<boolean>;
+      topLevelDomain: Option<boolean>;
+    };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -27390,10 +28822,10 @@ export namespace EmailParts {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -27413,8 +28845,17 @@ export namespace EmailParts {
     overrides?: Partial<EmailParts>,
   ): Gigaform {
     let data = $state({ ...EmailParts.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      local: Option.none(),
+      domainName: Option.none(),
+      topLevelDomain: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      local: Option.none(),
+      domainName: Option.none(),
+      topLevelDomain: Option.none(),
+    });
     const fields: FieldControllers = {
       local: {
         path: ["local"] as const,
@@ -27425,12 +28866,12 @@ export namespace EmailParts {
         set: (value: string) => {
           data.local = value;
         },
-        getError: () => errors?.local,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.local,
+        setError: (value: Option<Array<string>>) => {
           errors.local = value;
         },
-        getTainted: () => tainted?.local ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.local,
+        setTainted: (value: Option<boolean>) => {
           tainted.local = value;
         },
         validate: (): Array<string> => {
@@ -27453,12 +28894,12 @@ export namespace EmailParts {
         set: (value: string) => {
           data.domainName = value;
         },
-        getError: () => errors?.domainName,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.domainName,
+        setError: (value: Option<Array<string>>) => {
           errors.domainName = value;
         },
-        getTainted: () => tainted?.domainName ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.domainName,
+        setTainted: (value: Option<boolean>) => {
           tainted.domainName = value;
         },
         validate: (): Array<string> => {
@@ -27481,12 +28922,12 @@ export namespace EmailParts {
         set: (value: string) => {
           data.topLevelDomain = value;
         },
-        getError: () => errors?.topLevelDomain,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.topLevelDomain,
+        setError: (value: Option<Array<string>>) => {
           errors.topLevelDomain = value;
         },
-        getTainted: () => tainted?.topLevelDomain ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.topLevelDomain,
+        setTainted: (value: Option<boolean>) => {
           tainted.topLevelDomain = value;
         },
         validate: (): Array<string> => {
@@ -27509,8 +28950,17 @@ export namespace EmailParts {
     }
     function reset(newOverrides?: Partial<EmailParts>): void {
       data = { ...EmailParts.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        local: Option.none(),
+        domainName: Option.none(),
+        topLevelDomain: Option.none(),
+      };
+      tainted = {
+        local: Option.none(),
+        domainName: Option.none(),
+        topLevelDomain: Option.none(),
+      };
     }
     return {
       get data() {
@@ -27686,12 +29136,12 @@ export namespace Sent {
 
 export namespace Sent {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    recipient?: Array<string>;
-    method?: Array<string>;
+    _errors: Option<Array<string>>;
+    recipient: Option<Array<string>>;
+    method: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { recipient?: boolean; method?: boolean };
+    { recipient: Option<boolean>; method: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -27705,10 +29155,10 @@ export namespace Sent {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -27727,8 +29177,15 @@ export namespace Sent {
     overrides?: Partial<Sent>,
   ): Gigaform {
     let data = $state({ ...Sent.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      recipient: Option.none(),
+      method: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      recipient: Option.none(),
+      method: Option.none(),
+    });
     const fields: FieldControllers = {
       recipient: {
         path: ["recipient"] as const,
@@ -27739,12 +29196,12 @@ export namespace Sent {
         set: (value: string | null) => {
           data.recipient = value;
         },
-        getError: () => errors?.recipient,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.recipient,
+        setError: (value: Option<Array<string>>) => {
           errors.recipient = value;
         },
-        getTainted: () => tainted?.recipient ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.recipient,
+        setTainted: (value: Option<boolean>) => {
           tainted.recipient = value;
         },
         validate: (): Array<string> => {
@@ -27767,12 +29224,12 @@ export namespace Sent {
         set: (value: string | null) => {
           data.method = value;
         },
-        getError: () => errors?.method,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.method,
+        setError: (value: Option<Array<string>>) => {
           errors.method = value;
         },
-        getTainted: () => tainted?.method ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.method,
+        setTainted: (value: Option<boolean>) => {
           tainted.method = value;
         },
         validate: (): Array<string> => {
@@ -27795,8 +29252,12 @@ export namespace Sent {
     }
     function reset(newOverrides?: Partial<Sent>): void {
       data = { ...Sent.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        recipient: Option.none(),
+        method: Option.none(),
+      };
+      tainted = { recipient: Option.none(), method: Option.none() };
     }
     return {
       get data() {
@@ -27987,18 +29448,18 @@ export namespace BilledItem {
 
 export namespace BilledItem {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    item?: Item.Errors;
-    quantity?: Array<string>;
-    taxed?: Array<string>;
-    upsale?: Array<string>;
+    _errors: Option<Array<string>>;
+    item: Option<Array<string>>;
+    quantity: Option<Array<string>>;
+    taxed: Option<Array<string>>;
+    upsale: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      item?: Item.Tainted;
-      quantity?: boolean;
-      taxed?: boolean;
-      upsale?: boolean;
+      item: Option<boolean>;
+      quantity: Option<boolean>;
+      taxed: Option<boolean>;
+      upsale: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -28013,10 +29474,10 @@ export namespace BilledItem {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -28037,8 +29498,19 @@ export namespace BilledItem {
     overrides?: Partial<BilledItem>,
   ): Gigaform {
     let data = $state({ ...BilledItem.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      item: Option.none(),
+      quantity: Option.none(),
+      taxed: Option.none(),
+      upsale: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      item: Option.none(),
+      quantity: Option.none(),
+      taxed: Option.none(),
+      upsale: Option.none(),
+    });
     const fields: FieldControllers = {
       item: {
         path: ["item"] as const,
@@ -28049,12 +29521,12 @@ export namespace BilledItem {
         set: (value: Item) => {
           data.item = value;
         },
-        getError: () => errors?.item,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.item,
+        setError: (value: Option<Array<string>>) => {
           errors.item = value;
         },
-        getTainted: () => tainted?.item ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.item,
+        setTainted: (value: Option<boolean>) => {
           tainted.item = value;
         },
         validate: (): Array<string> => {
@@ -28077,12 +29549,12 @@ export namespace BilledItem {
         set: (value: number) => {
           data.quantity = value;
         },
-        getError: () => errors?.quantity,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.quantity,
+        setError: (value: Option<Array<string>>) => {
           errors.quantity = value;
         },
-        getTainted: () => tainted?.quantity ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.quantity,
+        setTainted: (value: Option<boolean>) => {
           tainted.quantity = value;
         },
         validate: (): Array<string> => {
@@ -28105,12 +29577,12 @@ export namespace BilledItem {
         set: (value: boolean) => {
           data.taxed = value;
         },
-        getError: () => errors?.taxed,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.taxed,
+        setError: (value: Option<Array<string>>) => {
           errors.taxed = value;
         },
-        getTainted: () => tainted?.taxed ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.taxed,
+        setTainted: (value: Option<boolean>) => {
           tainted.taxed = value;
         },
         validate: (): Array<string> => {
@@ -28133,12 +29605,12 @@ export namespace BilledItem {
         set: (value: boolean) => {
           data.upsale = value;
         },
-        getError: () => errors?.upsale,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.upsale,
+        setError: (value: Option<Array<string>>) => {
           errors.upsale = value;
         },
-        getTainted: () => tainted?.upsale ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.upsale,
+        setTainted: (value: Option<boolean>) => {
           tainted.upsale = value;
         },
         validate: (): Array<string> => {
@@ -28161,8 +29633,19 @@ export namespace BilledItem {
     }
     function reset(newOverrides?: Partial<BilledItem>): void {
       data = { ...BilledItem.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        item: Option.none(),
+        quantity: Option.none(),
+        taxed: Option.none(),
+        upsale: Option.none(),
+      };
+      tainted = {
+        item: Option.none(),
+        quantity: Option.none(),
+        taxed: Option.none(),
+        upsale: Option.none(),
+      };
     }
     return {
       get data() {
@@ -28361,12 +29844,12 @@ export namespace Coordinates {
 
 export namespace Coordinates {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    lat?: Array<string>;
-    lng?: Array<string>;
+    _errors: Option<Array<string>>;
+    lat: Option<Array<string>>;
+    lng: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { lat?: boolean; lng?: boolean };
+    { lat: Option<boolean>; lng: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -28380,10 +29863,10 @@ export namespace Coordinates {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -28402,8 +29885,12 @@ export namespace Coordinates {
     overrides?: Partial<Coordinates>,
   ): Gigaform {
     let data = $state({ ...Coordinates.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      lat: Option.none(),
+      lng: Option.none(),
+    });
+    let tainted = $state<Tainted>({ lat: Option.none(), lng: Option.none() });
     const fields: FieldControllers = {
       lat: {
         path: ["lat"] as const,
@@ -28414,12 +29901,12 @@ export namespace Coordinates {
         set: (value: number) => {
           data.lat = value;
         },
-        getError: () => errors?.lat,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.lat,
+        setError: (value: Option<Array<string>>) => {
           errors.lat = value;
         },
-        getTainted: () => tainted?.lat ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.lat,
+        setTainted: (value: Option<boolean>) => {
           tainted.lat = value;
         },
         validate: (): Array<string> => {
@@ -28442,12 +29929,12 @@ export namespace Coordinates {
         set: (value: number) => {
           data.lng = value;
         },
-        getError: () => errors?.lng,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.lng,
+        setError: (value: Option<Array<string>>) => {
           errors.lng = value;
         },
-        getTainted: () => tainted?.lng ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.lng,
+        setTainted: (value: Option<boolean>) => {
           tainted.lng = value;
         },
         validate: (): Array<string> => {
@@ -28470,8 +29957,12 @@ export namespace Coordinates {
     }
     function reset(newOverrides?: Partial<Coordinates>): void {
       data = { ...Coordinates.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        lat: Option.none(),
+        lng: Option.none(),
+      };
+      tainted = { lat: Option.none(), lng: Option.none() };
     }
     return {
       get data() {
@@ -28663,14 +30154,19 @@ export namespace Ordered {
 
 export namespace Ordered {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    id?: Array<string>;
-    in?: Array<string>;
-    out?: Array<string>;
-    date?: Array<string>;
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    in: Option<Array<string>>;
+    out: Option<Array<string>>;
+    date: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { id?: boolean; in?: boolean; out?: boolean; date?: boolean };
+    {
+      id: Option<boolean>;
+      in: Option<boolean>;
+      out: Option<boolean>;
+      date: Option<boolean>;
+    };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -28684,10 +30180,10 @@ export namespace Ordered {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -28708,8 +30204,19 @@ export namespace Ordered {
     overrides?: Partial<Ordered>,
   ): Gigaform {
     let data = $state({ ...Ordered.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      in: Option.none(),
+      out: Option.none(),
+      date: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      in: Option.none(),
+      out: Option.none(),
+      date: Option.none(),
+    });
     const fields: FieldControllers = {
       id: {
         path: ["id"] as const,
@@ -28720,12 +30227,12 @@ export namespace Ordered {
         set: (value: string) => {
           data.id = value;
         },
-        getError: () => errors?.id,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
           errors.id = value;
         },
-        getTainted: () => tainted?.id ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
           tainted.id = value;
         },
         validate: (): Array<string> => {
@@ -28748,12 +30255,12 @@ export namespace Ordered {
         set: (value: string | Account) => {
           data.in = value;
         },
-        getError: () => errors?.in,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.in,
+        setError: (value: Option<Array<string>>) => {
           errors.in = value;
         },
-        getTainted: () => tainted?.in ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.in,
+        setTainted: (value: Option<boolean>) => {
           tainted.in = value;
         },
         validate: (): Array<string> => {
@@ -28776,12 +30283,12 @@ export namespace Ordered {
         set: (value: string | Order) => {
           data.out = value;
         },
-        getError: () => errors?.out,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.out,
+        setError: (value: Option<Array<string>>) => {
           errors.out = value;
         },
-        getTainted: () => tainted?.out ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.out,
+        setTainted: (value: Option<boolean>) => {
           tainted.out = value;
         },
         validate: (): Array<string> => {
@@ -28804,12 +30311,12 @@ export namespace Ordered {
         set: (value: string) => {
           data.date = value;
         },
-        getError: () => errors?.date,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.date,
+        setError: (value: Option<Array<string>>) => {
           errors.date = value;
         },
-        getTainted: () => tainted?.date ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.date,
+        setTainted: (value: Option<boolean>) => {
           tainted.date = value;
         },
         validate: (): Array<string> => {
@@ -28832,8 +30339,19 @@ export namespace Ordered {
     }
     function reset(newOverrides?: Partial<Ordered>): void {
       data = { ...Ordered.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        in: Option.none(),
+        out: Option.none(),
+        date: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        in: Option.none(),
+        out: Option.none(),
+        date: Option.none(),
+      };
     }
     return {
       get data() {
@@ -28997,12 +30515,12 @@ export namespace Email {
 
 export namespace Email {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    canEmail?: Array<string>;
-    emailString?: Array<string>;
+    _errors: Option<Array<string>>;
+    canEmail: Option<Array<string>>;
+    emailString: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { canEmail?: boolean; emailString?: boolean };
+    { canEmail: Option<boolean>; emailString: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -29016,10 +30534,10 @@ export namespace Email {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -29038,8 +30556,15 @@ export namespace Email {
     overrides?: Partial<Email>,
   ): Gigaform {
     let data = $state({ ...Email.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      canEmail: Option.none(),
+      emailString: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      canEmail: Option.none(),
+      emailString: Option.none(),
+    });
     const fields: FieldControllers = {
       canEmail: {
         path: ["canEmail"] as const,
@@ -29050,12 +30575,12 @@ export namespace Email {
         set: (value: boolean) => {
           data.canEmail = value;
         },
-        getError: () => errors?.canEmail,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.canEmail,
+        setError: (value: Option<Array<string>>) => {
           errors.canEmail = value;
         },
-        getTainted: () => tainted?.canEmail ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.canEmail,
+        setTainted: (value: Option<boolean>) => {
           tainted.canEmail = value;
         },
         validate: (): Array<string> => {
@@ -29078,12 +30603,12 @@ export namespace Email {
         set: (value: string) => {
           data.emailString = value;
         },
-        getError: () => errors?.emailString,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.emailString,
+        setError: (value: Option<Array<string>>) => {
           errors.emailString = value;
         },
-        getTainted: () => tainted?.emailString ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.emailString,
+        setTainted: (value: Option<boolean>) => {
           tainted.emailString = value;
         },
         validate: (): Array<string> => {
@@ -29106,8 +30631,12 @@ export namespace Email {
     }
     function reset(newOverrides?: Partial<Email>): void {
       data = { ...Email.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        canEmail: Option.none(),
+        emailString: Option.none(),
+      };
+      tainted = { canEmail: Option.none(), emailString: Option.none() };
     }
     return {
       get data() {
@@ -29350,20 +30879,20 @@ export namespace RecurrenceRule {
 
 export namespace RecurrenceRule {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    interval?: Interval.Errors;
-    recurrenceBegins?: Array<string>;
-    recurrenceEnds?: Array<string>;
-    cancelledInstances?: Array<string>;
-    additionalInstances?: Array<string>;
+    _errors: Option<Array<string>>;
+    interval: Option<Array<string>>;
+    recurrenceBegins: Option<Array<string>>;
+    recurrenceEnds: Option<Array<string>>;
+    cancelledInstances: Option<Array<string>>;
+    additionalInstances: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     {
-      interval?: Interval.Tainted;
-      recurrenceBegins?: boolean;
-      recurrenceEnds?: boolean;
-      cancelledInstances?: boolean;
-      additionalInstances?: boolean;
+      interval: Option<boolean>;
+      recurrenceBegins: Option<boolean>;
+      recurrenceEnds: Option<boolean>;
+      cancelledInstances: Option<boolean>;
+      additionalInstances: Option<boolean>;
     };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
@@ -29378,10 +30907,10 @@ export namespace RecurrenceRule {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -29406,8 +30935,21 @@ export namespace RecurrenceRule {
     overrides?: Partial<RecurrenceRule>,
   ): Gigaform {
     let data = $state({ ...RecurrenceRule.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      interval: Option.none(),
+      recurrenceBegins: Option.none(),
+      recurrenceEnds: Option.none(),
+      cancelledInstances: Option.none(),
+      additionalInstances: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      interval: Option.none(),
+      recurrenceBegins: Option.none(),
+      recurrenceEnds: Option.none(),
+      cancelledInstances: Option.none(),
+      additionalInstances: Option.none(),
+    });
     const fields: FieldControllers = {
       interval: {
         path: ["interval"] as const,
@@ -29418,12 +30960,12 @@ export namespace RecurrenceRule {
         set: (value: Interval) => {
           data.interval = value;
         },
-        getError: () => errors?.interval,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.interval,
+        setError: (value: Option<Array<string>>) => {
           errors.interval = value;
         },
-        getTainted: () => tainted?.interval ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.interval,
+        setTainted: (value: Option<boolean>) => {
           tainted.interval = value;
         },
         validate: (): Array<string> => {
@@ -29446,12 +30988,12 @@ export namespace RecurrenceRule {
         set: (value: string) => {
           data.recurrenceBegins = value;
         },
-        getError: () => errors?.recurrenceBegins,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.recurrenceBegins,
+        setError: (value: Option<Array<string>>) => {
           errors.recurrenceBegins = value;
         },
-        getTainted: () => tainted?.recurrenceBegins ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.recurrenceBegins,
+        setTainted: (value: Option<boolean>) => {
           tainted.recurrenceBegins = value;
         },
         validate: (): Array<string> => {
@@ -29474,12 +31016,12 @@ export namespace RecurrenceRule {
         set: (value: RecurrenceEnd | null) => {
           data.recurrenceEnds = value;
         },
-        getError: () => errors?.recurrenceEnds,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.recurrenceEnds,
+        setError: (value: Option<Array<string>>) => {
           errors.recurrenceEnds = value;
         },
-        getTainted: () => tainted?.recurrenceEnds ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.recurrenceEnds,
+        setTainted: (value: Option<boolean>) => {
           tainted.recurrenceEnds = value;
         },
         validate: (): Array<string> => {
@@ -29502,12 +31044,12 @@ export namespace RecurrenceRule {
         set: (value: string[] | null) => {
           data.cancelledInstances = value;
         },
-        getError: () => errors?.cancelledInstances,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.cancelledInstances,
+        setError: (value: Option<Array<string>>) => {
           errors.cancelledInstances = value;
         },
-        getTainted: () => tainted?.cancelledInstances ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.cancelledInstances,
+        setTainted: (value: Option<boolean>) => {
           tainted.cancelledInstances = value;
         },
         validate: (): Array<string> => {
@@ -29530,12 +31072,12 @@ export namespace RecurrenceRule {
         set: (value: string[] | null) => {
           data.additionalInstances = value;
         },
-        getError: () => errors?.additionalInstances,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.additionalInstances,
+        setError: (value: Option<Array<string>>) => {
           errors.additionalInstances = value;
         },
-        getTainted: () => tainted?.additionalInstances ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.additionalInstances,
+        setTainted: (value: Option<boolean>) => {
           tainted.additionalInstances = value;
         },
         validate: (): Array<string> => {
@@ -29558,8 +31100,21 @@ export namespace RecurrenceRule {
     }
     function reset(newOverrides?: Partial<RecurrenceRule>): void {
       data = { ...RecurrenceRule.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        interval: Option.none(),
+        recurrenceBegins: Option.none(),
+        recurrenceEnds: Option.none(),
+        cancelledInstances: Option.none(),
+        additionalInstances: Option.none(),
+      };
+      tainted = {
+        interval: Option.none(),
+        recurrenceBegins: Option.none(),
+        recurrenceEnds: Option.none(),
+        cancelledInstances: Option.none(),
+        additionalInstances: Option.none(),
+      };
     }
     return {
       get data() {
@@ -29737,11 +31292,11 @@ export namespace LastName {
 
 export namespace LastName {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    name?: Array<string>;
+    _errors: Option<Array<string>>;
+    name: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { name?: boolean };
+    { name: Option<boolean> };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -29755,10 +31310,10 @@ export namespace LastName {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -29776,8 +31331,11 @@ export namespace LastName {
     overrides?: Partial<LastName>,
   ): Gigaform {
     let data = $state({ ...LastName.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      name: Option.none(),
+    });
+    let tainted = $state<Tainted>({ name: Option.none() });
     const fields: FieldControllers = {
       name: {
         path: ["name"] as const,
@@ -29788,12 +31346,12 @@ export namespace LastName {
         set: (value: string) => {
           data.name = value;
         },
-        getError: () => errors?.name,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.name,
+        setError: (value: Option<Array<string>>) => {
           errors.name = value;
         },
-        getTainted: () => tainted?.name ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.name,
+        setTainted: (value: Option<boolean>) => {
           tainted.name = value;
         },
         validate: (): Array<string> => {
@@ -29816,8 +31374,8 @@ export namespace LastName {
     }
     function reset(newOverrides?: Partial<LastName>): void {
       data = { ...LastName.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = { _errors: Option.none(), name: Option.none() };
+      tainted = { name: Option.none() };
     }
     return {
       get data() {
@@ -29998,14 +31556,19 @@ export namespace Cardinal {
 
 export namespace Cardinal {
   /** Nested error structure matching the data shape */ export type Errors = {
-    _errors?: Array<string>;
-    north?: Array<string>;
-    east?: Array<string>;
-    south?: Array<string>;
-    west?: Array<string>;
+    _errors: Option<Array<string>>;
+    north: Option<Array<string>>;
+    east: Option<Array<string>>;
+    south: Option<Array<string>>;
+    west: Option<Array<string>>;
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
-    { north?: boolean; east?: boolean; south?: boolean; west?: boolean };
+    {
+      north: Option<boolean>;
+      east: Option<boolean>;
+      south: Option<boolean>;
+      west: Option<boolean>;
+    };
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -30019,10 +31582,10 @@ export namespace Cardinal {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
@@ -30043,8 +31606,19 @@ export namespace Cardinal {
     overrides?: Partial<Cardinal>,
   ): Gigaform {
     let data = $state({ ...Cardinal.defaultValue(), ...overrides });
-    let errors = $state<Errors>({});
-    let tainted = $state<Tainted>({});
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      north: Option.none(),
+      east: Option.none(),
+      south: Option.none(),
+      west: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      north: Option.none(),
+      east: Option.none(),
+      south: Option.none(),
+      west: Option.none(),
+    });
     const fields: FieldControllers = {
       north: {
         path: ["north"] as const,
@@ -30055,12 +31629,12 @@ export namespace Cardinal {
         set: (value: number) => {
           data.north = value;
         },
-        getError: () => errors?.north,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.north,
+        setError: (value: Option<Array<string>>) => {
           errors.north = value;
         },
-        getTainted: () => tainted?.north ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.north,
+        setTainted: (value: Option<boolean>) => {
           tainted.north = value;
         },
         validate: (): Array<string> => {
@@ -30083,12 +31657,12 @@ export namespace Cardinal {
         set: (value: number) => {
           data.east = value;
         },
-        getError: () => errors?.east,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.east,
+        setError: (value: Option<Array<string>>) => {
           errors.east = value;
         },
-        getTainted: () => tainted?.east ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.east,
+        setTainted: (value: Option<boolean>) => {
           tainted.east = value;
         },
         validate: (): Array<string> => {
@@ -30111,12 +31685,12 @@ export namespace Cardinal {
         set: (value: number) => {
           data.south = value;
         },
-        getError: () => errors?.south,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.south,
+        setError: (value: Option<Array<string>>) => {
           errors.south = value;
         },
-        getTainted: () => tainted?.south ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.south,
+        setTainted: (value: Option<boolean>) => {
           tainted.south = value;
         },
         validate: (): Array<string> => {
@@ -30139,12 +31713,12 @@ export namespace Cardinal {
         set: (value: number) => {
           data.west = value;
         },
-        getError: () => errors?.west,
-        setError: (value: Array<string> | undefined) => {
+        getError: () => errors.west,
+        setError: (value: Option<Array<string>>) => {
           errors.west = value;
         },
-        getTainted: () => tainted?.west ?? false,
-        setTainted: (value: boolean) => {
+        getTainted: () => tainted.west,
+        setTainted: (value: Option<boolean>) => {
           tainted.west = value;
         },
         validate: (): Array<string> => {
@@ -30167,8 +31741,19 @@ export namespace Cardinal {
     }
     function reset(newOverrides?: Partial<Cardinal>): void {
       data = { ...Cardinal.defaultValue(), ...newOverrides };
-      errors = {};
-      tainted = {};
+      errors = {
+        _errors: Option.none(),
+        north: Option.none(),
+        east: Option.none(),
+        south: Option.none(),
+        west: Option.none(),
+      };
+      tainted = {
+        north: Option.none(),
+        east: Option.none(),
+        south: Option.none(),
+        west: Option.none(),
+      };
     }
     return {
       get data() {
@@ -30286,11 +31871,11 @@ export namespace Interval {
 
 export namespace Interval {
   /** Per-variant error types */ export type DailyRecurrenceRuleErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type WeeklyRecurrenceRuleErrors = { _errors?: Array<string> };
-  export type MonthlyRecurrenceRuleErrors = { _errors?: Array<string> };
-  export type YearlyRecurrenceRuleErrors = { _errors?: Array<string> };
+  export type WeeklyRecurrenceRuleErrors = { _errors: Option<Array<string>> };
+  export type MonthlyRecurrenceRuleErrors = { _errors: Option<Array<string>> };
+  export type YearlyRecurrenceRuleErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type DailyRecurrenceRuleTainted = {};
   export type WeeklyRecurrenceRuleTainted = {};
   export type MonthlyRecurrenceRuleTainted = {};
@@ -30316,10 +31901,10 @@ export namespace Interval {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface DailyRecurrenceRuleFieldControllers {}
@@ -30570,32 +32155,46 @@ export namespace Page {
 
 export namespace Page {
   /** Per-variant error types */ export type SalesHomeDashboardErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type SalesHomeProductsErrors = { _errors?: Array<string> };
-  export type SalesHomeServicesErrors = { _errors?: Array<string> };
-  export type SalesHomePackagesErrors = { _errors?: Array<string> };
-  export type SalesHomeTaxRatesErrors = { _errors?: Array<string> };
-  export type SalesLeadsOverviewErrors = { _errors?: Array<string> };
-  export type SalesLeadsActivitiesErrors = { _errors?: Array<string> };
-  export type SalesLeadsCampaignsErrors = { _errors?: Array<string> };
-  export type SalesLeadsDripCampaignsErrors = { _errors?: Array<string> };
-  export type SalesLeadsOpportunitiesErrors = { _errors?: Array<string> };
-  export type SalesLeadsPromotionsErrors = { _errors?: Array<string> };
-  export type SalesAccountsOverviewErrors = { _errors?: Array<string> };
-  export type SalesAccountsActivitiesErrors = { _errors?: Array<string> };
-  export type SalesAccountsBillingErrors = { _errors?: Array<string> };
-  export type SalesAccountsContractsErrors = { _errors?: Array<string> };
-  export type SalesOrdersOverviewErrors = { _errors?: Array<string> };
-  export type SalesOrdersActivitiesErrors = { _errors?: Array<string> };
-  export type SalesOrdersPaymentsErrors = { _errors?: Array<string> };
-  export type SalesOrdersCommissionsErrors = { _errors?: Array<string> };
-  export type SalesSchedulingScheduleErrors = { _errors?: Array<string> };
-  export type SalesSchedulingAppointmentsErrors = { _errors?: Array<string> };
-  export type SalesSchedulingRecurringErrors = { _errors?: Array<string> };
-  export type SalesSchedulingRoutesErrors = { _errors?: Array<string> };
-  export type SalesSchedulingRemindersErrors = { _errors?: Array<string> };
-  export type UserHomeErrors = { _errors?: Array<string> };
+  export type SalesHomeProductsErrors = { _errors: Option<Array<string>> };
+  export type SalesHomeServicesErrors = { _errors: Option<Array<string>> };
+  export type SalesHomePackagesErrors = { _errors: Option<Array<string>> };
+  export type SalesHomeTaxRatesErrors = { _errors: Option<Array<string>> };
+  export type SalesLeadsOverviewErrors = { _errors: Option<Array<string>> };
+  export type SalesLeadsActivitiesErrors = { _errors: Option<Array<string>> };
+  export type SalesLeadsCampaignsErrors = { _errors: Option<Array<string>> };
+  export type SalesLeadsDripCampaignsErrors = {
+    _errors: Option<Array<string>>;
+  };
+  export type SalesLeadsOpportunitiesErrors = {
+    _errors: Option<Array<string>>;
+  };
+  export type SalesLeadsPromotionsErrors = { _errors: Option<Array<string>> };
+  export type SalesAccountsOverviewErrors = { _errors: Option<Array<string>> };
+  export type SalesAccountsActivitiesErrors = {
+    _errors: Option<Array<string>>;
+  };
+  export type SalesAccountsBillingErrors = { _errors: Option<Array<string>> };
+  export type SalesAccountsContractsErrors = { _errors: Option<Array<string>> };
+  export type SalesOrdersOverviewErrors = { _errors: Option<Array<string>> };
+  export type SalesOrdersActivitiesErrors = { _errors: Option<Array<string>> };
+  export type SalesOrdersPaymentsErrors = { _errors: Option<Array<string>> };
+  export type SalesOrdersCommissionsErrors = { _errors: Option<Array<string>> };
+  export type SalesSchedulingScheduleErrors = {
+    _errors: Option<Array<string>>;
+  };
+  export type SalesSchedulingAppointmentsErrors = {
+    _errors: Option<Array<string>>;
+  };
+  export type SalesSchedulingRecurringErrors = {
+    _errors: Option<Array<string>>;
+  };
+  export type SalesSchedulingRoutesErrors = { _errors: Option<Array<string>> };
+  export type SalesSchedulingRemindersErrors = {
+    _errors: Option<Array<string>>;
+  };
+  export type UserHomeErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type SalesHomeDashboardTainted = {};
   export type SalesHomeProductsTainted = {};
   export type SalesHomeServicesTainted = {};
@@ -30688,10 +32287,10 @@ export namespace Page {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface SalesHomeDashboardFieldControllers {}
@@ -31283,12 +32882,12 @@ export namespace UserRole {
 
 export namespace UserRole {
   /** Per-variant error types */ export type AdministratorErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type SalesRepresentativeErrors = { _errors?: Array<string> };
-  export type TechnicianErrors = { _errors?: Array<string> };
-  export type HumanResourcesErrors = { _errors?: Array<string> };
-  export type InformationTechnologyErrors = { _errors?: Array<string> };
+  export type SalesRepresentativeErrors = { _errors: Option<Array<string>> };
+  export type TechnicianErrors = { _errors: Option<Array<string>> };
+  export type HumanResourcesErrors = { _errors: Option<Array<string>> };
+  export type InformationTechnologyErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type AdministratorTainted = {};
   export type SalesRepresentativeTainted = {};
   export type TechnicianTainted = {};
@@ -31317,10 +32916,10 @@ export namespace UserRole {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface AdministratorFieldControllers {}
@@ -31581,24 +33180,24 @@ export namespace Target {
 
 export namespace Target {
   /** Per-variant error types */ export type AccountErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type UserErrors = { _errors?: Array<string> };
-  export type EmployeeErrors = { _errors?: Array<string> };
-  export type AppointmentErrors = { _errors?: Array<string> };
-  export type LeadErrors = { _errors?: Array<string> };
-  export type TaxRateErrors = { _errors?: Array<string> };
-  export type SiteErrors = { _errors?: Array<string> };
-  export type RouteErrors = { _errors?: Array<string> };
-  export type CompanyErrors = { _errors?: Array<string> };
-  export type ProductErrors = { _errors?: Array<string> };
-  export type ServiceErrors = { _errors?: Array<string> };
-  export type OrderErrors = { _errors?: Array<string> };
-  export type PaymentErrors = { _errors?: Array<string> };
-  export type PackageErrors = { _errors?: Array<string> };
-  export type PromotionErrors = { _errors?: Array<string> };
-  export type RepresentsErrors = { _errors?: Array<string> };
-  export type OrderedErrors = { _errors?: Array<string> };
+  export type UserErrors = { _errors: Option<Array<string>> };
+  export type EmployeeErrors = { _errors: Option<Array<string>> };
+  export type AppointmentErrors = { _errors: Option<Array<string>> };
+  export type LeadErrors = { _errors: Option<Array<string>> };
+  export type TaxRateErrors = { _errors: Option<Array<string>> };
+  export type SiteErrors = { _errors: Option<Array<string>> };
+  export type RouteErrors = { _errors: Option<Array<string>> };
+  export type CompanyErrors = { _errors: Option<Array<string>> };
+  export type ProductErrors = { _errors: Option<Array<string>> };
+  export type ServiceErrors = { _errors: Option<Array<string>> };
+  export type OrderErrors = { _errors: Option<Array<string>> };
+  export type PaymentErrors = { _errors: Option<Array<string>> };
+  export type PackageErrors = { _errors: Option<Array<string>> };
+  export type PromotionErrors = { _errors: Option<Array<string>> };
+  export type RepresentsErrors = { _errors: Option<Array<string>> };
+  export type OrderedErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type AccountTainted = {};
   export type UserTainted = {};
   export type EmployeeTainted = {};
@@ -31663,10 +33262,10 @@ export namespace Target {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface AccountFieldControllers {}
@@ -32073,9 +33672,9 @@ export namespace RecurrenceEnd {
 
 export namespace RecurrenceEnd {
   /** Per-variant error types */ export type NumberErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type StringErrors = { _errors?: Array<string> };
+  export type StringErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type NumberTainted = {};
   export type StringTainted = {};
   /** Union error type */ export type Errors =
@@ -32095,10 +33694,10 @@ export namespace RecurrenceEnd {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface NumberFieldControllers {}
@@ -32282,9 +33881,9 @@ export namespace OverviewDisplay {
 
 export namespace OverviewDisplay {
   /** Per-variant error types */ export type CardErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type TableErrors = { _errors?: Array<string> };
+  export type TableErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type CardTainted = {};
   export type TableTainted = {};
   /** Union error type */ export type Errors =
@@ -32304,10 +33903,10 @@ export namespace OverviewDisplay {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface CardFieldControllers {}
@@ -32492,11 +34091,11 @@ export namespace IntervalUnit {
 
 export namespace IntervalUnit {
   /** Per-variant error types */ export type DayErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type WeekErrors = { _errors?: Array<string> };
-  export type MonthErrors = { _errors?: Array<string> };
-  export type YearErrors = { _errors?: Array<string> };
+  export type WeekErrors = { _errors: Option<Array<string>> };
+  export type MonthErrors = { _errors: Option<Array<string>> };
+  export type YearErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type DayTainted = {};
   export type WeekTainted = {};
   export type MonthTainted = {};
@@ -32522,10 +34121,10 @@ export namespace IntervalUnit {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface DayFieldControllers {}
@@ -32721,9 +34320,9 @@ export namespace Sector {
 
 export namespace Sector {
   /** Per-variant error types */ export type ResidentialErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type CommercialErrors = { _errors?: Array<string> };
+  export type CommercialErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type ResidentialTainted = {};
   export type CommercialTainted = {};
   /** Union error type */ export type Errors =
@@ -32743,10 +34342,10 @@ export namespace Sector {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface ResidentialFieldControllers {}
@@ -32927,14 +34526,14 @@ export namespace Weekday {
 
 export namespace Weekday {
   /** Per-variant error types */ export type MondayErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type TuesdayErrors = { _errors?: Array<string> };
-  export type WednesdayErrors = { _errors?: Array<string> };
-  export type ThursdayErrors = { _errors?: Array<string> };
-  export type FridayErrors = { _errors?: Array<string> };
-  export type SaturdayErrors = { _errors?: Array<string> };
-  export type SundayErrors = { _errors?: Array<string> };
+  export type TuesdayErrors = { _errors: Option<Array<string>> };
+  export type WednesdayErrors = { _errors: Option<Array<string>> };
+  export type ThursdayErrors = { _errors: Option<Array<string>> };
+  export type FridayErrors = { _errors: Option<Array<string>> };
+  export type SaturdayErrors = { _errors: Option<Array<string>> };
+  export type SundayErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type MondayTainted = {};
   export type TuesdayTainted = {};
   export type WednesdayTainted = {};
@@ -32969,10 +34568,10 @@ export namespace Weekday {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface MondayFieldControllers {}
@@ -33238,10 +34837,10 @@ export namespace Status {
 
 export namespace Status {
   /** Per-variant error types */ export type ScheduledErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type OnDeckErrors = { _errors?: Array<string> };
-  export type WaitingErrors = { _errors?: Array<string> };
+  export type OnDeckErrors = { _errors: Option<Array<string>> };
+  export type WaitingErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type ScheduledTainted = {};
   export type OnDeckTainted = {};
   export type WaitingTainted = {};
@@ -33264,10 +34863,10 @@ export namespace Status {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface ScheduledFieldControllers {}
@@ -33459,11 +35058,11 @@ export namespace NextStep {
 
 export namespace NextStep {
   /** Per-variant error types */ export type InitialContactErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type QualifiedErrors = { _errors?: Array<string> };
-  export type EstimateErrors = { _errors?: Array<string> };
-  export type NegotiationErrors = { _errors?: Array<string> };
+  export type QualifiedErrors = { _errors: Option<Array<string>> };
+  export type EstimateErrors = { _errors: Option<Array<string>> };
+  export type NegotiationErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type InitialContactTainted = {};
   export type QualifiedTainted = {};
   export type EstimateTainted = {};
@@ -33489,10 +35088,10 @@ export namespace NextStep {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface InitialContactFieldControllers {}
@@ -33720,12 +35319,12 @@ export namespace LeadStage {
 
 export namespace LeadStage {
   /** Per-variant error types */ export type OpenErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type InitialContactErrors = { _errors?: Array<string> };
-  export type QualifiedErrors = { _errors?: Array<string> };
-  export type EstimateErrors = { _errors?: Array<string> };
-  export type NegotiationErrors = { _errors?: Array<string> };
+  export type InitialContactErrors = { _errors: Option<Array<string>> };
+  export type QualifiedErrors = { _errors: Option<Array<string>> };
+  export type EstimateErrors = { _errors: Option<Array<string>> };
+  export type NegotiationErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type OpenTainted = {};
   export type InitialContactTainted = {};
   export type QualifiedTainted = {};
@@ -33754,10 +35353,10 @@ export namespace LeadStage {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface OpenFieldControllers {}
@@ -34002,9 +35601,9 @@ export namespace AccountName {
 
 export namespace AccountName {
   /** Per-variant error types */ export type CompanyNameErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type PersonNameErrors = { _errors?: Array<string> };
+  export type PersonNameErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type CompanyNameTainted = {};
   export type PersonNameTainted = {};
   /** Union error type */ export type Errors =
@@ -34024,10 +35623,10 @@ export namespace AccountName {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface CompanyNameFieldControllers {}
@@ -34205,10 +35804,10 @@ export namespace Priority {
 
 export namespace Priority {
   /** Per-variant error types */ export type MediumErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type HighErrors = { _errors?: Array<string> };
-  export type LowErrors = { _errors?: Array<string> };
+  export type HighErrors = { _errors: Option<Array<string>> };
+  export type LowErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type MediumTainted = {};
   export type HighTainted = {};
   export type LowTainted = {};
@@ -34231,10 +35830,10 @@ export namespace Priority {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface MediumFieldControllers {}
@@ -34435,14 +36034,14 @@ export namespace Applications {
 
 export namespace Applications {
   /** Per-variant error types */ export type SalesErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type AccountingErrors = { _errors?: Array<string> };
-  export type ErrandErrors = { _errors?: Array<string> };
-  export type HumanResourcesErrors = { _errors?: Array<string> };
-  export type LogisticsErrors = { _errors?: Array<string> };
-  export type MarketingErrors = { _errors?: Array<string> };
-  export type WebsiteErrors = { _errors?: Array<string> };
+  export type AccountingErrors = { _errors: Option<Array<string>> };
+  export type ErrandErrors = { _errors: Option<Array<string>> };
+  export type HumanResourcesErrors = { _errors: Option<Array<string>> };
+  export type LogisticsErrors = { _errors: Option<Array<string>> };
+  export type MarketingErrors = { _errors: Option<Array<string>> };
+  export type WebsiteErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type SalesTainted = {};
   export type AccountingTainted = {};
   export type ErrandTainted = {};
@@ -34477,10 +36076,10 @@ export namespace Applications {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface SalesFieldControllers {}
@@ -34757,11 +36356,11 @@ export namespace JobTitle {
 
 export namespace JobTitle {
   /** Per-variant error types */ export type TechnicianErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type SalesRepresentativeErrors = { _errors?: Array<string> };
-  export type HumanResourcesErrors = { _errors?: Array<string> };
-  export type InformationTechnologyErrors = { _errors?: Array<string> };
+  export type SalesRepresentativeErrors = { _errors: Option<Array<string>> };
+  export type HumanResourcesErrors = { _errors: Option<Array<string>> };
+  export type InformationTechnologyErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type TechnicianTainted = {};
   export type SalesRepresentativeTainted = {};
   export type HumanResourcesTainted = {};
@@ -34787,10 +36386,10 @@ export namespace JobTitle {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface TechnicianFieldControllers {}
@@ -35032,11 +36631,11 @@ export namespace ColorsConfig {
 
 export namespace ColorsConfig {
   /** Per-variant error types */ export type CardinalErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type OrdinalErrors = { _errors?: Array<string> };
-  export type CustomErrors = { _errors?: Array<string> };
-  export type GradientErrors = { _errors?: Array<string> };
+  export type OrdinalErrors = { _errors: Option<Array<string>> };
+  export type CustomErrors = { _errors: Option<Array<string>> };
+  export type GradientErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type CardinalTainted = {};
   export type OrdinalTainted = {};
   export type CustomTainted = {};
@@ -35062,10 +36661,10 @@ export namespace ColorsConfig {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface CardinalFieldControllers {}
@@ -35279,12 +36878,12 @@ export namespace WeekOfMonth {
 
 export namespace WeekOfMonth {
   /** Per-variant error types */ export type FirstErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type SecondErrors = { _errors?: Array<string> };
-  export type ThirdErrors = { _errors?: Array<string> };
-  export type FourthErrors = { _errors?: Array<string> };
-  export type LastErrors = { _errors?: Array<string> };
+  export type SecondErrors = { _errors: Option<Array<string>> };
+  export type ThirdErrors = { _errors: Option<Array<string>> };
+  export type FourthErrors = { _errors: Option<Array<string>> };
+  export type LastErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type FirstTainted = {};
   export type SecondTainted = {};
   export type ThirdTainted = {};
@@ -35313,10 +36912,10 @@ export namespace WeekOfMonth {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface FirstFieldControllers {}
@@ -35540,13 +37139,13 @@ export namespace ActivityType {
 
 export namespace ActivityType {
   /** Per-variant error types */ export type CreatedErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type EditedErrors = { _errors?: Array<string> };
-  export type SentErrors = { _errors?: Array<string> };
-  export type ViewedErrors = { _errors?: Array<string> };
-  export type CommentedErrors = { _errors?: Array<string> };
-  export type PaidErrors = { _errors?: Array<string> };
+  export type EditedErrors = { _errors: Option<Array<string>> };
+  export type SentErrors = { _errors: Option<Array<string>> };
+  export type ViewedErrors = { _errors: Option<Array<string>> };
+  export type CommentedErrors = { _errors: Option<Array<string>> };
+  export type PaidErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type CreatedTainted = {};
   export type EditedTainted = {};
   export type SentTainted = {};
@@ -35578,10 +37177,10 @@ export namespace ActivityType {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface CreatedFieldControllers {}
@@ -35823,11 +37422,11 @@ export namespace RowHeight {
 
 export namespace RowHeight {
   /** Per-variant error types */ export type ExtraSmallErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type SmallErrors = { _errors?: Array<string> };
-  export type MediumErrors = { _errors?: Array<string> };
-  export type LargeErrors = { _errors?: Array<string> };
+  export type SmallErrors = { _errors: Option<Array<string>> };
+  export type MediumErrors = { _errors: Option<Array<string>> };
+  export type LargeErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type ExtraSmallTainted = {};
   export type SmallTainted = {};
   export type MediumTainted = {};
@@ -35853,10 +37452,10 @@ export namespace RowHeight {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface ExtraSmallFieldControllers {}
@@ -36063,10 +37662,10 @@ export namespace OrderStage {
 
 export namespace OrderStage {
   /** Per-variant error types */ export type EstimateErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type ActiveErrors = { _errors?: Array<string> };
-  export type InvoiceErrors = { _errors?: Array<string> };
+  export type ActiveErrors = { _errors: Option<Array<string>> };
+  export type InvoiceErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type EstimateTainted = {};
   export type ActiveTainted = {};
   export type InvoiceTainted = {};
@@ -36089,10 +37688,10 @@ export namespace OrderStage {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface EstimateFieldControllers {}
@@ -36297,25 +37896,25 @@ export namespace Table {
 
 export namespace Table {
   /** Per-variant error types */ export type AccountErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type DidErrors = { _errors?: Array<string> };
-  export type AppointmentErrors = { _errors?: Array<string> };
-  export type LeadErrors = { _errors?: Array<string> };
-  export type TaxRateErrors = { _errors?: Array<string> };
-  export type SiteErrors = { _errors?: Array<string> };
-  export type EmployeeErrors = { _errors?: Array<string> };
-  export type RouteErrors = { _errors?: Array<string> };
-  export type CompanyErrors = { _errors?: Array<string> };
-  export type ProductErrors = { _errors?: Array<string> };
-  export type ServiceErrors = { _errors?: Array<string> };
-  export type UserErrors = { _errors?: Array<string> };
-  export type OrderErrors = { _errors?: Array<string> };
-  export type PaymentErrors = { _errors?: Array<string> };
-  export type PackageErrors = { _errors?: Array<string> };
-  export type PromotionErrors = { _errors?: Array<string> };
-  export type RepresentsErrors = { _errors?: Array<string> };
-  export type OrderedErrors = { _errors?: Array<string> };
+  export type DidErrors = { _errors: Option<Array<string>> };
+  export type AppointmentErrors = { _errors: Option<Array<string>> };
+  export type LeadErrors = { _errors: Option<Array<string>> };
+  export type TaxRateErrors = { _errors: Option<Array<string>> };
+  export type SiteErrors = { _errors: Option<Array<string>> };
+  export type EmployeeErrors = { _errors: Option<Array<string>> };
+  export type RouteErrors = { _errors: Option<Array<string>> };
+  export type CompanyErrors = { _errors: Option<Array<string>> };
+  export type ProductErrors = { _errors: Option<Array<string>> };
+  export type ServiceErrors = { _errors: Option<Array<string>> };
+  export type UserErrors = { _errors: Option<Array<string>> };
+  export type OrderErrors = { _errors: Option<Array<string>> };
+  export type PaymentErrors = { _errors: Option<Array<string>> };
+  export type PackageErrors = { _errors: Option<Array<string>> };
+  export type PromotionErrors = { _errors: Option<Array<string>> };
+  export type RepresentsErrors = { _errors: Option<Array<string>> };
+  export type OrderedErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type AccountTainted = {};
   export type DidTainted = {};
   export type AppointmentTainted = {};
@@ -36383,10 +37982,10 @@ export namespace Table {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface AccountFieldControllers {}
@@ -36817,9 +38416,9 @@ export namespace Item {
 
 export namespace Item {
   /** Per-variant error types */ export type StringOrProductErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type StringOrServiceErrors = { _errors?: Array<string> };
+  export type StringOrServiceErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type StringOrProductTainted = {};
   export type StringOrServiceTainted = {};
   /** Union error type */ export type Errors =
@@ -36839,10 +38438,10 @@ export namespace Item {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface StringOrProductFieldControllers {}
@@ -37024,10 +38623,10 @@ export namespace Actor {
 
 export namespace Actor {
   /** Per-variant error types */ export type UserErrors = {
-    _errors?: Array<string>;
+    _errors: Option<Array<string>>;
   };
-  export type EmployeeErrors = { _errors?: Array<string> };
-  export type AccountErrors = { _errors?: Array<string> };
+  export type EmployeeErrors = { _errors: Option<Array<string>> };
+  export type AccountErrors = { _errors: Option<Array<string>> };
   /** Per-variant tainted types */ export type UserTainted = {};
   export type EmployeeTainted = {};
   export type AccountTainted = {};
@@ -37050,10 +38649,10 @@ export namespace Actor {
     readonly readonly?: boolean;
     get(): T;
     set(value: T): void;
-    getError(): Array<string> | undefined;
-    setError(value: Array<string> | undefined): void;
-    getTainted(): boolean;
-    setTainted(value: boolean): void;
+    getError(): Option<Array<string>>;
+    setError(value: Option<Array<string>>): void;
+    getTainted(): Option<boolean>;
+    setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
   /** Per-variant field controller types */ export interface UserFieldControllers {}

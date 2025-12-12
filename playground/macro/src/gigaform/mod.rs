@@ -118,6 +118,7 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
 
     // Add required imports
     output.add_import("Result", "macroforge/utils");
+    output.add_import("Option", "macroforge/utils");
 
     // Add i18n import if used
     if options.uses_i18n() || fields.iter().any(|f| f.uses_i18n()) {
@@ -218,6 +219,7 @@ fn generate_union_form(
     };
 
     output.add_import("Result", "macroforge/utils");
+    output.add_import("Option", "macroforge/utils");
 
     // Add i18n import if used
     if options.uses_i18n()

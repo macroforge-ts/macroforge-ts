@@ -10,14 +10,16 @@ use crate::gigaform::GenericInfo;
 pub fn generate_factory(interface_name: &str, fields: &[ParsedField], options: &GigaformOptions) -> TsStream {
     let field_controllers = generate_field_controllers(fields, options, interface_name);
     let default_init = generate_default_init(interface_name, options);
+    let default_errors_init = generate_default_errors_init(fields);
+    let default_tainted_init = generate_default_tainted_init(fields);
 
     ts_template! {
         {>> "Creates a new Gigaform instance with reactive state and field controllers." <<}
         export function createForm(overrides?: Partial<@{interface_name}>): Gigaform {
             // Reactive state using Svelte 5 $state
             let data = $state({ @{default_init}, ...overrides });
-            let errors = $state<Errors>({});
-            let tainted = $state<Tainted>({});
+            let errors = $state<Errors>(@{default_errors_init});
+            let tainted = $state<Tainted>(@{default_tainted_init});
 
             // Field controllers with closures capturing reactive state
             const fields: FieldControllers = {
@@ -32,8 +34,8 @@ pub fn generate_factory(interface_name: &str, fields: &[ParsedField], options: &
             // Reset form to defaults
             function reset(newOverrides?: Partial<@{interface_name}>): void {
                 data = { @{default_init}, ...newOverrides };
-                errors = {};
-                tainted = {};
+                errors = @{default_errors_init};
+                tainted = @{default_tainted_init};
             }
 
             return {
@@ -64,6 +66,8 @@ pub fn generate_factory_with_generics(
 
     let field_controllers = generate_field_controllers(fields, options, interface_name);
     let default_init = generate_default_init(interface_name, options);
+    let default_errors_init = generate_default_errors_init(fields);
+    let default_tainted_init = generate_default_tainted_init(fields);
     let generic_decl = generics.decl();
     let generic_args = generics.args();
 
@@ -72,8 +76,8 @@ pub fn generate_factory_with_generics(
         export function createForm@{generic_decl}(overrides?: Partial<@{interface_name}@{generic_args}>): Gigaform@{generic_args} {
             // Reactive state using Svelte 5 $state
             let data = $state({ @{default_init}, ...overrides });
-            let errors = $state<Errors@{generic_args}>({});
-            let tainted = $state<Tainted@{generic_args}>({});
+            let errors = $state<Errors@{generic_args}>(@{default_errors_init});
+            let tainted = $state<Tainted@{generic_args}>(@{default_tainted_init});
 
             // Field controllers with closures capturing reactive state
             const fields: FieldControllers@{generic_args} = {
@@ -88,8 +92,8 @@ pub fn generate_factory_with_generics(
             // Reset form to defaults
             function reset(newOverrides?: Partial<@{interface_name}@{generic_args}>): void {
                 data = { @{default_init}, ...newOverrides };
-                errors = {};
-                tainted = {};
+                errors = @{default_errors_init};
+                tainted = @{default_tainted_init};
             }
 
             return {
@@ -348,6 +352,32 @@ fn generate_default_init(interface_name: &str, options: &GigaformOptions) -> Str
     }
 }
 
+/// Generates the default errors initialization with all fields set to Option.none().
+fn generate_default_errors_init(fields: &[ParsedField]) -> String {
+    let field_inits: Vec<String> = fields
+        .iter()
+        .map(|field| {
+            let name = &field.name;
+            format!("{name}: Option.none()")
+        })
+        .collect();
+
+    format!("{{ _errors: Option.none(), {} }}", field_inits.join(", "))
+}
+
+/// Generates the default tainted initialization with all fields set to Option.none().
+fn generate_default_tainted_init(fields: &[ParsedField]) -> String {
+    let field_inits: Vec<String> = fields
+        .iter()
+        .map(|field| {
+            let name = &field.name;
+            format!("{name}: Option.none()")
+        })
+        .collect();
+
+    format!("{{ {} }}", field_inits.join(", "))
+}
+
 /// Generates all field controller entries.
 fn generate_field_controllers(
     fields: &[ParsedField],
@@ -398,10 +428,10 @@ fn generate_field_controller(
                     {ui_metadata}
                     get: () => data.{name},
                     set: (value: {ts_type}) => {{ data.{name} = value; }},
-                    getError: () => errors?.{name},
-                    setError: (value: Array<string> | undefined) => {{ errors.{name} = value; }},
-                    getTainted: () => tainted?.{name} ?? false,
-                    setTainted: (value: boolean) => {{ tainted.{name} = value; }},
+                    getError: () => errors.{name},
+                    setError: (value: Option<Array<string>>) => {{ errors.{name} = value; }},
+                    getTainted: () => tainted.{name},
+                    setTainted: (value: Option<boolean>) => {{ tainted.{name} = value; }},
                     {validate_fn}
                     {array_methods}
                 }}"#
@@ -543,16 +573,10 @@ fn generate_array_methods(field: &ParsedField, name: &str) -> String {
                         constraints: {{ required: true }},
                         get: () => data.{name}[index],
                         set: (value: {element_type}) => {{ data.{name}[index] = value; }},
-                        getError: () => (errors.{name} as Record<number, Array<string>>)?.[index],
-                        setError: (value: Array<string> | undefined) => {{
-                            errors.{name} ??= {{}};
-                            (errors.{name} as Record<number, Array<string>>)[index] = value!;
-                        }},
-                        getTainted: () => tainted.{name}?.[index] ?? false,
-                        setTainted: (value: boolean) => {{
-                            tainted.{name} ??= {{}};
-                            tainted.{name}[index] = value;
-                        }},
+                        getError: () => errors.{name},
+                        setError: (value: Option<Array<string>>) => {{ errors.{name} = value; }},
+                        getTainted: () => tainted.{name},
+                        setTainted: (value: Option<boolean>) => {{ tainted.{name} = value; }},
                         validate: (): Array<string> => [],
                     }}),
                     push: (item: {element_type}) => {{ data.{name}.push(item); }},
@@ -620,13 +644,12 @@ fn generate_old_field_descriptor(
                 {ui_metadata}
                 get: (data: Data) => data{accessor},
                 set: (data: Data, value: {ts_type}) => {{ data{accessor} = value; }},
-                getError: (errors: Errors) => errors{optional_accessor},
-                setError: (errors: Errors, value: Array<string> | undefined) => {{ errors.{name} = value; }},
-                getTainted: (tainted: Tainted) => tainted{optional_accessor} ?? false,
-                setTainted: (tainted: Tainted, value: boolean) => {{ tainted.{name} = value; }},
+                getError: (errors: Errors) => errors.{name},
+                setError: (errors: Errors, value: Option<Array<string>>) => {{ errors.{name} = value; }},
+                getTainted: (tainted: Tainted) => tainted.{name},
+                setTainted: (tainted: Tainted, value: Option<boolean>) => {{ tainted.{name} = value; }},
                 validate: (_value: {ts_type}): Array<string> => [],
-            }}"#,
-        optional_accessor = build_optional_accessor_path(path_prefix, name),
+            }}"#
     )
 }
 

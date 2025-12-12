@@ -15,7 +15,7 @@ pub fn generate(interface_name: &str, fields: &[ParsedField]) -> TsStream {
     ts_template! {
         {>> "Nested error structure matching the data shape" <<}
         export type Errors = {
-            _errors?: Array<string>;
+            _errors: Option<Array<string>>;
             @{errors_fields}
         };
 
@@ -36,10 +36,10 @@ pub fn generate(interface_name: &str, fields: &[ParsedField]) -> TsStream {
             readonly readonly?: boolean;
             get(): T;
             set(value: T): void;
-            getError(): Array<string> | undefined;
-            setError(value: Array<string> | undefined): void;
-            getTainted(): boolean;
-            setTainted(value: boolean): void;
+            getError(): Option<Array<string>>;
+            setError(value: Option<Array<string>>): void;
+            getTainted(): Option<boolean>;
+            setTainted(value: Option<boolean>): void;
             validate(): Array<string>;
         }
 
@@ -75,7 +75,7 @@ pub fn generate_with_generics(interface_name: &str, fields: &[ParsedField], gene
     ts_template! {
         {>> "Nested error structure matching the data shape" <<}
         export type Errors@{generic_decl} = {
-            _errors?: Array<string>;
+            _errors: Option<Array<string>>;
             @{errors_fields}
         };
 
@@ -96,10 +96,10 @@ pub fn generate_with_generics(interface_name: &str, fields: &[ParsedField], gene
             readonly readonly?: boolean;
             get(): T;
             set(value: T): void;
-            getError(): Array<string> | undefined;
-            setError(value: Array<string> | undefined): void;
-            getTainted(): boolean;
-            setTainted(value: boolean): void;
+            getError(): Option<Array<string>>;
+            setError(value: Option<Array<string>>): void;
+            getTainted(): Option<boolean>;
+            setTainted(value: Option<boolean>): void;
             validate(): Array<string>;
         }
 
@@ -134,66 +134,28 @@ fn generate_field_controller_types(fields: &[ParsedField]) -> String {
 }
 
 /// Generates the Errors type fields.
+/// All fields use Option<Array<string>> for consistency with FieldController interface.
 fn generate_errors_fields(fields: &[ParsedField]) -> String {
     fields
         .iter()
         .map(|field| {
             let name = &field.name;
-            let optional = "?";
-
-            if field.is_array {
-                // Array fields: { _errors?: string[]; [index: number]: string[] | NestedType.Errors }
-                let element_type = field.array_element_type.as_deref().unwrap_or("unknown");
-                let is_element_nested = is_nested_type(element_type);
-
-                if is_element_nested {
-                    format!(
-                        "{name}{optional}: {{ _errors?: Array<string>; [index: number]: {element_type}.Errors }};"
-                    )
-                } else {
-                    format!(
-                        "{name}{optional}: {{ _errors?: Array<string>; [index: number]: Array<string> }};"
-                    )
-                }
-            } else if field.is_nested {
-                // Nested object: reference child's Errors type
-                let nested_type = field.nested_type.as_deref().unwrap_or("unknown");
-                format!("{name}{optional}: {nested_type}.Errors;")
-            } else {
-                // Primitive field: simple string array
-                format!("{name}{optional}: Array<string>;")
-            }
+            // All fields use Option<Array<string>> for FieldController compatibility
+            format!("{name}: Option<Array<string>>;")
         })
         .collect::<Vec<_>>()
         .join("\n            ")
 }
 
 /// Generates the Tainted type fields.
+/// All fields use Option<boolean> for consistency with FieldController interface.
 fn generate_tainted_fields(fields: &[ParsedField]) -> String {
     fields
         .iter()
         .map(|field| {
             let name = &field.name;
-            let optional = "?";
-
-            if field.is_array {
-                // Array fields: { [index: number]: boolean | NestedType.Tainted }
-                let element_type = field.array_element_type.as_deref().unwrap_or("unknown");
-                let is_element_nested = is_nested_type(element_type);
-
-                if is_element_nested {
-                    format!("{name}{optional}: {{ [index: number]: {element_type}.Tainted }};")
-                } else {
-                    format!("{name}{optional}: {{ [index: number]: boolean }};")
-                }
-            } else if field.is_nested {
-                // Nested object: reference child's Tainted type
-                let nested_type = field.nested_type.as_deref().unwrap_or("unknown");
-                format!("{name}{optional}: {nested_type}.Tainted;")
-            } else {
-                // Primitive field: simple boolean
-                format!("{name}{optional}: boolean;")
-            }
+            // All fields use Option<boolean> for FieldController compatibility
+            format!("{name}: Option<boolean>;")
         })
         .collect::<Vec<_>>()
         .join("\n            ")
@@ -282,10 +244,10 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
             readonly readonly?: boolean;
             get(): T;
             set(value: T): void;
-            getError(): Array<string> | undefined;
-            setError(value: Array<string> | undefined): void;
-            getTainted(): boolean;
-            setTainted(value: boolean): void;
+            getError(): Option<Array<string>>;
+            setError(value: Option<Array<string>>): void;
+            getTainted(): Option<boolean>;
+            setTainted(value: Option<boolean>): void;
             validate(): Array<string>;
         }
 
@@ -317,7 +279,7 @@ fn generate_variant_errors(config: &UnionConfig) -> String {
         let variant_name = to_pascal_case(&variant.discriminant_value);
         let errors_fields = generate_errors_fields(&variant.fields);
         format!(
-            "export type {variant_name}Errors = {{ _errors?: Array<string>; {errors_fields} }};"
+            "export type {variant_name}Errors = {{ _errors: Option<Array<string>>; {errors_fields} }};"
         )
     }).collect::<Vec<_>>().join("\n        ")
 }
