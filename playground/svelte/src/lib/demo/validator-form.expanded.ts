@@ -1,4 +1,4 @@
-import { Result } from "macroforge/result";
+import { Result } from "macroforge/utils";
 import { DeserializeContext } from "macroforge/serde";
 import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
@@ -8,7 +8,7 @@ import { PendingRef } from "macroforge/serde";
  * Tests string, number, array, and date validators with real form validation.
  */
 
-/**  */
+
 export class UserRegistrationForm {
   
   email: string;
@@ -44,14 +44,34 @@ export class UserRegistrationForm {
     message: string;
 }>> {
     try {
-        const ctx = DeserializeContext.create();
         const raw = JSON.parse(json);
-        const resultOrRef = UserRegistrationForm.__deserialize(raw, ctx);
+        return UserRegistrationForm.fromObject(raw, opts);
+    } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
+    }
+}
+
+  static fromObject(obj: unknown, opts?: DeserializeOptions): Result<UserRegistrationForm, Array<{
+    field: string;
+    message: string;
+}>> {
+    try {
+        const ctx = DeserializeContext.create();
+        const resultOrRef = UserRegistrationForm.__deserialize(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: "_root",
-                    message: "UserRegistrationForm.fromStringifiedJSON: root cannot be a forward reference"
+                    message: "UserRegistrationForm.fromObject: root cannot be a forward reference"
                 }
             ]);
         }
@@ -223,7 +243,7 @@ export class UserRegistrationForm {
 }
 }
 
-/**  */
+
 export class ProductForm {
   
   name: string;
@@ -259,14 +279,34 @@ export class ProductForm {
     message: string;
 }>> {
     try {
-        const ctx = DeserializeContext.create();
         const raw = JSON.parse(json);
-        const resultOrRef = ProductForm.__deserialize(raw, ctx);
+        return ProductForm.fromObject(raw, opts);
+    } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
+    }
+}
+
+  static fromObject(obj: unknown, opts?: DeserializeOptions): Result<ProductForm, Array<{
+    field: string;
+    message: string;
+}>> {
+    try {
+        const ctx = DeserializeContext.create();
+        const resultOrRef = ProductForm.__deserialize(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: "_root",
-                    message: "ProductForm.fromStringifiedJSON: root cannot be a forward reference"
+                    message: "ProductForm.fromObject: root cannot be a forward reference"
                 }
             ]);
         }
@@ -445,7 +485,7 @@ export class ProductForm {
 }
 }
 
-/**  */
+
 export class EventForm {
   
   title: string;
@@ -476,14 +516,34 @@ export class EventForm {
     message: string;
 }>> {
     try {
-        const ctx = DeserializeContext.create();
         const raw = JSON.parse(json);
-        const resultOrRef = EventForm.__deserialize(raw, ctx);
+        return EventForm.fromObject(raw, opts);
+    } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
+    }
+}
+
+  static fromObject(obj: unknown, opts?: DeserializeOptions): Result<EventForm, Array<{
+    field: string;
+    message: string;
+}>> {
+    try {
+        const ctx = DeserializeContext.create();
+        const resultOrRef = EventForm.__deserialize(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: "_root",
-                    message: "EventForm.fromStringifiedJSON: root cannot be a forward reference"
+                    message: "EventForm.fromObject: root cannot be a forward reference"
                 }
             ]);
         }

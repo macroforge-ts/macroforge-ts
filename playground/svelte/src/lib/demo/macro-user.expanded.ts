@@ -1,12 +1,12 @@
 import { SerializeContext } from "macroforge/serde";
-import { Result } from "macroforge/result";
+import { Result } from "../../../../../crates/macroforge_ts/js/utils";
 import { DeserializeContext } from "macroforge/serde";
 import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
 import { PendingRef } from "macroforge/serde";
 /** import macro { JSON } from "@playground/macro"; */
 
-/**  */
+
 export class MacroUser {
   
   id: string;
@@ -32,7 +32,7 @@ export class MacroUser {
     return JSON.stringify(this.__serialize(ctx));
 }
 
-  toJSON(): Record<string, unknown> {
+  toObject(): Record<string, unknown> {
     const ctx = SerializeContext.create();
     return this.__serialize(ctx);
 }
@@ -79,14 +79,34 @@ export class MacroUser {
     message: string;
 }>> {
     try {
-        const ctx = DeserializeContext.create();
         const raw = JSON.parse(json);
-        const resultOrRef = MacroUser.__deserialize(raw, ctx);
+        return MacroUser.fromObject(raw, opts);
+    } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
+    }
+}
+
+  static fromObject(obj: unknown, opts?: DeserializeOptions): Result<MacroUser, Array<{
+    field: string;
+    message: string;
+}>> {
+    try {
+        const ctx = DeserializeContext.create();
+        const resultOrRef = MacroUser.__deserialize(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: "_root",
-                    message: "MacroUser.fromStringifiedJSON: root cannot be a forward reference"
+                    message: "MacroUser.fromObject: root cannot be a forward reference"
                 }
             ]);
         }

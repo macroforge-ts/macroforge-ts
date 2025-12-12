@@ -1,12 +1,11 @@
 import { SerializeContext } from "macroforge/serde";
-import { Result } from "macroforge/result";
+import { Result } from "macroforge/utils";
 import { DeserializeContext } from "macroforge/serde";
 import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
 import { PendingRef } from "macroforge/serde";
 /** import macro {Gigaform} from "@playground/macro"; */
 
-/**  */
 export interface User {
   id: string;
   email: string | null;
@@ -16,7 +15,6 @@ export interface User {
   lastName: string;
   password: string | null;
   metadata: Metadata | null;
-
   settings: Settings;
 
   role: UserRole;
@@ -25,7 +23,6 @@ export interface User {
   verificationExpires: string | null;
   passwordResetToken: string | null;
   passwordResetExpires: string | null;
-
   permissions: AppPermissions;
 }
 
@@ -54,6 +51,10 @@ export namespace User {
   export function toStringifiedJSON(self: User): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: User): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: User,
@@ -147,15 +148,28 @@ export namespace User {
     opts?: DeserializeOptions,
   ): Result<User, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<User, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "User.fromStringifiedJSON: root cannot be a forward reference",
+            message: "User.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -435,7 +449,7 @@ export namespace User {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = User.fromJSON(data);
+          const result = User.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -463,7 +477,7 @@ export namespace User {
           tainted.email = value;
         },
         validate: (): Array<string> => {
-          const result = User.fromJSON(data);
+          const result = User.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -491,7 +505,7 @@ export namespace User {
           tainted.firstName = value;
         },
         validate: (): Array<string> => {
-          const result = User.fromJSON(data);
+          const result = User.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -519,7 +533,7 @@ export namespace User {
           tainted.lastName = value;
         },
         validate: (): Array<string> => {
-          const result = User.fromJSON(data);
+          const result = User.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -547,7 +561,7 @@ export namespace User {
           tainted.password = value;
         },
         validate: (): Array<string> => {
-          const result = User.fromJSON(data);
+          const result = User.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -575,7 +589,7 @@ export namespace User {
           tainted.metadata = value;
         },
         validate: (): Array<string> => {
-          const result = User.fromJSON(data);
+          const result = User.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -603,7 +617,7 @@ export namespace User {
           tainted.settings = value;
         },
         validate: (): Array<string> => {
-          const result = User.fromJSON(data);
+          const result = User.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -631,7 +645,7 @@ export namespace User {
           tainted.role = value;
         },
         validate: (): Array<string> => {
-          const result = User.fromJSON(data);
+          const result = User.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -659,7 +673,7 @@ export namespace User {
           tainted.emailVerified = value;
         },
         validate: (): Array<string> => {
-          const result = User.fromJSON(data);
+          const result = User.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -687,7 +701,7 @@ export namespace User {
           tainted.verificationToken = value;
         },
         validate: (): Array<string> => {
-          const result = User.fromJSON(data);
+          const result = User.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -715,7 +729,7 @@ export namespace User {
           tainted.verificationExpires = value;
         },
         validate: (): Array<string> => {
-          const result = User.fromJSON(data);
+          const result = User.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -743,7 +757,7 @@ export namespace User {
           tainted.passwordResetToken = value;
         },
         validate: (): Array<string> => {
-          const result = User.fromJSON(data);
+          const result = User.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -771,7 +785,7 @@ export namespace User {
           tainted.passwordResetExpires = value;
         },
         validate: (): Array<string> => {
-          const result = User.fromJSON(data);
+          const result = User.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -799,7 +813,7 @@ export namespace User {
           tainted.permissions = value;
         },
         validate: (): Array<string> => {
-          const result = User.fromJSON(data);
+          const result = User.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -814,7 +828,7 @@ export namespace User {
       User,
       Array<{ field: string; message: string }>
     > {
-      return User.fromJSON(data);
+      return User.fromObject(data);
     }
     function reset(newOverrides?: Partial<User>): void {
       data = { ...User.defaultValue(), ...newOverrides };
@@ -933,7 +947,6 @@ export namespace User {
   }
 }
 
-/**  */
 export interface Service {
   id: string;
 
@@ -947,7 +960,6 @@ export interface Service {
   commission: boolean;
   favorite: boolean;
   averageTime: string | null;
-
   defaults: ServiceDefaults;
 }
 
@@ -973,6 +985,10 @@ export namespace Service {
   export function toStringifiedJSON(self: Service): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Service): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Service,
@@ -1036,15 +1052,28 @@ export namespace Service {
     opts?: DeserializeOptions,
   ): Result<Service, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Service, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Service.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Service.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -1272,7 +1301,7 @@ export namespace Service {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Service.fromJSON(data);
+          const result = Service.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -1300,7 +1329,7 @@ export namespace Service {
           tainted.name = value;
         },
         validate: (): Array<string> => {
-          const result = Service.fromJSON(data);
+          const result = Service.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -1328,7 +1357,7 @@ export namespace Service {
           tainted.quickCode = value;
         },
         validate: (): Array<string> => {
-          const result = Service.fromJSON(data);
+          const result = Service.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -1356,7 +1385,7 @@ export namespace Service {
           tainted.group = value;
         },
         validate: (): Array<string> => {
-          const result = Service.fromJSON(data);
+          const result = Service.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -1384,7 +1413,7 @@ export namespace Service {
           tainted.subgroup = value;
         },
         validate: (): Array<string> => {
-          const result = Service.fromJSON(data);
+          const result = Service.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -1412,7 +1441,7 @@ export namespace Service {
           tainted.unit = value;
         },
         validate: (): Array<string> => {
-          const result = Service.fromJSON(data);
+          const result = Service.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -1440,7 +1469,7 @@ export namespace Service {
           tainted.active = value;
         },
         validate: (): Array<string> => {
-          const result = Service.fromJSON(data);
+          const result = Service.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -1468,7 +1497,7 @@ export namespace Service {
           tainted.commission = value;
         },
         validate: (): Array<string> => {
-          const result = Service.fromJSON(data);
+          const result = Service.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -1496,7 +1525,7 @@ export namespace Service {
           tainted.favorite = value;
         },
         validate: (): Array<string> => {
-          const result = Service.fromJSON(data);
+          const result = Service.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -1524,7 +1553,7 @@ export namespace Service {
           tainted.averageTime = value;
         },
         validate: (): Array<string> => {
-          const result = Service.fromJSON(data);
+          const result = Service.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -1552,7 +1581,7 @@ export namespace Service {
           tainted.defaults = value;
         },
         validate: (): Array<string> => {
-          const result = Service.fromJSON(data);
+          const result = Service.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -1567,7 +1596,7 @@ export namespace Service {
       Service,
       Array<{ field: string; message: string }>
     > {
-      return Service.fromJSON(data);
+      return Service.fromObject(data);
     }
     function reset(newOverrides?: Partial<Service>): void {
       data = { ...Service.defaultValue(), ...newOverrides };
@@ -1651,7 +1680,6 @@ export namespace Service {
   }
 }
 
-/**  */
 export interface ServiceDefaults {
   price: number;
 
@@ -1668,6 +1696,10 @@ export namespace ServiceDefaults {
   export function toStringifiedJSON(self: ServiceDefaults): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: ServiceDefaults): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: ServiceDefaults,
@@ -1691,15 +1723,29 @@ export namespace ServiceDefaults {
     opts?: DeserializeOptions,
   ): Result<ServiceDefaults, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<ServiceDefaults, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "ServiceDefaults.fromStringifiedJSON: root cannot be a forward reference",
+              "ServiceDefaults.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -1829,7 +1875,7 @@ export namespace ServiceDefaults {
           tainted.price = value;
         },
         validate: (): Array<string> => {
-          const result = ServiceDefaults.fromJSON(data);
+          const result = ServiceDefaults.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -1857,7 +1903,7 @@ export namespace ServiceDefaults {
           tainted.description = value;
         },
         validate: (): Array<string> => {
-          const result = ServiceDefaults.fromJSON(data);
+          const result = ServiceDefaults.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -1872,7 +1918,7 @@ export namespace ServiceDefaults {
       ServiceDefaults,
       Array<{ field: string; message: string }>
     > {
-      return ServiceDefaults.fromJSON(data);
+      return ServiceDefaults.fromObject(data);
     }
     function reset(newOverrides?: Partial<ServiceDefaults>): void {
       data = { ...ServiceDefaults.defaultValue(), ...newOverrides };
@@ -1917,13 +1963,11 @@ export namespace ServiceDefaults {
   }
 }
 
-/**  */
 export interface Did {
   in: string | Actor;
 
   out: string | Target;
   id: string;
-
   activityType: ActivityType;
   createdAt: string;
   metadata: string | null;
@@ -1935,7 +1979,7 @@ export namespace Did {
       in: "",
       out: "",
       id: "",
-      activityType: Created.defaultValue(),
+      activityType: ActivityType.defaultValue(),
       createdAt: "",
       metadata: null,
     } as Did;
@@ -1946,6 +1990,10 @@ export namespace Did {
   export function toStringifiedJSON(self: Did): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Did): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Did,
@@ -1983,15 +2031,28 @@ export namespace Did {
     opts?: DeserializeOptions,
   ): Result<Did, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Did, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Did.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Did.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -2166,7 +2227,7 @@ export namespace Did {
           tainted.in = value;
         },
         validate: (): Array<string> => {
-          const result = Did.fromJSON(data);
+          const result = Did.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -2194,7 +2255,7 @@ export namespace Did {
           tainted.out = value;
         },
         validate: (): Array<string> => {
-          const result = Did.fromJSON(data);
+          const result = Did.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -2222,7 +2283,7 @@ export namespace Did {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Did.fromJSON(data);
+          const result = Did.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -2250,7 +2311,7 @@ export namespace Did {
           tainted.activityType = value;
         },
         validate: (): Array<string> => {
-          const result = Did.fromJSON(data);
+          const result = Did.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -2278,7 +2339,7 @@ export namespace Did {
           tainted.createdAt = value;
         },
         validate: (): Array<string> => {
-          const result = Did.fromJSON(data);
+          const result = Did.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -2306,7 +2367,7 @@ export namespace Did {
           tainted.metadata = value;
         },
         validate: (): Array<string> => {
-          const result = Did.fromJSON(data);
+          const result = Did.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -2321,7 +2382,7 @@ export namespace Did {
       Did,
       Array<{ field: string; message: string }>
     > {
-      return Did.fromJSON(data);
+      return Did.fromObject(data);
     }
     function reset(newOverrides?: Partial<Did>): void {
       data = { ...Did.defaultValue(), ...newOverrides };
@@ -2386,7 +2447,6 @@ export namespace Did {
   }
 }
 
-/**  */
 export interface PersonName {
   firstName: string;
 
@@ -2403,6 +2463,10 @@ export namespace PersonName {
   export function toStringifiedJSON(self: PersonName): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: PersonName): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: PersonName,
@@ -2426,15 +2490,29 @@ export namespace PersonName {
     opts?: DeserializeOptions,
   ): Result<PersonName, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<PersonName, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "PersonName.fromStringifiedJSON: root cannot be a forward reference",
+              "PersonName.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -2561,7 +2639,7 @@ export namespace PersonName {
           tainted.firstName = value;
         },
         validate: (): Array<string> => {
-          const result = PersonName.fromJSON(data);
+          const result = PersonName.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -2589,7 +2667,7 @@ export namespace PersonName {
           tainted.lastName = value;
         },
         validate: (): Array<string> => {
-          const result = PersonName.fromJSON(data);
+          const result = PersonName.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -2604,7 +2682,7 @@ export namespace PersonName {
       PersonName,
       Array<{ field: string; message: string }>
     > {
-      return PersonName.fromJSON(data);
+      return PersonName.fromObject(data);
     }
     function reset(newOverrides?: Partial<PersonName>): void {
       data = { ...PersonName.defaultValue(), ...newOverrides };
@@ -2645,7 +2723,6 @@ export namespace PersonName {
   }
 }
 
-/**  */
 export interface Promotion {
   id: string;
   date: string;
@@ -2661,6 +2738,10 @@ export namespace Promotion {
   export function toStringifiedJSON(self: Promotion): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Promotion): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Promotion,
@@ -2684,15 +2765,28 @@ export namespace Promotion {
     opts?: DeserializeOptions,
   ): Result<Promotion, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Promotion, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Promotion.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Promotion.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -2819,7 +2913,7 @@ export namespace Promotion {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Promotion.fromJSON(data);
+          const result = Promotion.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -2847,7 +2941,7 @@ export namespace Promotion {
           tainted.date = value;
         },
         validate: (): Array<string> => {
-          const result = Promotion.fromJSON(data);
+          const result = Promotion.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -2862,7 +2956,7 @@ export namespace Promotion {
       Promotion,
       Array<{ field: string; message: string }>
     > {
-      return Promotion.fromJSON(data);
+      return Promotion.fromObject(data);
     }
     function reset(newOverrides?: Partial<Promotion>): void {
       data = { ...Promotion.defaultValue(), ...newOverrides };
@@ -2903,7 +2997,6 @@ export namespace Promotion {
   }
 }
 
-/**  */
 export interface Site {
   id: string;
 
@@ -2921,7 +3014,6 @@ export interface Site {
 
   postalCode: string;
   postalCodeSuffix: string | null;
-
   coordinates: Coordinates;
 }
 
@@ -2948,6 +3040,10 @@ export namespace Site {
   export function toStringifiedJSON(self: Site): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Site): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Site,
@@ -3021,15 +3117,28 @@ export namespace Site {
     opts?: DeserializeOptions,
   ): Result<Site, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Site, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Site.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Site.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -3279,7 +3388,7 @@ export namespace Site {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Site.fromJSON(data);
+          const result = Site.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3307,7 +3416,7 @@ export namespace Site {
           tainted.addressLine1 = value;
         },
         validate: (): Array<string> => {
-          const result = Site.fromJSON(data);
+          const result = Site.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3335,7 +3444,7 @@ export namespace Site {
           tainted.addressLine2 = value;
         },
         validate: (): Array<string> => {
-          const result = Site.fromJSON(data);
+          const result = Site.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3363,7 +3472,7 @@ export namespace Site {
           tainted.sublocalityLevel1 = value;
         },
         validate: (): Array<string> => {
-          const result = Site.fromJSON(data);
+          const result = Site.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3391,7 +3500,7 @@ export namespace Site {
           tainted.locality = value;
         },
         validate: (): Array<string> => {
-          const result = Site.fromJSON(data);
+          const result = Site.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3419,7 +3528,7 @@ export namespace Site {
           tainted.administrativeAreaLevel3 = value;
         },
         validate: (): Array<string> => {
-          const result = Site.fromJSON(data);
+          const result = Site.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3447,7 +3556,7 @@ export namespace Site {
           tainted.administrativeAreaLevel2 = value;
         },
         validate: (): Array<string> => {
-          const result = Site.fromJSON(data);
+          const result = Site.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3475,7 +3584,7 @@ export namespace Site {
           tainted.administrativeAreaLevel1 = value;
         },
         validate: (): Array<string> => {
-          const result = Site.fromJSON(data);
+          const result = Site.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3503,7 +3612,7 @@ export namespace Site {
           tainted.country = value;
         },
         validate: (): Array<string> => {
-          const result = Site.fromJSON(data);
+          const result = Site.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3531,7 +3640,7 @@ export namespace Site {
           tainted.postalCode = value;
         },
         validate: (): Array<string> => {
-          const result = Site.fromJSON(data);
+          const result = Site.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3559,7 +3668,7 @@ export namespace Site {
           tainted.postalCodeSuffix = value;
         },
         validate: (): Array<string> => {
-          const result = Site.fromJSON(data);
+          const result = Site.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3587,7 +3696,7 @@ export namespace Site {
           tainted.coordinates = value;
         },
         validate: (): Array<string> => {
-          const result = Site.fromJSON(data);
+          const result = Site.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3602,7 +3711,7 @@ export namespace Site {
       Site,
       Array<{ field: string; message: string }>
     > {
-      return Site.fromJSON(data);
+      return Site.fromObject(data);
     }
     function reset(newOverrides?: Partial<Site>): void {
       data = { ...Site.defaultValue(), ...newOverrides };
@@ -3676,7 +3785,6 @@ export namespace Site {
   }
 }
 
-/**  */
 export interface Metadata {
   createdAt: string;
   lastLogin: string | null;
@@ -3699,6 +3807,10 @@ export namespace Metadata {
   export function toStringifiedJSON(self: Metadata): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Metadata): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Metadata,
@@ -3733,15 +3845,28 @@ export namespace Metadata {
     opts?: DeserializeOptions,
   ): Result<Metadata, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Metadata, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Metadata.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Metadata.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -3891,7 +4016,7 @@ export namespace Metadata {
           tainted.createdAt = value;
         },
         validate: (): Array<string> => {
-          const result = Metadata.fromJSON(data);
+          const result = Metadata.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3919,7 +4044,7 @@ export namespace Metadata {
           tainted.lastLogin = value;
         },
         validate: (): Array<string> => {
-          const result = Metadata.fromJSON(data);
+          const result = Metadata.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3947,7 +4072,7 @@ export namespace Metadata {
           tainted.isActive = value;
         },
         validate: (): Array<string> => {
-          const result = Metadata.fromJSON(data);
+          const result = Metadata.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -3975,7 +4100,7 @@ export namespace Metadata {
           tainted.roles = value;
         },
         validate: (): Array<string> => {
-          const result = Metadata.fromJSON(data);
+          const result = Metadata.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -4020,7 +4145,7 @@ export namespace Metadata {
       Metadata,
       Array<{ field: string; message: string }>
     > {
-      return Metadata.fromJSON(data);
+      return Metadata.fromObject(data);
     }
     function reset(newOverrides?: Partial<Metadata>): void {
       data = { ...Metadata.defaultValue(), ...newOverrides };
@@ -4067,10 +4192,8 @@ export namespace Metadata {
   }
 }
 
-/**  */
 export interface ColumnConfig {
   heading: string;
-
   dataPath: DataPath;
 }
 
@@ -4084,6 +4207,10 @@ export namespace ColumnConfig {
   export function toStringifiedJSON(self: ColumnConfig): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: ColumnConfig): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: ColumnConfig,
@@ -4110,15 +4237,29 @@ export namespace ColumnConfig {
     opts?: DeserializeOptions,
   ): Result<ColumnConfig, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<ColumnConfig, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "ColumnConfig.fromStringifiedJSON: root cannot be a forward reference",
+              "ColumnConfig.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -4250,7 +4391,7 @@ export namespace ColumnConfig {
           tainted.heading = value;
         },
         validate: (): Array<string> => {
-          const result = ColumnConfig.fromJSON(data);
+          const result = ColumnConfig.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -4278,7 +4419,7 @@ export namespace ColumnConfig {
           tainted.dataPath = value;
         },
         validate: (): Array<string> => {
-          const result = ColumnConfig.fromJSON(data);
+          const result = ColumnConfig.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -4293,7 +4434,7 @@ export namespace ColumnConfig {
       ColumnConfig,
       Array<{ field: string; message: string }>
     > {
-      return ColumnConfig.fromJSON(data);
+      return ColumnConfig.fromObject(data);
     }
     function reset(newOverrides?: Partial<ColumnConfig>): void {
       data = { ...ColumnConfig.defaultValue(), ...newOverrides };
@@ -4354,7 +4495,6 @@ export namespace ColumnConfig {
   }
 }
 
-/**  */
 export interface PhoneNumber {
   main: boolean;
 
@@ -4382,6 +4522,10 @@ export namespace PhoneNumber {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
+  export function toObject(self: PhoneNumber): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
+  }
   export function __serialize(
     self: PhoneNumber,
     ctx: SerializeContext,
@@ -4407,15 +4551,29 @@ export namespace PhoneNumber {
     opts?: DeserializeOptions,
   ): Result<PhoneNumber, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<PhoneNumber, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "PhoneNumber.fromStringifiedJSON: root cannot be a forward reference",
+              "PhoneNumber.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -4575,7 +4733,7 @@ export namespace PhoneNumber {
           tainted.main = value;
         },
         validate: (): Array<string> => {
-          const result = PhoneNumber.fromJSON(data);
+          const result = PhoneNumber.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -4603,7 +4761,7 @@ export namespace PhoneNumber {
           tainted.phoneType = value;
         },
         validate: (): Array<string> => {
-          const result = PhoneNumber.fromJSON(data);
+          const result = PhoneNumber.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -4631,7 +4789,7 @@ export namespace PhoneNumber {
           tainted.number = value;
         },
         validate: (): Array<string> => {
-          const result = PhoneNumber.fromJSON(data);
+          const result = PhoneNumber.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -4659,7 +4817,7 @@ export namespace PhoneNumber {
           tainted.canText = value;
         },
         validate: (): Array<string> => {
-          const result = PhoneNumber.fromJSON(data);
+          const result = PhoneNumber.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -4687,7 +4845,7 @@ export namespace PhoneNumber {
           tainted.canCall = value;
         },
         validate: (): Array<string> => {
-          const result = PhoneNumber.fromJSON(data);
+          const result = PhoneNumber.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -4702,7 +4860,7 @@ export namespace PhoneNumber {
       PhoneNumber,
       Array<{ field: string; message: string }>
     > {
-      return PhoneNumber.fromJSON(data);
+      return PhoneNumber.fromObject(data);
     }
     function reset(newOverrides?: Partial<PhoneNumber>): void {
       data = { ...PhoneNumber.defaultValue(), ...newOverrides };
@@ -4757,7 +4915,6 @@ export namespace PhoneNumber {
   }
 }
 
-/**  */
 export interface Gradient {
   startHue: number;
 }
@@ -4772,6 +4929,10 @@ export namespace Gradient {
   export function toStringifiedJSON(self: Gradient): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Gradient): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Gradient,
@@ -4794,15 +4955,28 @@ export namespace Gradient {
     opts?: DeserializeOptions,
   ): Result<Gradient, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Gradient, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Gradient.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Gradient.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -4920,7 +5094,7 @@ export namespace Gradient {
           tainted.startHue = value;
         },
         validate: (): Array<string> => {
-          const result = Gradient.fromJSON(data);
+          const result = Gradient.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -4935,7 +5109,7 @@ export namespace Gradient {
       Gradient,
       Array<{ field: string; message: string }>
     > {
-      return Gradient.fromJSON(data);
+      return Gradient.fromObject(data);
     }
     function reset(newOverrides?: Partial<Gradient>): void {
       data = { ...Gradient.defaultValue(), ...newOverrides };
@@ -4980,7 +5154,6 @@ export namespace Gradient {
   }
 }
 
-/**  */
 export interface Product {
   id: string;
 
@@ -4993,7 +5166,6 @@ export interface Product {
   active: boolean;
   commission: boolean;
   favorite: boolean;
-
   defaults: ProductDefaults;
 }
 
@@ -5018,6 +5190,10 @@ export namespace Product {
   export function toStringifiedJSON(self: Product): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Product): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Product,
@@ -5073,15 +5249,28 @@ export namespace Product {
     opts?: DeserializeOptions,
   ): Result<Product, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Product, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Product.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Product.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -5299,7 +5488,7 @@ export namespace Product {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Product.fromJSON(data);
+          const result = Product.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -5327,7 +5516,7 @@ export namespace Product {
           tainted.name = value;
         },
         validate: (): Array<string> => {
-          const result = Product.fromJSON(data);
+          const result = Product.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -5355,7 +5544,7 @@ export namespace Product {
           tainted.quickCode = value;
         },
         validate: (): Array<string> => {
-          const result = Product.fromJSON(data);
+          const result = Product.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -5383,7 +5572,7 @@ export namespace Product {
           tainted.group = value;
         },
         validate: (): Array<string> => {
-          const result = Product.fromJSON(data);
+          const result = Product.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -5411,7 +5600,7 @@ export namespace Product {
           tainted.subgroup = value;
         },
         validate: (): Array<string> => {
-          const result = Product.fromJSON(data);
+          const result = Product.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -5439,7 +5628,7 @@ export namespace Product {
           tainted.unit = value;
         },
         validate: (): Array<string> => {
-          const result = Product.fromJSON(data);
+          const result = Product.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -5467,7 +5656,7 @@ export namespace Product {
           tainted.active = value;
         },
         validate: (): Array<string> => {
-          const result = Product.fromJSON(data);
+          const result = Product.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -5495,7 +5684,7 @@ export namespace Product {
           tainted.commission = value;
         },
         validate: (): Array<string> => {
-          const result = Product.fromJSON(data);
+          const result = Product.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -5523,7 +5712,7 @@ export namespace Product {
           tainted.favorite = value;
         },
         validate: (): Array<string> => {
-          const result = Product.fromJSON(data);
+          const result = Product.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -5551,7 +5740,7 @@ export namespace Product {
           tainted.defaults = value;
         },
         validate: (): Array<string> => {
-          const result = Product.fromJSON(data);
+          const result = Product.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -5566,7 +5755,7 @@ export namespace Product {
       Product,
       Array<{ field: string; message: string }>
     > {
-      return Product.fromJSON(data);
+      return Product.fromObject(data);
     }
     function reset(newOverrides?: Partial<Product>): void {
       data = { ...Product.defaultValue(), ...newOverrides };
@@ -5649,7 +5838,6 @@ export namespace Product {
   }
 }
 
-/**  */
 export interface YearlyRecurrenceRule {
   quantityOfYears: number;
 }
@@ -5664,6 +5852,12 @@ export namespace YearlyRecurrenceRule {
   export function toStringifiedJSON(self: YearlyRecurrenceRule): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(
+    self: YearlyRecurrenceRule,
+  ): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: YearlyRecurrenceRule,
@@ -5689,15 +5883,29 @@ export namespace YearlyRecurrenceRule {
     opts?: DeserializeOptions,
   ): Result<YearlyRecurrenceRule, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<YearlyRecurrenceRule, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "YearlyRecurrenceRule.fromStringifiedJSON: root cannot be a forward reference",
+              "YearlyRecurrenceRule.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -5821,7 +6029,7 @@ export namespace YearlyRecurrenceRule {
           tainted.quantityOfYears = value;
         },
         validate: (): Array<string> => {
-          const result = YearlyRecurrenceRule.fromJSON(data);
+          const result = YearlyRecurrenceRule.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -5836,7 +6044,7 @@ export namespace YearlyRecurrenceRule {
       YearlyRecurrenceRule,
       Array<{ field: string; message: string }>
     > {
-      return YearlyRecurrenceRule.fromJSON(data);
+      return YearlyRecurrenceRule.fromObject(data);
     }
     function reset(newOverrides?: Partial<YearlyRecurrenceRule>): void {
       data = { ...YearlyRecurrenceRule.defaultValue(), ...newOverrides };
@@ -5886,7 +6094,6 @@ export namespace YearlyRecurrenceRule {
   }
 }
 
-/**  */
 export interface AppointmentNotifications {
   personalScheduleChangeNotifications: string;
 
@@ -5906,6 +6113,12 @@ export namespace AppointmentNotifications {
   export function toStringifiedJSON(self: AppointmentNotifications): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(
+    self: AppointmentNotifications,
+  ): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: AppointmentNotifications,
@@ -5937,15 +6150,32 @@ export namespace AppointmentNotifications {
     Array<{ field: string; message: string }>
   > {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<
+    AppointmentNotifications,
+    Array<{ field: string; message: string }>
+  > {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "AppointmentNotifications.fromStringifiedJSON: root cannot be a forward reference",
+              "AppointmentNotifications.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -6091,7 +6321,7 @@ export namespace AppointmentNotifications {
           tainted.personalScheduleChangeNotifications = value;
         },
         validate: (): Array<string> => {
-          const result = AppointmentNotifications.fromJSON(data);
+          const result = AppointmentNotifications.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -6119,7 +6349,7 @@ export namespace AppointmentNotifications {
           tainted.allScheduleChangeNotifications = value;
         },
         validate: (): Array<string> => {
-          const result = AppointmentNotifications.fromJSON(data);
+          const result = AppointmentNotifications.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -6134,7 +6364,7 @@ export namespace AppointmentNotifications {
       AppointmentNotifications,
       Array<{ field: string; message: string }>
     > {
-      return AppointmentNotifications.fromJSON(data);
+      return AppointmentNotifications.fromObject(data);
     }
     function reset(newOverrides?: Partial<AppointmentNotifications>): void {
       data = { ...AppointmentNotifications.defaultValue(), ...newOverrides };
@@ -6180,7 +6410,6 @@ export namespace AppointmentNotifications {
   }
 }
 
-/**  */
 export interface DirectionHue {
   bearing: number;
   hue: number;
@@ -6196,6 +6425,10 @@ export namespace DirectionHue {
   export function toStringifiedJSON(self: DirectionHue): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: DirectionHue): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: DirectionHue,
@@ -6219,15 +6452,29 @@ export namespace DirectionHue {
     opts?: DeserializeOptions,
   ): Result<DirectionHue, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<DirectionHue, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "DirectionHue.fromStringifiedJSON: root cannot be a forward reference",
+              "DirectionHue.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -6354,7 +6601,7 @@ export namespace DirectionHue {
           tainted.bearing = value;
         },
         validate: (): Array<string> => {
-          const result = DirectionHue.fromJSON(data);
+          const result = DirectionHue.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -6382,7 +6629,7 @@ export namespace DirectionHue {
           tainted.hue = value;
         },
         validate: (): Array<string> => {
-          const result = DirectionHue.fromJSON(data);
+          const result = DirectionHue.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -6397,7 +6644,7 @@ export namespace DirectionHue {
       DirectionHue,
       Array<{ field: string; message: string }>
     > {
-      return DirectionHue.fromJSON(data);
+      return DirectionHue.fromObject(data);
     }
     function reset(newOverrides?: Partial<DirectionHue>): void {
       data = { ...DirectionHue.defaultValue(), ...newOverrides };
@@ -6447,7 +6694,6 @@ export namespace DirectionHue {
   }
 }
 
-/**  */
 export interface MonthlyRecurrenceRule {
   quantityOfMonths: number;
   day: number;
@@ -6465,6 +6711,12 @@ export namespace MonthlyRecurrenceRule {
   export function toStringifiedJSON(self: MonthlyRecurrenceRule): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(
+    self: MonthlyRecurrenceRule,
+  ): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: MonthlyRecurrenceRule,
@@ -6492,15 +6744,29 @@ export namespace MonthlyRecurrenceRule {
     opts?: DeserializeOptions,
   ): Result<MonthlyRecurrenceRule, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<MonthlyRecurrenceRule, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "MonthlyRecurrenceRule.fromStringifiedJSON: root cannot be a forward reference",
+              "MonthlyRecurrenceRule.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -6645,7 +6911,7 @@ export namespace MonthlyRecurrenceRule {
           tainted.quantityOfMonths = value;
         },
         validate: (): Array<string> => {
-          const result = MonthlyRecurrenceRule.fromJSON(data);
+          const result = MonthlyRecurrenceRule.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -6673,7 +6939,7 @@ export namespace MonthlyRecurrenceRule {
           tainted.day = value;
         },
         validate: (): Array<string> => {
-          const result = MonthlyRecurrenceRule.fromJSON(data);
+          const result = MonthlyRecurrenceRule.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -6701,7 +6967,7 @@ export namespace MonthlyRecurrenceRule {
           tainted.name = value;
         },
         validate: (): Array<string> => {
-          const result = MonthlyRecurrenceRule.fromJSON(data);
+          const result = MonthlyRecurrenceRule.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -6716,7 +6982,7 @@ export namespace MonthlyRecurrenceRule {
       MonthlyRecurrenceRule,
       Array<{ field: string; message: string }>
     > {
-      return MonthlyRecurrenceRule.fromJSON(data);
+      return MonthlyRecurrenceRule.fromObject(data);
     }
     function reset(newOverrides?: Partial<MonthlyRecurrenceRule>): void {
       data = { ...MonthlyRecurrenceRule.defaultValue(), ...newOverrides };
@@ -6772,7 +7038,6 @@ export namespace MonthlyRecurrenceRule {
   }
 }
 
-/**  */
 export interface Represents {
   in: string | Employee;
 
@@ -6791,6 +7056,10 @@ export namespace Represents {
   export function toStringifiedJSON(self: Represents): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Represents): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Represents,
@@ -6816,15 +7085,29 @@ export namespace Represents {
     opts?: DeserializeOptions,
   ): Result<Represents, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Represents, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "Represents.fromStringifiedJSON: root cannot be a forward reference",
+              "Represents.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -6969,7 +7252,7 @@ export namespace Represents {
           tainted.in = value;
         },
         validate: (): Array<string> => {
-          const result = Represents.fromJSON(data);
+          const result = Represents.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -6997,7 +7280,7 @@ export namespace Represents {
           tainted.out = value;
         },
         validate: (): Array<string> => {
-          const result = Represents.fromJSON(data);
+          const result = Represents.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -7025,7 +7308,7 @@ export namespace Represents {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Represents.fromJSON(data);
+          const result = Represents.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -7053,7 +7336,7 @@ export namespace Represents {
           tainted.dateStarted = value;
         },
         validate: (): Array<string> => {
-          const result = Represents.fromJSON(data);
+          const result = Represents.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -7068,7 +7351,7 @@ export namespace Represents {
       Represents,
       Array<{ field: string; message: string }>
     > {
-      return Represents.fromJSON(data);
+      return Represents.fromObject(data);
     }
     function reset(newOverrides?: Partial<Represents>): void {
       data = { ...Represents.defaultValue(), ...newOverrides };
@@ -7111,7 +7394,6 @@ export namespace Represents {
   }
 }
 
-/**  */
 export interface Payment {
   id: string;
   date: string;
@@ -7127,6 +7409,10 @@ export namespace Payment {
   export function toStringifiedJSON(self: Payment): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Payment): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Payment,
@@ -7150,15 +7436,28 @@ export namespace Payment {
     opts?: DeserializeOptions,
   ): Result<Payment, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Payment, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Payment.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Payment.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -7285,7 +7584,7 @@ export namespace Payment {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Payment.fromJSON(data);
+          const result = Payment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -7313,7 +7612,7 @@ export namespace Payment {
           tainted.date = value;
         },
         validate: (): Array<string> => {
-          const result = Payment.fromJSON(data);
+          const result = Payment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -7328,7 +7627,7 @@ export namespace Payment {
       Payment,
       Array<{ field: string; message: string }>
     > {
-      return Payment.fromJSON(data);
+      return Payment.fromObject(data);
     }
     function reset(newOverrides?: Partial<Payment>): void {
       data = { ...Payment.defaultValue(), ...newOverrides };
@@ -7369,27 +7668,17 @@ export namespace Payment {
   }
 }
 
-/**  */
 export interface Settings {
   appointmentNotifications: AppointmentNotifications | null;
   commissions: Commissions | null;
-
   scheduleSettings: ScheduleSettings;
-
   accountOverviewSettings: OverviewSettings;
-
   serviceOverviewSettings: OverviewSettings;
-
   appointmentOverviewSettings: OverviewSettings;
-
   leadOverviewSettings: OverviewSettings;
-
   packageOverviewSettings: OverviewSettings;
-
   productOverviewSettings: OverviewSettings;
-
   orderOverviewSettings: OverviewSettings;
-
   taxRateOverviewSettings: OverviewSettings;
 
   homePage: Page;
@@ -7418,6 +7707,10 @@ export namespace Settings {
   export function toStringifiedJSON(self: Settings): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Settings): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Settings,
@@ -7497,15 +7790,28 @@ export namespace Settings {
     opts?: DeserializeOptions,
   ): Result<Settings, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Settings, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Settings.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Settings.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -7844,7 +8150,7 @@ export namespace Settings {
           tainted.appointmentNotifications = value;
         },
         validate: (): Array<string> => {
-          const result = Settings.fromJSON(data);
+          const result = Settings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -7872,7 +8178,7 @@ export namespace Settings {
           tainted.commissions = value;
         },
         validate: (): Array<string> => {
-          const result = Settings.fromJSON(data);
+          const result = Settings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -7900,7 +8206,7 @@ export namespace Settings {
           tainted.scheduleSettings = value;
         },
         validate: (): Array<string> => {
-          const result = Settings.fromJSON(data);
+          const result = Settings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -7928,7 +8234,7 @@ export namespace Settings {
           tainted.accountOverviewSettings = value;
         },
         validate: (): Array<string> => {
-          const result = Settings.fromJSON(data);
+          const result = Settings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -7956,7 +8262,7 @@ export namespace Settings {
           tainted.serviceOverviewSettings = value;
         },
         validate: (): Array<string> => {
-          const result = Settings.fromJSON(data);
+          const result = Settings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -7984,7 +8290,7 @@ export namespace Settings {
           tainted.appointmentOverviewSettings = value;
         },
         validate: (): Array<string> => {
-          const result = Settings.fromJSON(data);
+          const result = Settings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -8012,7 +8318,7 @@ export namespace Settings {
           tainted.leadOverviewSettings = value;
         },
         validate: (): Array<string> => {
-          const result = Settings.fromJSON(data);
+          const result = Settings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -8040,7 +8346,7 @@ export namespace Settings {
           tainted.packageOverviewSettings = value;
         },
         validate: (): Array<string> => {
-          const result = Settings.fromJSON(data);
+          const result = Settings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -8068,7 +8374,7 @@ export namespace Settings {
           tainted.productOverviewSettings = value;
         },
         validate: (): Array<string> => {
-          const result = Settings.fromJSON(data);
+          const result = Settings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -8096,7 +8402,7 @@ export namespace Settings {
           tainted.orderOverviewSettings = value;
         },
         validate: (): Array<string> => {
-          const result = Settings.fromJSON(data);
+          const result = Settings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -8124,7 +8430,7 @@ export namespace Settings {
           tainted.taxRateOverviewSettings = value;
         },
         validate: (): Array<string> => {
-          const result = Settings.fromJSON(data);
+          const result = Settings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -8152,7 +8458,7 @@ export namespace Settings {
           tainted.homePage = value;
         },
         validate: (): Array<string> => {
-          const result = Settings.fromJSON(data);
+          const result = Settings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -8167,7 +8473,7 @@ export namespace Settings {
       Settings,
       Array<{ field: string; message: string }>
     > {
-      return Settings.fromJSON(data);
+      return Settings.fromObject(data);
     }
     function reset(newOverrides?: Partial<Settings>): void {
       data = { ...Settings.defaultValue(), ...newOverrides };
@@ -8419,7 +8725,6 @@ export namespace Settings {
   }
 }
 
-/**  */
 export interface Color {
   red: number;
   green: number;
@@ -8436,6 +8741,10 @@ export namespace Color {
   export function toStringifiedJSON(self: Color): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Color): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Color,
@@ -8460,15 +8769,28 @@ export namespace Color {
     opts?: DeserializeOptions,
   ): Result<Color, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Color, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Color.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Color.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -8601,7 +8923,7 @@ export namespace Color {
           tainted.red = value;
         },
         validate: (): Array<string> => {
-          const result = Color.fromJSON(data);
+          const result = Color.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -8629,7 +8951,7 @@ export namespace Color {
           tainted.green = value;
         },
         validate: (): Array<string> => {
-          const result = Color.fromJSON(data);
+          const result = Color.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -8657,7 +8979,7 @@ export namespace Color {
           tainted.blue = value;
         },
         validate: (): Array<string> => {
-          const result = Color.fromJSON(data);
+          const result = Color.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -8672,7 +8994,7 @@ export namespace Color {
       Color,
       Array<{ field: string; message: string }>
     > {
-      return Color.fromJSON(data);
+      return Color.fromObject(data);
     }
     function reset(newOverrides?: Partial<Color>): void {
       data = { ...Color.defaultValue(), ...newOverrides };
@@ -8726,7 +9048,6 @@ export namespace Color {
   }
 }
 
-/**  */
 export interface CompanyName {
   companyName: string;
 }
@@ -8741,6 +9062,10 @@ export namespace CompanyName {
   export function toStringifiedJSON(self: CompanyName): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: CompanyName): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: CompanyName,
@@ -8763,15 +9088,29 @@ export namespace CompanyName {
     opts?: DeserializeOptions,
   ): Result<CompanyName, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<CompanyName, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "CompanyName.fromStringifiedJSON: root cannot be a forward reference",
+              "CompanyName.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -8889,7 +9228,7 @@ export namespace CompanyName {
           tainted.companyName = value;
         },
         validate: (): Array<string> => {
-          const result = CompanyName.fromJSON(data);
+          const result = CompanyName.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -8904,7 +9243,7 @@ export namespace CompanyName {
       CompanyName,
       Array<{ field: string; message: string }>
     > {
-      return CompanyName.fromJSON(data);
+      return CompanyName.fromObject(data);
     }
     function reset(newOverrides?: Partial<CompanyName>): void {
       data = { ...CompanyName.defaultValue(), ...newOverrides };
@@ -8944,7 +9283,6 @@ export namespace CompanyName {
   }
 }
 
-/**  */
 export interface Appointment {
   id: string;
 
@@ -8991,6 +9329,10 @@ export namespace Appointment {
   export function toStringifiedJSON(self: Appointment): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Appointment): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Appointment,
@@ -9048,15 +9390,29 @@ export namespace Appointment {
     opts?: DeserializeOptions,
   ): Result<Appointment, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Appointment, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "Appointment.fromStringifiedJSON: root cannot be a forward reference",
+              "Appointment.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -9319,7 +9675,7 @@ export namespace Appointment {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Appointment.fromJSON(data);
+          const result = Appointment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -9347,7 +9703,7 @@ export namespace Appointment {
           tainted.title = value;
         },
         validate: (): Array<string> => {
-          const result = Appointment.fromJSON(data);
+          const result = Appointment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -9375,7 +9731,7 @@ export namespace Appointment {
           tainted.status = value;
         },
         validate: (): Array<string> => {
-          const result = Appointment.fromJSON(data);
+          const result = Appointment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -9403,7 +9759,7 @@ export namespace Appointment {
           tainted.begins = value;
         },
         validate: (): Array<string> => {
-          const result = Appointment.fromJSON(data);
+          const result = Appointment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -9431,7 +9787,7 @@ export namespace Appointment {
           tainted.duration = value;
         },
         validate: (): Array<string> => {
-          const result = Appointment.fromJSON(data);
+          const result = Appointment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -9459,7 +9815,7 @@ export namespace Appointment {
           tainted.timeZone = value;
         },
         validate: (): Array<string> => {
-          const result = Appointment.fromJSON(data);
+          const result = Appointment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -9487,7 +9843,7 @@ export namespace Appointment {
           tainted.offsetMs = value;
         },
         validate: (): Array<string> => {
-          const result = Appointment.fromJSON(data);
+          const result = Appointment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -9515,7 +9871,7 @@ export namespace Appointment {
           tainted.allDay = value;
         },
         validate: (): Array<string> => {
-          const result = Appointment.fromJSON(data);
+          const result = Appointment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -9543,7 +9899,7 @@ export namespace Appointment {
           tainted.multiDay = value;
         },
         validate: (): Array<string> => {
-          const result = Appointment.fromJSON(data);
+          const result = Appointment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -9571,7 +9927,7 @@ export namespace Appointment {
           tainted.employees = value;
         },
         validate: (): Array<string> => {
-          const result = Appointment.fromJSON(data);
+          const result = Appointment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -9632,7 +9988,7 @@ export namespace Appointment {
           tainted.location = value;
         },
         validate: (): Array<string> => {
-          const result = Appointment.fromJSON(data);
+          const result = Appointment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -9660,7 +10016,7 @@ export namespace Appointment {
           tainted.description = value;
         },
         validate: (): Array<string> => {
-          const result = Appointment.fromJSON(data);
+          const result = Appointment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -9688,7 +10044,7 @@ export namespace Appointment {
           tainted.colors = value;
         },
         validate: (): Array<string> => {
-          const result = Appointment.fromJSON(data);
+          const result = Appointment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -9716,7 +10072,7 @@ export namespace Appointment {
           tainted.recurrenceRule = value;
         },
         validate: (): Array<string> => {
-          const result = Appointment.fromJSON(data);
+          const result = Appointment.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -9731,7 +10087,7 @@ export namespace Appointment {
       Appointment,
       Array<{ field: string; message: string }>
     > {
-      return Appointment.fromJSON(data);
+      return Appointment.fromObject(data);
     }
     function reset(newOverrides?: Partial<Appointment>): void {
       data = { ...Appointment.defaultValue(), ...newOverrides };
@@ -9868,7 +10224,6 @@ export namespace Appointment {
   }
 }
 
-/**  */
 export interface Package {
   id: string;
   date: string;
@@ -9884,6 +10239,10 @@ export namespace Package {
   export function toStringifiedJSON(self: Package): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Package): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Package,
@@ -9907,15 +10266,28 @@ export namespace Package {
     opts?: DeserializeOptions,
   ): Result<Package, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Package, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Package.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Package.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -10042,7 +10414,7 @@ export namespace Package {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Package.fromJSON(data);
+          const result = Package.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -10070,7 +10442,7 @@ export namespace Package {
           tainted.date = value;
         },
         validate: (): Array<string> => {
-          const result = Package.fromJSON(data);
+          const result = Package.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -10085,7 +10457,7 @@ export namespace Package {
       Package,
       Array<{ field: string; message: string }>
     > {
-      return Package.fromJSON(data);
+      return Package.fromObject(data);
     }
     function reset(newOverrides?: Partial<Package>): void {
       data = { ...Package.defaultValue(), ...newOverrides };
@@ -10126,7 +10498,6 @@ export namespace Package {
   }
 }
 
-/**  */
 export interface ScheduleSettings {
   daysPerWeek: number;
 
@@ -10150,6 +10521,10 @@ export namespace ScheduleSettings {
   export function toStringifiedJSON(self: ScheduleSettings): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: ScheduleSettings): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: ScheduleSettings,
@@ -10183,15 +10558,29 @@ export namespace ScheduleSettings {
     opts?: DeserializeOptions,
   ): Result<ScheduleSettings, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<ScheduleSettings, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "ScheduleSettings.fromStringifiedJSON: root cannot be a forward reference",
+              "ScheduleSettings.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -10355,7 +10744,7 @@ export namespace ScheduleSettings {
           tainted.daysPerWeek = value;
         },
         validate: (): Array<string> => {
-          const result = ScheduleSettings.fromJSON(data);
+          const result = ScheduleSettings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -10383,7 +10772,7 @@ export namespace ScheduleSettings {
           tainted.rowHeight = value;
         },
         validate: (): Array<string> => {
-          const result = ScheduleSettings.fromJSON(data);
+          const result = ScheduleSettings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -10411,7 +10800,7 @@ export namespace ScheduleSettings {
           tainted.visibleRoutes = value;
         },
         validate: (): Array<string> => {
-          const result = ScheduleSettings.fromJSON(data);
+          const result = ScheduleSettings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -10473,7 +10862,7 @@ export namespace ScheduleSettings {
           tainted.detailedCards = value;
         },
         validate: (): Array<string> => {
-          const result = ScheduleSettings.fromJSON(data);
+          const result = ScheduleSettings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -10488,7 +10877,7 @@ export namespace ScheduleSettings {
       ScheduleSettings,
       Array<{ field: string; message: string }>
     > {
-      return ScheduleSettings.fromJSON(data);
+      return ScheduleSettings.fromObject(data);
     }
     function reset(newOverrides?: Partial<ScheduleSettings>): void {
       data = { ...ScheduleSettings.defaultValue(), ...newOverrides };
@@ -10564,7 +10953,6 @@ export namespace ScheduleSettings {
   }
 }
 
-/**  */
 export interface DailyRecurrenceRule {
   quantityOfDays: number;
 }
@@ -10579,6 +10967,10 @@ export namespace DailyRecurrenceRule {
   export function toStringifiedJSON(self: DailyRecurrenceRule): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: DailyRecurrenceRule): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: DailyRecurrenceRule,
@@ -10604,15 +10996,29 @@ export namespace DailyRecurrenceRule {
     opts?: DeserializeOptions,
   ): Result<DailyRecurrenceRule, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<DailyRecurrenceRule, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "DailyRecurrenceRule.fromStringifiedJSON: root cannot be a forward reference",
+              "DailyRecurrenceRule.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -10736,7 +11142,7 @@ export namespace DailyRecurrenceRule {
           tainted.quantityOfDays = value;
         },
         validate: (): Array<string> => {
-          const result = DailyRecurrenceRule.fromJSON(data);
+          const result = DailyRecurrenceRule.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -10751,7 +11157,7 @@ export namespace DailyRecurrenceRule {
       DailyRecurrenceRule,
       Array<{ field: string; message: string }>
     > {
-      return DailyRecurrenceRule.fromJSON(data);
+      return DailyRecurrenceRule.fromObject(data);
     }
     function reset(newOverrides?: Partial<DailyRecurrenceRule>): void {
       data = { ...DailyRecurrenceRule.defaultValue(), ...newOverrides };
@@ -10798,14 +11204,10 @@ export namespace DailyRecurrenceRule {
   }
 }
 
-/**  */
 export interface SignUpCredentials {
   firstName: FirstName;
-
   lastName: LastName;
-
   email: EmailParts;
-
   password: Password;
   rememberMe: boolean;
 }
@@ -10826,6 +11228,10 @@ export namespace SignUpCredentials {
   export function toStringifiedJSON(self: SignUpCredentials): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: SignUpCredentials): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: SignUpCredentials,
@@ -10867,15 +11273,29 @@ export namespace SignUpCredentials {
     opts?: DeserializeOptions,
   ): Result<SignUpCredentials, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<SignUpCredentials, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "SignUpCredentials.fromStringifiedJSON: root cannot be a forward reference",
+              "SignUpCredentials.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -11058,7 +11478,7 @@ export namespace SignUpCredentials {
           tainted.firstName = value;
         },
         validate: (): Array<string> => {
-          const result = SignUpCredentials.fromJSON(data);
+          const result = SignUpCredentials.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -11086,7 +11506,7 @@ export namespace SignUpCredentials {
           tainted.lastName = value;
         },
         validate: (): Array<string> => {
-          const result = SignUpCredentials.fromJSON(data);
+          const result = SignUpCredentials.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -11114,7 +11534,7 @@ export namespace SignUpCredentials {
           tainted.email = value;
         },
         validate: (): Array<string> => {
-          const result = SignUpCredentials.fromJSON(data);
+          const result = SignUpCredentials.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -11142,7 +11562,7 @@ export namespace SignUpCredentials {
           tainted.password = value;
         },
         validate: (): Array<string> => {
-          const result = SignUpCredentials.fromJSON(data);
+          const result = SignUpCredentials.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -11170,7 +11590,7 @@ export namespace SignUpCredentials {
           tainted.rememberMe = value;
         },
         validate: (): Array<string> => {
-          const result = SignUpCredentials.fromJSON(data);
+          const result = SignUpCredentials.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -11185,7 +11605,7 @@ export namespace SignUpCredentials {
       SignUpCredentials,
       Array<{ field: string; message: string }>
     > {
-      return SignUpCredentials.fromJSON(data);
+      return SignUpCredentials.fromObject(data);
     }
     function reset(newOverrides?: Partial<SignUpCredentials>): void {
       data = { ...SignUpCredentials.defaultValue(), ...newOverrides };
@@ -11315,7 +11735,6 @@ export namespace SignUpCredentials {
   }
 }
 
-/**  */
 export interface OverviewSettings {
   rowHeight: RowHeight;
 
@@ -11339,6 +11758,10 @@ export namespace OverviewSettings {
   export function toStringifiedJSON(self: OverviewSettings): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: OverviewSettings): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: OverviewSettings,
@@ -11375,15 +11798,29 @@ export namespace OverviewSettings {
     opts?: DeserializeOptions,
   ): Result<OverviewSettings, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<OverviewSettings, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "OverviewSettings.fromStringifiedJSON: root cannot be a forward reference",
+              "OverviewSettings.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -11555,7 +11992,7 @@ export namespace OverviewSettings {
           tainted.rowHeight = value;
         },
         validate: (): Array<string> => {
-          const result = OverviewSettings.fromJSON(data);
+          const result = OverviewSettings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -11583,7 +12020,7 @@ export namespace OverviewSettings {
           tainted.cardOrRow = value;
         },
         validate: (): Array<string> => {
-          const result = OverviewSettings.fromJSON(data);
+          const result = OverviewSettings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -11611,7 +12048,7 @@ export namespace OverviewSettings {
           tainted.perPage = value;
         },
         validate: (): Array<string> => {
-          const result = OverviewSettings.fromJSON(data);
+          const result = OverviewSettings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -11639,7 +12076,7 @@ export namespace OverviewSettings {
           tainted.columnConfigs = value;
         },
         validate: (): Array<string> => {
-          const result = OverviewSettings.fromJSON(data);
+          const result = OverviewSettings.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -11688,7 +12125,7 @@ export namespace OverviewSettings {
       OverviewSettings,
       Array<{ field: string; message: string }>
     > {
-      return OverviewSettings.fromJSON(data);
+      return OverviewSettings.fromObject(data);
     }
     function reset(newOverrides?: Partial<OverviewSettings>): void {
       data = { ...OverviewSettings.defaultValue(), ...newOverrides };
@@ -11802,7 +12239,6 @@ export namespace OverviewSettings {
   }
 }
 
-/**  */
 export interface FirstName {
   name: string;
 }
@@ -11817,6 +12253,10 @@ export namespace FirstName {
   export function toStringifiedJSON(self: FirstName): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: FirstName): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: FirstName,
@@ -11839,15 +12279,28 @@ export namespace FirstName {
     opts?: DeserializeOptions,
   ): Result<FirstName, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<FirstName, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "FirstName.fromStringifiedJSON: root cannot be a forward reference",
+            message: "FirstName.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -11965,7 +12418,7 @@ export namespace FirstName {
           tainted.name = value;
         },
         validate: (): Array<string> => {
-          const result = FirstName.fromJSON(data);
+          const result = FirstName.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -11980,7 +12433,7 @@ export namespace FirstName {
       FirstName,
       Array<{ field: string; message: string }>
     > {
-      return FirstName.fromJSON(data);
+      return FirstName.fromObject(data);
     }
     function reset(newOverrides?: Partial<FirstName>): void {
       data = { ...FirstName.defaultValue(), ...newOverrides };
@@ -12020,7 +12473,6 @@ export namespace FirstName {
   }
 }
 
-/**  */
 export interface Account {
   id: string;
 
@@ -12031,17 +12483,14 @@ export interface Account {
   orders: Ordered[];
   activity: Did[];
   customFields: [string, string][];
-
   accountName: AccountName;
 
   sector: Sector;
   memo: string | null;
   phones: PhoneNumber[];
-
   email: Email;
 
   leadSource: string;
-
   colors: Colors;
   needsReview: boolean;
   hasAlert: boolean;
@@ -12066,7 +12515,7 @@ export namespace Account {
       orders: [],
       activity: [],
       customFields: [],
-      accountName: CompanyName.defaultValue(),
+      accountName: AccountName.defaultValue(),
       sector: "Residential",
       memo: null,
       phones: [],
@@ -12089,6 +12538,10 @@ export namespace Account {
   export function toStringifiedJSON(self: Account): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Account): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Account,
@@ -12168,15 +12621,28 @@ export namespace Account {
     opts?: DeserializeOptions,
   ): Result<Account, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Account, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Account.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Account.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -12529,7 +12995,7 @@ export namespace Account {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -12557,7 +13023,7 @@ export namespace Account {
           tainted.taxRate = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -12585,7 +13051,7 @@ export namespace Account {
           tainted.site = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -12613,7 +13079,7 @@ export namespace Account {
           tainted.salesRep = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -12641,7 +13107,7 @@ export namespace Account {
           tainted.orders = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -12699,7 +13165,7 @@ export namespace Account {
           tainted.activity = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -12760,7 +13226,7 @@ export namespace Account {
           tainted.customFields = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -12822,7 +13288,7 @@ export namespace Account {
           tainted.accountName = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -12850,7 +13316,7 @@ export namespace Account {
           tainted.sector = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -12878,7 +13344,7 @@ export namespace Account {
           tainted.memo = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -12906,7 +13372,7 @@ export namespace Account {
           tainted.phones = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -12964,7 +13430,7 @@ export namespace Account {
           tainted.email = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -12992,7 +13458,7 @@ export namespace Account {
           tainted.leadSource = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -13020,7 +13486,7 @@ export namespace Account {
           tainted.colors = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -13048,7 +13514,7 @@ export namespace Account {
           tainted.needsReview = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -13076,7 +13542,7 @@ export namespace Account {
           tainted.hasAlert = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -13104,7 +13570,7 @@ export namespace Account {
           tainted.accountType = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -13132,7 +13598,7 @@ export namespace Account {
           tainted.subtype = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -13160,7 +13626,7 @@ export namespace Account {
           tainted.isTaxExempt = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -13188,7 +13654,7 @@ export namespace Account {
           tainted.paymentTerms = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -13216,7 +13682,7 @@ export namespace Account {
           tainted.tags = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -13274,7 +13740,7 @@ export namespace Account {
           tainted.dateAdded = value;
         },
         validate: (): Array<string> => {
-          const result = Account.fromJSON(data);
+          const result = Account.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -13289,7 +13755,7 @@ export namespace Account {
       Account,
       Array<{ field: string; message: string }>
     > {
-      return Account.fromJSON(data);
+      return Account.fromObject(data);
     }
     function reset(newOverrides?: Partial<Account>): void {
       data = { ...Account.defaultValue(), ...newOverrides };
@@ -13550,7 +14016,6 @@ export namespace Account {
   }
 }
 
-/**  */
 export interface Edited {
   fieldName: string;
   oldValue: string | null;
@@ -13567,6 +14032,10 @@ export namespace Edited {
   export function toStringifiedJSON(self: Edited): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Edited): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Edited,
@@ -13605,15 +14074,28 @@ export namespace Edited {
     opts?: DeserializeOptions,
   ): Result<Edited, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Edited, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Edited.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Edited.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -13746,7 +14228,7 @@ export namespace Edited {
           tainted.fieldName = value;
         },
         validate: (): Array<string> => {
-          const result = Edited.fromJSON(data);
+          const result = Edited.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -13774,7 +14256,7 @@ export namespace Edited {
           tainted.oldValue = value;
         },
         validate: (): Array<string> => {
-          const result = Edited.fromJSON(data);
+          const result = Edited.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -13802,7 +14284,7 @@ export namespace Edited {
           tainted.newValue = value;
         },
         validate: (): Array<string> => {
-          const result = Edited.fromJSON(data);
+          const result = Edited.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -13817,7 +14299,7 @@ export namespace Edited {
       Edited,
       Array<{ field: string; message: string }>
     > {
-      return Edited.fromJSON(data);
+      return Edited.fromObject(data);
     }
     function reset(newOverrides?: Partial<Edited>): void {
       data = { ...Edited.defaultValue(), ...newOverrides };
@@ -13859,7 +14341,6 @@ export namespace Edited {
   }
 }
 
-/**  */
 export interface Order {
   id: string;
 
@@ -13945,6 +14426,10 @@ export namespace Order {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
+  export function toObject(self: Order): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
+  }
   export function __serialize(
     self: Order,
     ctx: SerializeContext,
@@ -14019,15 +14504,28 @@ export namespace Order {
     opts?: DeserializeOptions,
   ): Result<Order, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Order, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Order.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Order.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -14432,7 +14930,7 @@ export namespace Order {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14460,7 +14958,7 @@ export namespace Order {
           tainted.account = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14488,7 +14986,7 @@ export namespace Order {
           tainted.stage = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14516,7 +15014,7 @@ export namespace Order {
           tainted.number = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14544,7 +15042,7 @@ export namespace Order {
           tainted.payments = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14605,7 +15103,7 @@ export namespace Order {
           tainted.opportunity = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14633,7 +15131,7 @@ export namespace Order {
           tainted.reference = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14661,7 +15159,7 @@ export namespace Order {
           tainted.leadSource = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14689,7 +15187,7 @@ export namespace Order {
           tainted.salesRep = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14717,7 +15215,7 @@ export namespace Order {
           tainted.group = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14745,7 +15243,7 @@ export namespace Order {
           tainted.subgroup = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14773,7 +15271,7 @@ export namespace Order {
           tainted.isPosted = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14801,7 +15299,7 @@ export namespace Order {
           tainted.needsReview = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14829,7 +15327,7 @@ export namespace Order {
           tainted.actionItem = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14857,7 +15355,7 @@ export namespace Order {
           tainted.upsale = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14885,7 +15383,7 @@ export namespace Order {
           tainted.dateCreated = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14913,7 +15411,7 @@ export namespace Order {
           tainted.appointment = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -14941,7 +15439,7 @@ export namespace Order {
           tainted.lastTechs = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -15002,7 +15500,7 @@ export namespace Order {
           tainted.package = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -15030,7 +15528,7 @@ export namespace Order {
           tainted.promotion = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -15058,7 +15556,7 @@ export namespace Order {
           tainted.balance = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -15086,7 +15584,7 @@ export namespace Order {
           tainted.due = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -15114,7 +15612,7 @@ export namespace Order {
           tainted.total = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -15142,7 +15640,7 @@ export namespace Order {
           tainted.site = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -15170,7 +15668,7 @@ export namespace Order {
           tainted.billedItems = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -15232,7 +15730,7 @@ export namespace Order {
           tainted.memo = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -15260,7 +15758,7 @@ export namespace Order {
           tainted.discount = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -15288,7 +15786,7 @@ export namespace Order {
           tainted.tip = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -15316,7 +15814,7 @@ export namespace Order {
           tainted.commissions = value;
         },
         validate: (): Array<string> => {
-          const result = Order.fromJSON(data);
+          const result = Order.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -15365,7 +15863,7 @@ export namespace Order {
       Order,
       Array<{ field: string; message: string }>
     > {
-      return Order.fromJSON(data);
+      return Order.fromObject(data);
     }
     function reset(newOverrides?: Partial<Order>): void {
       data = { ...Order.defaultValue(), ...newOverrides };
@@ -15570,7 +16068,6 @@ export namespace Order {
   }
 }
 
-/**  */
 export interface Commented {
   comment: string;
   replyTo: string | null;
@@ -15586,6 +16083,10 @@ export namespace Commented {
   export function toStringifiedJSON(self: Commented): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Commented): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Commented,
@@ -15616,15 +16117,28 @@ export namespace Commented {
     opts?: DeserializeOptions,
   ): Result<Commented, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Commented, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Commented.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Commented.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -15751,7 +16265,7 @@ export namespace Commented {
           tainted.comment = value;
         },
         validate: (): Array<string> => {
-          const result = Commented.fromJSON(data);
+          const result = Commented.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -15779,7 +16293,7 @@ export namespace Commented {
           tainted.replyTo = value;
         },
         validate: (): Array<string> => {
-          const result = Commented.fromJSON(data);
+          const result = Commented.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -15794,7 +16308,7 @@ export namespace Commented {
       Commented,
       Array<{ field: string; message: string }>
     > {
-      return Commented.fromJSON(data);
+      return Commented.fromObject(data);
     }
     function reset(newOverrides?: Partial<Commented>): void {
       data = { ...Commented.defaultValue(), ...newOverrides };
@@ -15835,7 +16349,6 @@ export namespace Commented {
   }
 }
 
-/**  */
 export interface Custom {
   mappings: DirectionHue[];
 }
@@ -15850,6 +16363,10 @@ export namespace Custom {
   export function toStringifiedJSON(self: Custom): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Custom): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Custom,
@@ -15874,15 +16391,28 @@ export namespace Custom {
     opts?: DeserializeOptions,
   ): Result<Custom, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Custom, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Custom.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Custom.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -16000,7 +16530,7 @@ export namespace Custom {
           tainted.mappings = value;
         },
         validate: (): Array<string> => {
-          const result = Custom.fromJSON(data);
+          const result = Custom.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -16048,7 +16578,7 @@ export namespace Custom {
       Custom,
       Array<{ field: string; message: string }>
     > {
-      return Custom.fromJSON(data);
+      return Custom.fromObject(data);
     }
     function reset(newOverrides?: Partial<Custom>): void {
       data = { ...Custom.defaultValue(), ...newOverrides };
@@ -16114,7 +16644,6 @@ export namespace Custom {
   }
 }
 
-/**  */
 export interface Colors {
   main: string;
 
@@ -16133,6 +16662,10 @@ export namespace Colors {
   export function toStringifiedJSON(self: Colors): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Colors): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Colors,
@@ -16157,15 +16690,28 @@ export namespace Colors {
     opts?: DeserializeOptions,
   ): Result<Colors, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Colors, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Colors.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Colors.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -16298,7 +16844,7 @@ export namespace Colors {
           tainted.main = value;
         },
         validate: (): Array<string> => {
-          const result = Colors.fromJSON(data);
+          const result = Colors.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -16326,7 +16872,7 @@ export namespace Colors {
           tainted.hover = value;
         },
         validate: (): Array<string> => {
-          const result = Colors.fromJSON(data);
+          const result = Colors.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -16354,7 +16900,7 @@ export namespace Colors {
           tainted.active = value;
         },
         validate: (): Array<string> => {
-          const result = Colors.fromJSON(data);
+          const result = Colors.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -16369,7 +16915,7 @@ export namespace Colors {
       Colors,
       Array<{ field: string; message: string }>
     > {
-      return Colors.fromJSON(data);
+      return Colors.fromObject(data);
     }
     function reset(newOverrides?: Partial<Colors>): void {
       data = { ...Colors.defaultValue(), ...newOverrides };
@@ -16411,7 +16957,6 @@ export namespace Colors {
   }
 }
 
-/**  */
 export interface ProductDefaults {
   price: number;
 
@@ -16428,6 +16973,10 @@ export namespace ProductDefaults {
   export function toStringifiedJSON(self: ProductDefaults): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: ProductDefaults): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: ProductDefaults,
@@ -16451,15 +17000,29 @@ export namespace ProductDefaults {
     opts?: DeserializeOptions,
   ): Result<ProductDefaults, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<ProductDefaults, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "ProductDefaults.fromStringifiedJSON: root cannot be a forward reference",
+              "ProductDefaults.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -16589,7 +17152,7 @@ export namespace ProductDefaults {
           tainted.price = value;
         },
         validate: (): Array<string> => {
-          const result = ProductDefaults.fromJSON(data);
+          const result = ProductDefaults.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -16617,7 +17180,7 @@ export namespace ProductDefaults {
           tainted.description = value;
         },
         validate: (): Array<string> => {
-          const result = ProductDefaults.fromJSON(data);
+          const result = ProductDefaults.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -16632,7 +17195,7 @@ export namespace ProductDefaults {
       ProductDefaults,
       Array<{ field: string; message: string }>
     > {
-      return ProductDefaults.fromJSON(data);
+      return ProductDefaults.fromObject(data);
     }
     function reset(newOverrides?: Partial<ProductDefaults>): void {
       data = { ...ProductDefaults.defaultValue(), ...newOverrides };
@@ -16677,7 +17240,6 @@ export namespace ProductDefaults {
   }
 }
 
-/**  */
 export interface Viewed {
   durationSeconds: number | null;
   source: string | null;
@@ -16693,6 +17255,10 @@ export namespace Viewed {
   export function toStringifiedJSON(self: Viewed): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Viewed): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Viewed,
@@ -16730,15 +17296,28 @@ export namespace Viewed {
     opts?: DeserializeOptions,
   ): Result<Viewed, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Viewed, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Viewed.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Viewed.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -16865,7 +17444,7 @@ export namespace Viewed {
           tainted.durationSeconds = value;
         },
         validate: (): Array<string> => {
-          const result = Viewed.fromJSON(data);
+          const result = Viewed.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -16893,7 +17472,7 @@ export namespace Viewed {
           tainted.source = value;
         },
         validate: (): Array<string> => {
-          const result = Viewed.fromJSON(data);
+          const result = Viewed.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -16908,7 +17487,7 @@ export namespace Viewed {
       Viewed,
       Array<{ field: string; message: string }>
     > {
-      return Viewed.fromJSON(data);
+      return Viewed.fromObject(data);
     }
     function reset(newOverrides?: Partial<Viewed>): void {
       data = { ...Viewed.defaultValue(), ...newOverrides };
@@ -16959,7 +17538,6 @@ export namespace Viewed {
   }
 }
 
-/**  */
 export interface WeeklyRecurrenceRule {
   quantityOfWeeks: number;
   weekdays: Weekday[];
@@ -16975,6 +17553,12 @@ export namespace WeeklyRecurrenceRule {
   export function toStringifiedJSON(self: WeeklyRecurrenceRule): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(
+    self: WeeklyRecurrenceRule,
+  ): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: WeeklyRecurrenceRule,
@@ -17003,15 +17587,29 @@ export namespace WeeklyRecurrenceRule {
     opts?: DeserializeOptions,
   ): Result<WeeklyRecurrenceRule, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<WeeklyRecurrenceRule, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "WeeklyRecurrenceRule.fromStringifiedJSON: root cannot be a forward reference",
+              "WeeklyRecurrenceRule.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -17147,7 +17745,7 @@ export namespace WeeklyRecurrenceRule {
           tainted.quantityOfWeeks = value;
         },
         validate: (): Array<string> => {
-          const result = WeeklyRecurrenceRule.fromJSON(data);
+          const result = WeeklyRecurrenceRule.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -17175,7 +17773,7 @@ export namespace WeeklyRecurrenceRule {
           tainted.weekdays = value;
         },
         validate: (): Array<string> => {
-          const result = WeeklyRecurrenceRule.fromJSON(data);
+          const result = WeeklyRecurrenceRule.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -17223,7 +17821,7 @@ export namespace WeeklyRecurrenceRule {
       WeeklyRecurrenceRule,
       Array<{ field: string; message: string }>
     > {
-      return WeeklyRecurrenceRule.fromJSON(data);
+      return WeeklyRecurrenceRule.fromObject(data);
     }
     function reset(newOverrides?: Partial<WeeklyRecurrenceRule>): void {
       data = { ...WeeklyRecurrenceRule.defaultValue(), ...newOverrides };
@@ -17300,7 +17898,6 @@ export namespace WeeklyRecurrenceRule {
   }
 }
 
-/**  */
 export interface Paid {
   amount: number | null;
   currency: string | null;
@@ -17317,6 +17914,10 @@ export namespace Paid {
   export function toStringifiedJSON(self: Paid): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Paid): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Paid,
@@ -17362,15 +17963,28 @@ export namespace Paid {
     opts?: DeserializeOptions,
   ): Result<Paid, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Paid, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Paid.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Paid.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -17506,7 +18120,7 @@ export namespace Paid {
           tainted.amount = value;
         },
         validate: (): Array<string> => {
-          const result = Paid.fromJSON(data);
+          const result = Paid.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -17534,7 +18148,7 @@ export namespace Paid {
           tainted.currency = value;
         },
         validate: (): Array<string> => {
-          const result = Paid.fromJSON(data);
+          const result = Paid.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -17562,7 +18176,7 @@ export namespace Paid {
           tainted.paymentMethod = value;
         },
         validate: (): Array<string> => {
-          const result = Paid.fromJSON(data);
+          const result = Paid.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -17577,7 +18191,7 @@ export namespace Paid {
       Paid,
       Array<{ field: string; message: string }>
     > {
-      return Paid.fromJSON(data);
+      return Paid.fromObject(data);
     }
     function reset(newOverrides?: Partial<Paid>): void {
       data = { ...Paid.defaultValue(), ...newOverrides };
@@ -17623,7 +18237,6 @@ export namespace Paid {
   }
 }
 
-/**  */
 export interface TaxRate {
   id: string;
 
@@ -17666,6 +18279,10 @@ export namespace TaxRate {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
+  export function toObject(self: TaxRate): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
+  }
   export function __serialize(
     self: TaxRate,
     ctx: SerializeContext,
@@ -17696,15 +18313,28 @@ export namespace TaxRate {
     opts?: DeserializeOptions,
   ): Result<TaxRate, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<TaxRate, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "TaxRate.fromStringifiedJSON: root cannot be a forward reference",
+            message: "TaxRate.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -17917,7 +18547,7 @@ export namespace TaxRate {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = TaxRate.fromJSON(data);
+          const result = TaxRate.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -17945,7 +18575,7 @@ export namespace TaxRate {
           tainted.name = value;
         },
         validate: (): Array<string> => {
-          const result = TaxRate.fromJSON(data);
+          const result = TaxRate.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -17973,7 +18603,7 @@ export namespace TaxRate {
           tainted.taxAgency = value;
         },
         validate: (): Array<string> => {
-          const result = TaxRate.fromJSON(data);
+          const result = TaxRate.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -18001,7 +18631,7 @@ export namespace TaxRate {
           tainted.zip = value;
         },
         validate: (): Array<string> => {
-          const result = TaxRate.fromJSON(data);
+          const result = TaxRate.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -18029,7 +18659,7 @@ export namespace TaxRate {
           tainted.city = value;
         },
         validate: (): Array<string> => {
-          const result = TaxRate.fromJSON(data);
+          const result = TaxRate.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -18057,7 +18687,7 @@ export namespace TaxRate {
           tainted.county = value;
         },
         validate: (): Array<string> => {
-          const result = TaxRate.fromJSON(data);
+          const result = TaxRate.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -18085,7 +18715,7 @@ export namespace TaxRate {
           tainted.state = value;
         },
         validate: (): Array<string> => {
-          const result = TaxRate.fromJSON(data);
+          const result = TaxRate.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -18113,7 +18743,7 @@ export namespace TaxRate {
           tainted.isActive = value;
         },
         validate: (): Array<string> => {
-          const result = TaxRate.fromJSON(data);
+          const result = TaxRate.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -18141,7 +18771,7 @@ export namespace TaxRate {
           tainted.description = value;
         },
         validate: (): Array<string> => {
-          const result = TaxRate.fromJSON(data);
+          const result = TaxRate.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -18169,7 +18799,7 @@ export namespace TaxRate {
           tainted.taxComponents = value;
         },
         validate: (): Array<string> => {
-          const result = TaxRate.fromJSON(data);
+          const result = TaxRate.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -18184,7 +18814,7 @@ export namespace TaxRate {
       TaxRate,
       Array<{ field: string; message: string }>
     > {
-      return TaxRate.fromJSON(data);
+      return TaxRate.fromObject(data);
     }
     function reset(newOverrides?: Partial<TaxRate>): void {
       data = { ...TaxRate.defaultValue(), ...newOverrides };
@@ -18241,7 +18871,6 @@ export namespace TaxRate {
   }
 }
 
-/**  */
 export interface Address {
   street: string;
 
@@ -18262,6 +18891,10 @@ export namespace Address {
   export function toStringifiedJSON(self: Address): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Address): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Address,
@@ -18287,15 +18920,28 @@ export namespace Address {
     opts?: DeserializeOptions,
   ): Result<Address, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Address, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Address.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Address.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -18440,7 +19086,7 @@ export namespace Address {
           tainted.street = value;
         },
         validate: (): Array<string> => {
-          const result = Address.fromJSON(data);
+          const result = Address.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -18468,7 +19114,7 @@ export namespace Address {
           tainted.city = value;
         },
         validate: (): Array<string> => {
-          const result = Address.fromJSON(data);
+          const result = Address.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -18496,7 +19142,7 @@ export namespace Address {
           tainted.state = value;
         },
         validate: (): Array<string> => {
-          const result = Address.fromJSON(data);
+          const result = Address.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -18524,7 +19170,7 @@ export namespace Address {
           tainted.zipcode = value;
         },
         validate: (): Array<string> => {
-          const result = Address.fromJSON(data);
+          const result = Address.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -18539,7 +19185,7 @@ export namespace Address {
       Address,
       Array<{ field: string; message: string }>
     > {
-      return Address.fromJSON(data);
+      return Address.fromObject(data);
     }
     function reset(newOverrides?: Partial<Address>): void {
       data = { ...Address.defaultValue(), ...newOverrides };
@@ -18582,7 +19228,6 @@ export namespace Address {
   }
 }
 
-/**  */
 export interface Lead {
   id: string;
   number: number | null;
@@ -18605,10 +19250,8 @@ export interface Lead {
   taxRate: (string | TaxRate) | null;
 
   sector: Sector;
-
   leadName: AccountName;
   phones: PhoneNumber[];
-
   email: Email;
   leadSource: string | null;
 
@@ -18649,7 +19292,7 @@ export namespace Lead {
       dateAdded: null,
       taxRate: null,
       sector: "Residential",
-      leadName: CompanyName.defaultValue(),
+      leadName: AccountName.defaultValue(),
       phones: [],
       email: Email.defaultValue(),
       leadSource: null,
@@ -18673,6 +19316,10 @@ export namespace Lead {
   export function toStringifiedJSON(self: Lead): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Lead): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Lead,
@@ -18813,15 +19460,28 @@ export namespace Lead {
     opts?: DeserializeOptions,
   ): Result<Lead, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Lead, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Lead.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Lead.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -19281,7 +19941,7 @@ export namespace Lead {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19309,7 +19969,7 @@ export namespace Lead {
           tainted.number = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19337,7 +19997,7 @@ export namespace Lead {
           tainted.accepted = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19365,7 +20025,7 @@ export namespace Lead {
           tainted.probability = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19393,7 +20053,7 @@ export namespace Lead {
           tainted.priority = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19421,7 +20081,7 @@ export namespace Lead {
           tainted.dueDate = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19449,7 +20109,7 @@ export namespace Lead {
           tainted.closeDate = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19477,7 +20137,7 @@ export namespace Lead {
           tainted.value = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19505,7 +20165,7 @@ export namespace Lead {
           tainted.stage = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19533,7 +20193,7 @@ export namespace Lead {
           tainted.status = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19561,7 +20221,7 @@ export namespace Lead {
           tainted.description = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19589,7 +20249,7 @@ export namespace Lead {
           tainted.nextStep = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19617,7 +20277,7 @@ export namespace Lead {
           tainted.favorite = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19645,7 +20305,7 @@ export namespace Lead {
           tainted.dateAdded = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19673,7 +20333,7 @@ export namespace Lead {
           tainted.taxRate = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19701,7 +20361,7 @@ export namespace Lead {
           tainted.sector = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19729,7 +20389,7 @@ export namespace Lead {
           tainted.leadName = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19757,7 +20417,7 @@ export namespace Lead {
           tainted.phones = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19815,7 +20475,7 @@ export namespace Lead {
           tainted.email = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19843,7 +20503,7 @@ export namespace Lead {
           tainted.leadSource = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19871,7 +20531,7 @@ export namespace Lead {
           tainted.site = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19899,7 +20559,7 @@ export namespace Lead {
           tainted.memo = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19927,7 +20587,7 @@ export namespace Lead {
           tainted.needsReview = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19955,7 +20615,7 @@ export namespace Lead {
           tainted.hasAlert = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -19983,7 +20643,7 @@ export namespace Lead {
           tainted.salesRep = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -20011,7 +20671,7 @@ export namespace Lead {
           tainted.color = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -20039,7 +20699,7 @@ export namespace Lead {
           tainted.accountType = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -20067,7 +20727,7 @@ export namespace Lead {
           tainted.subtype = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -20095,7 +20755,7 @@ export namespace Lead {
           tainted.isTaxExempt = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -20123,7 +20783,7 @@ export namespace Lead {
           tainted.paymentTerms = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -20151,7 +20811,7 @@ export namespace Lead {
           tainted.tags = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -20209,7 +20869,7 @@ export namespace Lead {
           tainted.customFields = value;
         },
         validate: (): Array<string> => {
-          const result = Lead.fromJSON(data);
+          const result = Lead.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -20258,7 +20918,7 @@ export namespace Lead {
       Lead,
       Array<{ field: string; message: string }>
     > {
-      return Lead.fromJSON(data);
+      return Lead.fromObject(data);
     }
     function reset(newOverrides?: Partial<Lead>): void {
       data = { ...Lead.defaultValue(), ...newOverrides };
@@ -20540,7 +21200,6 @@ export namespace Lead {
   }
 }
 
-/**  */
 export interface AppPermissions {
   applications: Applications[];
   pages: Page[];
@@ -20557,6 +21216,10 @@ export namespace AppPermissions {
   export function toStringifiedJSON(self: AppPermissions): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: AppPermissions): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: AppPermissions,
@@ -20587,15 +21250,29 @@ export namespace AppPermissions {
     opts?: DeserializeOptions,
   ): Result<AppPermissions, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<AppPermissions, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "AppPermissions.fromStringifiedJSON: root cannot be a forward reference",
+              "AppPermissions.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -20741,7 +21418,7 @@ export namespace AppPermissions {
           tainted.applications = value;
         },
         validate: (): Array<string> => {
-          const result = AppPermissions.fromJSON(data);
+          const result = AppPermissions.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -20803,7 +21480,7 @@ export namespace AppPermissions {
           tainted.pages = value;
         },
         validate: (): Array<string> => {
-          const result = AppPermissions.fromJSON(data);
+          const result = AppPermissions.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -20861,7 +21538,7 @@ export namespace AppPermissions {
           tainted.data = value;
         },
         validate: (): Array<string> => {
-          const result = AppPermissions.fromJSON(data);
+          const result = AppPermissions.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -20906,7 +21583,7 @@ export namespace AppPermissions {
       AppPermissions,
       Array<{ field: string; message: string }>
     > {
-      return AppPermissions.fromJSON(data);
+      return AppPermissions.fromObject(data);
     }
     function reset(newOverrides?: Partial<AppPermissions>): void {
       data = { ...AppPermissions.defaultValue(), ...newOverrides };
@@ -21026,7 +21703,6 @@ export namespace AppPermissions {
   }
 }
 
-/**  */
 export interface Company {
   id: string;
 
@@ -21069,7 +21745,6 @@ export interface Company {
   hasSortServiceItemsAlphabetically: boolean;
   hasAttachOrderToAppointmentEmails: boolean;
   scheduleInterval: number;
-
   colorsConfig: ColorsConfig;
 }
 
@@ -21104,7 +21779,7 @@ export namespace Company {
       hasSortServiceItemsAlphabetically: false,
       hasAttachOrderToAppointmentEmails: false,
       scheduleInterval: 0,
-      colorsConfig: Gradient.defaultValue(),
+      colorsConfig: ColorsConfig.defaultValue(),
     } as Company;
   }
 }
@@ -21113,6 +21788,10 @@ export namespace Company {
   export function toStringifiedJSON(self: Company): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Company): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Company,
@@ -21177,15 +21856,28 @@ export namespace Company {
     opts?: DeserializeOptions,
   ): Result<Company, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Company, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Company.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Company.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -21651,7 +22343,7 @@ export namespace Company {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -21679,7 +22371,7 @@ export namespace Company {
           tainted.legalName = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -21707,7 +22399,7 @@ export namespace Company {
           tainted.headquarters = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -21735,7 +22427,7 @@ export namespace Company {
           tainted.phones = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -21793,7 +22485,7 @@ export namespace Company {
           tainted.fax = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -21821,7 +22513,7 @@ export namespace Company {
           tainted.email = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -21849,7 +22541,7 @@ export namespace Company {
           tainted.website = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -21877,7 +22569,7 @@ export namespace Company {
           tainted.taxId = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -21905,7 +22597,7 @@ export namespace Company {
           tainted.referenceNumber = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -21933,7 +22625,7 @@ export namespace Company {
           tainted.postalCodeLookup = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -21961,7 +22653,7 @@ export namespace Company {
           tainted.timeZone = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -21989,7 +22681,7 @@ export namespace Company {
           tainted.defaultTax = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22017,7 +22709,7 @@ export namespace Company {
           tainted.defaultTaxLocation = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22045,7 +22737,7 @@ export namespace Company {
           tainted.defaultAreaCode = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22073,7 +22765,7 @@ export namespace Company {
           tainted.defaultAccountType = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22101,7 +22793,7 @@ export namespace Company {
           tainted.lookupFormatting = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22129,7 +22821,7 @@ export namespace Company {
           tainted.accountNameFormat = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22157,7 +22849,7 @@ export namespace Company {
           tainted.merchantServiceProvider = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22185,7 +22877,7 @@ export namespace Company {
           tainted.dateDisplayStyle = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22213,7 +22905,7 @@ export namespace Company {
           tainted.hasAutoCommission = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22241,7 +22933,7 @@ export namespace Company {
           tainted.hasAutoDaylightSavings = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22269,7 +22961,7 @@ export namespace Company {
           tainted.hasAutoFmsTracking = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22297,7 +22989,7 @@ export namespace Company {
           tainted.hasNotifications = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22325,7 +23017,7 @@ export namespace Company {
           tainted.hasRequiredLeadSource = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22353,7 +23045,7 @@ export namespace Company {
           tainted.hasRequiredEmail = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22381,7 +23073,7 @@ export namespace Company {
           tainted.hasSortServiceItemsAlphabetically = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22409,7 +23101,7 @@ export namespace Company {
           tainted.hasAttachOrderToAppointmentEmails = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22437,7 +23129,7 @@ export namespace Company {
           tainted.scheduleInterval = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22465,7 +23157,7 @@ export namespace Company {
           tainted.colorsConfig = value;
         },
         validate: (): Array<string> => {
-          const result = Company.fromJSON(data);
+          const result = Company.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22480,7 +23172,7 @@ export namespace Company {
       Company,
       Array<{ field: string; message: string }>
     > {
-      return Company.fromJSON(data);
+      return Company.fromObject(data);
     }
     function reset(newOverrides?: Partial<Company>): void {
       data = { ...Company.defaultValue(), ...newOverrides };
@@ -22676,7 +23368,6 @@ export namespace Company {
   }
 }
 
-/**  */
 export interface Ordinal {
   north: number;
   northeast: number;
@@ -22708,6 +23399,10 @@ export namespace Ordinal {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
   }
+  export function toObject(self: Ordinal): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
+  }
   export function __serialize(
     self: Ordinal,
     ctx: SerializeContext,
@@ -22736,15 +23431,28 @@ export namespace Ordinal {
     opts?: DeserializeOptions,
   ): Result<Ordinal, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Ordinal, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Ordinal.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Ordinal.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -22934,7 +23642,7 @@ export namespace Ordinal {
           tainted.north = value;
         },
         validate: (): Array<string> => {
-          const result = Ordinal.fromJSON(data);
+          const result = Ordinal.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22962,7 +23670,7 @@ export namespace Ordinal {
           tainted.northeast = value;
         },
         validate: (): Array<string> => {
-          const result = Ordinal.fromJSON(data);
+          const result = Ordinal.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -22990,7 +23698,7 @@ export namespace Ordinal {
           tainted.east = value;
         },
         validate: (): Array<string> => {
-          const result = Ordinal.fromJSON(data);
+          const result = Ordinal.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -23018,7 +23726,7 @@ export namespace Ordinal {
           tainted.southeast = value;
         },
         validate: (): Array<string> => {
-          const result = Ordinal.fromJSON(data);
+          const result = Ordinal.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -23046,7 +23754,7 @@ export namespace Ordinal {
           tainted.south = value;
         },
         validate: (): Array<string> => {
-          const result = Ordinal.fromJSON(data);
+          const result = Ordinal.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -23074,7 +23782,7 @@ export namespace Ordinal {
           tainted.southwest = value;
         },
         validate: (): Array<string> => {
-          const result = Ordinal.fromJSON(data);
+          const result = Ordinal.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -23102,7 +23810,7 @@ export namespace Ordinal {
           tainted.west = value;
         },
         validate: (): Array<string> => {
-          const result = Ordinal.fromJSON(data);
+          const result = Ordinal.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -23130,7 +23838,7 @@ export namespace Ordinal {
           tainted.northwest = value;
         },
         validate: (): Array<string> => {
-          const result = Ordinal.fromJSON(data);
+          const result = Ordinal.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -23145,7 +23853,7 @@ export namespace Ordinal {
       Ordinal,
       Array<{ field: string; message: string }>
     > {
-      return Ordinal.fromJSON(data);
+      return Ordinal.fromObject(data);
     }
     function reset(newOverrides?: Partial<Ordinal>): void {
       data = { ...Ordinal.defaultValue(), ...newOverrides };
@@ -23228,7 +23936,6 @@ export namespace Ordinal {
   }
 }
 
-/**  */
 export interface Password {
   password: string;
 }
@@ -23243,6 +23950,10 @@ export namespace Password {
   export function toStringifiedJSON(self: Password): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Password): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Password,
@@ -23265,15 +23976,28 @@ export namespace Password {
     opts?: DeserializeOptions,
   ): Result<Password, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Password, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Password.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Password.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -23391,7 +24115,7 @@ export namespace Password {
           tainted.password = value;
         },
         validate: (): Array<string> => {
-          const result = Password.fromJSON(data);
+          const result = Password.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -23406,7 +24130,7 @@ export namespace Password {
       Password,
       Array<{ field: string; message: string }>
     > {
-      return Password.fromJSON(data);
+      return Password.fromObject(data);
     }
     function reset(newOverrides?: Partial<Password>): void {
       data = { ...Password.defaultValue(), ...newOverrides };
@@ -23446,7 +24170,6 @@ export namespace Password {
   }
 }
 
-/**  */
 export interface Created {
   initialData: string | null;
 }
@@ -23461,6 +24184,10 @@ export namespace Created {
   export function toStringifiedJSON(self: Created): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Created): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Created,
@@ -23490,15 +24217,28 @@ export namespace Created {
     opts?: DeserializeOptions,
   ): Result<Created, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Created, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Created.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Created.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -23616,7 +24356,7 @@ export namespace Created {
           tainted.initialData = value;
         },
         validate: (): Array<string> => {
-          const result = Created.fromJSON(data);
+          const result = Created.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -23631,7 +24371,7 @@ export namespace Created {
       Created,
       Array<{ field: string; message: string }>
     > {
-      return Created.fromJSON(data);
+      return Created.fromObject(data);
     }
     function reset(newOverrides?: Partial<Created>): void {
       data = { ...Created.defaultValue(), ...newOverrides };
@@ -23671,7 +24411,6 @@ export namespace Created {
   }
 }
 
-/**  */
 export interface Employee {
   id: string;
   imageUrl: string | null;
@@ -23682,7 +24421,6 @@ export interface Employee {
   role: string;
 
   title: JobTitle;
-
   email: Email;
 
   address: string;
@@ -23697,7 +24435,6 @@ export interface Employee {
   description: string | null;
   linkedinUrl: string | null;
   attendance: string[];
-
   settings: Settings;
 }
 
@@ -23730,6 +24467,10 @@ export namespace Employee {
   export function toStringifiedJSON(self: Employee): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Employee): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Employee,
@@ -23803,15 +24544,28 @@ export namespace Employee {
     opts?: DeserializeOptions,
   ): Result<Employee, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Employee, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Employee.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Employee.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -24116,7 +24870,7 @@ export namespace Employee {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24144,7 +24898,7 @@ export namespace Employee {
           tainted.imageUrl = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24172,7 +24926,7 @@ export namespace Employee {
           tainted.name = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24200,7 +24954,7 @@ export namespace Employee {
           tainted.phones = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24258,7 +25012,7 @@ export namespace Employee {
           tainted.role = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24286,7 +25040,7 @@ export namespace Employee {
           tainted.title = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24314,7 +25068,7 @@ export namespace Employee {
           tainted.email = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24342,7 +25096,7 @@ export namespace Employee {
           tainted.address = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24370,7 +25124,7 @@ export namespace Employee {
           tainted.username = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24398,7 +25152,7 @@ export namespace Employee {
           tainted.route = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24426,7 +25180,7 @@ export namespace Employee {
           tainted.ratePerHour = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24454,7 +25208,7 @@ export namespace Employee {
           tainted.active = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24482,7 +25236,7 @@ export namespace Employee {
           tainted.isTechnician = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24510,7 +25264,7 @@ export namespace Employee {
           tainted.isSalesRep = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24538,7 +25292,7 @@ export namespace Employee {
           tainted.description = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24566,7 +25320,7 @@ export namespace Employee {
           tainted.linkedinUrl = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24594,7 +25348,7 @@ export namespace Employee {
           tainted.attendance = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24656,7 +25410,7 @@ export namespace Employee {
           tainted.settings = value;
         },
         validate: (): Array<string> => {
-          const result = Employee.fromJSON(data);
+          const result = Employee.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -24671,7 +25425,7 @@ export namespace Employee {
       Employee,
       Array<{ field: string; message: string }>
     > {
-      return Employee.fromJSON(data);
+      return Employee.fromObject(data);
     }
     function reset(newOverrides?: Partial<Employee>): void {
       data = { ...Employee.defaultValue(), ...newOverrides };
@@ -24837,7 +25591,6 @@ export namespace Employee {
   }
 }
 
-/**  */
 export interface Commissions {
   technician: string;
 
@@ -24854,6 +25607,10 @@ export namespace Commissions {
   export function toStringifiedJSON(self: Commissions): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Commissions): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Commissions,
@@ -24877,15 +25634,29 @@ export namespace Commissions {
     opts?: DeserializeOptions,
   ): Result<Commissions, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Commissions, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "Commissions.fromStringifiedJSON: root cannot be a forward reference",
+              "Commissions.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -25012,7 +25783,7 @@ export namespace Commissions {
           tainted.technician = value;
         },
         validate: (): Array<string> => {
-          const result = Commissions.fromJSON(data);
+          const result = Commissions.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -25040,7 +25811,7 @@ export namespace Commissions {
           tainted.salesRep = value;
         },
         validate: (): Array<string> => {
-          const result = Commissions.fromJSON(data);
+          const result = Commissions.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -25055,7 +25826,7 @@ export namespace Commissions {
       Commissions,
       Array<{ field: string; message: string }>
     > {
-      return Commissions.fromJSON(data);
+      return Commissions.fromObject(data);
     }
     function reset(newOverrides?: Partial<Commissions>): void {
       data = { ...Commissions.defaultValue(), ...newOverrides };
@@ -25096,7 +25867,6 @@ export namespace Commissions {
   }
 }
 
-/**  */
 export interface Number {
   countryCode: string;
 
@@ -25115,6 +25885,10 @@ export namespace Number {
   export function toStringifiedJSON(self: Number): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Number): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Number,
@@ -25139,15 +25913,28 @@ export namespace Number {
     opts?: DeserializeOptions,
   ): Result<Number, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Number, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Number.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Number.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -25280,7 +26067,7 @@ export namespace Number {
           tainted.countryCode = value;
         },
         validate: (): Array<string> => {
-          const result = Number.fromJSON(data);
+          const result = Number.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -25308,7 +26095,7 @@ export namespace Number {
           tainted.areaCode = value;
         },
         validate: (): Array<string> => {
-          const result = Number.fromJSON(data);
+          const result = Number.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -25336,7 +26123,7 @@ export namespace Number {
           tainted.localNumber = value;
         },
         validate: (): Array<string> => {
-          const result = Number.fromJSON(data);
+          const result = Number.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -25351,7 +26138,7 @@ export namespace Number {
       Number,
       Array<{ field: string; message: string }>
     > {
-      return Number.fromJSON(data);
+      return Number.fromObject(data);
     }
     function reset(newOverrides?: Partial<Number>): void {
       data = { ...Number.defaultValue(), ...newOverrides };
@@ -25393,7 +26180,6 @@ export namespace Number {
   }
 }
 
-/**  */
 export interface DataPath {
   path: string[];
   formatter: string | null;
@@ -25409,6 +26195,10 @@ export namespace DataPath {
   export function toStringifiedJSON(self: DataPath): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: DataPath): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: DataPath,
@@ -25441,15 +26231,28 @@ export namespace DataPath {
     opts?: DeserializeOptions,
   ): Result<DataPath, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<DataPath, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "DataPath.fromStringifiedJSON: root cannot be a forward reference",
+            message: "DataPath.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -25576,7 +26379,7 @@ export namespace DataPath {
           tainted.path = value;
         },
         validate: (): Array<string> => {
-          const result = DataPath.fromJSON(data);
+          const result = DataPath.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -25634,7 +26437,7 @@ export namespace DataPath {
           tainted.formatter = value;
         },
         validate: (): Array<string> => {
-          const result = DataPath.fromJSON(data);
+          const result = DataPath.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -25649,7 +26452,7 @@ export namespace DataPath {
       DataPath,
       Array<{ field: string; message: string }>
     > {
-      return DataPath.fromJSON(data);
+      return DataPath.fromObject(data);
     }
     function reset(newOverrides?: Partial<DataPath>): void {
       data = { ...DataPath.defaultValue(), ...newOverrides };
@@ -25690,7 +26493,6 @@ export namespace DataPath {
   }
 }
 
-/**  */
 export interface Route {
   id: string;
   techs: (string | Employee)[] | null;
@@ -25730,6 +26532,10 @@ export namespace Route {
   export function toStringifiedJSON(self: Route): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Route): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Route,
@@ -25785,15 +26591,28 @@ export namespace Route {
     opts?: DeserializeOptions,
   ): Result<Route, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Route, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Route.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Route.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -26013,7 +26832,7 @@ export namespace Route {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Route.fromJSON(data);
+          const result = Route.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26041,7 +26860,7 @@ export namespace Route {
           tainted.techs = value;
         },
         validate: (): Array<string> => {
-          const result = Route.fromJSON(data);
+          const result = Route.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26069,7 +26888,7 @@ export namespace Route {
           tainted.active = value;
         },
         validate: (): Array<string> => {
-          const result = Route.fromJSON(data);
+          const result = Route.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26097,7 +26916,7 @@ export namespace Route {
           tainted.name = value;
         },
         validate: (): Array<string> => {
-          const result = Route.fromJSON(data);
+          const result = Route.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26125,7 +26944,7 @@ export namespace Route {
           tainted.phone = value;
         },
         validate: (): Array<string> => {
-          const result = Route.fromJSON(data);
+          const result = Route.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26153,7 +26972,7 @@ export namespace Route {
           tainted.position = value;
         },
         validate: (): Array<string> => {
-          const result = Route.fromJSON(data);
+          const result = Route.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26181,7 +27000,7 @@ export namespace Route {
           tainted.serviceRoute = value;
         },
         validate: (): Array<string> => {
-          const result = Route.fromJSON(data);
+          const result = Route.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26209,7 +27028,7 @@ export namespace Route {
           tainted.defaultDurationHours = value;
         },
         validate: (): Array<string> => {
-          const result = Route.fromJSON(data);
+          const result = Route.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26237,7 +27056,7 @@ export namespace Route {
           tainted.tags = value;
         },
         validate: (): Array<string> => {
-          const result = Route.fromJSON(data);
+          const result = Route.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26295,7 +27114,7 @@ export namespace Route {
           tainted.icon = value;
         },
         validate: (): Array<string> => {
-          const result = Route.fromJSON(data);
+          const result = Route.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26323,7 +27142,7 @@ export namespace Route {
           tainted.color = value;
         },
         validate: (): Array<string> => {
-          const result = Route.fromJSON(data);
+          const result = Route.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26338,7 +27157,7 @@ export namespace Route {
       Route,
       Array<{ field: string; message: string }>
     > {
-      return Route.fromJSON(data);
+      return Route.fromObject(data);
     }
     function reset(newOverrides?: Partial<Route>): void {
       data = { ...Route.defaultValue(), ...newOverrides };
@@ -26408,7 +27227,6 @@ export namespace Route {
   }
 }
 
-/**  */
 export interface EmailParts {
   local: string;
 
@@ -26427,6 +27245,10 @@ export namespace EmailParts {
   export function toStringifiedJSON(self: EmailParts): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: EmailParts): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: EmailParts,
@@ -26451,15 +27273,29 @@ export namespace EmailParts {
     opts?: DeserializeOptions,
   ): Result<EmailParts, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<EmailParts, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "EmailParts.fromStringifiedJSON: root cannot be a forward reference",
+              "EmailParts.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -26598,7 +27434,7 @@ export namespace EmailParts {
           tainted.local = value;
         },
         validate: (): Array<string> => {
-          const result = EmailParts.fromJSON(data);
+          const result = EmailParts.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26626,7 +27462,7 @@ export namespace EmailParts {
           tainted.domainName = value;
         },
         validate: (): Array<string> => {
-          const result = EmailParts.fromJSON(data);
+          const result = EmailParts.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26654,7 +27490,7 @@ export namespace EmailParts {
           tainted.topLevelDomain = value;
         },
         validate: (): Array<string> => {
-          const result = EmailParts.fromJSON(data);
+          const result = EmailParts.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26669,7 +27505,7 @@ export namespace EmailParts {
       EmailParts,
       Array<{ field: string; message: string }>
     > {
-      return EmailParts.fromJSON(data);
+      return EmailParts.fromObject(data);
     }
     function reset(newOverrides?: Partial<EmailParts>): void {
       data = { ...EmailParts.defaultValue(), ...newOverrides };
@@ -26711,7 +27547,6 @@ export namespace EmailParts {
   }
 }
 
-/**  */
 export interface Sent {
   recipient: string | null;
   method: string | null;
@@ -26727,6 +27562,10 @@ export namespace Sent {
   export function toStringifiedJSON(self: Sent): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Sent): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Sent,
@@ -26764,15 +27603,28 @@ export namespace Sent {
     opts?: DeserializeOptions,
   ): Result<Sent, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Sent, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Sent.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Sent.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -26896,7 +27748,7 @@ export namespace Sent {
           tainted.recipient = value;
         },
         validate: (): Array<string> => {
-          const result = Sent.fromJSON(data);
+          const result = Sent.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26924,7 +27776,7 @@ export namespace Sent {
           tainted.method = value;
         },
         validate: (): Array<string> => {
-          const result = Sent.fromJSON(data);
+          const result = Sent.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -26939,7 +27791,7 @@ export namespace Sent {
       Sent,
       Array<{ field: string; message: string }>
     > {
-      return Sent.fromJSON(data);
+      return Sent.fromObject(data);
     }
     function reset(newOverrides?: Partial<Sent>): void {
       data = { ...Sent.defaultValue(), ...newOverrides };
@@ -26980,7 +27832,6 @@ export namespace Sent {
   }
 }
 
-/**  */
 export interface BilledItem {
   item: Item;
   quantity: number;
@@ -26998,6 +27849,10 @@ export namespace BilledItem {
   export function toStringifiedJSON(self: BilledItem): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: BilledItem): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: BilledItem,
@@ -27026,15 +27881,29 @@ export namespace BilledItem {
     opts?: DeserializeOptions,
   ): Result<BilledItem, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<BilledItem, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "BilledItem.fromStringifiedJSON: root cannot be a forward reference",
+              "BilledItem.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -27189,7 +28058,7 @@ export namespace BilledItem {
           tainted.item = value;
         },
         validate: (): Array<string> => {
-          const result = BilledItem.fromJSON(data);
+          const result = BilledItem.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -27217,7 +28086,7 @@ export namespace BilledItem {
           tainted.quantity = value;
         },
         validate: (): Array<string> => {
-          const result = BilledItem.fromJSON(data);
+          const result = BilledItem.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -27245,7 +28114,7 @@ export namespace BilledItem {
           tainted.taxed = value;
         },
         validate: (): Array<string> => {
-          const result = BilledItem.fromJSON(data);
+          const result = BilledItem.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -27273,7 +28142,7 @@ export namespace BilledItem {
           tainted.upsale = value;
         },
         validate: (): Array<string> => {
-          const result = BilledItem.fromJSON(data);
+          const result = BilledItem.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -27288,7 +28157,7 @@ export namespace BilledItem {
       BilledItem,
       Array<{ field: string; message: string }>
     > {
-      return BilledItem.fromJSON(data);
+      return BilledItem.fromObject(data);
     }
     function reset(newOverrides?: Partial<BilledItem>): void {
       data = { ...BilledItem.defaultValue(), ...newOverrides };
@@ -27363,7 +28232,6 @@ export namespace BilledItem {
   }
 }
 
-/**  */
 export interface Coordinates {
   lat: number;
   lng: number;
@@ -27379,6 +28247,10 @@ export namespace Coordinates {
   export function toStringifiedJSON(self: Coordinates): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Coordinates): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Coordinates,
@@ -27402,15 +28274,29 @@ export namespace Coordinates {
     opts?: DeserializeOptions,
   ): Result<Coordinates, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Coordinates, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "Coordinates.fromStringifiedJSON: root cannot be a forward reference",
+              "Coordinates.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -27537,7 +28423,7 @@ export namespace Coordinates {
           tainted.lat = value;
         },
         validate: (): Array<string> => {
-          const result = Coordinates.fromJSON(data);
+          const result = Coordinates.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -27565,7 +28451,7 @@ export namespace Coordinates {
           tainted.lng = value;
         },
         validate: (): Array<string> => {
-          const result = Coordinates.fromJSON(data);
+          const result = Coordinates.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -27580,7 +28466,7 @@ export namespace Coordinates {
       Coordinates,
       Array<{ field: string; message: string }>
     > {
-      return Coordinates.fromJSON(data);
+      return Coordinates.fromObject(data);
     }
     function reset(newOverrides?: Partial<Coordinates>): void {
       data = { ...Coordinates.defaultValue(), ...newOverrides };
@@ -27629,7 +28515,6 @@ export namespace Coordinates {
   }
 }
 
-/**  */
 export interface Ordered {
   id: string;
 
@@ -27649,6 +28534,10 @@ export namespace Ordered {
   export function toStringifiedJSON(self: Ordered): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Ordered): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Ordered,
@@ -27674,15 +28563,28 @@ export namespace Ordered {
     opts?: DeserializeOptions,
   ): Result<Ordered, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Ordered, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Ordered.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Ordered.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -27827,7 +28729,7 @@ export namespace Ordered {
           tainted.id = value;
         },
         validate: (): Array<string> => {
-          const result = Ordered.fromJSON(data);
+          const result = Ordered.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -27855,7 +28757,7 @@ export namespace Ordered {
           tainted.in = value;
         },
         validate: (): Array<string> => {
-          const result = Ordered.fromJSON(data);
+          const result = Ordered.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -27883,7 +28785,7 @@ export namespace Ordered {
           tainted.out = value;
         },
         validate: (): Array<string> => {
-          const result = Ordered.fromJSON(data);
+          const result = Ordered.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -27911,7 +28813,7 @@ export namespace Ordered {
           tainted.date = value;
         },
         validate: (): Array<string> => {
-          const result = Ordered.fromJSON(data);
+          const result = Ordered.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -27926,7 +28828,7 @@ export namespace Ordered {
       Ordered,
       Array<{ field: string; message: string }>
     > {
-      return Ordered.fromJSON(data);
+      return Ordered.fromObject(data);
     }
     function reset(newOverrides?: Partial<Ordered>): void {
       data = { ...Ordered.defaultValue(), ...newOverrides };
@@ -27969,7 +28871,6 @@ export namespace Ordered {
   }
 }
 
-/**  */
 export interface Email {
   canEmail: boolean;
 
@@ -27986,6 +28887,10 @@ export namespace Email {
   export function toStringifiedJSON(self: Email): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Email): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Email,
@@ -28009,15 +28914,28 @@ export namespace Email {
     opts?: DeserializeOptions,
   ): Result<Email, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Email, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Email.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Email.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -28141,7 +29059,7 @@ export namespace Email {
           tainted.canEmail = value;
         },
         validate: (): Array<string> => {
-          const result = Email.fromJSON(data);
+          const result = Email.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -28169,7 +29087,7 @@ export namespace Email {
           tainted.emailString = value;
         },
         validate: (): Array<string> => {
-          const result = Email.fromJSON(data);
+          const result = Email.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -28184,7 +29102,7 @@ export namespace Email {
       Email,
       Array<{ field: string; message: string }>
     > {
-      return Email.fromJSON(data);
+      return Email.fromObject(data);
     }
     function reset(newOverrides?: Partial<Email>): void {
       data = { ...Email.defaultValue(), ...newOverrides };
@@ -28229,7 +29147,6 @@ export namespace Email {
   }
 }
 
-/**  */
 export interface RecurrenceRule {
   interval: Interval;
   recurrenceBegins: string;
@@ -28241,7 +29158,7 @@ export interface RecurrenceRule {
 export namespace RecurrenceRule {
   export function defaultValue(): RecurrenceRule {
     return {
-      interval: DailyRecurrenceRule.defaultValue(),
+      interval: Interval.defaultValue(),
       recurrenceBegins: "",
       recurrenceEnds: null,
       cancelledInstances: null,
@@ -28254,6 +29171,10 @@ export namespace RecurrenceRule {
   export function toStringifiedJSON(self: RecurrenceRule): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: RecurrenceRule): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: RecurrenceRule,
@@ -28304,15 +29225,29 @@ export namespace RecurrenceRule {
     opts?: DeserializeOptions,
   ): Result<RecurrenceRule, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<RecurrenceRule, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
             message:
-              "RecurrenceRule.fromStringifiedJSON: root cannot be a forward reference",
+              "RecurrenceRule.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -28492,7 +29427,7 @@ export namespace RecurrenceRule {
           tainted.interval = value;
         },
         validate: (): Array<string> => {
-          const result = RecurrenceRule.fromJSON(data);
+          const result = RecurrenceRule.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -28520,7 +29455,7 @@ export namespace RecurrenceRule {
           tainted.recurrenceBegins = value;
         },
         validate: (): Array<string> => {
-          const result = RecurrenceRule.fromJSON(data);
+          const result = RecurrenceRule.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -28548,7 +29483,7 @@ export namespace RecurrenceRule {
           tainted.recurrenceEnds = value;
         },
         validate: (): Array<string> => {
-          const result = RecurrenceRule.fromJSON(data);
+          const result = RecurrenceRule.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -28576,7 +29511,7 @@ export namespace RecurrenceRule {
           tainted.cancelledInstances = value;
         },
         validate: (): Array<string> => {
-          const result = RecurrenceRule.fromJSON(data);
+          const result = RecurrenceRule.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -28604,7 +29539,7 @@ export namespace RecurrenceRule {
           tainted.additionalInstances = value;
         },
         validate: (): Array<string> => {
-          const result = RecurrenceRule.fromJSON(data);
+          const result = RecurrenceRule.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -28619,7 +29554,7 @@ export namespace RecurrenceRule {
       RecurrenceRule,
       Array<{ field: string; message: string }>
     > {
-      return RecurrenceRule.fromJSON(data);
+      return RecurrenceRule.fromObject(data);
     }
     function reset(newOverrides?: Partial<RecurrenceRule>): void {
       data = { ...RecurrenceRule.defaultValue(), ...newOverrides };
@@ -28683,7 +29618,6 @@ export namespace RecurrenceRule {
   }
 }
 
-/**  */
 export interface LastName {
   name: string;
 }
@@ -28698,6 +29632,10 @@ export namespace LastName {
   export function toStringifiedJSON(self: LastName): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: LastName): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: LastName,
@@ -28720,15 +29658,28 @@ export namespace LastName {
     opts?: DeserializeOptions,
   ): Result<LastName, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<LastName, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "LastName.fromStringifiedJSON: root cannot be a forward reference",
+            message: "LastName.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -28846,7 +29797,7 @@ export namespace LastName {
           tainted.name = value;
         },
         validate: (): Array<string> => {
-          const result = LastName.fromJSON(data);
+          const result = LastName.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -28861,7 +29812,7 @@ export namespace LastName {
       LastName,
       Array<{ field: string; message: string }>
     > {
-      return LastName.fromJSON(data);
+      return LastName.fromObject(data);
     }
     function reset(newOverrides?: Partial<LastName>): void {
       data = { ...LastName.defaultValue(), ...newOverrides };
@@ -28901,7 +29852,6 @@ export namespace LastName {
   }
 }
 
-/**  */
 export interface Cardinal {
   north: number;
   east: number;
@@ -28919,6 +29869,10 @@ export namespace Cardinal {
   export function toStringifiedJSON(self: Cardinal): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(self, ctx));
+  }
+  export function toObject(self: Cardinal): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return __serialize(self, ctx);
   }
   export function __serialize(
     self: Cardinal,
@@ -28944,15 +29898,28 @@ export namespace Cardinal {
     opts?: DeserializeOptions,
   ): Result<Cardinal, Array<{ field: string; message: string }>> {
     try {
-      const ctx = DeserializeContext.create();
       const raw = JSON.parse(json);
-      const resultOrRef = __deserialize(raw, ctx);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Cardinal, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
             field: "_root",
-            message:
-              "Cardinal.fromStringifiedJSON: root cannot be a forward reference",
+            message: "Cardinal.fromObject: root cannot be a forward reference",
           },
         ]);
       }
@@ -29097,7 +30064,7 @@ export namespace Cardinal {
           tainted.north = value;
         },
         validate: (): Array<string> => {
-          const result = Cardinal.fromJSON(data);
+          const result = Cardinal.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -29125,7 +30092,7 @@ export namespace Cardinal {
           tainted.east = value;
         },
         validate: (): Array<string> => {
-          const result = Cardinal.fromJSON(data);
+          const result = Cardinal.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -29153,7 +30120,7 @@ export namespace Cardinal {
           tainted.south = value;
         },
         validate: (): Array<string> => {
-          const result = Cardinal.fromJSON(data);
+          const result = Cardinal.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -29181,7 +30148,7 @@ export namespace Cardinal {
           tainted.west = value;
         },
         validate: (): Array<string> => {
-          const result = Cardinal.fromJSON(data);
+          const result = Cardinal.fromObject(data);
           if (result.isErr()) {
             const allErrors = result.unwrapErr();
             return allErrors
@@ -29196,7 +30163,7 @@ export namespace Cardinal {
       Cardinal,
       Array<{ field: string; message: string }>
     > {
-      return Cardinal.fromJSON(data);
+      return Cardinal.fromObject(data);
     }
     function reset(newOverrides?: Partial<Cardinal>): void {
       data = { ...Cardinal.defaultValue(), ...newOverrides };
@@ -29255,21 +30222,49 @@ export namespace Cardinal {
   }
 }
 
-/**  */
 export type Interval =
-  | DailyRecurrenceRule
+  | /** @default */ DailyRecurrenceRule
   | WeeklyRecurrenceRule
   | MonthlyRecurrenceRule
   | YearlyRecurrenceRule;
+
+export namespace Interval {
+  export function defaultValue(): Interval {
+    return DailyRecurrenceRule.defaultValue();
+  }
+}
+
+export namespace Interval {
+  export function toStringifiedJSON(value: Interval): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: Interval): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(value: Interval, ctx: SerializeContext): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace Interval {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Interval {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Interval {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29289,9 +30284,212 @@ export namespace Interval {
   }
 }
 
-/**  */
+export namespace Interval {
+  /** Per-variant error types */ export type DailyRecurrenceRuleErrors = {
+    _errors?: Array<string>;
+  };
+  export type WeeklyRecurrenceRuleErrors = { _errors?: Array<string> };
+  export type MonthlyRecurrenceRuleErrors = { _errors?: Array<string> };
+  export type YearlyRecurrenceRuleErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type DailyRecurrenceRuleTainted = {};
+  export type WeeklyRecurrenceRuleTainted = {};
+  export type MonthlyRecurrenceRuleTainted = {};
+  export type YearlyRecurrenceRuleTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _type: "DailyRecurrenceRule" } & DailyRecurrenceRuleErrors)
+    | ({ _type: "WeeklyRecurrenceRule" } & WeeklyRecurrenceRuleErrors)
+    | ({ _type: "MonthlyRecurrenceRule" } & MonthlyRecurrenceRuleErrors)
+    | ({ _type: "YearlyRecurrenceRule" } & YearlyRecurrenceRuleErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _type: "DailyRecurrenceRule" } & DailyRecurrenceRuleTainted)
+    | ({ _type: "WeeklyRecurrenceRule" } & WeeklyRecurrenceRuleTainted)
+    | ({ _type: "MonthlyRecurrenceRule" } & MonthlyRecurrenceRuleTainted)
+    | ({ _type: "YearlyRecurrenceRule" } & YearlyRecurrenceRuleTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface DailyRecurrenceRuleFieldControllers {}
+  export interface WeeklyRecurrenceRuleFieldControllers {}
+  export interface MonthlyRecurrenceRuleFieldControllers {}
+  export interface YearlyRecurrenceRuleFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant:
+      | "DailyRecurrenceRule"
+      | "WeeklyRecurrenceRule"
+      | "MonthlyRecurrenceRule"
+      | "YearlyRecurrenceRule";
+    readonly data: Interval;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(
+      variant:
+        | "DailyRecurrenceRule"
+        | "WeeklyRecurrenceRule"
+        | "MonthlyRecurrenceRule"
+        | "YearlyRecurrenceRule",
+    ): void;
+    validate(): Result<Interval, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Interval>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly DailyRecurrenceRule: {
+      readonly fields: DailyRecurrenceRuleFieldControllers;
+    };
+    readonly WeeklyRecurrenceRule: {
+      readonly fields: WeeklyRecurrenceRuleFieldControllers;
+    };
+    readonly MonthlyRecurrenceRule: {
+      readonly fields: MonthlyRecurrenceRuleFieldControllers;
+    };
+    readonly YearlyRecurrenceRule: {
+      readonly fields: YearlyRecurrenceRuleFieldControllers;
+    };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): Interval {
+    switch (variant) {
+      case "DailyRecurrenceRule":
+        return DailyRecurrenceRule.defaultValue() as Interval;
+      case "WeeklyRecurrenceRule":
+        return WeeklyRecurrenceRule.defaultValue() as Interval;
+      case "MonthlyRecurrenceRule":
+        return MonthlyRecurrenceRule.defaultValue() as Interval;
+      case "YearlyRecurrenceRule":
+        return YearlyRecurrenceRule.defaultValue() as Interval;
+      default:
+        return DailyRecurrenceRule.defaultValue() as Interval;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: Interval,
+  ): Gigaform {
+    const initialVariant:
+      | "DailyRecurrenceRule"
+      | "WeeklyRecurrenceRule"
+      | "MonthlyRecurrenceRule"
+      | "YearlyRecurrenceRule" = "DailyRecurrenceRule";
+    let currentVariant = $state<
+      | "DailyRecurrenceRule"
+      | "WeeklyRecurrenceRule"
+      | "MonthlyRecurrenceRule"
+      | "YearlyRecurrenceRule"
+    >(initialVariant);
+    let data = $state<Interval>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      DailyRecurrenceRule: {
+        fields: {} as DailyRecurrenceRuleFieldControllers,
+      },
+      WeeklyRecurrenceRule: {
+        fields: {} as WeeklyRecurrenceRuleFieldControllers,
+      },
+      MonthlyRecurrenceRule: {
+        fields: {} as MonthlyRecurrenceRuleFieldControllers,
+      },
+      YearlyRecurrenceRule: {
+        fields: {} as YearlyRecurrenceRuleFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant:
+        | "DailyRecurrenceRule"
+        | "WeeklyRecurrenceRule"
+        | "MonthlyRecurrenceRule"
+        | "YearlyRecurrenceRule",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      Interval,
+      Array<{ field: string; message: string }>
+    > {
+      return Interval.fromObject(data);
+    }
+    function reset(overrides?: Partial<Interval>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<Interval, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_type") as
+      | "DailyRecurrenceRule"
+      | "WeeklyRecurrenceRule"
+      | "MonthlyRecurrenceRule"
+      | "YearlyRecurrenceRule"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_type", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+    if (discriminant === "DailyRecurrenceRule") {
+    } else if (discriminant === "WeeklyRecurrenceRule") {
+    } else if (discriminant === "MonthlyRecurrenceRule") {
+    } else if (discriminant === "YearlyRecurrenceRule") {
+    }
+    return Interval.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
 export type Page =
-  | "SalesHomeDashboard"
+  | /** @default */ "SalesHomeDashboard"
   | "SalesHomeProducts"
   | "SalesHomeServices"
   | "SalesHomePackages"
@@ -29318,13 +30516,39 @@ export type Page =
   | "UserHome";
 
 export namespace Page {
+  export function defaultValue(): Page {
+    return "SalesHomeDashboard";
+  }
+}
+
+export namespace Page {
+  export function toStringifiedJSON(value: Page): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: Page): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(value: Page, ctx: SerializeContext): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
+
+export namespace Page {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Page {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(obj: unknown, opts?: DeserializeOptions): Page {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29344,22 +30568,700 @@ export namespace Page {
   }
 }
 
-/**  */
+export namespace Page {
+  /** Per-variant error types */ export type SalesHomeDashboardErrors = {
+    _errors?: Array<string>;
+  };
+  export type SalesHomeProductsErrors = { _errors?: Array<string> };
+  export type SalesHomeServicesErrors = { _errors?: Array<string> };
+  export type SalesHomePackagesErrors = { _errors?: Array<string> };
+  export type SalesHomeTaxRatesErrors = { _errors?: Array<string> };
+  export type SalesLeadsOverviewErrors = { _errors?: Array<string> };
+  export type SalesLeadsActivitiesErrors = { _errors?: Array<string> };
+  export type SalesLeadsCampaignsErrors = { _errors?: Array<string> };
+  export type SalesLeadsDripCampaignsErrors = { _errors?: Array<string> };
+  export type SalesLeadsOpportunitiesErrors = { _errors?: Array<string> };
+  export type SalesLeadsPromotionsErrors = { _errors?: Array<string> };
+  export type SalesAccountsOverviewErrors = { _errors?: Array<string> };
+  export type SalesAccountsActivitiesErrors = { _errors?: Array<string> };
+  export type SalesAccountsBillingErrors = { _errors?: Array<string> };
+  export type SalesAccountsContractsErrors = { _errors?: Array<string> };
+  export type SalesOrdersOverviewErrors = { _errors?: Array<string> };
+  export type SalesOrdersActivitiesErrors = { _errors?: Array<string> };
+  export type SalesOrdersPaymentsErrors = { _errors?: Array<string> };
+  export type SalesOrdersCommissionsErrors = { _errors?: Array<string> };
+  export type SalesSchedulingScheduleErrors = { _errors?: Array<string> };
+  export type SalesSchedulingAppointmentsErrors = { _errors?: Array<string> };
+  export type SalesSchedulingRecurringErrors = { _errors?: Array<string> };
+  export type SalesSchedulingRoutesErrors = { _errors?: Array<string> };
+  export type SalesSchedulingRemindersErrors = { _errors?: Array<string> };
+  export type UserHomeErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type SalesHomeDashboardTainted = {};
+  export type SalesHomeProductsTainted = {};
+  export type SalesHomeServicesTainted = {};
+  export type SalesHomePackagesTainted = {};
+  export type SalesHomeTaxRatesTainted = {};
+  export type SalesLeadsOverviewTainted = {};
+  export type SalesLeadsActivitiesTainted = {};
+  export type SalesLeadsCampaignsTainted = {};
+  export type SalesLeadsDripCampaignsTainted = {};
+  export type SalesLeadsOpportunitiesTainted = {};
+  export type SalesLeadsPromotionsTainted = {};
+  export type SalesAccountsOverviewTainted = {};
+  export type SalesAccountsActivitiesTainted = {};
+  export type SalesAccountsBillingTainted = {};
+  export type SalesAccountsContractsTainted = {};
+  export type SalesOrdersOverviewTainted = {};
+  export type SalesOrdersActivitiesTainted = {};
+  export type SalesOrdersPaymentsTainted = {};
+  export type SalesOrdersCommissionsTainted = {};
+  export type SalesSchedulingScheduleTainted = {};
+  export type SalesSchedulingAppointmentsTainted = {};
+  export type SalesSchedulingRecurringTainted = {};
+  export type SalesSchedulingRoutesTainted = {};
+  export type SalesSchedulingRemindersTainted = {};
+  export type UserHomeTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "SalesHomeDashboard" } & SalesHomeDashboardErrors)
+    | ({ _value: "SalesHomeProducts" } & SalesHomeProductsErrors)
+    | ({ _value: "SalesHomeServices" } & SalesHomeServicesErrors)
+    | ({ _value: "SalesHomePackages" } & SalesHomePackagesErrors)
+    | ({ _value: "SalesHomeTaxRates" } & SalesHomeTaxRatesErrors)
+    | ({ _value: "SalesLeadsOverview" } & SalesLeadsOverviewErrors)
+    | ({ _value: "SalesLeadsActivities" } & SalesLeadsActivitiesErrors)
+    | ({ _value: "SalesLeadsCampaigns" } & SalesLeadsCampaignsErrors)
+    | ({ _value: "SalesLeadsDripCampaigns" } & SalesLeadsDripCampaignsErrors)
+    | ({ _value: "SalesLeadsOpportunities" } & SalesLeadsOpportunitiesErrors)
+    | ({ _value: "SalesLeadsPromotions" } & SalesLeadsPromotionsErrors)
+    | ({ _value: "SalesAccountsOverview" } & SalesAccountsOverviewErrors)
+    | ({ _value: "SalesAccountsActivities" } & SalesAccountsActivitiesErrors)
+    | ({ _value: "SalesAccountsBilling" } & SalesAccountsBillingErrors)
+    | ({ _value: "SalesAccountsContracts" } & SalesAccountsContractsErrors)
+    | ({ _value: "SalesOrdersOverview" } & SalesOrdersOverviewErrors)
+    | ({ _value: "SalesOrdersActivities" } & SalesOrdersActivitiesErrors)
+    | ({ _value: "SalesOrdersPayments" } & SalesOrdersPaymentsErrors)
+    | ({ _value: "SalesOrdersCommissions" } & SalesOrdersCommissionsErrors)
+    | ({ _value: "SalesSchedulingSchedule" } & SalesSchedulingScheduleErrors)
+    | ({
+        _value: "SalesSchedulingAppointments";
+      } & SalesSchedulingAppointmentsErrors)
+    | ({ _value: "SalesSchedulingRecurring" } & SalesSchedulingRecurringErrors)
+    | ({ _value: "SalesSchedulingRoutes" } & SalesSchedulingRoutesErrors)
+    | ({ _value: "SalesSchedulingReminders" } & SalesSchedulingRemindersErrors)
+    | ({ _value: "UserHome" } & UserHomeErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "SalesHomeDashboard" } & SalesHomeDashboardTainted)
+    | ({ _value: "SalesHomeProducts" } & SalesHomeProductsTainted)
+    | ({ _value: "SalesHomeServices" } & SalesHomeServicesTainted)
+    | ({ _value: "SalesHomePackages" } & SalesHomePackagesTainted)
+    | ({ _value: "SalesHomeTaxRates" } & SalesHomeTaxRatesTainted)
+    | ({ _value: "SalesLeadsOverview" } & SalesLeadsOverviewTainted)
+    | ({ _value: "SalesLeadsActivities" } & SalesLeadsActivitiesTainted)
+    | ({ _value: "SalesLeadsCampaigns" } & SalesLeadsCampaignsTainted)
+    | ({ _value: "SalesLeadsDripCampaigns" } & SalesLeadsDripCampaignsTainted)
+    | ({ _value: "SalesLeadsOpportunities" } & SalesLeadsOpportunitiesTainted)
+    | ({ _value: "SalesLeadsPromotions" } & SalesLeadsPromotionsTainted)
+    | ({ _value: "SalesAccountsOverview" } & SalesAccountsOverviewTainted)
+    | ({ _value: "SalesAccountsActivities" } & SalesAccountsActivitiesTainted)
+    | ({ _value: "SalesAccountsBilling" } & SalesAccountsBillingTainted)
+    | ({ _value: "SalesAccountsContracts" } & SalesAccountsContractsTainted)
+    | ({ _value: "SalesOrdersOverview" } & SalesOrdersOverviewTainted)
+    | ({ _value: "SalesOrdersActivities" } & SalesOrdersActivitiesTainted)
+    | ({ _value: "SalesOrdersPayments" } & SalesOrdersPaymentsTainted)
+    | ({ _value: "SalesOrdersCommissions" } & SalesOrdersCommissionsTainted)
+    | ({ _value: "SalesSchedulingSchedule" } & SalesSchedulingScheduleTainted)
+    | ({
+        _value: "SalesSchedulingAppointments";
+      } & SalesSchedulingAppointmentsTainted)
+    | ({ _value: "SalesSchedulingRecurring" } & SalesSchedulingRecurringTainted)
+    | ({ _value: "SalesSchedulingRoutes" } & SalesSchedulingRoutesTainted)
+    | ({ _value: "SalesSchedulingReminders" } & SalesSchedulingRemindersTainted)
+    | ({ _value: "UserHome" } & UserHomeTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface SalesHomeDashboardFieldControllers {}
+  export interface SalesHomeProductsFieldControllers {}
+  export interface SalesHomeServicesFieldControllers {}
+  export interface SalesHomePackagesFieldControllers {}
+  export interface SalesHomeTaxRatesFieldControllers {}
+  export interface SalesLeadsOverviewFieldControllers {}
+  export interface SalesLeadsActivitiesFieldControllers {}
+  export interface SalesLeadsCampaignsFieldControllers {}
+  export interface SalesLeadsDripCampaignsFieldControllers {}
+  export interface SalesLeadsOpportunitiesFieldControllers {}
+  export interface SalesLeadsPromotionsFieldControllers {}
+  export interface SalesAccountsOverviewFieldControllers {}
+  export interface SalesAccountsActivitiesFieldControllers {}
+  export interface SalesAccountsBillingFieldControllers {}
+  export interface SalesAccountsContractsFieldControllers {}
+  export interface SalesOrdersOverviewFieldControllers {}
+  export interface SalesOrdersActivitiesFieldControllers {}
+  export interface SalesOrdersPaymentsFieldControllers {}
+  export interface SalesOrdersCommissionsFieldControllers {}
+  export interface SalesSchedulingScheduleFieldControllers {}
+  export interface SalesSchedulingAppointmentsFieldControllers {}
+  export interface SalesSchedulingRecurringFieldControllers {}
+  export interface SalesSchedulingRoutesFieldControllers {}
+  export interface SalesSchedulingRemindersFieldControllers {}
+  export interface UserHomeFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant:
+      | "SalesHomeDashboard"
+      | "SalesHomeProducts"
+      | "SalesHomeServices"
+      | "SalesHomePackages"
+      | "SalesHomeTaxRates"
+      | "SalesLeadsOverview"
+      | "SalesLeadsActivities"
+      | "SalesLeadsCampaigns"
+      | "SalesLeadsDripCampaigns"
+      | "SalesLeadsOpportunities"
+      | "SalesLeadsPromotions"
+      | "SalesAccountsOverview"
+      | "SalesAccountsActivities"
+      | "SalesAccountsBilling"
+      | "SalesAccountsContracts"
+      | "SalesOrdersOverview"
+      | "SalesOrdersActivities"
+      | "SalesOrdersPayments"
+      | "SalesOrdersCommissions"
+      | "SalesSchedulingSchedule"
+      | "SalesSchedulingAppointments"
+      | "SalesSchedulingRecurring"
+      | "SalesSchedulingRoutes"
+      | "SalesSchedulingReminders"
+      | "UserHome";
+    readonly data: Page;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(
+      variant:
+        | "SalesHomeDashboard"
+        | "SalesHomeProducts"
+        | "SalesHomeServices"
+        | "SalesHomePackages"
+        | "SalesHomeTaxRates"
+        | "SalesLeadsOverview"
+        | "SalesLeadsActivities"
+        | "SalesLeadsCampaigns"
+        | "SalesLeadsDripCampaigns"
+        | "SalesLeadsOpportunities"
+        | "SalesLeadsPromotions"
+        | "SalesAccountsOverview"
+        | "SalesAccountsActivities"
+        | "SalesAccountsBilling"
+        | "SalesAccountsContracts"
+        | "SalesOrdersOverview"
+        | "SalesOrdersActivities"
+        | "SalesOrdersPayments"
+        | "SalesOrdersCommissions"
+        | "SalesSchedulingSchedule"
+        | "SalesSchedulingAppointments"
+        | "SalesSchedulingRecurring"
+        | "SalesSchedulingRoutes"
+        | "SalesSchedulingReminders"
+        | "UserHome",
+    ): void;
+    validate(): Result<Page, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Page>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly SalesHomeDashboard: {
+      readonly fields: SalesHomeDashboardFieldControllers;
+    };
+    readonly SalesHomeProducts: {
+      readonly fields: SalesHomeProductsFieldControllers;
+    };
+    readonly SalesHomeServices: {
+      readonly fields: SalesHomeServicesFieldControllers;
+    };
+    readonly SalesHomePackages: {
+      readonly fields: SalesHomePackagesFieldControllers;
+    };
+    readonly SalesHomeTaxRates: {
+      readonly fields: SalesHomeTaxRatesFieldControllers;
+    };
+    readonly SalesLeadsOverview: {
+      readonly fields: SalesLeadsOverviewFieldControllers;
+    };
+    readonly SalesLeadsActivities: {
+      readonly fields: SalesLeadsActivitiesFieldControllers;
+    };
+    readonly SalesLeadsCampaigns: {
+      readonly fields: SalesLeadsCampaignsFieldControllers;
+    };
+    readonly SalesLeadsDripCampaigns: {
+      readonly fields: SalesLeadsDripCampaignsFieldControllers;
+    };
+    readonly SalesLeadsOpportunities: {
+      readonly fields: SalesLeadsOpportunitiesFieldControllers;
+    };
+    readonly SalesLeadsPromotions: {
+      readonly fields: SalesLeadsPromotionsFieldControllers;
+    };
+    readonly SalesAccountsOverview: {
+      readonly fields: SalesAccountsOverviewFieldControllers;
+    };
+    readonly SalesAccountsActivities: {
+      readonly fields: SalesAccountsActivitiesFieldControllers;
+    };
+    readonly SalesAccountsBilling: {
+      readonly fields: SalesAccountsBillingFieldControllers;
+    };
+    readonly SalesAccountsContracts: {
+      readonly fields: SalesAccountsContractsFieldControllers;
+    };
+    readonly SalesOrdersOverview: {
+      readonly fields: SalesOrdersOverviewFieldControllers;
+    };
+    readonly SalesOrdersActivities: {
+      readonly fields: SalesOrdersActivitiesFieldControllers;
+    };
+    readonly SalesOrdersPayments: {
+      readonly fields: SalesOrdersPaymentsFieldControllers;
+    };
+    readonly SalesOrdersCommissions: {
+      readonly fields: SalesOrdersCommissionsFieldControllers;
+    };
+    readonly SalesSchedulingSchedule: {
+      readonly fields: SalesSchedulingScheduleFieldControllers;
+    };
+    readonly SalesSchedulingAppointments: {
+      readonly fields: SalesSchedulingAppointmentsFieldControllers;
+    };
+    readonly SalesSchedulingRecurring: {
+      readonly fields: SalesSchedulingRecurringFieldControllers;
+    };
+    readonly SalesSchedulingRoutes: {
+      readonly fields: SalesSchedulingRoutesFieldControllers;
+    };
+    readonly SalesSchedulingReminders: {
+      readonly fields: SalesSchedulingRemindersFieldControllers;
+    };
+    readonly UserHome: { readonly fields: UserHomeFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): Page {
+    switch (variant) {
+      case "SalesHomeDashboard":
+        return "SalesHomeDashboard" as Page;
+      case "SalesHomeProducts":
+        return "SalesHomeProducts" as Page;
+      case "SalesHomeServices":
+        return "SalesHomeServices" as Page;
+      case "SalesHomePackages":
+        return "SalesHomePackages" as Page;
+      case "SalesHomeTaxRates":
+        return "SalesHomeTaxRates" as Page;
+      case "SalesLeadsOverview":
+        return "SalesLeadsOverview" as Page;
+      case "SalesLeadsActivities":
+        return "SalesLeadsActivities" as Page;
+      case "SalesLeadsCampaigns":
+        return "SalesLeadsCampaigns" as Page;
+      case "SalesLeadsDripCampaigns":
+        return "SalesLeadsDripCampaigns" as Page;
+      case "SalesLeadsOpportunities":
+        return "SalesLeadsOpportunities" as Page;
+      case "SalesLeadsPromotions":
+        return "SalesLeadsPromotions" as Page;
+      case "SalesAccountsOverview":
+        return "SalesAccountsOverview" as Page;
+      case "SalesAccountsActivities":
+        return "SalesAccountsActivities" as Page;
+      case "SalesAccountsBilling":
+        return "SalesAccountsBilling" as Page;
+      case "SalesAccountsContracts":
+        return "SalesAccountsContracts" as Page;
+      case "SalesOrdersOverview":
+        return "SalesOrdersOverview" as Page;
+      case "SalesOrdersActivities":
+        return "SalesOrdersActivities" as Page;
+      case "SalesOrdersPayments":
+        return "SalesOrdersPayments" as Page;
+      case "SalesOrdersCommissions":
+        return "SalesOrdersCommissions" as Page;
+      case "SalesSchedulingSchedule":
+        return "SalesSchedulingSchedule" as Page;
+      case "SalesSchedulingAppointments":
+        return "SalesSchedulingAppointments" as Page;
+      case "SalesSchedulingRecurring":
+        return "SalesSchedulingRecurring" as Page;
+      case "SalesSchedulingRoutes":
+        return "SalesSchedulingRoutes" as Page;
+      case "SalesSchedulingReminders":
+        return "SalesSchedulingReminders" as Page;
+      case "UserHome":
+        return "UserHome" as Page;
+      default:
+        return "SalesHomeDashboard" as Page;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: Page,
+  ): Gigaform {
+    const initialVariant:
+      | "SalesHomeDashboard"
+      | "SalesHomeProducts"
+      | "SalesHomeServices"
+      | "SalesHomePackages"
+      | "SalesHomeTaxRates"
+      | "SalesLeadsOverview"
+      | "SalesLeadsActivities"
+      | "SalesLeadsCampaigns"
+      | "SalesLeadsDripCampaigns"
+      | "SalesLeadsOpportunities"
+      | "SalesLeadsPromotions"
+      | "SalesAccountsOverview"
+      | "SalesAccountsActivities"
+      | "SalesAccountsBilling"
+      | "SalesAccountsContracts"
+      | "SalesOrdersOverview"
+      | "SalesOrdersActivities"
+      | "SalesOrdersPayments"
+      | "SalesOrdersCommissions"
+      | "SalesSchedulingSchedule"
+      | "SalesSchedulingAppointments"
+      | "SalesSchedulingRecurring"
+      | "SalesSchedulingRoutes"
+      | "SalesSchedulingReminders"
+      | "UserHome" =
+      (initial as
+        | "SalesHomeDashboard"
+        | "SalesHomeProducts"
+        | "SalesHomeServices"
+        | "SalesHomePackages"
+        | "SalesHomeTaxRates"
+        | "SalesLeadsOverview"
+        | "SalesLeadsActivities"
+        | "SalesLeadsCampaigns"
+        | "SalesLeadsDripCampaigns"
+        | "SalesLeadsOpportunities"
+        | "SalesLeadsPromotions"
+        | "SalesAccountsOverview"
+        | "SalesAccountsActivities"
+        | "SalesAccountsBilling"
+        | "SalesAccountsContracts"
+        | "SalesOrdersOverview"
+        | "SalesOrdersActivities"
+        | "SalesOrdersPayments"
+        | "SalesOrdersCommissions"
+        | "SalesSchedulingSchedule"
+        | "SalesSchedulingAppointments"
+        | "SalesSchedulingRecurring"
+        | "SalesSchedulingRoutes"
+        | "SalesSchedulingReminders"
+        | "UserHome") ?? "SalesHomeDashboard";
+    let currentVariant = $state<
+      | "SalesHomeDashboard"
+      | "SalesHomeProducts"
+      | "SalesHomeServices"
+      | "SalesHomePackages"
+      | "SalesHomeTaxRates"
+      | "SalesLeadsOverview"
+      | "SalesLeadsActivities"
+      | "SalesLeadsCampaigns"
+      | "SalesLeadsDripCampaigns"
+      | "SalesLeadsOpportunities"
+      | "SalesLeadsPromotions"
+      | "SalesAccountsOverview"
+      | "SalesAccountsActivities"
+      | "SalesAccountsBilling"
+      | "SalesAccountsContracts"
+      | "SalesOrdersOverview"
+      | "SalesOrdersActivities"
+      | "SalesOrdersPayments"
+      | "SalesOrdersCommissions"
+      | "SalesSchedulingSchedule"
+      | "SalesSchedulingAppointments"
+      | "SalesSchedulingRecurring"
+      | "SalesSchedulingRoutes"
+      | "SalesSchedulingReminders"
+      | "UserHome"
+    >(initialVariant);
+    let data = $state<Page>(initial ?? getDefaultForVariant(initialVariant));
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      SalesHomeDashboard: {
+        fields: {} as SalesHomeDashboardFieldControllers,
+      },
+      SalesHomeProducts: {
+        fields: {} as SalesHomeProductsFieldControllers,
+      },
+      SalesHomeServices: {
+        fields: {} as SalesHomeServicesFieldControllers,
+      },
+      SalesHomePackages: {
+        fields: {} as SalesHomePackagesFieldControllers,
+      },
+      SalesHomeTaxRates: {
+        fields: {} as SalesHomeTaxRatesFieldControllers,
+      },
+      SalesLeadsOverview: {
+        fields: {} as SalesLeadsOverviewFieldControllers,
+      },
+      SalesLeadsActivities: {
+        fields: {} as SalesLeadsActivitiesFieldControllers,
+      },
+      SalesLeadsCampaigns: {
+        fields: {} as SalesLeadsCampaignsFieldControllers,
+      },
+      SalesLeadsDripCampaigns: {
+        fields: {} as SalesLeadsDripCampaignsFieldControllers,
+      },
+      SalesLeadsOpportunities: {
+        fields: {} as SalesLeadsOpportunitiesFieldControllers,
+      },
+      SalesLeadsPromotions: {
+        fields: {} as SalesLeadsPromotionsFieldControllers,
+      },
+      SalesAccountsOverview: {
+        fields: {} as SalesAccountsOverviewFieldControllers,
+      },
+      SalesAccountsActivities: {
+        fields: {} as SalesAccountsActivitiesFieldControllers,
+      },
+      SalesAccountsBilling: {
+        fields: {} as SalesAccountsBillingFieldControllers,
+      },
+      SalesAccountsContracts: {
+        fields: {} as SalesAccountsContractsFieldControllers,
+      },
+      SalesOrdersOverview: {
+        fields: {} as SalesOrdersOverviewFieldControllers,
+      },
+      SalesOrdersActivities: {
+        fields: {} as SalesOrdersActivitiesFieldControllers,
+      },
+      SalesOrdersPayments: {
+        fields: {} as SalesOrdersPaymentsFieldControllers,
+      },
+      SalesOrdersCommissions: {
+        fields: {} as SalesOrdersCommissionsFieldControllers,
+      },
+      SalesSchedulingSchedule: {
+        fields: {} as SalesSchedulingScheduleFieldControllers,
+      },
+      SalesSchedulingAppointments: {
+        fields: {} as SalesSchedulingAppointmentsFieldControllers,
+      },
+      SalesSchedulingRecurring: {
+        fields: {} as SalesSchedulingRecurringFieldControllers,
+      },
+      SalesSchedulingRoutes: {
+        fields: {} as SalesSchedulingRoutesFieldControllers,
+      },
+      SalesSchedulingReminders: {
+        fields: {} as SalesSchedulingRemindersFieldControllers,
+      },
+      UserHome: {
+        fields: {} as UserHomeFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant:
+        | "SalesHomeDashboard"
+        | "SalesHomeProducts"
+        | "SalesHomeServices"
+        | "SalesHomePackages"
+        | "SalesHomeTaxRates"
+        | "SalesLeadsOverview"
+        | "SalesLeadsActivities"
+        | "SalesLeadsCampaigns"
+        | "SalesLeadsDripCampaigns"
+        | "SalesLeadsOpportunities"
+        | "SalesLeadsPromotions"
+        | "SalesAccountsOverview"
+        | "SalesAccountsActivities"
+        | "SalesAccountsBilling"
+        | "SalesAccountsContracts"
+        | "SalesOrdersOverview"
+        | "SalesOrdersActivities"
+        | "SalesOrdersPayments"
+        | "SalesOrdersCommissions"
+        | "SalesSchedulingSchedule"
+        | "SalesSchedulingAppointments"
+        | "SalesSchedulingRecurring"
+        | "SalesSchedulingRoutes"
+        | "SalesSchedulingReminders"
+        | "UserHome",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      Page,
+      Array<{ field: string; message: string }>
+    > {
+      return Page.fromObject(data);
+    }
+    function reset(overrides?: Partial<Page>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<Page, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "SalesHomeDashboard"
+      | "SalesHomeProducts"
+      | "SalesHomeServices"
+      | "SalesHomePackages"
+      | "SalesHomeTaxRates"
+      | "SalesLeadsOverview"
+      | "SalesLeadsActivities"
+      | "SalesLeadsCampaigns"
+      | "SalesLeadsDripCampaigns"
+      | "SalesLeadsOpportunities"
+      | "SalesLeadsPromotions"
+      | "SalesAccountsOverview"
+      | "SalesAccountsActivities"
+      | "SalesAccountsBilling"
+      | "SalesAccountsContracts"
+      | "SalesOrdersOverview"
+      | "SalesOrdersActivities"
+      | "SalesOrdersPayments"
+      | "SalesOrdersCommissions"
+      | "SalesSchedulingSchedule"
+      | "SalesSchedulingAppointments"
+      | "SalesSchedulingRecurring"
+      | "SalesSchedulingRoutes"
+      | "SalesSchedulingReminders"
+      | "UserHome"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "SalesHomeDashboard") {
+    } else if (discriminant === "SalesHomeProducts") {
+    } else if (discriminant === "SalesHomeServices") {
+    } else if (discriminant === "SalesHomePackages") {
+    } else if (discriminant === "SalesHomeTaxRates") {
+    } else if (discriminant === "SalesLeadsOverview") {
+    } else if (discriminant === "SalesLeadsActivities") {
+    } else if (discriminant === "SalesLeadsCampaigns") {
+    } else if (discriminant === "SalesLeadsDripCampaigns") {
+    } else if (discriminant === "SalesLeadsOpportunities") {
+    } else if (discriminant === "SalesLeadsPromotions") {
+    } else if (discriminant === "SalesAccountsOverview") {
+    } else if (discriminant === "SalesAccountsActivities") {
+    } else if (discriminant === "SalesAccountsBilling") {
+    } else if (discriminant === "SalesAccountsContracts") {
+    } else if (discriminant === "SalesOrdersOverview") {
+    } else if (discriminant === "SalesOrdersActivities") {
+    } else if (discriminant === "SalesOrdersPayments") {
+    } else if (discriminant === "SalesOrdersCommissions") {
+    } else if (discriminant === "SalesSchedulingSchedule") {
+    } else if (discriminant === "SalesSchedulingAppointments") {
+    } else if (discriminant === "SalesSchedulingRecurring") {
+    } else if (discriminant === "SalesSchedulingRoutes") {
+    } else if (discriminant === "SalesSchedulingReminders") {
+    } else if (discriminant === "UserHome") {
+    }
+    return Page.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
 export type UserRole =
-  | "Administrator"
+  | /** @default */ "Administrator"
   | "SalesRepresentative"
   | "Technician"
   | "HumanResources"
   | "InformationTechnology";
 
 export namespace UserRole {
+  export function defaultValue(): UserRole {
+    return "Administrator";
+  }
+}
+
+export namespace UserRole {
+  export function toStringifiedJSON(value: UserRole): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: UserRole): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(value: UserRole, ctx: SerializeContext): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
+
+export namespace UserRole {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): UserRole {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): UserRole {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29379,9 +31281,234 @@ export namespace UserRole {
   }
 }
 
-/**  */
+export namespace UserRole {
+  /** Per-variant error types */ export type AdministratorErrors = {
+    _errors?: Array<string>;
+  };
+  export type SalesRepresentativeErrors = { _errors?: Array<string> };
+  export type TechnicianErrors = { _errors?: Array<string> };
+  export type HumanResourcesErrors = { _errors?: Array<string> };
+  export type InformationTechnologyErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type AdministratorTainted = {};
+  export type SalesRepresentativeTainted = {};
+  export type TechnicianTainted = {};
+  export type HumanResourcesTainted = {};
+  export type InformationTechnologyTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Administrator" } & AdministratorErrors)
+    | ({ _value: "SalesRepresentative" } & SalesRepresentativeErrors)
+    | ({ _value: "Technician" } & TechnicianErrors)
+    | ({ _value: "HumanResources" } & HumanResourcesErrors)
+    | ({ _value: "InformationTechnology" } & InformationTechnologyErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Administrator" } & AdministratorTainted)
+    | ({ _value: "SalesRepresentative" } & SalesRepresentativeTainted)
+    | ({ _value: "Technician" } & TechnicianTainted)
+    | ({ _value: "HumanResources" } & HumanResourcesTainted)
+    | ({ _value: "InformationTechnology" } & InformationTechnologyTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface AdministratorFieldControllers {}
+  export interface SalesRepresentativeFieldControllers {}
+  export interface TechnicianFieldControllers {}
+  export interface HumanResourcesFieldControllers {}
+  export interface InformationTechnologyFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant:
+      | "Administrator"
+      | "SalesRepresentative"
+      | "Technician"
+      | "HumanResources"
+      | "InformationTechnology";
+    readonly data: UserRole;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(
+      variant:
+        | "Administrator"
+        | "SalesRepresentative"
+        | "Technician"
+        | "HumanResources"
+        | "InformationTechnology",
+    ): void;
+    validate(): Result<UserRole, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<UserRole>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Administrator: { readonly fields: AdministratorFieldControllers };
+    readonly SalesRepresentative: {
+      readonly fields: SalesRepresentativeFieldControllers;
+    };
+    readonly Technician: { readonly fields: TechnicianFieldControllers };
+    readonly HumanResources: {
+      readonly fields: HumanResourcesFieldControllers;
+    };
+    readonly InformationTechnology: {
+      readonly fields: InformationTechnologyFieldControllers;
+    };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): UserRole {
+    switch (variant) {
+      case "Administrator":
+        return "Administrator" as UserRole;
+      case "SalesRepresentative":
+        return "SalesRepresentative" as UserRole;
+      case "Technician":
+        return "Technician" as UserRole;
+      case "HumanResources":
+        return "HumanResources" as UserRole;
+      case "InformationTechnology":
+        return "InformationTechnology" as UserRole;
+      default:
+        return "Administrator" as UserRole;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: UserRole,
+  ): Gigaform {
+    const initialVariant:
+      | "Administrator"
+      | "SalesRepresentative"
+      | "Technician"
+      | "HumanResources"
+      | "InformationTechnology" =
+      (initial as
+        | "Administrator"
+        | "SalesRepresentative"
+        | "Technician"
+        | "HumanResources"
+        | "InformationTechnology") ?? "Administrator";
+    let currentVariant = $state<
+      | "Administrator"
+      | "SalesRepresentative"
+      | "Technician"
+      | "HumanResources"
+      | "InformationTechnology"
+    >(initialVariant);
+    let data = $state<UserRole>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Administrator: {
+        fields: {} as AdministratorFieldControllers,
+      },
+      SalesRepresentative: {
+        fields: {} as SalesRepresentativeFieldControllers,
+      },
+      Technician: {
+        fields: {} as TechnicianFieldControllers,
+      },
+      HumanResources: {
+        fields: {} as HumanResourcesFieldControllers,
+      },
+      InformationTechnology: {
+        fields: {} as InformationTechnologyFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant:
+        | "Administrator"
+        | "SalesRepresentative"
+        | "Technician"
+        | "HumanResources"
+        | "InformationTechnology",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      UserRole,
+      Array<{ field: string; message: string }>
+    > {
+      return UserRole.fromObject(data);
+    }
+    function reset(overrides?: Partial<UserRole>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<UserRole, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "Administrator"
+      | "SalesRepresentative"
+      | "Technician"
+      | "HumanResources"
+      | "InformationTechnology"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Administrator") {
+    } else if (discriminant === "SalesRepresentative") {
+    } else if (discriminant === "Technician") {
+    } else if (discriminant === "HumanResources") {
+    } else if (discriminant === "InformationTechnology") {
+    }
+    return UserRole.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
 export type Target =
-  | Account
+  | /** @default */ Account
   | User
   | Employee
   | Appointment
@@ -29400,13 +31527,39 @@ export type Target =
   | Ordered;
 
 export namespace Target {
+  export function defaultValue(): Target {
+    return Account.defaultValue();
+  }
+}
+
+export namespace Target {
+  export function toStringifiedJSON(value: Target): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: Target): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(value: Target, ctx: SerializeContext): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
+
+export namespace Target {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Target {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(obj: unknown, opts?: DeserializeOptions): Target {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29426,17 +31579,476 @@ export namespace Target {
   }
 }
 
-/**  */
+export namespace Target {
+  /** Per-variant error types */ export type AccountErrors = {
+    _errors?: Array<string>;
+  };
+  export type UserErrors = { _errors?: Array<string> };
+  export type EmployeeErrors = { _errors?: Array<string> };
+  export type AppointmentErrors = { _errors?: Array<string> };
+  export type LeadErrors = { _errors?: Array<string> };
+  export type TaxRateErrors = { _errors?: Array<string> };
+  export type SiteErrors = { _errors?: Array<string> };
+  export type RouteErrors = { _errors?: Array<string> };
+  export type CompanyErrors = { _errors?: Array<string> };
+  export type ProductErrors = { _errors?: Array<string> };
+  export type ServiceErrors = { _errors?: Array<string> };
+  export type OrderErrors = { _errors?: Array<string> };
+  export type PaymentErrors = { _errors?: Array<string> };
+  export type PackageErrors = { _errors?: Array<string> };
+  export type PromotionErrors = { _errors?: Array<string> };
+  export type RepresentsErrors = { _errors?: Array<string> };
+  export type OrderedErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type AccountTainted = {};
+  export type UserTainted = {};
+  export type EmployeeTainted = {};
+  export type AppointmentTainted = {};
+  export type LeadTainted = {};
+  export type TaxRateTainted = {};
+  export type SiteTainted = {};
+  export type RouteTainted = {};
+  export type CompanyTainted = {};
+  export type ProductTainted = {};
+  export type ServiceTainted = {};
+  export type OrderTainted = {};
+  export type PaymentTainted = {};
+  export type PackageTainted = {};
+  export type PromotionTainted = {};
+  export type RepresentsTainted = {};
+  export type OrderedTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _type: "Account" } & AccountErrors)
+    | ({ _type: "User" } & UserErrors)
+    | ({ _type: "Employee" } & EmployeeErrors)
+    | ({ _type: "Appointment" } & AppointmentErrors)
+    | ({ _type: "Lead" } & LeadErrors)
+    | ({ _type: "TaxRate" } & TaxRateErrors)
+    | ({ _type: "Site" } & SiteErrors)
+    | ({ _type: "Route" } & RouteErrors)
+    | ({ _type: "Company" } & CompanyErrors)
+    | ({ _type: "Product" } & ProductErrors)
+    | ({ _type: "Service" } & ServiceErrors)
+    | ({ _type: "Order" } & OrderErrors)
+    | ({ _type: "Payment" } & PaymentErrors)
+    | ({ _type: "Package" } & PackageErrors)
+    | ({ _type: "Promotion" } & PromotionErrors)
+    | ({ _type: "Represents" } & RepresentsErrors)
+    | ({ _type: "Ordered" } & OrderedErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _type: "Account" } & AccountTainted)
+    | ({ _type: "User" } & UserTainted)
+    | ({ _type: "Employee" } & EmployeeTainted)
+    | ({ _type: "Appointment" } & AppointmentTainted)
+    | ({ _type: "Lead" } & LeadTainted)
+    | ({ _type: "TaxRate" } & TaxRateTainted)
+    | ({ _type: "Site" } & SiteTainted)
+    | ({ _type: "Route" } & RouteTainted)
+    | ({ _type: "Company" } & CompanyTainted)
+    | ({ _type: "Product" } & ProductTainted)
+    | ({ _type: "Service" } & ServiceTainted)
+    | ({ _type: "Order" } & OrderTainted)
+    | ({ _type: "Payment" } & PaymentTainted)
+    | ({ _type: "Package" } & PackageTainted)
+    | ({ _type: "Promotion" } & PromotionTainted)
+    | ({ _type: "Represents" } & RepresentsTainted)
+    | ({ _type: "Ordered" } & OrderedTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface AccountFieldControllers {}
+  export interface UserFieldControllers {}
+  export interface EmployeeFieldControllers {}
+  export interface AppointmentFieldControllers {}
+  export interface LeadFieldControllers {}
+  export interface TaxRateFieldControllers {}
+  export interface SiteFieldControllers {}
+  export interface RouteFieldControllers {}
+  export interface CompanyFieldControllers {}
+  export interface ProductFieldControllers {}
+  export interface ServiceFieldControllers {}
+  export interface OrderFieldControllers {}
+  export interface PaymentFieldControllers {}
+  export interface PackageFieldControllers {}
+  export interface PromotionFieldControllers {}
+  export interface RepresentsFieldControllers {}
+  export interface OrderedFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant:
+      | "Account"
+      | "User"
+      | "Employee"
+      | "Appointment"
+      | "Lead"
+      | "TaxRate"
+      | "Site"
+      | "Route"
+      | "Company"
+      | "Product"
+      | "Service"
+      | "Order"
+      | "Payment"
+      | "Package"
+      | "Promotion"
+      | "Represents"
+      | "Ordered";
+    readonly data: Target;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(
+      variant:
+        | "Account"
+        | "User"
+        | "Employee"
+        | "Appointment"
+        | "Lead"
+        | "TaxRate"
+        | "Site"
+        | "Route"
+        | "Company"
+        | "Product"
+        | "Service"
+        | "Order"
+        | "Payment"
+        | "Package"
+        | "Promotion"
+        | "Represents"
+        | "Ordered",
+    ): void;
+    validate(): Result<Target, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Target>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Account: { readonly fields: AccountFieldControllers };
+    readonly User: { readonly fields: UserFieldControllers };
+    readonly Employee: { readonly fields: EmployeeFieldControllers };
+    readonly Appointment: { readonly fields: AppointmentFieldControllers };
+    readonly Lead: { readonly fields: LeadFieldControllers };
+    readonly TaxRate: { readonly fields: TaxRateFieldControllers };
+    readonly Site: { readonly fields: SiteFieldControllers };
+    readonly Route: { readonly fields: RouteFieldControllers };
+    readonly Company: { readonly fields: CompanyFieldControllers };
+    readonly Product: { readonly fields: ProductFieldControllers };
+    readonly Service: { readonly fields: ServiceFieldControllers };
+    readonly Order: { readonly fields: OrderFieldControllers };
+    readonly Payment: { readonly fields: PaymentFieldControllers };
+    readonly Package: { readonly fields: PackageFieldControllers };
+    readonly Promotion: { readonly fields: PromotionFieldControllers };
+    readonly Represents: { readonly fields: RepresentsFieldControllers };
+    readonly Ordered: { readonly fields: OrderedFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): Target {
+    switch (variant) {
+      case "Account":
+        return Account.defaultValue() as Target;
+      case "User":
+        return User.defaultValue() as Target;
+      case "Employee":
+        return Employee.defaultValue() as Target;
+      case "Appointment":
+        return Appointment.defaultValue() as Target;
+      case "Lead":
+        return Lead.defaultValue() as Target;
+      case "TaxRate":
+        return TaxRate.defaultValue() as Target;
+      case "Site":
+        return Site.defaultValue() as Target;
+      case "Route":
+        return Route.defaultValue() as Target;
+      case "Company":
+        return Company.defaultValue() as Target;
+      case "Product":
+        return Product.defaultValue() as Target;
+      case "Service":
+        return Service.defaultValue() as Target;
+      case "Order":
+        return Order.defaultValue() as Target;
+      case "Payment":
+        return Payment.defaultValue() as Target;
+      case "Package":
+        return Package.defaultValue() as Target;
+      case "Promotion":
+        return Promotion.defaultValue() as Target;
+      case "Represents":
+        return Represents.defaultValue() as Target;
+      case "Ordered":
+        return Ordered.defaultValue() as Target;
+      default:
+        return Account.defaultValue() as Target;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: Target,
+  ): Gigaform {
+    const initialVariant:
+      | "Account"
+      | "User"
+      | "Employee"
+      | "Appointment"
+      | "Lead"
+      | "TaxRate"
+      | "Site"
+      | "Route"
+      | "Company"
+      | "Product"
+      | "Service"
+      | "Order"
+      | "Payment"
+      | "Package"
+      | "Promotion"
+      | "Represents"
+      | "Ordered" = "Account";
+    let currentVariant = $state<
+      | "Account"
+      | "User"
+      | "Employee"
+      | "Appointment"
+      | "Lead"
+      | "TaxRate"
+      | "Site"
+      | "Route"
+      | "Company"
+      | "Product"
+      | "Service"
+      | "Order"
+      | "Payment"
+      | "Package"
+      | "Promotion"
+      | "Represents"
+      | "Ordered"
+    >(initialVariant);
+    let data = $state<Target>(initial ?? getDefaultForVariant(initialVariant));
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Account: {
+        fields: {} as AccountFieldControllers,
+      },
+      User: {
+        fields: {} as UserFieldControllers,
+      },
+      Employee: {
+        fields: {} as EmployeeFieldControllers,
+      },
+      Appointment: {
+        fields: {} as AppointmentFieldControllers,
+      },
+      Lead: {
+        fields: {} as LeadFieldControllers,
+      },
+      TaxRate: {
+        fields: {} as TaxRateFieldControllers,
+      },
+      Site: {
+        fields: {} as SiteFieldControllers,
+      },
+      Route: {
+        fields: {} as RouteFieldControllers,
+      },
+      Company: {
+        fields: {} as CompanyFieldControllers,
+      },
+      Product: {
+        fields: {} as ProductFieldControllers,
+      },
+      Service: {
+        fields: {} as ServiceFieldControllers,
+      },
+      Order: {
+        fields: {} as OrderFieldControllers,
+      },
+      Payment: {
+        fields: {} as PaymentFieldControllers,
+      },
+      Package: {
+        fields: {} as PackageFieldControllers,
+      },
+      Promotion: {
+        fields: {} as PromotionFieldControllers,
+      },
+      Represents: {
+        fields: {} as RepresentsFieldControllers,
+      },
+      Ordered: {
+        fields: {} as OrderedFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant:
+        | "Account"
+        | "User"
+        | "Employee"
+        | "Appointment"
+        | "Lead"
+        | "TaxRate"
+        | "Site"
+        | "Route"
+        | "Company"
+        | "Product"
+        | "Service"
+        | "Order"
+        | "Payment"
+        | "Package"
+        | "Promotion"
+        | "Represents"
+        | "Ordered",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      Target,
+      Array<{ field: string; message: string }>
+    > {
+      return Target.fromObject(data);
+    }
+    function reset(overrides?: Partial<Target>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<Target, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_type") as
+      | "Account"
+      | "User"
+      | "Employee"
+      | "Appointment"
+      | "Lead"
+      | "TaxRate"
+      | "Site"
+      | "Route"
+      | "Company"
+      | "Product"
+      | "Service"
+      | "Order"
+      | "Payment"
+      | "Package"
+      | "Promotion"
+      | "Represents"
+      | "Ordered"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_type", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+    if (discriminant === "Account") {
+    } else if (discriminant === "User") {
+    } else if (discriminant === "Employee") {
+    } else if (discriminant === "Appointment") {
+    } else if (discriminant === "Lead") {
+    } else if (discriminant === "TaxRate") {
+    } else if (discriminant === "Site") {
+    } else if (discriminant === "Route") {
+    } else if (discriminant === "Company") {
+    } else if (discriminant === "Product") {
+    } else if (discriminant === "Service") {
+    } else if (discriminant === "Order") {
+    } else if (discriminant === "Payment") {
+    } else if (discriminant === "Package") {
+    } else if (discriminant === "Promotion") {
+    } else if (discriminant === "Represents") {
+    } else if (discriminant === "Ordered") {
+    }
+    return Target.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
 export type RecurrenceEnd = number | string;
+
+export namespace RecurrenceEnd {
+  export function defaultValue(): RecurrenceEnd {
+    return 0;
+  }
+}
+
+export namespace RecurrenceEnd {
+  export function toStringifiedJSON(value: RecurrenceEnd): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: RecurrenceEnd): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(
+    value: RecurrenceEnd,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace RecurrenceEnd {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): RecurrenceEnd {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): RecurrenceEnd {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29459,17 +32071,193 @@ export namespace RecurrenceEnd {
   }
 }
 
-/**  */
-export type OverviewDisplay = "Card" | "Table";
+export namespace RecurrenceEnd {
+  /** Per-variant error types */ export type NumberErrors = {
+    _errors?: Array<string>;
+  };
+  export type StringErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type NumberTainted = {};
+  export type StringTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _type: "number" } & NumberErrors)
+    | ({ _type: "string" } & StringErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _type: "number" } & NumberTainted)
+    | ({ _type: "string" } & StringTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface NumberFieldControllers {}
+  export interface StringFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "number" | "string";
+    readonly data: RecurrenceEnd;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "number" | "string"): void;
+    validate(): Result<
+      RecurrenceEnd,
+      Array<{ field: string; message: string }>
+    >;
+    reset(overrides?: Partial<RecurrenceEnd>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly number: { readonly fields: NumberFieldControllers };
+    readonly string: { readonly fields: StringFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): RecurrenceEnd {
+    switch (variant) {
+      case "number":
+        return number.defaultValue() as RecurrenceEnd;
+      case "string":
+        return string.defaultValue() as RecurrenceEnd;
+      default:
+        return number.defaultValue() as RecurrenceEnd;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: RecurrenceEnd,
+  ): Gigaform {
+    const initialVariant: "number" | "string" = "number";
+    let currentVariant = $state<"number" | "string">(initialVariant);
+    let data = $state<RecurrenceEnd>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      number: {
+        fields: {} as NumberFieldControllers,
+      },
+      string: {
+        fields: {} as StringFieldControllers,
+      },
+    };
+    function switchVariant(variant: "number" | "string"): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      RecurrenceEnd,
+      Array<{ field: string; message: string }>
+    > {
+      return RecurrenceEnd.fromObject(data);
+    }
+    function reset(overrides?: Partial<RecurrenceEnd>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<RecurrenceEnd, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_type") as "number" | "string" | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_type", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+    if (discriminant === "number") {
+    } else if (discriminant === "string") {
+    }
+    return RecurrenceEnd.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type OverviewDisplay = /** @default */ "Card" | "Table";
+
+export namespace OverviewDisplay {
+  export function defaultValue(): OverviewDisplay {
+    return "Card";
+  }
+}
+
+export namespace OverviewDisplay {
+  export function toStringifiedJSON(value: OverviewDisplay): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: OverviewDisplay): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(
+    value: OverviewDisplay,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace OverviewDisplay {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): OverviewDisplay {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): OverviewDisplay {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29492,17 +32280,194 @@ export namespace OverviewDisplay {
   }
 }
 
-/**  */
-export type IntervalUnit = "Day" | "Week" | "Month" | "Year";
+export namespace OverviewDisplay {
+  /** Per-variant error types */ export type CardErrors = {
+    _errors?: Array<string>;
+  };
+  export type TableErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type CardTainted = {};
+  export type TableTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Card" } & CardErrors)
+    | ({ _value: "Table" } & TableErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Card" } & CardTainted)
+    | ({ _value: "Table" } & TableTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface CardFieldControllers {}
+  export interface TableFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "Card" | "Table";
+    readonly data: OverviewDisplay;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "Card" | "Table"): void;
+    validate(): Result<
+      OverviewDisplay,
+      Array<{ field: string; message: string }>
+    >;
+    reset(overrides?: Partial<OverviewDisplay>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Card: { readonly fields: CardFieldControllers };
+    readonly Table: { readonly fields: TableFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): OverviewDisplay {
+    switch (variant) {
+      case "Card":
+        return "Card" as OverviewDisplay;
+      case "Table":
+        return "Table" as OverviewDisplay;
+      default:
+        return "Card" as OverviewDisplay;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: OverviewDisplay,
+  ): Gigaform {
+    const initialVariant: "Card" | "Table" =
+      (initial as "Card" | "Table") ?? "Card";
+    let currentVariant = $state<"Card" | "Table">(initialVariant);
+    let data = $state<OverviewDisplay>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Card: {
+        fields: {} as CardFieldControllers,
+      },
+      Table: {
+        fields: {} as TableFieldControllers,
+      },
+    };
+    function switchVariant(variant: "Card" | "Table"): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      OverviewDisplay,
+      Array<{ field: string; message: string }>
+    > {
+      return OverviewDisplay.fromObject(data);
+    }
+    function reset(overrides?: Partial<OverviewDisplay>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<OverviewDisplay, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as "Card" | "Table" | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Card") {
+    } else if (discriminant === "Table") {
+    }
+    return OverviewDisplay.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type IntervalUnit = /** @default */ "Day" | "Week" | "Month" | "Year";
+
+export namespace IntervalUnit {
+  export function defaultValue(): IntervalUnit {
+    return "Day";
+  }
+}
+
+export namespace IntervalUnit {
+  export function toStringifiedJSON(value: IntervalUnit): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: IntervalUnit): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(
+    value: IntervalUnit,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace IntervalUnit {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): IntervalUnit {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): IntervalUnit {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29525,17 +32490,216 @@ export namespace IntervalUnit {
   }
 }
 
-/**  */
-export type Sector = "Residential" | "Commercial";
+export namespace IntervalUnit {
+  /** Per-variant error types */ export type DayErrors = {
+    _errors?: Array<string>;
+  };
+  export type WeekErrors = { _errors?: Array<string> };
+  export type MonthErrors = { _errors?: Array<string> };
+  export type YearErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type DayTainted = {};
+  export type WeekTainted = {};
+  export type MonthTainted = {};
+  export type YearTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Day" } & DayErrors)
+    | ({ _value: "Week" } & WeekErrors)
+    | ({ _value: "Month" } & MonthErrors)
+    | ({ _value: "Year" } & YearErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Day" } & DayTainted)
+    | ({ _value: "Week" } & WeekTainted)
+    | ({ _value: "Month" } & MonthTainted)
+    | ({ _value: "Year" } & YearTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface DayFieldControllers {}
+  export interface WeekFieldControllers {}
+  export interface MonthFieldControllers {}
+  export interface YearFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "Day" | "Week" | "Month" | "Year";
+    readonly data: IntervalUnit;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "Day" | "Week" | "Month" | "Year"): void;
+    validate(): Result<IntervalUnit, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<IntervalUnit>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Day: { readonly fields: DayFieldControllers };
+    readonly Week: { readonly fields: WeekFieldControllers };
+    readonly Month: { readonly fields: MonthFieldControllers };
+    readonly Year: { readonly fields: YearFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): IntervalUnit {
+    switch (variant) {
+      case "Day":
+        return "Day" as IntervalUnit;
+      case "Week":
+        return "Week" as IntervalUnit;
+      case "Month":
+        return "Month" as IntervalUnit;
+      case "Year":
+        return "Year" as IntervalUnit;
+      default:
+        return "Day" as IntervalUnit;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: IntervalUnit,
+  ): Gigaform {
+    const initialVariant: "Day" | "Week" | "Month" | "Year" =
+      (initial as "Day" | "Week" | "Month" | "Year") ?? "Day";
+    let currentVariant = $state<"Day" | "Week" | "Month" | "Year">(
+      initialVariant,
+    );
+    let data = $state<IntervalUnit>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Day: {
+        fields: {} as DayFieldControllers,
+      },
+      Week: {
+        fields: {} as WeekFieldControllers,
+      },
+      Month: {
+        fields: {} as MonthFieldControllers,
+      },
+      Year: {
+        fields: {} as YearFieldControllers,
+      },
+    };
+    function switchVariant(variant: "Day" | "Week" | "Month" | "Year"): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      IntervalUnit,
+      Array<{ field: string; message: string }>
+    > {
+      return IntervalUnit.fromObject(data);
+    }
+    function reset(overrides?: Partial<IntervalUnit>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<IntervalUnit, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "Day"
+      | "Week"
+      | "Month"
+      | "Year"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Day") {
+    } else if (discriminant === "Week") {
+    } else if (discriminant === "Month") {
+    } else if (discriminant === "Year") {
+    }
+    return IntervalUnit.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type Sector = /** @default */ "Residential" | "Commercial";
+
+export namespace Sector {
+  export function defaultValue(): Sector {
+    return "Residential";
+  }
+}
+
+export namespace Sector {
+  export function toStringifiedJSON(value: Sector): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: Sector): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(value: Sector, ctx: SerializeContext): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace Sector {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Sector {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(obj: unknown, opts?: DeserializeOptions): Sector {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29555,9 +32719,152 @@ export namespace Sector {
   }
 }
 
-/**  */
+export namespace Sector {
+  /** Per-variant error types */ export type ResidentialErrors = {
+    _errors?: Array<string>;
+  };
+  export type CommercialErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type ResidentialTainted = {};
+  export type CommercialTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Residential" } & ResidentialErrors)
+    | ({ _value: "Commercial" } & CommercialErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Residential" } & ResidentialTainted)
+    | ({ _value: "Commercial" } & CommercialTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface ResidentialFieldControllers {}
+  export interface CommercialFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "Residential" | "Commercial";
+    readonly data: Sector;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "Residential" | "Commercial"): void;
+    validate(): Result<Sector, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Sector>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Residential: { readonly fields: ResidentialFieldControllers };
+    readonly Commercial: { readonly fields: CommercialFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): Sector {
+    switch (variant) {
+      case "Residential":
+        return "Residential" as Sector;
+      case "Commercial":
+        return "Commercial" as Sector;
+      default:
+        return "Residential" as Sector;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: Sector,
+  ): Gigaform {
+    const initialVariant: "Residential" | "Commercial" =
+      (initial as "Residential" | "Commercial") ?? "Residential";
+    let currentVariant = $state<"Residential" | "Commercial">(initialVariant);
+    let data = $state<Sector>(initial ?? getDefaultForVariant(initialVariant));
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Residential: {
+        fields: {} as ResidentialFieldControllers,
+      },
+      Commercial: {
+        fields: {} as CommercialFieldControllers,
+      },
+    };
+    function switchVariant(variant: "Residential" | "Commercial"): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      Sector,
+      Array<{ field: string; message: string }>
+    > {
+      return Sector.fromObject(data);
+    }
+    function reset(overrides?: Partial<Sector>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<Sector, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "Residential"
+      | "Commercial"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Residential") {
+    } else if (discriminant === "Commercial") {
+    }
+    return Sector.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
 export type Weekday =
-  | "Monday"
+  | /** @default */ "Monday"
   | "Tuesday"
   | "Wednesday"
   | "Thursday"
@@ -29566,13 +32873,39 @@ export type Weekday =
   | "Sunday";
 
 export namespace Weekday {
+  export function defaultValue(): Weekday {
+    return "Monday";
+  }
+}
+
+export namespace Weekday {
+  export function toStringifiedJSON(value: Weekday): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: Weekday): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(value: Weekday, ctx: SerializeContext): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
+
+export namespace Weekday {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Weekday {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(obj: unknown, opts?: DeserializeOptions): Weekday {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29592,17 +32925,298 @@ export namespace Weekday {
   }
 }
 
-/**  */
-export type Status = "Scheduled" | "OnDeck" | "Waiting";
+export namespace Weekday {
+  /** Per-variant error types */ export type MondayErrors = {
+    _errors?: Array<string>;
+  };
+  export type TuesdayErrors = { _errors?: Array<string> };
+  export type WednesdayErrors = { _errors?: Array<string> };
+  export type ThursdayErrors = { _errors?: Array<string> };
+  export type FridayErrors = { _errors?: Array<string> };
+  export type SaturdayErrors = { _errors?: Array<string> };
+  export type SundayErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type MondayTainted = {};
+  export type TuesdayTainted = {};
+  export type WednesdayTainted = {};
+  export type ThursdayTainted = {};
+  export type FridayTainted = {};
+  export type SaturdayTainted = {};
+  export type SundayTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Monday" } & MondayErrors)
+    | ({ _value: "Tuesday" } & TuesdayErrors)
+    | ({ _value: "Wednesday" } & WednesdayErrors)
+    | ({ _value: "Thursday" } & ThursdayErrors)
+    | ({ _value: "Friday" } & FridayErrors)
+    | ({ _value: "Saturday" } & SaturdayErrors)
+    | ({ _value: "Sunday" } & SundayErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Monday" } & MondayTainted)
+    | ({ _value: "Tuesday" } & TuesdayTainted)
+    | ({ _value: "Wednesday" } & WednesdayTainted)
+    | ({ _value: "Thursday" } & ThursdayTainted)
+    | ({ _value: "Friday" } & FridayTainted)
+    | ({ _value: "Saturday" } & SaturdayTainted)
+    | ({ _value: "Sunday" } & SundayTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface MondayFieldControllers {}
+  export interface TuesdayFieldControllers {}
+  export interface WednesdayFieldControllers {}
+  export interface ThursdayFieldControllers {}
+  export interface FridayFieldControllers {}
+  export interface SaturdayFieldControllers {}
+  export interface SundayFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant:
+      | "Monday"
+      | "Tuesday"
+      | "Wednesday"
+      | "Thursday"
+      | "Friday"
+      | "Saturday"
+      | "Sunday";
+    readonly data: Weekday;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(
+      variant:
+        | "Monday"
+        | "Tuesday"
+        | "Wednesday"
+        | "Thursday"
+        | "Friday"
+        | "Saturday"
+        | "Sunday",
+    ): void;
+    validate(): Result<Weekday, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Weekday>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Monday: { readonly fields: MondayFieldControllers };
+    readonly Tuesday: { readonly fields: TuesdayFieldControllers };
+    readonly Wednesday: { readonly fields: WednesdayFieldControllers };
+    readonly Thursday: { readonly fields: ThursdayFieldControllers };
+    readonly Friday: { readonly fields: FridayFieldControllers };
+    readonly Saturday: { readonly fields: SaturdayFieldControllers };
+    readonly Sunday: { readonly fields: SundayFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): Weekday {
+    switch (variant) {
+      case "Monday":
+        return "Monday" as Weekday;
+      case "Tuesday":
+        return "Tuesday" as Weekday;
+      case "Wednesday":
+        return "Wednesday" as Weekday;
+      case "Thursday":
+        return "Thursday" as Weekday;
+      case "Friday":
+        return "Friday" as Weekday;
+      case "Saturday":
+        return "Saturday" as Weekday;
+      case "Sunday":
+        return "Sunday" as Weekday;
+      default:
+        return "Monday" as Weekday;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: Weekday,
+  ): Gigaform {
+    const initialVariant:
+      | "Monday"
+      | "Tuesday"
+      | "Wednesday"
+      | "Thursday"
+      | "Friday"
+      | "Saturday"
+      | "Sunday" =
+      (initial as
+        | "Monday"
+        | "Tuesday"
+        | "Wednesday"
+        | "Thursday"
+        | "Friday"
+        | "Saturday"
+        | "Sunday") ?? "Monday";
+    let currentVariant = $state<
+      | "Monday"
+      | "Tuesday"
+      | "Wednesday"
+      | "Thursday"
+      | "Friday"
+      | "Saturday"
+      | "Sunday"
+    >(initialVariant);
+    let data = $state<Weekday>(initial ?? getDefaultForVariant(initialVariant));
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Monday: {
+        fields: {} as MondayFieldControllers,
+      },
+      Tuesday: {
+        fields: {} as TuesdayFieldControllers,
+      },
+      Wednesday: {
+        fields: {} as WednesdayFieldControllers,
+      },
+      Thursday: {
+        fields: {} as ThursdayFieldControllers,
+      },
+      Friday: {
+        fields: {} as FridayFieldControllers,
+      },
+      Saturday: {
+        fields: {} as SaturdayFieldControllers,
+      },
+      Sunday: {
+        fields: {} as SundayFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant:
+        | "Monday"
+        | "Tuesday"
+        | "Wednesday"
+        | "Thursday"
+        | "Friday"
+        | "Saturday"
+        | "Sunday",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      Weekday,
+      Array<{ field: string; message: string }>
+    > {
+      return Weekday.fromObject(data);
+    }
+    function reset(overrides?: Partial<Weekday>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<Weekday, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "Monday"
+      | "Tuesday"
+      | "Wednesday"
+      | "Thursday"
+      | "Friday"
+      | "Saturday"
+      | "Sunday"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Monday") {
+    } else if (discriminant === "Tuesday") {
+    } else if (discriminant === "Wednesday") {
+    } else if (discriminant === "Thursday") {
+    } else if (discriminant === "Friday") {
+    } else if (discriminant === "Saturday") {
+    } else if (discriminant === "Sunday") {
+    }
+    return Weekday.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type Status = /** @default */ "Scheduled" | "OnDeck" | "Waiting";
+
+export namespace Status {
+  export function defaultValue(): Status {
+    return "Scheduled";
+  }
+}
+
+export namespace Status {
+  export function toStringifiedJSON(value: Status): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: Status): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(value: Status, ctx: SerializeContext): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace Status {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Status {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(obj: unknown, opts?: DeserializeOptions): Status {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29622,21 +33236,208 @@ export namespace Status {
   }
 }
 
-/**  */
+export namespace Status {
+  /** Per-variant error types */ export type ScheduledErrors = {
+    _errors?: Array<string>;
+  };
+  export type OnDeckErrors = { _errors?: Array<string> };
+  export type WaitingErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type ScheduledTainted = {};
+  export type OnDeckTainted = {};
+  export type WaitingTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Scheduled" } & ScheduledErrors)
+    | ({ _value: "OnDeck" } & OnDeckErrors)
+    | ({ _value: "Waiting" } & WaitingErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Scheduled" } & ScheduledTainted)
+    | ({ _value: "OnDeck" } & OnDeckTainted)
+    | ({ _value: "Waiting" } & WaitingTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface ScheduledFieldControllers {}
+  export interface OnDeckFieldControllers {}
+  export interface WaitingFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "Scheduled" | "OnDeck" | "Waiting";
+    readonly data: Status;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "Scheduled" | "OnDeck" | "Waiting"): void;
+    validate(): Result<Status, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Status>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Scheduled: { readonly fields: ScheduledFieldControllers };
+    readonly OnDeck: { readonly fields: OnDeckFieldControllers };
+    readonly Waiting: { readonly fields: WaitingFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): Status {
+    switch (variant) {
+      case "Scheduled":
+        return "Scheduled" as Status;
+      case "OnDeck":
+        return "OnDeck" as Status;
+      case "Waiting":
+        return "Waiting" as Status;
+      default:
+        return "Scheduled" as Status;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: Status,
+  ): Gigaform {
+    const initialVariant: "Scheduled" | "OnDeck" | "Waiting" =
+      (initial as "Scheduled" | "OnDeck" | "Waiting") ?? "Scheduled";
+    let currentVariant = $state<"Scheduled" | "OnDeck" | "Waiting">(
+      initialVariant,
+    );
+    let data = $state<Status>(initial ?? getDefaultForVariant(initialVariant));
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Scheduled: {
+        fields: {} as ScheduledFieldControllers,
+      },
+      OnDeck: {
+        fields: {} as OnDeckFieldControllers,
+      },
+      Waiting: {
+        fields: {} as WaitingFieldControllers,
+      },
+    };
+    function switchVariant(variant: "Scheduled" | "OnDeck" | "Waiting"): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      Status,
+      Array<{ field: string; message: string }>
+    > {
+      return Status.fromObject(data);
+    }
+    function reset(overrides?: Partial<Status>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<Status, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "Scheduled"
+      | "OnDeck"
+      | "Waiting"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Scheduled") {
+    } else if (discriminant === "OnDeck") {
+    } else if (discriminant === "Waiting") {
+    }
+    return Status.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
 export type NextStep =
-  | "InitialContact"
+  | /** @default */ "InitialContact"
   | "Qualified"
   | "Estimate"
   | "Negotiation";
+
+export namespace NextStep {
+  export function defaultValue(): NextStep {
+    return "InitialContact";
+  }
+}
+
+export namespace NextStep {
+  export function toStringifiedJSON(value: NextStep): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: NextStep): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(value: NextStep, ctx: SerializeContext): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace NextStep {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): NextStep {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): NextStep {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29656,22 +33457,245 @@ export namespace NextStep {
   }
 }
 
-/**  */
+export namespace NextStep {
+  /** Per-variant error types */ export type InitialContactErrors = {
+    _errors?: Array<string>;
+  };
+  export type QualifiedErrors = { _errors?: Array<string> };
+  export type EstimateErrors = { _errors?: Array<string> };
+  export type NegotiationErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type InitialContactTainted = {};
+  export type QualifiedTainted = {};
+  export type EstimateTainted = {};
+  export type NegotiationTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "InitialContact" } & InitialContactErrors)
+    | ({ _value: "Qualified" } & QualifiedErrors)
+    | ({ _value: "Estimate" } & EstimateErrors)
+    | ({ _value: "Negotiation" } & NegotiationErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "InitialContact" } & InitialContactTainted)
+    | ({ _value: "Qualified" } & QualifiedTainted)
+    | ({ _value: "Estimate" } & EstimateTainted)
+    | ({ _value: "Negotiation" } & NegotiationTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface InitialContactFieldControllers {}
+  export interface QualifiedFieldControllers {}
+  export interface EstimateFieldControllers {}
+  export interface NegotiationFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant:
+      | "InitialContact"
+      | "Qualified"
+      | "Estimate"
+      | "Negotiation";
+    readonly data: NextStep;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(
+      variant: "InitialContact" | "Qualified" | "Estimate" | "Negotiation",
+    ): void;
+    validate(): Result<NextStep, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<NextStep>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly InitialContact: {
+      readonly fields: InitialContactFieldControllers;
+    };
+    readonly Qualified: { readonly fields: QualifiedFieldControllers };
+    readonly Estimate: { readonly fields: EstimateFieldControllers };
+    readonly Negotiation: { readonly fields: NegotiationFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): NextStep {
+    switch (variant) {
+      case "InitialContact":
+        return "InitialContact" as NextStep;
+      case "Qualified":
+        return "Qualified" as NextStep;
+      case "Estimate":
+        return "Estimate" as NextStep;
+      case "Negotiation":
+        return "Negotiation" as NextStep;
+      default:
+        return "InitialContact" as NextStep;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: NextStep,
+  ): Gigaform {
+    const initialVariant:
+      | "InitialContact"
+      | "Qualified"
+      | "Estimate"
+      | "Negotiation" =
+      (initial as
+        | "InitialContact"
+        | "Qualified"
+        | "Estimate"
+        | "Negotiation") ?? "InitialContact";
+    let currentVariant = $state<
+      "InitialContact" | "Qualified" | "Estimate" | "Negotiation"
+    >(initialVariant);
+    let data = $state<NextStep>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      InitialContact: {
+        fields: {} as InitialContactFieldControllers,
+      },
+      Qualified: {
+        fields: {} as QualifiedFieldControllers,
+      },
+      Estimate: {
+        fields: {} as EstimateFieldControllers,
+      },
+      Negotiation: {
+        fields: {} as NegotiationFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant: "InitialContact" | "Qualified" | "Estimate" | "Negotiation",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      NextStep,
+      Array<{ field: string; message: string }>
+    > {
+      return NextStep.fromObject(data);
+    }
+    function reset(overrides?: Partial<NextStep>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<NextStep, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "InitialContact"
+      | "Qualified"
+      | "Estimate"
+      | "Negotiation"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "InitialContact") {
+    } else if (discriminant === "Qualified") {
+    } else if (discriminant === "Estimate") {
+    } else if (discriminant === "Negotiation") {
+    }
+    return NextStep.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
 export type LeadStage =
-  | "Open"
+  | /** @default */ "Open"
   | "InitialContact"
   | "Qualified"
   | "Estimate"
   | "Negotiation";
 
 export namespace LeadStage {
+  export function defaultValue(): LeadStage {
+    return "Open";
+  }
+}
+
+export namespace LeadStage {
+  export function toStringifiedJSON(value: LeadStage): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: LeadStage): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(
+    value: LeadStage,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
+
+export namespace LeadStage {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): LeadStage {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): LeadStage {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29694,17 +33718,266 @@ export namespace LeadStage {
   }
 }
 
-/**  */
-export type AccountName = CompanyName | PersonName;
+export namespace LeadStage {
+  /** Per-variant error types */ export type OpenErrors = {
+    _errors?: Array<string>;
+  };
+  export type InitialContactErrors = { _errors?: Array<string> };
+  export type QualifiedErrors = { _errors?: Array<string> };
+  export type EstimateErrors = { _errors?: Array<string> };
+  export type NegotiationErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type OpenTainted = {};
+  export type InitialContactTainted = {};
+  export type QualifiedTainted = {};
+  export type EstimateTainted = {};
+  export type NegotiationTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Open" } & OpenErrors)
+    | ({ _value: "InitialContact" } & InitialContactErrors)
+    | ({ _value: "Qualified" } & QualifiedErrors)
+    | ({ _value: "Estimate" } & EstimateErrors)
+    | ({ _value: "Negotiation" } & NegotiationErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Open" } & OpenTainted)
+    | ({ _value: "InitialContact" } & InitialContactTainted)
+    | ({ _value: "Qualified" } & QualifiedTainted)
+    | ({ _value: "Estimate" } & EstimateTainted)
+    | ({ _value: "Negotiation" } & NegotiationTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface OpenFieldControllers {}
+  export interface InitialContactFieldControllers {}
+  export interface QualifiedFieldControllers {}
+  export interface EstimateFieldControllers {}
+  export interface NegotiationFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant:
+      | "Open"
+      | "InitialContact"
+      | "Qualified"
+      | "Estimate"
+      | "Negotiation";
+    readonly data: LeadStage;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(
+      variant:
+        | "Open"
+        | "InitialContact"
+        | "Qualified"
+        | "Estimate"
+        | "Negotiation",
+    ): void;
+    validate(): Result<LeadStage, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<LeadStage>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Open: { readonly fields: OpenFieldControllers };
+    readonly InitialContact: {
+      readonly fields: InitialContactFieldControllers;
+    };
+    readonly Qualified: { readonly fields: QualifiedFieldControllers };
+    readonly Estimate: { readonly fields: EstimateFieldControllers };
+    readonly Negotiation: { readonly fields: NegotiationFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): LeadStage {
+    switch (variant) {
+      case "Open":
+        return "Open" as LeadStage;
+      case "InitialContact":
+        return "InitialContact" as LeadStage;
+      case "Qualified":
+        return "Qualified" as LeadStage;
+      case "Estimate":
+        return "Estimate" as LeadStage;
+      case "Negotiation":
+        return "Negotiation" as LeadStage;
+      default:
+        return "Open" as LeadStage;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: LeadStage,
+  ): Gigaform {
+    const initialVariant:
+      | "Open"
+      | "InitialContact"
+      | "Qualified"
+      | "Estimate"
+      | "Negotiation" =
+      (initial as
+        | "Open"
+        | "InitialContact"
+        | "Qualified"
+        | "Estimate"
+        | "Negotiation") ?? "Open";
+    let currentVariant = $state<
+      "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation"
+    >(initialVariant);
+    let data = $state<LeadStage>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Open: {
+        fields: {} as OpenFieldControllers,
+      },
+      InitialContact: {
+        fields: {} as InitialContactFieldControllers,
+      },
+      Qualified: {
+        fields: {} as QualifiedFieldControllers,
+      },
+      Estimate: {
+        fields: {} as EstimateFieldControllers,
+      },
+      Negotiation: {
+        fields: {} as NegotiationFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant:
+        | "Open"
+        | "InitialContact"
+        | "Qualified"
+        | "Estimate"
+        | "Negotiation",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      LeadStage,
+      Array<{ field: string; message: string }>
+    > {
+      return LeadStage.fromObject(data);
+    }
+    function reset(overrides?: Partial<LeadStage>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<LeadStage, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "Open"
+      | "InitialContact"
+      | "Qualified"
+      | "Estimate"
+      | "Negotiation"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Open") {
+    } else if (discriminant === "InitialContact") {
+    } else if (discriminant === "Qualified") {
+    } else if (discriminant === "Estimate") {
+    } else if (discriminant === "Negotiation") {
+    }
+    return LeadStage.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type AccountName = /** @default */ CompanyName | PersonName;
+
+export namespace AccountName {
+  export function defaultValue(): AccountName {
+    return CompanyName.defaultValue();
+  }
+}
+
+export namespace AccountName {
+  export function toStringifiedJSON(value: AccountName): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: AccountName): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(
+    value: AccountName,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace AccountName {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): AccountName {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): AccountName {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29727,17 +34000,190 @@ export namespace AccountName {
   }
 }
 
-/**  */
-export type Priority = "High" | "Medium" | "Low";
+export namespace AccountName {
+  /** Per-variant error types */ export type CompanyNameErrors = {
+    _errors?: Array<string>;
+  };
+  export type PersonNameErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type CompanyNameTainted = {};
+  export type PersonNameTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _type: "CompanyName" } & CompanyNameErrors)
+    | ({ _type: "PersonName" } & PersonNameErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _type: "CompanyName" } & CompanyNameTainted)
+    | ({ _type: "PersonName" } & PersonNameTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface CompanyNameFieldControllers {}
+  export interface PersonNameFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "CompanyName" | "PersonName";
+    readonly data: AccountName;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "CompanyName" | "PersonName"): void;
+    validate(): Result<AccountName, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<AccountName>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly CompanyName: { readonly fields: CompanyNameFieldControllers };
+    readonly PersonName: { readonly fields: PersonNameFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): AccountName {
+    switch (variant) {
+      case "CompanyName":
+        return CompanyName.defaultValue() as AccountName;
+      case "PersonName":
+        return PersonName.defaultValue() as AccountName;
+      default:
+        return CompanyName.defaultValue() as AccountName;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: AccountName,
+  ): Gigaform {
+    const initialVariant: "CompanyName" | "PersonName" = "CompanyName";
+    let currentVariant = $state<"CompanyName" | "PersonName">(initialVariant);
+    let data = $state<AccountName>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      CompanyName: {
+        fields: {} as CompanyNameFieldControllers,
+      },
+      PersonName: {
+        fields: {} as PersonNameFieldControllers,
+      },
+    };
+    function switchVariant(variant: "CompanyName" | "PersonName"): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      AccountName,
+      Array<{ field: string; message: string }>
+    > {
+      return AccountName.fromObject(data);
+    }
+    function reset(overrides?: Partial<AccountName>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<AccountName, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_type") as
+      | "CompanyName"
+      | "PersonName"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_type", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+    if (discriminant === "CompanyName") {
+    } else if (discriminant === "PersonName") {
+    }
+    return AccountName.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type Priority = /** @default */ "Medium" | "High" | "Low";
+
+export namespace Priority {
+  export function defaultValue(): Priority {
+    return "Medium";
+  }
+}
+
+export namespace Priority {
+  export function toStringifiedJSON(value: Priority): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: Priority): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(value: Priority, ctx: SerializeContext): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace Priority {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Priority {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Priority {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29757,9 +34203,167 @@ export namespace Priority {
   }
 }
 
-/**  */
+export namespace Priority {
+  /** Per-variant error types */ export type MediumErrors = {
+    _errors?: Array<string>;
+  };
+  export type HighErrors = { _errors?: Array<string> };
+  export type LowErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type MediumTainted = {};
+  export type HighTainted = {};
+  export type LowTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Medium" } & MediumErrors)
+    | ({ _value: "High" } & HighErrors)
+    | ({ _value: "Low" } & LowErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Medium" } & MediumTainted)
+    | ({ _value: "High" } & HighTainted)
+    | ({ _value: "Low" } & LowTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface MediumFieldControllers {}
+  export interface HighFieldControllers {}
+  export interface LowFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "Medium" | "High" | "Low";
+    readonly data: Priority;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "Medium" | "High" | "Low"): void;
+    validate(): Result<Priority, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Priority>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Medium: { readonly fields: MediumFieldControllers };
+    readonly High: { readonly fields: HighFieldControllers };
+    readonly Low: { readonly fields: LowFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): Priority {
+    switch (variant) {
+      case "Medium":
+        return "Medium" as Priority;
+      case "High":
+        return "High" as Priority;
+      case "Low":
+        return "Low" as Priority;
+      default:
+        return "Medium" as Priority;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: Priority,
+  ): Gigaform {
+    const initialVariant: "Medium" | "High" | "Low" =
+      (initial as "Medium" | "High" | "Low") ?? "Medium";
+    let currentVariant = $state<"Medium" | "High" | "Low">(initialVariant);
+    let data = $state<Priority>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Medium: {
+        fields: {} as MediumFieldControllers,
+      },
+      High: {
+        fields: {} as HighFieldControllers,
+      },
+      Low: {
+        fields: {} as LowFieldControllers,
+      },
+    };
+    function switchVariant(variant: "Medium" | "High" | "Low"): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      Priority,
+      Array<{ field: string; message: string }>
+    > {
+      return Priority.fromObject(data);
+    }
+    function reset(overrides?: Partial<Priority>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<Priority, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "Medium"
+      | "High"
+      | "Low"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Medium") {
+    } else if (discriminant === "High") {
+    } else if (discriminant === "Low") {
+    }
+    return Priority.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
 export type Applications =
-  | "Sales"
+  | /** @default */ "Sales"
   | "Accounting"
   | "Errand"
   | "HumanResources"
@@ -29768,13 +34372,45 @@ export type Applications =
   | "Website";
 
 export namespace Applications {
+  export function defaultValue(): Applications {
+    return "Sales";
+  }
+}
+
+export namespace Applications {
+  export function toStringifiedJSON(value: Applications): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: Applications): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(
+    value: Applications,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
+
+export namespace Applications {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Applications {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Applications {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29797,21 +34433,309 @@ export namespace Applications {
   }
 }
 
-/**  */
+export namespace Applications {
+  /** Per-variant error types */ export type SalesErrors = {
+    _errors?: Array<string>;
+  };
+  export type AccountingErrors = { _errors?: Array<string> };
+  export type ErrandErrors = { _errors?: Array<string> };
+  export type HumanResourcesErrors = { _errors?: Array<string> };
+  export type LogisticsErrors = { _errors?: Array<string> };
+  export type MarketingErrors = { _errors?: Array<string> };
+  export type WebsiteErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type SalesTainted = {};
+  export type AccountingTainted = {};
+  export type ErrandTainted = {};
+  export type HumanResourcesTainted = {};
+  export type LogisticsTainted = {};
+  export type MarketingTainted = {};
+  export type WebsiteTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Sales" } & SalesErrors)
+    | ({ _value: "Accounting" } & AccountingErrors)
+    | ({ _value: "Errand" } & ErrandErrors)
+    | ({ _value: "HumanResources" } & HumanResourcesErrors)
+    | ({ _value: "Logistics" } & LogisticsErrors)
+    | ({ _value: "Marketing" } & MarketingErrors)
+    | ({ _value: "Website" } & WebsiteErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Sales" } & SalesTainted)
+    | ({ _value: "Accounting" } & AccountingTainted)
+    | ({ _value: "Errand" } & ErrandTainted)
+    | ({ _value: "HumanResources" } & HumanResourcesTainted)
+    | ({ _value: "Logistics" } & LogisticsTainted)
+    | ({ _value: "Marketing" } & MarketingTainted)
+    | ({ _value: "Website" } & WebsiteTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface SalesFieldControllers {}
+  export interface AccountingFieldControllers {}
+  export interface ErrandFieldControllers {}
+  export interface HumanResourcesFieldControllers {}
+  export interface LogisticsFieldControllers {}
+  export interface MarketingFieldControllers {}
+  export interface WebsiteFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant:
+      | "Sales"
+      | "Accounting"
+      | "Errand"
+      | "HumanResources"
+      | "Logistics"
+      | "Marketing"
+      | "Website";
+    readonly data: Applications;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(
+      variant:
+        | "Sales"
+        | "Accounting"
+        | "Errand"
+        | "HumanResources"
+        | "Logistics"
+        | "Marketing"
+        | "Website",
+    ): void;
+    validate(): Result<Applications, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Applications>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Sales: { readonly fields: SalesFieldControllers };
+    readonly Accounting: { readonly fields: AccountingFieldControllers };
+    readonly Errand: { readonly fields: ErrandFieldControllers };
+    readonly HumanResources: {
+      readonly fields: HumanResourcesFieldControllers;
+    };
+    readonly Logistics: { readonly fields: LogisticsFieldControllers };
+    readonly Marketing: { readonly fields: MarketingFieldControllers };
+    readonly Website: { readonly fields: WebsiteFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): Applications {
+    switch (variant) {
+      case "Sales":
+        return "Sales" as Applications;
+      case "Accounting":
+        return "Accounting" as Applications;
+      case "Errand":
+        return "Errand" as Applications;
+      case "HumanResources":
+        return "HumanResources" as Applications;
+      case "Logistics":
+        return "Logistics" as Applications;
+      case "Marketing":
+        return "Marketing" as Applications;
+      case "Website":
+        return "Website" as Applications;
+      default:
+        return "Sales" as Applications;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: Applications,
+  ): Gigaform {
+    const initialVariant:
+      | "Sales"
+      | "Accounting"
+      | "Errand"
+      | "HumanResources"
+      | "Logistics"
+      | "Marketing"
+      | "Website" =
+      (initial as
+        | "Sales"
+        | "Accounting"
+        | "Errand"
+        | "HumanResources"
+        | "Logistics"
+        | "Marketing"
+        | "Website") ?? "Sales";
+    let currentVariant = $state<
+      | "Sales"
+      | "Accounting"
+      | "Errand"
+      | "HumanResources"
+      | "Logistics"
+      | "Marketing"
+      | "Website"
+    >(initialVariant);
+    let data = $state<Applications>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Sales: {
+        fields: {} as SalesFieldControllers,
+      },
+      Accounting: {
+        fields: {} as AccountingFieldControllers,
+      },
+      Errand: {
+        fields: {} as ErrandFieldControllers,
+      },
+      HumanResources: {
+        fields: {} as HumanResourcesFieldControllers,
+      },
+      Logistics: {
+        fields: {} as LogisticsFieldControllers,
+      },
+      Marketing: {
+        fields: {} as MarketingFieldControllers,
+      },
+      Website: {
+        fields: {} as WebsiteFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant:
+        | "Sales"
+        | "Accounting"
+        | "Errand"
+        | "HumanResources"
+        | "Logistics"
+        | "Marketing"
+        | "Website",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      Applications,
+      Array<{ field: string; message: string }>
+    > {
+      return Applications.fromObject(data);
+    }
+    function reset(overrides?: Partial<Applications>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<Applications, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "Sales"
+      | "Accounting"
+      | "Errand"
+      | "HumanResources"
+      | "Logistics"
+      | "Marketing"
+      | "Website"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Sales") {
+    } else if (discriminant === "Accounting") {
+    } else if (discriminant === "Errand") {
+    } else if (discriminant === "HumanResources") {
+    } else if (discriminant === "Logistics") {
+    } else if (discriminant === "Marketing") {
+    } else if (discriminant === "Website") {
+    }
+    return Applications.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
 export type JobTitle =
-  | "Technician"
+  | /** @default */ "Technician"
   | "SalesRepresentative"
   | "HumanResources"
   | "InformationTechnology";
+
+export namespace JobTitle {
+  export function defaultValue(): JobTitle {
+    return "Technician";
+  }
+}
+
+export namespace JobTitle {
+  export function toStringifiedJSON(value: JobTitle): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: JobTitle): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(value: JobTitle, ctx: SerializeContext): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace JobTitle {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): JobTitle {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): JobTitle {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29831,17 +34755,259 @@ export namespace JobTitle {
   }
 }
 
-/**  */
-export type ColorsConfig = Cardinal | Ordinal | Custom | Gradient;
+export namespace JobTitle {
+  /** Per-variant error types */ export type TechnicianErrors = {
+    _errors?: Array<string>;
+  };
+  export type SalesRepresentativeErrors = { _errors?: Array<string> };
+  export type HumanResourcesErrors = { _errors?: Array<string> };
+  export type InformationTechnologyErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type TechnicianTainted = {};
+  export type SalesRepresentativeTainted = {};
+  export type HumanResourcesTainted = {};
+  export type InformationTechnologyTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Technician" } & TechnicianErrors)
+    | ({ _value: "SalesRepresentative" } & SalesRepresentativeErrors)
+    | ({ _value: "HumanResources" } & HumanResourcesErrors)
+    | ({ _value: "InformationTechnology" } & InformationTechnologyErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Technician" } & TechnicianTainted)
+    | ({ _value: "SalesRepresentative" } & SalesRepresentativeTainted)
+    | ({ _value: "HumanResources" } & HumanResourcesTainted)
+    | ({ _value: "InformationTechnology" } & InformationTechnologyTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface TechnicianFieldControllers {}
+  export interface SalesRepresentativeFieldControllers {}
+  export interface HumanResourcesFieldControllers {}
+  export interface InformationTechnologyFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant:
+      | "Technician"
+      | "SalesRepresentative"
+      | "HumanResources"
+      | "InformationTechnology";
+    readonly data: JobTitle;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(
+      variant:
+        | "Technician"
+        | "SalesRepresentative"
+        | "HumanResources"
+        | "InformationTechnology",
+    ): void;
+    validate(): Result<JobTitle, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<JobTitle>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Technician: { readonly fields: TechnicianFieldControllers };
+    readonly SalesRepresentative: {
+      readonly fields: SalesRepresentativeFieldControllers;
+    };
+    readonly HumanResources: {
+      readonly fields: HumanResourcesFieldControllers;
+    };
+    readonly InformationTechnology: {
+      readonly fields: InformationTechnologyFieldControllers;
+    };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): JobTitle {
+    switch (variant) {
+      case "Technician":
+        return "Technician" as JobTitle;
+      case "SalesRepresentative":
+        return "SalesRepresentative" as JobTitle;
+      case "HumanResources":
+        return "HumanResources" as JobTitle;
+      case "InformationTechnology":
+        return "InformationTechnology" as JobTitle;
+      default:
+        return "Technician" as JobTitle;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: JobTitle,
+  ): Gigaform {
+    const initialVariant:
+      | "Technician"
+      | "SalesRepresentative"
+      | "HumanResources"
+      | "InformationTechnology" =
+      (initial as
+        | "Technician"
+        | "SalesRepresentative"
+        | "HumanResources"
+        | "InformationTechnology") ?? "Technician";
+    let currentVariant = $state<
+      | "Technician"
+      | "SalesRepresentative"
+      | "HumanResources"
+      | "InformationTechnology"
+    >(initialVariant);
+    let data = $state<JobTitle>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Technician: {
+        fields: {} as TechnicianFieldControllers,
+      },
+      SalesRepresentative: {
+        fields: {} as SalesRepresentativeFieldControllers,
+      },
+      HumanResources: {
+        fields: {} as HumanResourcesFieldControllers,
+      },
+      InformationTechnology: {
+        fields: {} as InformationTechnologyFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant:
+        | "Technician"
+        | "SalesRepresentative"
+        | "HumanResources"
+        | "InformationTechnology",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      JobTitle,
+      Array<{ field: string; message: string }>
+    > {
+      return JobTitle.fromObject(data);
+    }
+    function reset(overrides?: Partial<JobTitle>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<JobTitle, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "Technician"
+      | "SalesRepresentative"
+      | "HumanResources"
+      | "InformationTechnology"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Technician") {
+    } else if (discriminant === "SalesRepresentative") {
+    } else if (discriminant === "HumanResources") {
+    } else if (discriminant === "InformationTechnology") {
+    }
+    return JobTitle.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type ColorsConfig =
+  | Cardinal
+  | Ordinal
+  | Custom
+  | /** @default */ Gradient;
+
+export namespace ColorsConfig {
+  export function defaultValue(): ColorsConfig {
+    return Gradient.defaultValue();
+  }
+}
+
+export namespace ColorsConfig {
+  export function toStringifiedJSON(value: ColorsConfig): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: ColorsConfig): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(
+    value: ColorsConfig,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace ColorsConfig {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): ColorsConfig {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): ColorsConfig {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29864,17 +35030,231 @@ export namespace ColorsConfig {
   }
 }
 
-/**  */
-export type WeekOfMonth = "First" | "Second" | "Third" | "Fourth" | "Last";
+export namespace ColorsConfig {
+  /** Per-variant error types */ export type CardinalErrors = {
+    _errors?: Array<string>;
+  };
+  export type OrdinalErrors = { _errors?: Array<string> };
+  export type CustomErrors = { _errors?: Array<string> };
+  export type GradientErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type CardinalTainted = {};
+  export type OrdinalTainted = {};
+  export type CustomTainted = {};
+  export type GradientTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _type: "Cardinal" } & CardinalErrors)
+    | ({ _type: "Ordinal" } & OrdinalErrors)
+    | ({ _type: "Custom" } & CustomErrors)
+    | ({ _type: "Gradient" } & GradientErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _type: "Cardinal" } & CardinalTainted)
+    | ({ _type: "Ordinal" } & OrdinalTainted)
+    | ({ _type: "Custom" } & CustomTainted)
+    | ({ _type: "Gradient" } & GradientTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface CardinalFieldControllers {}
+  export interface OrdinalFieldControllers {}
+  export interface CustomFieldControllers {}
+  export interface GradientFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "Cardinal" | "Ordinal" | "Custom" | "Gradient";
+    readonly data: ColorsConfig;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(
+      variant: "Cardinal" | "Ordinal" | "Custom" | "Gradient",
+    ): void;
+    validate(): Result<ColorsConfig, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<ColorsConfig>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Cardinal: { readonly fields: CardinalFieldControllers };
+    readonly Ordinal: { readonly fields: OrdinalFieldControllers };
+    readonly Custom: { readonly fields: CustomFieldControllers };
+    readonly Gradient: { readonly fields: GradientFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): ColorsConfig {
+    switch (variant) {
+      case "Cardinal":
+        return Cardinal.defaultValue() as ColorsConfig;
+      case "Ordinal":
+        return Ordinal.defaultValue() as ColorsConfig;
+      case "Custom":
+        return Custom.defaultValue() as ColorsConfig;
+      case "Gradient":
+        return Gradient.defaultValue() as ColorsConfig;
+      default:
+        return Cardinal.defaultValue() as ColorsConfig;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: ColorsConfig,
+  ): Gigaform {
+    const initialVariant: "Cardinal" | "Ordinal" | "Custom" | "Gradient" =
+      "Cardinal";
+    let currentVariant = $state<"Cardinal" | "Ordinal" | "Custom" | "Gradient">(
+      initialVariant,
+    );
+    let data = $state<ColorsConfig>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Cardinal: {
+        fields: {} as CardinalFieldControllers,
+      },
+      Ordinal: {
+        fields: {} as OrdinalFieldControllers,
+      },
+      Custom: {
+        fields: {} as CustomFieldControllers,
+      },
+      Gradient: {
+        fields: {} as GradientFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant: "Cardinal" | "Ordinal" | "Custom" | "Gradient",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      ColorsConfig,
+      Array<{ field: string; message: string }>
+    > {
+      return ColorsConfig.fromObject(data);
+    }
+    function reset(overrides?: Partial<ColorsConfig>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<ColorsConfig, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_type") as
+      | "Cardinal"
+      | "Ordinal"
+      | "Custom"
+      | "Gradient"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_type", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+    if (discriminant === "Cardinal") {
+    } else if (discriminant === "Ordinal") {
+    } else if (discriminant === "Custom") {
+    } else if (discriminant === "Gradient") {
+    }
+    return ColorsConfig.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type WeekOfMonth =
+  | /** @default */ "First"
+  | "Second"
+  | "Third"
+  | "Fourth"
+  | "Last";
+
+export namespace WeekOfMonth {
+  export function defaultValue(): WeekOfMonth {
+    return "First";
+  }
+}
+
+export namespace WeekOfMonth {
+  export function toStringifiedJSON(value: WeekOfMonth): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: WeekOfMonth): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(
+    value: WeekOfMonth,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace WeekOfMonth {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): WeekOfMonth {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): WeekOfMonth {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29897,17 +35277,245 @@ export namespace WeekOfMonth {
   }
 }
 
-/**  */
-export type ActivityType = Created | Edited | Sent | Viewed | Commented | Paid;
+export namespace WeekOfMonth {
+  /** Per-variant error types */ export type FirstErrors = {
+    _errors?: Array<string>;
+  };
+  export type SecondErrors = { _errors?: Array<string> };
+  export type ThirdErrors = { _errors?: Array<string> };
+  export type FourthErrors = { _errors?: Array<string> };
+  export type LastErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type FirstTainted = {};
+  export type SecondTainted = {};
+  export type ThirdTainted = {};
+  export type FourthTainted = {};
+  export type LastTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "First" } & FirstErrors)
+    | ({ _value: "Second" } & SecondErrors)
+    | ({ _value: "Third" } & ThirdErrors)
+    | ({ _value: "Fourth" } & FourthErrors)
+    | ({ _value: "Last" } & LastErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "First" } & FirstTainted)
+    | ({ _value: "Second" } & SecondTainted)
+    | ({ _value: "Third" } & ThirdTainted)
+    | ({ _value: "Fourth" } & FourthTainted)
+    | ({ _value: "Last" } & LastTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface FirstFieldControllers {}
+  export interface SecondFieldControllers {}
+  export interface ThirdFieldControllers {}
+  export interface FourthFieldControllers {}
+  export interface LastFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "First" | "Second" | "Third" | "Fourth" | "Last";
+    readonly data: WeekOfMonth;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(
+      variant: "First" | "Second" | "Third" | "Fourth" | "Last",
+    ): void;
+    validate(): Result<WeekOfMonth, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<WeekOfMonth>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly First: { readonly fields: FirstFieldControllers };
+    readonly Second: { readonly fields: SecondFieldControllers };
+    readonly Third: { readonly fields: ThirdFieldControllers };
+    readonly Fourth: { readonly fields: FourthFieldControllers };
+    readonly Last: { readonly fields: LastFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): WeekOfMonth {
+    switch (variant) {
+      case "First":
+        return "First" as WeekOfMonth;
+      case "Second":
+        return "Second" as WeekOfMonth;
+      case "Third":
+        return "Third" as WeekOfMonth;
+      case "Fourth":
+        return "Fourth" as WeekOfMonth;
+      case "Last":
+        return "Last" as WeekOfMonth;
+      default:
+        return "First" as WeekOfMonth;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: WeekOfMonth,
+  ): Gigaform {
+    const initialVariant: "First" | "Second" | "Third" | "Fourth" | "Last" =
+      (initial as "First" | "Second" | "Third" | "Fourth" | "Last") ?? "First";
+    let currentVariant = $state<
+      "First" | "Second" | "Third" | "Fourth" | "Last"
+    >(initialVariant);
+    let data = $state<WeekOfMonth>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      First: {
+        fields: {} as FirstFieldControllers,
+      },
+      Second: {
+        fields: {} as SecondFieldControllers,
+      },
+      Third: {
+        fields: {} as ThirdFieldControllers,
+      },
+      Fourth: {
+        fields: {} as FourthFieldControllers,
+      },
+      Last: {
+        fields: {} as LastFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant: "First" | "Second" | "Third" | "Fourth" | "Last",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      WeekOfMonth,
+      Array<{ field: string; message: string }>
+    > {
+      return WeekOfMonth.fromObject(data);
+    }
+    function reset(overrides?: Partial<WeekOfMonth>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<WeekOfMonth, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "First"
+      | "Second"
+      | "Third"
+      | "Fourth"
+      | "Last"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "First") {
+    } else if (discriminant === "Second") {
+    } else if (discriminant === "Third") {
+    } else if (discriminant === "Fourth") {
+    } else if (discriminant === "Last") {
+    }
+    return WeekOfMonth.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type ActivityType =
+  | /** @default */ Created
+  | Edited
+  | Sent
+  | Viewed
+  | Commented
+  | Paid;
+
+export namespace ActivityType {
+  export function defaultValue(): ActivityType {
+    return Created.defaultValue();
+  }
+}
+
+export namespace ActivityType {
+  export function toStringifiedJSON(value: ActivityType): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: ActivityType): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(
+    value: ActivityType,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace ActivityType {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): ActivityType {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): ActivityType {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29930,17 +35538,267 @@ export namespace ActivityType {
   }
 }
 
-/**  */
-export type RowHeight = "ExtraSmall" | "Small" | "Medium" | "Large";
+export namespace ActivityType {
+  /** Per-variant error types */ export type CreatedErrors = {
+    _errors?: Array<string>;
+  };
+  export type EditedErrors = { _errors?: Array<string> };
+  export type SentErrors = { _errors?: Array<string> };
+  export type ViewedErrors = { _errors?: Array<string> };
+  export type CommentedErrors = { _errors?: Array<string> };
+  export type PaidErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type CreatedTainted = {};
+  export type EditedTainted = {};
+  export type SentTainted = {};
+  export type ViewedTainted = {};
+  export type CommentedTainted = {};
+  export type PaidTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _type: "Created" } & CreatedErrors)
+    | ({ _type: "Edited" } & EditedErrors)
+    | ({ _type: "Sent" } & SentErrors)
+    | ({ _type: "Viewed" } & ViewedErrors)
+    | ({ _type: "Commented" } & CommentedErrors)
+    | ({ _type: "Paid" } & PaidErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _type: "Created" } & CreatedTainted)
+    | ({ _type: "Edited" } & EditedTainted)
+    | ({ _type: "Sent" } & SentTainted)
+    | ({ _type: "Viewed" } & ViewedTainted)
+    | ({ _type: "Commented" } & CommentedTainted)
+    | ({ _type: "Paid" } & PaidTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface CreatedFieldControllers {}
+  export interface EditedFieldControllers {}
+  export interface SentFieldControllers {}
+  export interface ViewedFieldControllers {}
+  export interface CommentedFieldControllers {}
+  export interface PaidFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant:
+      | "Created"
+      | "Edited"
+      | "Sent"
+      | "Viewed"
+      | "Commented"
+      | "Paid";
+    readonly data: ActivityType;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(
+      variant: "Created" | "Edited" | "Sent" | "Viewed" | "Commented" | "Paid",
+    ): void;
+    validate(): Result<ActivityType, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<ActivityType>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Created: { readonly fields: CreatedFieldControllers };
+    readonly Edited: { readonly fields: EditedFieldControllers };
+    readonly Sent: { readonly fields: SentFieldControllers };
+    readonly Viewed: { readonly fields: ViewedFieldControllers };
+    readonly Commented: { readonly fields: CommentedFieldControllers };
+    readonly Paid: { readonly fields: PaidFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): ActivityType {
+    switch (variant) {
+      case "Created":
+        return Created.defaultValue() as ActivityType;
+      case "Edited":
+        return Edited.defaultValue() as ActivityType;
+      case "Sent":
+        return Sent.defaultValue() as ActivityType;
+      case "Viewed":
+        return Viewed.defaultValue() as ActivityType;
+      case "Commented":
+        return Commented.defaultValue() as ActivityType;
+      case "Paid":
+        return Paid.defaultValue() as ActivityType;
+      default:
+        return Created.defaultValue() as ActivityType;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: ActivityType,
+  ): Gigaform {
+    const initialVariant:
+      | "Created"
+      | "Edited"
+      | "Sent"
+      | "Viewed"
+      | "Commented"
+      | "Paid" = "Created";
+    let currentVariant = $state<
+      "Created" | "Edited" | "Sent" | "Viewed" | "Commented" | "Paid"
+    >(initialVariant);
+    let data = $state<ActivityType>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Created: {
+        fields: {} as CreatedFieldControllers,
+      },
+      Edited: {
+        fields: {} as EditedFieldControllers,
+      },
+      Sent: {
+        fields: {} as SentFieldControllers,
+      },
+      Viewed: {
+        fields: {} as ViewedFieldControllers,
+      },
+      Commented: {
+        fields: {} as CommentedFieldControllers,
+      },
+      Paid: {
+        fields: {} as PaidFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant: "Created" | "Edited" | "Sent" | "Viewed" | "Commented" | "Paid",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      ActivityType,
+      Array<{ field: string; message: string }>
+    > {
+      return ActivityType.fromObject(data);
+    }
+    function reset(overrides?: Partial<ActivityType>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<ActivityType, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_type") as
+      | "Created"
+      | "Edited"
+      | "Sent"
+      | "Viewed"
+      | "Commented"
+      | "Paid"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_type", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+    if (discriminant === "Created") {
+    } else if (discriminant === "Edited") {
+    } else if (discriminant === "Sent") {
+    } else if (discriminant === "Viewed") {
+    } else if (discriminant === "Commented") {
+    } else if (discriminant === "Paid") {
+    }
+    return ActivityType.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type RowHeight =
+  | "ExtraSmall"
+  | "Small"
+  | /** @default */ "Medium"
+  | "Large";
+
+export namespace RowHeight {
+  export function defaultValue(): RowHeight {
+    return "Medium";
+  }
+}
+
+export namespace RowHeight {
+  export function toStringifiedJSON(value: RowHeight): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: RowHeight): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(
+    value: RowHeight,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace RowHeight {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): RowHeight {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): RowHeight {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29963,17 +35821,224 @@ export namespace RowHeight {
   }
 }
 
-/**  */
-export type OrderStage = "Estimate" | "Active" | "Invoice";
+export namespace RowHeight {
+  /** Per-variant error types */ export type ExtraSmallErrors = {
+    _errors?: Array<string>;
+  };
+  export type SmallErrors = { _errors?: Array<string> };
+  export type MediumErrors = { _errors?: Array<string> };
+  export type LargeErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type ExtraSmallTainted = {};
+  export type SmallTainted = {};
+  export type MediumTainted = {};
+  export type LargeTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "ExtraSmall" } & ExtraSmallErrors)
+    | ({ _value: "Small" } & SmallErrors)
+    | ({ _value: "Medium" } & MediumErrors)
+    | ({ _value: "Large" } & LargeErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "ExtraSmall" } & ExtraSmallTainted)
+    | ({ _value: "Small" } & SmallTainted)
+    | ({ _value: "Medium" } & MediumTainted)
+    | ({ _value: "Large" } & LargeTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface ExtraSmallFieldControllers {}
+  export interface SmallFieldControllers {}
+  export interface MediumFieldControllers {}
+  export interface LargeFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "ExtraSmall" | "Small" | "Medium" | "Large";
+    readonly data: RowHeight;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "ExtraSmall" | "Small" | "Medium" | "Large"): void;
+    validate(): Result<RowHeight, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<RowHeight>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly ExtraSmall: { readonly fields: ExtraSmallFieldControllers };
+    readonly Small: { readonly fields: SmallFieldControllers };
+    readonly Medium: { readonly fields: MediumFieldControllers };
+    readonly Large: { readonly fields: LargeFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): RowHeight {
+    switch (variant) {
+      case "ExtraSmall":
+        return "ExtraSmall" as RowHeight;
+      case "Small":
+        return "Small" as RowHeight;
+      case "Medium":
+        return "Medium" as RowHeight;
+      case "Large":
+        return "Large" as RowHeight;
+      default:
+        return "ExtraSmall" as RowHeight;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: RowHeight,
+  ): Gigaform {
+    const initialVariant: "ExtraSmall" | "Small" | "Medium" | "Large" =
+      (initial as "ExtraSmall" | "Small" | "Medium" | "Large") ?? "ExtraSmall";
+    let currentVariant = $state<"ExtraSmall" | "Small" | "Medium" | "Large">(
+      initialVariant,
+    );
+    let data = $state<RowHeight>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      ExtraSmall: {
+        fields: {} as ExtraSmallFieldControllers,
+      },
+      Small: {
+        fields: {} as SmallFieldControllers,
+      },
+      Medium: {
+        fields: {} as MediumFieldControllers,
+      },
+      Large: {
+        fields: {} as LargeFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant: "ExtraSmall" | "Small" | "Medium" | "Large",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      RowHeight,
+      Array<{ field: string; message: string }>
+    > {
+      return RowHeight.fromObject(data);
+    }
+    function reset(overrides?: Partial<RowHeight>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<RowHeight, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "ExtraSmall"
+      | "Small"
+      | "Medium"
+      | "Large"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "ExtraSmall") {
+    } else if (discriminant === "Small") {
+    } else if (discriminant === "Medium") {
+    } else if (discriminant === "Large") {
+    }
+    return RowHeight.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type OrderStage = /** @default */ "Estimate" | "Active" | "Invoice";
+
+export namespace OrderStage {
+  export function defaultValue(): OrderStage {
+    return "Estimate";
+  }
+}
+
+export namespace OrderStage {
+  export function toStringifiedJSON(value: OrderStage): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: OrderStage): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(
+    value: OrderStage,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace OrderStage {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): OrderStage {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): OrderStage {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -29996,9 +36061,169 @@ export namespace OrderStage {
   }
 }
 
-/**  */
+export namespace OrderStage {
+  /** Per-variant error types */ export type EstimateErrors = {
+    _errors?: Array<string>;
+  };
+  export type ActiveErrors = { _errors?: Array<string> };
+  export type InvoiceErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type EstimateTainted = {};
+  export type ActiveTainted = {};
+  export type InvoiceTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Estimate" } & EstimateErrors)
+    | ({ _value: "Active" } & ActiveErrors)
+    | ({ _value: "Invoice" } & InvoiceErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Estimate" } & EstimateTainted)
+    | ({ _value: "Active" } & ActiveTainted)
+    | ({ _value: "Invoice" } & InvoiceTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface EstimateFieldControllers {}
+  export interface ActiveFieldControllers {}
+  export interface InvoiceFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "Estimate" | "Active" | "Invoice";
+    readonly data: OrderStage;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "Estimate" | "Active" | "Invoice"): void;
+    validate(): Result<OrderStage, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<OrderStage>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Estimate: { readonly fields: EstimateFieldControllers };
+    readonly Active: { readonly fields: ActiveFieldControllers };
+    readonly Invoice: { readonly fields: InvoiceFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): OrderStage {
+    switch (variant) {
+      case "Estimate":
+        return "Estimate" as OrderStage;
+      case "Active":
+        return "Active" as OrderStage;
+      case "Invoice":
+        return "Invoice" as OrderStage;
+      default:
+        return "Estimate" as OrderStage;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: OrderStage,
+  ): Gigaform {
+    const initialVariant: "Estimate" | "Active" | "Invoice" =
+      (initial as "Estimate" | "Active" | "Invoice") ?? "Estimate";
+    let currentVariant = $state<"Estimate" | "Active" | "Invoice">(
+      initialVariant,
+    );
+    let data = $state<OrderStage>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Estimate: {
+        fields: {} as EstimateFieldControllers,
+      },
+      Active: {
+        fields: {} as ActiveFieldControllers,
+      },
+      Invoice: {
+        fields: {} as InvoiceFieldControllers,
+      },
+    };
+    function switchVariant(variant: "Estimate" | "Active" | "Invoice"): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      OrderStage,
+      Array<{ field: string; message: string }>
+    > {
+      return OrderStage.fromObject(data);
+    }
+    function reset(overrides?: Partial<OrderStage>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<OrderStage, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "Estimate"
+      | "Active"
+      | "Invoice"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Estimate") {
+    } else if (discriminant === "Active") {
+    } else if (discriminant === "Invoice") {
+    }
+    return OrderStage.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
 export type Table =
-  | "Account"
+  | /** @default */ "Account"
   | "Did"
   | "Appointment"
   | "Lead"
@@ -30018,13 +36243,39 @@ export type Table =
   | "Ordered";
 
 export namespace Table {
+  export function defaultValue(): Table {
+    return "Account";
+  }
+}
+
+export namespace Table {
+  export function toStringifiedJSON(value: Table): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: Table): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(value: Table, ctx: SerializeContext): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
+
+export namespace Table {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Table {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(obj: unknown, opts?: DeserializeOptions): Table {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -30044,17 +36295,507 @@ export namespace Table {
   }
 }
 
-/**  */
+export namespace Table {
+  /** Per-variant error types */ export type AccountErrors = {
+    _errors?: Array<string>;
+  };
+  export type DidErrors = { _errors?: Array<string> };
+  export type AppointmentErrors = { _errors?: Array<string> };
+  export type LeadErrors = { _errors?: Array<string> };
+  export type TaxRateErrors = { _errors?: Array<string> };
+  export type SiteErrors = { _errors?: Array<string> };
+  export type EmployeeErrors = { _errors?: Array<string> };
+  export type RouteErrors = { _errors?: Array<string> };
+  export type CompanyErrors = { _errors?: Array<string> };
+  export type ProductErrors = { _errors?: Array<string> };
+  export type ServiceErrors = { _errors?: Array<string> };
+  export type UserErrors = { _errors?: Array<string> };
+  export type OrderErrors = { _errors?: Array<string> };
+  export type PaymentErrors = { _errors?: Array<string> };
+  export type PackageErrors = { _errors?: Array<string> };
+  export type PromotionErrors = { _errors?: Array<string> };
+  export type RepresentsErrors = { _errors?: Array<string> };
+  export type OrderedErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type AccountTainted = {};
+  export type DidTainted = {};
+  export type AppointmentTainted = {};
+  export type LeadTainted = {};
+  export type TaxRateTainted = {};
+  export type SiteTainted = {};
+  export type EmployeeTainted = {};
+  export type RouteTainted = {};
+  export type CompanyTainted = {};
+  export type ProductTainted = {};
+  export type ServiceTainted = {};
+  export type UserTainted = {};
+  export type OrderTainted = {};
+  export type PaymentTainted = {};
+  export type PackageTainted = {};
+  export type PromotionTainted = {};
+  export type RepresentsTainted = {};
+  export type OrderedTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Account" } & AccountErrors)
+    | ({ _value: "Did" } & DidErrors)
+    | ({ _value: "Appointment" } & AppointmentErrors)
+    | ({ _value: "Lead" } & LeadErrors)
+    | ({ _value: "TaxRate" } & TaxRateErrors)
+    | ({ _value: "Site" } & SiteErrors)
+    | ({ _value: "Employee" } & EmployeeErrors)
+    | ({ _value: "Route" } & RouteErrors)
+    | ({ _value: "Company" } & CompanyErrors)
+    | ({ _value: "Product" } & ProductErrors)
+    | ({ _value: "Service" } & ServiceErrors)
+    | ({ _value: "User" } & UserErrors)
+    | ({ _value: "Order" } & OrderErrors)
+    | ({ _value: "Payment" } & PaymentErrors)
+    | ({ _value: "Package" } & PackageErrors)
+    | ({ _value: "Promotion" } & PromotionErrors)
+    | ({ _value: "Represents" } & RepresentsErrors)
+    | ({ _value: "Ordered" } & OrderedErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Account" } & AccountTainted)
+    | ({ _value: "Did" } & DidTainted)
+    | ({ _value: "Appointment" } & AppointmentTainted)
+    | ({ _value: "Lead" } & LeadTainted)
+    | ({ _value: "TaxRate" } & TaxRateTainted)
+    | ({ _value: "Site" } & SiteTainted)
+    | ({ _value: "Employee" } & EmployeeTainted)
+    | ({ _value: "Route" } & RouteTainted)
+    | ({ _value: "Company" } & CompanyTainted)
+    | ({ _value: "Product" } & ProductTainted)
+    | ({ _value: "Service" } & ServiceTainted)
+    | ({ _value: "User" } & UserTainted)
+    | ({ _value: "Order" } & OrderTainted)
+    | ({ _value: "Payment" } & PaymentTainted)
+    | ({ _value: "Package" } & PackageTainted)
+    | ({ _value: "Promotion" } & PromotionTainted)
+    | ({ _value: "Represents" } & RepresentsTainted)
+    | ({ _value: "Ordered" } & OrderedTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface AccountFieldControllers {}
+  export interface DidFieldControllers {}
+  export interface AppointmentFieldControllers {}
+  export interface LeadFieldControllers {}
+  export interface TaxRateFieldControllers {}
+  export interface SiteFieldControllers {}
+  export interface EmployeeFieldControllers {}
+  export interface RouteFieldControllers {}
+  export interface CompanyFieldControllers {}
+  export interface ProductFieldControllers {}
+  export interface ServiceFieldControllers {}
+  export interface UserFieldControllers {}
+  export interface OrderFieldControllers {}
+  export interface PaymentFieldControllers {}
+  export interface PackageFieldControllers {}
+  export interface PromotionFieldControllers {}
+  export interface RepresentsFieldControllers {}
+  export interface OrderedFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant:
+      | "Account"
+      | "Did"
+      | "Appointment"
+      | "Lead"
+      | "TaxRate"
+      | "Site"
+      | "Employee"
+      | "Route"
+      | "Company"
+      | "Product"
+      | "Service"
+      | "User"
+      | "Order"
+      | "Payment"
+      | "Package"
+      | "Promotion"
+      | "Represents"
+      | "Ordered";
+    readonly data: Table;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(
+      variant:
+        | "Account"
+        | "Did"
+        | "Appointment"
+        | "Lead"
+        | "TaxRate"
+        | "Site"
+        | "Employee"
+        | "Route"
+        | "Company"
+        | "Product"
+        | "Service"
+        | "User"
+        | "Order"
+        | "Payment"
+        | "Package"
+        | "Promotion"
+        | "Represents"
+        | "Ordered",
+    ): void;
+    validate(): Result<Table, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Table>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Account: { readonly fields: AccountFieldControllers };
+    readonly Did: { readonly fields: DidFieldControllers };
+    readonly Appointment: { readonly fields: AppointmentFieldControllers };
+    readonly Lead: { readonly fields: LeadFieldControllers };
+    readonly TaxRate: { readonly fields: TaxRateFieldControllers };
+    readonly Site: { readonly fields: SiteFieldControllers };
+    readonly Employee: { readonly fields: EmployeeFieldControllers };
+    readonly Route: { readonly fields: RouteFieldControllers };
+    readonly Company: { readonly fields: CompanyFieldControllers };
+    readonly Product: { readonly fields: ProductFieldControllers };
+    readonly Service: { readonly fields: ServiceFieldControllers };
+    readonly User: { readonly fields: UserFieldControllers };
+    readonly Order: { readonly fields: OrderFieldControllers };
+    readonly Payment: { readonly fields: PaymentFieldControllers };
+    readonly Package: { readonly fields: PackageFieldControllers };
+    readonly Promotion: { readonly fields: PromotionFieldControllers };
+    readonly Represents: { readonly fields: RepresentsFieldControllers };
+    readonly Ordered: { readonly fields: OrderedFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): Table {
+    switch (variant) {
+      case "Account":
+        return "Account" as Table;
+      case "Did":
+        return "Did" as Table;
+      case "Appointment":
+        return "Appointment" as Table;
+      case "Lead":
+        return "Lead" as Table;
+      case "TaxRate":
+        return "TaxRate" as Table;
+      case "Site":
+        return "Site" as Table;
+      case "Employee":
+        return "Employee" as Table;
+      case "Route":
+        return "Route" as Table;
+      case "Company":
+        return "Company" as Table;
+      case "Product":
+        return "Product" as Table;
+      case "Service":
+        return "Service" as Table;
+      case "User":
+        return "User" as Table;
+      case "Order":
+        return "Order" as Table;
+      case "Payment":
+        return "Payment" as Table;
+      case "Package":
+        return "Package" as Table;
+      case "Promotion":
+        return "Promotion" as Table;
+      case "Represents":
+        return "Represents" as Table;
+      case "Ordered":
+        return "Ordered" as Table;
+      default:
+        return "Account" as Table;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: Table,
+  ): Gigaform {
+    const initialVariant:
+      | "Account"
+      | "Did"
+      | "Appointment"
+      | "Lead"
+      | "TaxRate"
+      | "Site"
+      | "Employee"
+      | "Route"
+      | "Company"
+      | "Product"
+      | "Service"
+      | "User"
+      | "Order"
+      | "Payment"
+      | "Package"
+      | "Promotion"
+      | "Represents"
+      | "Ordered" =
+      (initial as
+        | "Account"
+        | "Did"
+        | "Appointment"
+        | "Lead"
+        | "TaxRate"
+        | "Site"
+        | "Employee"
+        | "Route"
+        | "Company"
+        | "Product"
+        | "Service"
+        | "User"
+        | "Order"
+        | "Payment"
+        | "Package"
+        | "Promotion"
+        | "Represents"
+        | "Ordered") ?? "Account";
+    let currentVariant = $state<
+      | "Account"
+      | "Did"
+      | "Appointment"
+      | "Lead"
+      | "TaxRate"
+      | "Site"
+      | "Employee"
+      | "Route"
+      | "Company"
+      | "Product"
+      | "Service"
+      | "User"
+      | "Order"
+      | "Payment"
+      | "Package"
+      | "Promotion"
+      | "Represents"
+      | "Ordered"
+    >(initialVariant);
+    let data = $state<Table>(initial ?? getDefaultForVariant(initialVariant));
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Account: {
+        fields: {} as AccountFieldControllers,
+      },
+      Did: {
+        fields: {} as DidFieldControllers,
+      },
+      Appointment: {
+        fields: {} as AppointmentFieldControllers,
+      },
+      Lead: {
+        fields: {} as LeadFieldControllers,
+      },
+      TaxRate: {
+        fields: {} as TaxRateFieldControllers,
+      },
+      Site: {
+        fields: {} as SiteFieldControllers,
+      },
+      Employee: {
+        fields: {} as EmployeeFieldControllers,
+      },
+      Route: {
+        fields: {} as RouteFieldControllers,
+      },
+      Company: {
+        fields: {} as CompanyFieldControllers,
+      },
+      Product: {
+        fields: {} as ProductFieldControllers,
+      },
+      Service: {
+        fields: {} as ServiceFieldControllers,
+      },
+      User: {
+        fields: {} as UserFieldControllers,
+      },
+      Order: {
+        fields: {} as OrderFieldControllers,
+      },
+      Payment: {
+        fields: {} as PaymentFieldControllers,
+      },
+      Package: {
+        fields: {} as PackageFieldControllers,
+      },
+      Promotion: {
+        fields: {} as PromotionFieldControllers,
+      },
+      Represents: {
+        fields: {} as RepresentsFieldControllers,
+      },
+      Ordered: {
+        fields: {} as OrderedFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant:
+        | "Account"
+        | "Did"
+        | "Appointment"
+        | "Lead"
+        | "TaxRate"
+        | "Site"
+        | "Employee"
+        | "Route"
+        | "Company"
+        | "Product"
+        | "Service"
+        | "User"
+        | "Order"
+        | "Payment"
+        | "Package"
+        | "Promotion"
+        | "Represents"
+        | "Ordered",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      Table,
+      Array<{ field: string; message: string }>
+    > {
+      return Table.fromObject(data);
+    }
+    function reset(overrides?: Partial<Table>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<Table, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "Account"
+      | "Did"
+      | "Appointment"
+      | "Lead"
+      | "TaxRate"
+      | "Site"
+      | "Employee"
+      | "Route"
+      | "Company"
+      | "Product"
+      | "Service"
+      | "User"
+      | "Order"
+      | "Payment"
+      | "Package"
+      | "Promotion"
+      | "Represents"
+      | "Ordered"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_value", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Account") {
+    } else if (discriminant === "Did") {
+    } else if (discriminant === "Appointment") {
+    } else if (discriminant === "Lead") {
+    } else if (discriminant === "TaxRate") {
+    } else if (discriminant === "Site") {
+    } else if (discriminant === "Employee") {
+    } else if (discriminant === "Route") {
+    } else if (discriminant === "Company") {
+    } else if (discriminant === "Product") {
+    } else if (discriminant === "Service") {
+    } else if (discriminant === "User") {
+    } else if (discriminant === "Order") {
+    } else if (discriminant === "Payment") {
+    } else if (discriminant === "Package") {
+    } else if (discriminant === "Promotion") {
+    } else if (discriminant === "Represents") {
+    } else if (discriminant === "Ordered") {
+    }
+    return Table.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
 export type Item = (string | Product) | (string | Service);
+
+export namespace Item {
+  export function defaultValue(): Item {
+    return "";
+  }
+}
+
+export namespace Item {
+  export function toStringifiedJSON(value: Item): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: Item): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(value: Item, ctx: SerializeContext): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace Item {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Item {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(obj: unknown, opts?: DeserializeOptions): Item {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -30074,17 +36815,194 @@ export namespace Item {
   }
 }
 
-/**  */
-export type Actor = User | Employee | Account;
+export namespace Item {
+  /** Per-variant error types */ export type StringOrProductErrors = {
+    _errors?: Array<string>;
+  };
+  export type StringOrServiceErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type StringOrProductTainted = {};
+  export type StringOrServiceTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _type: "(string | Product)" } & StringOrProductErrors)
+    | ({ _type: "(string | Service)" } & StringOrServiceErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _type: "(string | Product)" } & StringOrProductTainted)
+    | ({ _type: "(string | Service)" } & StringOrServiceTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface StringOrProductFieldControllers {}
+  export interface StringOrServiceFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "(string | Product)" | "(string | Service)";
+    readonly data: Item;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "(string | Product)" | "(string | Service)"): void;
+    validate(): Result<Item, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Item>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly "(string | Product)": {
+      readonly fields: StringOrProductFieldControllers;
+    };
+    readonly "(string | Service)": {
+      readonly fields: StringOrServiceFieldControllers;
+    };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): Item {
+    switch (variant) {
+      case "(string | Product)":
+        return (string | Product).defaultValue() as Item;
+      case "(string | Service)":
+        return (string | Service).defaultValue() as Item;
+      default:
+        return (string | Product).defaultValue() as Item;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: Item,
+  ): Gigaform {
+    const initialVariant: "(string | Product)" | "(string | Service)" =
+      "(string | Product)";
+    let currentVariant = $state<"(string | Product)" | "(string | Service)">(
+      initialVariant,
+    );
+    let data = $state<Item>(initial ?? getDefaultForVariant(initialVariant));
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      "(string | Product)": {
+        fields: {} as StringOrProductFieldControllers,
+      },
+      "(string | Service)": {
+        fields: {} as StringOrServiceFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant: "(string | Product)" | "(string | Service)",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      Item,
+      Array<{ field: string; message: string }>
+    > {
+      return Item.fromObject(data);
+    }
+    function reset(overrides?: Partial<Item>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<Item, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_type") as
+      | "(string | Product)"
+      | "(string | Service)"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_type", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+    if (discriminant === "(string | Product)") {
+    } else if (discriminant === "(string | Service)") {
+    }
+    return Item.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type Actor = /** @default */ User | Employee | Account;
+
+export namespace Actor {
+  export function defaultValue(): Actor {
+    return User.defaultValue();
+  }
+}
+
+export namespace Actor {
+  export function toStringifiedJSON(value: Actor): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: Actor): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(value: Actor, ctx: SerializeContext): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
 
 export namespace Actor {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
   ): Actor {
-    const ctx = DeserializeContext.create();
     const raw = JSON.parse(json);
-    const result = __deserialize(raw, ctx);
+    return fromObject(raw, opts);
+  }
+  export function fromObject(obj: unknown, opts?: DeserializeOptions): Actor {
+    const ctx = DeserializeContext.create();
+    const result = __deserialize(obj, ctx);
     ctx.applyPatches();
     if (opts?.freeze) {
       ctx.freezeAll();
@@ -30101,5 +37019,163 @@ export namespace Actor {
       );
     }
     return value as Actor;
+  }
+}
+
+export namespace Actor {
+  /** Per-variant error types */ export type UserErrors = {
+    _errors?: Array<string>;
+  };
+  export type EmployeeErrors = { _errors?: Array<string> };
+  export type AccountErrors = { _errors?: Array<string> };
+  /** Per-variant tainted types */ export type UserTainted = {};
+  export type EmployeeTainted = {};
+  export type AccountTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _type: "User" } & UserErrors)
+    | ({ _type: "Employee" } & EmployeeErrors)
+    | ({ _type: "Account" } & AccountErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _type: "User" } & UserTainted)
+    | ({ _type: "Employee" } & EmployeeTainted)
+    | ({ _type: "Account" } & AccountTainted);
+  /** Field controller interface */ export interface FieldController<T> {
+    readonly path: ReadonlyArray<string | number>;
+    readonly name: string;
+    readonly constraints: Record<string, unknown>;
+    readonly label?: string;
+    readonly description?: string;
+    readonly placeholder?: string;
+    readonly disabled?: boolean;
+    readonly readonly?: boolean;
+    get(): T;
+    set(value: T): void;
+    getError(): Array<string> | undefined;
+    setError(value: Array<string> | undefined): void;
+    getTainted(): boolean;
+    setTainted(value: boolean): void;
+    validate(): Array<string>;
+  }
+  /** Per-variant field controller types */ export interface UserFieldControllers {}
+  export interface EmployeeFieldControllers {}
+  export interface AccountFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "User" | "Employee" | "Account";
+    readonly data: Actor;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "User" | "Employee" | "Account"): void;
+    validate(): Result<Actor, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Actor>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly User: { readonly fields: UserFieldControllers };
+    readonly Employee: { readonly fields: EmployeeFieldControllers };
+    readonly Account: { readonly fields: AccountFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): Actor {
+    switch (variant) {
+      case "User":
+        return User.defaultValue() as Actor;
+      case "Employee":
+        return Employee.defaultValue() as Actor;
+      case "Account":
+        return Account.defaultValue() as Actor;
+      default:
+        return User.defaultValue() as Actor;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: Actor,
+  ): Gigaform {
+    const initialVariant: "User" | "Employee" | "Account" = "User";
+    let currentVariant = $state<"User" | "Employee" | "Account">(
+      initialVariant,
+    );
+    let data = $state<Actor>(initial ?? getDefaultForVariant(initialVariant));
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      User: {
+        fields: {} as UserFieldControllers,
+      },
+      Employee: {
+        fields: {} as EmployeeFieldControllers,
+      },
+      Account: {
+        fields: {} as AccountFieldControllers,
+      },
+    };
+    function switchVariant(variant: "User" | "Employee" | "Account"): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      Actor,
+      Array<{ field: string; message: string }>
+    > {
+      return Actor.fromObject(data);
+    }
+    function reset(overrides?: Partial<Actor>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<Actor, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_type") as
+      | "User"
+      | "Employee"
+      | "Account"
+      | null;
+    if (!discriminant) {
+      return {
+        success: false,
+        error: [{ field: "_type", message: "Missing discriminant field" }],
+      };
+    }
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+    if (discriminant === "User") {
+    } else if (discriminant === "Employee") {
+    } else if (discriminant === "Account") {
+    }
+    return Actor.fromStringifiedJSON(JSON.stringify(obj));
   }
 }

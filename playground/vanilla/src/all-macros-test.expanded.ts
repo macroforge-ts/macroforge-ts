@@ -1,5 +1,5 @@
 import { SerializeContext } from "macroforge/serde";
-import { Result } from "macroforge/result";
+import { Result } from "macroforge/utils";
 import { DeserializeContext } from "macroforge/serde";
 import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
@@ -9,7 +9,7 @@ import { PendingRef } from "macroforge/serde";
  * Used for Playwright e2e tests to verify macro expansion works at runtime.
  */
 
-/**  */
+
 export class AllMacrosTestClass {
   
   id: number;
@@ -58,7 +58,7 @@ export class AllMacrosTestClass {
     return JSON.stringify(this.__serialize(ctx));
 }
 
-  toJSON(): Record<string, unknown> {
+  toObject(): Record<string, unknown> {
     const ctx = SerializeContext.create();
     return this.__serialize(ctx);
 }
@@ -105,14 +105,34 @@ export class AllMacrosTestClass {
     message: string;
 }>> {
     try {
-        const ctx = DeserializeContext.create();
         const raw = JSON.parse(json);
-        const resultOrRef = AllMacrosTestClass.__deserialize(raw, ctx);
+        return AllMacrosTestClass.fromObject(raw, opts);
+    } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
+    }
+}
+
+  static fromObject(obj: unknown, opts?: DeserializeOptions): Result<AllMacrosTestClass, Array<{
+    field: string;
+    message: string;
+}>> {
+    try {
+        const ctx = DeserializeContext.create();
+        const resultOrRef = AllMacrosTestClass.__deserialize(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: "_root",
-                    message: "AllMacrosTestClass.fromStringifiedJSON: root cannot be a forward reference"
+                    message: "AllMacrosTestClass.fromObject: root cannot be a forward reference"
                 }
             ]);
         }

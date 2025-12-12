@@ -1,6 +1,6 @@
 /** import macro { FieldController } from '@playground/macro'; */
 
-/**  */
+
 export interface FormModel {
   
   memo: string | null;

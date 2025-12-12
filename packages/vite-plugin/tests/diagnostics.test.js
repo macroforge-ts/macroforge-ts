@@ -121,7 +121,7 @@ export { Test };`
 
   const { result, error } = await invokeTransform(plugin, code, id);
 
-  // Should either error or return null/result - not crash
+  // Should either error or return null/utils - not crash
   assert.ok(error !== undefined || result !== undefined);
 });
 

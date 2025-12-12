@@ -1,7 +1,7 @@
 /** import macro { JSON } from "@playground/macro"; */
 
 // Example of using Derive decorator and dynamic macro
-/**  */
+
 export class User {
   
   id: number;

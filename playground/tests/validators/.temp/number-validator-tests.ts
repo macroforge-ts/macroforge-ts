@@ -1,4 +1,4 @@
-import { Result } from "macroforge/result";
+import { Result } from "macroforge/utils";
 import { DeserializeContext } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
 import { PendingRef } from "macroforge/serde";

@@ -2,8 +2,8 @@
 //!
 //! This macro **composes with** other Macroforge macros:
 //! - `@derive(Default)` provides `defaultValue()`
-//! - `@derive(Serialize)` provides `toJSON()`
-//! - `@derive(Deserialize)` + `@serde` provides `fromStringifiedJSON()` with validation
+//! - `@derive(Serialize)` provides `toObject()`
+//! - `@derive(Deserialize)` + `@serde` provides `fromObject()` with validation
 //!
 //! Gigaform adds:
 //! - `Errors` type (nested error structure)
@@ -33,9 +33,7 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
 
     // Dispatch based on declaration type
     let fields = match &input.data {
-        Data::Interface(interface) => {
-            parser::parse_fields(interface, &options)
-        }
+        Data::Interface(interface) => parser::parse_fields(interface, &options),
         Data::Class(class) => {
             // Reject abstract classes
             if class.is_abstract() {
@@ -59,7 +57,12 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
                 // Discriminated union - parse variants and generate variant-aware form
                 let members = type_alias.body().as_union().unwrap();
                 let union_config = parser::parse_union_config(members, &input.attrs, &options)
-                    .map_err(|e| MacroforgeError::new(input.decorator_span(), &format!("@derive(Gigaform): {}", e)))?;
+                    .map_err(|e| {
+                        MacroforgeError::new(
+                            input.decorator_span(),
+                            &format!("@derive(Gigaform): {}", e),
+                        )
+                    })?;
 
                 // Generate union-specific form (different from regular field-based forms)
                 return generate_union_form(type_name, &union_config, &options, &generics);
@@ -101,7 +104,8 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     // Generate each section with generics
     let type_defs = types::generate_with_generics(type_name, &fields, &generics);
     let form_data_fn = form_data::generate_with_generics(type_name, &fields, &generics);
-    let factory_fn = field_descriptors::generate_factory_with_generics(type_name, &fields, &options, &generics);
+    let factory_fn =
+        field_descriptors::generate_factory_with_generics(type_name, &fields, &options, &generics);
 
     // Combine into namespace
     let mut output = ts_template! {
@@ -113,7 +117,7 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     };
 
     // Add required imports
-    output.add_import("Result", "macroforge/result");
+    output.add_import("Result", "macroforge/utils");
 
     // Add i18n import if used
     if options.uses_i18n() || fields.iter().any(|f| f.uses_i18n()) {
@@ -153,10 +157,7 @@ impl GenericInfo {
             .iter()
             .map(|p| {
                 // Extract just the name from "T extends Foo" -> "T"
-                p.split_whitespace()
-                    .next()
-                    .unwrap_or(p)
-                    .to_string()
+                p.split_whitespace().next().unwrap_or(p).to_string()
             })
             .collect();
 
@@ -200,7 +201,12 @@ fn generate_union_form(
     generics: &GenericInfo,
 ) -> Result<TsStream, MacroforgeError> {
     let type_defs = types::generate_union_with_generics(type_name, union_config, generics);
-    let factory_fn = field_descriptors::generate_union_factory_with_generics(type_name, union_config, options, generics);
+    let factory_fn = field_descriptors::generate_union_factory_with_generics(
+        type_name,
+        union_config,
+        options,
+        generics,
+    );
     let form_data_fn = form_data::generate_union_with_generics(type_name, union_config, generics);
 
     let mut output = ts_template! {
@@ -211,10 +217,15 @@ fn generate_union_form(
         }
     };
 
-    output.add_import("Result", "macroforge/result");
+    output.add_import("Result", "macroforge/utils");
 
     // Add i18n import if used
-    if options.uses_i18n() || union_config.variants.iter().any(|v| v.fields.iter().any(|f| f.uses_i18n())) {
+    if options.uses_i18n()
+        || union_config
+            .variants
+            .iter()
+            .any(|v| v.fields.iter().any(|f| f.uses_i18n()))
+    {
         output.add_import("m", "$lib/paraglide/messages");
     }
 
@@ -243,8 +254,8 @@ fn generate_enum_form(
 ///
 /// This macro **composes with** other Macroforge macros:
 /// - `@derive(Default)` provides `defaultValue()`
-/// - `@derive(Serialize)` provides `toJSON()`
-/// - `@derive(Deserialize)` + `@serde({ validate: [...] })` provides `fromStringifiedJSON()` with validation
+/// - `@derive(Serialize)` provides `toObject()`
+/// - `@derive(Deserialize)` + `@serde({ validate: [...] })` provides `fromObject()` with validation
 ///
 /// **Gigaform adds:**
 /// - `Errors` type (nested error structure)

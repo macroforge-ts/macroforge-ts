@@ -371,27 +371,59 @@ fn generate_variant_fields_interface(config: &UnionConfig, _discriminant_field: 
     config.variants.iter().map(|variant| {
         let value = &variant.discriminant_value;
         let variant_name = to_pascal_case(&variant.discriminant_value);
-        format!("readonly {value}: {{ readonly fields: {variant_name}FieldControllers }};")
+        // Quote the property key if it contains special characters
+        let prop_key = if needs_quoting(value) {
+            format!("\"{}\"", value)
+        } else {
+            value.clone()
+        };
+        format!("readonly {prop_key}: {{ readonly fields: {variant_name}FieldControllers }};")
     }).collect::<Vec<_>>().join("\n            ")
 }
 
-/// Converts a string to PascalCase.
+/// Returns true if a string needs to be quoted when used as an object property key.
+fn needs_quoting(s: &str) -> bool {
+    // Needs quoting if it contains special chars or starts with a digit
+    s.chars().any(|c| !c.is_alphanumeric() && c != '_') ||
+    s.chars().next().map(|c| c.is_numeric()).unwrap_or(true)
+}
+
+/// Converts a string to a valid PascalCase TypeScript identifier.
+/// Handles special characters like `|`, `(`, `)`, `&`, etc.
+/// Uses "Or" for `|` and "And" for `&` to make identifiers more readable.
 fn to_pascal_case(s: &str) -> String {
     let mut result = String::new();
     let mut capitalize_next = true;
 
     for c in s.chars() {
-        if c == '_' || c == '-' || c == ' ' {
+        if c == '|' {
+            // Use "Or" for union types
+            result.push_str("Or");
             capitalize_next = true;
-        } else if capitalize_next {
-            result.push(c.to_ascii_uppercase());
-            capitalize_next = false;
-        } else {
-            result.push(c);
+        } else if c == '&' {
+            // Use "And" for intersection types
+            result.push_str("And");
+            capitalize_next = true;
+        } else if c == '_' || c == '-' || c == ' ' || c == '(' || c == ')' || c == '<' || c == '>' || c == ',' {
+            // Skip these characters but capitalize the next letter
+            capitalize_next = true;
+        } else if c.is_alphanumeric() {
+            if capitalize_next {
+                result.push(c.to_ascii_uppercase());
+                capitalize_next = false;
+            } else {
+                result.push(c);
+            }
         }
+        // Skip any other non-alphanumeric characters
     }
 
-    result
+    // Ensure the result is a valid identifier (starts with letter or underscore)
+    if result.is_empty() || result.chars().next().map(|c| c.is_numeric()).unwrap_or(false) {
+        format!("Variant{}", result)
+    } else {
+        result
+    }
 }
 
 // =============================================================================

@@ -7,7 +7,7 @@
  * - Add @derive(FieldController) on the class
  * - Add @FieldController(TextAreaController) on fields you want to generate controllers for
  */
-/**  */
+
 export class FormModel {
   
   memo: string | null;

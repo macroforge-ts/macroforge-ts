@@ -1638,7 +1638,7 @@ class User {
 
         // Check for new serde methods
         assert!(type_output.contains("toStringifiedJSON(): string"), "Should have toStringifiedJSON method");
-        assert!(type_output.contains("toJSON(): Record<string, unknown>"), "Should have toJSON method");
+        assert!(type_output.contains("toObject(): Record<string, unknown>"), "Should have toObject method");
         assert!(type_output.contains("__serialize(ctx: SerializeContext)"), "Should have __serialize method");
     });
 }
@@ -1660,9 +1660,9 @@ class Data {
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed, "expand() should report changes");
-        // Serialize macro adds toStringifiedJSON(), toJSON(), and __serialize() methods
+        // Serialize macro adds toStringifiedJSON(), toObject(), and __serialize() methods
         assert!(result.code.contains("toStringifiedJSON()"), "Should have toStringifiedJSON method");
-        assert!(result.code.contains("toJSON()"), "Should have toJSON method");
+        assert!(result.code.contains("toObject()"), "Should have toObject method");
         assert!(result.code.contains("__serialize"), "Should have __serialize method");
         assert!(result.code.contains("SerializeContext"), "Should use SerializeContext");
     });
@@ -2321,6 +2321,164 @@ type Status = "active" | "inactive" | "pending";
         assert!(
             result.code.contains("namespace Status"),
             "Should generate namespace for union type"
+        );
+    });
+}
+
+#[test]
+fn test_derive_default_on_union_type_alias_with_explicit_default() {
+    // Union types with @derive(Default) require @default to specify the default variant
+    let source = r#"
+/** @derive(Default) @default(VariantA.defaultValue()) */
+export type UnionType = VariantA | VariantB;
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(error_count, 0, "Should have no errors with @default specified, got {}", error_count);
+
+        // Should generate namespace with defaultValue function
+        assert!(
+            result.code.contains("namespace UnionType"),
+            "Should generate namespace for union type. Got:\n{}",
+            result.code
+        );
+        assert!(
+            result.code.contains("defaultValue"),
+            "Should have defaultValue function. Got:\n{}",
+            result.code
+        );
+        assert!(
+            result.code.contains("VariantA.defaultValue()"),
+            "Should call VariantA.defaultValue(). Got:\n{}",
+            result.code
+        );
+    });
+}
+
+#[test]
+fn test_derive_default_on_union_type_alias_without_default_errors() {
+    // Union types with @derive(Default) without @default should error
+    let source = r#"
+/** @derive(Default) */
+export type UnionType = VariantA | VariantB;
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have an error diagnostic
+        let error = result
+            .diagnostics
+            .iter()
+            .find(|d| d.level == DiagnosticLevel::Error);
+
+        assert!(
+            error.is_some(),
+            "Should produce an error when @default is missing for union type. Got diagnostics: {:?}",
+            result.diagnostics
+        );
+
+        let error_msg = &error.unwrap().message;
+        assert!(
+            error_msg.contains("@default") || error_msg.contains("union"),
+            "Error should mention @default or union. Got: {}",
+            error_msg
+        );
+    });
+}
+
+#[test]
+fn test_derive_default_on_multiline_union_type() {
+    // Test multi-line JSDoc with @derive(Default) and @default on separate lines
+    let source = r#"
+/**
+ * @derive(Default)
+ * @default(TypeA.defaultValue())
+ */
+export type MultilineUnion = TypeA | TypeB | TypeC;
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors for multi-line JSDoc with @default. Got: {:?}",
+            result.diagnostics
+        );
+
+        // Should generate namespace with defaultValue
+        assert!(
+            result.code.contains("namespace MultilineUnion"),
+            "Should generate namespace for multi-line union type. Got:\n{}",
+            result.code
+        );
+        assert!(
+            result.code.contains("defaultValue"),
+            "Should have defaultValue function. Got:\n{}",
+            result.code
+        );
+    });
+}
+
+#[test]
+fn test_derive_default_with_default_on_union_variant() {
+    // Test Rust-like syntax: @default decorator on the variant itself
+    let source = r#"
+/** @derive(Default) */
+export type UnionWithVariantDefault =
+  | /** @default */ VariantA
+  | VariantB
+  | VariantC;
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors with @default on variant. Got: {:?}",
+            result.diagnostics
+        );
+
+        // Should generate namespace with defaultValue calling VariantA.defaultValue()
+        assert!(
+            result.code.contains("namespace UnionWithVariantDefault"),
+            "Should generate namespace. Got:\n{}",
+            result.code
+        );
+        assert!(
+            result.code.contains("VariantA.defaultValue()"),
+            "Should call VariantA.defaultValue(). Got:\n{}",
+            result.code
         );
     });
 }

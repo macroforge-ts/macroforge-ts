@@ -177,7 +177,7 @@ describe("Gigaform createForm factory", () => {
     assert.ok(result.code.includes("let tainted = $state<Tainted>({})"), "Should use $state for tainted");
   });
 
-  test("generates validate function that delegates to fromJSON", () => {
+  test("generates validate function that delegates to fromObject", () => {
     const code = `
       /** @derive(Default, Deserialize, Gigaform) */
       interface ValidatedForm {
@@ -187,7 +187,7 @@ describe("Gigaform createForm factory", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(result.code.includes("function validate()"), "Should generate validate function");
-    assert.ok(result.code.includes("ValidatedForm.fromJSON(data)"), "Should call fromJSON for validation");
+    assert.ok(result.code.includes("ValidatedForm.fromObject(data)"), "Should call fromObject for validation");
   });
 
   test("generates reset function", () => {
@@ -278,7 +278,7 @@ describe("Gigaform field controllers", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(result.code.includes("validate: ()"), "Should generate validate method");
-    assert.ok(result.code.includes("FilterForm.fromJSON(data)"), "Should call form validation");
+    assert.ok(result.code.includes("FilterForm.fromObject(data)"), "Should call form validation");
     assert.ok(result.code.includes('e.field === "username"'), "Should filter by field name");
     assert.ok(result.code.includes(".map(e => e.message)"), "Should extract messages");
   });
@@ -495,7 +495,7 @@ describe("Gigaform fromFormData", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     // Match Result type with structured errors (whitespace may vary)
-    assert.ok(/Result<ResultForm,\s*Array<\{field:\s*string;\s*message:\s*string\}>>/.test(result.code),
+    assert.ok(/utils<ResultForm,\s*Array<\{field:\s*string;\s*message:\s*string\}>>/.test(result.code),
       "Should return Result with structured errors");
   });
 
@@ -529,8 +529,8 @@ describe("Gigaform imports", () => {
 
     assert.ok(result.code.includes('import { Result }') || result.code.includes('import {Result}'),
       "Should add Result import");
-    assert.ok(result.code.includes('from "macroforge/result"'),
-      "Should import from macroforge/result");
+    assert.ok(result.code.includes('from "macroforge/utils"'),
+      "Should import from macroforge/utils");
   });
 });
 
@@ -553,7 +553,7 @@ describe("Gigaform integration with other macros", () => {
       "Should use defaultValue() from Default macro");
   });
 
-  test("works with Deserialize macro for fromJSON", () => {
+  test("works with Deserialize macro for fromObject", () => {
     const code = `
       /** @derive(Default, Deserialize, Gigaform) */
       interface DeserializeForm {
@@ -562,8 +562,8 @@ describe("Gigaform integration with other macros", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("DeserializeForm.fromJSON("),
-      "Should use fromJSON from Deserialize macro");
+    assert.ok(result.code.includes("DeserializeForm.fromObject("),
+      "Should use fromObject from Deserialize macro");
   });
 
   test("all three macros generate non-conflicting code", () => {
@@ -606,19 +606,18 @@ describe("Gigaform integration with other macros", () => {
 // ============================================================================
 
 describe("Gigaform error handling", () => {
-  test("reports error for non-interface types", () => {
+  test("supports classes as well as interfaces", () => {
     const code = `
-      /** @derive(Gigaform) */
-      class NotAnInterface {
+      /** @derive(Default, Deserialize, Gigaform) */
+      class SupportedClass {
         name: string;
       }
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     const errors = result.diagnostics.filter(d => d.level === "error");
-    assert.ok(errors.length > 0, "Should report error for class");
-    assert.ok(errors.some(e => e.message.includes("interface")),
-      "Error should mention interface requirement");
+    assert.ok(errors.length === 0, "Classes should be supported without errors");
+    assert.ok(result.code.includes("export function createForm("), "Should generate createForm for class");
   });
 
   test("reports error for empty interface", () => {

@@ -24,9 +24,9 @@ pub fn generate_factory(interface_name: &str, fields: &[ParsedField], options: &
                 @{field_controllers}
             };
 
-            // Validate the entire form using Deserialize's fromJSON
+            // Validate the entire form using Deserialize's fromObject
             function validate(): Result<@{interface_name}, Array<{ field: string; message: string }>> {
-                return @{interface_name}.fromJSON(data);
+                return @{interface_name}.fromObject(data);
             }
 
             // Reset form to defaults
@@ -80,9 +80,9 @@ pub fn generate_factory_with_generics(
                 @{field_controllers}
             };
 
-            // Validate the entire form using Deserialize's fromJSON
+            // Validate the entire form using Deserialize's fromObject
             function validate(): Result<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
-                return @{interface_name}.fromJSON@{generic_args}(data);
+                return @{interface_name}.fromObject@{generic_args}(data);
             }
 
             // Reset form to defaults
@@ -146,6 +146,27 @@ pub fn generate_union_factory(type_name: &str, config: &UnionConfig, options: &G
     // Generate getDefaultForVariant function
     let default_for_variant = generate_default_for_variant(type_name, config, discriminant_field);
 
+    // Generate initial variant detection based on union type
+    let initial_variant_expr = if discriminant_field == "_value" {
+        // Literal union: the value IS the variant
+        format!(r#"(initial as {variant_literals}) ?? "{first_variant}""#)
+    } else if discriminant_field == "_type" {
+        // Type ref union: can't easily detect, use first variant
+        format!(r#""{first_variant}""#)
+    } else {
+        // Object union with discriminant field
+        format!(r#"(initial as any)?.{discriminant_field} ?? "{first_variant}""#)
+    };
+
+    // Generate reset logic based on union type
+    let reset_data_expr = if discriminant_field == "_value" || discriminant_field == "_type" {
+        // For literal/type ref unions, just use the default (can't spread primitives/objects)
+        "overrides ? overrides as typeof data : getDefaultForVariant(currentVariant)".to_string()
+    } else {
+        // For object unions, can spread
+        "overrides ? { ...getDefaultForVariant(currentVariant), ...overrides } : getDefaultForVariant(currentVariant)".to_string()
+    };
+
     ts_template! {
         {>> "Gets default value for a specific variant" <<}
         @{default_for_variant}
@@ -153,7 +174,7 @@ pub fn generate_union_factory(type_name: &str, config: &UnionConfig, options: &G
         {>> "Creates a new discriminated union Gigaform with variant switching" <<}
         export function createForm(initial?: @{type_name}): Gigaform {
             // Detect initial variant from discriminant
-            const initialVariant: @{variant_literals} = (initial as any)?.@{discriminant_field} ?? "@{first_variant}";
+            const initialVariant: @{variant_literals} = @{initial_variant_expr};
 
             // Reactive state using Svelte 5 $state
             let currentVariant = $state<@{variant_literals}>(initialVariant);
@@ -174,14 +195,14 @@ pub fn generate_union_factory(type_name: &str, config: &UnionConfig, options: &G
                 tainted = {} as Tainted;
             }
 
-            // Validate the entire form
+            // Validate the entire form using Deserialize's fromObject
             function validate(): Result<@{type_name}, Array<{ field: string; message: string }>> {
-                return @{type_name}.fromJSON(data);
+                return @{type_name}.fromObject(data);
             }
 
             // Reset form
             function reset(overrides?: Partial<@{type_name}>): void {
-                data = overrides ? { ...getDefaultForVariant(currentVariant), ...overrides } : getDefaultForVariant(currentVariant);
+                data = @{reset_data_expr};
                 errors = {} as Errors;
                 tainted = {} as Tainted;
             }
@@ -205,22 +226,41 @@ pub fn generate_union_factory(type_name: &str, config: &UnionConfig, options: &G
 
 /// Generates the getDefaultForVariant function.
 fn generate_default_for_variant(type_name: &str, config: &UnionConfig, discriminant_field: &str) -> String {
+    // Determine how to generate the default value based on the discriminant field
+    // - "_value": literal union (e.g., "Home" | "About") - return the literal
+    // - "_type": type ref union (e.g., DailyRule | WeeklyRule) - return TypeName.defaultValue()
+    // - other: object union with tag field - return { field: "value" }
+    let is_literal_union = discriminant_field == "_value";
+    let is_type_ref_union = discriminant_field == "_type";
+
     let cases = config.variants.iter().map(|variant| {
         let value = &variant.discriminant_value;
-        format!(
-            r#"case "{value}": return {{ {discriminant_field}: "{value}" }} as {type_name};"#
-        )
+        if is_literal_union {
+            format!(r#"case "{value}": return "{value}" as {type_name};"#)
+        } else if is_type_ref_union {
+            format!(r#"case "{value}": return {value}.defaultValue() as {type_name};"#)
+        } else {
+            format!(r#"case "{value}": return {{ {discriminant_field}: "{value}" }} as {type_name};"#)
+        }
     }).collect::<Vec<_>>().join("\n            ");
 
     let first_value = config.variants.first()
         .map(|v| v.discriminant_value.as_str())
         .unwrap_or("unknown");
 
+    let default_return = if is_literal_union {
+        format!(r#"return "{first_value}" as {type_name};"#)
+    } else if is_type_ref_union {
+        format!(r#"return {first_value}.defaultValue() as {type_name};"#)
+    } else {
+        format!(r#"return {{ {discriminant_field}: "{first_value}" }} as {type_name};"#)
+    };
+
     format!(
         r#"function getDefaultForVariant(variant: string): {type_name} {{
         switch (variant) {{
             {cases}
-            default: return {{ {discriminant_field}: "{first_value}" }} as {type_name};
+            default: {default_return}
         }}
     }}"#
     )
@@ -233,8 +273,15 @@ fn generate_union_variant_controllers(config: &UnionConfig, options: &GigaformOp
         let variant_name = to_pascal_case(&variant.discriminant_value);
         let field_controllers = generate_field_controllers(&variant.fields, options, type_name);
 
+        // Quote the property key if it contains special characters
+        let prop_key = if needs_quoting(value) {
+            format!("\"{}\"", value)
+        } else {
+            value.clone()
+        };
+
         format!(
-            r#"{value}: {{
+            r#"{prop_key}: {{
                     fields: {{
                         {field_controllers}
                     }} as {variant_name}FieldControllers
@@ -243,23 +290,49 @@ fn generate_union_variant_controllers(config: &UnionConfig, options: &GigaformOp
     }).collect::<Vec<_>>().join(",\n                ")
 }
 
-/// Converts a string to PascalCase.
+/// Returns true if a string needs to be quoted when used as an object property key.
+fn needs_quoting(s: &str) -> bool {
+    // Needs quoting if it contains special chars or starts with a digit
+    s.chars().any(|c| !c.is_alphanumeric() && c != '_') ||
+    s.chars().next().map(|c| c.is_numeric()).unwrap_or(true)
+}
+
+/// Converts a string to a valid PascalCase TypeScript identifier.
+/// Handles special characters like `|`, `(`, `)`, `&`, etc.
+/// Uses "Or" for `|` and "And" for `&` to make identifiers more readable.
 fn to_pascal_case(s: &str) -> String {
     let mut result = String::new();
     let mut capitalize_next = true;
 
     for c in s.chars() {
-        if c == '_' || c == '-' || c == ' ' {
+        if c == '|' {
+            // Use "Or" for union types
+            result.push_str("Or");
             capitalize_next = true;
-        } else if capitalize_next {
-            result.push(c.to_ascii_uppercase());
-            capitalize_next = false;
-        } else {
-            result.push(c);
+        } else if c == '&' {
+            // Use "And" for intersection types
+            result.push_str("And");
+            capitalize_next = true;
+        } else if c == '_' || c == '-' || c == ' ' || c == '(' || c == ')' || c == '<' || c == '>' || c == ',' {
+            // Skip these characters but capitalize the next letter
+            capitalize_next = true;
+        } else if c.is_alphanumeric() {
+            if capitalize_next {
+                result.push(c.to_ascii_uppercase());
+                capitalize_next = false;
+            } else {
+                result.push(c);
+            }
         }
+        // Skip any other non-alphanumeric characters
     }
 
-    result
+    // Ensure the result is a valid identifier (starts with letter or underscore)
+    if result.is_empty() || result.chars().next().map(|c| c.is_numeric()).unwrap_or(false) {
+        format!("Variant{}", result)
+    } else {
+        result
+    }
 }
 
 // =============================================================================
@@ -449,7 +522,7 @@ fn generate_constraints(validators: &[ValidatorSpec], required: bool) -> String 
 fn generate_field_validate_function(field_name: &str, interface_name: &str) -> String {
     format!(
         r#"validate: (): Array<string> => {{
-                        const result = {interface_name}.fromJSON(data);
+                        const result = {interface_name}.fromObject(data);
                         if (result.isErr()) {{
                             const allErrors = result.unwrapErr();
                             return allErrors.filter(e => e.field === "{field_name}").map(e => e.message);

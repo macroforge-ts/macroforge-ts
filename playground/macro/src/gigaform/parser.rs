@@ -501,6 +501,40 @@ pub fn create_synthetic_field(
 // Union Parsing Functions
 // =============================================================================
 
+/// Classification of union type for Gigaform handling
+#[derive(Debug, Clone, PartialEq)]
+pub enum UnionKind {
+    /// All members are string/number literals (e.g., `"Home" | "About"`)
+    LiteralUnion,
+    /// All members are type references (e.g., `DailyRule | WeeklyRule`)
+    TypeRefUnion,
+    /// All members are inline object types (discriminated union)
+    ObjectUnion,
+    /// Mixed member types
+    Mixed,
+}
+
+/// Classifies a union type based on its members
+pub fn classify_union(members: &[macroforge_ts::ts_syn::TypeMember]) -> UnionKind {
+    if members.is_empty() {
+        return UnionKind::Mixed;
+    }
+
+    let all_literals = members.iter().all(|m| m.is_literal());
+    let all_type_refs = members.iter().all(|m| m.is_type_ref());
+    let all_objects = members.iter().all(|m| m.is_object());
+
+    if all_literals {
+        UnionKind::LiteralUnion
+    } else if all_type_refs {
+        UnionKind::TypeRefUnion
+    } else if all_objects {
+        UnionKind::ObjectUnion
+    } else {
+        UnionKind::Mixed
+    }
+}
+
 /// Parses a discriminated union type alias.
 /// Returns UnionConfig if successfully parsed, or an error message.
 pub fn parse_union_config(
@@ -508,24 +542,106 @@ pub fn parse_union_config(
     container_attrs: &[Attribute],
     _options: &GigaformOptions,
 ) -> Result<UnionConfig, String> {
-    // Check for @serde({ tag: "..." }) or @serde({ untagged: true })
-    let serde_opts = parse_serde_container_options(container_attrs);
+    let union_kind = classify_union(members);
 
-    let mode = if let Some(tag_field) = serde_opts.tag {
-        UnionMode::Tagged { field: tag_field }
-    } else if serde_opts.untagged {
-        UnionMode::Untagged
-    } else {
-        return Err("Union types require @serde({ tag: \"fieldName\" }) or @serde({ untagged: true })".to_string());
-    };
+    match union_kind {
+        UnionKind::LiteralUnion => {
+            // String/number literal union - use literals as variant names
+            let variants = parse_literal_union_variants(members)?;
+            Ok(UnionConfig {
+                mode: UnionMode::Tagged { field: "_value".to_string() },
+                variants,
+            })
+        }
+        UnionKind::TypeRefUnion => {
+            // Type reference union - use type names as variant discriminants
+            let variants = parse_type_ref_union_variants(members)?;
+            Ok(UnionConfig {
+                mode: UnionMode::Tagged { field: "_type".to_string() },
+                variants,
+            })
+        }
+        UnionKind::ObjectUnion => {
+            // Inline object union - requires @serde({ tag }) or @serde({ untagged })
+            let serde_opts = parse_serde_container_options(container_attrs);
 
-    // Parse variants based on mode
-    let variants = match &mode {
-        UnionMode::Tagged { field } => parse_tagged_union_variants(members, field)?,
-        UnionMode::Untagged => parse_untagged_union_variants(members)?,
-    };
+            let mode = if let Some(tag_field) = serde_opts.tag {
+                UnionMode::Tagged { field: tag_field }
+            } else if serde_opts.untagged {
+                UnionMode::Untagged
+            } else {
+                return Err("Union types with inline objects require @serde({ tag: \"fieldName\" }) or @serde({ untagged: true })".to_string());
+            };
 
-    Ok(UnionConfig { mode, variants })
+            let variants = match &mode {
+                UnionMode::Tagged { field } => parse_tagged_union_variants(members, field)?,
+                UnionMode::Untagged => parse_untagged_union_variants(members)?,
+            };
+
+            Ok(UnionConfig { mode, variants })
+        }
+        UnionKind::Mixed => {
+            Err("Union types with mixed member types (literals, type refs, objects) are not supported".to_string())
+        }
+    }
+}
+
+/// Parses variants from a literal union (string or number literals).
+fn parse_literal_union_variants(
+    members: &[macroforge_ts::ts_syn::TypeMember],
+) -> Result<Vec<UnionVariantConfig>, String> {
+    let mut variants = Vec::new();
+
+    for member in members {
+        let literal = member.as_literal().ok_or_else(|| {
+            "Expected literal type in union".to_string()
+        })?;
+
+        // Extract the literal value (remove quotes if present)
+        let discriminant_value = extract_literal_value(literal);
+
+        variants.push(UnionVariantConfig {
+            discriminant_value,
+            fields: Vec::new(), // Literal unions have no additional fields
+        });
+    }
+
+    Ok(variants)
+}
+
+/// Parses variants from a type reference union.
+fn parse_type_ref_union_variants(
+    members: &[macroforge_ts::ts_syn::TypeMember],
+) -> Result<Vec<UnionVariantConfig>, String> {
+    let mut variants = Vec::new();
+
+    for member in members {
+        let type_ref = member.as_type_ref().ok_or_else(|| {
+            "Expected type reference in union".to_string()
+        })?;
+
+        variants.push(UnionVariantConfig {
+            discriminant_value: type_ref.to_string(),
+            fields: Vec::new(), // Fields come from the referenced type
+        });
+    }
+
+    Ok(variants)
+}
+
+/// Extracts the actual value from a literal type string.
+/// e.g., `"Home"` -> `Home`, `42` -> `42`
+fn extract_literal_value(literal: &str) -> String {
+    let trimmed = literal.trim();
+
+    // Remove surrounding quotes
+    if (trimmed.starts_with('"') && trimmed.ends_with('"'))
+        || (trimmed.starts_with('\'') && trimmed.ends_with('\''))
+    {
+        return trimmed[1..trimmed.len()-1].to_string();
+    }
+
+    trimmed.to_string()
 }
 
 /// Serde container-level options relevant to unions.

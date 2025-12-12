@@ -1,4 +1,4 @@
-import type { Result } from "macroforge/result";
+import type { Result } from "macroforge/utils";
 
 /** Base interface for field controllers */
 export interface FieldController<T> {
@@ -33,13 +33,20 @@ export interface BaseGigaform<TData, TErrors, TTainted, TFields> {
   readonly errors: TErrors;
   readonly tainted: TTainted;
   readonly fields: TFields;
-  validate(): Promise<Result<TData, ReadonlyArray<{ field: string; message: string }>>>;
+  validate(): Promise<
+    Result<TData, ReadonlyArray<{ field: string; message: string }>>
+  >;
   reset(overrides: Partial<TData> | null): void;
 }
 
 /** Gigaform with variant support (for unions/enums) */
-export interface VariantGigaform<TData, TErrors, TTainted, TFields, TVariant extends string>
-  extends BaseGigaform<TData, TErrors, TTainted, TFields> {
+export interface VariantGigaform<
+  TData,
+  TErrors,
+  TTainted,
+  TFields,
+  TVariant extends string,
+> extends BaseGigaform<TData, TErrors, TTainted, TFields> {
   readonly currentVariant: TVariant;
   switchVariant(variant: TVariant): void;
 }

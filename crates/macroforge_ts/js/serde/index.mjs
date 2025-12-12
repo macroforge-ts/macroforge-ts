@@ -1,14 +1,8 @@
-/**
- * Serde runtime helpers for macroforge Serialize/Deserialize macros.
- */
-
-// ============================================================================
-// Serialization Context
-// ============================================================================
-
-export const SerializeContext = {
-  create() {
-    const ids = new WeakMap();
+// js/serde/index.ts
+var SerializeContext;
+((SerializeContext) => {
+  function create() {
+    const ids = new WeakMap;
     let nextId = 0;
     return {
       getId: (obj) => ids.get(obj),
@@ -16,18 +10,15 @@ export const SerializeContext = {
         const id = nextId++;
         ids.set(obj, id);
         return id;
-      },
+      }
     };
-  },
-};
-
-// ============================================================================
-// Deserialization Context
-// ============================================================================
-
-export const DeserializeContext = {
-  create() {
-    const registry = new Map();
+  }
+  SerializeContext.create = create;
+})(SerializeContext ||= {});
+var DeserializeContext;
+((DeserializeContext) => {
+  function create() {
+    const registry = new Map;
     const patches = [];
     const toFreeze = [];
     return {
@@ -66,35 +57,25 @@ export const DeserializeContext = {
         for (const obj of toFreeze) {
           Object.freeze(obj);
         }
-      },
+      }
     };
-  },
-};
-
-// ============================================================================
-// Pending Reference Marker
-// ============================================================================
-
-export const PendingRef = {
-  create(id) {
+  }
+  DeserializeContext.create = create;
+})(DeserializeContext ||= {});
+var PendingRef;
+((PendingRef) => {
+  function create(id) {
     return { __pendingRef: true, id };
-  },
-  is(value) {
-    return (
-      value !== null &&
-      typeof value === "object" &&
-      value.__pendingRef === true &&
-      typeof value.id === "number"
-    );
-  },
-};
+  }
+  PendingRef.create = create;
+  function is(value) {
+    return value !== null && typeof value === "object" && value.__pendingRef === true && typeof value.id === "number";
+  }
+  PendingRef.is = is;
+})(PendingRef ||= {});
 
-// ============================================================================
-// Structured Error for Deserialization
-// ============================================================================
-
-/** Error class that carries structured field errors */
-export class DeserializeError extends Error {
+class DeserializeError extends Error {
+  errors;
   constructor(errors) {
     const message = errors.map((e) => `${e.field}: ${e.message}`).join("; ");
     super(message);
@@ -102,3 +83,9 @@ export class DeserializeError extends Error {
     this.errors = errors;
   }
 }
+export {
+  SerializeContext,
+  PendingRef,
+  DeserializeError,
+  DeserializeContext
+};

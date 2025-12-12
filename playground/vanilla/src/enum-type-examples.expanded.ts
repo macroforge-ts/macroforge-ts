@@ -8,7 +8,7 @@ import type { DeserializeOptions } from "macroforge/serde";
 
 // ==================== ENUM EXAMPLES ====================
 
-/**  */
+
 export enum Status {
   Active = "active",
   Inactive = "inactive",
@@ -25,7 +25,7 @@ export namespace Status {export function toStringifiedJSON(value: Status): strin
 
 export namespace Status {export function fromStringifiedJSON(json: string): Status {const data = JSON.parse(json); return __deserialize(data);}export function __deserialize(data: unknown): Status {for(const key of Object.keys(Status)){const enumValue = Status[key as keyof typeof Status]; if(enumValue === data){return data as Status;}}throw new Error("Invalid Status value: " + JSON.stringify(data));}}
 
-/**  */
+
 export enum Priority {
   Low = 1,
   Medium = 2,
@@ -43,7 +43,7 @@ export namespace Priority {export function toStringifiedJSON(value: Priority): s
 
 export namespace Priority {export function fromStringifiedJSON(json: string): Priority {const data = JSON.parse(json); return __deserialize(data);}export function __deserialize(data: unknown): Priority {for(const key of Object.keys(Priority)){const enumValue = Priority[key as keyof typeof Priority]; if(enumValue === data){return data as Priority;}}throw new Error("Invalid Priority value: " + JSON.stringify(data));}}
 
-/**  */
+
 export enum Color {
   Red,
   Green,
@@ -56,7 +56,7 @@ export namespace Color {export function equals(a: Color, b: Color): boolean {ret
 
 // ==================== TYPE ALIAS EXAMPLES ====================
 
-/**  */
+
 export type Point = {
   x: number;
   y: number;
@@ -68,11 +68,11 @@ export namespace Point {export function clone(value: Point): Point {return {x: v
 
 export namespace Point {export function equals(a: Point, b: Point): boolean {if(a === b)return true; return a.x === b.x && a.y === b.y;}}
 
-export namespace Point {export function toStringifiedJSON(value: Point): string {const ctx = SerializeContext.create(); return JSON.stringify(__serialize(value, ctx));}export function __serialize(value: Point, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Point" , __id,}; result["x" ]= value.x; result["y" ]= value.y; return result;}}
+export namespace Point {export function toStringifiedJSON(value: Point): string {const ctx = SerializeContext.create(); return JSON.stringify(__serialize(value, ctx));}export function toObject(value: Point): Record<string, unknown>{const ctx = SerializeContext.create(); return __serialize(value, ctx);}export function __serialize(value: Point, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Point" , __id,}; result["x" ]= value.x; result["y" ]= value.y; return result;}}
 
-export namespace Point {export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): Point {const ctx = DeserializeContext.create(); const raw = JSON.parse(json); const result = __deserialize(raw, ctx); ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return result;}export function __deserialize(value: any, ctx: DeserializeContext): Point {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as Point;}const instance = {...value}; delete instance.__type; delete instance.__id; if(value.__id!== undefined){ctx.register(value.__id as number, instance);}ctx.trackForFreeze(instance); return instance as Point;}}
+export namespace Point {export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): Point {const raw = JSON.parse(json); return fromObject(raw, opts);}export function fromObject(obj: unknown, opts?: DeserializeOptions): Point {const ctx = DeserializeContext.create(); const result = __deserialize(obj, ctx); ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return result;}export function __deserialize(value: any, ctx: DeserializeContext): Point {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as Point;}const instance = {...value}; delete instance.__type; delete instance.__id; if(value.__id!== undefined){ctx.register(value.__id as number, instance);}ctx.trackForFreeze(instance); return instance as Point;}}
 
-/**  */
+
 export type UserProfile = {
   id: string;
   username: string;
@@ -87,11 +87,11 @@ export namespace UserProfile {export function clone(value: UserProfile): UserPro
 
 export namespace UserProfile {export function equals(a: UserProfile, b: UserProfile): boolean {if(a === b)return true; return a.id === b.id && a.username === b.username && a.email === b.email && a.age === b.age && a.isVerified === b.isVerified;}}
 
-export namespace UserProfile {export function toStringifiedJSON(value: UserProfile): string {const ctx = SerializeContext.create(); return JSON.stringify(__serialize(value, ctx));}export function __serialize(value: UserProfile, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "UserProfile" , __id,}; result["id" ]= value.id; result["username" ]= value.username; result["email" ]= value.email; result["age" ]= value.age; result["isVerified" ]= value.isVerified; return result;}}
+export namespace UserProfile {export function toStringifiedJSON(value: UserProfile): string {const ctx = SerializeContext.create(); return JSON.stringify(__serialize(value, ctx));}export function toObject(value: UserProfile): Record<string, unknown>{const ctx = SerializeContext.create(); return __serialize(value, ctx);}export function __serialize(value: UserProfile, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "UserProfile" , __id,}; result["id" ]= value.id; result["username" ]= value.username; result["email" ]= value.email; result["age" ]= value.age; result["isVerified" ]= value.isVerified; return result;}}
 
-export namespace UserProfile {export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): UserProfile {const ctx = DeserializeContext.create(); const raw = JSON.parse(json); const result = __deserialize(raw, ctx); ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return result;}export function __deserialize(value: any, ctx: DeserializeContext): UserProfile {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as UserProfile;}const instance = {...value}; delete instance.__type; delete instance.__id; if(value.__id!== undefined){ctx.register(value.__id as number, instance);}ctx.trackForFreeze(instance); return instance as UserProfile;}}
+export namespace UserProfile {export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): UserProfile {const raw = JSON.parse(json); return fromObject(raw, opts);}export function fromObject(obj: unknown, opts?: DeserializeOptions): UserProfile {const ctx = DeserializeContext.create(); const result = __deserialize(obj, ctx); ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return result;}export function __deserialize(value: any, ctx: DeserializeContext): UserProfile {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as UserProfile;}const instance = {...value}; delete instance.__type; delete instance.__id; if(value.__id!== undefined){ctx.register(value.__id as number, instance);}ctx.trackForFreeze(instance); return instance as UserProfile;}}
 
-/**  */
+
 export type Coordinate3D = {
   x: number;
   y: number;
@@ -104,7 +104,7 @@ export namespace Coordinate3D {export function clone(value: Coordinate3D): Coord
 
 export namespace Coordinate3D {export function equals(a: Coordinate3D, b: Coordinate3D): boolean {if(a === b)return true; return a.x === b.x && a.y === b.y && a.z === b.z;}}
 
-/**  */
+
 export type ApiStatus = "loading" | "success" | "error";
 
 export namespace ApiStatus {export function toString(value: ApiStatus): string {return "ApiStatus(" + JSON.stringify(value)+ ")" ;}}

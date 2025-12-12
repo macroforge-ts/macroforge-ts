@@ -10,7 +10,6 @@ export interface User {
   lastName: string;
   password: string | null;
   metadata: Metadata | null;
-  /** @default(Settings.defaultValue()) */
   settings: Settings;
   /** @default("Administrator") */
   role: UserRole;
@@ -19,7 +18,6 @@ export interface User {
   verificationExpires: string | null;
   passwordResetToken: string | null;
   passwordResetExpires: string | null;
-  /** @default(AppPermissions.defaultValue()) */
   permissions: AppPermissions;
 }
 
@@ -37,7 +35,6 @@ export interface Service {
   commission: boolean;
   favorite: boolean;
   averageTime: string | null;
-  /** @default(ServiceDefaults.defaultValue()) */
   defaults: ServiceDefaults;
 }
 
@@ -55,7 +52,6 @@ export interface Did {
   /** @default("") */
   out: string | Target;
   id: string;
-  /** @default(Created.defaultValue()) */
   activityType: ActivityType;
   createdAt: string;
   metadata: string | null;
@@ -93,7 +89,6 @@ export interface Site {
   /** @serde({ validate: ["nonEmpty"] }) */
   postalCode: string;
   postalCodeSuffix: string | null;
-  /** @default(Coordinates.defaultValue()) */
   coordinates: Coordinates;
 }
 
@@ -109,7 +104,6 @@ export interface Metadata {
 export interface ColumnConfig {
   /** @serde({ validate: ["nonEmpty"] }) */
   heading: string;
-  /** @default(DataPath.defaultValue()) */
   dataPath: DataPath;
 }
 
@@ -142,7 +136,6 @@ export interface Product {
   active: boolean;
   commission: boolean;
   favorite: boolean;
-  /** @default(ProductDefaults.defaultValue()) */
   defaults: ProductDefaults;
 }
 
@@ -193,23 +186,14 @@ export interface Payment {
 export interface Settings {
   appointmentNotifications: AppointmentNotifications | null;
   commissions: Commissions | null;
-  /** @default(ScheduleSettings.defaultValue()) */
   scheduleSettings: ScheduleSettings;
-  /** @default(OverviewSettings.defaultValue()) */
   accountOverviewSettings: OverviewSettings;
-  /** @default(OverviewSettings.defaultValue()) */
   serviceOverviewSettings: OverviewSettings;
-  /** @default(OverviewSettings.defaultValue()) */
   appointmentOverviewSettings: OverviewSettings;
-  /** @default(OverviewSettings.defaultValue()) */
   leadOverviewSettings: OverviewSettings;
-  /** @default(OverviewSettings.defaultValue()) */
   packageOverviewSettings: OverviewSettings;
-  /** @default(OverviewSettings.defaultValue()) */
   productOverviewSettings: OverviewSettings;
-  /** @default(OverviewSettings.defaultValue()) */
   orderOverviewSettings: OverviewSettings;
-  /** @default(OverviewSettings.defaultValue()) */
   taxRateOverviewSettings: OverviewSettings;
   /** @default("UserHome") */
   homePage: Page;
@@ -272,13 +256,9 @@ export interface DailyRecurrenceRule {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface SignUpCredentials {
-  /** @default(FirstName.defaultValue()) */
   firstName: FirstName;
-  /** @default(LastName.defaultValue()) */
   lastName: LastName;
-  /** @default(EmailParts.defaultValue()) */
   email: EmailParts;
-  /** @default(Password.defaultValue()) */
   password: Password;
   rememberMe: boolean;
 }
@@ -310,17 +290,14 @@ export interface Account {
   orders: Ordered[];
   activity: Did[];
   customFields: [string, string][];
-  /** @default(CompanyName.defaultValue()) */
   accountName: AccountName;
   /** @default("Residential") */
   sector: Sector;
   memo: string | null;
   phones: PhoneNumber[];
-  /** @default(Email.defaultValue()) */
   email: Email;
   /** @serde({ validate: ["nonEmpty"] }) */
   leadSource: string;
-  /** @default(Colors.defaultValue()) */
   colors: Colors;
   needsReview: boolean;
   hasAlert: boolean;
@@ -492,10 +469,8 @@ export interface Lead {
   taxRate: (string | TaxRate) | null;
   /** @default("Residential") */
   sector: Sector;
-  /** @default(CompanyName.defaultValue()) */
   leadName: AccountName;
   phones: PhoneNumber[];
-  /** @default(Email.defaultValue()) */
   email: Email;
   leadSource: string | null;
   /** @default("") */
@@ -567,7 +542,6 @@ export interface Company {
   hasSortServiceItemsAlphabetically: boolean;
   hasAttachOrderToAppointmentEmails: boolean;
   scheduleInterval: number;
-  /** @default(Gradient.defaultValue()) */
   colorsConfig: ColorsConfig;
 }
 
@@ -605,7 +579,6 @@ export interface Employee {
   role: string;
   /** @default("Technician") */
   title: JobTitle;
-  /** @default(Email.defaultValue()) */
   email: Email;
   /** @serde({ validate: ["nonEmpty"] }) */
   address: string;
@@ -620,7 +593,6 @@ export interface Employee {
   description: string | null;
   linkedinUrl: string | null;
   attendance: string[];
-  /** @default(Settings.defaultValue()) */
   settings: Settings;
 }
 
@@ -716,7 +688,6 @@ export interface Email {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface RecurrenceRule {
-  /** @default(DailyRecurrenceRule.defaultValue()) */
   interval: Interval;
   recurrenceBegins: string;
   recurrenceEnds: RecurrenceEnd | null;
@@ -738,16 +709,16 @@ export interface Cardinal {
   west: number;
 }
 
-/** @derive(Deserialize) */
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type Interval =
-  | DailyRecurrenceRule
+  | /** @default */ DailyRecurrenceRule
   | WeeklyRecurrenceRule
   | MonthlyRecurrenceRule
   | YearlyRecurrenceRule;
 
-/** @derive(Deserialize) */
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type Page =
-  | "SalesHomeDashboard"
+  | /** @default */ "SalesHomeDashboard"
   | "SalesHomeProducts"
   | "SalesHomeServices"
   | "SalesHomePackages"
@@ -773,17 +744,17 @@ export type Page =
   | "SalesSchedulingReminders"
   | "UserHome";
 
-/** @derive(Deserialize) */
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type UserRole =
-  | "Administrator"
+  | /** @default */ "Administrator"
   | "SalesRepresentative"
   | "Technician"
   | "HumanResources"
   | "InformationTechnology";
 
-/** @derive(Deserialize) */
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type Target =
-  | Account
+  | /** @default */ Account
   | User
   | Employee
   | Appointment
@@ -801,21 +772,23 @@ export type Target =
   | Represents
   | Ordered;
 
-/** @derive(Deserialize) */
+/** @derive(Default, Serialize, Deserialize, Gigaform)
+ *  @default(0)
+ */
 export type RecurrenceEnd = number | string;
 
-/** @derive(Deserialize) */
-export type OverviewDisplay = "Card" | "Table";
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type OverviewDisplay = /** @default */ "Card" | "Table";
 
-/** @derive(Deserialize) */
-export type IntervalUnit = "Day" | "Week" | "Month" | "Year";
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type IntervalUnit = /** @default */ "Day" | "Week" | "Month" | "Year";
 
-/** @derive(Deserialize) */
-export type Sector = "Residential" | "Commercial";
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type Sector = /** @default */ "Residential" | "Commercial";
 
-/** @derive(Deserialize) */
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type Weekday =
-  | "Monday"
+  | /** @default */ "Monday"
   | "Tuesday"
   | "Wednesday"
   | "Thursday"
@@ -823,33 +796,33 @@ export type Weekday =
   | "Saturday"
   | "Sunday";
 
-/** @derive(Deserialize) */
-export type Status = "Scheduled" | "OnDeck" | "Waiting";
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type Status = /** @default */ "Scheduled" | "OnDeck" | "Waiting";
 
-/** @derive(Deserialize) */
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type NextStep =
-  | "InitialContact"
+  | /** @default */ "InitialContact"
   | "Qualified"
   | "Estimate"
   | "Negotiation";
 
-/** @derive(Deserialize) */
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type LeadStage =
-  | "Open"
+  | /** @default */ "Open"
   | "InitialContact"
   | "Qualified"
   | "Estimate"
   | "Negotiation";
 
-/** @derive(Deserialize) */
-export type AccountName = CompanyName | PersonName;
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type AccountName = /** @default */ CompanyName | PersonName;
 
-/** @derive(Deserialize) */
-export type Priority = "High" | "Medium" | "Low";
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type Priority = /** @default */ "Medium" | "High" | "Low";
 
-/** @derive(Deserialize) */
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type Applications =
-  | "Sales"
+  | /** @default */ "Sales"
   | "Accounting"
   | "Errand"
   | "HumanResources"
@@ -857,31 +830,50 @@ export type Applications =
   | "Marketing"
   | "Website";
 
-/** @derive(Deserialize) */
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type JobTitle =
-  | "Technician"
+  | /** @default */ "Technician"
   | "SalesRepresentative"
   | "HumanResources"
   | "InformationTechnology";
 
-/** @derive(Deserialize) */
-export type ColorsConfig = Cardinal | Ordinal | Custom | Gradient;
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type ColorsConfig =
+  | Cardinal
+  | Ordinal
+  | Custom
+  | /** @default */ Gradient;
 
-/** @derive(Deserialize) */
-export type WeekOfMonth = "First" | "Second" | "Third" | "Fourth" | "Last";
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type WeekOfMonth =
+  | /** @default */ "First"
+  | "Second"
+  | "Third"
+  | "Fourth"
+  | "Last";
 
-/** @derive(Deserialize) */
-export type ActivityType = Created | Edited | Sent | Viewed | Commented | Paid;
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type ActivityType =
+  | /** @default */ Created
+  | Edited
+  | Sent
+  | Viewed
+  | Commented
+  | Paid;
 
-/** @derive(Deserialize) */
-export type RowHeight = "ExtraSmall" | "Small" | "Medium" | "Large";
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type RowHeight =
+  | "ExtraSmall"
+  | "Small"
+  | /** @default */ "Medium"
+  | "Large";
 
-/** @derive(Deserialize) */
-export type OrderStage = "Estimate" | "Active" | "Invoice";
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type OrderStage = /** @default */ "Estimate" | "Active" | "Invoice";
 
-/** @derive(Deserialize) */
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type Table =
-  | "Account"
+  | /** @default */ "Account"
   | "Did"
   | "Appointment"
   | "Lead"
@@ -900,8 +892,10 @@ export type Table =
   | "Represents"
   | "Ordered";
 
-/** @derive(Deserialize) */
+/** @derive(Default, Serialize, Deserialize, Gigaform)
+ * @default("")
+ */
 export type Item = (string | Product) | (string | Service);
 
-/** @derive(Deserialize) */
-export type Actor = User | Employee | Account;
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type Actor = /** @default */ User | Employee | Account;
