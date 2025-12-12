@@ -17,10 +17,8 @@ export interface DeserializeContext {
     register(id: number, instance: any): void;
     /** Get an object by ID, or return a PendingRef if not yet available */
     getOrDefer(refId: number): any;
-    /** Assign a value to a property, deferring if it's a PendingRef */
-    assignOrDefer(target: any, prop: string | number, value: any): void;
-    /** Manually add a patch for later resolution */
-    addPatch(target: any, prop: string | number, refId: number): void;
+    /** Defer a patch using a setter callback (called when ref is resolved) */
+    deferPatch(refId: number, setter: (val: any) => void): void;
     /** Track an object for optional freezing */
     trackForFreeze(obj: object): void;
     /** Apply all deferred patches (call after deserialization is complete) */
