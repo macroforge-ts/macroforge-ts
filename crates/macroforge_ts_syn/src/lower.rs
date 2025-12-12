@@ -482,27 +482,33 @@ fn lower_type_body(ts_type: &TsType, source: &str) -> TypeBody {
 
 #[cfg(feature = "swc")]
 fn lower_type_member(ts_type: &TsType, source: &str) -> TypeMember {
+    use crate::abi::ir::type_alias::TypeMemberKind;
     use swc_core::ecma::ast::TsType::*;
 
-    match ts_type {
+    // Parse any leading JSDoc comment decorators (e.g., /** @default */)
+    let decorators = collect_leading_macro_directives(source, ts_type.span().lo.0 as usize);
+
+    let kind = match ts_type {
         // Literal type: "active", 42, true
         TsLitType(lit) => {
             let lit_str = snippet(source, lit.span);
-            TypeMember::Literal(lit_str)
+            TypeMemberKind::Literal(lit_str)
         }
 
         // Type literal (inline object): { role: string }
         TsTypeLit(lit) => {
             let (fields, _methods) = lower_interface_members(&lit.members, source);
-            TypeMember::Object { fields }
+            TypeMemberKind::Object { fields }
         }
 
         // Type reference or other: User, string, Array<T>
         _ => {
             let type_str = snippet(source, ts_type.span());
-            TypeMember::TypeRef(type_str)
+            TypeMemberKind::TypeRef(type_str)
         }
-    }
+    };
+
+    TypeMember::with_decorators(kind, decorators)
 }
 
 #[cfg(feature = "swc")]
@@ -741,11 +747,21 @@ fn collect_leading_macro_directives(source: &str, target_start: usize) -> Vec<De
     let end_of_comment_block = end_idx_in_search_area + 2; // +2 for "*/"
 
     // Only accept if the comment is directly adjacent to the target
-    // (only whitespace between comment end and target start)
+    // Allow common modifiers between comment and target (export, declare, abstract, etc.)
     let between = &search_area[end_of_comment_block..];
-    if !between.trim().is_empty() {
-        // There's non-whitespace content between the comment and target
-        return Vec::new();
+    let between_trimmed = between.trim();
+    if !between_trimmed.is_empty() {
+        // Check if only allowed modifiers are between comment and target
+        let allowed_modifiers = ["export", "declare", "abstract", "default", "async"];
+        let remaining: String = between_trimmed
+            .split_whitespace()
+            .filter(|word| !allowed_modifiers.contains(word))
+            .collect::<Vec<_>>()
+            .join(" ");
+        if !remaining.is_empty() {
+            // There's non-whitespace, non-modifier content between the comment and target
+            return Vec::new();
+        }
     }
 
     let comment_body = &search_area[start_idx + 3 .. end_idx_in_search_area];
@@ -775,7 +791,9 @@ fn collect_leading_macro_directives(source: &str, target_start: usize) -> Vec<De
 }
 
 /// Parse ALL macro directives from a JSDoc comment body.
-/// Returns a Vec of (name, args) tuples for each @directive(...) found.
+/// Returns a Vec of (name, args) tuples for each @directive or @directive(...) found.
+/// Supports multiple directives on the same line: `@derive(X) @default(Y)`
+/// Also supports directives without parens: `@default` (treated as empty args)
 #[cfg(feature = "swc")]
 fn parse_all_macro_directives(comment_body: &str) -> Vec<(String, String)> {
     let mut results = Vec::new();
@@ -789,59 +807,97 @@ fn parse_all_macro_directives(comment_body: &str) -> Vec<(String, String)> {
             continue;
         }
 
-        // Look for @directive(...) pattern
-        let Some(at_idx) = line.find('@') else {
-            continue;
-        };
+        // Parse all directives on this line
+        let mut remaining = line;
+        while let Some(at_idx) = remaining.find('@') {
+            let after_at = &remaining[at_idx + 1..];
 
-        let after_at = &line[at_idx + 1..];
+            // Extract the directive name (alphanumeric chars until space, paren, or end)
+            let name_end = after_at
+                .find(|c: char| !c.is_alphanumeric() && c != '_')
+                .unwrap_or(after_at.len());
 
-        // Find opening paren
-        let Some(open) = after_at.find('(') else {
-            continue;
-        };
+            if name_end == 0 {
+                // No valid name found, skip
+                remaining = &remaining[at_idx + 1..];
+                continue;
+            }
 
-        // Find matching closing paren (handle nested parens/braces)
-        let name = after_at[..open].trim();
-        let args_start = open + 1;
+            let name = &after_at[..name_end];
+            let after_name = &after_at[name_end..];
 
-        // Parse balanced parentheses to find the closing one
-        let mut depth: i32 = 1;
-        let mut brace_depth: i32 = 0;
-        let mut bracket_depth: i32 = 0;
-        let mut close_idx = None;
+            // Check if there's an opening paren
+            let trimmed_after_name = after_name.trim_start();
+            if trimmed_after_name.starts_with('(') {
+                // Has arguments - parse balanced parens
+                let paren_start = after_name.len() - trimmed_after_name.len();
+                let args_start = paren_start + 1;
 
-        for (i, c) in after_at[args_start..].char_indices() {
-            match c {
-                '(' => depth += 1,
-                ')' => {
-                    depth -= 1;
-                    if depth == 0 && brace_depth == 0 && bracket_depth == 0 {
-                        close_idx = Some(args_start + i);
-                        break;
+                // Parse balanced parentheses to find the closing one
+                let mut depth: i32 = 1;
+                let mut brace_depth: i32 = 0;
+                let mut bracket_depth: i32 = 0;
+                let mut close_idx = None;
+
+                for (i, c) in after_name[args_start..].char_indices() {
+                    match c {
+                        '(' => depth += 1,
+                        ')' => {
+                            depth -= 1;
+                            if depth == 0 && brace_depth == 0 && bracket_depth == 0 {
+                                close_idx = Some(args_start + i);
+                                break;
+                            }
+                        }
+                        '{' => brace_depth += 1,
+                        '}' => brace_depth = brace_depth.saturating_sub(1),
+                        '[' => bracket_depth += 1,
+                        ']' => bracket_depth = bracket_depth.saturating_sub(1),
+                        _ => {}
                     }
                 }
-                '{' => brace_depth += 1,
-                '}' => brace_depth = brace_depth.saturating_sub(1),
-                '[' => bracket_depth += 1,
-                ']' => bracket_depth = bracket_depth.saturating_sub(1),
-                _ => {}
+
+                if let Some(close) = close_idx {
+                    let args = after_name[args_start..close].trim();
+
+                    let normalized_name = if name.eq_ignore_ascii_case("derive") {
+                        "Derive".to_string()
+                    } else {
+                        name.to_string()
+                    };
+
+                    results.push((normalized_name, args.to_string()));
+
+                    // Continue searching after this directive's closing paren
+                    let end_of_directive = at_idx + 1 + name_end + close + 1;
+                    if end_of_directive < remaining.len() {
+                        remaining = &remaining[end_of_directive..];
+                    } else {
+                        break;
+                    }
+                } else {
+                    // No matching close paren, skip to next @ symbol
+                    remaining = &remaining[at_idx + 1..];
+                }
+            } else {
+                // No parens - directive without arguments (like @default)
+                let normalized_name = if name.eq_ignore_ascii_case("derive") {
+                    "Derive".to_string()
+                } else {
+                    name.to_string()
+                };
+
+                results.push((normalized_name, String::new()));
+
+                // Continue after the directive name
+                let end_of_directive = at_idx + 1 + name_end;
+                if end_of_directive < remaining.len() {
+                    remaining = &remaining[end_of_directive..];
+                } else {
+                    break;
+                }
             }
         }
-
-        let Some(close) = close_idx else {
-            continue;
-        };
-
-        let args = after_at[args_start..close].trim();
-
-        let normalized_name = if name.eq_ignore_ascii_case("derive") {
-            "Derive".to_string()
-        } else {
-            name.to_string()
-        };
-
-        results.push((normalized_name, args.to_string()));
     }
 
     results
@@ -1247,6 +1303,135 @@ mod tests {
                 "decorator span should include trailing newline for clean deletion, got {:?}",
                 snippet_str
             );
+        });
+    }
+
+    #[cfg(feature = "swc")]
+    #[test]
+    fn parse_all_macro_directives_single_line() {
+        let comment_body = " @derive(Default, Deserialize) ";
+        let directives = parse_all_macro_directives(comment_body);
+        assert_eq!(directives.len(), 1);
+        assert_eq!(directives[0].0, "Derive");
+        assert_eq!(directives[0].1, "Default, Deserialize");
+    }
+
+    #[cfg(feature = "swc")]
+    #[test]
+    fn parse_all_macro_directives_multiline() {
+        let comment_body = r#"
+         * @derive(Default, Deserialize)
+         * @default(Created.defaultValue())
+         "#;
+        let directives = parse_all_macro_directives(comment_body);
+        assert_eq!(
+            directives.len(),
+            2,
+            "Expected 2 directives, got {:?}",
+            directives
+        );
+        assert_eq!(directives[0].0, "Derive");
+        assert_eq!(directives[0].1, "Default, Deserialize");
+        assert_eq!(directives[1].0, "default");
+        assert_eq!(directives[1].1, "Created.defaultValue()");
+    }
+
+    #[cfg(feature = "swc")]
+    #[test]
+    fn parse_all_macro_directives_same_line() {
+        let comment_body = " @derive(Default) @default(Foo.defaultValue()) ";
+        let directives = parse_all_macro_directives(comment_body);
+        // Should parse both directives on the same line
+        assert_eq!(
+            directives.len(),
+            2,
+            "Expected 2 directives on same line, got {:?}",
+            directives
+        );
+        assert_eq!(directives[0].0, "Derive");
+        assert_eq!(directives[0].1, "Default");
+        assert_eq!(directives[1].0, "default");
+        assert_eq!(directives[1].1, "Foo.defaultValue()");
+    }
+
+    #[cfg(feature = "swc")]
+    #[test]
+    fn type_alias_with_multiple_decorators() {
+        GLOBALS.set(&Globals::new(), || {
+            // Note: No leading newline, comment directly at start
+            let source = r#"/**
+ * @derive(Default, Deserialize)
+ * @default(DailyRecurrenceRule.defaultValue())
+ */
+export type Interval = DailyRecurrenceRule | WeeklyRecurrenceRule;"#;
+            let module = parse_module(source);
+            let type_aliases = lower_type_aliases(&module, source).expect("lowering to succeed");
+            let alias = type_aliases.first().expect("type alias");
+
+            assert_eq!(alias.name, "Interval");
+            assert!(
+                alias.decorators.len() >= 2,
+                "Expected at least 2 decorators, got {:?}",
+                alias.decorators
+            );
+
+            // Check @derive is present
+            let derive = alias.decorators.iter().find(|d| d.name == "Derive");
+            assert!(derive.is_some(), "Expected @derive decorator");
+
+            // Check @default is present
+            let default = alias.decorators.iter().find(|d| d.name == "default");
+            assert!(
+                default.is_some(),
+                "Expected @default decorator, got decorators: {:?}",
+                alias.decorators
+            );
+            if let Some(d) = default {
+                assert_eq!(d.args_src, "DailyRecurrenceRule.defaultValue()");
+            }
+        });
+    }
+
+    #[cfg(feature = "swc")]
+    #[test]
+    fn union_variant_with_default_decorator() {
+        use crate::abi::ir::type_alias::TypeBody;
+
+        GLOBALS.set(&Globals::new(), || {
+            let source = r#"/** @derive(Default) */
+export type UnionWithDefault =
+  | /** @default */ VariantA
+  | VariantB;"#;
+            let module = parse_module(source);
+            let type_aliases = lower_type_aliases(&module, source).expect("lowering to succeed");
+            let alias = type_aliases.first().expect("type alias");
+
+            assert_eq!(alias.name, "UnionWithDefault");
+
+            // Check that we have a union type
+            if let TypeBody::Union(members) = &alias.body {
+                assert_eq!(members.len(), 2, "Should have 2 union members");
+
+                // First member (VariantA) should have @default decorator
+                let first = &members[0];
+                eprintln!("First member: {:?}", first);
+                eprintln!("First member decorators: {:?}", first.decorators);
+
+                assert!(
+                    first.has_decorator("default"),
+                    "First variant should have @default. Decorators: {:?}",
+                    first.decorators
+                );
+
+                // Second member (VariantB) should NOT have @default
+                let second = &members[1];
+                assert!(
+                    !second.has_decorator("default"),
+                    "Second variant should NOT have @default"
+                );
+            } else {
+                panic!("Expected Union type body, got {:?}", alias.body);
+            }
         });
     }
 }

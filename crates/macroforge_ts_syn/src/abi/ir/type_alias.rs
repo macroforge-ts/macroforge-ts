@@ -109,10 +109,19 @@ impl TypeBody {
     }
 }
 
-/// A member of a union or intersection type
+/// A member of a union or intersection type with optional decorators
 #[derive(Serialize, Deserialize)]
 #[derive(Clone, Debug, PartialEq)]
-pub enum TypeMember {
+pub struct TypeMember {
+    pub kind: TypeMemberKind,
+    /// Decorators from leading JSDoc comments (e.g., `/** @default */`)
+    pub decorators: Vec<DecoratorIR>,
+}
+
+/// The kind of type member
+#[derive(Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq)]
+pub enum TypeMemberKind {
     /// A literal type: `"active"`, `42`, `true`
     Literal(String),
 
@@ -124,42 +133,71 @@ pub enum TypeMember {
 }
 
 impl TypeMember {
+    /// Create a new TypeMember with no decorators
+    pub fn new(kind: TypeMemberKind) -> Self {
+        Self {
+            kind,
+            decorators: Vec::new(),
+        }
+    }
+
+    /// Create a new TypeMember with decorators
+    pub fn with_decorators(kind: TypeMemberKind, decorators: Vec<DecoratorIR>) -> Self {
+        Self { kind, decorators }
+    }
+
     /// Returns true if this is a literal type
     pub fn is_literal(&self) -> bool {
-        matches!(self, TypeMember::Literal(_))
+        matches!(self.kind, TypeMemberKind::Literal(_))
     }
 
     /// Returns true if this is a type reference
     pub fn is_type_ref(&self) -> bool {
-        matches!(self, TypeMember::TypeRef(_))
+        matches!(self.kind, TypeMemberKind::TypeRef(_))
     }
 
     /// Returns true if this is an object type
     pub fn is_object(&self) -> bool {
-        matches!(self, TypeMember::Object { .. })
+        matches!(self.kind, TypeMemberKind::Object { .. })
     }
 
     /// Returns the literal value if this is a Literal variant
     pub fn as_literal(&self) -> Option<&str> {
-        match self {
-            TypeMember::Literal(s) => Some(s),
+        match &self.kind {
+            TypeMemberKind::Literal(s) => Some(s),
             _ => None,
         }
     }
 
     /// Returns the type reference if this is a TypeRef variant
     pub fn as_type_ref(&self) -> Option<&str> {
-        match self {
-            TypeMember::TypeRef(s) => Some(s),
+        match &self.kind {
+            TypeMemberKind::TypeRef(s) => Some(s),
             _ => None,
         }
     }
 
     /// Returns the fields if this is an Object variant
     pub fn as_object(&self) -> Option<&[InterfaceFieldIR]> {
-        match self {
-            TypeMember::Object { fields } => Some(fields),
+        match &self.kind {
+            TypeMemberKind::Object { fields } => Some(fields),
             _ => None,
         }
+    }
+
+    /// Returns the type name (for TypeRef or Literal)
+    pub fn type_name(&self) -> Option<&str> {
+        match &self.kind {
+            TypeMemberKind::TypeRef(s) => Some(s),
+            TypeMemberKind::Literal(s) => Some(s),
+            TypeMemberKind::Object { .. } => None,
+        }
+    }
+
+    /// Check if this member has a decorator with the given name
+    pub fn has_decorator(&self, name: &str) -> bool {
+        self.decorators
+            .iter()
+            .any(|d| d.name.eq_ignore_ascii_case(name))
     }
 }
