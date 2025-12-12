@@ -9,7 +9,7 @@ let mut helper = body! {
         return Result.ok(true);
     }
 };
-helper.add_import("Result", "macroforge/result");
+helper.add_import("Result", "macroforge/utils");
 
 // Inject the helper into the main template
 let result = body! {
