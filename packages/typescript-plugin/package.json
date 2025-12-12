@@ -29,6 +29,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist",
+    "cleanbuild": "npm run clean && npm run build",
     "test": "bun run build && node --test tests/**/*.test.js"
   },
   "dependencies": {
