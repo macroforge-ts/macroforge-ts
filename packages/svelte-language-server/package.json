@@ -13,6 +13,7 @@
     "test": "cross-env TS_NODE_TRANSPILE_ONLY=true mocha --require ts-node/register \"test/**/*.test.ts\" --no-experimental-strip-types",
     "clean": "rm -rf dist",
     "build": "npm run clean && tsc",
+    "cleanbuild": "npm run clean && npm run build",
     "watch": "tsc -w"
   },
   "bin": {
