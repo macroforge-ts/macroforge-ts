@@ -74,7 +74,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     return JSON.stringify(this.__serialize(ctx));
                 }
 
-                toJSON(): Record<string, unknown> {
+                toObject(): Record<string, unknown> {
                     const ctx = SerializeContext.create();
                     return this.__serialize(ctx);
                 }
@@ -302,6 +302,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         return JSON.stringify(__serialize(self, ctx));
                     }
 
+                    export function toObject(self: @{interface_name}): Record<string, unknown> {
+                        const ctx = SerializeContext.create();
+                        return __serialize(self, ctx);
+                    }
+
                     export function __serialize(self: @{interface_name}, ctx: SerializeContext): Record<string, unknown> {
                         // Check if already serialized (cycle detection)
                         const existingId = ctx.getId(self);
@@ -508,6 +513,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                             return JSON.stringify(__serialize(value, ctx));
                         }
 
+                        export function toObject(value: @{type_name}): Record<string, unknown> {
+                            const ctx = SerializeContext.create();
+                            return __serialize(value, ctx);
+                        }
+
                         export function __serialize(value: @{type_name}, ctx: SerializeContext): Record<string, unknown> {
                             const existingId = ctx.getId(value);
                             if (existingId !== undefined) {
@@ -545,6 +555,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         export function toStringifiedJSON(value: @{type_name}): string {
                             const ctx = SerializeContext.create();
                             return JSON.stringify(__serialize(value, ctx));
+                        }
+
+                        export function toObject(value: @{type_name}): unknown {
+                            const ctx = SerializeContext.create();
+                            return __serialize(value, ctx);
                         }
 
                         export function __serialize(value: @{type_name}, ctx: SerializeContext): unknown {

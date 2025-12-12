@@ -105,37 +105,14 @@ pub fn is_nullable_type(ts_type: &str) -> bool {
     normalized.contains("|null") || normalized.contains("|undefined")
 }
 
-/// Check if a type has a known default value (primitives, collections, nullable)
-/// Similar to Rust's Default trait - only types with well-defined defaults return true.
-pub fn has_known_default(ts_type: &str) -> bool {
-    let t = ts_type.trim();
-
-    // Nullable types default to null (like Rust's Option::default())
-    if is_nullable_type(t) {
-        return true;
-    }
-
-    // Primitives
-    if matches!(t, "string" | "number" | "boolean" | "bigint") {
-        return true;
-    }
-
-    // Arrays
-    if t.ends_with("[]") || t.starts_with("Array<") {
-        return true;
-    }
-
-    // Collections
-    if t.starts_with("Map<") || t.starts_with("Set<") {
-        return true;
-    }
-
-    // Date
-    if t == "Date" {
-        return true;
-    }
-
-    false
+/// Check if a type has a known default value.
+/// All types are assumed to implement Default - primitives/collections have built-in defaults,
+/// unknown types are assumed to have a defaultValue() static method (Rust's derive(Default) philosophy).
+pub fn has_known_default(_ts_type: &str) -> bool {
+    // All types are assumed to implement Default
+    // - Primitives/collections have built-in defaults
+    // - Unknown types are assumed to have defaultValue() method
+    true
 }
 
 /// Get default value for a TypeScript type
@@ -157,7 +134,8 @@ pub fn get_type_default(ts_type: &str) -> String {
         t if t.starts_with("Map<") => "new Map()".to_string(),
         t if t.starts_with("Set<") => "new Set()".to_string(),
         "Date" => "new Date()".to_string(),
-        _ => "null as any".to_string(),
+        // Unknown types: assume they implement Default trait with defaultValue() method
+        type_name => format!("{}.defaultValue()", type_name),
     }
 }
 
@@ -334,6 +312,7 @@ mod tests {
         assert_eq!(get_type_default("Map<string, number>"), "new Map()");
         assert_eq!(get_type_default("Set<string>"), "new Set()");
         assert_eq!(get_type_default("Date"), "new Date()");
-        assert_eq!(get_type_default("User"), "null as any");
+        // Unknown types call their defaultValue() method
+        assert_eq!(get_type_default("User"), "User.defaultValue()");
     }
 }

@@ -331,12 +331,24 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                 static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{class_name}, Array<{ field: string; message: string }>> {
                     try {
-                        const ctx = DeserializeContext.create();
                         const raw = JSON.parse(json);
-                        const resultOrRef = @{class_name}.__deserialize(raw, ctx);
+                        return @{class_name}.fromObject(raw, opts);
+                    } catch (e) {
+                        if (e instanceof DeserializeError) {
+                            return Result.err(e.errors);
+                        }
+                        const message = e instanceof Error ? e.message : String(e);
+                        return Result.err([{ field: "_root", message }]);
+                    }
+                }
+
+                static fromObject(obj: unknown, opts?: DeserializeOptions): Result<@{class_name}, Array<{ field: string; message: string }>> {
+                    try {
+                        const ctx = DeserializeContext.create();
+                        const resultOrRef = @{class_name}.__deserialize(obj, ctx);
 
                         if (PendingRef.is(resultOrRef)) {
-                            return Result.err([{ field: "_root", message: "@{class_name}.fromStringifiedJSON: root cannot be a forward reference" }]);
+                            return Result.err([{ field: "_root", message: "@{class_name}.fromObject: root cannot be a forward reference" }]);
                         }
 
                         ctx.applyPatches();
@@ -599,7 +611,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     return instance;
                 }
             };
-            result.add_import("Result", "macroforge/result");
+            result.add_import("Result", "macroforge/utils");
             result.add_import("DeserializeContext", "macroforge/serde");
             result.add_import("DeserializeError", "macroforge/serde");
             result.add_type_import("DeserializeOptions", "macroforge/serde");
@@ -685,12 +697,24 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 export namespace @{interface_name} {
                     export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{interface_name}, Array<{ field: string; message: string }>> {
                         try {
-                            const ctx = DeserializeContext.create();
                             const raw = JSON.parse(json);
-                            const resultOrRef = __deserialize(raw, ctx);
+                            return fromObject(raw, opts);
+                        } catch (e) {
+                            if (e instanceof DeserializeError) {
+                                return Result.err(e.errors);
+                            }
+                            const message = e instanceof Error ? e.message : String(e);
+                            return Result.err([{ field: "_root", message }]);
+                        }
+                    }
+
+                    export function fromObject(obj: unknown, opts?: DeserializeOptions): Result<@{interface_name}, Array<{ field: string; message: string }>> {
+                        try {
+                            const ctx = DeserializeContext.create();
+                            const resultOrRef = __deserialize(obj, ctx);
 
                             if (PendingRef.is(resultOrRef)) {
-                                return Result.err([{ field: "_root", message: "@{interface_name}.fromStringifiedJSON: root cannot be a forward reference" }]);
+                                return Result.err([{ field: "_root", message: "@{interface_name}.fromObject: root cannot be a forward reference" }]);
                             }
 
                             ctx.applyPatches();
@@ -823,7 +847,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     }
                 }
             };
-            result.add_import("Result", "macroforge/result");
+            result.add_import("Result", "macroforge/utils");
             result.add_import("DeserializeContext", "macroforge/serde");
             result.add_import("DeserializeError", "macroforge/serde");
             result.add_type_import("DeserializeOptions", "macroforge/serde");
@@ -837,9 +861,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let mut result = ts_template! {
                     export namespace @{type_name} {
                         export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): @{type_name} {
-                            const ctx = DeserializeContext.create();
                             const raw = JSON.parse(json);
-                            const result = __deserialize(raw, ctx);
+                            return fromObject(raw, opts);
+                        }
+
+                        export function fromObject(obj: unknown, opts?: DeserializeOptions): @{type_name} {
+                            const ctx = DeserializeContext.create();
+                            const result = __deserialize(obj, ctx);
                             ctx.applyPatches();
                             if (opts?.freeze) {
                                 ctx.freezeAll();
@@ -873,9 +901,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 let mut result = ts_template! {
                     export namespace @{type_name} {
                         export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): @{type_name} {
-                            const ctx = DeserializeContext.create();
                             const raw = JSON.parse(json);
-                            const result = __deserialize(raw, ctx);
+                            return fromObject(raw, opts);
+                        }
+
+                        export function fromObject(obj: unknown, opts?: DeserializeOptions): @{type_name} {
+                            const ctx = DeserializeContext.create();
+                            const result = __deserialize(obj, ctx);
                             ctx.applyPatches();
                             if (opts?.freeze) {
                                 ctx.freezeAll();
