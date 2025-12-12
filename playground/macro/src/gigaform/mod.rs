@@ -1,15 +1,17 @@
-//! Gigaform macro - generates compile-time form handling with validation.
+//! Gigaform macro - generates compile-time form handling with Svelte 5 reactive state.
 //!
 //! This macro **composes with** other Macroforge macros:
-//! - `@derive(Default)` provides `default_()`
+//! - `@derive(Default)` provides `defaultValue()`
 //! - `@derive(Serialize)` provides `toJSON()`
-//! - `@derive(Deserialize)` + `@serde` provides `fromJSON()` with validation
+//! - `@derive(Deserialize)` + `@serde` provides `fromStringifiedJSON()` with validation
 //!
 //! Gigaform adds:
 //! - `Errors` type (nested error structure)
 //! - `Tainted` type (nested boolean structure)
+//! - `FieldController<T>` interface for field controllers
+//! - `Gigaform` interface for form instances
+//! - `createForm()` factory returning reactive form instance with field controllers
 //! - `fromFormData()` (FormData parsing with type coercion)
-//! - `fields.*` (field descriptors with get/set/constraints/UI metadata)
 
 pub mod field_descriptors;
 pub mod form_data;
@@ -50,14 +52,14 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     // Generate each section
     let type_defs = types::generate(interface_name, &fields);
     let form_data_fn = form_data::generate(interface_name, &fields);
-    let field_descriptors = field_descriptors::generate(interface_name, &fields, &options);
+    let factory_fn = field_descriptors::generate_factory(interface_name, &fields, &options);
 
     // Combine into namespace
     let mut output = ts_template! {
         export namespace @{interface_name} {
             {$typescript type_defs}
+            {$typescript factory_fn}
             {$typescript form_data_fn}
-            {$typescript field_descriptors}
         }
     };
 
@@ -72,19 +74,20 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     Ok(output)
 }
 
-/// Generates a complete form namespace with types, validation, field descriptors, and controllers.
+/// Generates a form namespace with reactive state, field controllers, and validation.
 ///
 /// This macro **composes with** other Macroforge macros:
-/// - `@derive(Default)` provides `default_()`
+/// - `@derive(Default)` provides `defaultValue()`
 /// - `@derive(Serialize)` provides `toJSON()`
-/// - `@derive(Deserialize)` + `@serde({ validate: [...] })` provides `fromJSON()` with validation
+/// - `@derive(Deserialize)` + `@serde({ validate: [...] })` provides `fromStringifiedJSON()` with validation
 ///
 /// **Gigaform adds:**
 /// - `Errors` type (nested error structure)
 /// - `Tainted` type (nested boolean structure for dirty tracking)
+/// - `FieldController<T>` interface for individual field controllers
+/// - `Gigaform` interface for form instance
+/// - `createForm()` factory returning reactive Gigaform with field controllers
 /// - `fromFormData()` (FormData parsing with type coercion)
-/// - `fields.*` (field descriptors with get/set/validate/constraints)
-/// - Controller factory functions (merged from FieldController)
 ///
 /// # Example
 ///
@@ -107,25 +110,23 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
 /// // Generates namespace with:
 /// export namespace UserForm {
 ///   // Types
-///   export type Data = UserForm;
 ///   export type Errors = { _errors?: string[]; name?: string[]; email?: string[]; age?: string[] };
 ///   export type Tainted = { name?: boolean; email?: boolean; age?: boolean };
+///   export interface FieldController<T> { get(), set(), getError(), setError(), ... };
+///   export interface Gigaform { data, errors, tainted, fields, validate(), reset() };
 ///
-///   // FormData parsing (delegates to fromJSON for validation)
-///   export function fromFormData(fd: FormData): Result<Data, Errors>;
+///   // Factory function - creates reactive form instance
+///   export function createForm(overrides?: Partial<UserForm>): Gigaform;
 ///
-///   // Field descriptors with type-safe accessors
-///   export const fields = {
-///     name: { get, set, getError, setError, getTainted, setTainted, validate, constraints },
-///     email: { ... },
-///     age: { ... },
-///   };
-///
-///   // Controller factories
-///   export function nameController(form: SuperForm<UserForm>): TextFieldController<...>;
-///   export function emailController(form: SuperForm<UserForm>): EmailFieldController<...>;
-///   export function ageController(form: SuperForm<UserForm>): NumberFieldController<...>;
+///   // FormData parsing
+///   export function fromFormData(fd: FormData): Result<UserForm, Array<{ field: string; message: string }>>;
 /// }
+///
+/// // Usage in Svelte component:
+/// const form = UserForm.createForm();
+/// <TextField fieldController={form.fields.name} />
+/// <TextField fieldController={form.fields.email} />
+/// <button onclick={() => form.validate()}>Submit</button>
 /// ```
 ///
 /// # Container Options
@@ -134,11 +135,12 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
 ///
 /// ```typescript
 /// /** @derive(Gigaform) */
-/// /** @gigaform({ i18nPrefix: "userForm" }) */
+/// /** @gigaform({ i18nPrefix: "userForm", defaultOverride: "getFormDefaults" }) */
 /// export interface UserForm { ... }
 /// ```
 ///
 /// - `i18nPrefix`: Prefix for Paraglide message keys (e.g., `m.userForm_name_minLength()`)
+/// - `defaultOverride`: Function name that returns partial defaults to merge with `defaultValue()`
 ///
 /// # Field Options
 ///
@@ -158,7 +160,6 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     description = "Generates form namespace with types, validation, field descriptors, and controllers",
     attributes(
         gigaform,
-        serde,
         textController,
         textAreaController,
         numberController,

@@ -16,8 +16,8 @@ The `ts_template!` macro provides an intuitive, template-based way to generate T
 | ------------------------------------------ | ---------------------------------------------------------------------- |
 | `@{expr}`                                  | Interpolate a Rust expression (always adds space after)                |
 | `{\| content \|}`                          | Ident block: concatenates content without spaces (e.g., `{\|get@{name}\|}`→`getUser`) |
-| `{> comment <}`                            | Block comment: outputs `/* comment */`                                 |
-| `{>> doc <<}`                              | Doc comment: outputs `/** doc */` (for JSDoc)                          |
+| `{> "comment" <}`                          | Block comment: outputs `/* comment */` (string preserves whitespace)   |
+| `{>> "doc" <<}`                            | Doc comment: outputs `/** doc */` (string preserves whitespace)        |
 | `@@{`                                      | Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)                 |
 | `"text @{expr}"`                           | String interpolation (auto-detected)                                   |
 | `"'^template ${js}^'"`                     | JS backtick template literal (outputs `` `template ${js}` ``)          |
@@ -104,15 +104,15 @@ let action = "create";
 ts_template! { {|@{entity}_@{action}|} }  // → "user_create"
 ```
 
-### Comments: `{> ... <}` and `{>> ... <<}`
+### Comments: `{> "..." <}` and `{>> "..." <<}`
 
-Since Rust's tokenizer strips comments before macros see them, you can't write JSDoc comments directly. Instead, use the comment syntax to output JavaScript comments:
+Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve exact spacing in comments:
 
-**Block comments** with `{> comment <}`:
+**Block comments** with `{> "comment" <}`:
 
 ```rust
 let code = ts_template! {
-    {> This is a block comment <}
+    {> "This is a block comment" <}
     const x = 42;
 };
 ```
@@ -124,12 +124,12 @@ let code = ts_template! {
 const x = 42;
 ```
 
-**Doc comments (JSDoc)** with `{>> doc <<}`:
+**Doc comments (JSDoc)** with `{>> "doc" <<}`:
 
 ```rust
 let code = ts_template! {
-    {>> @param {string} name - The user's name <<}
-    {>> @returns {string} A greeting message <<}
+    {>> "@param {string} name - The user's name" <<}
+    {>> "@returns {string} A greeting message" <<}
     function greet(name: string): string {
         return "Hello, " + name;
     }
@@ -144,25 +144,6 @@ let code = ts_template! {
 function greet(name: string): string {
     return "Hello, " + name;
 }
-```
-
-Comments support interpolation with `@{expr}`:
-
-```rust
-let param_name = "userId";
-let param_type = "number";
-
-let code = ts_template! {
-    {>> @param {@{param_type}} @{param_name} - The user ID <<}
-    function getUser(userId: number) {}
-};
-```
-
-**Generates:**
-
-```typescript
-/** @param {number} userId - The user ID */
-function getUser(userId: number) {}
 ```
 
 ### String Interpolation: `"text @{expr}"`

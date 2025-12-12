@@ -1,6 +1,7 @@
 import { SerializeContext } from "macroforge/serde";
 import { Result } from "macroforge/result";
 import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
 import { PendingRef } from "macroforge/serde";
 /** import macro { JSON } from "@playground/macro"; */
@@ -73,14 +74,20 @@ export class MacroUser {
     this.apiToken = props.apiToken;
 }
 
-  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<MacroUser, string[]> {
+  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<MacroUser, Array<{
+    field: string;
+    message: string;
+}>> {
     try {
         const ctx = DeserializeContext.create();
         const raw = JSON.parse(json);
         const resultOrRef = MacroUser.__deserialize(raw, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
-                "MacroUser.fromStringifiedJSON: root cannot be a forward reference"
+                {
+                    field: "_root",
+                    message: "MacroUser.fromStringifiedJSON: root cannot be a forward reference"
+                }
             ]);
         }
         ctx.applyPatches();
@@ -89,8 +96,16 @@ export class MacroUser {
         }
         return Result.ok(resultOrRef);
     } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err(message.split("; "));
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
     }
 }
 
@@ -99,30 +114,56 @@ export class MacroUser {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        throw new Error("MacroUser.__deserialize: expected an object");
+        throw new DeserializeError([
+            {
+                field: "_root",
+                message: "MacroUser.__deserialize: expected an object"
+            }
+        ]);
     }
     const obj = value as Record<string, unknown>;
-    const errors: string[] = [];
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
     if (!("id" in obj)) {
-        errors.push("MacroUser.__deserialize: missing required field \"id\"");
+        errors.push({
+            field: "id",
+            message: "missing required field"
+        });
     }
     if (!("name" in obj)) {
-        errors.push("MacroUser.__deserialize: missing required field \"name\"");
+        errors.push({
+            field: "name",
+            message: "missing required field"
+        });
     }
     if (!("role" in obj)) {
-        errors.push("MacroUser.__deserialize: missing required field \"role\"");
+        errors.push({
+            field: "role",
+            message: "missing required field"
+        });
     }
     if (!("favoriteMacro" in obj)) {
-        errors.push("MacroUser.__deserialize: missing required field \"favoriteMacro\"");
+        errors.push({
+            field: "favoriteMacro",
+            message: "missing required field"
+        });
     }
     if (!("since" in obj)) {
-        errors.push("MacroUser.__deserialize: missing required field \"since\"");
+        errors.push({
+            field: "since",
+            message: "missing required field"
+        });
     }
     if (!("apiToken" in obj)) {
-        errors.push("MacroUser.__deserialize: missing required field \"apiToken\"");
+        errors.push({
+            field: "apiToken",
+            message: "missing required field"
+        });
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     const instance = Object.create(MacroUser.prototype) as MacroUser;
     if (obj.__id !== undefined) {
@@ -154,7 +195,7 @@ export class MacroUser {
         (instance as any).apiToken = __raw_apiToken;
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     return instance;
 }

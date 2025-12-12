@@ -3,8 +3,8 @@
 //! Provides a template syntax with interpolation and control flow:
 //! - `@{expr}` - Interpolate expressions (calls `.to_string()`)
 //! - `{| content |}` - Ident block: concatenates content without spaces (e.g., `{|get@{name}|}` → `getUser`)
-//! - `{> comment <}` - Block comment: outputs `/* comment */`
-//! - `{>> doc <<}` - Doc comment: outputs `/** doc */` (for JSDoc)
+//! - `{> "comment" <}` - Block comment: outputs `/* comment */` (string preserves whitespace)
+//! - `{>> "doc" <<}` - Doc comment: outputs `/** doc */` (string preserves whitespace)
 //! - `@@{` - Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)
 //! - `"string @{expr}"` - String interpolation (auto-detected)
 //! - `"'^template ${expr}^'"` - JS backtick template literal (outputs `` `template ${expr}` ``)
@@ -74,10 +74,10 @@ enum TagType {
     LetMut(TokenStream2),     // {$let mut name = expr}
     Do(TokenStream2),         // {$do expr} - side-effectful expression
     Typescript(TokenStream2), // {$typescript stream_expr} - inject TsStream with patches
-    IdentBlock,               // {| ... |} - identifier block with no internal spacing
-    BlockComment,             // {> ... <} - block comment /* ... */
-    DocComment,               // {>> ... <<} - doc comment /** ... */
-    Block,                    // Standard TypeScript Block { ... }
+    IdentBlock,                // {| ... |} - identifier block with no internal spacing
+    BlockComment(String),      // {> "string" <} - block comment /* string */
+    DocComment(String),        // {>> "string" <<} - doc comment /** string */
+    Block,                     // Standard TypeScript Block { ... }
 }
 
 fn analyze_tag(g: &Group) -> TagType {
@@ -93,8 +93,8 @@ fn analyze_tag(g: &Group) -> TagType {
         return TagType::IdentBlock;
     }
 
-    // Check for {>> ... <<} doc comment - must have at least >> and <<
-    if tokens.len() >= 4
+    // Check for {>> "string" <<} doc comment - must have >> string <<
+    if tokens.len() >= 5
         && let (Some(TokenTree::Punct(p1)), Some(TokenTree::Punct(p2))) =
             (tokens.first(), tokens.get(1))
         && p1.as_char() == '>'
@@ -104,17 +104,31 @@ fn analyze_tag(g: &Group) -> TagType {
         && p3.as_char() == '<'
         && p4.as_char() == '<'
     {
-        return TagType::DocComment;
+        // Extract the string literal in the middle
+        if let Some(TokenTree::Literal(lit)) = tokens.get(2) {
+            let content = extract_string_literal(lit);
+            return TagType::DocComment(content);
+        }
+        // Fallback: join remaining tokens as string (for backwards compat)
+        let content = tokens_to_spaced_string(&tokens[2..tokens.len() - 2]);
+        return TagType::DocComment(content);
     }
 
-    // Check for {> ... <} block comment - must have at least > and <
-    if tokens.len() >= 2
+    // Check for {> "string" <} block comment - must have > string <
+    if tokens.len() >= 3
         && let (Some(TokenTree::Punct(first)), Some(TokenTree::Punct(last))) =
             (tokens.first(), tokens.last())
         && first.as_char() == '>'
         && last.as_char() == '<'
     {
-        return TagType::BlockComment;
+        // Extract the string literal in the middle
+        if let Some(TokenTree::Literal(lit)) = tokens.get(1) {
+            let content = extract_string_literal(lit);
+            return TagType::BlockComment(content);
+        }
+        // Fallback: join remaining tokens as string (for backwards compat)
+        let content = tokens_to_spaced_string(&tokens[1..tokens.len() - 1]);
+        return TagType::BlockComment(content);
     }
 
     if tokens.len() < 2 {
@@ -782,44 +796,16 @@ fn parse_fragment(
                         }
                         // No space added after the block - that's the point
                     }
-                    TagType::BlockComment => {
-                        iter.next(); // Consume {> ... <}
-
-                        // Get the content between the > and < markers
-                        let inner_tokens: Vec<TokenTree> = g.stream().into_iter().collect();
-                        // Skip first > and last <, extract content in between
+                    TagType::BlockComment(content) => {
+                        iter.next(); // Consume {> "..." <}
                         output.extend(quote! { __out.push_str("/* "); });
-                        if inner_tokens.len() >= 2 {
-                            let content: TokenStream2 = inner_tokens[1..inner_tokens.len() - 1]
-                                .iter()
-                                .map(|t| t.to_token_stream())
-                                .collect();
-
-                            // Parse with no-spacing mode to handle @{} interpolation
-                            let inner_output =
-                                parse_fragment_no_spacing(&mut content.into_iter().peekable())?;
-                            output.extend(inner_output);
-                        }
+                        output.extend(quote! { __out.push_str(#content); });
                         output.extend(quote! { __out.push_str(" */"); });
                     }
-                    TagType::DocComment => {
-                        iter.next(); // Consume {>> ... <<}
-
-                        // Get the content between the >> and << markers
-                        let inner_tokens: Vec<TokenTree> = g.stream().into_iter().collect();
-                        // Skip first >> and last <<, extract content in between
+                    TagType::DocComment(content) => {
+                        iter.next(); // Consume {>> "..." <<}
                         output.extend(quote! { __out.push_str("/** "); });
-                        if inner_tokens.len() >= 4 {
-                            let content: TokenStream2 = inner_tokens[2..inner_tokens.len() - 2]
-                                .iter()
-                                .map(|t| t.to_token_stream())
-                                .collect();
-
-                            // Parse with no-spacing mode to handle @{} interpolation
-                            let inner_output =
-                                parse_fragment_no_spacing(&mut content.into_iter().peekable())?;
-                            output.extend(inner_output);
-                        }
+                        output.extend(quote! { __out.push_str(#content); });
                         output.extend(quote! { __out.push_str(" */"); });
                     }
                     TagType::Block => {
@@ -925,8 +911,9 @@ fn parse_fragment(
                         '.' => add_space = false,             // obj.prop
                         '!' => add_space = false,             // !unary or non-null!
                         '(' | '[' | '{' => add_space = false, // Openers: (expr)
-                        '<' => add_space = false,             // Generics: Type<T>, or x<y (compact)
+                        '<' | '>' => add_space = false,       // Generics: Type<T> or T>(...) (compact)
                         '@' => add_space = false,             // Decorator: @Dec
+                        '$' => add_space = false,             // Svelte runes: $state, $derived
                         _ => {}
                     }
 
@@ -950,6 +937,65 @@ fn parse_fragment(
     }
 
     Ok((output, None))
+}
+
+/// Converts a slice of tokens to a string with spaces between tokens.
+/// This preserves the logical structure while adding consistent spacing.
+fn tokens_to_spaced_string(tokens: &[TokenTree]) -> String {
+    let mut result = String::new();
+    for (i, token) in tokens.iter().enumerate() {
+        if i > 0 {
+            result.push(' ');
+        }
+        result.push_str(&token.to_string());
+    }
+    result
+}
+
+/// Extracts the content from a string literal token, removing quotes.
+fn extract_string_literal(lit: &proc_macro2::Literal) -> String {
+    let s = lit.to_string();
+    // Handle regular strings "..."
+    if s.starts_with('"') && s.ends_with('"') && s.len() >= 2 {
+        // Unescape the string content
+        let inner = &s[1..s.len() - 1];
+        return unescape_string(inner);
+    }
+    // Handle raw strings r"..." or r#"..."#
+    if s.starts_with("r\"") && s.ends_with('"') {
+        return s[2..s.len() - 1].to_string();
+    }
+    if s.starts_with("r#\"") && s.ends_with("\"#") {
+        return s[3..s.len() - 2].to_string();
+    }
+    // Fallback: return as-is
+    s
+}
+
+/// Unescape common escape sequences in a string.
+fn unescape_string(s: &str) -> String {
+    let mut result = String::new();
+    let mut chars = s.chars().peekable();
+    while let Some(c) = chars.next() {
+        if c == '\\' {
+            match chars.next() {
+                Some('n') => result.push('\n'),
+                Some('r') => result.push('\r'),
+                Some('t') => result.push('\t'),
+                Some('\\') => result.push('\\'),
+                Some('"') => result.push('"'),
+                Some('\'') => result.push('\''),
+                Some(other) => {
+                    result.push('\\');
+                    result.push(other);
+                }
+                None => result.push('\\'),
+            }
+        } else {
+            result.push(c);
+        }
+    }
+    result
 }
 
 /// Check if a literal is a string (starts with " or ')

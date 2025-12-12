@@ -1,30 +1,75 @@
-//! Generates type definitions for Gigaform: Data, Errors, and Tainted types.
+//! Generates type definitions for Gigaform: Errors, Tainted, and Gigaform<T> types.
 
 use macroforge_ts::macros::ts_template;
 use macroforge_ts::ts_syn::TsStream;
 
 use crate::gigaform::parser::ParsedField;
 
-/// Generates the Data, Errors, and Tainted type definitions.
+/// Generates the Errors, Tainted, and Gigaform<T> type definitions.
 pub fn generate(interface_name: &str, fields: &[ParsedField]) -> TsStream {
     let errors_fields = generate_errors_fields(fields);
     let tainted_fields = generate_tainted_fields(fields);
+    let field_controller_types = generate_field_controller_types(fields);
 
     ts_template! {
-        // Re-export the interface as the Data type
-        export type Data = @{interface_name};
-
-        // Nested error structure matching the data shape
+        {>> "Nested error structure matching the data shape" <<}
         export type Errors = {
             _errors?: Array<string>;
             @{errors_fields}
         };
 
-        // Nested boolean structure for tracking touched/dirty fields
+        {>> "Nested boolean structure for tracking touched/dirty fields" <<}
         export type Tainted = {
             @{tainted_fields}
         };
+
+        {>> "Field controller interface for a single field" <<}
+        export interface FieldController<T> {
+            readonly path: ReadonlyArray<string | number>;
+            readonly name: string;
+            readonly constraints: Record<string, unknown>;
+            readonly label?: string;
+            readonly description?: string;
+            readonly placeholder?: string;
+            readonly disabled?: boolean;
+            readonly readonly?: boolean;
+            get(): T;
+            set(value: T): void;
+            getError(): Array<string> | undefined;
+            setError(value: Array<string> | undefined): void;
+            getTainted(): boolean;
+            setTainted(value: boolean): void;
+            validate(): Array<string>;
+        }
+
+        {>> "Type-safe field controllers for this form" <<}
+        export interface FieldControllers {
+            @{field_controller_types}
+        }
+
+        {>> "Gigaform instance containing reactive state and field controllers" <<}
+        export interface Gigaform {
+            readonly data: @{interface_name};
+            readonly errors: Errors;
+            readonly tainted: Tainted;
+            readonly fields: FieldControllers;
+            validate(): Result<@{interface_name}, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<@{interface_name}>): void;
+        }
     }
+}
+
+/// Generates the FieldControllers type entries.
+fn generate_field_controller_types(fields: &[ParsedField]) -> String {
+    fields
+        .iter()
+        .map(|field| {
+            let name = &field.name;
+            let ts_type = &field.ts_type;
+            format!("readonly {name}: FieldController<{ts_type}>;")
+        })
+        .collect::<Vec<_>>()
+        .join("\n            ")
 }
 
 /// Generates the Errors type fields.

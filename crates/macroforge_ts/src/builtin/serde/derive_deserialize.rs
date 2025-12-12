@@ -194,11 +194,12 @@ fn get_validator_message(validator: &Validator) -> String {
 }
 
 /// Generate validation code snippet for a field
+/// Generates code that pushes `{ field: string, message: string }` objects to the errors array
 fn generate_field_validations(
     validators: &[ValidatorSpec],
     value_var: &str,
     json_key: &str,
-    class_name: &str,
+    _class_name: &str,
 ) -> String {
     let mut code = String::new();
 
@@ -208,15 +209,13 @@ fn generate_field_validations(
             .clone()
             .unwrap_or_else(|| get_validator_message(&spec.validator));
 
-        let error_msg = format!("{class_name}.fromStringifiedJSON: field '{json_key}' {message}");
-
         if let Validator::Custom(fn_name) = &spec.validator {
             code.push_str(&format!(
                 r#"
                 {{
                     const __customResult = {fn_name}({value_var});
                     if (__customResult === false) {{
-                        errors.push("{error_msg}");
+                        errors.push({{ field: "{json_key}", message: "{message}" }});
                     }}
                 }}
 "#
@@ -226,7 +225,7 @@ fn generate_field_validations(
             code.push_str(&format!(
                 r#"
                 if ({condition}) {{
-                    errors.push("{error_msg}");
+                    errors.push({{ field: "{json_key}", message: "{message}" }});
                 }}
 "#
             ));
@@ -330,14 +329,14 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     {/for}
                 }
 
-                static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{class_name}, string[]> {
+                static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{class_name}, Array<{ field: string; message: string }>> {
                     try {
                         const ctx = DeserializeContext.create();
                         const raw = JSON.parse(json);
                         const resultOrRef = @{class_name}.__deserialize(raw, ctx);
 
                         if (PendingRef.is(resultOrRef)) {
-                            return Result.err(["@{class_name}.fromStringifiedJSON: root cannot be a forward reference"]);
+                            return Result.err([{ field: "_root", message: "@{class_name}.fromStringifiedJSON: root cannot be a forward reference" }]);
                         }
 
                         ctx.applyPatches();
@@ -347,8 +346,11 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                         return Result.ok(resultOrRef);
                     } catch (e) {
+                        if (e instanceof DeserializeError) {
+                            return Result.err(e.errors);
+                        }
                         const message = e instanceof Error ? e.message : String(e);
-                        return Result.err(message.split("; "));
+                        return Result.err([{ field: "_root", message }]);
                     }
                 }
 
@@ -359,17 +361,17 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     }
 
                     if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                        throw new Error("@{class_name}.__deserialize: expected an object");
+                        throw new DeserializeError([{ field: "_root", message: "@{class_name}.__deserialize: expected an object" }]);
                     }
 
                     const obj = value as Record<string, unknown>;
-                    const errors: string[] = [];
+                    const errors: Array<{ field: string; message: string }> = [];
 
                     {#if deny_unknown}
                         const knownKeys = new Set(["__type", "__id", "__ref", {#for key in known_keys}"@{key}", {/for}]);
                         for (const key of Object.keys(obj)) {
                             if (!knownKeys.has(key)) {
-                                errors.push("@{class_name}.__deserialize: unknown field \"" + key + "\"");
+                                errors.push({ field: key, message: "unknown field" });
                             }
                         }
                     {/if}
@@ -377,13 +379,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     {#if has_required}
                         {#for field in &required_fields}
                             if (!("@{field.json_key}" in obj)) {
-                                errors.push("@{class_name}.__deserialize: missing required field \"@{field.json_key}\"");
+                                errors.push({ field: "@{field.json_key}", message: "missing required field" });
                             }
                         {/for}
                     {/if}
 
                     if (errors.length > 0) {
-                        throw new Error(errors.join("; "));
+                        throw new DeserializeError(errors);
                     }
 
                     // Create instance using Object.create to avoid constructor
@@ -591,7 +593,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     {/if}
 
                     if (errors.length > 0) {
-                        throw new Error(errors.join("; "));
+                        throw new DeserializeError(errors);
                     }
 
                     return instance;
@@ -599,6 +601,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             };
             result.add_import("Result", "macroforge/result");
             result.add_import("DeserializeContext", "macroforge/serde");
+            result.add_import("DeserializeError", "macroforge/serde");
             result.add_type_import("DeserializeOptions", "macroforge/serde");
             result.add_import("PendingRef", "macroforge/serde");
             Ok(result)
@@ -680,14 +683,14 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
             let mut result = ts_template! {
                 export namespace @{interface_name} {
-                    export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{interface_name}, string[]> {
+                    export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{interface_name}, Array<{ field: string; message: string }>> {
                         try {
                             const ctx = DeserializeContext.create();
                             const raw = JSON.parse(json);
                             const resultOrRef = __deserialize(raw, ctx);
 
                             if (PendingRef.is(resultOrRef)) {
-                                return Result.err(["@{interface_name}.fromStringifiedJSON: root cannot be a forward reference"]);
+                                return Result.err([{ field: "_root", message: "@{interface_name}.fromStringifiedJSON: root cannot be a forward reference" }]);
                             }
 
                             ctx.applyPatches();
@@ -697,8 +700,11 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                             return Result.ok(resultOrRef);
                         } catch (e) {
+                            if (e instanceof DeserializeError) {
+                                return Result.err(e.errors);
+                            }
                             const message = e instanceof Error ? e.message : String(e);
-                            return Result.err(message.split("; "));
+                            return Result.err([{ field: "_root", message }]);
                         }
                     }
 
@@ -708,17 +714,17 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         }
 
                         if (typeof value !== "object" || value === null || Array.isArray(value)) {
-                            throw new Error("@{interface_name}.__deserialize: expected an object");
+                            throw new DeserializeError([{ field: "_root", message: "@{interface_name}.__deserialize: expected an object" }]);
                         }
 
                         const obj = value as Record<string, unknown>;
-                        const errors: string[] = [];
+                        const errors: Array<{ field: string; message: string }> = [];
 
                         {#if deny_unknown}
                             const knownKeys = new Set(["__type", "__id", "__ref", {#for key in known_keys}"@{key}", {/for}]);
                             for (const key of Object.keys(obj)) {
                                 if (!knownKeys.has(key)) {
-                                    errors.push("@{interface_name}.__deserialize: unknown field \"" + key + "\"");
+                                    errors.push({ field: key, message: "unknown field" });
                                 }
                             }
                         {/if}
@@ -726,13 +732,13 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         {#if has_required}
                             {#for field in &required_fields}
                                 if (!("@{field.json_key}" in obj)) {
-                                    errors.push("@{interface_name}.__deserialize: missing required field \"@{field.json_key}\"");
+                                    errors.push({ field: "@{field.json_key}", message: "missing required field" });
                                 }
                             {/for}
                         {/if}
 
                         if (errors.length > 0) {
-                            throw new Error(errors.join("; "));
+                            throw new DeserializeError(errors);
                         }
 
                         const instance: any = {};
@@ -810,7 +816,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         {/if}
 
                         if (errors.length > 0) {
-                            throw new Error(errors.join("; "));
+                            throw new DeserializeError(errors);
                         }
 
                         return instance as @{interface_name};
@@ -819,6 +825,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             };
             result.add_import("Result", "macroforge/result");
             result.add_import("DeserializeContext", "macroforge/serde");
+            result.add_import("DeserializeError", "macroforge/serde");
             result.add_type_import("DeserializeOptions", "macroforge/serde");
             result.add_import("PendingRef", "macroforge/serde");
             Ok(result)

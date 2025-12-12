@@ -1,6 +1,7 @@
 import { SerializeContext } from "macroforge/serde";
 import { Result } from "macroforge/result";
 import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
 import { PendingRef } from "macroforge/serde";
 /**
@@ -99,14 +100,20 @@ export class AllMacrosTestClass {
     this.score = props.score;
 }
 
-  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<AllMacrosTestClass, string[]> {
+  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<AllMacrosTestClass, Array<{
+    field: string;
+    message: string;
+}>> {
     try {
         const ctx = DeserializeContext.create();
         const raw = JSON.parse(json);
         const resultOrRef = AllMacrosTestClass.__deserialize(raw, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
-                "AllMacrosTestClass.fromStringifiedJSON: root cannot be a forward reference"
+                {
+                    field: "_root",
+                    message: "AllMacrosTestClass.fromStringifiedJSON: root cannot be a forward reference"
+                }
             ]);
         }
         ctx.applyPatches();
@@ -115,8 +122,16 @@ export class AllMacrosTestClass {
         }
         return Result.ok(resultOrRef);
     } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err(message.split("; "));
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
     }
 }
 
@@ -125,30 +140,56 @@ export class AllMacrosTestClass {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        throw new Error("AllMacrosTestClass.__deserialize: expected an object");
+        throw new DeserializeError([
+            {
+                field: "_root",
+                message: "AllMacrosTestClass.__deserialize: expected an object"
+            }
+        ]);
     }
     const obj = value as Record<string, unknown>;
-    const errors: string[] = [];
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
     if (!("id" in obj)) {
-        errors.push("AllMacrosTestClass.__deserialize: missing required field \"id\"");
+        errors.push({
+            field: "id",
+            message: "missing required field"
+        });
     }
     if (!("name" in obj)) {
-        errors.push("AllMacrosTestClass.__deserialize: missing required field \"name\"");
+        errors.push({
+            field: "name",
+            message: "missing required field"
+        });
     }
     if (!("email" in obj)) {
-        errors.push("AllMacrosTestClass.__deserialize: missing required field \"email\"");
+        errors.push({
+            field: "email",
+            message: "missing required field"
+        });
     }
     if (!("secretToken" in obj)) {
-        errors.push("AllMacrosTestClass.__deserialize: missing required field \"secretToken\"");
+        errors.push({
+            field: "secretToken",
+            message: "missing required field"
+        });
     }
     if (!("isActive" in obj)) {
-        errors.push("AllMacrosTestClass.__deserialize: missing required field \"isActive\"");
+        errors.push({
+            field: "isActive",
+            message: "missing required field"
+        });
     }
     if (!("score" in obj)) {
-        errors.push("AllMacrosTestClass.__deserialize: missing required field \"score\"");
+        errors.push({
+            field: "score",
+            message: "missing required field"
+        });
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     const instance = Object.create(AllMacrosTestClass.prototype) as AllMacrosTestClass;
     if (obj.__id !== undefined) {
@@ -180,7 +221,7 @@ export class AllMacrosTestClass {
         (instance as any).score = __raw_score;
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     return instance;
 }

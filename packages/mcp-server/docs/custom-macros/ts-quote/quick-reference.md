@@ -6,11 +6,11 @@
 | `&#123;| content |&#125;` 
 | Ident block: concatenates without spaces (e.g., `&#123;|get@&#123;name&#125;|&#125;` → `getUser`) 
 
-| `&#123;> comment <&#125;` 
-| Block comment: outputs `/* comment */` 
+| `&#123;> "comment" <&#125;`
+| Block comment: outputs `/* comment */` (string preserves whitespace)
 
-| `&#123;>> doc <<&#125;` 
-| Doc comment: outputs `/** doc */` (for JSDoc) 
+| `&#123;>> "doc" <<&#125;`
+| Doc comment: outputs `/** doc */` (string preserves whitespace) 
 
 | `@@&#123;` 
 | Escape for literal `@&#123;` (e.g., `"@@&#123;foo&#125;"` → `@&#123;foo&#125;`) 

@@ -22,12 +22,31 @@ const roots = [
 ];
 
 function isSourceFile(file) {
-  return file.endsWith(".ts") && !file.endsWith(".expanded.ts");
+  // Must end with .ts and not contain .expanded. anywhere in the filename
+  return file.endsWith(".ts") && !file.includes(".expanded.");
+}
+
+function getExpandedPath(file) {
+  // Handle files with multiple extensions like .svelte.ts
+  // Insert .expanded as the first extension: foo.svelte.ts -> foo.expanded.svelte.ts
+  const dir = path.dirname(file);
+  const basename = path.basename(file);
+
+  // Find where extensions start (first dot after the base name)
+  const firstDotIndex = basename.indexOf(".");
+  if (firstDotIndex === -1) {
+    // No extension, just append .expanded
+    return path.join(dir, basename + ".expanded");
+  }
+
+  const nameWithoutExt = basename.slice(0, firstDotIndex);
+  const extensions = basename.slice(firstDotIndex);
+  return path.join(dir, nameWithoutExt + ".expanded" + extensions);
 }
 
 function expandFile(file) {
   const code = fs.readFileSync(file, "utf8");
-  const outPath = file.replace(/\.ts$/, ".expanded.ts");
+  const outPath = getExpandedPath(file);
   try {
     const res = expandSync(code, file, { keepDecorators: false });
     fs.writeFileSync(outPath, res.code);

@@ -9,6 +9,8 @@ use serde::Deserialize;
 pub struct GigaformOptions {
     /// i18n key prefix for error messages (e.g., "userForm" -> m.userForm_name_required())
     pub i18n_prefix: Option<String>,
+    /// Optional function name to call for default overrides (e.g., "getCustomDefaults")
+    pub default_override: Option<String>,
 }
 
 impl GigaformOptions {

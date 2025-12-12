@@ -1,5 +1,6 @@
 import { Result } from "macroforge/result";
 import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
 import { PendingRef } from "macroforge/serde";
 /**
@@ -38,14 +39,20 @@ export class UserRegistrationForm {
     this.website = props.website;
 }
 
-  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<UserRegistrationForm, string[]> {
+  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<UserRegistrationForm, Array<{
+    field: string;
+    message: string;
+}>> {
     try {
         const ctx = DeserializeContext.create();
         const raw = JSON.parse(json);
         const resultOrRef = UserRegistrationForm.__deserialize(raw, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
-                "UserRegistrationForm.fromStringifiedJSON: root cannot be a forward reference"
+                {
+                    field: "_root",
+                    message: "UserRegistrationForm.fromStringifiedJSON: root cannot be a forward reference"
+                }
             ]);
         }
         ctx.applyPatches();
@@ -54,8 +61,16 @@ export class UserRegistrationForm {
         }
         return Result.ok(resultOrRef);
     } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err(message.split("; "));
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
     }
 }
 
@@ -64,27 +79,50 @@ export class UserRegistrationForm {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        throw new Error("UserRegistrationForm.__deserialize: expected an object");
+        throw new DeserializeError([
+            {
+                field: "_root",
+                message: "UserRegistrationForm.__deserialize: expected an object"
+            }
+        ]);
     }
     const obj = value as Record<string, unknown>;
-    const errors: string[] = [];
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
     if (!("email" in obj)) {
-        errors.push("UserRegistrationForm.__deserialize: missing required field \"email\"");
+        errors.push({
+            field: "email",
+            message: "missing required field"
+        });
     }
     if (!("password" in obj)) {
-        errors.push("UserRegistrationForm.__deserialize: missing required field \"password\"");
+        errors.push({
+            field: "password",
+            message: "missing required field"
+        });
     }
     if (!("username" in obj)) {
-        errors.push("UserRegistrationForm.__deserialize: missing required field \"username\"");
+        errors.push({
+            field: "username",
+            message: "missing required field"
+        });
     }
     if (!("age" in obj)) {
-        errors.push("UserRegistrationForm.__deserialize: missing required field \"age\"");
+        errors.push({
+            field: "age",
+            message: "missing required field"
+        });
     }
     if (!("website" in obj)) {
-        errors.push("UserRegistrationForm.__deserialize: missing required field \"website\"");
+        errors.push({
+            field: "website",
+            message: "missing required field"
+        });
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     const instance = Object.create(UserRegistrationForm.prototype) as UserRegistrationForm;
     if (obj.__id !== undefined) {
@@ -94,43 +132,70 @@ export class UserRegistrationForm {
     {
         const __raw_email = obj["email"];
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) {
-            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'email' must be a valid email");
+            errors.push({
+                field: "email",
+                message: "must be a valid email"
+            });
         }
         (instance as any).email = __raw_email;
     }
     {
         const __raw_password = obj["password"];
         if (__raw_password.length < 8) {
-            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'password' must have at least 8 characters");
+            errors.push({
+                field: "password",
+                message: "must have at least 8 characters"
+            });
         }
         if (__raw_password.length > 50) {
-            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'password' must have at most 50 characters");
+            errors.push({
+                field: "password",
+                message: "must have at most 50 characters"
+            });
         }
         (instance as any).password = __raw_password;
     }
     {
         const __raw_username = obj["username"];
         if (__raw_username.length < 3) {
-            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'username' must have at least 3 characters");
+            errors.push({
+                field: "username",
+                message: "must have at least 3 characters"
+            });
         }
         if (__raw_username.length > 20) {
-            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'username' must have at most 20 characters");
+            errors.push({
+                field: "username",
+                message: "must have at most 20 characters"
+            });
         }
         if (__raw_username !== __raw_username.toLowerCase()) {
-            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'username' must be lowercase");
+            errors.push({
+                field: "username",
+                message: "must be lowercase"
+            });
         }
         if (!/^[a-z][a-z0-9_]+$/.test(__raw_username)) {
-            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'username' must match the required pattern");
+            errors.push({
+                field: "username",
+                message: "must match the required pattern"
+            });
         }
         (instance as any).username = __raw_username;
     }
     {
         const __raw_age = obj["age"];
         if (!Number.isInteger(__raw_age)) {
-            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'age' must be an integer");
+            errors.push({
+                field: "age",
+                message: "must be an integer"
+            });
         }
         if (__raw_age < 18 || __raw_age > 120) {
-            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'age' must be between 18 and 120");
+            errors.push({
+                field: "age",
+                message: "must be between 18 and 120"
+            });
         }
         (instance as any).age = __raw_age;
     }
@@ -144,12 +209,15 @@ export class UserRegistrationForm {
                 return true;
             }
         })()) {
-            errors.push("UserRegistrationForm.fromStringifiedJSON: field 'website' must be a valid URL");
+            errors.push({
+                field: "website",
+                message: "must be a valid URL"
+            });
         }
         (instance as any).website = __raw_website;
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     return instance;
 }
@@ -186,14 +254,20 @@ export class ProductForm {
     this.sku = props.sku;
 }
 
-  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<ProductForm, string[]> {
+  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<ProductForm, Array<{
+    field: string;
+    message: string;
+}>> {
     try {
         const ctx = DeserializeContext.create();
         const raw = JSON.parse(json);
         const resultOrRef = ProductForm.__deserialize(raw, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
-                "ProductForm.fromStringifiedJSON: root cannot be a forward reference"
+                {
+                    field: "_root",
+                    message: "ProductForm.fromStringifiedJSON: root cannot be a forward reference"
+                }
             ]);
         }
         ctx.applyPatches();
@@ -202,8 +276,16 @@ export class ProductForm {
         }
         return Result.ok(resultOrRef);
     } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err(message.split("; "));
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
     }
 }
 
@@ -212,27 +294,50 @@ export class ProductForm {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        throw new Error("ProductForm.__deserialize: expected an object");
+        throw new DeserializeError([
+            {
+                field: "_root",
+                message: "ProductForm.__deserialize: expected an object"
+            }
+        ]);
     }
     const obj = value as Record<string, unknown>;
-    const errors: string[] = [];
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
     if (!("name" in obj)) {
-        errors.push("ProductForm.__deserialize: missing required field \"name\"");
+        errors.push({
+            field: "name",
+            message: "missing required field"
+        });
     }
     if (!("price" in obj)) {
-        errors.push("ProductForm.__deserialize: missing required field \"price\"");
+        errors.push({
+            field: "price",
+            message: "missing required field"
+        });
     }
     if (!("quantity" in obj)) {
-        errors.push("ProductForm.__deserialize: missing required field \"quantity\"");
+        errors.push({
+            field: "quantity",
+            message: "missing required field"
+        });
     }
     if (!("tags" in obj)) {
-        errors.push("ProductForm.__deserialize: missing required field \"tags\"");
+        errors.push({
+            field: "tags",
+            message: "missing required field"
+        });
     }
     if (!("sku" in obj)) {
-        errors.push("ProductForm.__deserialize: missing required field \"sku\"");
+        errors.push({
+            field: "sku",
+            message: "missing required field"
+        });
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     const instance = Object.create(ProductForm.prototype) as ProductForm;
     if (obj.__id !== undefined) {
@@ -242,30 +347,48 @@ export class ProductForm {
     {
         const __raw_name = obj["name"];
         if (__raw_name.length === 0) {
-            errors.push("ProductForm.fromStringifiedJSON: field 'name' must not be empty");
+            errors.push({
+                field: "name",
+                message: "must not be empty"
+            });
         }
         if (__raw_name.length > 100) {
-            errors.push("ProductForm.fromStringifiedJSON: field 'name' must have at most 100 characters");
+            errors.push({
+                field: "name",
+                message: "must have at most 100 characters"
+            });
         }
         (instance as any).name = __raw_name;
     }
     {
         const __raw_price = obj["price"];
         if (__raw_price <= 0) {
-            errors.push("ProductForm.fromStringifiedJSON: field 'price' must be positive");
+            errors.push({
+                field: "price",
+                message: "must be positive"
+            });
         }
         if (__raw_price >= 1000000) {
-            errors.push("ProductForm.fromStringifiedJSON: field 'price' must be less than 1000000");
+            errors.push({
+                field: "price",
+                message: "must be less than 1000000"
+            });
         }
         (instance as any).price = __raw_price;
     }
     {
         const __raw_quantity = obj["quantity"];
         if (!Number.isInteger(__raw_quantity)) {
-            errors.push("ProductForm.fromStringifiedJSON: field 'quantity' must be an integer");
+            errors.push({
+                field: "quantity",
+                message: "must be an integer"
+            });
         }
         if (__raw_quantity < 0) {
-            errors.push("ProductForm.fromStringifiedJSON: field 'quantity' must be non-negative");
+            errors.push({
+                field: "quantity",
+                message: "must be non-negative"
+            });
         }
         (instance as any).quantity = __raw_quantity;
     }
@@ -273,10 +396,16 @@ export class ProductForm {
         const __raw_tags = obj["tags"];
         if (Array.isArray(__raw_tags)) {
             if (__raw_tags.length < 1) {
-                errors.push("ProductForm.fromStringifiedJSON: field 'tags' must have at least 1 items");
+                errors.push({
+                    field: "tags",
+                    message: "must have at least 1 items"
+                });
             }
             if (__raw_tags.length > 5) {
-                errors.push("ProductForm.fromStringifiedJSON: field 'tags' must have at most 5 items");
+                errors.push({
+                    field: "tags",
+                    message: "must have at most 5 items"
+                });
             }
             const __arr = (__raw_tags as any[]).map((item, idx)=>{
                 if (item?.__ref !== undefined) {
@@ -302,12 +431,15 @@ export class ProductForm {
     {
         const __raw_sku = obj["sku"];
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(__raw_sku)) {
-            errors.push("ProductForm.fromStringifiedJSON: field 'sku' must be a valid UUID");
+            errors.push({
+                field: "sku",
+                message: "must be a valid UUID"
+            });
         }
         (instance as any).sku = __raw_sku;
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     return instance;
 }
@@ -339,14 +471,20 @@ export class EventForm {
     this.maxAttendees = props.maxAttendees;
 }
 
-  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<EventForm, string[]> {
+  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<EventForm, Array<{
+    field: string;
+    message: string;
+}>> {
     try {
         const ctx = DeserializeContext.create();
         const raw = JSON.parse(json);
         const resultOrRef = EventForm.__deserialize(raw, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
-                "EventForm.fromStringifiedJSON: root cannot be a forward reference"
+                {
+                    field: "_root",
+                    message: "EventForm.fromStringifiedJSON: root cannot be a forward reference"
+                }
             ]);
         }
         ctx.applyPatches();
@@ -355,8 +493,16 @@ export class EventForm {
         }
         return Result.ok(resultOrRef);
     } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err(message.split("; "));
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
     }
 }
 
@@ -365,24 +511,44 @@ export class EventForm {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        throw new Error("EventForm.__deserialize: expected an object");
+        throw new DeserializeError([
+            {
+                field: "_root",
+                message: "EventForm.__deserialize: expected an object"
+            }
+        ]);
     }
     const obj = value as Record<string, unknown>;
-    const errors: string[] = [];
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
     if (!("title" in obj)) {
-        errors.push("EventForm.__deserialize: missing required field \"title\"");
+        errors.push({
+            field: "title",
+            message: "missing required field"
+        });
     }
     if (!("startDate" in obj)) {
-        errors.push("EventForm.__deserialize: missing required field \"startDate\"");
+        errors.push({
+            field: "startDate",
+            message: "missing required field"
+        });
     }
     if (!("endDate" in obj)) {
-        errors.push("EventForm.__deserialize: missing required field \"endDate\"");
+        errors.push({
+            field: "endDate",
+            message: "missing required field"
+        });
     }
     if (!("maxAttendees" in obj)) {
-        errors.push("EventForm.__deserialize: missing required field \"maxAttendees\"");
+        errors.push({
+            field: "maxAttendees",
+            message: "missing required field"
+        });
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     const instance = Object.create(EventForm.prototype) as EventForm;
     if (obj.__id !== undefined) {
@@ -392,10 +558,16 @@ export class EventForm {
     {
         const __raw_title = obj["title"];
         if (__raw_title.length === 0) {
-            errors.push("EventForm.fromStringifiedJSON: field 'title' must not be empty");
+            errors.push({
+                field: "title",
+                message: "must not be empty"
+            });
         }
         if (__raw_title !== __raw_title.trim()) {
-            errors.push("EventForm.fromStringifiedJSON: field 'title' must be trimmed (no leading/trailing whitespace)");
+            errors.push({
+                field: "title",
+                message: "must be trimmed (no leading/trailing whitespace)"
+            });
         }
         (instance as any).title = __raw_title;
     }
@@ -404,10 +576,16 @@ export class EventForm {
         {
             const __dateVal = typeof __raw_startDate === "string" ? new Date(__raw_startDate) : __raw_startDate as Date;
             if (__dateVal == null || isNaN(__dateVal.getTime())) {
-                errors.push("EventForm.fromStringifiedJSON: field 'startDate' must be a valid date");
+                errors.push({
+                    field: "startDate",
+                    message: "must be a valid date"
+                });
             }
             if (__dateVal == null || __dateVal.getTime() <= new Date("2020-01-01").getTime()) {
-                errors.push("EventForm.fromStringifiedJSON: field 'startDate' must be after 2020-01-01");
+                errors.push({
+                    field: "startDate",
+                    message: "must be after 2020-01-01"
+                });
             }
             (instance as any).startDate = __dateVal;
         }
@@ -417,7 +595,10 @@ export class EventForm {
         {
             const __dateVal = typeof __raw_endDate === "string" ? new Date(__raw_endDate) : __raw_endDate as Date;
             if (__dateVal == null || isNaN(__dateVal.getTime())) {
-                errors.push("EventForm.fromStringifiedJSON: field 'endDate' must be a valid date");
+                errors.push({
+                    field: "endDate",
+                    message: "must be a valid date"
+                });
             }
             (instance as any).endDate = __dateVal;
         }
@@ -425,15 +606,21 @@ export class EventForm {
     {
         const __raw_maxAttendees = obj["maxAttendees"];
         if (!Number.isInteger(__raw_maxAttendees)) {
-            errors.push("EventForm.fromStringifiedJSON: field 'maxAttendees' must be an integer");
+            errors.push({
+                field: "maxAttendees",
+                message: "must be an integer"
+            });
         }
         if (__raw_maxAttendees < 1 || __raw_maxAttendees > 1000) {
-            errors.push("EventForm.fromStringifiedJSON: field 'maxAttendees' must be between 1 and 1000");
+            errors.push({
+                field: "maxAttendees",
+                message: "must be between 1 and 1000"
+            });
         }
         (instance as any).maxAttendees = __raw_maxAttendees;
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     return instance;
 }

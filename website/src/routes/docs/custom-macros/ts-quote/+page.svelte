@@ -56,12 +56,12 @@
 			<td>Ident block: concatenates without spaces (e.g., <code>&#123;|get@&#123;name&#125;|&#125;</code> → <code>getUser</code>)</td>
 		</tr>
 		<tr>
-			<td><code>&#123;&gt; comment &lt;&#125;</code></td>
-			<td>Block comment: outputs <code>/* comment */</code></td>
+			<td><code>&#123;&gt; "comment" &lt;&#125;</code></td>
+			<td>Block comment: outputs <code>/* comment */</code> (string preserves whitespace)</td>
 		</tr>
 		<tr>
-			<td><code>&#123;&gt;&gt; doc &lt;&lt;&#125;</code></td>
-			<td>Doc comment: outputs <code>/** doc */</code> (for JSDoc)</td>
+			<td><code>&#123;&gt;&gt; "doc" &lt;&lt;&#125;</code></td>
+			<td>Doc comment: outputs <code>/** doc */</code> (string preserves whitespace)</td>
 		</tr>
 		<tr>
 			<td><code>@@&#123;</code></td>
@@ -182,16 +182,16 @@ let action = "create";
 
 ts_template! { {|@{entity}_@{action}|} }  // → "user_create"`} lang="rust" />
 
-<h2 id="comments">Comments: <code>&#123;&gt; ... &lt;&#125;</code> and <code>&#123;&gt;&gt; ... &lt;&lt;&#125;</code></h2>
+<h2 id="comments">Comments: <code>&#123;&gt; "..." &lt;&#125;</code> and <code>&#123;&gt;&gt; "..." &lt;&lt;&#125;</code></h2>
 
-<p>Since Rust's tokenizer strips comments before macros see them, you can't write JSDoc comments directly. Instead, use the comment syntax to output JavaScript comments:</p>
+<p>Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve exact spacing in comments:</p>
 
 <h3>Block Comments</h3>
 
-<p>Use <code>&#123;&gt; comment &lt;&#125;</code> for block comments:</p>
+<p>Use <code>&#123;&gt; "comment" &lt;&#125;</code> for block comments:</p>
 
 <CodeBlock code={`let code = ts_template! {
-    {> This is a block comment <}
+    {> "This is a block comment" <}
     const x = 42;
 };`} lang="rust" />
 
@@ -202,11 +202,11 @@ const x = 42;`} lang="typescript" />
 
 <h3>Doc Comments (JSDoc)</h3>
 
-<p>Use <code>&#123;&gt;&gt; doc &lt;&lt;&#125;</code> for JSDoc comments:</p>
+<p>Use <code>&#123;&gt;&gt; "doc" &lt;&lt;&#125;</code> for JSDoc comments:</p>
 
 <CodeBlock code={`let code = ts_template! {
-    {>> @param {string} name - The user's name <<}
-    {>> @returns {string} A greeting message <<}
+    {>> "@param {string} name - The user's name" <<}
+    {>> "@returns {string} A greeting message" <<}
     function greet(name: string): string {
         return "Hello, " + name;
     }
@@ -222,13 +222,14 @@ function greet(name: string): string {
 
 <h3>Comments with Interpolation</h3>
 
-<p>Comments support <code>@&#123;expr&#125;</code> interpolation for dynamic content:</p>
+<p>Use <code>format!()</code> or similar to build dynamic comment strings:</p>
 
 <CodeBlock code={`let param_name = "userId";
 let param_type = "number";
+let comment = format!("@param {{{}}} {} - The user ID", param_type, param_name);
 
 let code = ts_template! {
-    {>> @param {@{param_type}} @{param_name} - The user ID <<}
+    {>> @{comment} <<}
     function getUser(userId: number) {}
 };`} lang="rust" />
 
