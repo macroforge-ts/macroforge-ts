@@ -5,6 +5,7 @@ import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
 import { PendingRef } from "macroforge/serde";
 import { Option } from "macroforge/utils";
+import type { ArrayFieldController } from "@playground/macro/gigaform";
 /** import macro {Gigaform} from "@playground/macro"; */
 
 export interface User {
@@ -2080,7 +2081,7 @@ export namespace ServiceDefaults {
     {
       const priceStr = formData.get("price");
       obj.price = priceStr ? parseFloat(priceStr as string) : 0;
-      if (obj.price !== undefined && Number.isNaN(obj.price)) obj.price = 0;
+      if (obj.price !== undefined && isNaN(obj.price as number)) obj.price = 0;
     }
     obj.description = formData.get("description") ?? "";
     return ServiceDefaults.fromStringifiedJSON(JSON.stringify(obj));
@@ -4208,7 +4209,7 @@ export namespace Metadata {
     readonly createdAt: FieldController<string>;
     readonly lastLogin: FieldController<string | null>;
     readonly isActive: FieldController<boolean>;
-    readonly roles: FieldController<string[]>;
+    readonly roles: ArrayFieldController<string>;
   }
   /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
     readonly data: Metadata;
@@ -5433,7 +5434,7 @@ export namespace Gradient {
     {
       const startHueStr = formData.get("startHue");
       obj.startHue = startHueStr ? parseFloat(startHueStr as string) : 0;
-      if (obj.startHue !== undefined && Number.isNaN(obj.startHue))
+      if (obj.startHue !== undefined && isNaN(obj.startHue as number))
         obj.startHue = 0;
     }
     return Gradient.fromStringifiedJSON(JSON.stringify(obj));
@@ -6421,7 +6422,7 @@ export namespace YearlyRecurrenceRule {
         : 0;
       if (
         obj.quantityOfYears !== undefined &&
-        Number.isNaN(obj.quantityOfYears)
+        isNaN(obj.quantityOfYears as number)
       )
         obj.quantityOfYears = 0;
     }
@@ -7042,13 +7043,13 @@ export namespace DirectionHue {
     {
       const bearingStr = formData.get("bearing");
       obj.bearing = bearingStr ? parseFloat(bearingStr as string) : 0;
-      if (obj.bearing !== undefined && Number.isNaN(obj.bearing))
+      if (obj.bearing !== undefined && isNaN(obj.bearing as number))
         obj.bearing = 0;
     }
     {
       const hueStr = formData.get("hue");
       obj.hue = hueStr ? parseFloat(hueStr as string) : 0;
-      if (obj.hue !== undefined && Number.isNaN(obj.hue)) obj.hue = 0;
+      if (obj.hue !== undefined && isNaN(obj.hue as number)) obj.hue = 0;
     }
     return DirectionHue.fromStringifiedJSON(JSON.stringify(obj));
   }
@@ -7406,14 +7407,14 @@ export namespace MonthlyRecurrenceRule {
         : 0;
       if (
         obj.quantityOfMonths !== undefined &&
-        Number.isNaN(obj.quantityOfMonths)
+        isNaN(obj.quantityOfMonths as number)
       )
         obj.quantityOfMonths = 0;
     }
     {
       const dayStr = formData.get("day");
       obj.day = dayStr ? parseFloat(dayStr as string) : 0;
-      if (obj.day !== undefined && Number.isNaN(obj.day)) obj.day = 0;
+      if (obj.day !== undefined && isNaN(obj.day as number)) obj.day = 0;
     }
     obj.name = formData.get("name") ?? "";
     return MonthlyRecurrenceRule.fromStringifiedJSON(JSON.stringify(obj));
@@ -9521,17 +9522,17 @@ export namespace Color {
     {
       const redStr = formData.get("red");
       obj.red = redStr ? parseFloat(redStr as string) : 0;
-      if (obj.red !== undefined && Number.isNaN(obj.red)) obj.red = 0;
+      if (obj.red !== undefined && isNaN(obj.red as number)) obj.red = 0;
     }
     {
       const greenStr = formData.get("green");
       obj.green = greenStr ? parseFloat(greenStr as string) : 0;
-      if (obj.green !== undefined && Number.isNaN(obj.green)) obj.green = 0;
+      if (obj.green !== undefined && isNaN(obj.green as number)) obj.green = 0;
     }
     {
       const blueStr = formData.get("blue");
       obj.blue = blueStr ? parseFloat(blueStr as string) : 0;
-      if (obj.blue !== undefined && Number.isNaN(obj.blue)) obj.blue = 0;
+      if (obj.blue !== undefined && isNaN(obj.blue as number)) obj.blue = 0;
     }
     return Color.fromStringifiedJSON(JSON.stringify(obj));
   }
@@ -9811,7 +9812,7 @@ export namespace Appointment {
       employees: [],
       location: "",
       description: null,
-      colors: { main: "#000000", hover: "#333333", text: "#ffffff" },
+      colors: { main: "#000000", hover: "#333333", active: "#666666" },
       recurrenceRule: null,
     } as Appointment;
   }
@@ -10128,7 +10129,7 @@ export namespace Appointment {
     readonly offsetMs: FieldController<number>;
     readonly allDay: FieldController<boolean>;
     readonly multiDay: FieldController<boolean>;
-    readonly employees: FieldController<(string | Employee)[]>;
+    readonly employees: ArrayFieldController<string | Employee>;
     readonly location: FieldController<string | Site>;
     readonly description: FieldController<string | null>;
     readonly colors: FieldController<Colors>;
@@ -10700,14 +10701,14 @@ export namespace Appointment {
     {
       const durationStr = formData.get("duration");
       obj.duration = durationStr ? parseFloat(durationStr as string) : 0;
-      if (obj.duration !== undefined && Number.isNaN(obj.duration))
+      if (obj.duration !== undefined && isNaN(obj.duration as number))
         obj.duration = 0;
     }
     obj.timeZone = formData.get("timeZone") ?? "";
     {
       const offsetMsStr = formData.get("offsetMs");
       obj.offsetMs = offsetMsStr ? parseFloat(offsetMsStr as string) : 0;
-      if (obj.offsetMs !== undefined && Number.isNaN(obj.offsetMs))
+      if (obj.offsetMs !== undefined && isNaN(obj.offsetMs as number))
         obj.offsetMs = 0;
     }
     {
@@ -11264,7 +11265,7 @@ export namespace ScheduleSettings {
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly daysPerWeek: FieldController<number>;
     readonly rowHeight: FieldController<RowHeight>;
-    readonly visibleRoutes: FieldController<string[]>;
+    readonly visibleRoutes: ArrayFieldController<string>;
     readonly detailedCards: FieldController<boolean>;
   }
   /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
@@ -11494,7 +11495,7 @@ export namespace ScheduleSettings {
       obj.daysPerWeek = daysPerWeekStr
         ? parseFloat(daysPerWeekStr as string)
         : 0;
-      if (obj.daysPerWeek !== undefined && Number.isNaN(obj.daysPerWeek))
+      if (obj.daysPerWeek !== undefined && isNaN(obj.daysPerWeek as number))
         obj.daysPerWeek = 0;
     }
     {
@@ -11777,7 +11778,10 @@ export namespace DailyRecurrenceRule {
       obj.quantityOfDays = quantityOfDaysStr
         ? parseFloat(quantityOfDaysStr as string)
         : 0;
-      if (obj.quantityOfDays !== undefined && Number.isNaN(obj.quantityOfDays))
+      if (
+        obj.quantityOfDays !== undefined &&
+        isNaN(obj.quantityOfDays as number)
+      )
         obj.quantityOfDays = 0;
     }
     return DailyRecurrenceRule.fromStringifiedJSON(JSON.stringify(obj));
@@ -12557,7 +12561,7 @@ export namespace OverviewSettings {
     readonly rowHeight: FieldController<RowHeight>;
     readonly cardOrRow: FieldController<OverviewDisplay>;
     readonly perPage: FieldController<number>;
-    readonly columnConfigs: FieldController<ColumnConfig[]>;
+    readonly columnConfigs: ArrayFieldController<ColumnConfig>;
   }
   /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
     readonly data: OverviewSettings;
@@ -12826,7 +12830,7 @@ export namespace OverviewSettings {
     {
       const perPageStr = formData.get("perPage");
       obj.perPage = perPageStr ? parseFloat(perPageStr as string) : 0;
-      if (obj.perPage !== undefined && Number.isNaN(obj.perPage))
+      if (obj.perPage !== undefined && isNaN(obj.perPage as number))
         obj.perPage = 0;
     }
     {
@@ -13567,13 +13571,13 @@ export namespace Account {
     readonly taxRate: FieldController<string | TaxRate>;
     readonly site: FieldController<string | Site>;
     readonly salesRep: FieldController<Represents[] | null>;
-    readonly orders: FieldController<Ordered[]>;
-    readonly activity: FieldController<Did[]>;
-    readonly customFields: FieldController<[string, string][]>;
+    readonly orders: ArrayFieldController<Ordered>;
+    readonly activity: ArrayFieldController<Did>;
+    readonly customFields: ArrayFieldController<[string, string]>;
     readonly accountName: FieldController<AccountName>;
     readonly sector: FieldController<Sector>;
     readonly memo: FieldController<string | null>;
-    readonly phones: FieldController<PhoneNumber[]>;
+    readonly phones: ArrayFieldController<PhoneNumber>;
     readonly email: FieldController<Email>;
     readonly leadSource: FieldController<string>;
     readonly colors: FieldController<Colors>;
@@ -13583,7 +13587,7 @@ export namespace Account {
     readonly subtype: FieldController<string>;
     readonly isTaxExempt: FieldController<boolean>;
     readonly paymentTerms: FieldController<string>;
-    readonly tags: FieldController<string[]>;
+    readonly tags: ArrayFieldController<string>;
     readonly dateAdded: FieldController<string>;
   }
   /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
@@ -15592,7 +15596,7 @@ export namespace Order {
     readonly account: FieldController<string | Account>;
     readonly stage: FieldController<OrderStage>;
     readonly number: FieldController<number>;
-    readonly payments: FieldController<(string | Payment)[]>;
+    readonly payments: ArrayFieldController<string | Payment>;
     readonly opportunity: FieldController<string>;
     readonly reference: FieldController<string>;
     readonly leadSource: FieldController<string>;
@@ -15605,18 +15609,18 @@ export namespace Order {
     readonly upsale: FieldController<number>;
     readonly dateCreated: FieldController<string>;
     readonly appointment: FieldController<string | Appointment>;
-    readonly lastTechs: FieldController<(string | Employee)[]>;
+    readonly lastTechs: ArrayFieldController<string | Employee>;
     readonly package: FieldController<(string | Package)[] | null>;
     readonly promotion: FieldController<(string | Promotion)[] | null>;
     readonly balance: FieldController<number>;
     readonly due: FieldController<string>;
     readonly total: FieldController<number>;
     readonly site: FieldController<string | Site>;
-    readonly billedItems: FieldController<BilledItem[]>;
+    readonly billedItems: ArrayFieldController<BilledItem>;
     readonly memo: FieldController<string>;
     readonly discount: FieldController<number>;
     readonly tip: FieldController<number>;
-    readonly commissions: FieldController<number[]>;
+    readonly commissions: ArrayFieldController<number>;
   }
   /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
     readonly data: Order;
@@ -16753,7 +16757,8 @@ export namespace Order {
     {
       const numberStr = formData.get("number");
       obj.number = numberStr ? parseFloat(numberStr as string) : 0;
-      if (obj.number !== undefined && Number.isNaN(obj.number)) obj.number = 0;
+      if (obj.number !== undefined && isNaN(obj.number as number))
+        obj.number = 0;
     }
     {
       // Collect array items from indexed form fields
@@ -16804,7 +16809,8 @@ export namespace Order {
     {
       const upsaleStr = formData.get("upsale");
       obj.upsale = upsaleStr ? parseFloat(upsaleStr as string) : 0;
-      if (obj.upsale !== undefined && Number.isNaN(obj.upsale)) obj.upsale = 0;
+      if (obj.upsale !== undefined && isNaN(obj.upsale as number))
+        obj.upsale = 0;
     }
     obj.dateCreated = formData.get("dateCreated") ?? "";
     obj.appointment = formData.get("appointment") ?? "";
@@ -16840,14 +16846,14 @@ export namespace Order {
     {
       const balanceStr = formData.get("balance");
       obj.balance = balanceStr ? parseFloat(balanceStr as string) : 0;
-      if (obj.balance !== undefined && Number.isNaN(obj.balance))
+      if (obj.balance !== undefined && isNaN(obj.balance as number))
         obj.balance = 0;
     }
     obj.due = formData.get("due") ?? "";
     {
       const totalStr = formData.get("total");
       obj.total = totalStr ? parseFloat(totalStr as string) : 0;
-      if (obj.total !== undefined && Number.isNaN(obj.total)) obj.total = 0;
+      if (obj.total !== undefined && isNaN(obj.total as number)) obj.total = 0;
     }
     obj.site = formData.get("site") ?? "";
     {
@@ -16881,18 +16887,18 @@ export namespace Order {
     {
       const discountStr = formData.get("discount");
       obj.discount = discountStr ? parseFloat(discountStr as string) : 0;
-      if (obj.discount !== undefined && Number.isNaN(obj.discount))
+      if (obj.discount !== undefined && isNaN(obj.discount as number))
         obj.discount = 0;
     }
     {
       const tipStr = formData.get("tip");
       obj.tip = tipStr ? parseFloat(tipStr as string) : 0;
-      if (obj.tip !== undefined && Number.isNaN(obj.tip)) obj.tip = 0;
+      if (obj.tip !== undefined && isNaN(obj.tip as number)) obj.tip = 0;
     }
     obj.commissions = formData
       .getAll("commissions")
       .map((v) => parseFloat(v as string))
-      .filter((n) => !Number.isNaN(n));
+      .filter((n) => !isNaN(n));
     return Order.fromStringifiedJSON(JSON.stringify(obj));
   }
 }
@@ -17332,7 +17338,7 @@ export namespace Custom {
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
-    readonly mappings: FieldController<DirectionHue[]>;
+    readonly mappings: ArrayFieldController<DirectionHue>;
   }
   /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
     readonly data: Custom;
@@ -18099,7 +18105,7 @@ export namespace ProductDefaults {
     {
       const priceStr = formData.get("price");
       obj.price = priceStr ? parseFloat(priceStr as string) : 0;
-      if (obj.price !== undefined && Number.isNaN(obj.price)) obj.price = 0;
+      if (obj.price !== undefined && isNaN(obj.price as number)) obj.price = 0;
     }
     obj.description = formData.get("description") ?? "";
     return ProductDefaults.fromStringifiedJSON(JSON.stringify(obj));
@@ -18406,7 +18412,7 @@ export namespace Viewed {
         : 0;
       if (
         obj.durationSeconds !== undefined &&
-        Number.isNaN(obj.durationSeconds)
+        isNaN(obj.durationSeconds as number)
       )
         obj.durationSeconds = 0;
     }
@@ -18581,7 +18587,7 @@ export namespace WeeklyRecurrenceRule {
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly quantityOfWeeks: FieldController<number>;
-    readonly weekdays: FieldController<Weekday[]>;
+    readonly weekdays: ArrayFieldController<Weekday>;
   }
   /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
     readonly data: WeeklyRecurrenceRule;
@@ -18745,7 +18751,7 @@ export namespace WeeklyRecurrenceRule {
         : 0;
       if (
         obj.quantityOfWeeks !== undefined &&
-        Number.isNaN(obj.quantityOfWeeks)
+        isNaN(obj.quantityOfWeeks as number)
       )
         obj.quantityOfWeeks = 0;
     }
@@ -19133,7 +19139,8 @@ export namespace Paid {
     {
       const amountStr = formData.get("amount");
       obj.amount = amountStr ? parseFloat(amountStr as string) : 0;
-      if (obj.amount !== undefined && Number.isNaN(obj.amount)) obj.amount = 0;
+      if (obj.amount !== undefined && isNaN(obj.amount as number))
+        obj.amount = 0;
     }
     obj.currency = formData.get("currency") ?? "";
     obj.paymentMethod = formData.get("paymentMethod") ?? "";
@@ -19805,7 +19812,7 @@ export namespace TaxRate {
     {
       const zipStr = formData.get("zip");
       obj.zip = zipStr ? parseFloat(zipStr as string) : 0;
-      if (obj.zip !== undefined && Number.isNaN(obj.zip)) obj.zip = 0;
+      if (obj.zip !== undefined && isNaN(obj.zip as number)) obj.zip = 0;
     }
     obj.city = formData.get("city") ?? "";
     obj.county = formData.get("county") ?? "";
@@ -20869,7 +20876,7 @@ export namespace Lead {
     readonly taxRate: FieldController<(string | TaxRate) | null>;
     readonly sector: FieldController<Sector>;
     readonly leadName: FieldController<AccountName>;
-    readonly phones: FieldController<PhoneNumber[]>;
+    readonly phones: ArrayFieldController<PhoneNumber>;
     readonly email: FieldController<Email>;
     readonly leadSource: FieldController<string | null>;
     readonly site: FieldController<string | Site>;
@@ -20882,8 +20889,8 @@ export namespace Lead {
     readonly subtype: FieldController<string>;
     readonly isTaxExempt: FieldController<boolean>;
     readonly paymentTerms: FieldController<string>;
-    readonly tags: FieldController<string[]>;
-    readonly customFields: FieldController<[string, string][]>;
+    readonly tags: ArrayFieldController<string>;
+    readonly customFields: ArrayFieldController<[string, string]>;
   }
   /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
     readonly data: Lead;
@@ -22058,7 +22065,8 @@ export namespace Lead {
     {
       const numberStr = formData.get("number");
       obj.number = numberStr ? parseFloat(numberStr as string) : 0;
-      if (obj.number !== undefined && Number.isNaN(obj.number)) obj.number = 0;
+      if (obj.number !== undefined && isNaN(obj.number as number))
+        obj.number = 0;
     }
     {
       const acceptedVal = formData.get("accepted");
@@ -22070,7 +22078,7 @@ export namespace Lead {
       obj.probability = probabilityStr
         ? parseFloat(probabilityStr as string)
         : 0;
-      if (obj.probability !== undefined && Number.isNaN(obj.probability))
+      if (obj.probability !== undefined && isNaN(obj.probability as number))
         obj.probability = 0;
     }
     {
@@ -22099,7 +22107,7 @@ export namespace Lead {
     {
       const valueStr = formData.get("value");
       obj.value = valueStr ? parseFloat(valueStr as string) : 0;
-      if (obj.value !== undefined && Number.isNaN(obj.value)) obj.value = 0;
+      if (obj.value !== undefined && isNaN(obj.value as number)) obj.value = 0;
     }
     {
       // Collect nested object fields with prefix "stage."
@@ -22476,9 +22484,9 @@ export namespace AppPermissions {
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
-    readonly applications: FieldController<Applications[]>;
-    readonly pages: FieldController<Page[]>;
-    readonly data: FieldController<Table[]>;
+    readonly applications: ArrayFieldController<Applications>;
+    readonly pages: ArrayFieldController<Page>;
+    readonly data: ArrayFieldController<Table>;
   }
   /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
     readonly data: AppPermissions;
@@ -23389,7 +23397,7 @@ export namespace Company {
     readonly id: FieldController<string>;
     readonly legalName: FieldController<string>;
     readonly headquarters: FieldController<string | Site>;
-    readonly phones: FieldController<PhoneNumber[]>;
+    readonly phones: ArrayFieldController<PhoneNumber>;
     readonly fax: FieldController<string>;
     readonly email: FieldController<string>;
     readonly website: FieldController<string>;
@@ -24473,7 +24481,7 @@ export namespace Company {
         : 0;
       if (
         obj.referenceNumber !== undefined &&
-        Number.isNaN(obj.referenceNumber)
+        isNaN(obj.referenceNumber as number)
       )
         obj.referenceNumber = 0;
     }
@@ -24488,7 +24496,7 @@ export namespace Company {
         : 0;
       if (
         obj.defaultAreaCode !== undefined &&
-        Number.isNaN(obj.defaultAreaCode)
+        isNaN(obj.defaultAreaCode as number)
       )
         obj.defaultAreaCode = 0;
     }
@@ -24564,7 +24572,7 @@ export namespace Company {
         : 0;
       if (
         obj.scheduleInterval !== undefined &&
-        Number.isNaN(obj.scheduleInterval)
+        isNaN(obj.scheduleInterval as number)
       )
         obj.scheduleInterval = 0;
     }
@@ -25154,45 +25162,45 @@ export namespace Ordinal {
     {
       const northStr = formData.get("north");
       obj.north = northStr ? parseFloat(northStr as string) : 0;
-      if (obj.north !== undefined && Number.isNaN(obj.north)) obj.north = 0;
+      if (obj.north !== undefined && isNaN(obj.north as number)) obj.north = 0;
     }
     {
       const northeastStr = formData.get("northeast");
       obj.northeast = northeastStr ? parseFloat(northeastStr as string) : 0;
-      if (obj.northeast !== undefined && Number.isNaN(obj.northeast))
+      if (obj.northeast !== undefined && isNaN(obj.northeast as number))
         obj.northeast = 0;
     }
     {
       const eastStr = formData.get("east");
       obj.east = eastStr ? parseFloat(eastStr as string) : 0;
-      if (obj.east !== undefined && Number.isNaN(obj.east)) obj.east = 0;
+      if (obj.east !== undefined && isNaN(obj.east as number)) obj.east = 0;
     }
     {
       const southeastStr = formData.get("southeast");
       obj.southeast = southeastStr ? parseFloat(southeastStr as string) : 0;
-      if (obj.southeast !== undefined && Number.isNaN(obj.southeast))
+      if (obj.southeast !== undefined && isNaN(obj.southeast as number))
         obj.southeast = 0;
     }
     {
       const southStr = formData.get("south");
       obj.south = southStr ? parseFloat(southStr as string) : 0;
-      if (obj.south !== undefined && Number.isNaN(obj.south)) obj.south = 0;
+      if (obj.south !== undefined && isNaN(obj.south as number)) obj.south = 0;
     }
     {
       const southwestStr = formData.get("southwest");
       obj.southwest = southwestStr ? parseFloat(southwestStr as string) : 0;
-      if (obj.southwest !== undefined && Number.isNaN(obj.southwest))
+      if (obj.southwest !== undefined && isNaN(obj.southwest as number))
         obj.southwest = 0;
     }
     {
       const westStr = formData.get("west");
       obj.west = westStr ? parseFloat(westStr as string) : 0;
-      if (obj.west !== undefined && Number.isNaN(obj.west)) obj.west = 0;
+      if (obj.west !== undefined && isNaN(obj.west as number)) obj.west = 0;
     }
     {
       const northwestStr = formData.get("northwest");
       obj.northwest = northwestStr ? parseFloat(northwestStr as string) : 0;
-      if (obj.northwest !== undefined && Number.isNaN(obj.northwest))
+      if (obj.northwest !== undefined && isNaN(obj.northwest as number))
         obj.northwest = 0;
     }
     return Ordinal.fromStringifiedJSON(JSON.stringify(obj));
@@ -26090,7 +26098,7 @@ export namespace Employee {
     readonly id: FieldController<string>;
     readonly imageUrl: FieldController<string | null>;
     readonly name: FieldController<string>;
-    readonly phones: FieldController<PhoneNumber[]>;
+    readonly phones: ArrayFieldController<PhoneNumber>;
     readonly role: FieldController<string>;
     readonly title: FieldController<JobTitle>;
     readonly email: FieldController<Email>;
@@ -26103,7 +26111,7 @@ export namespace Employee {
     readonly isSalesRep: FieldController<boolean>;
     readonly description: FieldController<string | null>;
     readonly linkedinUrl: FieldController<string | null>;
-    readonly attendance: FieldController<string[]>;
+    readonly attendance: ArrayFieldController<string>;
     readonly settings: FieldController<Settings>;
   }
   /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
@@ -26881,7 +26889,7 @@ export namespace Employee {
       obj.ratePerHour = ratePerHourStr
         ? parseFloat(ratePerHourStr as string)
         : 0;
-      if (obj.ratePerHour !== undefined && Number.isNaN(obj.ratePerHour))
+      if (obj.ratePerHour !== undefined && isNaN(obj.ratePerHour as number))
         obj.ratePerHour = 0;
     }
     {
@@ -27716,7 +27724,7 @@ export namespace DataPath {
     validate(): Array<string>;
   }
   /** Type-safe field controllers for this form */ export interface FieldControllers {
-    readonly path: FieldController<string[]>;
+    readonly path: ArrayFieldController<string>;
     readonly formatter: FieldController<string | null>;
   }
   /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
@@ -28176,7 +28184,7 @@ export namespace Route {
     readonly position: FieldController<string>;
     readonly serviceRoute: FieldController<boolean>;
     readonly defaultDurationHours: FieldController<number>;
-    readonly tags: FieldController<string[]>;
+    readonly tags: ArrayFieldController<string>;
     readonly icon: FieldController<string | null>;
     readonly color: FieldController<string | null>;
   }
@@ -28644,7 +28652,7 @@ export namespace Route {
         : 0;
       if (
         obj.defaultDurationHours !== undefined &&
-        Number.isNaN(obj.defaultDurationHours)
+        isNaN(obj.defaultDurationHours as number)
       )
         obj.defaultDurationHours = 0;
     }
@@ -29699,7 +29707,7 @@ export namespace BilledItem {
     {
       const quantityStr = formData.get("quantity");
       obj.quantity = quantityStr ? parseFloat(quantityStr as string) : 0;
-      if (obj.quantity !== undefined && Number.isNaN(obj.quantity))
+      if (obj.quantity !== undefined && isNaN(obj.quantity as number))
         obj.quantity = 0;
     }
     {
@@ -29995,12 +30003,12 @@ export namespace Coordinates {
     {
       const latStr = formData.get("lat");
       obj.lat = latStr ? parseFloat(latStr as string) : 0;
-      if (obj.lat !== undefined && Number.isNaN(obj.lat)) obj.lat = 0;
+      if (obj.lat !== undefined && isNaN(obj.lat as number)) obj.lat = 0;
     }
     {
       const lngStr = formData.get("lng");
       obj.lng = lngStr ? parseFloat(lngStr as string) : 0;
-      if (obj.lng !== undefined && Number.isNaN(obj.lng)) obj.lng = 0;
+      if (obj.lng !== undefined && isNaN(obj.lng as number)) obj.lng = 0;
     }
     return Coordinates.fromStringifiedJSON(JSON.stringify(obj));
   }
@@ -31786,22 +31794,22 @@ export namespace Cardinal {
     {
       const northStr = formData.get("north");
       obj.north = northStr ? parseFloat(northStr as string) : 0;
-      if (obj.north !== undefined && Number.isNaN(obj.north)) obj.north = 0;
+      if (obj.north !== undefined && isNaN(obj.north as number)) obj.north = 0;
     }
     {
       const eastStr = formData.get("east");
       obj.east = eastStr ? parseFloat(eastStr as string) : 0;
-      if (obj.east !== undefined && Number.isNaN(obj.east)) obj.east = 0;
+      if (obj.east !== undefined && isNaN(obj.east as number)) obj.east = 0;
     }
     {
       const southStr = formData.get("south");
       obj.south = southStr ? parseFloat(southStr as string) : 0;
-      if (obj.south !== undefined && Number.isNaN(obj.south)) obj.south = 0;
+      if (obj.south !== undefined && isNaN(obj.south as number)) obj.south = 0;
     }
     {
       const westStr = formData.get("west");
       obj.west = westStr ? parseFloat(westStr as string) : 0;
-      if (obj.west !== undefined && Number.isNaN(obj.west)) obj.west = 0;
+      if (obj.west !== undefined && isNaN(obj.west as number)) obj.west = 0;
     }
     return Cardinal.fromStringifiedJSON(JSON.stringify(obj));
   }
@@ -31840,21 +31848,37 @@ export namespace Interval {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): Interval {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<Interval, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): Interval {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<Interval, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(value: any, ctx: DeserializeContext): Interval {
     if (value?.__ref !== undefined) {
@@ -32057,10 +32081,9 @@ export namespace Interval {
       | "YearlyRecurrenceRule"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_type", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_type", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;
@@ -32127,18 +32150,37 @@ export namespace Page {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): Page {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
-  }
-  export function fromObject(obj: unknown, opts?: DeserializeOptions): Page {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<Page, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Page, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function __deserialize(value: any, ctx: DeserializeContext): Page {
     if (value?.__ref !== undefined) {
@@ -32780,10 +32822,9 @@ export namespace Page {
       | "UserHome"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -32851,21 +32892,37 @@ export namespace UserRole {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): UserRole {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<UserRole, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): UserRole {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<UserRole, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(value: any, ctx: DeserializeContext): UserRole {
     if (value?.__ref !== undefined) {
@@ -33089,10 +33146,9 @@ export namespace UserRole {
       | "InformationTechnology"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -33152,18 +33208,37 @@ export namespace Target {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): Target {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
-  }
-  export function fromObject(obj: unknown, opts?: DeserializeOptions): Target {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<Target, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Target, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function __deserialize(value: any, ctx: DeserializeContext): Target {
     if (value?.__ref !== undefined) {
@@ -33577,10 +33652,9 @@ export namespace Target {
       | "Ordered"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_type", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_type", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;
@@ -33638,21 +33712,37 @@ export namespace RecurrenceEnd {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): RecurrenceEnd {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<RecurrenceEnd, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): RecurrenceEnd {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<RecurrenceEnd, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(
     value: any,
@@ -33667,151 +33757,6 @@ export namespace RecurrenceEnd {
       );
     }
     return value as RecurrenceEnd;
-  }
-}
-
-export namespace RecurrenceEnd {
-  /** Per-variant error types */ export type NumberErrors = {
-    _errors: Option<Array<string>>;
-  };
-  export type StringErrors = { _errors: Option<Array<string>> };
-  /** Per-variant tainted types */ export type NumberTainted = {};
-  export type StringTainted = {};
-  /** Union error type */ export type Errors =
-    | ({ _type: "number" } & NumberErrors)
-    | ({ _type: "string" } & StringErrors);
-  /** Union tainted type */ export type Tainted =
-    | ({ _type: "number" } & NumberTainted)
-    | ({ _type: "string" } & StringTainted);
-  /** Field controller interface */ export interface FieldController<T> {
-    readonly path: ReadonlyArray<string | number>;
-    readonly name: string;
-    readonly constraints: Record<string, unknown>;
-    readonly label?: string;
-    readonly description?: string;
-    readonly placeholder?: string;
-    readonly disabled?: boolean;
-    readonly readonly?: boolean;
-    get(): T;
-    set(value: T): void;
-    getError(): Option<Array<string>>;
-    setError(value: Option<Array<string>>): void;
-    getTainted(): Option<boolean>;
-    setTainted(value: Option<boolean>): void;
-    validate(): Array<string>;
-  }
-  /** Per-variant field controller types */ export interface NumberFieldControllers {}
-  export interface StringFieldControllers {}
-  /** Union Gigaform interface with variant switching */ export interface Gigaform {
-    readonly currentVariant: "number" | "string";
-    readonly data: RecurrenceEnd;
-    readonly errors: Errors;
-    readonly tainted: Tainted;
-    readonly variants: VariantFields;
-    switchVariant(variant: "number" | "string"): void;
-    validate(): Result<
-      RecurrenceEnd,
-      Array<{ field: string; message: string }>
-    >;
-    reset(overrides?: Partial<RecurrenceEnd>): void;
-  }
-  /** Variant fields container */ export interface VariantFields {
-    readonly number: { readonly fields: NumberFieldControllers };
-    readonly string: { readonly fields: StringFieldControllers };
-  }
-  /** Gets default value for a specific variant */ function getDefaultForVariant(
-    variant: string,
-  ): RecurrenceEnd {
-    switch (variant) {
-      case "number":
-        return number.defaultValue() as RecurrenceEnd;
-      case "string":
-        return string.defaultValue() as RecurrenceEnd;
-      default:
-        return number.defaultValue() as RecurrenceEnd;
-    }
-  }
-  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
-    initial?: RecurrenceEnd,
-  ): Gigaform {
-    const initialVariant: "number" | "string" = "number";
-    let currentVariant = $state<"number" | "string">(initialVariant);
-    let data = $state<RecurrenceEnd>(
-      initial ?? getDefaultForVariant(initialVariant),
-    );
-    let errors = $state<Errors>({} as Errors);
-    let tainted = $state<Tainted>({} as Tainted);
-    const variants: VariantFields = {
-      number: {
-        fields: {} as NumberFieldControllers,
-      },
-      string: {
-        fields: {} as StringFieldControllers,
-      },
-    };
-    function switchVariant(variant: "number" | "string"): void {
-      currentVariant = variant;
-      data = getDefaultForVariant(variant);
-      errors = {} as Errors;
-      tainted = {} as Tainted;
-    }
-    function validate(): Result<
-      RecurrenceEnd,
-      Array<{ field: string; message: string }>
-    > {
-      return RecurrenceEnd.fromObject(data);
-    }
-    function reset(overrides?: Partial<RecurrenceEnd>): void {
-      data = overrides
-        ? (overrides as typeof data)
-        : getDefaultForVariant(currentVariant);
-      errors = {} as Errors;
-      tainted = {} as Tainted;
-    }
-    return {
-      get currentVariant() {
-        return currentVariant;
-      },
-      get data() {
-        return data;
-      },
-      set data(v) {
-        data = v;
-      },
-      get errors() {
-        return errors;
-      },
-      set errors(v) {
-        errors = v;
-      },
-      get tainted() {
-        return tainted;
-      },
-      set tainted(v) {
-        tainted = v;
-      },
-      variants,
-      switchVariant,
-      validate,
-      reset,
-    };
-  }
-  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
-    formData: FormData,
-  ): Result<RecurrenceEnd, Array<{ field: string; message: string }>> {
-    const discriminant = formData.get("_type") as "number" | "string" | null;
-    if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_type", message: "Missing discriminant field" }],
-      };
-    }
-    const obj: Record<string, unknown> = {};
-    obj._type = discriminant;
-    if (discriminant === "number") {
-    } else if (discriminant === "string") {
-    }
-    return RecurrenceEnd.fromStringifiedJSON(JSON.stringify(obj));
   }
 }
 
@@ -33847,21 +33792,37 @@ export namespace OverviewDisplay {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): OverviewDisplay {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<OverviewDisplay, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): OverviewDisplay {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<OverviewDisplay, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(
     value: any,
@@ -34011,10 +33972,9 @@ export namespace OverviewDisplay {
   ): Result<OverviewDisplay, Array<{ field: string; message: string }>> {
     const discriminant = formData.get("_value") as "Card" | "Table" | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -34057,21 +34017,37 @@ export namespace IntervalUnit {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): IntervalUnit {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<IntervalUnit, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): IntervalUnit {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<IntervalUnit, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(
     value: any,
@@ -34247,10 +34223,9 @@ export namespace IntervalUnit {
       | "Year"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -34292,18 +34267,37 @@ export namespace Sector {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): Sector {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
-  }
-  export function fromObject(obj: unknown, opts?: DeserializeOptions): Sector {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<Sector, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Sector, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function __deserialize(value: any, ctx: DeserializeContext): Sector {
     if (value?.__ref !== undefined) {
@@ -34448,10 +34442,9 @@ export namespace Sector {
       | "Commercial"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -34498,18 +34491,37 @@ export namespace Weekday {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): Weekday {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
-  }
-  export function fromObject(obj: unknown, opts?: DeserializeOptions): Weekday {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<Weekday, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Weekday, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function __deserialize(value: any, ctx: DeserializeContext): Weekday {
     if (value?.__ref !== undefined) {
@@ -34761,10 +34773,9 @@ export namespace Weekday {
       | "Sunday"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -34809,18 +34820,37 @@ export namespace Status {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): Status {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
-  }
-  export function fromObject(obj: unknown, opts?: DeserializeOptions): Status {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<Status, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Status, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function __deserialize(value: any, ctx: DeserializeContext): Status {
     if (value?.__ref !== undefined) {
@@ -34979,10 +35009,9 @@ export namespace Status {
       | "Waiting"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -34994,8 +35023,8 @@ export namespace Status {
   }
 }
 
-export type NextStep =
-  | /** @default */ "InitialContact"
+export type NextStep = /** @default */
+  | "InitialContact"
   | "Qualified"
   | "Estimate"
   | "Negotiation";
@@ -35027,21 +35056,37 @@ export namespace NextStep {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): NextStep {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<NextStep, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): NextStep {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<NextStep, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(value: any, ctx: DeserializeContext): NextStep {
     if (value?.__ref !== undefined) {
@@ -35232,10 +35277,9 @@ export namespace NextStep {
       | "Negotiation"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -35285,21 +35329,37 @@ export namespace LeadStage {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): LeadStage {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<LeadStage, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): LeadStage {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<LeadStage, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(
     value: any,
@@ -35518,10 +35578,9 @@ export namespace LeadStage {
       | "Negotiation"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -35567,21 +35626,37 @@ export namespace AccountName {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): AccountName {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<AccountName, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): AccountName {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<AccountName, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(
     value: any,
@@ -35730,10 +35805,9 @@ export namespace AccountName {
       | "PersonName"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_type", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_type", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;
@@ -35773,21 +35847,37 @@ export namespace Priority {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): Priority {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<Priority, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): Priority {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<Priority, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(value: any, ctx: DeserializeContext): Priority {
     if (value?.__ref !== undefined) {
@@ -35946,10 +36036,9 @@ export namespace Priority {
       | "Low"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -36000,21 +36089,37 @@ export namespace Applications {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): Applications {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<Applications, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): Applications {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<Applications, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(
     value: any,
@@ -36273,10 +36378,9 @@ export namespace Applications {
       | "Website"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -36325,21 +36429,37 @@ export namespace JobTitle {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): JobTitle {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<JobTitle, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): JobTitle {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<JobTitle, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(value: any, ctx: DeserializeContext): JobTitle {
     if (value?.__ref !== undefined) {
@@ -36545,10 +36665,9 @@ export namespace JobTitle {
       | "InformationTechnology"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -36597,21 +36716,37 @@ export namespace ColorsConfig {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): ColorsConfig {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<ColorsConfig, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): ColorsConfig {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<ColorsConfig, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(
     value: any,
@@ -36791,10 +36926,9 @@ export namespace ColorsConfig {
       | "Gradient"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_type", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_type", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;
@@ -36807,8 +36941,8 @@ export namespace ColorsConfig {
   }
 }
 
-export type WeekOfMonth =
-  | /** @default */ "First"
+export type WeekOfMonth = /** @default */
+  | "First"
   | "Second"
   | "Third"
   | "Fourth"
@@ -36844,21 +36978,37 @@ export namespace WeekOfMonth {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): WeekOfMonth {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<WeekOfMonth, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): WeekOfMonth {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<WeekOfMonth, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(
     value: any,
@@ -37050,10 +37200,9 @@ export namespace WeekOfMonth {
       | "Last"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -37067,8 +37216,8 @@ export namespace WeekOfMonth {
   }
 }
 
-export type ActivityType =
-  | /** @default */ Created
+export type ActivityType = /** @default */
+  | Created
   | Edited
   | Sent
   | Viewed
@@ -37105,21 +37254,37 @@ export namespace ActivityType {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): ActivityType {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<ActivityType, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): ActivityType {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<ActivityType, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(
     value: any,
@@ -37334,10 +37499,9 @@ export namespace ActivityType {
       | "Paid"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_type", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_type", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;
@@ -37388,21 +37552,37 @@ export namespace RowHeight {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): RowHeight {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<RowHeight, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): RowHeight {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<RowHeight, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(
     value: any,
@@ -37580,10 +37760,9 @@ export namespace RowHeight {
       | "Large"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -37628,21 +37807,37 @@ export namespace OrderStage {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): OrderStage {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
+  ): Result<OrderStage, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function fromObject(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): OrderStage {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<OrderStage, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
   }
   export function __deserialize(
     value: any,
@@ -37806,10 +38001,9 @@ export namespace OrderStage {
       | "Invoice"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -37868,18 +38062,37 @@ export namespace Table {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): Table {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
-  }
-  export function fromObject(obj: unknown, opts?: DeserializeOptions): Table {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<Table, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Table, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function __deserialize(value: any, ctx: DeserializeContext): Table {
     if (value?.__ref !== undefined) {
@@ -38329,10 +38542,9 @@ export namespace Table {
       | "Ordered"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_value", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._value = discriminant;
@@ -38388,18 +38600,37 @@ export namespace Item {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): Item {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
-  }
-  export function fromObject(obj: unknown, opts?: DeserializeOptions): Item {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<Item, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Item, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function __deserialize(value: any, ctx: DeserializeContext): Item {
     if (value?.__ref !== undefined) {
@@ -38411,158 +38642,6 @@ export namespace Item {
       );
     }
     return value as Item;
-  }
-}
-
-export namespace Item {
-  /** Per-variant error types */ export type StringOrProductErrors = {
-    _errors: Option<Array<string>>;
-  };
-  export type StringOrServiceErrors = { _errors: Option<Array<string>> };
-  /** Per-variant tainted types */ export type StringOrProductTainted = {};
-  export type StringOrServiceTainted = {};
-  /** Union error type */ export type Errors =
-    | ({ _type: "(string | Product)" } & StringOrProductErrors)
-    | ({ _type: "(string | Service)" } & StringOrServiceErrors);
-  /** Union tainted type */ export type Tainted =
-    | ({ _type: "(string | Product)" } & StringOrProductTainted)
-    | ({ _type: "(string | Service)" } & StringOrServiceTainted);
-  /** Field controller interface */ export interface FieldController<T> {
-    readonly path: ReadonlyArray<string | number>;
-    readonly name: string;
-    readonly constraints: Record<string, unknown>;
-    readonly label?: string;
-    readonly description?: string;
-    readonly placeholder?: string;
-    readonly disabled?: boolean;
-    readonly readonly?: boolean;
-    get(): T;
-    set(value: T): void;
-    getError(): Option<Array<string>>;
-    setError(value: Option<Array<string>>): void;
-    getTainted(): Option<boolean>;
-    setTainted(value: Option<boolean>): void;
-    validate(): Array<string>;
-  }
-  /** Per-variant field controller types */ export interface StringOrProductFieldControllers {}
-  export interface StringOrServiceFieldControllers {}
-  /** Union Gigaform interface with variant switching */ export interface Gigaform {
-    readonly currentVariant: "(string | Product)" | "(string | Service)";
-    readonly data: Item;
-    readonly errors: Errors;
-    readonly tainted: Tainted;
-    readonly variants: VariantFields;
-    switchVariant(variant: "(string | Product)" | "(string | Service)"): void;
-    validate(): Result<Item, Array<{ field: string; message: string }>>;
-    reset(overrides?: Partial<Item>): void;
-  }
-  /** Variant fields container */ export interface VariantFields {
-    readonly "(string | Product)": {
-      readonly fields: StringOrProductFieldControllers;
-    };
-    readonly "(string | Service)": {
-      readonly fields: StringOrServiceFieldControllers;
-    };
-  }
-  /** Gets default value for a specific variant */ function getDefaultForVariant(
-    variant: string,
-  ): Item {
-    switch (variant) {
-      case "(string | Product)":
-        return (string | Product).defaultValue() as Item;
-      case "(string | Service)":
-        return (string | Service).defaultValue() as Item;
-      default:
-        return (string | Product).defaultValue() as Item;
-    }
-  }
-  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
-    initial?: Item,
-  ): Gigaform {
-    const initialVariant: "(string | Product)" | "(string | Service)" =
-      "(string | Product)";
-    let currentVariant = $state<"(string | Product)" | "(string | Service)">(
-      initialVariant,
-    );
-    let data = $state<Item>(initial ?? getDefaultForVariant(initialVariant));
-    let errors = $state<Errors>({} as Errors);
-    let tainted = $state<Tainted>({} as Tainted);
-    const variants: VariantFields = {
-      "(string | Product)": {
-        fields: {} as StringOrProductFieldControllers,
-      },
-      "(string | Service)": {
-        fields: {} as StringOrServiceFieldControllers,
-      },
-    };
-    function switchVariant(
-      variant: "(string | Product)" | "(string | Service)",
-    ): void {
-      currentVariant = variant;
-      data = getDefaultForVariant(variant);
-      errors = {} as Errors;
-      tainted = {} as Tainted;
-    }
-    function validate(): Result<
-      Item,
-      Array<{ field: string; message: string }>
-    > {
-      return Item.fromObject(data);
-    }
-    function reset(overrides?: Partial<Item>): void {
-      data = overrides
-        ? (overrides as typeof data)
-        : getDefaultForVariant(currentVariant);
-      errors = {} as Errors;
-      tainted = {} as Tainted;
-    }
-    return {
-      get currentVariant() {
-        return currentVariant;
-      },
-      get data() {
-        return data;
-      },
-      set data(v) {
-        data = v;
-      },
-      get errors() {
-        return errors;
-      },
-      set errors(v) {
-        errors = v;
-      },
-      get tainted() {
-        return tainted;
-      },
-      set tainted(v) {
-        tainted = v;
-      },
-      variants,
-      switchVariant,
-      validate,
-      reset,
-    };
-  }
-  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
-    formData: FormData,
-  ): Result<Item, Array<{ field: string; message: string }>> {
-    const discriminant = formData.get("_type") as
-      | "(string | Product)"
-      | "(string | Service)"
-      | null;
-    if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_type", message: "Missing discriminant field" }],
-      };
-    }
-    const obj: Record<string, unknown> = {};
-    obj._type = discriminant;
-    if (discriminant === "(string | Product)") {
-    } else if (discriminant === "(string | Service)") {
-    }
-    return Item.fromStringifiedJSON(JSON.stringify(obj));
   }
 }
 
@@ -38595,18 +38674,37 @@ export namespace Actor {
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
-  ): Actor {
-    const raw = JSON.parse(json);
-    return fromObject(raw, opts);
-  }
-  export function fromObject(obj: unknown, opts?: DeserializeOptions): Actor {
-    const ctx = DeserializeContext.create();
-    const result = __deserialize(obj, ctx);
-    ctx.applyPatches();
-    if (opts?.freeze) {
-      ctx.freezeAll();
+  ): Result<Actor, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
     }
-    return result;
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Actor, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
   }
   export function __deserialize(value: any, ctx: DeserializeContext): Actor {
     if (value?.__ref !== undefined) {
@@ -38764,10 +38862,9 @@ export namespace Actor {
       | "Account"
       | null;
     if (!discriminant) {
-      return {
-        success: false,
-        error: [{ field: "_type", message: "Missing discriminant field" }],
-      };
+      return Result.err([
+        { field: "_type", message: "Missing discriminant field" },
+      ]);
     }
     const obj: Record<string, unknown> = {};
     obj._type = discriminant;

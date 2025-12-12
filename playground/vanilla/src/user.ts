@@ -3,24 +3,24 @@
 // Example of using Derive decorator and dynamic macro
 /** @derive(Debug, JSON) */
 export class User {
-  /** @debug({ rename: "identifier" }) */
-  id: number;
+    /** @debug({ rename: "identifier" }) */
+    id: number;
 
-  name: string;
-  email: string;
+    name: string;
+    email: string;
 
-  /** @debug({ skip: true }) */
-  authToken: string;
+    /** @debug({ skip: true }) */
+    authToken: string;
 
-  constructor(id: number, name: string, email: string, authToken: string) {
-    this.id = id;
-    this.name = name;
-    this.email = email;
-    this.authToken = authToken;
-  }
+    constructor(id: number, name: string, email: string, authToken: string) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.authToken = authToken;
+    }
 }
 
-const user = new User(1, "John Doe", "john@example.com", "tok_live_secret");
+const user = new User(1, 'John Doe', 'john@example.com', 'tok_live_secret');
 
 export const derivedSummary = user.toString();
 export const derivedJson = user.toJSON();

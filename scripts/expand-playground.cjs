@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const fs = require("node:fs");
 const path = require("node:path");
+const { execSync } = require("node:child_process");
 const { expandSync } = require("../crates/macroforge_ts");
 const Module = require("node:module");
 
@@ -66,5 +67,23 @@ for (const root of roots) {
     if (fs.statSync(full).isFile() && isSourceFile(entry)) {
       expandFile(full);
     }
+  }
+}
+
+// Format expanded files with biome (run from each playground root to respect local biome.json)
+const playgroundRoots = [
+  path.join(__dirname, "..", "playground", "svelte"),
+  path.join(__dirname, "..", "playground", "vanilla"),
+];
+
+for (const playgroundRoot of playgroundRoots) {
+  if (!fs.existsSync(playgroundRoot)) continue;
+  try {
+    execSync("npx biome format --write src", {
+      stdio: "inherit",
+      cwd: playgroundRoot,
+    });
+  } catch {
+    // Formatting is best-effort, don't fail if biome isn't available
   }
 }

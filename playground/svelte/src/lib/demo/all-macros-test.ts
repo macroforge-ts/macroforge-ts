@@ -1,6 +1,6 @@
 /**
  * Comprehensive test class for Svelte playground.
- * Uses all available macros for Playwright e2e testing.
+ * Uses all available ../../../../../crates/macroforge_ts/js/utilsight e2e testing.
  */
 
 /** @derive(Debug, Clone, PartialEq, Serialize, Deserialize, Hash) */

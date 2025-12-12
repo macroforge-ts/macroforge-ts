@@ -127,7 +127,13 @@ fn generate_field_controller_types(fields: &[ParsedField]) -> String {
         .map(|field| {
             let name = &field.name;
             let ts_type = &field.ts_type;
-            format!("readonly {name}: FieldController<{ts_type}>;")
+            if field.is_array {
+                // Array fields use ArrayFieldController with the element type
+                let element_type = field.array_element_type.as_deref().unwrap_or("unknown");
+                format!("readonly {name}: ArrayFieldController<{element_type}>;")
+            } else {
+                format!("readonly {name}: FieldController<{ts_type}>;")
+            }
         })
         .collect::<Vec<_>>()
         .join("\n            ")

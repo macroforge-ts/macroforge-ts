@@ -73,7 +73,7 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
             const discriminant = formData.get("@{discriminant_field}") as @{variant_literals} | null;
 
             if (!discriminant) {
-                return { success: false, error: [{ field: "@{discriminant_field}", message: "Missing discriminant field" }] };
+                return Result.err([{ field: "@{discriminant_field}", message: "Missing discriminant field" }]);
             }
 
             const obj: Record<string, unknown> = {};
@@ -168,7 +168,7 @@ fn generate_primitive_extraction(
                 r#"{{
                 const {name}Str = formData.get("{form_key}");
                 obj.{name} = {name}Str ? parseFloat({name}Str as string) : {default};
-                if (obj.{name} !== undefined && Number.isNaN(obj.{name})) obj.{name} = {default};
+                if (obj.{name} !== undefined && isNaN(obj.{name} as number)) obj.{name} = {default};
             }}"#
             )
         }
@@ -246,7 +246,7 @@ fn generate_array_extraction(name: &str, form_key: &str, field: &ParsedField) ->
         }
         "number" => {
             format!(
-                r#"obj.{name} = formData.getAll("{form_key}").map(v => parseFloat(v as string)).filter(n => !Number.isNaN(n));"#
+                r#"obj.{name} = formData.getAll("{form_key}").map(v => parseFloat(v as string)).filter(n => !isNaN(n));"#
             )
         }
         "boolean" => {

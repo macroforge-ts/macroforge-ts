@@ -3,39 +3,39 @@
  */
 
 import {
-  validateUserRegistration,
-  validateProduct,
-  validateEvent,
-  type ValidationResult,
-} from "./validator-form";
+    validateUserRegistration,
+    validateProduct,
+    validateEvent,
+    type ValidationResult
+} from './validator-form';
 
 // Global results for Playwright
 declare global {
-  interface Window {
-    validatorFormResults: {
-      userRegistration?: ValidationResult<any>;
-      product?: ValidationResult<any>;
-      event?: ValidationResult<any>;
-    };
-  }
+    interface Window {
+        validatorFormResults: {
+            userRegistration?: ValidationResult<any>;
+            product?: ValidationResult<any>;
+            event?: ValidationResult<any>;
+        };
+    }
 }
 
 window.validatorFormResults = {};
 
 function renderErrors(errors: string[] | undefined): string {
-  if (!errors || errors.length === 0) return "";
-  return `<ul class="error-list">${errors.map((e) => `<li>${e}</li>`).join("")}</ul>`;
+    if (!errors || errors.length === 0) return '';
+    return `<ul class="error-list">${errors.map((e) => `<li>${e}</li>`).join('')}</ul>`;
 }
 
 function renderSuccess(data: any): string {
-  return `<pre class="success-output">${JSON.stringify(data, null, 2)}</pre>`;
+    return `<pre class="success-output">${JSON.stringify(data, null, 2)}</pre>`;
 }
 
 export function initValidatorFormPage() {
-  const app = document.getElementById("app");
-  if (!app) return;
+    const app = document.getElementById('app');
+    if (!app) return;
 
-  app.innerHTML = `
+    app.innerHTML = `
     <style>
       .form-section {
         background: #f8f9fa;
@@ -231,94 +231,99 @@ export function initValidatorFormPage() {
     </div>
   `;
 
-  // User Registration Form Handler
-  document.getElementById("user-registration-form")?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-    const data = {
-      email: formData.get("email"),
-      password: formData.get("password"),
-      username: formData.get("username"),
-      age: parseInt(formData.get("age") as string) || 0,
-      website: formData.get("website"),
-    };
+    // User Registration Form Handler
+    document.getElementById('user-registration-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const form = e.target as HTMLFormElement;
+        const formData = new FormData(form);
+        const data = {
+            email: formData.get('email'),
+            password: formData.get('password'),
+            username: formData.get('username'),
+            age: parseInt(formData.get('age') as string) || 0,
+            website: formData.get('website')
+        };
 
-    const result = validateUserRegistration(data);
-    window.validatorFormResults.userRegistration = result;
+        const result = validateUserRegistration(data);
+        window.validatorFormResults.userRegistration = result;
 
-    const resultEl = document.getElementById("user-registration-result")!;
-    if (result.success) {
-      resultEl.className = "result-container success";
-      resultEl.innerHTML = renderSuccess(result.data);
-      resultEl.setAttribute("data-validation-success", "true");
-    } else {
-      resultEl.className = "result-container error";
-      resultEl.innerHTML = renderErrors(result.errors);
-      resultEl.setAttribute("data-validation-success", "false");
-    }
-  });
+        const resultEl = document.getElementById('user-registration-result')!;
+        if (result.success) {
+            resultEl.className = 'result-container success';
+            resultEl.innerHTML = renderSuccess(result.data);
+            resultEl.setAttribute('data-validation-success', 'true');
+        } else {
+            resultEl.className = 'result-container error';
+            resultEl.innerHTML = renderErrors(result.errors);
+            resultEl.setAttribute('data-validation-success', 'false');
+        }
+    });
 
-  // Product Form Handler
-  document.getElementById("product-form")?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-    const tagsStr = formData.get("tags") as string;
-    const tags = tagsStr ? tagsStr.split(",").map((t) => t.trim()).filter(Boolean) : [];
+    // Product Form Handler
+    document.getElementById('product-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const form = e.target as HTMLFormElement;
+        const formData = new FormData(form);
+        const tagsStr = formData.get('tags') as string;
+        const tags = tagsStr
+            ? tagsStr
+                  .split(',')
+                  .map((t) => t.trim())
+                  .filter(Boolean)
+            : [];
 
-    const data = {
-      name: formData.get("name"),
-      sku: formData.get("sku"),
-      price: parseFloat(formData.get("price") as string) || 0,
-      quantity: parseInt(formData.get("quantity") as string) || 0,
-      tags,
-    };
+        const data = {
+            name: formData.get('name'),
+            sku: formData.get('sku'),
+            price: parseFloat(formData.get('price') as string) || 0,
+            quantity: parseInt(formData.get('quantity') as string) || 0,
+            tags
+        };
 
-    const result = validateProduct(data);
-    window.validatorFormResults.product = result;
+        const result = validateProduct(data);
+        window.validatorFormResults.product = result;
 
-    const resultEl = document.getElementById("product-result")!;
-    if (result.success) {
-      resultEl.className = "result-container success";
-      resultEl.innerHTML = renderSuccess(result.data);
-      resultEl.setAttribute("data-validation-success", "true");
-    } else {
-      resultEl.className = "result-container error";
-      resultEl.innerHTML = renderErrors(result.errors);
-      resultEl.setAttribute("data-validation-success", "false");
-    }
-  });
+        const resultEl = document.getElementById('product-result')!;
+        if (result.success) {
+            resultEl.className = 'result-container success';
+            resultEl.innerHTML = renderSuccess(result.data);
+            resultEl.setAttribute('data-validation-success', 'true');
+        } else {
+            resultEl.className = 'result-container error';
+            resultEl.innerHTML = renderErrors(result.errors);
+            resultEl.setAttribute('data-validation-success', 'false');
+        }
+    });
 
-  // Event Form Handler
-  document.getElementById("event-form")?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
+    // Event Form Handler
+    document.getElementById('event-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const form = e.target as HTMLFormElement;
+        const formData = new FormData(form);
 
-    // Convert date strings to Date objects for validation
-    const startDateStr = formData.get("startDate") as string;
-    const endDateStr = formData.get("endDate") as string;
+        // Convert date strings to Date objects for validation
+        const startDateStr = formData.get('startDate') as string;
+        const endDateStr = formData.get('endDate') as string;
 
-    const data = {
-      title: formData.get("title"),
-      startDate: new Date(startDateStr),
-      endDate: new Date(endDateStr),
-      maxAttendees: parseInt(formData.get("maxAttendees") as string) || 0,
-    };
+        const data = {
+            title: formData.get('title'),
+            startDate: new Date(startDateStr),
+            endDate: new Date(endDateStr),
+            maxAttendees: parseInt(formData.get('maxAttendees') as string) || 0
+        };
 
-    const result = validateEvent(data);
-    window.validatorFormResults.event = result;
+        const result = validateEvent(data);
+        window.validatorFormResults.event = result;
 
-    const resultEl = document.getElementById("event-result")!;
-    if (result.success) {
-      resultEl.className = "result-container success";
-      resultEl.innerHTML = renderSuccess(result.data);
-      resultEl.setAttribute("data-validation-success", "true");
-    } else {
-      resultEl.className = "result-container error";
-      resultEl.innerHTML = renderErrors(result.errors);
-      resultEl.setAttribute("data-validation-success", "false");
-    }
-  });
+        const resultEl = document.getElementById('event-result')!;
+        if (result.success) {
+            resultEl.className = 'result-container success';
+            resultEl.innerHTML = renderSuccess(result.data);
+            resultEl.setAttribute('data-validation-success', 'true');
+        } else {
+            resultEl.className = 'result-container error';
+            resultEl.innerHTML = renderErrors(result.errors);
+            resultEl.setAttribute('data-validation-success', 'false');
+        }
+    });
 }

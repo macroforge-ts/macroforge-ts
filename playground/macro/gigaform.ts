@@ -1,22 +1,22 @@
-import type { Result } from "macroforge/utils";
+import type { Result, Option } from "macroforge/utils";
 
 /** Base interface for field controllers */
 export interface FieldController<T> {
-  readonly path: readonly string[];
+  readonly path: ReadonlyArray<string | number>;
   readonly name: string;
-  readonly constraints: Readonly<Record<string, unknown>>;
-  readonly label: string | null;
-  readonly description: string | null;
-  readonly placeholder: string | null;
-  readonly disabled: boolean | null;
-  readonly readonly: boolean | null;
+  readonly constraints: Record<string, unknown>;
+  readonly label?: string;
+  readonly description?: string;
+  readonly placeholder?: string;
+  readonly disabled?: boolean;
+  readonly readonly?: boolean;
   get(): T;
   set(value: T): void;
-  getError(): readonly string[] | null;
-  setError(errors: readonly string[] | null): void;
-  getTainted(): boolean;
-  setTainted(tainted: boolean): void;
-  validate(): Promise<boolean>;
+  getError(): Option<Array<string>>;
+  setError(value: Option<Array<string>>): void;
+  getTainted(): Option<boolean>;
+  setTainted(value: Option<boolean>): void;
+  validate(): Array<string>;
 }
 
 /** Base interface for array field controllers */

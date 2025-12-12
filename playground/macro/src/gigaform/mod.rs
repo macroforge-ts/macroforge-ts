@@ -120,6 +120,11 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     output.add_import("Result", "macroforge/utils");
     output.add_import("Option", "macroforge/utils");
 
+    // Add ArrayFieldController import if any fields are arrays
+    if fields.iter().any(|f| f.is_array) {
+        output.add_type_import("ArrayFieldController", "@playground/macro/gigaform");
+    }
+
     // Add i18n import if used
     if options.uses_i18n() || fields.iter().any(|f| f.uses_i18n()) {
         output.add_import("m", "$lib/paraglide/messages");
@@ -220,6 +225,15 @@ fn generate_union_form(
 
     output.add_import("Result", "macroforge/utils");
     output.add_import("Option", "macroforge/utils");
+
+    // Add ArrayFieldController import if any variant has array fields
+    if union_config
+        .variants
+        .iter()
+        .any(|v| v.fields.iter().any(|f| f.is_array))
+    {
+        output.add_type_import("ArrayFieldController", "@playground/macro/gigaform");
+    }
 
     // Add i18n import if used
     if options.uses_i18n()

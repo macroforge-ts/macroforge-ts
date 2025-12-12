@@ -9,21 +9,21 @@
  */
 /** @derive(FieldController) */
 export class FormModel {
-  /** @fieldController(textAreaController) */
-  memo: string | null;
+    /** @fieldController(textAreaController) */
+    memo: string | null;
 
-  username: string;
+    username: string;
 
-  /** @fieldController(textAreaController) */
-  description: string;
+    /** @fieldController(textAreaController) */
+    description: string;
 
-  constructor(memo: string | null, username: string, description: string) {
-    this.memo = memo;
-    this.username = username;
-    this.description = description;
-  }
+    constructor(memo: string | null, username: string, description: string) {
+        this.memo = memo;
+        this.username = username;
+        this.description = description;
+    }
 }
 
-let formy = new FormModel("sdfsdf", "dfsdf", "sdfsdf");
+let formy = new FormModel('sdfsdf', 'dfsdf', 'sdfsdf');
 
 let controller = formy.memoFieldController;
