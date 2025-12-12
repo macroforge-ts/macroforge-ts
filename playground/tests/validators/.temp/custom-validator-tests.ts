@@ -126,12 +126,62 @@ export class CustomNumberValidator {
                 });
             }
         }
-        (instance as any).evenNumber = __raw_evenNumber;
+        instance.evenNumber = __raw_evenNumber;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof CustomNumberValidator>(field: K, value: CustomNumberValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "evenNumber":
+            {
+                const __val = value as number;
+                {
+                    const __customResult = isEven(__val);
+                    if (__customResult === false) {
+                        errors.push({
+                            field: "evenNumber",
+                            message: "failed custom validation"
+                        });
+                    }
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<CustomNumberValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("evenNumber" in partial && partial.evenNumber !== undefined) {
+        const __val = partial.evenNumber as number;
+        {
+            const __customResult = isEven(__val);
+            if (__customResult === false) {
+                errors.push({
+                    field: "evenNumber",
+                    message: "failed custom validation"
+                });
+            }
+        }
+    }
+    return errors;
 }
 }
 
@@ -244,12 +294,62 @@ export class CustomStringValidator {
                 });
             }
         }
-        (instance as any).username = __raw_username;
+        instance.username = __raw_username;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof CustomStringValidator>(field: K, value: CustomStringValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "username":
+            {
+                const __val = value as string;
+                {
+                    const __customResult = isValidUsername(__val);
+                    if (__customResult === false) {
+                        errors.push({
+                            field: "username",
+                            message: "failed custom validation"
+                        });
+                    }
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<CustomStringValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("username" in partial && partial.username !== undefined) {
+        const __val = partial.username as string;
+        {
+            const __customResult = isValidUsername(__val);
+            if (__customResult === false) {
+                errors.push({
+                    field: "username",
+                    message: "failed custom validation"
+                });
+            }
+        }
+    }
+    return errors;
 }
 }
 
@@ -362,11 +462,61 @@ export class CustomWithMessageValidator {
                 });
             }
         }
-        (instance as any).evenNumber = __raw_evenNumber;
+        instance.evenNumber = __raw_evenNumber;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof CustomWithMessageValidator>(field: K, value: CustomWithMessageValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "evenNumber":
+            {
+                const __val = value as number;
+                {
+                    const __customResult = isEven(__val);
+                    if (__customResult === false) {
+                        errors.push({
+                            field: "evenNumber",
+                            message: "Number must be even"
+                        });
+                    }
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<CustomWithMessageValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("evenNumber" in partial && partial.evenNumber !== undefined) {
+        const __val = partial.evenNumber as number;
+        {
+            const __customResult = isEven(__val);
+            if (__customResult === false) {
+                errors.push({
+                    field: "evenNumber",
+                    message: "Number must be even"
+                });
+            }
+        }
+    }
+    return errors;
 }
 }

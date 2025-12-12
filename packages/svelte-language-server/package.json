@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/svelte-language-server",
-  "version": "0.1.31",
+  "version": "0.1.32",
   "description": "A language server for Svelte with macroforge integration",
   "main": "dist/src/index.js",
   "typings": "dist/src/index",
@@ -56,8 +56,8 @@
   },
   "dependencies": {
     "@jridgewell/trace-mapping": "^0.3.25",
-    "macroforge": "^0.1.31",
-    "@macroforge/typescript-plugin": "^0.1.31",
+    "macroforge": "^0.1.32",
+    "@macroforge/typescript-plugin": "^0.1.32",
     "@vscode/emmet-helper": "2.8.4",
     "chokidar": "^4.0.1",
     "estree-walker": "^2.0.1",

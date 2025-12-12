@@ -113,12 +113,56 @@ export class GreaterThanBigIntValidator {
                 message: "must be greater than 0"
             });
         }
-        (instance as any).value = __raw_value;
+        instance.value = __raw_value;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof GreaterThanBigIntValidator>(field: K, value: GreaterThanBigIntValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "value":
+            {
+                const __val = value as bigint;
+                if (__val <= BigInt(0)) {
+                    errors.push({
+                        field: "value",
+                        message: "must be greater than 0"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<GreaterThanBigIntValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("value" in partial && partial.value !== undefined) {
+        const __val = partial.value as bigint;
+        if (__val <= BigInt(0)) {
+            errors.push({
+                field: "value",
+                message: "must be greater than 0"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -228,12 +272,56 @@ export class GreaterThanOrEqualToBigIntValidator {
                 message: "must be greater than or equal to 0"
             });
         }
-        (instance as any).value = __raw_value;
+        instance.value = __raw_value;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof GreaterThanOrEqualToBigIntValidator>(field: K, value: GreaterThanOrEqualToBigIntValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "value":
+            {
+                const __val = value as bigint;
+                if (__val < BigInt(0)) {
+                    errors.push({
+                        field: "value",
+                        message: "must be greater than or equal to 0"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<GreaterThanOrEqualToBigIntValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("value" in partial && partial.value !== undefined) {
+        const __val = partial.value as bigint;
+        if (__val < BigInt(0)) {
+            errors.push({
+                field: "value",
+                message: "must be greater than or equal to 0"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -343,12 +431,56 @@ export class LessThanBigIntValidator {
                 message: "must be less than 1000"
             });
         }
-        (instance as any).value = __raw_value;
+        instance.value = __raw_value;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof LessThanBigIntValidator>(field: K, value: LessThanBigIntValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "value":
+            {
+                const __val = value as bigint;
+                if (__val >= BigInt(1000)) {
+                    errors.push({
+                        field: "value",
+                        message: "must be less than 1000"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<LessThanBigIntValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("value" in partial && partial.value !== undefined) {
+        const __val = partial.value as bigint;
+        if (__val >= BigInt(1000)) {
+            errors.push({
+                field: "value",
+                message: "must be less than 1000"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -458,12 +590,56 @@ export class LessThanOrEqualToBigIntValidator {
                 message: "must be less than or equal to 1000"
             });
         }
-        (instance as any).value = __raw_value;
+        instance.value = __raw_value;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof LessThanOrEqualToBigIntValidator>(field: K, value: LessThanOrEqualToBigIntValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "value":
+            {
+                const __val = value as bigint;
+                if (__val > BigInt(1000)) {
+                    errors.push({
+                        field: "value",
+                        message: "must be less than or equal to 1000"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<LessThanOrEqualToBigIntValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("value" in partial && partial.value !== undefined) {
+        const __val = partial.value as bigint;
+        if (__val > BigInt(1000)) {
+            errors.push({
+                field: "value",
+                message: "must be less than or equal to 1000"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -573,12 +749,56 @@ export class BetweenBigIntValidator {
                 message: "must be between 0 and 1000"
             });
         }
-        (instance as any).value = __raw_value;
+        instance.value = __raw_value;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof BetweenBigIntValidator>(field: K, value: BetweenBigIntValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "value":
+            {
+                const __val = value as bigint;
+                if (__val < BigInt(0) || __val > BigInt(1000)) {
+                    errors.push({
+                        field: "value",
+                        message: "must be between 0 and 1000"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<BetweenBigIntValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("value" in partial && partial.value !== undefined) {
+        const __val = partial.value as bigint;
+        if (__val < BigInt(0) || __val > BigInt(1000)) {
+            errors.push({
+                field: "value",
+                message: "must be between 0 and 1000"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -688,12 +908,56 @@ export class PositiveBigIntValidator {
                 message: "must be positive"
             });
         }
-        (instance as any).value = __raw_value;
+        instance.value = __raw_value;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof PositiveBigIntValidator>(field: K, value: PositiveBigIntValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "value":
+            {
+                const __val = value as bigint;
+                if (__val <= 0n) {
+                    errors.push({
+                        field: "value",
+                        message: "must be positive"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<PositiveBigIntValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("value" in partial && partial.value !== undefined) {
+        const __val = partial.value as bigint;
+        if (__val <= 0n) {
+            errors.push({
+                field: "value",
+                message: "must be positive"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -803,12 +1067,56 @@ export class NonNegativeBigIntValidator {
                 message: "must be non-negative"
             });
         }
-        (instance as any).value = __raw_value;
+        instance.value = __raw_value;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof NonNegativeBigIntValidator>(field: K, value: NonNegativeBigIntValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "value":
+            {
+                const __val = value as bigint;
+                if (__val < 0n) {
+                    errors.push({
+                        field: "value",
+                        message: "must be non-negative"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<NonNegativeBigIntValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("value" in partial && partial.value !== undefined) {
+        const __val = partial.value as bigint;
+        if (__val < 0n) {
+            errors.push({
+                field: "value",
+                message: "must be non-negative"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -918,12 +1226,56 @@ export class NegativeBigIntValidator {
                 message: "must be negative"
             });
         }
-        (instance as any).value = __raw_value;
+        instance.value = __raw_value;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof NegativeBigIntValidator>(field: K, value: NegativeBigIntValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "value":
+            {
+                const __val = value as bigint;
+                if (__val >= 0n) {
+                    errors.push({
+                        field: "value",
+                        message: "must be negative"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<NegativeBigIntValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("value" in partial && partial.value !== undefined) {
+        const __val = partial.value as bigint;
+        if (__val >= 0n) {
+            errors.push({
+                field: "value",
+                message: "must be negative"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -1033,11 +1385,55 @@ export class NonPositiveBigIntValidator {
                 message: "must be non-positive"
             });
         }
-        (instance as any).value = __raw_value;
+        instance.value = __raw_value;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof NonPositiveBigIntValidator>(field: K, value: NonPositiveBigIntValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "value":
+            {
+                const __val = value as bigint;
+                if (__val > 0n) {
+                    errors.push({
+                        field: "value",
+                        message: "must be non-positive"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<NonPositiveBigIntValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("value" in partial && partial.value !== undefined) {
+        const __val = partial.value as bigint;
+        if (__val > 0n) {
+            errors.push({
+                field: "value",
+                message: "must be non-positive"
+            });
+        }
+    }
+    return errors;
 }
 }

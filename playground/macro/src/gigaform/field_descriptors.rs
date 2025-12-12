@@ -581,16 +581,12 @@ fn generate_constraints(validators: &[ValidatorSpec], required: bool) -> String 
     }
 }
 
-/// Generates the field-level validate function that delegates to form validation.
+/// Generates the field-level validate function that uses per-field validation.
 fn generate_field_validate_function(field_name: &str, interface_name: &str) -> String {
     format!(
         r#"validate: (): Array<string> => {{
-                        const result = {interface_name}.fromObject(data);
-                        if (Result.isErr(result)) {{
-                            const allErrors = Result.unwrapErr(result);
-                            return allErrors.filter(e => e.field === "{field_name}").map(e => e.message);
-                        }}
-                        return [];
+                        const fieldErrors = {interface_name}.validateField("{field_name}", data.{field_name});
+                        return fieldErrors.map(e => e.message);
                     }},"#
     )
 }

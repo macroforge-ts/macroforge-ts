@@ -125,12 +125,80 @@ export class MultipleValidatorsTest {
                 message: "must be trimmed (no leading/trailing whitespace)"
             });
         }
-        (instance as any).text = __raw_text;
+        instance.text = __raw_text;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof MultipleValidatorsTest>(field: K, value: MultipleValidatorsTest[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "text":
+            {
+                const __val = value as string;
+                if (__val.length === 0) {
+                    errors.push({
+                        field: "text",
+                        message: "must not be empty"
+                    });
+                }
+                if (__val.length > 100) {
+                    errors.push({
+                        field: "text",
+                        message: "must have at most 100 characters"
+                    });
+                }
+                if (__val !== __val.trim()) {
+                    errors.push({
+                        field: "text",
+                        message: "must be trimmed (no leading/trailing whitespace)"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<MultipleValidatorsTest>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("text" in partial && partial.text !== undefined) {
+        const __val = partial.text as string;
+        if (__val.length === 0) {
+            errors.push({
+                field: "text",
+                message: "must not be empty"
+            });
+        }
+        if (__val.length > 100) {
+            errors.push({
+                field: "text",
+                message: "must have at most 100 characters"
+            });
+        }
+        if (__val !== __val.trim()) {
+            errors.push({
+                field: "text",
+                message: "must be trimmed (no leading/trailing whitespace)"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -240,12 +308,56 @@ export class CustomMessageTest {
                 message: "Please enter a valid email address"
             });
         }
-        (instance as any).email = __raw_email;
+        instance.email = __raw_email;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof CustomMessageTest>(field: K, value: CustomMessageTest[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "email":
+            {
+                const __val = value as string;
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
+                    errors.push({
+                        field: "email",
+                        message: "Please enter a valid email address"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<CustomMessageTest>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("email" in partial && partial.email !== undefined) {
+        const __val = partial.email as string;
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
+            errors.push({
+                field: "email",
+                message: "Please enter a valid email address"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -361,12 +473,68 @@ export class MixedValidatorsTest {
                 message: "Invalid email format"
             });
         }
-        (instance as any).email = __raw_email;
+        instance.email = __raw_email;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof MixedValidatorsTest>(field: K, value: MixedValidatorsTest[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "email":
+            {
+                const __val = value as string;
+                if (__val.length === 0) {
+                    errors.push({
+                        field: "email",
+                        message: "must not be empty"
+                    });
+                }
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
+                    errors.push({
+                        field: "email",
+                        message: "Invalid email format"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<MixedValidatorsTest>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("email" in partial && partial.email !== undefined) {
+        const __val = partial.email as string;
+        if (__val.length === 0) {
+            errors.push({
+                field: "email",
+                message: "must not be empty"
+            });
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
+            errors.push({
+                field: "email",
+                message: "Invalid email format"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -488,12 +656,80 @@ export class CombinedStringValidatorsTest {
                 message: "must be lowercase"
             });
         }
-        (instance as any).username = __raw_username;
+        instance.username = __raw_username;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof CombinedStringValidatorsTest>(field: K, value: CombinedStringValidatorsTest[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "username":
+            {
+                const __val = value as string;
+                if (__val.length < 3) {
+                    errors.push({
+                        field: "username",
+                        message: "must have at least 3 characters"
+                    });
+                }
+                if (__val.length > 20) {
+                    errors.push({
+                        field: "username",
+                        message: "must have at most 20 characters"
+                    });
+                }
+                if (__val !== __val.toLowerCase()) {
+                    errors.push({
+                        field: "username",
+                        message: "must be lowercase"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<CombinedStringValidatorsTest>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("username" in partial && partial.username !== undefined) {
+        const __val = partial.username as string;
+        if (__val.length < 3) {
+            errors.push({
+                field: "username",
+                message: "must have at least 3 characters"
+            });
+        }
+        if (__val.length > 20) {
+            errors.push({
+                field: "username",
+                message: "must have at most 20 characters"
+            });
+        }
+        if (__val !== __val.toLowerCase()) {
+            errors.push({
+                field: "username",
+                message: "must be lowercase"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -615,11 +851,79 @@ export class CombinedNumberValidatorsTest {
                 message: "must be less than 1000"
             });
         }
-        (instance as any).score = __raw_score;
+        instance.score = __raw_score;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof CombinedNumberValidatorsTest>(field: K, value: CombinedNumberValidatorsTest[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "score":
+            {
+                const __val = value as number;
+                if (!Number.isInteger(__val)) {
+                    errors.push({
+                        field: "score",
+                        message: "must be an integer"
+                    });
+                }
+                if (__val <= 0) {
+                    errors.push({
+                        field: "score",
+                        message: "must be positive"
+                    });
+                }
+                if (__val >= 1000) {
+                    errors.push({
+                        field: "score",
+                        message: "must be less than 1000"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<CombinedNumberValidatorsTest>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("score" in partial && partial.score !== undefined) {
+        const __val = partial.score as number;
+        if (!Number.isInteger(__val)) {
+            errors.push({
+                field: "score",
+                message: "must be an integer"
+            });
+        }
+        if (__val <= 0) {
+            errors.push({
+                field: "score",
+                message: "must be positive"
+            });
+        }
+        if (__val >= 1000) {
+            errors.push({
+                field: "score",
+                message: "must be less than 1000"
+            });
+        }
+    }
+    return errors;
 }
 }

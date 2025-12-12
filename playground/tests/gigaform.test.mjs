@@ -275,7 +275,7 @@ describe("Gigaform field controllers", () => {
     assert.ok(result.code.includes("setTainted: (value: Option<boolean>) => { tainted.field = value; }"), "Should generate setTainted closure");
   });
 
-  test("generates field-level validate that filters form errors", () => {
+  test("generates field-level validate using validateField", () => {
     const code = `
       /** @derive(Default, Deserialize, Gigaform) */
       interface FilterForm {
@@ -285,8 +285,7 @@ describe("Gigaform field controllers", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(result.code.includes("validate: ()"), "Should generate validate method");
-    assert.ok(result.code.includes("FilterForm.fromObject(data)"), "Should call form validation");
-    assert.ok(result.code.includes('e.field === "username"'), "Should filter by field name");
+    assert.ok(result.code.includes('FilterForm.validateField("username", data.username)'), "Should call per-field validation");
     assert.ok(result.code.includes(".map(e => e.message)"), "Should extract messages");
   });
 

@@ -113,12 +113,56 @@ export class GreaterThanValidator {
                 message: "must be greater than 0"
             });
         }
-        (instance as any).positive = __raw_positive;
+        instance.positive = __raw_positive;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof GreaterThanValidator>(field: K, value: GreaterThanValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "positive":
+            {
+                const __val = value as number;
+                if (__val <= 0) {
+                    errors.push({
+                        field: "positive",
+                        message: "must be greater than 0"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<GreaterThanValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("positive" in partial && partial.positive !== undefined) {
+        const __val = partial.positive as number;
+        if (__val <= 0) {
+            errors.push({
+                field: "positive",
+                message: "must be greater than 0"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -228,12 +272,56 @@ export class GreaterThanOrEqualToValidator {
                 message: "must be greater than or equal to 0"
             });
         }
-        (instance as any).nonNegative = __raw_nonNegative;
+        instance.nonNegative = __raw_nonNegative;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof GreaterThanOrEqualToValidator>(field: K, value: GreaterThanOrEqualToValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "nonNegative":
+            {
+                const __val = value as number;
+                if (__val < 0) {
+                    errors.push({
+                        field: "nonNegative",
+                        message: "must be greater than or equal to 0"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<GreaterThanOrEqualToValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("nonNegative" in partial && partial.nonNegative !== undefined) {
+        const __val = partial.nonNegative as number;
+        if (__val < 0) {
+            errors.push({
+                field: "nonNegative",
+                message: "must be greater than or equal to 0"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -343,12 +431,56 @@ export class LessThanValidator {
                 message: "must be less than 100"
             });
         }
-        (instance as any).capped = __raw_capped;
+        instance.capped = __raw_capped;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof LessThanValidator>(field: K, value: LessThanValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "capped":
+            {
+                const __val = value as number;
+                if (__val >= 100) {
+                    errors.push({
+                        field: "capped",
+                        message: "must be less than 100"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<LessThanValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("capped" in partial && partial.capped !== undefined) {
+        const __val = partial.capped as number;
+        if (__val >= 100) {
+            errors.push({
+                field: "capped",
+                message: "must be less than 100"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -458,12 +590,56 @@ export class LessThanOrEqualToValidator {
                 message: "must be less than or equal to 100"
             });
         }
-        (instance as any).maxed = __raw_maxed;
+        instance.maxed = __raw_maxed;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof LessThanOrEqualToValidator>(field: K, value: LessThanOrEqualToValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "maxed":
+            {
+                const __val = value as number;
+                if (__val > 100) {
+                    errors.push({
+                        field: "maxed",
+                        message: "must be less than or equal to 100"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<LessThanOrEqualToValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("maxed" in partial && partial.maxed !== undefined) {
+        const __val = partial.maxed as number;
+        if (__val > 100) {
+            errors.push({
+                field: "maxed",
+                message: "must be less than or equal to 100"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -573,12 +749,56 @@ export class BetweenValidator {
                 message: "must be between 1 and 100"
             });
         }
-        (instance as any).ranged = __raw_ranged;
+        instance.ranged = __raw_ranged;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof BetweenValidator>(field: K, value: BetweenValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "ranged":
+            {
+                const __val = value as number;
+                if (__val < 1 || __val > 100) {
+                    errors.push({
+                        field: "ranged",
+                        message: "must be between 1 and 100"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<BetweenValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("ranged" in partial && partial.ranged !== undefined) {
+        const __val = partial.ranged as number;
+        if (__val < 1 || __val > 100) {
+            errors.push({
+                field: "ranged",
+                message: "must be between 1 and 100"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -688,12 +908,56 @@ export class IntValidator {
                 message: "must be an integer"
             });
         }
-        (instance as any).integer = __raw_integer;
+        instance.integer = __raw_integer;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof IntValidator>(field: K, value: IntValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "integer":
+            {
+                const __val = value as number;
+                if (!Number.isInteger(__val)) {
+                    errors.push({
+                        field: "integer",
+                        message: "must be an integer"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<IntValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("integer" in partial && partial.integer !== undefined) {
+        const __val = partial.integer as number;
+        if (!Number.isInteger(__val)) {
+            errors.push({
+                field: "integer",
+                message: "must be an integer"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -803,12 +1067,56 @@ export class NonNaNValidator {
                 message: "must not be NaN"
             });
         }
-        (instance as any).valid = __raw_valid;
+        instance.valid = __raw_valid;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof NonNaNValidator>(field: K, value: NonNaNValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "valid":
+            {
+                const __val = value as number;
+                if (Number.isNaN(__val)) {
+                    errors.push({
+                        field: "valid",
+                        message: "must not be NaN"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<NonNaNValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("valid" in partial && partial.valid !== undefined) {
+        const __val = partial.valid as number;
+        if (Number.isNaN(__val)) {
+            errors.push({
+                field: "valid",
+                message: "must not be NaN"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -918,12 +1226,56 @@ export class FiniteValidator {
                 message: "must be finite"
             });
         }
-        (instance as any).finite = __raw_finite;
+        instance.finite = __raw_finite;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof FiniteValidator>(field: K, value: FiniteValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "finite":
+            {
+                const __val = value as number;
+                if (!Number.isFinite(__val)) {
+                    errors.push({
+                        field: "finite",
+                        message: "must be finite"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<FiniteValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("finite" in partial && partial.finite !== undefined) {
+        const __val = partial.finite as number;
+        if (!Number.isFinite(__val)) {
+            errors.push({
+                field: "finite",
+                message: "must be finite"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -1033,12 +1385,56 @@ export class PositiveValidator {
                 message: "must be positive"
             });
         }
-        (instance as any).positive = __raw_positive;
+        instance.positive = __raw_positive;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof PositiveValidator>(field: K, value: PositiveValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "positive":
+            {
+                const __val = value as number;
+                if (__val <= 0) {
+                    errors.push({
+                        field: "positive",
+                        message: "must be positive"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<PositiveValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("positive" in partial && partial.positive !== undefined) {
+        const __val = partial.positive as number;
+        if (__val <= 0) {
+            errors.push({
+                field: "positive",
+                message: "must be positive"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -1148,12 +1544,56 @@ export class NonNegativeValidator {
                 message: "must be non-negative"
             });
         }
-        (instance as any).nonNegative = __raw_nonNegative;
+        instance.nonNegative = __raw_nonNegative;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof NonNegativeValidator>(field: K, value: NonNegativeValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "nonNegative":
+            {
+                const __val = value as number;
+                if (__val < 0) {
+                    errors.push({
+                        field: "nonNegative",
+                        message: "must be non-negative"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<NonNegativeValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("nonNegative" in partial && partial.nonNegative !== undefined) {
+        const __val = partial.nonNegative as number;
+        if (__val < 0) {
+            errors.push({
+                field: "nonNegative",
+                message: "must be non-negative"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -1263,12 +1703,56 @@ export class NegativeValidator {
                 message: "must be negative"
             });
         }
-        (instance as any).negative = __raw_negative;
+        instance.negative = __raw_negative;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof NegativeValidator>(field: K, value: NegativeValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "negative":
+            {
+                const __val = value as number;
+                if (__val >= 0) {
+                    errors.push({
+                        field: "negative",
+                        message: "must be negative"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<NegativeValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("negative" in partial && partial.negative !== undefined) {
+        const __val = partial.negative as number;
+        if (__val >= 0) {
+            errors.push({
+                field: "negative",
+                message: "must be negative"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -1378,12 +1862,56 @@ export class NonPositiveValidator {
                 message: "must be non-positive"
             });
         }
-        (instance as any).nonPositive = __raw_nonPositive;
+        instance.nonPositive = __raw_nonPositive;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof NonPositiveValidator>(field: K, value: NonPositiveValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "nonPositive":
+            {
+                const __val = value as number;
+                if (__val > 0) {
+                    errors.push({
+                        field: "nonPositive",
+                        message: "must be non-positive"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<NonPositiveValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("nonPositive" in partial && partial.nonPositive !== undefined) {
+        const __val = partial.nonPositive as number;
+        if (__val > 0) {
+            errors.push({
+                field: "nonPositive",
+                message: "must be non-positive"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -1493,12 +2021,56 @@ export class MultipleOfValidator {
                 message: "must be a multiple of 5"
             });
         }
-        (instance as any).multiple = __raw_multiple;
+        instance.multiple = __raw_multiple;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof MultipleOfValidator>(field: K, value: MultipleOfValidator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "multiple":
+            {
+                const __val = value as number;
+                if (__val % 5 !== 0) {
+                    errors.push({
+                        field: "multiple",
+                        message: "must be a multiple of 5"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<MultipleOfValidator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("multiple" in partial && partial.multiple !== undefined) {
+        const __val = partial.multiple as number;
+        if (__val % 5 !== 0) {
+            errors.push({
+                field: "multiple",
+                message: "must be a multiple of 5"
+            });
+        }
+    }
+    return errors;
 }
 }
 
@@ -1608,11 +2180,55 @@ export class Uint8Validator {
                 message: "must be a uint8 (0-255)"
             });
         }
-        (instance as any).byte = __raw_byte;
+        instance.byte = __raw_byte;
     }
     if (errors.length > 0) {
         throw new DeserializeError(errors);
     }
     return instance;
+}
+
+    static validateField<K extends keyof Uint8Validator>(field: K, value: Uint8Validator[K]): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    switch(field){
+        case "byte":
+            {
+                const __val = value as number;
+                if (!Number.isInteger(__val) || __val < 0 || __val > 255) {
+                    errors.push({
+                        field: "byte",
+                        message: "must be a uint8 (0-255)"
+                    });
+                }
+                break;
+            }
+    }
+    return errors;
+}
+
+    static validateFields(partial: Partial<Uint8Validator>): Array<{
+    field: string;
+    message: string;
+}> {
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
+    if ("byte" in partial && partial.byte !== undefined) {
+        const __val = partial.byte as number;
+        if (!Number.isInteger(__val) || __val < 0 || __val > 255) {
+            errors.push({
+                field: "byte",
+                message: "must be a uint8 (0-255)"
+            });
+        }
+    }
+    return errors;
 }
 }
