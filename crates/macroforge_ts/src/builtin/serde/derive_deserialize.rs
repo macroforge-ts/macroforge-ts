@@ -860,19 +860,35 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             if type_alias.is_object() {
                 let mut result = ts_template! {
                     export namespace @{type_name} {
-                        export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): @{type_name} {
-                            const raw = JSON.parse(json);
-                            return fromObject(raw, opts);
+                        export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{type_name}, Array<{ field: string; message: string }>> {
+                            try {
+                                const raw = JSON.parse(json);
+                                return fromObject(raw, opts);
+                            } catch (e) {
+                                if (e instanceof DeserializeError) {
+                                    return Result.err(e.errors);
+                                }
+                                const message = e instanceof Error ? e.message : String(e);
+                                return Result.err([{ field: "_root", message }]);
+                            }
                         }
 
-                        export function fromObject(obj: unknown, opts?: DeserializeOptions): @{type_name} {
-                            const ctx = DeserializeContext.create();
-                            const result = __deserialize(obj, ctx);
-                            ctx.applyPatches();
-                            if (opts?.freeze) {
-                                ctx.freezeAll();
+                        export function fromObject(obj: unknown, opts?: DeserializeOptions): Result<@{type_name}, Array<{ field: string; message: string }>> {
+                            try {
+                                const ctx = DeserializeContext.create();
+                                const result = __deserialize(obj, ctx);
+                                ctx.applyPatches();
+                                if (opts?.freeze) {
+                                    ctx.freezeAll();
+                                }
+                                return Result.ok(result);
+                            } catch (e) {
+                                if (e instanceof DeserializeError) {
+                                    return Result.err(e.errors);
+                                }
+                                const message = e instanceof Error ? e.message : String(e);
+                                return Result.err([{ field: "_root", message }]);
                             }
-                            return result;
                         }
 
                         export function __deserialize(value: any, ctx: DeserializeContext): @{type_name} {
@@ -893,26 +909,44 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         }
                     }
                 };
+                result.add_import("Result", "macroforge/utils");
                 result.add_import("DeserializeContext", "macroforge/serde");
+                result.add_import("DeserializeError", "macroforge/serde");
                 result.add_type_import("DeserializeOptions", "macroforge/serde");
                 Ok(result)
             } else {
-                // Union type - dispatch based on __type
+                // Union type (including string literal unions) - dispatch based on __type or return as-is
                 let mut result = ts_template! {
                     export namespace @{type_name} {
-                        export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): @{type_name} {
-                            const raw = JSON.parse(json);
-                            return fromObject(raw, opts);
+                        export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{type_name}, Array<{ field: string; message: string }>> {
+                            try {
+                                const raw = JSON.parse(json);
+                                return fromObject(raw, opts);
+                            } catch (e) {
+                                if (e instanceof DeserializeError) {
+                                    return Result.err(e.errors);
+                                }
+                                const message = e instanceof Error ? e.message : String(e);
+                                return Result.err([{ field: "_root", message }]);
+                            }
                         }
 
-                        export function fromObject(obj: unknown, opts?: DeserializeOptions): @{type_name} {
-                            const ctx = DeserializeContext.create();
-                            const result = __deserialize(obj, ctx);
-                            ctx.applyPatches();
-                            if (opts?.freeze) {
-                                ctx.freezeAll();
+                        export function fromObject(obj: unknown, opts?: DeserializeOptions): Result<@{type_name}, Array<{ field: string; message: string }>> {
+                            try {
+                                const ctx = DeserializeContext.create();
+                                const result = __deserialize(obj, ctx);
+                                ctx.applyPatches();
+                                if (opts?.freeze) {
+                                    ctx.freezeAll();
+                                }
+                                return Result.ok(result);
+                            } catch (e) {
+                                if (e instanceof DeserializeError) {
+                                    return Result.err(e.errors);
+                                }
+                                const message = e instanceof Error ? e.message : String(e);
+                                return Result.err([{ field: "_root", message }]);
                             }
-                            return result;
                         }
 
                         export function __deserialize(value: any, ctx: DeserializeContext): @{type_name} {
@@ -920,7 +954,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 return ctx.getOrDefer(value.__ref) as @{type_name};
                             }
 
-                            // For union types, delegate to the appropriate type based on __type
+                            // For union types with __type, delegate to the appropriate type
                             if (typeof (value as any)?.__type === "string") {
                                 // Look up deserializer by type name
                                 // This requires the types in the union to be imported and have __deserialize
@@ -931,7 +965,9 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         }
                     }
                 };
+                result.add_import("Result", "macroforge/utils");
                 result.add_import("DeserializeContext", "macroforge/serde");
+                result.add_import("DeserializeError", "macroforge/serde");
                 result.add_type_import("DeserializeOptions", "macroforge/serde");
                 Ok(result)
             }
