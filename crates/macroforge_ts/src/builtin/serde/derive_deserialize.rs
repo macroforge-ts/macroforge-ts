@@ -857,10 +857,20 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
 
+            // Build generic type signature if type has type params
+            let type_params = type_alias.type_params();
+            let (generic_decl, generic_args) = if type_params.is_empty() {
+                (String::new(), String::new())
+            } else {
+                let params = type_params.join(", ");
+                (format!("<{}>", params), format!("<{}>", params))
+            };
+            let full_type_name = format!("{}{}", type_name, generic_args);
+
             if type_alias.is_object() {
                 let mut result = ts_template! {
                     export namespace @{type_name} {
-                        export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{type_name}, Array<{ field: string; message: string }>> {
+                        export function {|fromStringifiedJSON@{generic_decl}|}(json: string, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
                             try {
                                 const raw = JSON.parse(json);
                                 return fromObject(raw, opts);
@@ -873,7 +883,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             }
                         }
 
-                        export function fromObject(obj: unknown, opts?: DeserializeOptions): Result<@{type_name}, Array<{ field: string; message: string }>> {
+                        export function {|fromObject@{generic_decl}|}(obj: unknown, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
                             try {
                                 const ctx = DeserializeContext.create();
                                 const result = __deserialize(obj, ctx);
@@ -891,9 +901,9 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             }
                         }
 
-                        export function __deserialize(value: any, ctx: DeserializeContext): @{type_name} {
+                        export function {|__deserialize@{generic_decl}|}(value: any, ctx: DeserializeContext): @{full_type_name} {
                             if (value?.__ref !== undefined) {
-                                return ctx.getOrDefer(value.__ref) as @{type_name};
+                                return ctx.getOrDefer(value.__ref) as @{full_type_name};
                             }
 
                             const instance = { ...value };
@@ -905,7 +915,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             }
 
                             ctx.trackForFreeze(instance);
-                            return instance as @{type_name};
+                            return instance as @{full_type_name};
                         }
                     }
                 };
@@ -918,7 +928,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 // Union type (including string literal unions) - dispatch based on __type or return as-is
                 let mut result = ts_template! {
                     export namespace @{type_name} {
-                        export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{type_name}, Array<{ field: string; message: string }>> {
+                        export function {|fromStringifiedJSON@{generic_decl}|}(json: string, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
                             try {
                                 const raw = JSON.parse(json);
                                 return fromObject(raw, opts);
@@ -931,7 +941,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             }
                         }
 
-                        export function fromObject(obj: unknown, opts?: DeserializeOptions): Result<@{type_name}, Array<{ field: string; message: string }>> {
+                        export function {|fromObject@{generic_decl}|}(obj: unknown, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
                             try {
                                 const ctx = DeserializeContext.create();
                                 const result = __deserialize(obj, ctx);
@@ -949,9 +959,9 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             }
                         }
 
-                        export function __deserialize(value: any, ctx: DeserializeContext): @{type_name} {
+                        export function {|__deserialize@{generic_decl}|}(value: any, ctx: DeserializeContext): @{full_type_name} {
                             if (value?.__ref !== undefined) {
-                                return ctx.getOrDefer(value.__ref) as @{type_name};
+                                return ctx.getOrDefer(value.__ref) as @{full_type_name};
                             }
 
                             // For union types with __type, delegate to the appropriate type
@@ -961,7 +971,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 throw new Error("@{type_name}.__deserialize: polymorphic deserialization requires type registry (TODO)");
                             }
 
-                            return value as @{type_name};
+                            return value as @{full_type_name};
                         }
                     }
                 };

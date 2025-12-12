@@ -1,5 +1,6 @@
 import { Result } from "macroforge/utils";
 import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
 import { PendingRef } from "macroforge/serde";
 /**
@@ -7,25 +8,51 @@ import { PendingRef } from "macroforge/serde";
  */
 
 // MaxItems validator
-/**  */
-export class MaxItemsValidator {
-  
-  items: string[];
 
-  constructor(props: {
+export class MaxItemsValidator {
+    
+    items: string[];
+
+    constructor(props: {
     items: string[];
 }){
     this.items = props.items;
 }
 
-  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<MaxItemsValidator, string[]> {
+    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<MaxItemsValidator, Array<{
+    field: string;
+    message: string;
+}>> {
+    try {
+        const raw = JSON.parse(json);
+        return MaxItemsValidator.fromObject(raw, opts);
+    } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
+    }
+}
+
+    static fromObject(obj: unknown, opts?: DeserializeOptions): Result<MaxItemsValidator, Array<{
+    field: string;
+    message: string;
+}>> {
     try {
         const ctx = DeserializeContext.create();
-        const raw = JSON.parse(json);
-        const resultOrRef = MaxItemsValidator.__deserialize(raw, ctx);
+        const resultOrRef = MaxItemsValidator.__deserialize(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
-                "MaxItemsValidator.fromStringifiedJSON: root cannot be a forward reference"
+                {
+                    field: "_root",
+                    message: "MaxItemsValidator.fromObject: root cannot be a forward reference"
+                }
             ]);
         }
         ctx.applyPatches();
@@ -34,25 +61,44 @@ export class MaxItemsValidator {
         }
         return Result.ok(resultOrRef);
     } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err(message.split("; "));
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
     }
 }
 
-  static __deserialize(value: any, ctx: DeserializeContext): MaxItemsValidator | PendingRef {
+    static __deserialize(value: any, ctx: DeserializeContext): MaxItemsValidator | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        throw new Error("MaxItemsValidator.__deserialize: expected an object");
+        throw new DeserializeError([
+            {
+                field: "_root",
+                message: "MaxItemsValidator.__deserialize: expected an object"
+            }
+        ]);
     }
     const obj = value as Record<string, unknown>;
-    const errors: string[] = [];
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
     if (!("items" in obj)) {
-        errors.push("MaxItemsValidator.__deserialize: missing required field \"items\"");
+        errors.push({
+            field: "items",
+            message: "missing required field"
+        });
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     const instance = Object.create(MaxItemsValidator.prototype) as MaxItemsValidator;
     if (obj.__id !== undefined) {
@@ -63,7 +109,10 @@ export class MaxItemsValidator {
         const __raw_items = obj["items"];
         if (Array.isArray(__raw_items)) {
             if (__raw_items.length > 5) {
-                errors.push("MaxItemsValidator.fromStringifiedJSON: field 'items' must have at most 5 items");
+                errors.push({
+                    field: "items",
+                    message: "must have at most 5 items"
+                });
             }
             const __arr = (__raw_items as any[]).map((item, idx)=>{
                 if (item?.__ref !== undefined) {
@@ -87,32 +136,58 @@ export class MaxItemsValidator {
         }
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     return instance;
 }
 }
 
 // MinItems validator
-/**  */
-export class MinItemsValidator {
-  
-  items: string[];
 
-  constructor(props: {
+export class MinItemsValidator {
+    
+    items: string[];
+
+    constructor(props: {
     items: string[];
 }){
     this.items = props.items;
 }
 
-  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<MinItemsValidator, string[]> {
+    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<MinItemsValidator, Array<{
+    field: string;
+    message: string;
+}>> {
+    try {
+        const raw = JSON.parse(json);
+        return MinItemsValidator.fromObject(raw, opts);
+    } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
+    }
+}
+
+    static fromObject(obj: unknown, opts?: DeserializeOptions): Result<MinItemsValidator, Array<{
+    field: string;
+    message: string;
+}>> {
     try {
         const ctx = DeserializeContext.create();
-        const raw = JSON.parse(json);
-        const resultOrRef = MinItemsValidator.__deserialize(raw, ctx);
+        const resultOrRef = MinItemsValidator.__deserialize(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
-                "MinItemsValidator.fromStringifiedJSON: root cannot be a forward reference"
+                {
+                    field: "_root",
+                    message: "MinItemsValidator.fromObject: root cannot be a forward reference"
+                }
             ]);
         }
         ctx.applyPatches();
@@ -121,25 +196,44 @@ export class MinItemsValidator {
         }
         return Result.ok(resultOrRef);
     } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err(message.split("; "));
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
     }
 }
 
-  static __deserialize(value: any, ctx: DeserializeContext): MinItemsValidator | PendingRef {
+    static __deserialize(value: any, ctx: DeserializeContext): MinItemsValidator | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        throw new Error("MinItemsValidator.__deserialize: expected an object");
+        throw new DeserializeError([
+            {
+                field: "_root",
+                message: "MinItemsValidator.__deserialize: expected an object"
+            }
+        ]);
     }
     const obj = value as Record<string, unknown>;
-    const errors: string[] = [];
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
     if (!("items" in obj)) {
-        errors.push("MinItemsValidator.__deserialize: missing required field \"items\"");
+        errors.push({
+            field: "items",
+            message: "missing required field"
+        });
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     const instance = Object.create(MinItemsValidator.prototype) as MinItemsValidator;
     if (obj.__id !== undefined) {
@@ -150,7 +244,10 @@ export class MinItemsValidator {
         const __raw_items = obj["items"];
         if (Array.isArray(__raw_items)) {
             if (__raw_items.length < 2) {
-                errors.push("MinItemsValidator.fromStringifiedJSON: field 'items' must have at least 2 items");
+                errors.push({
+                    field: "items",
+                    message: "must have at least 2 items"
+                });
             }
             const __arr = (__raw_items as any[]).map((item, idx)=>{
                 if (item?.__ref !== undefined) {
@@ -174,32 +271,58 @@ export class MinItemsValidator {
         }
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     return instance;
 }
 }
 
 // ItemsCount validator
-/**  */
-export class ItemsCountValidator {
-  
-  items: string[];
 
-  constructor(props: {
+export class ItemsCountValidator {
+    
+    items: string[];
+
+    constructor(props: {
     items: string[];
 }){
     this.items = props.items;
 }
 
-  static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<ItemsCountValidator, string[]> {
+    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<ItemsCountValidator, Array<{
+    field: string;
+    message: string;
+}>> {
+    try {
+        const raw = JSON.parse(json);
+        return ItemsCountValidator.fromObject(raw, opts);
+    } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
+        const message = e instanceof Error ? e.message : String(e);
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
+    }
+}
+
+    static fromObject(obj: unknown, opts?: DeserializeOptions): Result<ItemsCountValidator, Array<{
+    field: string;
+    message: string;
+}>> {
     try {
         const ctx = DeserializeContext.create();
-        const raw = JSON.parse(json);
-        const resultOrRef = ItemsCountValidator.__deserialize(raw, ctx);
+        const resultOrRef = ItemsCountValidator.__deserialize(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
-                "ItemsCountValidator.fromStringifiedJSON: root cannot be a forward reference"
+                {
+                    field: "_root",
+                    message: "ItemsCountValidator.fromObject: root cannot be a forward reference"
+                }
             ]);
         }
         ctx.applyPatches();
@@ -208,25 +331,44 @@ export class ItemsCountValidator {
         }
         return Result.ok(resultOrRef);
     } catch (e) {
+        if (e instanceof DeserializeError) {
+            return Result.err(e.errors);
+        }
         const message = e instanceof Error ? e.message : String(e);
-        return Result.err(message.split("; "));
+        return Result.err([
+            {
+                field: "_root",
+                message
+            }
+        ]);
     }
 }
 
-  static __deserialize(value: any, ctx: DeserializeContext): ItemsCountValidator | PendingRef {
+    static __deserialize(value: any, ctx: DeserializeContext): ItemsCountValidator | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
-        throw new Error("ItemsCountValidator.__deserialize: expected an object");
+        throw new DeserializeError([
+            {
+                field: "_root",
+                message: "ItemsCountValidator.__deserialize: expected an object"
+            }
+        ]);
     }
     const obj = value as Record<string, unknown>;
-    const errors: string[] = [];
+    const errors: Array<{
+        field: string;
+        message: string;
+    }> = [];
     if (!("items" in obj)) {
-        errors.push("ItemsCountValidator.__deserialize: missing required field \"items\"");
+        errors.push({
+            field: "items",
+            message: "missing required field"
+        });
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     const instance = Object.create(ItemsCountValidator.prototype) as ItemsCountValidator;
     if (obj.__id !== undefined) {
@@ -237,7 +379,10 @@ export class ItemsCountValidator {
         const __raw_items = obj["items"];
         if (Array.isArray(__raw_items)) {
             if (__raw_items.length !== 3) {
-                errors.push("ItemsCountValidator.fromStringifiedJSON: field 'items' must have exactly 3 items");
+                errors.push({
+                    field: "items",
+                    message: "must have exactly 3 items"
+                });
             }
             const __arr = (__raw_items as any[]).map((item, idx)=>{
                 if (item?.__ref !== undefined) {
@@ -261,7 +406,7 @@ export class ItemsCountValidator {
         }
     }
     if (errors.length > 0) {
-        throw new Error(errors.join("; "));
+        throw new DeserializeError(errors);
     }
     return instance;
 }
