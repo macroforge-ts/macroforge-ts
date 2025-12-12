@@ -88,3 +88,17 @@ export const PendingRef = {
     );
   },
 };
+
+// ============================================================================
+// Structured Error for Deserialization
+// ============================================================================
+
+/** Error class that carries structured field errors */
+export class DeserializeError extends Error {
+  constructor(errors) {
+    const message = errors.map((e) => `${e.field}: ${e.message}`).join("; ");
+    super(message);
+    this.name = "DeserializeError";
+    this.errors = errors;
+  }
+}

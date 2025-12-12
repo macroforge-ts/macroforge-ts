@@ -137,3 +137,25 @@ export interface DeserializeOptions {
   /** If true, freeze all deserialized objects after patching */
   freeze?: boolean;
 }
+
+// ============================================================================
+// Structured Error for Deserialization
+// ============================================================================
+
+/** Structured field error for validation failures */
+export interface FieldError {
+  field: string;
+  message: string;
+}
+
+/** Error class that carries structured field errors */
+export class DeserializeError extends Error {
+  public readonly errors: FieldError[];
+
+  constructor(errors: FieldError[]) {
+    const message = errors.map((e) => `${e.field}: ${e.message}`).join("; ");
+    super(message);
+    this.name = "DeserializeError";
+    this.errors = errors;
+  }
+}
