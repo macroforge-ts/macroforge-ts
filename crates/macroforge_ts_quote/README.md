@@ -12,27 +12,27 @@ The `ts_template!` macro provides an intuitive, template-based way to generate T
 
 ## Quick Reference
 
-| Syntax                                     | Description                                                            |
-| ------------------------------------------ | ---------------------------------------------------------------------- |
-| `@{expr}`                                  | Interpolate a Rust expression (always adds space after)                |
+| Syntax                                     | Description                                                                           |
+| ------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `@{expr}`                                  | Interpolate a Rust expression (always adds space after)                               |
 | `{\| content \|}`                          | Ident block: concatenates content without spaces (e.g., `{\|get@{name}\|}`→`getUser`) |
-| `{> "comment" <}`                          | Block comment: outputs `/* comment */` (string preserves whitespace)   |
-| `{>> "doc" <<}`                            | Doc comment: outputs `/** doc */` (string preserves whitespace)        |
-| `@@{`                                      | Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)                 |
-| `"text @{expr}"`                           | String interpolation (auto-detected)                                   |
-| `"'^template ${js}^'"`                     | JS backtick template literal (outputs `` `template ${js}` ``)          |
-| `{#if cond}...{/if}`                       | Conditional block                                                      |
-| `{#if cond}...{:else}...{/if}`             | Conditional with else                                                  |
-| `{#if a}...{:else if b}...{:else}...{/if}` | Full if/else-if/else chain                                             |
-| `{#if let pattern = expr}...{/if}`         | Pattern matching if-let                                                |
-| `{#match expr}{:case pattern}...{/match}`  | Match expression with case arms                                        |
-| `{#for item in list}...{/for}`             | Iterate over a collection                                              |
-| `{#while cond}...{/while}`                 | While loop                                                             |
-| `{#while let pattern = expr}...{/while}`   | While-let pattern matching loop                                        |
-| `{$let name = expr}`                       | Define a local constant                                                |
-| `{$let mut name = expr}`                   | Define a mutable local variable                                        |
-| `{$do expr}`                               | Execute a side-effectful expression                                    |
-| `{$typescript stream}`                     | Inject a TsStream, preserving its source and runtime_patches (imports) |
+| `{> "comment" <}`                          | Block comment: outputs `/* comment */` (string preserves whitespace)                  |
+| `{>> "doc" <<}`                            | Doc comment: outputs `/** doc */` (string preserves whitespace)                       |
+| `@@{`                                      | Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`)                                |
+| `"text @{expr}"`                           | String interpolation (auto-detected)                                                  |
+| `"'^template ${js}^'"`                     | JS backtick template literal (outputs `` `template ${js}` ``)                         |
+| `{#if cond}...{/if}`                       | Conditional block                                                                     |
+| `{#if cond}...{:else}...{/if}`             | Conditional with else                                                                 |
+| `{#if a}...{:else if b}...{:else}...{/if}` | Full if/else-if/else chain                                                            |
+| `{#if let pattern = expr}...{/if}`         | Pattern matching if-let                                                               |
+| `{#match expr}{:case pattern}...{/match}`  | Match expression with case arms                                                       |
+| `{#for item in list}...{/for}`             | Iterate over a collection                                                             |
+| `{#while cond}...{/while}`                 | While loop                                                                            |
+| `{#while let pattern = expr}...{/while}`   | While-let pattern matching loop                                                       |
+| `{$let name = expr}`                       | Define a local constant                                                               |
+| `{$let mut name = expr}`                   | Define a mutable local variable                                                       |
+| `{$do expr}`                               | Execute a side-effectful expression                                                   |
+| `{$typescript stream}`                     | Inject a TsStream, preserving its source and runtime_patches (imports)                |
 
 > **Note:** A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com` works as expected).
 
@@ -418,7 +418,7 @@ let mut helper = body! {
         return Result.ok(true);
     }
 };
-helper.add_import("Result", "macroforge/result");
+helper.add_import("Result", "macroforge/utils");
 
 // Inject the helper into the main template
 let result = body! {
