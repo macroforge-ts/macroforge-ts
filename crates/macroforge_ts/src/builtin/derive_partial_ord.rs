@@ -1,7 +1,8 @@
 //! /** @derive(PartialOrd) */ macro implementation
 //!
 //! Generates a `compareTo()` method for partial ordering comparison.
-//! Returns -1 (less), 0 (equal), 1 (greater), or null (incomparable).
+//! Returns Option.some(-1) (less), Option.some(0) (equal), Option.some(1) (greater),
+//! or Option.none() (incomparable).
 //! Supports @ord(skip) decorator on fields to exclude them from comparison.
 
 use crate::builtin::derive_common::{is_numeric_type, is_primitive_type, CompareFieldOptions};
@@ -15,7 +16,8 @@ struct OrdField {
 }
 
 /// Generate comparison code for a single field (class method version)
-/// Returns code that evaluates to -1, 0, 1, or null
+/// Returns code that evaluates to a raw number (-1, 0, 1) or null for incomparable
+/// The caller wraps the final result in Option
 fn generate_field_compare(field: &OrdField, allow_null: bool) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;
@@ -43,6 +45,7 @@ fn generate_field_compare(field: &OrdField, allow_null: bool) -> String {
         )
     } else if ts_type.ends_with("[]") || ts_type.starts_with("Array<") {
         // For arrays, lexicographic comparison
+        // Handle nested compareTo calls that return Option<number>
         format!(
             "(() => {{ \
                 const a = this.{field_name}; \
@@ -50,9 +53,13 @@ fn generate_field_compare(field: &OrdField, allow_null: bool) -> String {
                 if (!Array.isArray(a) || !Array.isArray(b)) return {null_return}; \
                 const minLen = Math.min(a.length, b.length); \
                 for (let i = 0; i < minLen; i++) {{ \
-                    const cmp = typeof (a[i] as any)?.compareTo === 'function' \
-                        ? (a[i] as any).compareTo(b[i]) \
-                        : (a[i] < b[i] ? -1 : a[i] > b[i] ? 1 : 0); \
+                    let cmp: number | null; \
+                    if (typeof (a[i] as any)?.compareTo === 'function') {{ \
+                        const optResult = (a[i] as any).compareTo(b[i]); \
+                        cmp = Option.isNone(optResult) ? null : optResult.value; \
+                    }} else {{ \
+                        cmp = a[i] < b[i] ? -1 : a[i] > b[i] ? 1 : 0; \
+                    }} \
                     if (cmp === null) return {null_return}; \
                     if (cmp !== 0) return cmp; \
                 }} \
@@ -72,11 +79,15 @@ fn generate_field_compare(field: &OrdField, allow_null: bool) -> String {
             }})()"
         )
     } else {
-        // For objects, check for compareTo method
+        // For objects, check for compareTo method that returns Option<number>
         format!(
-            "(typeof (this.{field_name} as any)?.compareTo === 'function' \
-                ? (this.{field_name} as any).compareTo(typedOther.{field_name}) \
-                : (this.{field_name} === typedOther.{field_name} ? 0 : {null_return}))"
+            "(() => {{ \
+                if (typeof (this.{field_name} as any)?.compareTo === 'function') {{ \
+                    const optResult = (this.{field_name} as any).compareTo(typedOther.{field_name}); \
+                    return Option.isNone(optResult) ? {null_return} : optResult.value; \
+                }} \
+                return this.{field_name} === typedOther.{field_name} ? 0 : {null_return}; \
+            }})()"
         )
     }
 }
@@ -109,6 +120,7 @@ fn generate_field_compare_for_interface(
             "({self_var}.{field_name} === {other_var}.{field_name} ? 0 : {null_return})"
         )
     } else if ts_type.ends_with("[]") || ts_type.starts_with("Array<") {
+        // Handle nested compareTo calls that return Option<number>
         format!(
             "(() => {{ \
                 const a = {self_var}.{field_name}; \
@@ -116,9 +128,13 @@ fn generate_field_compare_for_interface(
                 if (!Array.isArray(a) || !Array.isArray(b)) return {null_return}; \
                 const minLen = Math.min(a.length, b.length); \
                 for (let i = 0; i < minLen; i++) {{ \
-                    const cmp = typeof (a[i] as any)?.compareTo === 'function' \
-                        ? (a[i] as any).compareTo(b[i]) \
-                        : (a[i] < b[i] ? -1 : a[i] > b[i] ? 1 : 0); \
+                    let cmp: number | null; \
+                    if (typeof (a[i] as any)?.compareTo === 'function') {{ \
+                        const optResult = (a[i] as any).compareTo(b[i]); \
+                        cmp = Option.isNone(optResult) ? null : optResult.value; \
+                    }} else {{ \
+                        cmp = a[i] < b[i] ? -1 : a[i] > b[i] ? 1 : 0; \
+                    }} \
                     if (cmp === null) return {null_return}; \
                     if (cmp !== 0) return cmp; \
                 }} \
@@ -137,17 +153,22 @@ fn generate_field_compare_for_interface(
             }})()"
         )
     } else {
+        // For objects, check for compareTo method that returns Option<number>
         format!(
-            "(typeof ({self_var}.{field_name} as any)?.compareTo === 'function' \
-                ? ({self_var}.{field_name} as any).compareTo({other_var}.{field_name}) \
-                : ({self_var}.{field_name} === {other_var}.{field_name} ? 0 : {null_return}))"
+            "(() => {{ \
+                if (typeof ({self_var}.{field_name} as any)?.compareTo === 'function') {{ \
+                    const optResult = ({self_var}.{field_name} as any).compareTo({other_var}.{field_name}); \
+                    return Option.isNone(optResult) ? {null_return} : optResult.value; \
+                }} \
+                return {self_var}.{field_name} === {other_var}.{field_name} ? 0 : {null_return}; \
+            }})()"
         )
     }
 }
 
 #[ts_macro_derive(
     PartialOrd,
-    description = "Generates a compareTo() method for partial ordering (returns -1, 0, 1, or null)",
+    description = "Generates a compareTo() method for partial ordering (returns Option<number>: some(-1), some(0), some(1), or none())",
     attributes(ord)
 )]
 pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
@@ -176,6 +197,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let has_fields = !ord_fields.is_empty();
 
             // Build comparison logic - lexicographic by field order
+            // Internal comparisons use raw numbers, final result wrapped in Option
             let compare_body = if has_fields {
                 ord_fields
                     .iter()
@@ -183,7 +205,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     .map(|(i, f)| {
                         let var_name = format!("cmp{}", i);
                         format!(
-                            "const {var_name} = {};\n                    if ({var_name} === null) return null;\n                    if ({var_name} !== 0) return {var_name};",
+                            "const {var_name} = {};\n                    if ({var_name} === null) return Option.none();\n                    if ({var_name} !== 0) return Option.some({var_name});",
                             generate_field_compare(f, true)
                         )
                     })
@@ -193,34 +215,38 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 String::new()
             };
 
-            Ok(body! {
-                compareTo(other: unknown): number | null {
-                    if (this === other) return 0;
-                    if (!(other instanceof @{class_name})) return null;
+            let mut result = body! {
+                compareTo(other: unknown): Option<number> {
+                    if (this === other) return Option.some(0);
+                    if (!(other instanceof @{class_name})) return Option.none();
                     const typedOther = other as @{class_name};
                     {#if has_fields}
                         @{compare_body}
                     {/if}
-                    return 0;
+                    return Option.some(0);
                 }
-            })
+            };
+            result.add_import("Option", "macroforge/utils");
+            Ok(result)
         }
         Data::Enum(_) => {
             let enum_name = input.name();
-            Ok(ts_template! {
+            let mut result = ts_template! {
                 export namespace @{enum_name} {
-                    export function compareTo(a: @{enum_name}, b: @{enum_name}): number | null {
+                    export function compareTo(a: @{enum_name}, b: @{enum_name}): Option<number> {
                         // For enums, compare by value (numeric enums) or string
                         if (typeof a === "number" && typeof b === "number") {
-                            return a < b ? -1 : a > b ? 1 : 0;
+                            return Option.some(a < b ? -1 : a > b ? 1 : 0);
                         }
                         if (typeof a === "string" && typeof b === "string") {
-                            return a.localeCompare(b);
+                            return Option.some(a.localeCompare(b));
                         }
-                        return a === b ? 0 : null;
+                        return a === b ? Option.some(0) : Option.none();
                     }
                 }
-            })
+            };
+            result.add_import("Option", "macroforge/utils");
+            Ok(result)
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
@@ -249,7 +275,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     .map(|(i, f)| {
                         let var_name = format!("cmp{}", i);
                         format!(
-                            "const {var_name} = {};\n                        if ({var_name} === null) return null;\n                        if ({var_name} !== 0) return {var_name};",
+                            "const {var_name} = {};\n                        if ({var_name} === null) return Option.none();\n                        if ({var_name} !== 0) return Option.some({var_name});",
                             generate_field_compare_for_interface(f, "self", "other", true)
                         )
                     })
@@ -259,17 +285,19 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 String::new()
             };
 
-            Ok(ts_template! {
+            let mut result = ts_template! {
                 export namespace @{interface_name} {
-                    export function compareTo(self: @{interface_name}, other: @{interface_name}): number | null {
-                        if (self === other) return 0;
+                    export function compareTo(self: @{interface_name}, other: @{interface_name}): Option<number> {
+                        if (self === other) return Option.some(0);
                         {#if has_fields}
                             @{compare_body}
                         {/if}
-                        return 0;
+                        return Option.some(0);
                     }
                 }
-            })
+            };
+            result.add_import("Option", "macroforge/utils");
+            Ok(result)
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
@@ -300,7 +328,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         .map(|(i, f)| {
                             let var_name = format!("cmp{}", i);
                             format!(
-                                "const {var_name} = {};\n                        if ({var_name} === null) return null;\n                        if ({var_name} !== 0) return {var_name};",
+                                "const {var_name} = {};\n                        if ({var_name} === null) return Option.none();\n                        if ({var_name} !== 0) return Option.some({var_name});",
                                 generate_field_compare_for_interface(f, "a", "b", true)
                             )
                         })
@@ -310,34 +338,38 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     String::new()
                 };
 
-                Ok(ts_template! {
+                let mut result = ts_template! {
                     export namespace @{type_name} {
-                        export function compareTo(a: @{type_name}, b: @{type_name}): number | null {
-                            if (a === b) return 0;
+                        export function compareTo(a: @{type_name}, b: @{type_name}): Option<number> {
+                            if (a === b) return Option.some(0);
                             {#if has_fields}
                                 @{compare_body}
                             {/if}
-                            return 0;
+                            return Option.some(0);
                         }
                     }
-                })
+                };
+                result.add_import("Option", "macroforge/utils");
+                Ok(result)
             } else {
                 // Union, tuple, or simple alias: limited comparison
-                Ok(ts_template! {
+                let mut result = ts_template! {
                     export namespace @{type_name} {
-                        export function compareTo(a: @{type_name}, b: @{type_name}): number | null {
-                            if (a === b) return 0;
+                        export function compareTo(a: @{type_name}, b: @{type_name}): Option<number> {
+                            if (a === b) return Option.some(0);
                             // For unions/tuples, try primitive comparison
                             if (typeof a === "number" && typeof b === "number") {
-                                return a < b ? -1 : a > b ? 1 : 0;
+                                return Option.some(a < b ? -1 : a > b ? 1 : 0);
                             }
                             if (typeof a === "string" && typeof b === "string") {
-                                return a.localeCompare(b);
+                                return Option.some(a.localeCompare(b));
                             }
-                            return null;
+                            return Option.none();
                         }
                     }
-                })
+                };
+                result.add_import("Option", "macroforge/utils");
+                Ok(result)
             }
         }
     }
@@ -363,7 +395,7 @@ mod tests {
             .map(|(i, f)| {
                 let var_name = format!("cmp{}", i);
                 format!(
-                    "const {var_name} = {};\n                    if ({var_name} === null) return null;\n                    if ({var_name} !== 0) return {var_name};",
+                    "const {var_name} = {};\n                    if ({var_name} === null) return Option.none();\n                    if ({var_name} !== 0) return Option.some({var_name});",
                     generate_field_compare(f, true)
                 )
             })
@@ -371,14 +403,14 @@ mod tests {
             .join("\n                    ");
 
         let output = body! {
-            compareTo(other: unknown): number | null {
-                if (this === other) return 0;
-                if (!(other instanceof @{class_name})) return null;
+            compareTo(other: unknown): Option<number> {
+                if (this === other) return Option.some(0);
+                if (!(other instanceof @{class_name})) return Option.none();
                 const typedOther = other as @{class_name};
                 {#if has_fields}
                     @{compare_body}
                 {/if}
-                return 0;
+                return Option.some(0);
             }
         };
 
@@ -395,6 +427,10 @@ mod tests {
         assert!(
             source.contains("compareTo"),
             "Should contain compareTo method"
+        );
+        assert!(
+            source.contains("Option<number>"),
+            "Should have Option<number> return type"
         );
     }
 
@@ -449,5 +485,17 @@ mod tests {
         };
         let result = generate_field_compare(&field, true);
         assert!(result.contains("compareTo"));
+        assert!(result.contains("Option.isNone"));
+    }
+
+    #[test]
+    fn test_field_compare_array() {
+        let field = OrdField {
+            name: "items".to_string(),
+            ts_type: "Item[]".to_string(),
+        };
+        let result = generate_field_compare(&field, true);
+        assert!(result.contains("Option.isNone"));
+        assert!(result.contains("optResult.value"));
     }
 }

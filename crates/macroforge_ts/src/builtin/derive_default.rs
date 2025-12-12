@@ -100,20 +100,33 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
         Data::Enum(enum_data) => {
             let enum_name = input.name();
 
-            // For enums, return the first variant as default
-            let first_variant = enum_data
-                .variants()
-                .first()
-                .map(|v| v.name.clone())
-                .unwrap_or_else(|| "0 as any".to_string());
+            // Find variant with @default attribute (like Rust's #[default] on enums)
+            let default_variant = enum_data.variants().iter().find(|v| {
+                v.decorators
+                    .iter()
+                    .any(|d| d.name.eq_ignore_ascii_case("default"))
+            });
 
-            Ok(ts_template! {
-                export namespace @{enum_name} {
-                    export function defaultValue(): @{enum_name} {
-                        return @{enum_name}.@{first_variant};
-                    }
+            match default_variant {
+                Some(variant) => {
+                    let variant_name = &variant.name;
+                    Ok(ts_template! {
+                        export namespace @{enum_name} {
+                            export function defaultValue(): @{enum_name} {
+                                return @{enum_name}.@{variant_name};
+                            }
+                        }
+                    })
                 }
-            })
+                None => Err(MacroforgeError::new(
+                    input.decorator_span(),
+                    format!(
+                        "@derive(Default) on enum requires exactly one variant with @default attribute. \
+                        Add @default to one variant of {}",
+                        enum_name
+                    ),
+                )),
+            }
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
@@ -268,15 +281,87 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         }
                     }
                 })
-            } else {
-                // Union, tuple, or simple alias: return null/undefined as placeholder
-                Ok(ts_template! {
-                    export namespace @{type_name} {
-                        export function defaultValue(): @{type_name} {
-                            return null as unknown as @{type_name};
-                        }
+            } else if type_alias.is_union() {
+                // Union type: check for @default on a variant OR @default(...) on the type
+                let members = type_alias.as_union().unwrap();
+
+                // First, look for a variant with @default decorator
+                let default_variant_from_member = members.iter().find_map(|member| {
+                    if member.has_decorator("default") {
+                        member.type_name().map(String::from)
+                    } else {
+                        None
                     }
-                })
+                });
+
+                // Fall back to @default(...) on the type alias itself
+                let default_variant = default_variant_from_member.or_else(|| {
+                    let default_opts = DefaultFieldOptions::from_decorators(
+                        &input
+                            .attrs
+                            .iter()
+                            .map(|a| a.inner.clone())
+                            .collect::<Vec<_>>(),
+                    );
+                    default_opts.value
+                });
+
+                if let Some(variant) = default_variant {
+                    // Determine the default expression based on variant type
+                    let default_expr = if variant.contains('.') || variant.contains('(') {
+                        variant // Already has .defaultValue() or is an expression
+                    } else if variant.starts_with('"') || variant.starts_with('\'') || variant.starts_with('`') {
+                        variant // String literal - use as-is
+                    } else if variant.parse::<f64>().is_ok() || variant == "true" || variant == "false" || variant == "null" {
+                        variant // Primitive literal - use as-is
+                    } else {
+                        format!("{}.defaultValue()", variant) // Type reference - call defaultValue()
+                    };
+
+                    Ok(ts_template! {
+                        export namespace @{type_name} {
+                            export function defaultValue(): @{type_name} {
+                                return @{default_expr};
+                            }
+                        }
+                    })
+                } else {
+                    Err(MacroforgeError::new(
+                        input.decorator_span(),
+                        format!(
+                            "@derive(Default) on union type '{}' requires @default on one variant \
+                            or @default(VariantName.defaultValue()) on the type.",
+                            type_name
+                        ),
+                    ))
+                }
+            } else {
+                // Tuple or simple alias: check for explicit @default(value)
+                let default_opts = DefaultFieldOptions::from_decorators(
+                    &input
+                        .attrs
+                        .iter()
+                        .map(|a| a.inner.clone())
+                        .collect::<Vec<_>>(),
+                );
+
+                if let Some(default_variant) = default_opts.value {
+                    Ok(ts_template! {
+                        export namespace @{type_name} {
+                            export function defaultValue(): @{type_name} {
+                                return @{default_variant};
+                            }
+                        }
+                    })
+                } else {
+                    Err(MacroforgeError::new(
+                        input.decorator_span(),
+                        format!(
+                            "@derive(Default) on type '{}' requires @default(value) to specify the default.",
+                            type_name
+                        ),
+                    ))
+                }
             }
         }
     }

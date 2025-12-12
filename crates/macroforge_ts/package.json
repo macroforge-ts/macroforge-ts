@@ -1,85 +1,87 @@
 {
-  "name": "macroforge",
-  "version": "0.1.30",
-  "description": "TypeScript macro expansion engine powered by Rust and SWC",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./index.d.ts",
-      "require": "./index.js",
-      "default": "./index.js"
-    },
-    "./result": {
-      "types": "./result.d.ts",
-      "import": "./result.mjs",
-      "require": "./result.js",
-      "default": "./result.mjs"
-    },
-    "./serde": {
-      "types": "./serde.d.ts",
-      "import": "./serde.mjs",
-      "require": "./serde.js",
-      "default": "./serde.mjs"
-    }
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rymskip/macroforge-ts.git"
-  },
-  "keywords": [
-    "typescript",
-    "macros",
-    "derive",
-    "codegen",
-    "swc"
-  ],
-  "author": "macroforge contributors",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/rymskip/macroforge-ts/issues"
-  },
-  "homepage": "https://github.com/rymskip/macroforge-ts#readme",
-  "napi": {
-    "binaryName": "macroforge",
-    "packageName": "@macroforge/bin",
-    "targets": [
-      "x86_64-apple-darwin",
-      "aarch64-apple-darwin",
-      "x86_64-unknown-linux-gnu",
-      "aarch64-unknown-linux-gnu",
-      "x86_64-pc-windows-msvc",
-      "aarch64-pc-windows-msvc"
-    ]
-  },
-  "files": [
-    "index.d.ts",
-    "index.js",
-    "result.js",
-    "result.mjs",
-    "result.d.ts",
-    "serde.js",
-    "serde.mjs",
-    "serde.d.ts"
-  ],
-  "dependencies": {
-    "@rydshift/mirror": "^0.1.2"
-  },
-  "engines": {
-    "node": ">= 18"
-  },
-  "optionalDependencies": {
-    "@macroforge/bin-darwin-x64": "0.1.30",
-    "@macroforge/bin-darwin-arm64": "0.1.30",
-    "@macroforge/bin-linux-x64-gnu": "0.1.30",
-    "@macroforge/bin-linux-arm64-gnu": "0.1.30",
-    "@macroforge/bin-win32-x64-msvc": "0.1.30",
-    "@macroforge/bin-win32-arm64-msvc": "0.1.30"
-  },
-  "scripts": {
-    "build": "bun x napi build --platform --release",
-    "clean": "rm -f macroforge.*.node pkg/*.node",
-    "cleanbuild": "npm run clean && npm run build",
-    "artifacts": "napi artifacts --npm-dir npm"
-  }
+	"name": "macroforge",
+	"version": "0.1.30",
+	"description": "TypeScript macro expansion engine powered by Rust and SWC",
+	"main": "index.js",
+	"types": "index.d.ts",
+	"exports": {
+		".": {
+			"types": "./index.d.ts",
+			"require": "./index.js",
+			"default": "./index.js"
+		},
+		"./utils": {
+			"types": "./js/utils/index.d.ts",
+			"import": "./js/utils/index.mjs",
+			"default": "./js/utils/index.mjs"
+		},
+		"./serde": {
+			"types": "./js/serde/index.d.ts",
+			"import": "./js/serde/index.mjs",
+			"default": "./js/serde/index.mjs"
+		},
+		"./traits": {
+			"types": "./js/traits/index.d.ts",
+			"import": "./js/traits/index.mjs",
+			"default": "./js/traits/index.mjs"
+		}
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rymskip/macroforge-ts.git"
+	},
+	"keywords": [
+		"typescript",
+		"macros",
+		"derive",
+		"codegen",
+		"swc"
+	],
+	"author": "macroforge contributors",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/rymskip/macroforge-ts/issues"
+	},
+	"homepage": "https://github.com/rymskip/macroforge-ts#readme",
+	"napi": {
+		"binaryName": "macroforge",
+		"packageName": "@macroforge/bin",
+		"targets": [
+			"x86_64-apple-darwin",
+			"aarch64-apple-darwin",
+			"x86_64-unknown-linux-gnu",
+			"aarch64-unknown-linux-gnu",
+			"x86_64-pc-windows-msvc",
+			"aarch64-pc-windows-msvc"
+		]
+	},
+	"files": [
+		"index.d.ts",
+		"index.js",
+		"js"
+	],
+	"dependencies": {
+		"@rydshift/mirror": "^0.1.3"
+	},
+	"engines": {
+		"node": ">= 18"
+	},
+	"optionalDependencies": {
+		"@macroforge/bin-darwin-x64": "0.1.30",
+		"@macroforge/bin-darwin-arm64": "0.1.30",
+		"@macroforge/bin-linux-x64-gnu": "0.1.30",
+		"@macroforge/bin-linux-arm64-gnu": "0.1.30",
+		"@macroforge/bin-win32-x64-msvc": "0.1.30",
+		"@macroforge/bin-win32-arm64-msvc": "0.1.30"
+	},
+	"scripts": {
+		"build:serde": "bun build js/serde/index.ts --outfile js/serde/index.mjs && bun x tsc js/serde/index.ts --declaration --emitDeclarationOnly --outDir js/serde --lib ES2024 --skipLibCheck",
+		"build:utils": "bun build js/utils/index.ts --outfile js/utils/index.mjs --external @rydshift/mirror && bun x tsc js/utils/index.ts --declaration --emitDeclarationOnly --outDir js/utils --lib ES2024 --module ESNext --moduleResolution bundler --skipLibCheck",
+		"build:traits": "bun build js/traits/index.ts --outfile js/traits/index.mjs && bun x tsc js/traits/index.ts --declaration --emitDeclarationOnly --outDir js/traits --lib ES2024 --skipLibCheck",
+		"build:js": "npm run build:serde && npm run build:utils && npm run build:traits",
+		"build": "npm install && npm run build:js && bun x napi build --platform --release",
+		"clean": "rm -f macroforge.*.node pkg/*.node node_modules",
+		"cleanbuild": "npm run clean && npm run build",
+		"artifacts": "napi artifacts --npm-dir npm"
+	}
 }
