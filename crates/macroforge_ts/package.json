@@ -78,6 +78,8 @@
   },
   "scripts": {
     "build": "bun x napi build --platform --release",
+    "clean": "rm -f macroforge.*.node pkg/*.node",
+    "cleanbuild": "npm run clean && npm run build",
     "artifacts": "napi artifacts --npm-dir npm"
   }
 }
