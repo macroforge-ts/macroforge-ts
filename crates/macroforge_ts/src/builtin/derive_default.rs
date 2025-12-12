@@ -208,6 +208,16 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
 
+            // Build generic type signature if type has type params
+            let type_params = type_alias.type_params();
+            let (generic_decl, generic_args) = if type_params.is_empty() {
+                (String::new(), String::new())
+            } else {
+                let params = type_params.join(", ");
+                (format!("<{}>", params), format!("<{}>", params))
+            };
+            let full_type_name = format!("{}{}", type_name, generic_args);
+
             if type_alias.is_object() {
                 let fields = type_alias.as_object().unwrap();
 
@@ -272,12 +282,12 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 
                 Ok(ts_template! {
                     export namespace @{type_name} {
-                        export function defaultValue(): @{type_name} {
+                        export function {|defaultValue@{generic_decl}|}(): @{full_type_name} {
                             return {
                                 {#if has_defaults}
                                     @{object_body}
                                 {/if}
-                            } as @{type_name};
+                            } as @{full_type_name};
                         }
                     }
                 })
@@ -315,12 +325,35 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     } else if variant.parse::<f64>().is_ok() || variant == "true" || variant == "false" || variant == "null" {
                         variant // Primitive literal - use as-is
                     } else {
-                        format!("{}.defaultValue()", variant) // Type reference - call defaultValue()
+                        // Check for primitive types that need special handling
+                        match variant.trim() {
+                            "string" => "\"\"".to_string(),
+                            "number" => "0".to_string(),
+                            "boolean" => "false".to_string(),
+                            "bigint" => "0n".to_string(),
+                            "undefined" => "undefined".to_string(),
+                            "null" => "null".to_string(),
+                            "symbol" => "Symbol()".to_string(),
+                            "object" => "{}".to_string(),
+                            "any" | "unknown" | "void" | "never" => "undefined".to_string(),
+                            v if v.contains('<') => {
+                                // Generic type like RecordLink<Service>
+                                // Extract base type and type args: "RecordLink<Service>" -> "RecordLink.defaultValue<Service>()"
+                                if let Some(bracket_pos) = v.find('<') {
+                                    let base_type = &v[..bracket_pos];
+                                    let type_args = &v[bracket_pos..]; // includes the <>
+                                    format!("{}.defaultValue{}()", base_type, type_args)
+                                } else {
+                                    format!("{}.defaultValue()", v)
+                                }
+                            }
+                            v => format!("{}.defaultValue()", v), // Named type
+                        }
                     };
 
                     Ok(ts_template! {
                         export namespace @{type_name} {
-                            export function defaultValue(): @{type_name} {
+                            export function {|defaultValue@{generic_decl}|}(): @{full_type_name} {
                                 return @{default_expr};
                             }
                         }
@@ -348,7 +381,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 if let Some(default_variant) = default_opts.value {
                     Ok(ts_template! {
                         export namespace @{type_name} {
-                            export function defaultValue(): @{type_name} {
+                            export function {|defaultValue@{generic_decl}|}(): @{full_type_name} {
                                 return @{default_variant};
                             }
                         }
