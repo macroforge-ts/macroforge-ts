@@ -1,5 +1,6 @@
 use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
+use ignore::WalkBuilder;
 use macroforge_ts::host::{MacroExpander, MacroExpansion};
 use std::{
     fs,
@@ -17,8 +18,8 @@ struct Cli {
 enum Command {
     /// Expand a TypeScript file (uses Node.js for full macro support)
     Expand {
-        /// Path to the TypeScript/TSX file to expand
-        input: PathBuf,
+        /// Path to the TypeScript/TSX file or directory to expand
+        input: Option<PathBuf>,
         /// Optional path to write the transformed JS/TS output
         #[arg(long)]
         out: Option<PathBuf>,
@@ -34,6 +35,12 @@ enum Command {
         /// Suppress output when no macros are found (exit silently with code 2)
         #[arg(long, short = 'q')]
         quiet: bool,
+        /// Scan directory for TypeScript files with macros (uses input as root, or cwd if not specified)
+        #[arg(long)]
+        scan: bool,
+        /// Include files ignored by .gitignore when scanning
+        #[arg(long)]
+        include_ignored: bool,
     },
     /// Run tsc with macro expansion baked into file reads (tsc --noEmit semantics)
     Tsc {
@@ -54,9 +61,107 @@ fn main() -> Result<()> {
             print,
             builtin_only,
             quiet,
-        } => expand_file(input, out, types_out, print, builtin_only, quiet),
+            scan,
+            include_ignored,
+        } => {
+            if scan {
+                let root = input.unwrap_or_else(|| PathBuf::from("."));
+                scan_and_expand(root, builtin_only, include_ignored)
+            } else {
+                let input = input.ok_or_else(|| {
+                    anyhow!("input file required (use --scan to scan a directory)")
+                })?;
+
+                // If input is a directory, treat it as --scan
+                if input.is_dir() {
+                    scan_and_expand(input, builtin_only, include_ignored)
+                } else {
+                    expand_file(input, out, types_out, print, builtin_only, quiet)
+                }
+            }
+        }
         Command::Tsc { project } => run_tsc_wrapper(project),
     }
+}
+
+fn scan_and_expand(root: PathBuf, builtin_only: bool, include_ignored: bool) -> Result<()> {
+    let root = root.canonicalize().unwrap_or(root);
+    eprintln!("[macroforge] scanning {}", root.display());
+
+    let mut files_found = 0;
+    let mut files_expanded = 0;
+    let mut current_dir: Option<PathBuf> = None;
+
+    let walker = WalkBuilder::new(&root)
+        .hidden(false) // Don't skip hidden files
+        .git_ignore(!include_ignored) // Respect .gitignore unless --include-ignored
+        .git_global(false)
+        .git_exclude(false)
+        .build();
+
+    for entry in walker.flatten() {
+        let path = entry.path();
+
+        // Only process .ts and .tsx files (not .d.ts)
+        let is_ts_file = path
+            .extension()
+            .is_some_and(|ext| ext == "ts" || ext == "tsx")
+            && !path
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .ends_with(".d.ts");
+
+        if !is_ts_file || !path.is_file() {
+            continue;
+        }
+
+        // Skip .expanded. files
+        let filename = path.file_name().unwrap_or_default().to_string_lossy();
+        if filename.contains(".expanded.") {
+            continue;
+        }
+
+        // Print directory change
+        if let Some(parent) = path.parent() {
+            if current_dir.as_ref() != Some(&parent.to_path_buf()) {
+                let display_path = parent
+                    .strip_prefix(&root)
+                    .unwrap_or(parent)
+                    .display()
+                    .to_string();
+                let display_path = if display_path.is_empty() {
+                    ".".to_string()
+                } else {
+                    display_path
+                };
+                eprintln!("[macroforge] entering {}/", display_path);
+                current_dir = Some(parent.to_path_buf());
+            }
+        }
+
+        files_found += 1;
+
+        // Try to expand the file
+        match try_expand_file(path.to_path_buf(), None, None, false, builtin_only) {
+            Ok(true) => files_expanded += 1,
+            Ok(false) => {} // No macros found, that's fine
+            Err(e) => {
+                eprintln!(
+                    "[macroforge] error expanding {}: {}",
+                    path.strip_prefix(&root).unwrap_or(path).display(),
+                    e
+                );
+            }
+        }
+    }
+
+    eprintln!(
+        "[macroforge] scan complete: {} files found, {} expanded",
+        files_found, files_expanded
+    );
+
+    Ok(())
 }
 
 fn expand_file(
@@ -67,10 +172,30 @@ fn expand_file(
     builtin_only: bool,
     quiet: bool,
 ) -> Result<()> {
+    match try_expand_file(input.clone(), out, types_out, print, builtin_only)? {
+        true => Ok(()),
+        false => {
+            if !quiet {
+                eprintln!("[macroforge] no macros found in {}", input.display());
+            }
+            std::process::exit(2);
+        }
+    }
+}
+
+/// Try to expand a file, returning Ok(true) if macros were found and expanded,
+/// Ok(false) if no macros were found, or Err on failure.
+fn try_expand_file(
+    input: PathBuf,
+    out: Option<PathBuf>,
+    types_out: Option<PathBuf>,
+    print: bool,
+    builtin_only: bool,
+) -> Result<bool> {
     // Default: use Node.js for full macro support (including external macros)
     // With --builtin-only: use fast Rust expander (built-in macros only)
     if !builtin_only {
-        return expand_file_via_node(input, out, types_out, print, quiet);
+        return try_expand_file_via_node(input, out, types_out, print);
     }
 
     let expander = MacroExpander::new().context("failed to initialize macro expander")?;
@@ -82,26 +207,24 @@ fn expand_file(
         .map_err(|err| anyhow!(format!("{err:?}")))?;
 
     if !expansion.changed {
-        if !quiet {
-            eprintln!("[macroforge] no macros found in {}", input.display());
-        }
-        std::process::exit(2);
+        return Ok(false);
     }
 
     emit_diagnostics(&expansion, &source, &input);
     emit_runtime_output(&expansion, &input, out.as_ref(), print)?;
     emit_type_output(&expansion, &input, types_out.as_ref(), print)?;
 
-    Ok(())
+    Ok(true)
 }
 
-fn expand_file_via_node(
+/// Try to expand a file via Node.js, returning Ok(true) if macros were found and expanded,
+/// Ok(false) if no macros were found, or Err on failure.
+fn try_expand_file_via_node(
     input: PathBuf,
     out: Option<PathBuf>,
     types_out: Option<PathBuf>,
     print: bool,
-    quiet: bool,
-) -> Result<()> {
+) -> Result<bool> {
     let script = r#"
 const { createRequire } = require('module');
 const fs = require('fs');
@@ -136,17 +259,39 @@ try {
     let script_path = temp_dir.join("expand-wrapper.js");
     fs::write(&script_path, script)?;
 
-    let output = std::process::Command::new("node")
-        .arg(&script_path)
-        .arg(&input)
-        .current_dir(std::env::current_dir()?)
-        .output()
-        .context("failed to run node expand wrapper")?;
+    // Try from cwd first, then from input file's directory if macroforge not found
+    let cwd = std::env::current_dir()?;
+    let input_dir = input.parent().unwrap_or(Path::new(".")).to_path_buf();
+    let dirs_to_try = [cwd, input_dir];
 
-    if !output.status.success() {
+    let mut last_error = String::new();
+    let mut output_result = None;
+
+    for dir in &dirs_to_try {
+        let output = std::process::Command::new("node")
+            .arg(&script_path)
+            .arg(&input)
+            .current_dir(dir)
+            .output()
+            .context("failed to run node expand wrapper")?;
+
+        if output.status.success() {
+            output_result = Some(output);
+            break;
+        }
+
         let stderr = String::from_utf8_lossy(&output.stderr);
+        // If it's a MODULE_NOT_FOUND error for macroforge, try the next directory
+        if stderr.contains("Cannot find module 'macroforge'") {
+            last_error = stderr.to_string();
+            continue;
+        }
+
+        // For other errors, fail immediately
         anyhow::bail!("node expansion failed: {}", stderr);
     }
+
+    let output = output_result.ok_or_else(|| anyhow!("node expansion failed: {}", last_error))?;
 
     let stdout = String::from_utf8_lossy(&output.stdout);
     let result: serde_json::Value =
@@ -165,32 +310,24 @@ try {
         .unwrap_or(false);
 
     if !has_expansions {
-        if !quiet {
-            eprintln!("[macroforge] no macros found in {}", input.display());
-        }
-        std::process::exit(2);
+        return Ok(false);
     }
 
-    // Write outputs only if macros were expanded
-    if let Some(out_path) = out
-        && has_expansions
-    {
-        write_file(&out_path, code)?;
-        println!(
-            "[macroforge] wrote expanded output for {} to {}",
-            input.display(),
-            out_path.display()
-        );
-    }
+    // Write outputs if macros were expanded
+    let out_path = out.unwrap_or_else(|| get_expanded_path(&input));
+    write_file(&out_path, code)?;
+    println!(
+        "[macroforge] wrote expanded output for {} to {}",
+        input.display(),
+        out_path.display()
+    );
 
-    if print && has_expansions {
+    if print {
         println!("// --- {} (expanded) ---", input.display());
         println!("{}", code);
     }
 
-    if let Some(types_str) = types
-        && has_expansions
-    {
+    if let Some(types_str) = types {
         if let Some(types_path) = types_out {
             write_file(&types_path, types_str)?;
             println!(
@@ -214,7 +351,7 @@ try {
         }
     }
 
-    Ok(())
+    Ok(true)
 }
 
 fn emit_runtime_output(
@@ -224,14 +361,16 @@ fn emit_runtime_output(
     should_print: bool,
 ) -> Result<()> {
     let code = &result.code;
-    if let Some(path) = explicit_out {
-        write_file(path, code)?;
-        println!(
-            "[macroforge] wrote expanded output for {} to {}",
-            input.display(),
-            path.display()
-        );
-    } else if should_print || explicit_out.is_none() {
+    let out_path = explicit_out
+        .cloned()
+        .unwrap_or_else(|| get_expanded_path(input));
+    write_file(&out_path, code)?;
+    println!(
+        "[macroforge] wrote expanded output for {} to {}",
+        input.display(),
+        out_path.display()
+    );
+    if should_print {
         println!("// --- {} (expanded) ---", input.display());
         println!("{code}");
     }
@@ -401,4 +540,19 @@ fn offset_to_line_col(source: &str, offset: usize) -> (usize, usize) {
         }
     }
     (line, col)
+}
+
+/// Generate an expanded output path, inserting `.expanded` as the first extension.
+/// Examples: `foo.svelte.ts` → `foo.expanded.svelte.ts`, `foo.ts` → `foo.expanded.ts`
+fn get_expanded_path(input: &Path) -> PathBuf {
+    let dir = input.parent().unwrap_or_else(|| Path::new("."));
+    let basename = input.file_name().unwrap_or_default().to_string_lossy();
+
+    if let Some(first_dot) = basename.find('.') {
+        let name_without_ext = &basename[..first_dot];
+        let extensions = &basename[first_dot..];
+        dir.join(format!("{}.expanded{}", name_without_ext, extensions))
+    } else {
+        dir.join(format!("{}.expanded", basename))
+    }
 }
