@@ -62,7 +62,7 @@ describe("Gigaform type generation", () => {
     assert.ok(result.code.includes("email: Option<boolean>"), "Should have email tainted flag");
   });
 
-  test("generates FieldController interface", () => {
+  test("imports FieldController from canonical location", () => {
     const code = `
       /** @derive(Default, Deserialize, Gigaform) */
       interface SimpleForm {
@@ -71,17 +71,13 @@ describe("Gigaform type generation", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("export interface FieldController<T>"), "Should generate FieldController");
-    assert.ok(result.code.includes("readonly path:"), "Should have path property");
-    assert.ok(result.code.includes("readonly name:"), "Should have name property");
-    assert.ok(result.code.includes("readonly constraints:"), "Should have constraints property");
-    assert.ok(result.code.includes("get(): T"), "Should have get method");
-    assert.ok(result.code.includes("set(value: T): void"), "Should have set method");
-    assert.ok(result.code.includes("getError():"), "Should have getError method");
-    assert.ok(result.code.includes("setError("), "Should have setError method");
-    assert.ok(result.code.includes("getTainted():"), "Should have getTainted method");
-    assert.ok(result.code.includes("setTainted("), "Should have setTainted method");
-    assert.ok(result.code.includes("validate():"), "Should have validate method");
+    // FieldController is now imported from the canonical location instead of being generated
+    assert.ok(
+      result.code.includes('import type { FieldController }') ||
+      result.code.includes('import { FieldController }'),
+      "Should import FieldController"
+    );
+    assert.ok(result.code.includes("@playground/macro/gigaform"), "Should import from @playground/macro/gigaform");
   });
 
   test("generates FieldControllers interface with typed fields", () => {

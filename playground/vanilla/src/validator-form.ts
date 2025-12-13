@@ -3,7 +3,7 @@
  * Tests string, number, array, and date validators with real form validation.
  */
 
-import { Result } from "macroforge/utils";
+import { Result } from 'macroforge/utils';
 
 /** @derive(Deserialize) */
 export class UserRegistrationForm {
@@ -73,7 +73,7 @@ export function toValidationResult<T>(result: any): ValidationResult<T> {
         const errors = Result.unwrapErr(result);
         return {
             success: false,
-            errors: errors.map((e: any) => typeof e === "string" ? e : e.message)
+            errors: errors.map((e: any) => (typeof e === 'string' ? e : e.message))
         };
     }
 }

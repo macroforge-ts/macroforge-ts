@@ -12,6 +12,8 @@ export interface FieldController<T> {
   readonly readonly?: boolean;
   get(): T;
   set(value: T): void;
+  /** Transform input value before setting (applies configured format like uppercase, trim, etc.) */
+  transform(value: T): T;
   getError(): Option<Array<string>>;
   setError(value: Option<Array<string>>): void;
   getTainted(): Option<boolean>;

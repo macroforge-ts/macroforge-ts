@@ -644,11 +644,11 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     return instance;
                 }
 
-                {#if has_validators}
                 static validateField<K extends keyof @{class_name}>(
                     field: K,
                     value: @{class_name}[K]
                 ): Array<{ field: string; message: string }> {
+                    {#if has_validators}
                     const errors: Array<{ field: string; message: string }> = [];
                     switch (field) {
                         {#for field in &fields_with_validators}
@@ -661,11 +661,15 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         {/for}
                     }
                     return errors;
+                    {:else}
+                    return [];
+                    {/if}
                 }
 
                 static validateFields(
                     partial: Partial<@{class_name}>
                 ): Array<{ field: string; message: string }> {
+                    {#if has_validators}
                     const errors: Array<{ field: string; message: string }> = [];
                     {#for field in &fields_with_validators}
                     if ("@{field.field_name}" in partial && partial.@{field.field_name} !== undefined) {
@@ -675,8 +679,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     }
                     {/for}
                     return errors;
+                    {:else}
+                    return [];
+                    {/if}
                 }
-                {/if}
             };
             result.add_import("Result", "macroforge/utils");
             result.add_import("DeserializeContext", "macroforge/serde");
@@ -759,6 +765,14 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let has_required = !required_fields.is_empty();
             let has_fields = !all_fields.is_empty();
             let deny_unknown = container_opts.deny_unknown_fields;
+
+            // Fields with validators for per-field validation
+            let fields_with_validators: Vec<_> = all_fields
+                .iter()
+                .filter(|f| f.has_validators())
+                .cloned()
+                .collect();
+            let has_validators = !fields_with_validators.is_empty();
 
             let mut result = ts_template! {
                 export namespace @{interface_name} {
@@ -922,6 +936,46 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                         return instance as @{interface_name};
                     }
+
+                    export function validateField<K extends keyof @{interface_name}>(
+                        field: K,
+                        value: @{interface_name}[K]
+                    ): Array<{ field: string; message: string }> {
+                        {#if has_validators}
+                        const errors: Array<{ field: string; message: string }> = [];
+                        switch (field) {
+                            {#for field in &fields_with_validators}
+                            case "@{field.field_name}": {
+                                const __val = value as @{field.ts_type};
+                                {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, interface_name)}
+                                @{validation_code}
+                                break;
+                            }
+                            {/for}
+                        }
+                        return errors;
+                        {:else}
+                        return [];
+                        {/if}
+                    }
+
+                    export function validateFields(
+                        partial: Partial<@{interface_name}>
+                    ): Array<{ field: string; message: string }> {
+                        {#if has_validators}
+                        const errors: Array<{ field: string; message: string }> = [];
+                        {#for field in &fields_with_validators}
+                        if ("@{field.field_name}" in partial && partial.@{field.field_name} !== undefined) {
+                            const __val = partial.@{field.field_name} as @{field.ts_type};
+                            {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, interface_name)}
+                            @{validation_code}
+                        }
+                        {/for}
+                        return errors;
+                        {:else}
+                        return [];
+                        {/if}
+                    }
                 }
             };
             result.add_import("Result", "macroforge/utils");
@@ -944,7 +998,58 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             };
             let full_type_name = format!("{}{}", type_name, generic_args);
 
+            // Create combined generic declarations for validateField that include K
+            let validate_field_generic_decl = if type_params.is_empty() {
+                format!("<K extends keyof {}>", type_name)
+            } else {
+                let params = type_params.join(", ");
+                format!("<{}, K extends keyof {}>", params, full_type_name)
+            };
+
             if type_alias.is_object() {
+                // Extract fields for object type aliases to support validation
+                let container_opts = SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
+                let object_fields = type_alias.as_object().unwrap_or(&[]);
+
+                let fields: Vec<DeserializeField> = object_fields
+                    .iter()
+                    .filter_map(|field| {
+                        let opts = SerdeFieldOptions::from_decorators(&field.decorators);
+                        if !opts.should_deserialize() {
+                            return None;
+                        }
+
+                        let json_key = opts
+                            .rename
+                            .clone()
+                            .unwrap_or_else(|| container_opts.rename_all.apply(&field.name));
+
+                        let type_cat = TypeCategory::from_ts_type(&field.ts_type);
+
+                        Some(DeserializeField {
+                            json_key,
+                            field_name: field.name.clone(),
+                            ts_type: field.ts_type.clone(),
+                            type_cat,
+                            optional: field.optional || opts.default || opts.default_expr.is_some(),
+                            has_default: opts.default || opts.default_expr.is_some(),
+                            default_expr: opts.default_expr.clone(),
+                            flatten: opts.flatten,
+                            validators: opts.validators.clone(),
+                        })
+                    })
+                    .collect();
+
+                let all_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
+
+                // Fields with validators for per-field validation
+                let fields_with_validators: Vec<_> = all_fields
+                    .iter()
+                    .filter(|f| f.has_validators())
+                    .cloned()
+                    .collect();
+                let has_validators = !fields_with_validators.is_empty();
+
                 let mut result = ts_template! {
                     export namespace @{type_name} {
                         export function {|fromStringifiedJSON@{generic_decl}|}(json: string, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
@@ -963,12 +1068,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         export function {|fromObject@{generic_decl}|}(obj: unknown, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
                             try {
                                 const ctx = DeserializeContext.create();
-                                const result = __deserialize(obj, ctx);
+                                const result = __deserialize@{generic_args}(obj, ctx);
                                 ctx.applyPatches();
                                 if (opts?.freeze) {
                                     ctx.freezeAll();
                                 }
-                                return Result.ok(result);
+                                return Result.ok<@{full_type_name}>(result);
                             } catch (e) {
                                 if (e instanceof DeserializeError) {
                                     return Result.err(e.errors);
@@ -993,6 +1098,46 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                             ctx.trackForFreeze(instance);
                             return instance as @{full_type_name};
+                        }
+
+                        export function validateField@{validate_field_generic_decl}(
+                            field: K,
+                            value: @{full_type_name}[K]
+                        ): Array<{ field: string; message: string }> {
+                            {#if has_validators}
+                            const errors: Array<{ field: string; message: string }> = [];
+                            switch (field) {
+                                {#for field in &fields_with_validators}
+                                case "@{field.field_name}": {
+                                    const __val = value as @{field.ts_type};
+                                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name)}
+                                    @{validation_code}
+                                    break;
+                                }
+                                {/for}
+                            }
+                            return errors;
+                            {:else}
+                            return [];
+                            {/if}
+                        }
+
+                        export function {|validateFields@{generic_decl}|}(
+                            partial: Partial<@{full_type_name}>
+                        ): Array<{ field: string; message: string }> {
+                            {#if has_validators}
+                            const errors: Array<{ field: string; message: string }> = [];
+                            {#for field in &fields_with_validators}
+                            if ("@{field.field_name}" in partial && partial.@{field.field_name} !== undefined) {
+                                const __val = partial.@{field.field_name} as @{field.ts_type};
+                                {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name)}
+                                @{validation_code}
+                            }
+                            {/for}
+                            return errors;
+                            {:else}
+                            return [];
+                            {/if}
                         }
                     }
                 };
@@ -1021,12 +1166,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         export function {|fromObject@{generic_decl}|}(obj: unknown, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
                             try {
                                 const ctx = DeserializeContext.create();
-                                const result = __deserialize(obj, ctx);
+                                const result = __deserialize@{generic_args}(obj, ctx);
                                 ctx.applyPatches();
                                 if (opts?.freeze) {
                                     ctx.freezeAll();
                                 }
-                                return Result.ok(result);
+                                return Result.ok<@{full_type_name}>(result);
                             } catch (e) {
                                 if (e instanceof DeserializeError) {
                                     return Result.err(e.errors);
@@ -1049,6 +1194,21 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             }
 
                             return value as @{full_type_name};
+                        }
+
+                        // Union types don't have field-level validators on the union itself
+                        // These stubs are provided for consistency with the API
+                        export function validateField@{validate_field_generic_decl}(
+                            field: K,
+                            value: @{full_type_name}[K]
+                        ): Array<{ field: string; message: string }> {
+                            return [];
+                        }
+
+                        export function {|validateFields@{generic_decl}|}(
+                            partial: Partial<@{full_type_name}>
+                        ): Array<{ field: string; message: string }> {
+                            return [];
                         }
                     }
                 };

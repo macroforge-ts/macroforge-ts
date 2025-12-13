@@ -1,5 +1,6 @@
 import { User } from './user';
 import { AllMacrosTestClass, testInstance } from './all-macros-test';
+import { Result } from 'macroforge/utils';
 
 // Global results object for Playwright assertions
 declare global {
@@ -59,14 +60,14 @@ function runAllMacroTests() {
             `<strong>HashCode:</strong> <em>Not available</em>`;
     }
 
-    // Test Serialize macro -> toJSON()
-    const serialized = testInstance.toJSON();
+    // Test Serialize macro -> toObject()
+    const serialized = (testInstance as any).toObject();
     results.serialize = serialized;
     document.getElementById('result-serialize')!.innerHTML =
-        `<strong>Serialize (toJSON):</strong> <pre>${JSON.stringify(serialized, null, 2)}</pre>`;
+        `<strong>Serialize (toObject):</strong> <pre>${JSON.stringify(serialized, null, 2)}</pre>`;
 
-    // Test Deserialize macro -> fromJSON()
-    if (typeof (AllMacrosTestClass as any).fromJSON === 'function') {
+    // Test Deserialize macro -> fromObject()
+    if (typeof (AllMacrosTestClass as any).fromObject === 'function') {
         const testData = {
             id: 99,
             name: 'Deserialized User',
@@ -75,10 +76,19 @@ function runAllMacroTests() {
             isActive: false,
             score: 50
         };
-        const deserialized = (AllMacrosTestClass as any).fromJSON(testData);
-        results.deserialize = deserialized;
-        document.getElementById('result-deserialize')!.innerHTML =
-            `<strong>Deserialize (fromJSON):</strong> <pre>${JSON.stringify(deserialized, null, 2)}</pre>`;
+        // fromObject returns a Result, need to unwrap it
+        const result = (AllMacrosTestClass as any).fromObject(testData);
+        // Result uses static methods
+        if (Result.isOk(result)) {
+            const deserialized = Result.unwrap(result);
+            results.deserialize = deserialized;
+            document.getElementById('result-deserialize')!.innerHTML =
+                `<strong>Deserialize (fromObject):</strong> <pre>${JSON.stringify(deserialized, null, 2)}</pre>`;
+        } else {
+            const errors = Result.unwrapErr(result);
+            document.getElementById('result-deserialize')!.innerHTML =
+                `<strong>Deserialize Error:</strong> <pre>${JSON.stringify(errors, null, 2)}</pre>`;
+        }
     } else {
         document.getElementById('result-deserialize')!.innerHTML =
             `<strong>Deserialize:</strong> <em>Not available</em>`;
