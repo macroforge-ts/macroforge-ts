@@ -105,14 +105,12 @@ impl MacroDispatcher {
                 diagnostics: vec![Diagnostic {
                     level: DiagnosticLevel::Error,
                     message: format!(
-                        "Macro '{}' not found in module '{}'",
-                        ctx.macro_name, ctx.module_path
+                        "Macro '{}' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.",
+                        ctx.macro_name
                     ),
-                    span: Some(ctx.decorator_span),
+                    span: Some(ctx.error_span()),
                     notes: vec![],
-                    help: Some(
-                        "Make sure the macro package is installed and configured".to_string(),
-                    ),
+                    help: None,
                 }],
                 tokens: None,
                 debug: None,

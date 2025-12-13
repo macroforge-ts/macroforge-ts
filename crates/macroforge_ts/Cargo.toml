@@ -50,6 +50,7 @@ thiserror = "2.0"
 
 # CLI
 clap = { version = "4.5", features = ["derive"] }
+ignore = "0.4"
 
 # Concurrency
 dashmap = "6.1"
