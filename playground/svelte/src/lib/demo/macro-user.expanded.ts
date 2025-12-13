@@ -202,27 +202,27 @@ export class MacroUser {
         ctx.trackForFreeze(instance);
         {
             const __raw_id = obj['id'];
-            (instance as any).id = __raw_id;
+            instance.id = __raw_id;
         }
         {
             const __raw_name = obj['name'];
-            (instance as any).name = __raw_name;
+            instance.name = __raw_name;
         }
         {
             const __raw_role = obj['role'];
-            (instance as any).role = __raw_role;
+            instance.role = __raw_role;
         }
         {
             const __raw_favoriteMacro = obj['favoriteMacro'];
-            (instance as any).favoriteMacro = __raw_favoriteMacro;
+            instance.favoriteMacro = __raw_favoriteMacro;
         }
         {
             const __raw_since = obj['since'];
-            (instance as any).since = __raw_since;
+            instance.since = __raw_since;
         }
         {
             const __raw_apiToken = obj['apiToken'];
-            (instance as any).apiToken = __raw_apiToken;
+            instance.apiToken = __raw_apiToken;
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);

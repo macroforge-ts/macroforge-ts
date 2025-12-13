@@ -120,6 +120,9 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     output.add_import("Result", "macroforge/utils");
     output.add_import("Option", "macroforge/utils");
 
+    // Import FieldController from the canonical location
+    output.add_type_import("FieldController", "@playground/macro/gigaform");
+
     // Add ArrayFieldController import if any fields are arrays
     if fields.iter().any(|f| f.is_array) {
         output.add_type_import("ArrayFieldController", "@playground/macro/gigaform");
@@ -225,6 +228,9 @@ fn generate_union_form(
 
     output.add_import("Result", "macroforge/utils");
     output.add_import("Option", "macroforge/utils");
+
+    // Import FieldController from the canonical location
+    output.add_type_import("FieldController", "@playground/macro/gigaform");
 
     // Add ArrayFieldController import if any variant has array fields
     if union_config
