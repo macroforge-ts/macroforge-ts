@@ -21,7 +21,7 @@ diagnostics = { cmd = "bun ./scripts/diagnostics.cjs" }
 "diagnostics:log" = { cmd = "bun ./scripts/diagnostics.cjs --log" }
 "macro:expand" = { cmd = "cargo run -p ts_macro_cli -- expand --use-node" }
 "macro:tsc" = { cmd = "cargo run -p ts_macro_cli -- tsc" }
-"expand:playground" = { cmd = "bun ./scripts/expand-playground.cjs" }
+"expand:playground" = { cmd = "bun ./scripts/expand-playground.cjs --use-cli" }
 "cleanbuild:all" = { cmd = "bun ./scripts/cleanbuild-all.cjs" }
 bump = { cmd = "node scripts/bump-version.cjs" }
 "docs:book" = { cmd = "node scripts/build-docs-book.cjs" }

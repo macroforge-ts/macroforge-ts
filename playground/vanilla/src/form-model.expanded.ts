@@ -7,12 +7,14 @@
  * - Add @derive(FieldController) on the class
  * - Add @FieldController(TextAreaController) on fields you want to generate controllers for
  */
-
+/** @derive(FieldController) */
 export class FormModel {
+    /** @fieldController(textAreaController) */
     memo: string | null;
 
     username: string;
 
+    /** @fieldController(textAreaController) */
     description: string;
 
     constructor(memo: string | null, username: string, description: string) {

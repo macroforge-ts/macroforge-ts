@@ -9,13 +9,16 @@ import { PendingRef } from 'macroforge/serde';
  * Used for Playwright e2e tests to verify macro expansion works at runtime.
  */
 
+/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 export class AllMacrosTestClass {
+    /** @debug({ rename: "identifier" }) */
     id: number;
 
     name: string;
 
     email: string;
 
+    /** @debug({ skip: true }) */
     secretToken: string;
 
     isActive: boolean;
@@ -260,6 +263,23 @@ export class AllMacrosTestClass {
             throw new DeserializeError(errors);
         }
         return instance;
+    }
+
+    static validateField<K extends keyof AllMacrosTestClass>(
+        field: K,
+        value: AllMacrosTestClass[K]
+    ): Array<{
+        field: string;
+        message: string;
+    }> {
+        return [];
+    }
+
+    static validateFields(partial: Partial<AllMacrosTestClass>): Array<{
+        field: string;
+        message: string;
+    }> {
+        return [];
     }
 }
 

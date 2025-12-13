@@ -295,6 +295,7 @@ export namespace User {
       const __raw_settings = obj["settings"];
       if (typeof (Settings as any)?.__deserialize === "function") {
         const __result = (Settings as any).__deserialize(__raw_settings, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "settings", __result);
       } else {
         instance.settings = __raw_settings;
@@ -972,6 +973,662 @@ export namespace User {
           }
           current[parts[parts.length - 1]] = value;
         }
+=======
+        if (PendingRef.is(__result)) {
+          instance.settings = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.settings = v;
+          });
+        } else {
+          instance.settings = __result;
+        }
+      } else {
+        instance.settings = __raw_settings;
+      }
+    }
+    {
+      const __raw_role = obj["role"];
+      if (typeof (UserRole as any)?.__deserialize === "function") {
+        const __result = (UserRole as any).__deserialize(__raw_role, ctx);
+        if (PendingRef.is(__result)) {
+          instance.role = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.role = v;
+          });
+        } else {
+          instance.role = __result;
+        }
+      } else {
+        instance.role = __raw_role;
+      }
+    }
+    {
+      const __raw_emailVerified = obj["emailVerified"];
+      instance.emailVerified = __raw_emailVerified;
+    }
+    {
+      const __raw_verificationToken = obj["verificationToken"];
+      instance.verificationToken = __raw_verificationToken;
+    }
+    {
+      const __raw_verificationExpires = obj["verificationExpires"];
+      instance.verificationExpires = __raw_verificationExpires;
+    }
+    {
+      const __raw_passwordResetToken = obj["passwordResetToken"];
+      instance.passwordResetToken = __raw_passwordResetToken;
+    }
+    {
+      const __raw_passwordResetExpires = obj["passwordResetExpires"];
+      instance.passwordResetExpires = __raw_passwordResetExpires;
+    }
+    {
+      const __raw_permissions = obj["permissions"];
+      if (typeof (AppPermissions as any)?.__deserialize === "function") {
+        const __result = (AppPermissions as any).__deserialize(
+          __raw_permissions,
+          ctx,
+        );
+        if (PendingRef.is(__result)) {
+          instance.permissions = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.permissions = v;
+          });
+        } else {
+          instance.permissions = __result;
+        }
+      } else {
+        instance.permissions = __raw_permissions;
+      }
+    }
+    if (errors.length > 0) {
+      throw new DeserializeError(errors);
+    }
+    return instance as User;
+  }
+  export function validateField<K extends keyof User>(
+    field: K,
+    value: User[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "firstName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "firstName", message: "must not be empty" });
+        }
+        break;
+      }
+      case "lastName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "lastName", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<User>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("firstName" in partial && partial.firstName !== undefined) {
+      const __val = partial.firstName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "firstName", message: "must not be empty" });
+      }
+    }
+    if ("lastName" in partial && partial.lastName !== undefined) {
+      const __val = partial.lastName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "lastName", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+}
+
+export namespace User {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    email: Option<Array<string>>;
+    firstName: Option<Array<string>>;
+    lastName: Option<Array<string>>;
+    password: Option<Array<string>>;
+    metadata: Option<Array<string>>;
+    settings: Option<Array<string>>;
+    role: Option<Array<string>>;
+    emailVerified: Option<Array<string>>;
+    verificationToken: Option<Array<string>>;
+    verificationExpires: Option<Array<string>>;
+    passwordResetToken: Option<Array<string>>;
+    passwordResetExpires: Option<Array<string>>;
+    permissions: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    {
+      id: Option<boolean>;
+      email: Option<boolean>;
+      firstName: Option<boolean>;
+      lastName: Option<boolean>;
+      password: Option<boolean>;
+      metadata: Option<boolean>;
+      settings: Option<boolean>;
+      role: Option<boolean>;
+      emailVerified: Option<boolean>;
+      verificationToken: Option<boolean>;
+      verificationExpires: Option<boolean>;
+      passwordResetToken: Option<boolean>;
+      passwordResetExpires: Option<boolean>;
+      permissions: Option<boolean>;
+    };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly id: FieldController<string>;
+    readonly email: FieldController<string | null>;
+    readonly firstName: FieldController<string>;
+    readonly lastName: FieldController<string>;
+    readonly password: FieldController<string | null>;
+    readonly metadata: FieldController<Metadata | null>;
+    readonly settings: FieldController<Settings>;
+    readonly role: FieldController<UserRole>;
+    readonly emailVerified: FieldController<boolean>;
+    readonly verificationToken: FieldController<string | null>;
+    readonly verificationExpires: FieldController<string | null>;
+    readonly passwordResetToken: FieldController<string | null>;
+    readonly passwordResetExpires: FieldController<string | null>;
+    readonly permissions: FieldController<AppPermissions>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: User;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<User, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<User>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<User>,
+  ): Gigaform {
+    let data = $state({ ...User.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      email: Option.none(),
+      firstName: Option.none(),
+      lastName: Option.none(),
+      password: Option.none(),
+      metadata: Option.none(),
+      settings: Option.none(),
+      role: Option.none(),
+      emailVerified: Option.none(),
+      verificationToken: Option.none(),
+      verificationExpires: Option.none(),
+      passwordResetToken: Option.none(),
+      passwordResetExpires: Option.none(),
+      permissions: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      email: Option.none(),
+      firstName: Option.none(),
+      lastName: Option.none(),
+      password: Option.none(),
+      metadata: Option.none(),
+      settings: Option.none(),
+      role: Option.none(),
+      emailVerified: Option.none(),
+      verificationToken: Option.none(),
+      verificationExpires: Option.none(),
+      passwordResetToken: Option.none(),
+      passwordResetExpires: Option.none(),
+      permissions: Option.none(),
+    });
+    const fields: FieldControllers = {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: () => data.id,
+        set: (value: string) => {
+          data.id = value;
+        },
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
+          errors.id = value;
+        },
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
+          tainted.id = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = User.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      email: {
+        path: ["email"] as const,
+        name: "email",
+        constraints: { required: true },
+
+        get: () => data.email,
+        set: (value: string | null) => {
+          data.email = value;
+        },
+        getError: () => errors.email,
+        setError: (value: Option<Array<string>>) => {
+          errors.email = value;
+        },
+        getTainted: () => tainted.email,
+        setTainted: (value: Option<boolean>) => {
+          tainted.email = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = User.validateField("email", data.email);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      firstName: {
+        path: ["firstName"] as const,
+        name: "firstName",
+        constraints: { required: true },
+
+        get: () => data.firstName,
+        set: (value: string) => {
+          data.firstName = value;
+        },
+        getError: () => errors.firstName,
+        setError: (value: Option<Array<string>>) => {
+          errors.firstName = value;
+        },
+        getTainted: () => tainted.firstName,
+        setTainted: (value: Option<boolean>) => {
+          tainted.firstName = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = User.validateField("firstName", data.firstName);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      lastName: {
+        path: ["lastName"] as const,
+        name: "lastName",
+        constraints: { required: true },
+
+        get: () => data.lastName,
+        set: (value: string) => {
+          data.lastName = value;
+        },
+        getError: () => errors.lastName,
+        setError: (value: Option<Array<string>>) => {
+          errors.lastName = value;
+        },
+        getTainted: () => tainted.lastName,
+        setTainted: (value: Option<boolean>) => {
+          tainted.lastName = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = User.validateField("lastName", data.lastName);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      password: {
+        path: ["password"] as const,
+        name: "password",
+        constraints: { required: true },
+
+        get: () => data.password,
+        set: (value: string | null) => {
+          data.password = value;
+        },
+        getError: () => errors.password,
+        setError: (value: Option<Array<string>>) => {
+          errors.password = value;
+        },
+        getTainted: () => tainted.password,
+        setTainted: (value: Option<boolean>) => {
+          tainted.password = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = User.validateField("password", data.password);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      metadata: {
+        path: ["metadata"] as const,
+        name: "metadata",
+        constraints: { required: true },
+
+        get: () => data.metadata,
+        set: (value: Metadata | null) => {
+          data.metadata = value;
+        },
+        getError: () => errors.metadata,
+        setError: (value: Option<Array<string>>) => {
+          errors.metadata = value;
+        },
+        getTainted: () => tainted.metadata,
+        setTainted: (value: Option<boolean>) => {
+          tainted.metadata = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = User.validateField("metadata", data.metadata);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      settings: {
+        path: ["settings"] as const,
+        name: "settings",
+        constraints: { required: true },
+
+        get: () => data.settings,
+        set: (value: Settings) => {
+          data.settings = value;
+        },
+        getError: () => errors.settings,
+        setError: (value: Option<Array<string>>) => {
+          errors.settings = value;
+        },
+        getTainted: () => tainted.settings,
+        setTainted: (value: Option<boolean>) => {
+          tainted.settings = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = User.validateField("settings", data.settings);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      role: {
+        path: ["role"] as const,
+        name: "role",
+        constraints: { required: true },
+
+        get: () => data.role,
+        set: (value: UserRole) => {
+          data.role = value;
+        },
+        getError: () => errors.role,
+        setError: (value: Option<Array<string>>) => {
+          errors.role = value;
+        },
+        getTainted: () => tainted.role,
+        setTainted: (value: Option<boolean>) => {
+          tainted.role = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = User.validateField("role", data.role);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      emailVerified: {
+        path: ["emailVerified"] as const,
+        name: "emailVerified",
+        constraints: { required: true },
+
+        get: () => data.emailVerified,
+        set: (value: boolean) => {
+          data.emailVerified = value;
+        },
+        getError: () => errors.emailVerified,
+        setError: (value: Option<Array<string>>) => {
+          errors.emailVerified = value;
+        },
+        getTainted: () => tainted.emailVerified,
+        setTainted: (value: Option<boolean>) => {
+          tainted.emailVerified = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = User.validateField(
+            "emailVerified",
+            data.emailVerified,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      verificationToken: {
+        path: ["verificationToken"] as const,
+        name: "verificationToken",
+        constraints: { required: true },
+
+        get: () => data.verificationToken,
+        set: (value: string | null) => {
+          data.verificationToken = value;
+        },
+        getError: () => errors.verificationToken,
+        setError: (value: Option<Array<string>>) => {
+          errors.verificationToken = value;
+        },
+        getTainted: () => tainted.verificationToken,
+        setTainted: (value: Option<boolean>) => {
+          tainted.verificationToken = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = User.validateField(
+            "verificationToken",
+            data.verificationToken,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      verificationExpires: {
+        path: ["verificationExpires"] as const,
+        name: "verificationExpires",
+        constraints: { required: true },
+
+        get: () => data.verificationExpires,
+        set: (value: string | null) => {
+          data.verificationExpires = value;
+        },
+        getError: () => errors.verificationExpires,
+        setError: (value: Option<Array<string>>) => {
+          errors.verificationExpires = value;
+        },
+        getTainted: () => tainted.verificationExpires,
+        setTainted: (value: Option<boolean>) => {
+          tainted.verificationExpires = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = User.validateField(
+            "verificationExpires",
+            data.verificationExpires,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      passwordResetToken: {
+        path: ["passwordResetToken"] as const,
+        name: "passwordResetToken",
+        constraints: { required: true },
+
+        get: () => data.passwordResetToken,
+        set: (value: string | null) => {
+          data.passwordResetToken = value;
+        },
+        getError: () => errors.passwordResetToken,
+        setError: (value: Option<Array<string>>) => {
+          errors.passwordResetToken = value;
+        },
+        getTainted: () => tainted.passwordResetToken,
+        setTainted: (value: Option<boolean>) => {
+          tainted.passwordResetToken = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = User.validateField(
+            "passwordResetToken",
+            data.passwordResetToken,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      passwordResetExpires: {
+        path: ["passwordResetExpires"] as const,
+        name: "passwordResetExpires",
+        constraints: { required: true },
+
+        get: () => data.passwordResetExpires,
+        set: (value: string | null) => {
+          data.passwordResetExpires = value;
+        },
+        getError: () => errors.passwordResetExpires,
+        setError: (value: Option<Array<string>>) => {
+          errors.passwordResetExpires = value;
+        },
+        getTainted: () => tainted.passwordResetExpires,
+        setTainted: (value: Option<boolean>) => {
+          tainted.passwordResetExpires = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = User.validateField(
+            "passwordResetExpires",
+            data.passwordResetExpires,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      permissions: {
+        path: ["permissions"] as const,
+        name: "permissions",
+        constraints: { required: true },
+
+        get: () => data.permissions,
+        set: (value: AppPermissions) => {
+          data.permissions = value;
+        },
+        getError: () => errors.permissions,
+        setError: (value: Option<Array<string>>) => {
+          errors.permissions = value;
+        },
+        getTainted: () => tainted.permissions,
+        setTainted: (value: Option<boolean>) => {
+          tainted.permissions = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = User.validateField(
+            "permissions",
+            data.permissions,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+    };
+    function validate(): Result<
+      User,
+      Array<{ field: string; message: string }>
+    > {
+      return User.fromObject(data);
+    }
+    function reset(newOverrides?: Partial<User>): void {
+      data = { ...User.defaultValue(), ...newOverrides };
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        email: Option.none(),
+        firstName: Option.none(),
+        lastName: Option.none(),
+        password: Option.none(),
+        metadata: Option.none(),
+        settings: Option.none(),
+        role: Option.none(),
+        emailVerified: Option.none(),
+        verificationToken: Option.none(),
+        verificationExpires: Option.none(),
+        passwordResetToken: Option.none(),
+        passwordResetExpires: Option.none(),
+        permissions: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        email: Option.none(),
+        firstName: Option.none(),
+        lastName: Option.none(),
+        password: Option.none(),
+        metadata: Option.none(),
+        settings: Option.none(),
+        role: Option.none(),
+        emailVerified: Option.none(),
+        verificationToken: Option.none(),
+        verificationExpires: Option.none(),
+        passwordResetToken: Option.none(),
+        passwordResetExpires: Option.none(),
+        permissions: Option.none(),
+      };
+    }
+    return {
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      fields,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<User, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.email = formData.get("email") ?? "";
+    obj.firstName = formData.get("firstName") ?? "";
+    obj.lastName = formData.get("lastName") ?? "";
+    obj.password = formData.get("password") ?? "";
+    obj.metadata = formData.get("metadata") ?? "";
+    {
+      // Collect nested object fields with prefix "settings."
+      const settingsObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("settings.")) {
+          const fieldName = key.slice("settings.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = settingsObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.settings = settingsObj;
+    }
+    {
+      // Collect nested object fields with prefix "role."
+      const roleObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("role.")) {
+          const fieldName = key.slice("role.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = roleObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+>>>>>>> Stashed changes
       }
       obj.role = roleObj;
     }
@@ -1017,12 +1674,28 @@ export interface Service {
   name: string;
 
   quickCode: string;
+<<<<<<< Updated upstream
   group: string | null;
   subgroup: string | null;
   unit: string | null;
   active: boolean;
   commission: boolean;
   favorite: boolean;
+=======
+
+  group: string | null;
+
+  subgroup: string | null;
+
+  unit: string | null;
+
+  active: boolean;
+
+  commission: boolean;
+
+  favorite: boolean;
+
+>>>>>>> Stashed changes
   averageTime: string | null;
   defaults: ServiceDefaults;
 }
@@ -1259,7 +1932,18 @@ export namespace Service {
           __raw_defaults,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "defaults", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.defaults = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.defaults = v;
+          });
+        } else {
+          instance.defaults = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.defaults = __raw_defaults;
       }
@@ -1269,6 +1953,50 @@ export namespace Service {
     }
     return instance as Service;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Service>(
+    field: K,
+    value: Service[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+      case "quickCode": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "quickCode", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Service>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    if ("quickCode" in partial && partial.quickCode !== undefined) {
+      const __val = partial.quickCode as string;
+      if (__val.length === 0) {
+        errors.push({ field: "quickCode", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Service {
@@ -1300,6 +2028,7 @@ export namespace Service {
       averageTime: Option<boolean>;
       defaults: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -1319,6 +2048,8 @@ export namespace Service {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly id: FieldController<string>;
     readonly name: FieldController<string>;
@@ -1390,6 +2121,7 @@ export namespace Service {
           tainted.id = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Service.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -1398,13 +2130,21 @@ export namespace Service {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Service.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       name: {
         path: ["name"] as const,
         name: "name",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Name",
+>>>>>>> Stashed changes
         get: () => data.name,
         set: (value: string) => {
           data.name = value;
@@ -1418,6 +2158,7 @@ export namespace Service {
           tainted.name = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Service.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -1426,13 +2167,21 @@ export namespace Service {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Service.validateField("name", data.name);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       quickCode: {
         path: ["quickCode"] as const,
         name: "quickCode",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Quick Code",
+>>>>>>> Stashed changes
         get: () => data.quickCode,
         set: (value: string) => {
           data.quickCode = value;
@@ -1446,6 +2195,7 @@ export namespace Service {
           tainted.quickCode = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Service.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -1454,13 +2204,24 @@ export namespace Service {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Service.validateField(
+            "quickCode",
+            data.quickCode,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       group: {
         path: ["group"] as const,
         name: "group",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Group",
+>>>>>>> Stashed changes
         get: () => data.group,
         set: (value: string | null) => {
           data.group = value;
@@ -1474,6 +2235,7 @@ export namespace Service {
           tainted.group = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Service.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -1482,13 +2244,21 @@ export namespace Service {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Service.validateField("group", data.group);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       subgroup: {
         path: ["subgroup"] as const,
         name: "subgroup",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Subgroup",
+>>>>>>> Stashed changes
         get: () => data.subgroup,
         set: (value: string | null) => {
           data.subgroup = value;
@@ -1502,6 +2272,7 @@ export namespace Service {
           tainted.subgroup = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Service.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -1510,13 +2281,21 @@ export namespace Service {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Service.validateField("subgroup", data.subgroup);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       unit: {
         path: ["unit"] as const,
         name: "unit",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Unit",
+>>>>>>> Stashed changes
         get: () => data.unit,
         set: (value: string | null) => {
           data.unit = value;
@@ -1530,6 +2309,7 @@ export namespace Service {
           tainted.unit = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Service.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -1538,13 +2318,21 @@ export namespace Service {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Service.validateField("unit", data.unit);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       active: {
         path: ["active"] as const,
         name: "active",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Active",
+>>>>>>> Stashed changes
         get: () => data.active,
         set: (value: boolean) => {
           data.active = value;
@@ -1558,6 +2346,7 @@ export namespace Service {
           tainted.active = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Service.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -1566,13 +2355,21 @@ export namespace Service {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Service.validateField("active", data.active);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       commission: {
         path: ["commission"] as const,
         name: "commission",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Commission",
+>>>>>>> Stashed changes
         get: () => data.commission,
         set: (value: boolean) => {
           data.commission = value;
@@ -1586,6 +2383,7 @@ export namespace Service {
           tainted.commission = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Service.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -1594,13 +2392,24 @@ export namespace Service {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Service.validateField(
+            "commission",
+            data.commission,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       favorite: {
         path: ["favorite"] as const,
         name: "favorite",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Favorite",
+>>>>>>> Stashed changes
         get: () => data.favorite,
         set: (value: boolean) => {
           data.favorite = value;
@@ -1614,6 +2423,7 @@ export namespace Service {
           tainted.favorite = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Service.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -1622,13 +2432,21 @@ export namespace Service {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Service.validateField("favorite", data.favorite);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       averageTime: {
         path: ["averageTime"] as const,
         name: "averageTime",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Average Time",
+>>>>>>> Stashed changes
         get: () => data.averageTime,
         set: (value: string | null) => {
           data.averageTime = value;
@@ -1642,6 +2460,7 @@ export namespace Service {
           tainted.averageTime = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Service.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -1650,6 +2469,13 @@ export namespace Service {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Service.validateField(
+            "averageTime",
+            data.averageTime,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       defaults: {
@@ -1670,6 +2496,7 @@ export namespace Service {
           tainted.defaults = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Service.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -1678,6 +2505,10 @@ export namespace Service {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Service.validateField("defaults", data.defaults);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -1920,6 +2751,7 @@ export namespace ServiceDefaults {
     }
     return instance as ServiceDefaults;
   }
+<<<<<<< Updated upstream
 }
 
 export namespace ServiceDefaults {
@@ -1983,6 +2815,80 @@ export namespace ServiceDefaults {
         name: "price",
         constraints: { required: true },
 
+=======
+  export function validateField<K extends keyof ServiceDefaults>(
+    field: K,
+    value: ServiceDefaults[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "description": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "description", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<ServiceDefaults>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("description" in partial && partial.description !== undefined) {
+      const __val = partial.description as string;
+      if (__val.length === 0) {
+        errors.push({ field: "description", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+}
+
+export namespace ServiceDefaults {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    price: Option<Array<string>>;
+    description: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    { price: Option<boolean>; description: Option<boolean> };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly price: FieldController<number>;
+    readonly description: FieldController<string>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: ServiceDefaults;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<
+      ServiceDefaults,
+      Array<{ field: string; message: string }>
+    >;
+    reset(overrides?: Partial<ServiceDefaults>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<ServiceDefaults>,
+  ): Gigaform {
+    let data = $state({ ...ServiceDefaults.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      price: Option.none(),
+      description: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      price: Option.none(),
+      description: Option.none(),
+    });
+    const fields: FieldControllers = {
+      price: {
+        path: ["price"] as const,
+        name: "price",
+        constraints: { required: true },
+        label: "Price",
+>>>>>>> Stashed changes
         get: () => data.price,
         set: (value: number) => {
           data.price = value;
@@ -1996,6 +2902,7 @@ export namespace ServiceDefaults {
           tainted.price = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = ServiceDefaults.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -2004,13 +2911,24 @@ export namespace ServiceDefaults {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = ServiceDefaults.validateField(
+            "price",
+            data.price,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       description: {
         path: ["description"] as const,
         name: "description",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Description",
+>>>>>>> Stashed changes
         get: () => data.description,
         set: (value: string) => {
           data.description = value;
@@ -2024,6 +2942,7 @@ export namespace ServiceDefaults {
           tainted.description = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = ServiceDefaults.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -2032,6 +2951,13 @@ export namespace ServiceDefaults {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = ServiceDefaults.validateField(
+            "description",
+            data.description,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -2253,6 +3179,7 @@ export namespace Did {
           __raw_activityType,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "activityType", __result);
       } else {
         instance.activityType = __raw_activityType;
@@ -2593,6 +3520,314 @@ export namespace Did {
           }
           current[parts[parts.length - 1]] = value;
         }
+=======
+        if (PendingRef.is(__result)) {
+          instance.activityType = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.activityType = v;
+          });
+        } else {
+          instance.activityType = __result;
+        }
+      } else {
+        instance.activityType = __raw_activityType;
+      }
+    }
+    {
+      const __raw_createdAt = obj["createdAt"];
+      instance.createdAt = __raw_createdAt;
+    }
+    {
+      const __raw_metadata = obj["metadata"];
+      instance.metadata = __raw_metadata;
+    }
+    if (errors.length > 0) {
+      throw new DeserializeError(errors);
+    }
+    return instance as Did;
+  }
+  export function validateField<K extends keyof Did>(
+    field: K,
+    value: Did[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Did>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+}
+
+export namespace Did {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    in: Option<Array<string>>;
+    out: Option<Array<string>>;
+    id: Option<Array<string>>;
+    activityType: Option<Array<string>>;
+    createdAt: Option<Array<string>>;
+    metadata: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    {
+      in: Option<boolean>;
+      out: Option<boolean>;
+      id: Option<boolean>;
+      activityType: Option<boolean>;
+      createdAt: Option<boolean>;
+      metadata: Option<boolean>;
+    };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly in: FieldController<string | Actor>;
+    readonly out: FieldController<string | Target>;
+    readonly id: FieldController<string>;
+    readonly activityType: FieldController<ActivityType>;
+    readonly createdAt: FieldController<string>;
+    readonly metadata: FieldController<string | null>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: Did;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<Did, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Did>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<Did>,
+  ): Gigaform {
+    let data = $state({ ...Did.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      in: Option.none(),
+      out: Option.none(),
+      id: Option.none(),
+      activityType: Option.none(),
+      createdAt: Option.none(),
+      metadata: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      in: Option.none(),
+      out: Option.none(),
+      id: Option.none(),
+      activityType: Option.none(),
+      createdAt: Option.none(),
+      metadata: Option.none(),
+    });
+    const fields: FieldControllers = {
+      in: {
+        path: ["in"] as const,
+        name: "in",
+        constraints: { required: true },
+
+        get: () => data.in,
+        set: (value: string | Actor) => {
+          data.in = value;
+        },
+        getError: () => errors.in,
+        setError: (value: Option<Array<string>>) => {
+          errors.in = value;
+        },
+        getTainted: () => tainted.in,
+        setTainted: (value: Option<boolean>) => {
+          tainted.in = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Did.validateField("in", data.in);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      out: {
+        path: ["out"] as const,
+        name: "out",
+        constraints: { required: true },
+
+        get: () => data.out,
+        set: (value: string | Target) => {
+          data.out = value;
+        },
+        getError: () => errors.out,
+        setError: (value: Option<Array<string>>) => {
+          errors.out = value;
+        },
+        getTainted: () => tainted.out,
+        setTainted: (value: Option<boolean>) => {
+          tainted.out = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Did.validateField("out", data.out);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: () => data.id,
+        set: (value: string) => {
+          data.id = value;
+        },
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
+          errors.id = value;
+        },
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
+          tainted.id = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Did.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      activityType: {
+        path: ["activityType"] as const,
+        name: "activityType",
+        constraints: { required: true },
+
+        get: () => data.activityType,
+        set: (value: ActivityType) => {
+          data.activityType = value;
+        },
+        getError: () => errors.activityType,
+        setError: (value: Option<Array<string>>) => {
+          errors.activityType = value;
+        },
+        getTainted: () => tainted.activityType,
+        setTainted: (value: Option<boolean>) => {
+          tainted.activityType = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Did.validateField(
+            "activityType",
+            data.activityType,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      createdAt: {
+        path: ["createdAt"] as const,
+        name: "createdAt",
+        constraints: { required: true },
+
+        get: () => data.createdAt,
+        set: (value: string) => {
+          data.createdAt = value;
+        },
+        getError: () => errors.createdAt,
+        setError: (value: Option<Array<string>>) => {
+          errors.createdAt = value;
+        },
+        getTainted: () => tainted.createdAt,
+        setTainted: (value: Option<boolean>) => {
+          tainted.createdAt = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Did.validateField("createdAt", data.createdAt);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      metadata: {
+        path: ["metadata"] as const,
+        name: "metadata",
+        constraints: { required: true },
+
+        get: () => data.metadata,
+        set: (value: string | null) => {
+          data.metadata = value;
+        },
+        getError: () => errors.metadata,
+        setError: (value: Option<Array<string>>) => {
+          errors.metadata = value;
+        },
+        getTainted: () => tainted.metadata,
+        setTainted: (value: Option<boolean>) => {
+          tainted.metadata = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Did.validateField("metadata", data.metadata);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+    };
+    function validate(): Result<
+      Did,
+      Array<{ field: string; message: string }>
+    > {
+      return Did.fromObject(data);
+    }
+    function reset(newOverrides?: Partial<Did>): void {
+      data = { ...Did.defaultValue(), ...newOverrides };
+      errors = {
+        _errors: Option.none(),
+        in: Option.none(),
+        out: Option.none(),
+        id: Option.none(),
+        activityType: Option.none(),
+        createdAt: Option.none(),
+        metadata: Option.none(),
+      };
+      tainted = {
+        in: Option.none(),
+        out: Option.none(),
+        id: Option.none(),
+        activityType: Option.none(),
+        createdAt: Option.none(),
+        metadata: Option.none(),
+      };
+    }
+    return {
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      fields,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Did, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+    obj.in = formData.get("in") ?? "";
+    obj.out = formData.get("out") ?? "";
+    obj.id = formData.get("id") ?? "";
+    {
+      // Collect nested object fields with prefix "activityType."
+      const activityTypeObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("activityType.")) {
+          const fieldName = key.slice("activityType.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = activityTypeObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+>>>>>>> Stashed changes
       }
       obj.activityType = activityTypeObj;
     }
@@ -2728,6 +3963,7 @@ export namespace PersonName {
     }
     return instance as PersonName;
   }
+<<<<<<< Updated upstream
 }
 
 export namespace PersonName {
@@ -2788,6 +4024,90 @@ export namespace PersonName {
         name: "firstName",
         constraints: { required: true },
 
+=======
+  export function validateField<K extends keyof PersonName>(
+    field: K,
+    value: PersonName[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "firstName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "firstName", message: "must not be empty" });
+        }
+        break;
+      }
+      case "lastName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "lastName", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<PersonName>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("firstName" in partial && partial.firstName !== undefined) {
+      const __val = partial.firstName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "firstName", message: "must not be empty" });
+      }
+    }
+    if ("lastName" in partial && partial.lastName !== undefined) {
+      const __val = partial.lastName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "lastName", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+}
+
+export namespace PersonName {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    firstName: Option<Array<string>>;
+    lastName: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    { firstName: Option<boolean>; lastName: Option<boolean> };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly firstName: FieldController<string>;
+    readonly lastName: FieldController<string>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: PersonName;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<PersonName, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<PersonName>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<PersonName>,
+  ): Gigaform {
+    let data = $state({ ...PersonName.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      firstName: Option.none(),
+      lastName: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      firstName: Option.none(),
+      lastName: Option.none(),
+    });
+    const fields: FieldControllers = {
+      firstName: {
+        path: ["firstName"] as const,
+        name: "firstName",
+        constraints: { required: true },
+        label: "First Name",
+>>>>>>> Stashed changes
         get: () => data.firstName,
         set: (value: string) => {
           data.firstName = value;
@@ -2801,6 +4121,7 @@ export namespace PersonName {
           tainted.firstName = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = PersonName.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -2809,13 +4130,24 @@ export namespace PersonName {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = PersonName.validateField(
+            "firstName",
+            data.firstName,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       lastName: {
         path: ["lastName"] as const,
         name: "lastName",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Last Name",
+>>>>>>> Stashed changes
         get: () => data.lastName,
         set: (value: string) => {
           data.lastName = value;
@@ -2829,6 +4161,7 @@ export namespace PersonName {
           tainted.lastName = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = PersonName.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -2837,6 +4170,13 @@ export namespace PersonName {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = PersonName.validateField(
+            "lastName",
+            data.lastName,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -3013,6 +4353,20 @@ export namespace Promotion {
     }
     return instance as Promotion;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Promotion>(
+    field: K,
+    value: Promotion[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Promotion>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Promotion {
@@ -3023,6 +4377,7 @@ export namespace Promotion {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { id: Option<boolean>; date: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -3042,6 +4397,8 @@ export namespace Promotion {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly id: FieldController<string>;
     readonly date: FieldController<string>;
@@ -3083,6 +4440,7 @@ export namespace Promotion {
           tainted.id = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Promotion.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -3091,6 +4449,10 @@ export namespace Promotion {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Promotion.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       date: {
@@ -3111,6 +4473,7 @@ export namespace Promotion {
           tainted.date = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Promotion.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -3119,6 +4482,10 @@ export namespace Promotion {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Promotion.validateField("date", data.date);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -3453,7 +4820,18 @@ export namespace Site {
           __raw_coordinates,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "coordinates", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.coordinates = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.coordinates = v;
+          });
+        } else {
+          instance.coordinates = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.coordinates = __raw_coordinates;
       }
@@ -3463,6 +4841,98 @@ export namespace Site {
     }
     return instance as Site;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Site>(
+    field: K,
+    value: Site[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "addressLine1": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "addressLine1", message: "must not be empty" });
+        }
+        break;
+      }
+      case "locality": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "locality", message: "must not be empty" });
+        }
+        break;
+      }
+      case "administrativeAreaLevel1": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "administrativeAreaLevel1",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+      case "country": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "country", message: "must not be empty" });
+        }
+        break;
+      }
+      case "postalCode": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "postalCode", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Site>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("addressLine1" in partial && partial.addressLine1 !== undefined) {
+      const __val = partial.addressLine1 as string;
+      if (__val.length === 0) {
+        errors.push({ field: "addressLine1", message: "must not be empty" });
+      }
+    }
+    if ("locality" in partial && partial.locality !== undefined) {
+      const __val = partial.locality as string;
+      if (__val.length === 0) {
+        errors.push({ field: "locality", message: "must not be empty" });
+      }
+    }
+    if (
+      "administrativeAreaLevel1" in partial &&
+      partial.administrativeAreaLevel1 !== undefined
+    ) {
+      const __val = partial.administrativeAreaLevel1 as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "administrativeAreaLevel1",
+          message: "must not be empty",
+        });
+      }
+    }
+    if ("country" in partial && partial.country !== undefined) {
+      const __val = partial.country as string;
+      if (__val.length === 0) {
+        errors.push({ field: "country", message: "must not be empty" });
+      }
+    }
+    if ("postalCode" in partial && partial.postalCode !== undefined) {
+      const __val = partial.postalCode as string;
+      if (__val.length === 0) {
+        errors.push({ field: "postalCode", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Site {
@@ -3496,6 +4966,7 @@ export namespace Site {
       postalCodeSuffix: Option<boolean>;
       coordinates: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -3515,6 +4986,8 @@ export namespace Site {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly id: FieldController<string>;
     readonly addressLine1: FieldController<string>;
@@ -3589,6 +5062,7 @@ export namespace Site {
           tainted.id = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Site.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -3597,6 +5071,10 @@ export namespace Site {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Site.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       addressLine1: {
@@ -3617,6 +5095,7 @@ export namespace Site {
           tainted.addressLine1 = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Site.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -3625,6 +5104,13 @@ export namespace Site {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Site.validateField(
+            "addressLine1",
+            data.addressLine1,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       addressLine2: {
@@ -3645,6 +5131,7 @@ export namespace Site {
           tainted.addressLine2 = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Site.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -3653,6 +5140,13 @@ export namespace Site {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Site.validateField(
+            "addressLine2",
+            data.addressLine2,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       sublocalityLevel1: {
@@ -3673,6 +5167,7 @@ export namespace Site {
           tainted.sublocalityLevel1 = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Site.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -3681,6 +5176,13 @@ export namespace Site {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Site.validateField(
+            "sublocalityLevel1",
+            data.sublocalityLevel1,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       locality: {
@@ -3701,6 +5203,7 @@ export namespace Site {
           tainted.locality = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Site.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -3709,6 +5212,10 @@ export namespace Site {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Site.validateField("locality", data.locality);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       administrativeAreaLevel3: {
@@ -3729,6 +5236,7 @@ export namespace Site {
           tainted.administrativeAreaLevel3 = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Site.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -3737,6 +5245,13 @@ export namespace Site {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Site.validateField(
+            "administrativeAreaLevel3",
+            data.administrativeAreaLevel3,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       administrativeAreaLevel2: {
@@ -3757,6 +5272,7 @@ export namespace Site {
           tainted.administrativeAreaLevel2 = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Site.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -3765,6 +5281,13 @@ export namespace Site {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Site.validateField(
+            "administrativeAreaLevel2",
+            data.administrativeAreaLevel2,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       administrativeAreaLevel1: {
@@ -3785,6 +5308,7 @@ export namespace Site {
           tainted.administrativeAreaLevel1 = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Site.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -3793,6 +5317,13 @@ export namespace Site {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Site.validateField(
+            "administrativeAreaLevel1",
+            data.administrativeAreaLevel1,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       country: {
@@ -3813,6 +5344,7 @@ export namespace Site {
           tainted.country = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Site.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -3821,6 +5353,10 @@ export namespace Site {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Site.validateField("country", data.country);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       postalCode: {
@@ -3841,6 +5377,7 @@ export namespace Site {
           tainted.postalCode = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Site.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -3849,6 +5386,10 @@ export namespace Site {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Site.validateField("postalCode", data.postalCode);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       postalCodeSuffix: {
@@ -3869,6 +5410,7 @@ export namespace Site {
           tainted.postalCodeSuffix = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Site.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -3877,6 +5419,13 @@ export namespace Site {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Site.validateField(
+            "postalCodeSuffix",
+            data.postalCodeSuffix,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       coordinates: {
@@ -3897,6 +5446,7 @@ export namespace Site {
           tainted.coordinates = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Site.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -3905,6 +5455,13 @@ export namespace Site {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Site.validateField(
+            "coordinates",
+            data.coordinates,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -4169,6 +5726,20 @@ export namespace Metadata {
     }
     return instance as Metadata;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Metadata>(
+    field: K,
+    value: Metadata[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Metadata>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Metadata {
@@ -4186,6 +5757,7 @@ export namespace Metadata {
       isActive: Option<boolean>;
       roles: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -4205,6 +5777,8 @@ export namespace Metadata {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly createdAt: FieldController<string>;
     readonly lastLogin: FieldController<string | null>;
@@ -4255,6 +5829,7 @@ export namespace Metadata {
           tainted.createdAt = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Metadata.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -4263,6 +5838,13 @@ export namespace Metadata {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Metadata.validateField(
+            "createdAt",
+            data.createdAt,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       lastLogin: {
@@ -4283,6 +5865,7 @@ export namespace Metadata {
           tainted.lastLogin = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Metadata.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -4291,6 +5874,13 @@ export namespace Metadata {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Metadata.validateField(
+            "lastLogin",
+            data.lastLogin,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       isActive: {
@@ -4311,6 +5901,7 @@ export namespace Metadata {
           tainted.isActive = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Metadata.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -4319,6 +5910,10 @@ export namespace Metadata {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Metadata.validateField("isActive", data.isActive);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       roles: {
@@ -4339,6 +5934,7 @@ export namespace Metadata {
           tainted.roles = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Metadata.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -4347,6 +5943,10 @@ export namespace Metadata {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Metadata.validateField("roles", data.roles);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["roles", index] as const,
@@ -4562,7 +6162,18 @@ export namespace ColumnConfig {
       const __raw_dataPath = obj["dataPath"];
       if (typeof (DataPath as any)?.__deserialize === "function") {
         const __result = (DataPath as any).__deserialize(__raw_dataPath, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "dataPath", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.dataPath = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.dataPath = v;
+          });
+        } else {
+          instance.dataPath = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.dataPath = __raw_dataPath;
       }
@@ -4572,6 +6183,37 @@ export namespace ColumnConfig {
     }
     return instance as ColumnConfig;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof ColumnConfig>(
+    field: K,
+    value: ColumnConfig[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "heading": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "heading", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<ColumnConfig>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("heading" in partial && partial.heading !== undefined) {
+      const __val = partial.heading as string;
+      if (__val.length === 0) {
+        errors.push({ field: "heading", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace ColumnConfig {
@@ -4582,6 +6224,7 @@ export namespace ColumnConfig {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { heading: Option<boolean>; dataPath: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -4601,6 +6244,8 @@ export namespace ColumnConfig {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly heading: FieldController<string>;
     readonly dataPath: FieldController<DataPath>;
@@ -4645,6 +6290,7 @@ export namespace ColumnConfig {
           tainted.heading = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = ColumnConfig.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -4653,6 +6299,13 @@ export namespace ColumnConfig {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = ColumnConfig.validateField(
+            "heading",
+            data.heading,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       dataPath: {
@@ -4673,6 +6326,7 @@ export namespace ColumnConfig {
           tainted.dataPath = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = ColumnConfig.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -4681,6 +6335,13 @@ export namespace ColumnConfig {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = ColumnConfig.validateField(
+            "dataPath",
+            data.dataPath,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -4759,7 +6420,13 @@ export interface PhoneNumber {
   phoneType: string;
 
   number: string;
+<<<<<<< Updated upstream
   canText: boolean;
+=======
+
+  canText: boolean;
+
+>>>>>>> Stashed changes
   canCall: boolean;
 }
 
@@ -4913,6 +6580,7 @@ export namespace PhoneNumber {
     }
     return instance as PhoneNumber;
   }
+<<<<<<< Updated upstream
 }
 
 export namespace PhoneNumber {
@@ -4991,6 +6659,108 @@ export namespace PhoneNumber {
         name: "main",
         constraints: { required: true },
 
+=======
+  export function validateField<K extends keyof PhoneNumber>(
+    field: K,
+    value: PhoneNumber[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "phoneType": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "phoneType", message: "must not be empty" });
+        }
+        break;
+      }
+      case "number": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "number", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<PhoneNumber>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("phoneType" in partial && partial.phoneType !== undefined) {
+      const __val = partial.phoneType as string;
+      if (__val.length === 0) {
+        errors.push({ field: "phoneType", message: "must not be empty" });
+      }
+    }
+    if ("number" in partial && partial.number !== undefined) {
+      const __val = partial.number as string;
+      if (__val.length === 0) {
+        errors.push({ field: "number", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+}
+
+export namespace PhoneNumber {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    main: Option<Array<string>>;
+    phoneType: Option<Array<string>>;
+    number: Option<Array<string>>;
+    canText: Option<Array<string>>;
+    canCall: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    {
+      main: Option<boolean>;
+      phoneType: Option<boolean>;
+      number: Option<boolean>;
+      canText: Option<boolean>;
+      canCall: Option<boolean>;
+    };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly main: FieldController<boolean>;
+    readonly phoneType: FieldController<string>;
+    readonly number: FieldController<string>;
+    readonly canText: FieldController<boolean>;
+    readonly canCall: FieldController<boolean>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: PhoneNumber;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<PhoneNumber, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<PhoneNumber>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<PhoneNumber>,
+  ): Gigaform {
+    let data = $state({ ...PhoneNumber.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      main: Option.none(),
+      phoneType: Option.none(),
+      number: Option.none(),
+      canText: Option.none(),
+      canCall: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      main: Option.none(),
+      phoneType: Option.none(),
+      number: Option.none(),
+      canText: Option.none(),
+      canCall: Option.none(),
+    });
+    const fields: FieldControllers = {
+      main: {
+        path: ["main"] as const,
+        name: "main",
+        constraints: { required: true },
+        label: "Main",
+>>>>>>> Stashed changes
         get: () => data.main,
         set: (value: boolean) => {
           data.main = value;
@@ -5004,6 +6774,7 @@ export namespace PhoneNumber {
           tainted.main = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = PhoneNumber.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -5012,13 +6783,21 @@ export namespace PhoneNumber {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = PhoneNumber.validateField("main", data.main);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       phoneType: {
         path: ["phoneType"] as const,
         name: "phoneType",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Phone Type",
+>>>>>>> Stashed changes
         get: () => data.phoneType,
         set: (value: string) => {
           data.phoneType = value;
@@ -5032,6 +6811,7 @@ export namespace PhoneNumber {
           tainted.phoneType = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = PhoneNumber.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -5040,13 +6820,24 @@ export namespace PhoneNumber {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = PhoneNumber.validateField(
+            "phoneType",
+            data.phoneType,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       number: {
         path: ["number"] as const,
         name: "number",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Number",
+>>>>>>> Stashed changes
         get: () => data.number,
         set: (value: string) => {
           data.number = value;
@@ -5060,6 +6851,7 @@ export namespace PhoneNumber {
           tainted.number = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = PhoneNumber.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -5068,13 +6860,21 @@ export namespace PhoneNumber {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = PhoneNumber.validateField("number", data.number);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       canText: {
         path: ["canText"] as const,
         name: "canText",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Can Text",
+>>>>>>> Stashed changes
         get: () => data.canText,
         set: (value: boolean) => {
           data.canText = value;
@@ -5088,6 +6888,7 @@ export namespace PhoneNumber {
           tainted.canText = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = PhoneNumber.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -5096,13 +6897,24 @@ export namespace PhoneNumber {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = PhoneNumber.validateField(
+            "canText",
+            data.canText,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       canCall: {
         path: ["canCall"] as const,
         name: "canCall",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Can Call",
+>>>>>>> Stashed changes
         get: () => data.canCall,
         set: (value: boolean) => {
           data.canCall = value;
@@ -5116,6 +6928,7 @@ export namespace PhoneNumber {
           tainted.canCall = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = PhoneNumber.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -5124,6 +6937,13 @@ export namespace PhoneNumber {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = PhoneNumber.validateField(
+            "canCall",
+            data.canCall,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -5314,6 +7134,20 @@ export namespace Gradient {
     }
     return instance as Gradient;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Gradient>(
+    field: K,
+    value: Gradient[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Gradient>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Gradient {
@@ -5323,6 +7157,7 @@ export namespace Gradient {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { startHue: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -5342,6 +7177,8 @@ export namespace Gradient {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly startHue: FieldController<number>;
   }
@@ -5381,6 +7218,7 @@ export namespace Gradient {
           tainted.startHue = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Gradient.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -5389,6 +7227,10 @@ export namespace Gradient {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Gradient.validateField("startHue", data.startHue);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -5447,11 +7289,25 @@ export interface Product {
   name: string;
 
   quickCode: string;
+<<<<<<< Updated upstream
   group: string | null;
   subgroup: string | null;
   unit: string | null;
   active: boolean;
   commission: boolean;
+=======
+
+  group: string | null;
+
+  subgroup: string | null;
+
+  unit: string | null;
+
+  active: boolean;
+
+  commission: boolean;
+
+>>>>>>> Stashed changes
   favorite: boolean;
   defaults: ProductDefaults;
 }
@@ -5672,7 +7528,18 @@ export namespace Product {
           __raw_defaults,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "defaults", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.defaults = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.defaults = v;
+          });
+        } else {
+          instance.defaults = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.defaults = __raw_defaults;
       }
@@ -5682,6 +7549,50 @@ export namespace Product {
     }
     return instance as Product;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Product>(
+    field: K,
+    value: Product[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+      case "quickCode": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "quickCode", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Product>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    if ("quickCode" in partial && partial.quickCode !== undefined) {
+      const __val = partial.quickCode as string;
+      if (__val.length === 0) {
+        errors.push({ field: "quickCode", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Product {
@@ -5711,6 +7622,7 @@ export namespace Product {
       favorite: Option<boolean>;
       defaults: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -5730,6 +7642,8 @@ export namespace Product {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly id: FieldController<string>;
     readonly name: FieldController<string>;
@@ -5798,6 +7712,7 @@ export namespace Product {
           tainted.id = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Product.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -5806,13 +7721,21 @@ export namespace Product {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Product.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       name: {
         path: ["name"] as const,
         name: "name",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Name",
+>>>>>>> Stashed changes
         get: () => data.name,
         set: (value: string) => {
           data.name = value;
@@ -5826,6 +7749,7 @@ export namespace Product {
           tainted.name = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Product.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -5834,13 +7758,21 @@ export namespace Product {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Product.validateField("name", data.name);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       quickCode: {
         path: ["quickCode"] as const,
         name: "quickCode",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Quick Code",
+>>>>>>> Stashed changes
         get: () => data.quickCode,
         set: (value: string) => {
           data.quickCode = value;
@@ -5854,6 +7786,7 @@ export namespace Product {
           tainted.quickCode = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Product.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -5862,13 +7795,24 @@ export namespace Product {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Product.validateField(
+            "quickCode",
+            data.quickCode,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       group: {
         path: ["group"] as const,
         name: "group",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Group",
+>>>>>>> Stashed changes
         get: () => data.group,
         set: (value: string | null) => {
           data.group = value;
@@ -5882,6 +7826,7 @@ export namespace Product {
           tainted.group = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Product.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -5890,13 +7835,21 @@ export namespace Product {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Product.validateField("group", data.group);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       subgroup: {
         path: ["subgroup"] as const,
         name: "subgroup",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Subgroup",
+>>>>>>> Stashed changes
         get: () => data.subgroup,
         set: (value: string | null) => {
           data.subgroup = value;
@@ -5910,6 +7863,7 @@ export namespace Product {
           tainted.subgroup = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Product.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -5918,13 +7872,21 @@ export namespace Product {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Product.validateField("subgroup", data.subgroup);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       unit: {
         path: ["unit"] as const,
         name: "unit",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Unit",
+>>>>>>> Stashed changes
         get: () => data.unit,
         set: (value: string | null) => {
           data.unit = value;
@@ -5938,6 +7900,7 @@ export namespace Product {
           tainted.unit = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Product.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -5946,13 +7909,21 @@ export namespace Product {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Product.validateField("unit", data.unit);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       active: {
         path: ["active"] as const,
         name: "active",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Active",
+>>>>>>> Stashed changes
         get: () => data.active,
         set: (value: boolean) => {
           data.active = value;
@@ -5966,6 +7937,7 @@ export namespace Product {
           tainted.active = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Product.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -5974,13 +7946,21 @@ export namespace Product {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Product.validateField("active", data.active);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       commission: {
         path: ["commission"] as const,
         name: "commission",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Commission",
+>>>>>>> Stashed changes
         get: () => data.commission,
         set: (value: boolean) => {
           data.commission = value;
@@ -5994,6 +7974,7 @@ export namespace Product {
           tainted.commission = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Product.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -6002,13 +7983,24 @@ export namespace Product {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Product.validateField(
+            "commission",
+            data.commission,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       favorite: {
         path: ["favorite"] as const,
         name: "favorite",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Favorite",
+>>>>>>> Stashed changes
         get: () => data.favorite,
         set: (value: boolean) => {
           data.favorite = value;
@@ -6022,6 +8014,7 @@ export namespace Product {
           tainted.favorite = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Product.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -6030,6 +8023,10 @@ export namespace Product {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Product.validateField("favorite", data.favorite);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       defaults: {
@@ -6050,6 +8047,7 @@ export namespace Product {
           tainted.defaults = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Product.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -6058,6 +8056,10 @@ export namespace Product {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Product.validateField("defaults", data.defaults);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -6295,6 +8297,20 @@ export namespace YearlyRecurrenceRule {
     }
     return instance as YearlyRecurrenceRule;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof YearlyRecurrenceRule>(
+    field: K,
+    value: YearlyRecurrenceRule[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<YearlyRecurrenceRule>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace YearlyRecurrenceRule {
@@ -6304,6 +8320,7 @@ export namespace YearlyRecurrenceRule {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { quantityOfYears: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -6323,6 +8340,8 @@ export namespace YearlyRecurrenceRule {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly quantityOfYears: FieldController<number>;
   }
@@ -6365,6 +8384,7 @@ export namespace YearlyRecurrenceRule {
           tainted.quantityOfYears = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = YearlyRecurrenceRule.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -6373,6 +8393,13 @@ export namespace YearlyRecurrenceRule {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = YearlyRecurrenceRule.validateField(
+            "quantityOfYears",
+            data.quantityOfYears,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -6582,6 +8609,68 @@ export namespace AppointmentNotifications {
     }
     return instance as AppointmentNotifications;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof AppointmentNotifications>(
+    field: K,
+    value: AppointmentNotifications[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "personalScheduleChangeNotifications": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "personalScheduleChangeNotifications",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+      case "allScheduleChangeNotifications": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "allScheduleChangeNotifications",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<AppointmentNotifications>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (
+      "personalScheduleChangeNotifications" in partial &&
+      partial.personalScheduleChangeNotifications !== undefined
+    ) {
+      const __val = partial.personalScheduleChangeNotifications as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "personalScheduleChangeNotifications",
+          message: "must not be empty",
+        });
+      }
+    }
+    if (
+      "allScheduleChangeNotifications" in partial &&
+      partial.allScheduleChangeNotifications !== undefined
+    ) {
+      const __val = partial.allScheduleChangeNotifications as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "allScheduleChangeNotifications",
+          message: "must not be empty",
+        });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace AppointmentNotifications {
@@ -6595,6 +8684,7 @@ export namespace AppointmentNotifications {
       personalScheduleChangeNotifications: Option<boolean>;
       allScheduleChangeNotifications: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -6614,6 +8704,8 @@ export namespace AppointmentNotifications {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly personalScheduleChangeNotifications: FieldController<string>;
     readonly allScheduleChangeNotifications: FieldController<string>;
@@ -6664,6 +8756,7 @@ export namespace AppointmentNotifications {
           tainted.personalScheduleChangeNotifications = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = AppointmentNotifications.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -6672,6 +8765,13 @@ export namespace AppointmentNotifications {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = AppointmentNotifications.validateField(
+            "personalScheduleChangeNotifications",
+            data.personalScheduleChangeNotifications,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       allScheduleChangeNotifications: {
@@ -6692,6 +8792,7 @@ export namespace AppointmentNotifications {
           tainted.allScheduleChangeNotifications = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = AppointmentNotifications.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -6700,6 +8801,13 @@ export namespace AppointmentNotifications {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = AppointmentNotifications.validateField(
+            "allScheduleChangeNotifications",
+            data.allScheduleChangeNotifications,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -6885,6 +8993,20 @@ export namespace DirectionHue {
     }
     return instance as DirectionHue;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof DirectionHue>(
+    field: K,
+    value: DirectionHue[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<DirectionHue>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace DirectionHue {
@@ -6895,6 +9017,7 @@ export namespace DirectionHue {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { bearing: Option<boolean>; hue: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -6914,6 +9037,8 @@ export namespace DirectionHue {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly bearing: FieldController<number>;
     readonly hue: FieldController<number>;
@@ -6958,6 +9083,7 @@ export namespace DirectionHue {
           tainted.bearing = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = DirectionHue.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -6966,6 +9092,13 @@ export namespace DirectionHue {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = DirectionHue.validateField(
+            "bearing",
+            data.bearing,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       hue: {
@@ -6986,6 +9119,7 @@ export namespace DirectionHue {
           tainted.hue = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = DirectionHue.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -6994,6 +9128,10 @@ export namespace DirectionHue {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = DirectionHue.validateField("hue", data.hue);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -7198,6 +9336,37 @@ export namespace MonthlyRecurrenceRule {
     }
     return instance as MonthlyRecurrenceRule;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof MonthlyRecurrenceRule>(
+    field: K,
+    value: MonthlyRecurrenceRule[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<MonthlyRecurrenceRule>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace MonthlyRecurrenceRule {
@@ -7213,6 +9382,7 @@ export namespace MonthlyRecurrenceRule {
       day: Option<boolean>;
       name: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -7232,6 +9402,8 @@ export namespace MonthlyRecurrenceRule {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly quantityOfMonths: FieldController<number>;
     readonly day: FieldController<number>;
@@ -7285,6 +9457,7 @@ export namespace MonthlyRecurrenceRule {
           tainted.quantityOfMonths = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = MonthlyRecurrenceRule.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -7293,6 +9466,13 @@ export namespace MonthlyRecurrenceRule {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = MonthlyRecurrenceRule.validateField(
+            "quantityOfMonths",
+            data.quantityOfMonths,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       day: {
@@ -7313,6 +9493,7 @@ export namespace MonthlyRecurrenceRule {
           tainted.day = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = MonthlyRecurrenceRule.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -7321,6 +9502,13 @@ export namespace MonthlyRecurrenceRule {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = MonthlyRecurrenceRule.validateField(
+            "day",
+            data.day,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       name: {
@@ -7341,6 +9529,7 @@ export namespace MonthlyRecurrenceRule {
           tainted.name = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = MonthlyRecurrenceRule.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -7349,6 +9538,13 @@ export namespace MonthlyRecurrenceRule {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = MonthlyRecurrenceRule.validateField(
+            "name",
+            data.name,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -7565,6 +9761,20 @@ export namespace Represents {
     }
     return instance as Represents;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Represents>(
+    field: K,
+    value: Represents[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Represents>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Represents {
@@ -7582,6 +9792,7 @@ export namespace Represents {
       id: Option<boolean>;
       dateStarted: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -7601,6 +9812,8 @@ export namespace Represents {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly in: FieldController<string | Employee>;
     readonly out: FieldController<string | Account>;
@@ -7651,6 +9864,7 @@ export namespace Represents {
           tainted.in = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Represents.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -7659,6 +9873,10 @@ export namespace Represents {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Represents.validateField("in", data.in);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       out: {
@@ -7679,6 +9897,7 @@ export namespace Represents {
           tainted.out = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Represents.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -7687,6 +9906,10 @@ export namespace Represents {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Represents.validateField("out", data.out);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       id: {
@@ -7707,6 +9930,7 @@ export namespace Represents {
           tainted.id = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Represents.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -7715,6 +9939,10 @@ export namespace Represents {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Represents.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       dateStarted: {
@@ -7735,6 +9963,7 @@ export namespace Represents {
           tainted.dateStarted = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Represents.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -7743,6 +9972,13 @@ export namespace Represents {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Represents.validateField(
+            "dateStarted",
+            data.dateStarted,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -7928,6 +10164,20 @@ export namespace Payment {
     }
     return instance as Payment;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Payment>(
+    field: K,
+    value: Payment[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Payment>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Payment {
@@ -7938,6 +10188,7 @@ export namespace Payment {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { id: Option<boolean>; date: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -7957,6 +10208,8 @@ export namespace Payment {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly id: FieldController<string>;
     readonly date: FieldController<string>;
@@ -7998,6 +10251,7 @@ export namespace Payment {
           tainted.id = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Payment.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -8006,6 +10260,10 @@ export namespace Payment {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Payment.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       date: {
@@ -8026,6 +10284,7 @@ export namespace Payment {
           tainted.date = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Payment.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -8034,6 +10293,10 @@ export namespace Payment {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Payment.validateField("date", data.date);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -8352,7 +10615,18 @@ export namespace Settings {
           __raw_scheduleSettings,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "scheduleSettings", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.scheduleSettings = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.scheduleSettings = v;
+          });
+        } else {
+          instance.scheduleSettings = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.scheduleSettings = __raw_scheduleSettings;
       }
@@ -8364,7 +10638,18 @@ export namespace Settings {
           __raw_accountOverviewSettings,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "accountOverviewSettings", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.accountOverviewSettings = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.accountOverviewSettings = v;
+          });
+        } else {
+          instance.accountOverviewSettings = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.accountOverviewSettings = __raw_accountOverviewSettings;
       }
@@ -8376,7 +10661,18 @@ export namespace Settings {
           __raw_serviceOverviewSettings,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "serviceOverviewSettings", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.serviceOverviewSettings = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.serviceOverviewSettings = v;
+          });
+        } else {
+          instance.serviceOverviewSettings = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.serviceOverviewSettings = __raw_serviceOverviewSettings;
       }
@@ -8389,7 +10685,18 @@ export namespace Settings {
           __raw_appointmentOverviewSettings,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "appointmentOverviewSettings", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.appointmentOverviewSettings = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.appointmentOverviewSettings = v;
+          });
+        } else {
+          instance.appointmentOverviewSettings = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.appointmentOverviewSettings =
           __raw_appointmentOverviewSettings;
@@ -8402,7 +10709,18 @@ export namespace Settings {
           __raw_leadOverviewSettings,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "leadOverviewSettings", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.leadOverviewSettings = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.leadOverviewSettings = v;
+          });
+        } else {
+          instance.leadOverviewSettings = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.leadOverviewSettings = __raw_leadOverviewSettings;
       }
@@ -8414,7 +10732,18 @@ export namespace Settings {
           __raw_packageOverviewSettings,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "packageOverviewSettings", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.packageOverviewSettings = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.packageOverviewSettings = v;
+          });
+        } else {
+          instance.packageOverviewSettings = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.packageOverviewSettings = __raw_packageOverviewSettings;
       }
@@ -8426,7 +10755,18 @@ export namespace Settings {
           __raw_productOverviewSettings,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "productOverviewSettings", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.productOverviewSettings = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.productOverviewSettings = v;
+          });
+        } else {
+          instance.productOverviewSettings = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.productOverviewSettings = __raw_productOverviewSettings;
       }
@@ -8438,7 +10778,18 @@ export namespace Settings {
           __raw_orderOverviewSettings,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "orderOverviewSettings", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.orderOverviewSettings = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.orderOverviewSettings = v;
+          });
+        } else {
+          instance.orderOverviewSettings = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.orderOverviewSettings = __raw_orderOverviewSettings;
       }
@@ -8450,7 +10801,18 @@ export namespace Settings {
           __raw_taxRateOverviewSettings,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "taxRateOverviewSettings", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.taxRateOverviewSettings = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.taxRateOverviewSettings = v;
+          });
+        } else {
+          instance.taxRateOverviewSettings = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.taxRateOverviewSettings = __raw_taxRateOverviewSettings;
       }
@@ -8459,7 +10821,18 @@ export namespace Settings {
       const __raw_homePage = obj["homePage"];
       if (typeof (Page as any)?.__deserialize === "function") {
         const __result = (Page as any).__deserialize(__raw_homePage, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "homePage", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.homePage = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.homePage = v;
+          });
+        } else {
+          instance.homePage = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.homePage = __raw_homePage;
       }
@@ -8469,6 +10842,20 @@ export namespace Settings {
     }
     return instance as Settings;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Settings>(
+    field: K,
+    value: Settings[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Settings>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Settings {
@@ -8502,6 +10889,7 @@ export namespace Settings {
       taxRateOverviewSettings: Option<boolean>;
       homePage: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -8521,6 +10909,8 @@ export namespace Settings {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly appointmentNotifications: FieldController<AppointmentNotifications | null>;
     readonly commissions: FieldController<Commissions | null>;
@@ -8595,6 +10985,7 @@ export namespace Settings {
           tainted.appointmentNotifications = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Settings.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -8603,6 +10994,13 @@ export namespace Settings {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Settings.validateField(
+            "appointmentNotifications",
+            data.appointmentNotifications,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       commissions: {
@@ -8623,6 +11021,7 @@ export namespace Settings {
           tainted.commissions = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Settings.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -8631,6 +11030,13 @@ export namespace Settings {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Settings.validateField(
+            "commissions",
+            data.commissions,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       scheduleSettings: {
@@ -8651,6 +11057,7 @@ export namespace Settings {
           tainted.scheduleSettings = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Settings.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -8659,6 +11066,13 @@ export namespace Settings {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Settings.validateField(
+            "scheduleSettings",
+            data.scheduleSettings,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       accountOverviewSettings: {
@@ -8679,6 +11093,7 @@ export namespace Settings {
           tainted.accountOverviewSettings = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Settings.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -8687,6 +11102,13 @@ export namespace Settings {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Settings.validateField(
+            "accountOverviewSettings",
+            data.accountOverviewSettings,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       serviceOverviewSettings: {
@@ -8707,6 +11129,7 @@ export namespace Settings {
           tainted.serviceOverviewSettings = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Settings.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -8715,6 +11138,13 @@ export namespace Settings {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Settings.validateField(
+            "serviceOverviewSettings",
+            data.serviceOverviewSettings,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       appointmentOverviewSettings: {
@@ -8735,6 +11165,7 @@ export namespace Settings {
           tainted.appointmentOverviewSettings = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Settings.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -8743,6 +11174,13 @@ export namespace Settings {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Settings.validateField(
+            "appointmentOverviewSettings",
+            data.appointmentOverviewSettings,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       leadOverviewSettings: {
@@ -8763,6 +11201,7 @@ export namespace Settings {
           tainted.leadOverviewSettings = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Settings.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -8771,6 +11210,13 @@ export namespace Settings {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Settings.validateField(
+            "leadOverviewSettings",
+            data.leadOverviewSettings,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       packageOverviewSettings: {
@@ -8791,6 +11237,7 @@ export namespace Settings {
           tainted.packageOverviewSettings = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Settings.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -8799,6 +11246,13 @@ export namespace Settings {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Settings.validateField(
+            "packageOverviewSettings",
+            data.packageOverviewSettings,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       productOverviewSettings: {
@@ -8819,6 +11273,7 @@ export namespace Settings {
           tainted.productOverviewSettings = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Settings.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -8827,6 +11282,13 @@ export namespace Settings {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Settings.validateField(
+            "productOverviewSettings",
+            data.productOverviewSettings,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       orderOverviewSettings: {
@@ -8847,6 +11309,7 @@ export namespace Settings {
           tainted.orderOverviewSettings = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Settings.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -8855,6 +11318,13 @@ export namespace Settings {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Settings.validateField(
+            "orderOverviewSettings",
+            data.orderOverviewSettings,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       taxRateOverviewSettings: {
@@ -8875,6 +11345,7 @@ export namespace Settings {
           tainted.taxRateOverviewSettings = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Settings.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -8883,6 +11354,13 @@ export namespace Settings {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Settings.validateField(
+            "taxRateOverviewSettings",
+            data.taxRateOverviewSettings,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       homePage: {
@@ -8903,6 +11381,7 @@ export namespace Settings {
           tainted.homePage = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Settings.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -8911,6 +11390,10 @@ export namespace Settings {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Settings.validateField("homePage", data.homePage);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -9327,6 +11810,20 @@ export namespace Color {
     }
     return instance as Color;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Color>(
+    field: K,
+    value: Color[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Color>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Color {
@@ -9338,6 +11835,7 @@ export namespace Color {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { red: Option<boolean>; green: Option<boolean>; blue: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -9357,6 +11855,8 @@ export namespace Color {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly red: FieldController<number>;
     readonly green: FieldController<number>;
@@ -9404,6 +11904,7 @@ export namespace Color {
           tainted.red = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Color.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -9412,6 +11913,10 @@ export namespace Color {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Color.validateField("red", data.red);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       green: {
@@ -9432,6 +11937,7 @@ export namespace Color {
           tainted.green = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Color.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -9440,6 +11946,10 @@ export namespace Color {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Color.validateField("green", data.green);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       blue: {
@@ -9460,6 +11970,7 @@ export namespace Color {
           tainted.blue = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Color.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -9468,6 +11979,10 @@ export namespace Color {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Color.validateField("blue", data.blue);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -9654,6 +12169,7 @@ export namespace CompanyName {
     }
     return instance as CompanyName;
   }
+<<<<<<< Updated upstream
 }
 
 export namespace CompanyName {
@@ -9708,6 +12224,71 @@ export namespace CompanyName {
         name: "companyName",
         constraints: { required: true },
 
+=======
+  export function validateField<K extends keyof CompanyName>(
+    field: K,
+    value: CompanyName[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "companyName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "companyName", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<CompanyName>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("companyName" in partial && partial.companyName !== undefined) {
+      const __val = partial.companyName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "companyName", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+}
+
+export namespace CompanyName {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    companyName: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    { companyName: Option<boolean> };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly companyName: FieldController<string>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: CompanyName;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<CompanyName, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<CompanyName>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<CompanyName>,
+  ): Gigaform {
+    let data = $state({ ...CompanyName.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      companyName: Option.none(),
+    });
+    let tainted = $state<Tainted>({ companyName: Option.none() });
+    const fields: FieldControllers = {
+      companyName: {
+        path: ["companyName"] as const,
+        name: "companyName",
+        constraints: { required: true },
+        label: "Company Name",
+>>>>>>> Stashed changes
         get: () => data.companyName,
         set: (value: string) => {
           data.companyName = value;
@@ -9721,6 +12302,7 @@ export namespace CompanyName {
           tainted.companyName = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = CompanyName.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -9729,6 +12311,13 @@ export namespace CompanyName {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = CompanyName.validateField(
+            "companyName",
+            data.companyName,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -9782,6 +12371,7 @@ export interface Appointment {
   title: string;
 
   status: Status;
+<<<<<<< Updated upstream
   begins: string;
   duration: number;
   timeZone: string;
@@ -9794,6 +12384,29 @@ export interface Appointment {
   description: string | null;
 
   colors: Colors;
+=======
+
+  begins: string;
+
+  duration: number;
+
+  timeZone: string;
+
+  offsetMs: number;
+
+  allDay: boolean;
+
+  multiDay: boolean;
+
+  employees: (string | Employee)[];
+
+  location: string | Site;
+
+  description: string | null;
+
+  colors: Colors;
+
+>>>>>>> Stashed changes
   recurrenceRule: RecurrenceRule | null;
 }
 
@@ -10004,6 +12617,7 @@ export namespace Appointment {
       const __raw_status = obj["status"];
       if (typeof (Status as any)?.__deserialize === "function") {
         const __result = (Status as any).__deserialize(__raw_status, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "status", __result);
       } else {
         instance.status = __raw_status;
@@ -10743,6 +13357,710 @@ export namespace Appointment {
           }
           employeesItems.push(item);
         }
+=======
+        if (PendingRef.is(__result)) {
+          instance.status = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.status = v;
+          });
+        } else {
+          instance.status = __result;
+        }
+      } else {
+        instance.status = __raw_status;
+      }
+    }
+    {
+      const __raw_begins = obj["begins"];
+      instance.begins = __raw_begins;
+    }
+    {
+      const __raw_duration = obj["duration"];
+      instance.duration = __raw_duration;
+    }
+    {
+      const __raw_timeZone = obj["timeZone"];
+      instance.timeZone = __raw_timeZone;
+    }
+    {
+      const __raw_offsetMs = obj["offsetMs"];
+      instance.offsetMs = __raw_offsetMs;
+    }
+    {
+      const __raw_allDay = obj["allDay"];
+      instance.allDay = __raw_allDay;
+    }
+    {
+      const __raw_multiDay = obj["multiDay"];
+      instance.multiDay = __raw_multiDay;
+    }
+    {
+      const __raw_employees = obj["employees"];
+      instance.employees = __raw_employees;
+    }
+    {
+      const __raw_location = obj["location"];
+      instance.location = __raw_location;
+    }
+    {
+      const __raw_description = obj["description"];
+      instance.description = __raw_description;
+    }
+    {
+      const __raw_colors = obj["colors"];
+      if (typeof (Colors as any)?.__deserialize === "function") {
+        const __result = (Colors as any).__deserialize(__raw_colors, ctx);
+        if (PendingRef.is(__result)) {
+          instance.colors = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.colors = v;
+          });
+        } else {
+          instance.colors = __result;
+        }
+      } else {
+        instance.colors = __raw_colors;
+      }
+    }
+    {
+      const __raw_recurrenceRule = obj["recurrenceRule"];
+      instance.recurrenceRule = __raw_recurrenceRule;
+    }
+    if (errors.length > 0) {
+      throw new DeserializeError(errors);
+    }
+    return instance as Appointment;
+  }
+  export function validateField<K extends keyof Appointment>(
+    field: K,
+    value: Appointment[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "title": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "title", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Appointment>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("title" in partial && partial.title !== undefined) {
+      const __val = partial.title as string;
+      if (__val.length === 0) {
+        errors.push({ field: "title", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+}
+
+export namespace Appointment {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    title: Option<Array<string>>;
+    status: Option<Array<string>>;
+    begins: Option<Array<string>>;
+    duration: Option<Array<string>>;
+    timeZone: Option<Array<string>>;
+    offsetMs: Option<Array<string>>;
+    allDay: Option<Array<string>>;
+    multiDay: Option<Array<string>>;
+    employees: Option<Array<string>>;
+    location: Option<Array<string>>;
+    description: Option<Array<string>>;
+    colors: Option<Array<string>>;
+    recurrenceRule: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    {
+      id: Option<boolean>;
+      title: Option<boolean>;
+      status: Option<boolean>;
+      begins: Option<boolean>;
+      duration: Option<boolean>;
+      timeZone: Option<boolean>;
+      offsetMs: Option<boolean>;
+      allDay: Option<boolean>;
+      multiDay: Option<boolean>;
+      employees: Option<boolean>;
+      location: Option<boolean>;
+      description: Option<boolean>;
+      colors: Option<boolean>;
+      recurrenceRule: Option<boolean>;
+    };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly id: FieldController<string>;
+    readonly title: FieldController<string>;
+    readonly status: FieldController<Status>;
+    readonly begins: FieldController<string>;
+    readonly duration: FieldController<number>;
+    readonly timeZone: FieldController<string>;
+    readonly offsetMs: FieldController<number>;
+    readonly allDay: FieldController<boolean>;
+    readonly multiDay: FieldController<boolean>;
+    readonly employees: ArrayFieldController<string | Employee>;
+    readonly location: FieldController<string | Site>;
+    readonly description: FieldController<string | null>;
+    readonly colors: FieldController<Colors>;
+    readonly recurrenceRule: FieldController<RecurrenceRule | null>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: Appointment;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<Appointment, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Appointment>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<Appointment>,
+  ): Gigaform {
+    let data = $state({ ...Appointment.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      title: Option.none(),
+      status: Option.none(),
+      begins: Option.none(),
+      duration: Option.none(),
+      timeZone: Option.none(),
+      offsetMs: Option.none(),
+      allDay: Option.none(),
+      multiDay: Option.none(),
+      employees: Option.none(),
+      location: Option.none(),
+      description: Option.none(),
+      colors: Option.none(),
+      recurrenceRule: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      title: Option.none(),
+      status: Option.none(),
+      begins: Option.none(),
+      duration: Option.none(),
+      timeZone: Option.none(),
+      offsetMs: Option.none(),
+      allDay: Option.none(),
+      multiDay: Option.none(),
+      employees: Option.none(),
+      location: Option.none(),
+      description: Option.none(),
+      colors: Option.none(),
+      recurrenceRule: Option.none(),
+    });
+    const fields: FieldControllers = {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: () => data.id,
+        set: (value: string) => {
+          data.id = value;
+        },
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
+          errors.id = value;
+        },
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
+          tainted.id = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Appointment.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      title: {
+        path: ["title"] as const,
+        name: "title",
+        constraints: { required: true },
+        label: "Title",
+        get: () => data.title,
+        set: (value: string) => {
+          data.title = value;
+        },
+        getError: () => errors.title,
+        setError: (value: Option<Array<string>>) => {
+          errors.title = value;
+        },
+        getTainted: () => tainted.title,
+        setTainted: (value: Option<boolean>) => {
+          tainted.title = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Appointment.validateField("title", data.title);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      status: {
+        path: ["status"] as const,
+        name: "status",
+        constraints: { required: true },
+        label: "Status",
+        get: () => data.status,
+        set: (value: Status) => {
+          data.status = value;
+        },
+        getError: () => errors.status,
+        setError: (value: Option<Array<string>>) => {
+          errors.status = value;
+        },
+        getTainted: () => tainted.status,
+        setTainted: (value: Option<boolean>) => {
+          tainted.status = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Appointment.validateField("status", data.status);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      begins: {
+        path: ["begins"] as const,
+        name: "begins",
+        constraints: { required: true },
+        label: "Begins",
+        get: () => data.begins,
+        set: (value: string) => {
+          data.begins = value;
+        },
+        getError: () => errors.begins,
+        setError: (value: Option<Array<string>>) => {
+          errors.begins = value;
+        },
+        getTainted: () => tainted.begins,
+        setTainted: (value: Option<boolean>) => {
+          tainted.begins = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Appointment.validateField("begins", data.begins);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      duration: {
+        path: ["duration"] as const,
+        name: "duration",
+        constraints: { required: true },
+        label: "Duration",
+        get: () => data.duration,
+        set: (value: number) => {
+          data.duration = value;
+        },
+        getError: () => errors.duration,
+        setError: (value: Option<Array<string>>) => {
+          errors.duration = value;
+        },
+        getTainted: () => tainted.duration,
+        setTainted: (value: Option<boolean>) => {
+          tainted.duration = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Appointment.validateField(
+            "duration",
+            data.duration,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      timeZone: {
+        path: ["timeZone"] as const,
+        name: "timeZone",
+        constraints: { required: true },
+        label: "Time Zone",
+        get: () => data.timeZone,
+        set: (value: string) => {
+          data.timeZone = value;
+        },
+        getError: () => errors.timeZone,
+        setError: (value: Option<Array<string>>) => {
+          errors.timeZone = value;
+        },
+        getTainted: () => tainted.timeZone,
+        setTainted: (value: Option<boolean>) => {
+          tainted.timeZone = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Appointment.validateField(
+            "timeZone",
+            data.timeZone,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      offsetMs: {
+        path: ["offsetMs"] as const,
+        name: "offsetMs",
+        constraints: { required: true },
+
+        get: () => data.offsetMs,
+        set: (value: number) => {
+          data.offsetMs = value;
+        },
+        getError: () => errors.offsetMs,
+        setError: (value: Option<Array<string>>) => {
+          errors.offsetMs = value;
+        },
+        getTainted: () => tainted.offsetMs,
+        setTainted: (value: Option<boolean>) => {
+          tainted.offsetMs = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Appointment.validateField(
+            "offsetMs",
+            data.offsetMs,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      allDay: {
+        path: ["allDay"] as const,
+        name: "allDay",
+        constraints: { required: true },
+        label: "All Day",
+        get: () => data.allDay,
+        set: (value: boolean) => {
+          data.allDay = value;
+        },
+        getError: () => errors.allDay,
+        setError: (value: Option<Array<string>>) => {
+          errors.allDay = value;
+        },
+        getTainted: () => tainted.allDay,
+        setTainted: (value: Option<boolean>) => {
+          tainted.allDay = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Appointment.validateField("allDay", data.allDay);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      multiDay: {
+        path: ["multiDay"] as const,
+        name: "multiDay",
+        constraints: { required: true },
+        label: "Multi Day",
+        get: () => data.multiDay,
+        set: (value: boolean) => {
+          data.multiDay = value;
+        },
+        getError: () => errors.multiDay,
+        setError: (value: Option<Array<string>>) => {
+          errors.multiDay = value;
+        },
+        getTainted: () => tainted.multiDay,
+        setTainted: (value: Option<boolean>) => {
+          tainted.multiDay = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Appointment.validateField(
+            "multiDay",
+            data.multiDay,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      employees: {
+        path: ["employees"] as const,
+        name: "employees",
+        constraints: { required: true },
+        label: "Employees",
+        get: () => data.employees,
+        set: (value: (string | Employee)[]) => {
+          data.employees = value;
+        },
+        getError: () => errors.employees,
+        setError: (value: Option<Array<string>>) => {
+          errors.employees = value;
+        },
+        getTainted: () => tainted.employees,
+        setTainted: (value: Option<boolean>) => {
+          tainted.employees = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Appointment.validateField(
+            "employees",
+            data.employees,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+        at: (index: number) => ({
+          path: ["employees", index] as const,
+          name: `employees.${index}`,
+          constraints: { required: true },
+          get: () => data.employees[index],
+          set: (value: string | Employee) => {
+            data.employees[index] = value;
+          },
+          getError: () => errors.employees,
+          setError: (value: Option<Array<string>>) => {
+            errors.employees = value;
+          },
+          getTainted: () => tainted.employees,
+          setTainted: (value: Option<boolean>) => {
+            tainted.employees = value;
+          },
+          validate: (): Array<string> => [],
+        }),
+        push: (item: string | Employee) => {
+          data.employees.push(item);
+        },
+        remove: (index: number) => {
+          data.employees.splice(index, 1);
+        },
+        swap: (a: number, b: number) => {
+          [data.employees[a], data.employees[b]] = [
+            data.employees[b],
+            data.employees[a],
+          ];
+        },
+      },
+      location: {
+        path: ["location"] as const,
+        name: "location",
+        constraints: { required: true },
+        label: "Location",
+        get: () => data.location,
+        set: (value: string | Site) => {
+          data.location = value;
+        },
+        getError: () => errors.location,
+        setError: (value: Option<Array<string>>) => {
+          errors.location = value;
+        },
+        getTainted: () => tainted.location,
+        setTainted: (value: Option<boolean>) => {
+          tainted.location = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Appointment.validateField(
+            "location",
+            data.location,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      description: {
+        path: ["description"] as const,
+        name: "description",
+        constraints: { required: true },
+        label: "Description",
+        get: () => data.description,
+        set: (value: string | null) => {
+          data.description = value;
+        },
+        getError: () => errors.description,
+        setError: (value: Option<Array<string>>) => {
+          errors.description = value;
+        },
+        getTainted: () => tainted.description,
+        setTainted: (value: Option<boolean>) => {
+          tainted.description = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Appointment.validateField(
+            "description",
+            data.description,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      colors: {
+        path: ["colors"] as const,
+        name: "colors",
+        constraints: { required: true },
+
+        get: () => data.colors,
+        set: (value: Colors) => {
+          data.colors = value;
+        },
+        getError: () => errors.colors,
+        setError: (value: Option<Array<string>>) => {
+          errors.colors = value;
+        },
+        getTainted: () => tainted.colors,
+        setTainted: (value: Option<boolean>) => {
+          tainted.colors = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Appointment.validateField("colors", data.colors);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      recurrenceRule: {
+        path: ["recurrenceRule"] as const,
+        name: "recurrenceRule",
+        constraints: { required: true },
+
+        get: () => data.recurrenceRule,
+        set: (value: RecurrenceRule | null) => {
+          data.recurrenceRule = value;
+        },
+        getError: () => errors.recurrenceRule,
+        setError: (value: Option<Array<string>>) => {
+          errors.recurrenceRule = value;
+        },
+        getTainted: () => tainted.recurrenceRule,
+        setTainted: (value: Option<boolean>) => {
+          tainted.recurrenceRule = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Appointment.validateField(
+            "recurrenceRule",
+            data.recurrenceRule,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+    };
+    function validate(): Result<
+      Appointment,
+      Array<{ field: string; message: string }>
+    > {
+      return Appointment.fromObject(data);
+    }
+    function reset(newOverrides?: Partial<Appointment>): void {
+      data = { ...Appointment.defaultValue(), ...newOverrides };
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        title: Option.none(),
+        status: Option.none(),
+        begins: Option.none(),
+        duration: Option.none(),
+        timeZone: Option.none(),
+        offsetMs: Option.none(),
+        allDay: Option.none(),
+        multiDay: Option.none(),
+        employees: Option.none(),
+        location: Option.none(),
+        description: Option.none(),
+        colors: Option.none(),
+        recurrenceRule: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        title: Option.none(),
+        status: Option.none(),
+        begins: Option.none(),
+        duration: Option.none(),
+        timeZone: Option.none(),
+        offsetMs: Option.none(),
+        allDay: Option.none(),
+        multiDay: Option.none(),
+        employees: Option.none(),
+        location: Option.none(),
+        description: Option.none(),
+        colors: Option.none(),
+        recurrenceRule: Option.none(),
+      };
+    }
+    return {
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      fields,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Appointment, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.title = formData.get("title") ?? "";
+    {
+      // Collect nested object fields with prefix "status."
+      const statusObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("status.")) {
+          const fieldName = key.slice("status.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = statusObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.status = statusObj;
+    }
+    obj.begins = formData.get("begins") ?? "";
+    {
+      const durationStr = formData.get("duration");
+      obj.duration = durationStr ? parseFloat(durationStr as string) : 0;
+      if (obj.duration !== undefined && isNaN(obj.duration as number))
+        obj.duration = 0;
+    }
+    obj.timeZone = formData.get("timeZone") ?? "";
+    {
+      const offsetMsStr = formData.get("offsetMs");
+      obj.offsetMs = offsetMsStr ? parseFloat(offsetMsStr as string) : 0;
+      if (obj.offsetMs !== undefined && isNaN(obj.offsetMs as number))
+        obj.offsetMs = 0;
+    }
+    {
+      const allDayVal = formData.get("allDay");
+      obj.allDay =
+        allDayVal === "true" || allDayVal === "on" || allDayVal === "1";
+    }
+    {
+      const multiDayVal = formData.get("multiDay");
+      obj.multiDay =
+        multiDayVal === "true" || multiDayVal === "on" || multiDayVal === "1";
+    }
+    {
+      // Collect array items from indexed form fields
+      const employeesItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("employees." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("employees." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("employees." + idx + ".")) {
+              const fieldName = key.slice(
+                "employees.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          employeesItems.push(item);
+        }
+>>>>>>> Stashed changes
         idx++;
         if (idx > 1000) break; // Safety limit
       }
@@ -10778,6 +14096,10 @@ export namespace Appointment {
 
 export interface Package {
   id: string;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
   date: string;
 }
 
@@ -10900,6 +14222,20 @@ export namespace Package {
     }
     return instance as Package;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Package>(
+    field: K,
+    value: Package[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Package>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Package {
@@ -10910,6 +14246,7 @@ export namespace Package {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { id: Option<boolean>; date: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -10929,6 +14266,8 @@ export namespace Package {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly id: FieldController<string>;
     readonly date: FieldController<string>;
@@ -10970,6 +14309,7 @@ export namespace Package {
           tainted.id = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Package.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -10978,13 +14318,21 @@ export namespace Package {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Package.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       date: {
         path: ["date"] as const,
         name: "date",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Date",
+>>>>>>> Stashed changes
         get: () => data.date,
         set: (value: string) => {
           data.date = value;
@@ -10998,6 +14346,7 @@ export namespace Package {
           tainted.date = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Package.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -11006,6 +14355,10 @@ export namespace Package {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Package.validateField("date", data.date);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -11208,6 +14561,7 @@ export namespace ScheduleSettings {
       const __raw_rowHeight = obj["rowHeight"];
       if (typeof (RowHeight as any)?.__deserialize === "function") {
         const __result = (RowHeight as any).__deserialize(__raw_rowHeight, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "rowHeight", __result);
       } else {
         instance.rowHeight = __raw_rowHeight;
@@ -11516,6 +14870,303 @@ export namespace ScheduleSettings {
           }
           current[parts[parts.length - 1]] = value;
         }
+=======
+        if (PendingRef.is(__result)) {
+          instance.rowHeight = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.rowHeight = v;
+          });
+        } else {
+          instance.rowHeight = __result;
+        }
+      } else {
+        instance.rowHeight = __raw_rowHeight;
+      }
+    }
+    {
+      const __raw_visibleRoutes = obj["visibleRoutes"];
+      instance.visibleRoutes = __raw_visibleRoutes;
+    }
+    {
+      const __raw_detailedCards = obj["detailedCards"];
+      instance.detailedCards = __raw_detailedCards;
+    }
+    if (errors.length > 0) {
+      throw new DeserializeError(errors);
+    }
+    return instance as ScheduleSettings;
+  }
+  export function validateField<K extends keyof ScheduleSettings>(
+    field: K,
+    value: ScheduleSettings[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<ScheduleSettings>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+}
+
+export namespace ScheduleSettings {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    daysPerWeek: Option<Array<string>>;
+    rowHeight: Option<Array<string>>;
+    visibleRoutes: Option<Array<string>>;
+    detailedCards: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    {
+      daysPerWeek: Option<boolean>;
+      rowHeight: Option<boolean>;
+      visibleRoutes: Option<boolean>;
+      detailedCards: Option<boolean>;
+    };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly daysPerWeek: FieldController<number>;
+    readonly rowHeight: FieldController<RowHeight>;
+    readonly visibleRoutes: ArrayFieldController<string>;
+    readonly detailedCards: FieldController<boolean>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: ScheduleSettings;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<
+      ScheduleSettings,
+      Array<{ field: string; message: string }>
+    >;
+    reset(overrides?: Partial<ScheduleSettings>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<ScheduleSettings>,
+  ): Gigaform {
+    let data = $state({ ...ScheduleSettings.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      daysPerWeek: Option.none(),
+      rowHeight: Option.none(),
+      visibleRoutes: Option.none(),
+      detailedCards: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      daysPerWeek: Option.none(),
+      rowHeight: Option.none(),
+      visibleRoutes: Option.none(),
+      detailedCards: Option.none(),
+    });
+    const fields: FieldControllers = {
+      daysPerWeek: {
+        path: ["daysPerWeek"] as const,
+        name: "daysPerWeek",
+        constraints: { required: true },
+
+        get: () => data.daysPerWeek,
+        set: (value: number) => {
+          data.daysPerWeek = value;
+        },
+        getError: () => errors.daysPerWeek,
+        setError: (value: Option<Array<string>>) => {
+          errors.daysPerWeek = value;
+        },
+        getTainted: () => tainted.daysPerWeek,
+        setTainted: (value: Option<boolean>) => {
+          tainted.daysPerWeek = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = ScheduleSettings.validateField(
+            "daysPerWeek",
+            data.daysPerWeek,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      rowHeight: {
+        path: ["rowHeight"] as const,
+        name: "rowHeight",
+        constraints: { required: true },
+
+        get: () => data.rowHeight,
+        set: (value: RowHeight) => {
+          data.rowHeight = value;
+        },
+        getError: () => errors.rowHeight,
+        setError: (value: Option<Array<string>>) => {
+          errors.rowHeight = value;
+        },
+        getTainted: () => tainted.rowHeight,
+        setTainted: (value: Option<boolean>) => {
+          tainted.rowHeight = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = ScheduleSettings.validateField(
+            "rowHeight",
+            data.rowHeight,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      visibleRoutes: {
+        path: ["visibleRoutes"] as const,
+        name: "visibleRoutes",
+        constraints: { required: true },
+
+        get: () => data.visibleRoutes,
+        set: (value: string[]) => {
+          data.visibleRoutes = value;
+        },
+        getError: () => errors.visibleRoutes,
+        setError: (value: Option<Array<string>>) => {
+          errors.visibleRoutes = value;
+        },
+        getTainted: () => tainted.visibleRoutes,
+        setTainted: (value: Option<boolean>) => {
+          tainted.visibleRoutes = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = ScheduleSettings.validateField(
+            "visibleRoutes",
+            data.visibleRoutes,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+        at: (index: number) => ({
+          path: ["visibleRoutes", index] as const,
+          name: `visibleRoutes.${index}`,
+          constraints: { required: true },
+          get: () => data.visibleRoutes[index],
+          set: (value: string) => {
+            data.visibleRoutes[index] = value;
+          },
+          getError: () => errors.visibleRoutes,
+          setError: (value: Option<Array<string>>) => {
+            errors.visibleRoutes = value;
+          },
+          getTainted: () => tainted.visibleRoutes,
+          setTainted: (value: Option<boolean>) => {
+            tainted.visibleRoutes = value;
+          },
+          validate: (): Array<string> => [],
+        }),
+        push: (item: string) => {
+          data.visibleRoutes.push(item);
+        },
+        remove: (index: number) => {
+          data.visibleRoutes.splice(index, 1);
+        },
+        swap: (a: number, b: number) => {
+          [data.visibleRoutes[a], data.visibleRoutes[b]] = [
+            data.visibleRoutes[b],
+            data.visibleRoutes[a],
+          ];
+        },
+      },
+      detailedCards: {
+        path: ["detailedCards"] as const,
+        name: "detailedCards",
+        constraints: { required: true },
+
+        get: () => data.detailedCards,
+        set: (value: boolean) => {
+          data.detailedCards = value;
+        },
+        getError: () => errors.detailedCards,
+        setError: (value: Option<Array<string>>) => {
+          errors.detailedCards = value;
+        },
+        getTainted: () => tainted.detailedCards,
+        setTainted: (value: Option<boolean>) => {
+          tainted.detailedCards = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = ScheduleSettings.validateField(
+            "detailedCards",
+            data.detailedCards,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+    };
+    function validate(): Result<
+      ScheduleSettings,
+      Array<{ field: string; message: string }>
+    > {
+      return ScheduleSettings.fromObject(data);
+    }
+    function reset(newOverrides?: Partial<ScheduleSettings>): void {
+      data = { ...ScheduleSettings.defaultValue(), ...newOverrides };
+      errors = {
+        _errors: Option.none(),
+        daysPerWeek: Option.none(),
+        rowHeight: Option.none(),
+        visibleRoutes: Option.none(),
+        detailedCards: Option.none(),
+      };
+      tainted = {
+        daysPerWeek: Option.none(),
+        rowHeight: Option.none(),
+        visibleRoutes: Option.none(),
+        detailedCards: Option.none(),
+      };
+    }
+    return {
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      fields,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<ScheduleSettings, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+    {
+      const daysPerWeekStr = formData.get("daysPerWeek");
+      obj.daysPerWeek = daysPerWeekStr
+        ? parseFloat(daysPerWeekStr as string)
+        : 0;
+      if (obj.daysPerWeek !== undefined && isNaN(obj.daysPerWeek as number))
+        obj.daysPerWeek = 0;
+    }
+    {
+      // Collect nested object fields with prefix "rowHeight."
+      const rowHeightObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("rowHeight.")) {
+          const fieldName = key.slice("rowHeight.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = rowHeightObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+>>>>>>> Stashed changes
       }
       obj.rowHeight = rowHeightObj;
     }
@@ -11653,6 +15304,20 @@ export namespace DailyRecurrenceRule {
     }
     return instance as DailyRecurrenceRule;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof DailyRecurrenceRule>(
+    field: K,
+    value: DailyRecurrenceRule[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<DailyRecurrenceRule>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace DailyRecurrenceRule {
@@ -11662,6 +15327,7 @@ export namespace DailyRecurrenceRule {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { quantityOfDays: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -11681,6 +15347,8 @@ export namespace DailyRecurrenceRule {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly quantityOfDays: FieldController<number>;
   }
@@ -11723,6 +15391,7 @@ export namespace DailyRecurrenceRule {
           tainted.quantityOfDays = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = DailyRecurrenceRule.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -11731,6 +15400,13 @@ export namespace DailyRecurrenceRule {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = DailyRecurrenceRule.validateField(
+            "quantityOfDays",
+            data.quantityOfDays,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -11940,7 +15616,18 @@ export namespace SignUpCredentials {
       const __raw_firstName = obj["firstName"];
       if (typeof (FirstName as any)?.__deserialize === "function") {
         const __result = (FirstName as any).__deserialize(__raw_firstName, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "firstName", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.firstName = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.firstName = v;
+          });
+        } else {
+          instance.firstName = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.firstName = __raw_firstName;
       }
@@ -11949,7 +15636,18 @@ export namespace SignUpCredentials {
       const __raw_lastName = obj["lastName"];
       if (typeof (LastName as any)?.__deserialize === "function") {
         const __result = (LastName as any).__deserialize(__raw_lastName, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "lastName", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.lastName = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.lastName = v;
+          });
+        } else {
+          instance.lastName = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.lastName = __raw_lastName;
       }
@@ -11958,7 +15656,18 @@ export namespace SignUpCredentials {
       const __raw_email = obj["email"];
       if (typeof (EmailParts as any)?.__deserialize === "function") {
         const __result = (EmailParts as any).__deserialize(__raw_email, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "email", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.email = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.email = v;
+          });
+        } else {
+          instance.email = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.email = __raw_email;
       }
@@ -11967,7 +15676,18 @@ export namespace SignUpCredentials {
       const __raw_password = obj["password"];
       if (typeof (Password as any)?.__deserialize === "function") {
         const __result = (Password as any).__deserialize(__raw_password, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "password", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.password = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.password = v;
+          });
+        } else {
+          instance.password = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.password = __raw_password;
       }
@@ -11981,6 +15701,20 @@ export namespace SignUpCredentials {
     }
     return instance as SignUpCredentials;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof SignUpCredentials>(
+    field: K,
+    value: SignUpCredentials[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<SignUpCredentials>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace SignUpCredentials {
@@ -12000,6 +15734,7 @@ export namespace SignUpCredentials {
       password: Option<boolean>;
       rememberMe: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -12019,6 +15754,8 @@ export namespace SignUpCredentials {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly firstName: FieldController<FirstName>;
     readonly lastName: FieldController<LastName>;
@@ -12075,6 +15812,7 @@ export namespace SignUpCredentials {
           tainted.firstName = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = SignUpCredentials.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -12083,6 +15821,13 @@ export namespace SignUpCredentials {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = SignUpCredentials.validateField(
+            "firstName",
+            data.firstName,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       lastName: {
@@ -12103,6 +15848,7 @@ export namespace SignUpCredentials {
           tainted.lastName = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = SignUpCredentials.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -12111,6 +15857,13 @@ export namespace SignUpCredentials {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = SignUpCredentials.validateField(
+            "lastName",
+            data.lastName,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       email: {
@@ -12131,6 +15884,7 @@ export namespace SignUpCredentials {
           tainted.email = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = SignUpCredentials.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -12139,6 +15893,13 @@ export namespace SignUpCredentials {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = SignUpCredentials.validateField(
+            "email",
+            data.email,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       password: {
@@ -12159,6 +15920,7 @@ export namespace SignUpCredentials {
           tainted.password = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = SignUpCredentials.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -12167,6 +15929,13 @@ export namespace SignUpCredentials {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = SignUpCredentials.validateField(
+            "password",
+            data.password,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       rememberMe: {
@@ -12187,6 +15956,7 @@ export namespace SignUpCredentials {
           tainted.rememberMe = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = SignUpCredentials.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -12195,6 +15965,13 @@ export namespace SignUpCredentials {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = SignUpCredentials.validateField(
+            "rememberMe",
+            data.rememberMe,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -12491,6 +16268,7 @@ export namespace OverviewSettings {
       const __raw_rowHeight = obj["rowHeight"];
       if (typeof (RowHeight as any)?.__deserialize === "function") {
         const __result = (RowHeight as any).__deserialize(__raw_rowHeight, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "rowHeight", __result);
       } else {
         instance.rowHeight = __raw_rowHeight;
@@ -12824,6 +16602,335 @@ export namespace OverviewSettings {
           }
           current[parts[parts.length - 1]] = value;
         }
+=======
+        if (PendingRef.is(__result)) {
+          instance.rowHeight = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.rowHeight = v;
+          });
+        } else {
+          instance.rowHeight = __result;
+        }
+      } else {
+        instance.rowHeight = __raw_rowHeight;
+      }
+    }
+    {
+      const __raw_cardOrRow = obj["cardOrRow"];
+      if (typeof (OverviewDisplay as any)?.__deserialize === "function") {
+        const __result = (OverviewDisplay as any).__deserialize(
+          __raw_cardOrRow,
+          ctx,
+        );
+        if (PendingRef.is(__result)) {
+          instance.cardOrRow = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.cardOrRow = v;
+          });
+        } else {
+          instance.cardOrRow = __result;
+        }
+      } else {
+        instance.cardOrRow = __raw_cardOrRow;
+      }
+    }
+    {
+      const __raw_perPage = obj["perPage"];
+      instance.perPage = __raw_perPage;
+    }
+    {
+      const __raw_columnConfigs = obj["columnConfigs"];
+      instance.columnConfigs = __raw_columnConfigs;
+    }
+    if (errors.length > 0) {
+      throw new DeserializeError(errors);
+    }
+    return instance as OverviewSettings;
+  }
+  export function validateField<K extends keyof OverviewSettings>(
+    field: K,
+    value: OverviewSettings[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<OverviewSettings>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+}
+
+export namespace OverviewSettings {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    rowHeight: Option<Array<string>>;
+    cardOrRow: Option<Array<string>>;
+    perPage: Option<Array<string>>;
+    columnConfigs: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    {
+      rowHeight: Option<boolean>;
+      cardOrRow: Option<boolean>;
+      perPage: Option<boolean>;
+      columnConfigs: Option<boolean>;
+    };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly rowHeight: FieldController<RowHeight>;
+    readonly cardOrRow: FieldController<OverviewDisplay>;
+    readonly perPage: FieldController<number>;
+    readonly columnConfigs: ArrayFieldController<ColumnConfig>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: OverviewSettings;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<
+      OverviewSettings,
+      Array<{ field: string; message: string }>
+    >;
+    reset(overrides?: Partial<OverviewSettings>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<OverviewSettings>,
+  ): Gigaform {
+    let data = $state({ ...OverviewSettings.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      rowHeight: Option.none(),
+      cardOrRow: Option.none(),
+      perPage: Option.none(),
+      columnConfigs: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      rowHeight: Option.none(),
+      cardOrRow: Option.none(),
+      perPage: Option.none(),
+      columnConfigs: Option.none(),
+    });
+    const fields: FieldControllers = {
+      rowHeight: {
+        path: ["rowHeight"] as const,
+        name: "rowHeight",
+        constraints: { required: true },
+
+        get: () => data.rowHeight,
+        set: (value: RowHeight) => {
+          data.rowHeight = value;
+        },
+        getError: () => errors.rowHeight,
+        setError: (value: Option<Array<string>>) => {
+          errors.rowHeight = value;
+        },
+        getTainted: () => tainted.rowHeight,
+        setTainted: (value: Option<boolean>) => {
+          tainted.rowHeight = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = OverviewSettings.validateField(
+            "rowHeight",
+            data.rowHeight,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      cardOrRow: {
+        path: ["cardOrRow"] as const,
+        name: "cardOrRow",
+        constraints: { required: true },
+
+        get: () => data.cardOrRow,
+        set: (value: OverviewDisplay) => {
+          data.cardOrRow = value;
+        },
+        getError: () => errors.cardOrRow,
+        setError: (value: Option<Array<string>>) => {
+          errors.cardOrRow = value;
+        },
+        getTainted: () => tainted.cardOrRow,
+        setTainted: (value: Option<boolean>) => {
+          tainted.cardOrRow = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = OverviewSettings.validateField(
+            "cardOrRow",
+            data.cardOrRow,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      perPage: {
+        path: ["perPage"] as const,
+        name: "perPage",
+        constraints: { required: true },
+
+        get: () => data.perPage,
+        set: (value: number) => {
+          data.perPage = value;
+        },
+        getError: () => errors.perPage,
+        setError: (value: Option<Array<string>>) => {
+          errors.perPage = value;
+        },
+        getTainted: () => tainted.perPage,
+        setTainted: (value: Option<boolean>) => {
+          tainted.perPage = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = OverviewSettings.validateField(
+            "perPage",
+            data.perPage,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      columnConfigs: {
+        path: ["columnConfigs"] as const,
+        name: "columnConfigs",
+        constraints: { required: true },
+
+        get: () => data.columnConfigs,
+        set: (value: ColumnConfig[]) => {
+          data.columnConfigs = value;
+        },
+        getError: () => errors.columnConfigs,
+        setError: (value: Option<Array<string>>) => {
+          errors.columnConfigs = value;
+        },
+        getTainted: () => tainted.columnConfigs,
+        setTainted: (value: Option<boolean>) => {
+          tainted.columnConfigs = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = OverviewSettings.validateField(
+            "columnConfigs",
+            data.columnConfigs,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+        at: (index: number) => ({
+          path: ["columnConfigs", index] as const,
+          name: `columnConfigs.${index}`,
+          constraints: { required: true },
+          get: () => data.columnConfigs[index],
+          set: (value: ColumnConfig) => {
+            data.columnConfigs[index] = value;
+          },
+          getError: () => errors.columnConfigs,
+          setError: (value: Option<Array<string>>) => {
+            errors.columnConfigs = value;
+          },
+          getTainted: () => tainted.columnConfigs,
+          setTainted: (value: Option<boolean>) => {
+            tainted.columnConfigs = value;
+          },
+          validate: (): Array<string> => [],
+        }),
+        push: (item: ColumnConfig) => {
+          data.columnConfigs.push(item);
+        },
+        remove: (index: number) => {
+          data.columnConfigs.splice(index, 1);
+        },
+        swap: (a: number, b: number) => {
+          [data.columnConfigs[a], data.columnConfigs[b]] = [
+            data.columnConfigs[b],
+            data.columnConfigs[a],
+          ];
+        },
+      },
+    };
+    function validate(): Result<
+      OverviewSettings,
+      Array<{ field: string; message: string }>
+    > {
+      return OverviewSettings.fromObject(data);
+    }
+    function reset(newOverrides?: Partial<OverviewSettings>): void {
+      data = { ...OverviewSettings.defaultValue(), ...newOverrides };
+      errors = {
+        _errors: Option.none(),
+        rowHeight: Option.none(),
+        cardOrRow: Option.none(),
+        perPage: Option.none(),
+        columnConfigs: Option.none(),
+      };
+      tainted = {
+        rowHeight: Option.none(),
+        cardOrRow: Option.none(),
+        perPage: Option.none(),
+        columnConfigs: Option.none(),
+      };
+    }
+    return {
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      fields,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<OverviewSettings, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+    {
+      // Collect nested object fields with prefix "rowHeight."
+      const rowHeightObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("rowHeight.")) {
+          const fieldName = key.slice("rowHeight.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = rowHeightObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+      }
+      obj.rowHeight = rowHeightObj;
+    }
+    {
+      // Collect nested object fields with prefix "cardOrRow."
+      const cardOrRowObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("cardOrRow.")) {
+          const fieldName = key.slice("cardOrRow.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = cardOrRowObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+>>>>>>> Stashed changes
       }
       obj.cardOrRow = cardOrRowObj;
     }
@@ -12979,6 +17086,37 @@ export namespace FirstName {
     }
     return instance as FirstName;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof FirstName>(
+    field: K,
+    value: FirstName[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<FirstName>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace FirstName {
@@ -12988,6 +17126,7 @@ export namespace FirstName {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { name: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -13007,6 +17146,8 @@ export namespace FirstName {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly name: FieldController<string>;
   }
@@ -13046,6 +17187,7 @@ export namespace FirstName {
           tainted.name = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = FirstName.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -13054,6 +17196,10 @@ export namespace FirstName {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = FirstName.validateField("name", data.name);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -13107,6 +17253,7 @@ export interface Account {
   taxRate: string | TaxRate;
 
   site: string | Site;
+<<<<<<< Updated upstream
   salesRep: Represents[] | null;
   orders: Ordered[];
   activity: Did[];
@@ -13121,15 +17268,52 @@ export interface Account {
   leadSource: string;
   colors: Colors;
   needsReview: boolean;
+=======
+
+  salesRep: Represents[] | null;
+
+  orders: Ordered[];
+
+  activity: Did[];
+
+  customFields: [string, string][];
+
+  accountName: AccountName;
+
+  sector: Sector;
+
+  memo: string | null;
+
+  phones: PhoneNumber[];
+
+  email: Email;
+
+  leadSource: string;
+
+  colors: Colors;
+
+  needsReview: boolean;
+
+>>>>>>> Stashed changes
   hasAlert: boolean;
 
   accountType: string;
 
   subtype: string;
+<<<<<<< Updated upstream
   isTaxExempt: boolean;
 
   paymentTerms: string;
   tags: string[];
+=======
+
+  isTaxExempt: boolean;
+
+  paymentTerms: string;
+
+  tags: string[];
+
+>>>>>>> Stashed changes
   dateAdded: string;
 }
 
@@ -13413,7 +17597,18 @@ export namespace Account {
           __raw_accountName,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "accountName", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.accountName = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.accountName = v;
+          });
+        } else {
+          instance.accountName = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.accountName = __raw_accountName;
       }
@@ -13422,7 +17617,18 @@ export namespace Account {
       const __raw_sector = obj["sector"];
       if (typeof (Sector as any)?.__deserialize === "function") {
         const __result = (Sector as any).__deserialize(__raw_sector, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "sector", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.sector = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.sector = v;
+          });
+        } else {
+          instance.sector = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.sector = __raw_sector;
       }
@@ -13439,7 +17645,18 @@ export namespace Account {
       const __raw_email = obj["email"];
       if (typeof (Email as any)?.__deserialize === "function") {
         const __result = (Email as any).__deserialize(__raw_email, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "email", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.email = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.email = v;
+          });
+        } else {
+          instance.email = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.email = __raw_email;
       }
@@ -13452,7 +17669,18 @@ export namespace Account {
       const __raw_colors = obj["colors"];
       if (typeof (Colors as any)?.__deserialize === "function") {
         const __result = (Colors as any).__deserialize(__raw_colors, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "colors", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.colors = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.colors = v;
+          });
+        } else {
+          instance.colors = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.colors = __raw_colors;
       }
@@ -13494,6 +17722,76 @@ export namespace Account {
     }
     return instance as Account;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Account>(
+    field: K,
+    value: Account[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "leadSource": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "leadSource", message: "must not be empty" });
+        }
+        break;
+      }
+      case "accountType": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "accountType", message: "must not be empty" });
+        }
+        break;
+      }
+      case "subtype": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "subtype", message: "must not be empty" });
+        }
+        break;
+      }
+      case "paymentTerms": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "paymentTerms", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Account>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("leadSource" in partial && partial.leadSource !== undefined) {
+      const __val = partial.leadSource as string;
+      if (__val.length === 0) {
+        errors.push({ field: "leadSource", message: "must not be empty" });
+      }
+    }
+    if ("accountType" in partial && partial.accountType !== undefined) {
+      const __val = partial.accountType as string;
+      if (__val.length === 0) {
+        errors.push({ field: "accountType", message: "must not be empty" });
+      }
+    }
+    if ("subtype" in partial && partial.subtype !== undefined) {
+      const __val = partial.subtype as string;
+      if (__val.length === 0) {
+        errors.push({ field: "subtype", message: "must not be empty" });
+      }
+    }
+    if ("paymentTerms" in partial && partial.paymentTerms !== undefined) {
+      const __val = partial.paymentTerms as string;
+      if (__val.length === 0) {
+        errors.push({ field: "paymentTerms", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Account {
@@ -13547,6 +17845,7 @@ export namespace Account {
       tags: Option<boolean>;
       dateAdded: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -13566,6 +17865,8 @@ export namespace Account {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly id: FieldController<string>;
     readonly taxRate: FieldController<string | TaxRate>;
@@ -13670,6 +17971,7 @@ export namespace Account {
           tainted.id = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -13678,13 +17980,21 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       taxRate: {
         path: ["taxRate"] as const,
         name: "taxRate",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Tax Rate",
+>>>>>>> Stashed changes
         get: () => data.taxRate,
         set: (value: string | TaxRate) => {
           data.taxRate = value;
@@ -13698,6 +18008,7 @@ export namespace Account {
           tainted.taxRate = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -13706,13 +18017,21 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField("taxRate", data.taxRate);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       site: {
         path: ["site"] as const,
         name: "site",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Site",
+>>>>>>> Stashed changes
         get: () => data.site,
         set: (value: string | Site) => {
           data.site = value;
@@ -13726,6 +18045,7 @@ export namespace Account {
           tainted.site = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -13734,13 +18054,21 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField("site", data.site);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       salesRep: {
         path: ["salesRep"] as const,
         name: "salesRep",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Sales Rep",
+>>>>>>> Stashed changes
         get: () => data.salesRep,
         set: (value: Represents[] | null) => {
           data.salesRep = value;
@@ -13754,6 +18082,7 @@ export namespace Account {
           tainted.salesRep = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -13762,6 +18091,10 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField("salesRep", data.salesRep);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       orders: {
@@ -13782,6 +18115,7 @@ export namespace Account {
           tainted.orders = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -13790,6 +18124,10 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField("orders", data.orders);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["orders", index] as const,
@@ -13837,6 +18175,7 @@ export namespace Account {
           tainted.activity = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -13845,6 +18184,10 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField("activity", data.activity);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["activity", index] as const,
@@ -13895,6 +18238,7 @@ export namespace Account {
           tainted.customFields = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -13903,6 +18247,13 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField(
+            "customFields",
+            data.customFields,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["customFields", index] as const,
@@ -13953,6 +18304,7 @@ export namespace Account {
           tainted.accountName = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -13961,13 +18313,24 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField(
+            "accountName",
+            data.accountName,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       sector: {
         path: ["sector"] as const,
         name: "sector",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Sector",
+>>>>>>> Stashed changes
         get: () => data.sector,
         set: (value: Sector) => {
           data.sector = value;
@@ -13981,6 +18344,7 @@ export namespace Account {
           tainted.sector = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -13989,13 +18353,21 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField("sector", data.sector);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       memo: {
         path: ["memo"] as const,
         name: "memo",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Memo",
+>>>>>>> Stashed changes
         get: () => data.memo,
         set: (value: string | null) => {
           data.memo = value;
@@ -14009,6 +18381,7 @@ export namespace Account {
           tainted.memo = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14017,6 +18390,10 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField("memo", data.memo);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       phones: {
@@ -14037,6 +18414,7 @@ export namespace Account {
           tainted.phones = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14045,6 +18423,10 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField("phones", data.phones);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["phones", index] as const,
@@ -14078,7 +18460,11 @@ export namespace Account {
         path: ["email"] as const,
         name: "email",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Email",
+>>>>>>> Stashed changes
         get: () => data.email,
         set: (value: Email) => {
           data.email = value;
@@ -14092,6 +18478,7 @@ export namespace Account {
           tainted.email = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14100,13 +18487,21 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField("email", data.email);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       leadSource: {
         path: ["leadSource"] as const,
         name: "leadSource",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Lead Source",
+>>>>>>> Stashed changes
         get: () => data.leadSource,
         set: (value: string) => {
           data.leadSource = value;
@@ -14120,6 +18515,7 @@ export namespace Account {
           tainted.leadSource = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14128,6 +18524,13 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField(
+            "leadSource",
+            data.leadSource,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       colors: {
@@ -14148,6 +18551,7 @@ export namespace Account {
           tainted.colors = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14156,13 +18560,21 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField("colors", data.colors);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       needsReview: {
         path: ["needsReview"] as const,
         name: "needsReview",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Needs Review",
+>>>>>>> Stashed changes
         get: () => data.needsReview,
         set: (value: boolean) => {
           data.needsReview = value;
@@ -14176,6 +18588,7 @@ export namespace Account {
           tainted.needsReview = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14184,13 +18597,24 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField(
+            "needsReview",
+            data.needsReview,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       hasAlert: {
         path: ["hasAlert"] as const,
         name: "hasAlert",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Has Alert",
+>>>>>>> Stashed changes
         get: () => data.hasAlert,
         set: (value: boolean) => {
           data.hasAlert = value;
@@ -14204,6 +18628,7 @@ export namespace Account {
           tainted.hasAlert = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14212,13 +18637,21 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField("hasAlert", data.hasAlert);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       accountType: {
         path: ["accountType"] as const,
         name: "accountType",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Account Type",
+>>>>>>> Stashed changes
         get: () => data.accountType,
         set: (value: string) => {
           data.accountType = value;
@@ -14232,6 +18665,7 @@ export namespace Account {
           tainted.accountType = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14240,13 +18674,24 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField(
+            "accountType",
+            data.accountType,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       subtype: {
         path: ["subtype"] as const,
         name: "subtype",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Subtype",
+>>>>>>> Stashed changes
         get: () => data.subtype,
         set: (value: string) => {
           data.subtype = value;
@@ -14260,6 +18705,7 @@ export namespace Account {
           tainted.subtype = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14268,13 +18714,21 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField("subtype", data.subtype);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       isTaxExempt: {
         path: ["isTaxExempt"] as const,
         name: "isTaxExempt",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Tax Exempt",
+>>>>>>> Stashed changes
         get: () => data.isTaxExempt,
         set: (value: boolean) => {
           data.isTaxExempt = value;
@@ -14288,6 +18742,7 @@ export namespace Account {
           tainted.isTaxExempt = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14296,13 +18751,24 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField(
+            "isTaxExempt",
+            data.isTaxExempt,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       paymentTerms: {
         path: ["paymentTerms"] as const,
         name: "paymentTerms",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Payment Terms",
+>>>>>>> Stashed changes
         get: () => data.paymentTerms,
         set: (value: string) => {
           data.paymentTerms = value;
@@ -14316,6 +18782,7 @@ export namespace Account {
           tainted.paymentTerms = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14324,13 +18791,24 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField(
+            "paymentTerms",
+            data.paymentTerms,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       tags: {
         path: ["tags"] as const,
         name: "tags",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Tags",
+>>>>>>> Stashed changes
         get: () => data.tags,
         set: (value: string[]) => {
           data.tags = value;
@@ -14344,6 +18822,7 @@ export namespace Account {
           tainted.tags = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14352,6 +18831,10 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField("tags", data.tags);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["tags", index] as const,
@@ -14399,6 +18882,7 @@ export namespace Account {
           tainted.dateAdded = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Account.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14407,6 +18891,13 @@ export namespace Account {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Account.validateField(
+            "dateAdded",
+            data.dateAdded,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -14866,6 +19357,37 @@ export namespace Edited {
     }
     return instance as Edited;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Edited>(
+    field: K,
+    value: Edited[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "fieldName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "fieldName", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Edited>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("fieldName" in partial && partial.fieldName !== undefined) {
+      const __val = partial.fieldName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "fieldName", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Edited {
@@ -14881,6 +19403,7 @@ export namespace Edited {
       oldValue: Option<boolean>;
       newValue: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -14900,6 +19423,8 @@ export namespace Edited {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly fieldName: FieldController<string>;
     readonly oldValue: FieldController<string | null>;
@@ -14947,6 +19472,7 @@ export namespace Edited {
           tainted.fieldName = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Edited.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14955,6 +19481,10 @@ export namespace Edited {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Edited.validateField("fieldName", data.fieldName);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       oldValue: {
@@ -14975,6 +19505,7 @@ export namespace Edited {
           tainted.oldValue = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Edited.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -14983,6 +19514,10 @@ export namespace Edited {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Edited.validateField("oldValue", data.oldValue);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       newValue: {
@@ -15003,6 +19538,7 @@ export namespace Edited {
           tainted.newValue = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Edited.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -15011,6 +19547,10 @@ export namespace Edited {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Edited.validateField("newValue", data.newValue);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -15075,7 +19615,13 @@ export interface Order {
   account: string | Account;
 
   stage: OrderStage;
+<<<<<<< Updated upstream
   number: number;
+=======
+
+  number: number;
+
+>>>>>>> Stashed changes
   payments: (string | Payment)[];
 
   opportunity: string;
@@ -15089,6 +19635,7 @@ export interface Order {
   group: string;
 
   subgroup: string;
+<<<<<<< Updated upstream
   isPosted: boolean;
   needsReview: boolean;
 
@@ -15110,6 +19657,43 @@ export interface Order {
   memo: string;
   discount: number;
   tip: number;
+=======
+
+  isPosted: boolean;
+
+  needsReview: boolean;
+
+  actionItem: string;
+
+  upsale: number;
+
+  dateCreated: string;
+
+  appointment: string | Appointment;
+
+  lastTechs: (string | Employee)[];
+
+  package: (string | Package)[] | null;
+
+  promotion: (string | Promotion)[] | null;
+
+  balance: number;
+
+  due: string;
+
+  total: number;
+
+  site: string | Site;
+
+  billedItems: BilledItem[];
+
+  memo: string;
+
+  discount: number;
+
+  tip: number;
+
+>>>>>>> Stashed changes
   commissions: number[];
 }
 
@@ -15391,6 +19975,7 @@ export namespace Order {
       const __raw_stage = obj["stage"];
       if (typeof (OrderStage as any)?.__deserialize === "function") {
         const __result = (OrderStage as any).__deserialize(__raw_stage, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "stage", __result);
       } else {
         instance.stage = __raw_stage;
@@ -16751,6 +21336,1312 @@ export namespace Order {
           }
           current[parts[parts.length - 1]] = value;
         }
+=======
+        if (PendingRef.is(__result)) {
+          instance.stage = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.stage = v;
+          });
+        } else {
+          instance.stage = __result;
+        }
+      } else {
+        instance.stage = __raw_stage;
+      }
+    }
+    {
+      const __raw_number = obj["number"];
+      instance.number = __raw_number;
+    }
+    {
+      const __raw_payments = obj["payments"];
+      instance.payments = __raw_payments;
+    }
+    {
+      const __raw_opportunity = obj["opportunity"];
+      instance.opportunity = __raw_opportunity;
+    }
+    {
+      const __raw_reference = obj["reference"];
+      instance.reference = __raw_reference;
+    }
+    {
+      const __raw_leadSource = obj["leadSource"];
+      instance.leadSource = __raw_leadSource;
+    }
+    {
+      const __raw_salesRep = obj["salesRep"];
+      instance.salesRep = __raw_salesRep;
+    }
+    {
+      const __raw_group = obj["group"];
+      instance.group = __raw_group;
+    }
+    {
+      const __raw_subgroup = obj["subgroup"];
+      instance.subgroup = __raw_subgroup;
+    }
+    {
+      const __raw_isPosted = obj["isPosted"];
+      instance.isPosted = __raw_isPosted;
+    }
+    {
+      const __raw_needsReview = obj["needsReview"];
+      instance.needsReview = __raw_needsReview;
+    }
+    {
+      const __raw_actionItem = obj["actionItem"];
+      instance.actionItem = __raw_actionItem;
+    }
+    {
+      const __raw_upsale = obj["upsale"];
+      instance.upsale = __raw_upsale;
+    }
+    {
+      const __raw_dateCreated = obj["dateCreated"];
+      instance.dateCreated = __raw_dateCreated;
+    }
+    {
+      const __raw_appointment = obj["appointment"];
+      instance.appointment = __raw_appointment;
+    }
+    {
+      const __raw_lastTechs = obj["lastTechs"];
+      instance.lastTechs = __raw_lastTechs;
+    }
+    {
+      const __raw_package = obj["package"];
+      instance.package = __raw_package;
+    }
+    {
+      const __raw_promotion = obj["promotion"];
+      instance.promotion = __raw_promotion;
+    }
+    {
+      const __raw_balance = obj["balance"];
+      instance.balance = __raw_balance;
+    }
+    {
+      const __raw_due = obj["due"];
+      instance.due = __raw_due;
+    }
+    {
+      const __raw_total = obj["total"];
+      instance.total = __raw_total;
+    }
+    {
+      const __raw_site = obj["site"];
+      instance.site = __raw_site;
+    }
+    {
+      const __raw_billedItems = obj["billedItems"];
+      instance.billedItems = __raw_billedItems;
+    }
+    {
+      const __raw_memo = obj["memo"];
+      instance.memo = __raw_memo;
+    }
+    {
+      const __raw_discount = obj["discount"];
+      instance.discount = __raw_discount;
+    }
+    {
+      const __raw_tip = obj["tip"];
+      instance.tip = __raw_tip;
+    }
+    {
+      const __raw_commissions = obj["commissions"];
+      instance.commissions = __raw_commissions;
+    }
+    if (errors.length > 0) {
+      throw new DeserializeError(errors);
+    }
+    return instance as Order;
+  }
+  export function validateField<K extends keyof Order>(
+    field: K,
+    value: Order[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "opportunity": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "opportunity", message: "must not be empty" });
+        }
+        break;
+      }
+      case "reference": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "reference", message: "must not be empty" });
+        }
+        break;
+      }
+      case "leadSource": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "leadSource", message: "must not be empty" });
+        }
+        break;
+      }
+      case "group": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "group", message: "must not be empty" });
+        }
+        break;
+      }
+      case "subgroup": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "subgroup", message: "must not be empty" });
+        }
+        break;
+      }
+      case "actionItem": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "actionItem", message: "must not be empty" });
+        }
+        break;
+      }
+      case "memo": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "memo", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Order>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("opportunity" in partial && partial.opportunity !== undefined) {
+      const __val = partial.opportunity as string;
+      if (__val.length === 0) {
+        errors.push({ field: "opportunity", message: "must not be empty" });
+      }
+    }
+    if ("reference" in partial && partial.reference !== undefined) {
+      const __val = partial.reference as string;
+      if (__val.length === 0) {
+        errors.push({ field: "reference", message: "must not be empty" });
+      }
+    }
+    if ("leadSource" in partial && partial.leadSource !== undefined) {
+      const __val = partial.leadSource as string;
+      if (__val.length === 0) {
+        errors.push({ field: "leadSource", message: "must not be empty" });
+      }
+    }
+    if ("group" in partial && partial.group !== undefined) {
+      const __val = partial.group as string;
+      if (__val.length === 0) {
+        errors.push({ field: "group", message: "must not be empty" });
+      }
+    }
+    if ("subgroup" in partial && partial.subgroup !== undefined) {
+      const __val = partial.subgroup as string;
+      if (__val.length === 0) {
+        errors.push({ field: "subgroup", message: "must not be empty" });
+      }
+    }
+    if ("actionItem" in partial && partial.actionItem !== undefined) {
+      const __val = partial.actionItem as string;
+      if (__val.length === 0) {
+        errors.push({ field: "actionItem", message: "must not be empty" });
+      }
+    }
+    if ("memo" in partial && partial.memo !== undefined) {
+      const __val = partial.memo as string;
+      if (__val.length === 0) {
+        errors.push({ field: "memo", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+}
+
+export namespace Order {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    account: Option<Array<string>>;
+    stage: Option<Array<string>>;
+    number: Option<Array<string>>;
+    payments: Option<Array<string>>;
+    opportunity: Option<Array<string>>;
+    reference: Option<Array<string>>;
+    leadSource: Option<Array<string>>;
+    salesRep: Option<Array<string>>;
+    group: Option<Array<string>>;
+    subgroup: Option<Array<string>>;
+    isPosted: Option<Array<string>>;
+    needsReview: Option<Array<string>>;
+    actionItem: Option<Array<string>>;
+    upsale: Option<Array<string>>;
+    dateCreated: Option<Array<string>>;
+    appointment: Option<Array<string>>;
+    lastTechs: Option<Array<string>>;
+    package: Option<Array<string>>;
+    promotion: Option<Array<string>>;
+    balance: Option<Array<string>>;
+    due: Option<Array<string>>;
+    total: Option<Array<string>>;
+    site: Option<Array<string>>;
+    billedItems: Option<Array<string>>;
+    memo: Option<Array<string>>;
+    discount: Option<Array<string>>;
+    tip: Option<Array<string>>;
+    commissions: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    {
+      id: Option<boolean>;
+      account: Option<boolean>;
+      stage: Option<boolean>;
+      number: Option<boolean>;
+      payments: Option<boolean>;
+      opportunity: Option<boolean>;
+      reference: Option<boolean>;
+      leadSource: Option<boolean>;
+      salesRep: Option<boolean>;
+      group: Option<boolean>;
+      subgroup: Option<boolean>;
+      isPosted: Option<boolean>;
+      needsReview: Option<boolean>;
+      actionItem: Option<boolean>;
+      upsale: Option<boolean>;
+      dateCreated: Option<boolean>;
+      appointment: Option<boolean>;
+      lastTechs: Option<boolean>;
+      package: Option<boolean>;
+      promotion: Option<boolean>;
+      balance: Option<boolean>;
+      due: Option<boolean>;
+      total: Option<boolean>;
+      site: Option<boolean>;
+      billedItems: Option<boolean>;
+      memo: Option<boolean>;
+      discount: Option<boolean>;
+      tip: Option<boolean>;
+      commissions: Option<boolean>;
+    };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly id: FieldController<string>;
+    readonly account: FieldController<string | Account>;
+    readonly stage: FieldController<OrderStage>;
+    readonly number: FieldController<number>;
+    readonly payments: ArrayFieldController<string | Payment>;
+    readonly opportunity: FieldController<string>;
+    readonly reference: FieldController<string>;
+    readonly leadSource: FieldController<string>;
+    readonly salesRep: FieldController<string | Employee>;
+    readonly group: FieldController<string>;
+    readonly subgroup: FieldController<string>;
+    readonly isPosted: FieldController<boolean>;
+    readonly needsReview: FieldController<boolean>;
+    readonly actionItem: FieldController<string>;
+    readonly upsale: FieldController<number>;
+    readonly dateCreated: FieldController<string>;
+    readonly appointment: FieldController<string | Appointment>;
+    readonly lastTechs: ArrayFieldController<string | Employee>;
+    readonly package: FieldController<(string | Package)[] | null>;
+    readonly promotion: FieldController<(string | Promotion)[] | null>;
+    readonly balance: FieldController<number>;
+    readonly due: FieldController<string>;
+    readonly total: FieldController<number>;
+    readonly site: FieldController<string | Site>;
+    readonly billedItems: ArrayFieldController<BilledItem>;
+    readonly memo: FieldController<string>;
+    readonly discount: FieldController<number>;
+    readonly tip: FieldController<number>;
+    readonly commissions: ArrayFieldController<number>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: Order;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<Order, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Order>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<Order>,
+  ): Gigaform {
+    let data = $state({ ...Order.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      account: Option.none(),
+      stage: Option.none(),
+      number: Option.none(),
+      payments: Option.none(),
+      opportunity: Option.none(),
+      reference: Option.none(),
+      leadSource: Option.none(),
+      salesRep: Option.none(),
+      group: Option.none(),
+      subgroup: Option.none(),
+      isPosted: Option.none(),
+      needsReview: Option.none(),
+      actionItem: Option.none(),
+      upsale: Option.none(),
+      dateCreated: Option.none(),
+      appointment: Option.none(),
+      lastTechs: Option.none(),
+      package: Option.none(),
+      promotion: Option.none(),
+      balance: Option.none(),
+      due: Option.none(),
+      total: Option.none(),
+      site: Option.none(),
+      billedItems: Option.none(),
+      memo: Option.none(),
+      discount: Option.none(),
+      tip: Option.none(),
+      commissions: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      account: Option.none(),
+      stage: Option.none(),
+      number: Option.none(),
+      payments: Option.none(),
+      opportunity: Option.none(),
+      reference: Option.none(),
+      leadSource: Option.none(),
+      salesRep: Option.none(),
+      group: Option.none(),
+      subgroup: Option.none(),
+      isPosted: Option.none(),
+      needsReview: Option.none(),
+      actionItem: Option.none(),
+      upsale: Option.none(),
+      dateCreated: Option.none(),
+      appointment: Option.none(),
+      lastTechs: Option.none(),
+      package: Option.none(),
+      promotion: Option.none(),
+      balance: Option.none(),
+      due: Option.none(),
+      total: Option.none(),
+      site: Option.none(),
+      billedItems: Option.none(),
+      memo: Option.none(),
+      discount: Option.none(),
+      tip: Option.none(),
+      commissions: Option.none(),
+    });
+    const fields: FieldControllers = {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: () => data.id,
+        set: (value: string) => {
+          data.id = value;
+        },
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
+          errors.id = value;
+        },
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
+          tainted.id = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      account: {
+        path: ["account"] as const,
+        name: "account",
+        constraints: { required: true },
+        label: "Account",
+        get: () => data.account,
+        set: (value: string | Account) => {
+          data.account = value;
+        },
+        getError: () => errors.account,
+        setError: (value: Option<Array<string>>) => {
+          errors.account = value;
+        },
+        getTainted: () => tainted.account,
+        setTainted: (value: Option<boolean>) => {
+          tainted.account = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("account", data.account);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      stage: {
+        path: ["stage"] as const,
+        name: "stage",
+        constraints: { required: true },
+        label: "Stage",
+        get: () => data.stage,
+        set: (value: OrderStage) => {
+          data.stage = value;
+        },
+        getError: () => errors.stage,
+        setError: (value: Option<Array<string>>) => {
+          errors.stage = value;
+        },
+        getTainted: () => tainted.stage,
+        setTainted: (value: Option<boolean>) => {
+          tainted.stage = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("stage", data.stage);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      number: {
+        path: ["number"] as const,
+        name: "number",
+        constraints: { required: true },
+
+        get: () => data.number,
+        set: (value: number) => {
+          data.number = value;
+        },
+        getError: () => errors.number,
+        setError: (value: Option<Array<string>>) => {
+          errors.number = value;
+        },
+        getTainted: () => tainted.number,
+        setTainted: (value: Option<boolean>) => {
+          tainted.number = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("number", data.number);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      payments: {
+        path: ["payments"] as const,
+        name: "payments",
+        constraints: { required: true },
+
+        get: () => data.payments,
+        set: (value: (string | Payment)[]) => {
+          data.payments = value;
+        },
+        getError: () => errors.payments,
+        setError: (value: Option<Array<string>>) => {
+          errors.payments = value;
+        },
+        getTainted: () => tainted.payments,
+        setTainted: (value: Option<boolean>) => {
+          tainted.payments = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("payments", data.payments);
+          return fieldErrors.map((e) => e.message);
+        },
+        at: (index: number) => ({
+          path: ["payments", index] as const,
+          name: `payments.${index}`,
+          constraints: { required: true },
+          get: () => data.payments[index],
+          set: (value: string | Payment) => {
+            data.payments[index] = value;
+          },
+          getError: () => errors.payments,
+          setError: (value: Option<Array<string>>) => {
+            errors.payments = value;
+          },
+          getTainted: () => tainted.payments,
+          setTainted: (value: Option<boolean>) => {
+            tainted.payments = value;
+          },
+          validate: (): Array<string> => [],
+        }),
+        push: (item: string | Payment) => {
+          data.payments.push(item);
+        },
+        remove: (index: number) => {
+          data.payments.splice(index, 1);
+        },
+        swap: (a: number, b: number) => {
+          [data.payments[a], data.payments[b]] = [
+            data.payments[b],
+            data.payments[a],
+          ];
+        },
+      },
+      opportunity: {
+        path: ["opportunity"] as const,
+        name: "opportunity",
+        constraints: { required: true },
+        label: "Opportunity",
+        get: () => data.opportunity,
+        set: (value: string) => {
+          data.opportunity = value;
+        },
+        getError: () => errors.opportunity,
+        setError: (value: Option<Array<string>>) => {
+          errors.opportunity = value;
+        },
+        getTainted: () => tainted.opportunity,
+        setTainted: (value: Option<boolean>) => {
+          tainted.opportunity = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField(
+            "opportunity",
+            data.opportunity,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      reference: {
+        path: ["reference"] as const,
+        name: "reference",
+        constraints: { required: true },
+        label: "Reference",
+        get: () => data.reference,
+        set: (value: string) => {
+          data.reference = value;
+        },
+        getError: () => errors.reference,
+        setError: (value: Option<Array<string>>) => {
+          errors.reference = value;
+        },
+        getTainted: () => tainted.reference,
+        setTainted: (value: Option<boolean>) => {
+          tainted.reference = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("reference", data.reference);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      leadSource: {
+        path: ["leadSource"] as const,
+        name: "leadSource",
+        constraints: { required: true },
+        label: "Lead Source",
+        get: () => data.leadSource,
+        set: (value: string) => {
+          data.leadSource = value;
+        },
+        getError: () => errors.leadSource,
+        setError: (value: Option<Array<string>>) => {
+          errors.leadSource = value;
+        },
+        getTainted: () => tainted.leadSource,
+        setTainted: (value: Option<boolean>) => {
+          tainted.leadSource = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField(
+            "leadSource",
+            data.leadSource,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      salesRep: {
+        path: ["salesRep"] as const,
+        name: "salesRep",
+        constraints: { required: true },
+        label: "Sales Rep",
+        get: () => data.salesRep,
+        set: (value: string | Employee) => {
+          data.salesRep = value;
+        },
+        getError: () => errors.salesRep,
+        setError: (value: Option<Array<string>>) => {
+          errors.salesRep = value;
+        },
+        getTainted: () => tainted.salesRep,
+        setTainted: (value: Option<boolean>) => {
+          tainted.salesRep = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("salesRep", data.salesRep);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      group: {
+        path: ["group"] as const,
+        name: "group",
+        constraints: { required: true },
+        label: "Group",
+        get: () => data.group,
+        set: (value: string) => {
+          data.group = value;
+        },
+        getError: () => errors.group,
+        setError: (value: Option<Array<string>>) => {
+          errors.group = value;
+        },
+        getTainted: () => tainted.group,
+        setTainted: (value: Option<boolean>) => {
+          tainted.group = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("group", data.group);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      subgroup: {
+        path: ["subgroup"] as const,
+        name: "subgroup",
+        constraints: { required: true },
+        label: "Subgroup",
+        get: () => data.subgroup,
+        set: (value: string) => {
+          data.subgroup = value;
+        },
+        getError: () => errors.subgroup,
+        setError: (value: Option<Array<string>>) => {
+          errors.subgroup = value;
+        },
+        getTainted: () => tainted.subgroup,
+        setTainted: (value: Option<boolean>) => {
+          tainted.subgroup = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("subgroup", data.subgroup);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      isPosted: {
+        path: ["isPosted"] as const,
+        name: "isPosted",
+        constraints: { required: true },
+        label: "Posted",
+        get: () => data.isPosted,
+        set: (value: boolean) => {
+          data.isPosted = value;
+        },
+        getError: () => errors.isPosted,
+        setError: (value: Option<Array<string>>) => {
+          errors.isPosted = value;
+        },
+        getTainted: () => tainted.isPosted,
+        setTainted: (value: Option<boolean>) => {
+          tainted.isPosted = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("isPosted", data.isPosted);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      needsReview: {
+        path: ["needsReview"] as const,
+        name: "needsReview",
+        constraints: { required: true },
+        label: "Needs Review",
+        get: () => data.needsReview,
+        set: (value: boolean) => {
+          data.needsReview = value;
+        },
+        getError: () => errors.needsReview,
+        setError: (value: Option<Array<string>>) => {
+          errors.needsReview = value;
+        },
+        getTainted: () => tainted.needsReview,
+        setTainted: (value: Option<boolean>) => {
+          tainted.needsReview = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField(
+            "needsReview",
+            data.needsReview,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      actionItem: {
+        path: ["actionItem"] as const,
+        name: "actionItem",
+        constraints: { required: true },
+        label: "Action Item",
+        get: () => data.actionItem,
+        set: (value: string) => {
+          data.actionItem = value;
+        },
+        getError: () => errors.actionItem,
+        setError: (value: Option<Array<string>>) => {
+          errors.actionItem = value;
+        },
+        getTainted: () => tainted.actionItem,
+        setTainted: (value: Option<boolean>) => {
+          tainted.actionItem = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField(
+            "actionItem",
+            data.actionItem,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      upsale: {
+        path: ["upsale"] as const,
+        name: "upsale",
+        constraints: { required: true },
+
+        get: () => data.upsale,
+        set: (value: number) => {
+          data.upsale = value;
+        },
+        getError: () => errors.upsale,
+        setError: (value: Option<Array<string>>) => {
+          errors.upsale = value;
+        },
+        getTainted: () => tainted.upsale,
+        setTainted: (value: Option<boolean>) => {
+          tainted.upsale = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("upsale", data.upsale);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      dateCreated: {
+        path: ["dateCreated"] as const,
+        name: "dateCreated",
+        constraints: { required: true },
+
+        get: () => data.dateCreated,
+        set: (value: string) => {
+          data.dateCreated = value;
+        },
+        getError: () => errors.dateCreated,
+        setError: (value: Option<Array<string>>) => {
+          errors.dateCreated = value;
+        },
+        getTainted: () => tainted.dateCreated,
+        setTainted: (value: Option<boolean>) => {
+          tainted.dateCreated = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField(
+            "dateCreated",
+            data.dateCreated,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      appointment: {
+        path: ["appointment"] as const,
+        name: "appointment",
+        constraints: { required: true },
+        label: "Appointment",
+        get: () => data.appointment,
+        set: (value: string | Appointment) => {
+          data.appointment = value;
+        },
+        getError: () => errors.appointment,
+        setError: (value: Option<Array<string>>) => {
+          errors.appointment = value;
+        },
+        getTainted: () => tainted.appointment,
+        setTainted: (value: Option<boolean>) => {
+          tainted.appointment = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField(
+            "appointment",
+            data.appointment,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      lastTechs: {
+        path: ["lastTechs"] as const,
+        name: "lastTechs",
+        constraints: { required: true },
+        label: "Technicians",
+        get: () => data.lastTechs,
+        set: (value: (string | Employee)[]) => {
+          data.lastTechs = value;
+        },
+        getError: () => errors.lastTechs,
+        setError: (value: Option<Array<string>>) => {
+          errors.lastTechs = value;
+        },
+        getTainted: () => tainted.lastTechs,
+        setTainted: (value: Option<boolean>) => {
+          tainted.lastTechs = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("lastTechs", data.lastTechs);
+          return fieldErrors.map((e) => e.message);
+        },
+        at: (index: number) => ({
+          path: ["lastTechs", index] as const,
+          name: `lastTechs.${index}`,
+          constraints: { required: true },
+          get: () => data.lastTechs[index],
+          set: (value: string | Employee) => {
+            data.lastTechs[index] = value;
+          },
+          getError: () => errors.lastTechs,
+          setError: (value: Option<Array<string>>) => {
+            errors.lastTechs = value;
+          },
+          getTainted: () => tainted.lastTechs,
+          setTainted: (value: Option<boolean>) => {
+            tainted.lastTechs = value;
+          },
+          validate: (): Array<string> => [],
+        }),
+        push: (item: string | Employee) => {
+          data.lastTechs.push(item);
+        },
+        remove: (index: number) => {
+          data.lastTechs.splice(index, 1);
+        },
+        swap: (a: number, b: number) => {
+          [data.lastTechs[a], data.lastTechs[b]] = [
+            data.lastTechs[b],
+            data.lastTechs[a],
+          ];
+        },
+      },
+      package: {
+        path: ["package"] as const,
+        name: "package",
+        constraints: { required: true },
+
+        get: () => data.package,
+        set: (value: (string | Package)[] | null) => {
+          data.package = value;
+        },
+        getError: () => errors.package,
+        setError: (value: Option<Array<string>>) => {
+          errors.package = value;
+        },
+        getTainted: () => tainted.package,
+        setTainted: (value: Option<boolean>) => {
+          tainted.package = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("package", data.package);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      promotion: {
+        path: ["promotion"] as const,
+        name: "promotion",
+        constraints: { required: true },
+
+        get: () => data.promotion,
+        set: (value: (string | Promotion)[] | null) => {
+          data.promotion = value;
+        },
+        getError: () => errors.promotion,
+        setError: (value: Option<Array<string>>) => {
+          errors.promotion = value;
+        },
+        getTainted: () => tainted.promotion,
+        setTainted: (value: Option<boolean>) => {
+          tainted.promotion = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("promotion", data.promotion);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      balance: {
+        path: ["balance"] as const,
+        name: "balance",
+        constraints: { required: true },
+
+        get: () => data.balance,
+        set: (value: number) => {
+          data.balance = value;
+        },
+        getError: () => errors.balance,
+        setError: (value: Option<Array<string>>) => {
+          errors.balance = value;
+        },
+        getTainted: () => tainted.balance,
+        setTainted: (value: Option<boolean>) => {
+          tainted.balance = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("balance", data.balance);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      due: {
+        path: ["due"] as const,
+        name: "due",
+        constraints: { required: true },
+        label: "Due",
+        get: () => data.due,
+        set: (value: string) => {
+          data.due = value;
+        },
+        getError: () => errors.due,
+        setError: (value: Option<Array<string>>) => {
+          errors.due = value;
+        },
+        getTainted: () => tainted.due,
+        setTainted: (value: Option<boolean>) => {
+          tainted.due = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("due", data.due);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      total: {
+        path: ["total"] as const,
+        name: "total",
+        constraints: { required: true },
+
+        get: () => data.total,
+        set: (value: number) => {
+          data.total = value;
+        },
+        getError: () => errors.total,
+        setError: (value: Option<Array<string>>) => {
+          errors.total = value;
+        },
+        getTainted: () => tainted.total,
+        setTainted: (value: Option<boolean>) => {
+          tainted.total = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("total", data.total);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      site: {
+        path: ["site"] as const,
+        name: "site",
+        constraints: { required: true },
+        label: "Site",
+        get: () => data.site,
+        set: (value: string | Site) => {
+          data.site = value;
+        },
+        getError: () => errors.site,
+        setError: (value: Option<Array<string>>) => {
+          errors.site = value;
+        },
+        getTainted: () => tainted.site,
+        setTainted: (value: Option<boolean>) => {
+          tainted.site = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("site", data.site);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      billedItems: {
+        path: ["billedItems"] as const,
+        name: "billedItems",
+        constraints: { required: true },
+
+        get: () => data.billedItems,
+        set: (value: BilledItem[]) => {
+          data.billedItems = value;
+        },
+        getError: () => errors.billedItems,
+        setError: (value: Option<Array<string>>) => {
+          errors.billedItems = value;
+        },
+        getTainted: () => tainted.billedItems,
+        setTainted: (value: Option<boolean>) => {
+          tainted.billedItems = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField(
+            "billedItems",
+            data.billedItems,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+        at: (index: number) => ({
+          path: ["billedItems", index] as const,
+          name: `billedItems.${index}`,
+          constraints: { required: true },
+          get: () => data.billedItems[index],
+          set: (value: BilledItem) => {
+            data.billedItems[index] = value;
+          },
+          getError: () => errors.billedItems,
+          setError: (value: Option<Array<string>>) => {
+            errors.billedItems = value;
+          },
+          getTainted: () => tainted.billedItems,
+          setTainted: (value: Option<boolean>) => {
+            tainted.billedItems = value;
+          },
+          validate: (): Array<string> => [],
+        }),
+        push: (item: BilledItem) => {
+          data.billedItems.push(item);
+        },
+        remove: (index: number) => {
+          data.billedItems.splice(index, 1);
+        },
+        swap: (a: number, b: number) => {
+          [data.billedItems[a], data.billedItems[b]] = [
+            data.billedItems[b],
+            data.billedItems[a],
+          ];
+        },
+      },
+      memo: {
+        path: ["memo"] as const,
+        name: "memo",
+        constraints: { required: true },
+        label: "Memo",
+        get: () => data.memo,
+        set: (value: string) => {
+          data.memo = value;
+        },
+        getError: () => errors.memo,
+        setError: (value: Option<Array<string>>) => {
+          errors.memo = value;
+        },
+        getTainted: () => tainted.memo,
+        setTainted: (value: Option<boolean>) => {
+          tainted.memo = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("memo", data.memo);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      discount: {
+        path: ["discount"] as const,
+        name: "discount",
+        constraints: { required: true },
+
+        get: () => data.discount,
+        set: (value: number) => {
+          data.discount = value;
+        },
+        getError: () => errors.discount,
+        setError: (value: Option<Array<string>>) => {
+          errors.discount = value;
+        },
+        getTainted: () => tainted.discount,
+        setTainted: (value: Option<boolean>) => {
+          tainted.discount = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("discount", data.discount);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      tip: {
+        path: ["tip"] as const,
+        name: "tip",
+        constraints: { required: true },
+
+        get: () => data.tip,
+        set: (value: number) => {
+          data.tip = value;
+        },
+        getError: () => errors.tip,
+        setError: (value: Option<Array<string>>) => {
+          errors.tip = value;
+        },
+        getTainted: () => tainted.tip,
+        setTainted: (value: Option<boolean>) => {
+          tainted.tip = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField("tip", data.tip);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      commissions: {
+        path: ["commissions"] as const,
+        name: "commissions",
+        constraints: { required: true },
+
+        get: () => data.commissions,
+        set: (value: number[]) => {
+          data.commissions = value;
+        },
+        getError: () => errors.commissions,
+        setError: (value: Option<Array<string>>) => {
+          errors.commissions = value;
+        },
+        getTainted: () => tainted.commissions,
+        setTainted: (value: Option<boolean>) => {
+          tainted.commissions = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Order.validateField(
+            "commissions",
+            data.commissions,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+        at: (index: number) => ({
+          path: ["commissions", index] as const,
+          name: `commissions.${index}`,
+          constraints: { required: true },
+          get: () => data.commissions[index],
+          set: (value: number) => {
+            data.commissions[index] = value;
+          },
+          getError: () => errors.commissions,
+          setError: (value: Option<Array<string>>) => {
+            errors.commissions = value;
+          },
+          getTainted: () => tainted.commissions,
+          setTainted: (value: Option<boolean>) => {
+            tainted.commissions = value;
+          },
+          validate: (): Array<string> => [],
+        }),
+        push: (item: number) => {
+          data.commissions.push(item);
+        },
+        remove: (index: number) => {
+          data.commissions.splice(index, 1);
+        },
+        swap: (a: number, b: number) => {
+          [data.commissions[a], data.commissions[b]] = [
+            data.commissions[b],
+            data.commissions[a],
+          ];
+        },
+      },
+    };
+    function validate(): Result<
+      Order,
+      Array<{ field: string; message: string }>
+    > {
+      return Order.fromObject(data);
+    }
+    function reset(newOverrides?: Partial<Order>): void {
+      data = { ...Order.defaultValue(), ...newOverrides };
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        account: Option.none(),
+        stage: Option.none(),
+        number: Option.none(),
+        payments: Option.none(),
+        opportunity: Option.none(),
+        reference: Option.none(),
+        leadSource: Option.none(),
+        salesRep: Option.none(),
+        group: Option.none(),
+        subgroup: Option.none(),
+        isPosted: Option.none(),
+        needsReview: Option.none(),
+        actionItem: Option.none(),
+        upsale: Option.none(),
+        dateCreated: Option.none(),
+        appointment: Option.none(),
+        lastTechs: Option.none(),
+        package: Option.none(),
+        promotion: Option.none(),
+        balance: Option.none(),
+        due: Option.none(),
+        total: Option.none(),
+        site: Option.none(),
+        billedItems: Option.none(),
+        memo: Option.none(),
+        discount: Option.none(),
+        tip: Option.none(),
+        commissions: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        account: Option.none(),
+        stage: Option.none(),
+        number: Option.none(),
+        payments: Option.none(),
+        opportunity: Option.none(),
+        reference: Option.none(),
+        leadSource: Option.none(),
+        salesRep: Option.none(),
+        group: Option.none(),
+        subgroup: Option.none(),
+        isPosted: Option.none(),
+        needsReview: Option.none(),
+        actionItem: Option.none(),
+        upsale: Option.none(),
+        dateCreated: Option.none(),
+        appointment: Option.none(),
+        lastTechs: Option.none(),
+        package: Option.none(),
+        promotion: Option.none(),
+        balance: Option.none(),
+        due: Option.none(),
+        total: Option.none(),
+        site: Option.none(),
+        billedItems: Option.none(),
+        memo: Option.none(),
+        discount: Option.none(),
+        tip: Option.none(),
+        commissions: Option.none(),
+      };
+    }
+    return {
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      fields,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Order, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.account = formData.get("account") ?? "";
+    {
+      // Collect nested object fields with prefix "stage."
+      const stageObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("stage.")) {
+          const fieldName = key.slice("stage.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = stageObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+>>>>>>> Stashed changes
       }
       obj.stage = stageObj;
     }
@@ -17034,6 +22925,37 @@ export namespace Commented {
     }
     return instance as Commented;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Commented>(
+    field: K,
+    value: Commented[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "comment": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "comment", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Commented>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("comment" in partial && partial.comment !== undefined) {
+      const __val = partial.comment as string;
+      if (__val.length === 0) {
+        errors.push({ field: "comment", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Commented {
@@ -17044,6 +22966,7 @@ export namespace Commented {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { comment: Option<boolean>; replyTo: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -17063,6 +22986,8 @@ export namespace Commented {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly comment: FieldController<string>;
     readonly replyTo: FieldController<string | null>;
@@ -17107,6 +23032,7 @@ export namespace Commented {
           tainted.comment = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Commented.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -17115,6 +23041,10 @@ export namespace Commented {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Commented.validateField("comment", data.comment);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       replyTo: {
@@ -17135,6 +23065,7 @@ export namespace Commented {
           tainted.replyTo = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Commented.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -17143,6 +23074,10 @@ export namespace Commented {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Commented.validateField("replyTo", data.replyTo);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -17309,6 +23244,20 @@ export namespace Custom {
     }
     return instance as Custom;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Custom>(
+    field: K,
+    value: Custom[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Custom>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Custom {
@@ -17318,6 +23267,7 @@ export namespace Custom {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { mappings: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -17337,6 +23287,8 @@ export namespace Custom {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly mappings: ArrayFieldController<DirectionHue>;
   }
@@ -17376,6 +23328,7 @@ export namespace Custom {
           tainted.mappings = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Custom.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -17384,6 +23337,10 @@ export namespace Custom {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Custom.validateField("mappings", data.mappings);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["mappings", index] as const,
@@ -17619,6 +23576,63 @@ export namespace Colors {
     }
     return instance as Colors;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Colors>(
+    field: K,
+    value: Colors[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "main": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "main", message: "must not be empty" });
+        }
+        break;
+      }
+      case "hover": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "hover", message: "must not be empty" });
+        }
+        break;
+      }
+      case "active": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "active", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Colors>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("main" in partial && partial.main !== undefined) {
+      const __val = partial.main as string;
+      if (__val.length === 0) {
+        errors.push({ field: "main", message: "must not be empty" });
+      }
+    }
+    if ("hover" in partial && partial.hover !== undefined) {
+      const __val = partial.hover as string;
+      if (__val.length === 0) {
+        errors.push({ field: "hover", message: "must not be empty" });
+      }
+    }
+    if ("active" in partial && partial.active !== undefined) {
+      const __val = partial.active as string;
+      if (__val.length === 0) {
+        errors.push({ field: "active", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Colors {
@@ -17630,6 +23644,7 @@ export namespace Colors {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { main: Option<boolean>; hover: Option<boolean>; active: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -17649,6 +23664,8 @@ export namespace Colors {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly main: FieldController<string>;
     readonly hover: FieldController<string>;
@@ -17696,6 +23713,7 @@ export namespace Colors {
           tainted.main = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Colors.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -17704,6 +23722,10 @@ export namespace Colors {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Colors.validateField("main", data.main);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       hover: {
@@ -17724,6 +23746,7 @@ export namespace Colors {
           tainted.hover = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Colors.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -17732,6 +23755,10 @@ export namespace Colors {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Colors.validateField("hover", data.hover);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       active: {
@@ -17752,6 +23779,7 @@ export namespace Colors {
           tainted.active = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Colors.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -17760,6 +23788,10 @@ export namespace Colors {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Colors.validateField("active", data.active);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -17944,6 +23976,7 @@ export namespace ProductDefaults {
     }
     return instance as ProductDefaults;
   }
+<<<<<<< Updated upstream
 }
 
 export namespace ProductDefaults {
@@ -18007,6 +24040,80 @@ export namespace ProductDefaults {
         name: "price",
         constraints: { required: true },
 
+=======
+  export function validateField<K extends keyof ProductDefaults>(
+    field: K,
+    value: ProductDefaults[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "description": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "description", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<ProductDefaults>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("description" in partial && partial.description !== undefined) {
+      const __val = partial.description as string;
+      if (__val.length === 0) {
+        errors.push({ field: "description", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+}
+
+export namespace ProductDefaults {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    price: Option<Array<string>>;
+    description: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    { price: Option<boolean>; description: Option<boolean> };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly price: FieldController<number>;
+    readonly description: FieldController<string>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: ProductDefaults;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<
+      ProductDefaults,
+      Array<{ field: string; message: string }>
+    >;
+    reset(overrides?: Partial<ProductDefaults>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<ProductDefaults>,
+  ): Gigaform {
+    let data = $state({ ...ProductDefaults.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      price: Option.none(),
+      description: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      price: Option.none(),
+      description: Option.none(),
+    });
+    const fields: FieldControllers = {
+      price: {
+        path: ["price"] as const,
+        name: "price",
+        constraints: { required: true },
+        label: "Price",
+>>>>>>> Stashed changes
         get: () => data.price,
         set: (value: number) => {
           data.price = value;
@@ -18020,6 +24127,7 @@ export namespace ProductDefaults {
           tainted.price = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = ProductDefaults.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -18028,13 +24136,24 @@ export namespace ProductDefaults {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = ProductDefaults.validateField(
+            "price",
+            data.price,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       description: {
         path: ["description"] as const,
         name: "description",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Description",
+>>>>>>> Stashed changes
         get: () => data.description,
         set: (value: string) => {
           data.description = value;
@@ -18048,6 +24167,7 @@ export namespace ProductDefaults {
           tainted.description = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = ProductDefaults.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -18056,6 +24176,13 @@ export namespace ProductDefaults {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = ProductDefaults.validateField(
+            "description",
+            data.description,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -18250,6 +24377,20 @@ export namespace Viewed {
     }
     return instance as Viewed;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Viewed>(
+    field: K,
+    value: Viewed[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Viewed>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Viewed {
@@ -18260,6 +24401,7 @@ export namespace Viewed {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { durationSeconds: Option<boolean>; source: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -18279,6 +24421,8 @@ export namespace Viewed {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly durationSeconds: FieldController<number | null>;
     readonly source: FieldController<string | null>;
@@ -18323,6 +24467,7 @@ export namespace Viewed {
           tainted.durationSeconds = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Viewed.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -18331,6 +24476,13 @@ export namespace Viewed {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Viewed.validateField(
+            "durationSeconds",
+            data.durationSeconds,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       source: {
@@ -18351,6 +24503,7 @@ export namespace Viewed {
           tainted.source = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Viewed.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -18359,6 +24512,10 @@ export namespace Viewed {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Viewed.validateField("source", data.source);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -18556,6 +24713,20 @@ export namespace WeeklyRecurrenceRule {
     }
     return instance as WeeklyRecurrenceRule;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof WeeklyRecurrenceRule>(
+    field: K,
+    value: WeeklyRecurrenceRule[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<WeeklyRecurrenceRule>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace WeeklyRecurrenceRule {
@@ -18566,6 +24737,7 @@ export namespace WeeklyRecurrenceRule {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { quantityOfWeeks: Option<boolean>; weekdays: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -18585,6 +24757,8 @@ export namespace WeeklyRecurrenceRule {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly quantityOfWeeks: FieldController<number>;
     readonly weekdays: ArrayFieldController<Weekday>;
@@ -18632,6 +24806,7 @@ export namespace WeeklyRecurrenceRule {
           tainted.quantityOfWeeks = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = WeeklyRecurrenceRule.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -18640,6 +24815,13 @@ export namespace WeeklyRecurrenceRule {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = WeeklyRecurrenceRule.validateField(
+            "quantityOfWeeks",
+            data.quantityOfWeeks,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       weekdays: {
@@ -18660,6 +24842,7 @@ export namespace WeeklyRecurrenceRule {
           tainted.weekdays = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = WeeklyRecurrenceRule.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -18668,6 +24851,13 @@ export namespace WeeklyRecurrenceRule {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = WeeklyRecurrenceRule.validateField(
+            "weekdays",
+            data.weekdays,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["weekdays", index] as const,
@@ -18940,6 +25130,20 @@ export namespace Paid {
     }
     return instance as Paid;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Paid>(
+    field: K,
+    value: Paid[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Paid>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Paid {
@@ -18955,6 +25159,7 @@ export namespace Paid {
       currency: Option<boolean>;
       paymentMethod: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -18974,6 +25179,8 @@ export namespace Paid {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly amount: FieldController<number | null>;
     readonly currency: FieldController<string | null>;
@@ -19021,6 +25228,7 @@ export namespace Paid {
           tainted.amount = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Paid.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -19029,6 +25237,10 @@ export namespace Paid {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Paid.validateField("amount", data.amount);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       currency: {
@@ -19049,6 +25261,7 @@ export namespace Paid {
           tainted.currency = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Paid.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -19057,6 +25270,10 @@ export namespace Paid {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Paid.validateField("currency", data.currency);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       paymentMethod: {
@@ -19077,6 +25294,7 @@ export namespace Paid {
           tainted.paymentMethod = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Paid.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -19085,6 +25303,13 @@ export namespace Paid {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Paid.validateField(
+            "paymentMethod",
+            data.paymentMethod,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -19154,6 +25379,10 @@ export interface TaxRate {
   name: string;
 
   taxAgency: string;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
   zip: number;
 
   city: string;
@@ -19161,6 +25390,10 @@ export interface TaxRate {
   county: string;
 
   state: string;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
   isActive: boolean;
 
   description: string;
@@ -19365,6 +25598,102 @@ export namespace TaxRate {
     }
     return instance as TaxRate;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof TaxRate>(
+    field: K,
+    value: TaxRate[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+      case "taxAgency": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "taxAgency", message: "must not be empty" });
+        }
+        break;
+      }
+      case "city": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "city", message: "must not be empty" });
+        }
+        break;
+      }
+      case "county": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "county", message: "must not be empty" });
+        }
+        break;
+      }
+      case "state": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "state", message: "must not be empty" });
+        }
+        break;
+      }
+      case "description": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "description", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<TaxRate>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    if ("taxAgency" in partial && partial.taxAgency !== undefined) {
+      const __val = partial.taxAgency as string;
+      if (__val.length === 0) {
+        errors.push({ field: "taxAgency", message: "must not be empty" });
+      }
+    }
+    if ("city" in partial && partial.city !== undefined) {
+      const __val = partial.city as string;
+      if (__val.length === 0) {
+        errors.push({ field: "city", message: "must not be empty" });
+      }
+    }
+    if ("county" in partial && partial.county !== undefined) {
+      const __val = partial.county as string;
+      if (__val.length === 0) {
+        errors.push({ field: "county", message: "must not be empty" });
+      }
+    }
+    if ("state" in partial && partial.state !== undefined) {
+      const __val = partial.state as string;
+      if (__val.length === 0) {
+        errors.push({ field: "state", message: "must not be empty" });
+      }
+    }
+    if ("description" in partial && partial.description !== undefined) {
+      const __val = partial.description as string;
+      if (__val.length === 0) {
+        errors.push({ field: "description", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace TaxRate {
@@ -19394,6 +25723,7 @@ export namespace TaxRate {
       description: Option<boolean>;
       taxComponents: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -19413,6 +25743,8 @@ export namespace TaxRate {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly id: FieldController<string>;
     readonly name: FieldController<string>;
@@ -19481,6 +25813,7 @@ export namespace TaxRate {
           tainted.id = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = TaxRate.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -19489,13 +25822,21 @@ export namespace TaxRate {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = TaxRate.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       name: {
         path: ["name"] as const,
         name: "name",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Name",
+>>>>>>> Stashed changes
         get: () => data.name,
         set: (value: string) => {
           data.name = value;
@@ -19509,6 +25850,7 @@ export namespace TaxRate {
           tainted.name = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = TaxRate.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -19517,13 +25859,21 @@ export namespace TaxRate {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = TaxRate.validateField("name", data.name);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       taxAgency: {
         path: ["taxAgency"] as const,
         name: "taxAgency",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Tax Agency",
+>>>>>>> Stashed changes
         get: () => data.taxAgency,
         set: (value: string) => {
           data.taxAgency = value;
@@ -19537,6 +25887,7 @@ export namespace TaxRate {
           tainted.taxAgency = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = TaxRate.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -19545,13 +25896,24 @@ export namespace TaxRate {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = TaxRate.validateField(
+            "taxAgency",
+            data.taxAgency,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       zip: {
         path: ["zip"] as const,
         name: "zip",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Zip",
+>>>>>>> Stashed changes
         get: () => data.zip,
         set: (value: number) => {
           data.zip = value;
@@ -19565,6 +25927,7 @@ export namespace TaxRate {
           tainted.zip = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = TaxRate.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -19573,13 +25936,21 @@ export namespace TaxRate {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = TaxRate.validateField("zip", data.zip);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       city: {
         path: ["city"] as const,
         name: "city",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "City",
+>>>>>>> Stashed changes
         get: () => data.city,
         set: (value: string) => {
           data.city = value;
@@ -19593,6 +25964,7 @@ export namespace TaxRate {
           tainted.city = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = TaxRate.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -19601,13 +25973,21 @@ export namespace TaxRate {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = TaxRate.validateField("city", data.city);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       county: {
         path: ["county"] as const,
         name: "county",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "County",
+>>>>>>> Stashed changes
         get: () => data.county,
         set: (value: string) => {
           data.county = value;
@@ -19621,6 +26001,7 @@ export namespace TaxRate {
           tainted.county = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = TaxRate.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -19629,13 +26010,21 @@ export namespace TaxRate {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = TaxRate.validateField("county", data.county);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       state: {
         path: ["state"] as const,
         name: "state",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "State",
+>>>>>>> Stashed changes
         get: () => data.state,
         set: (value: string) => {
           data.state = value;
@@ -19649,6 +26038,7 @@ export namespace TaxRate {
           tainted.state = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = TaxRate.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -19657,13 +26047,21 @@ export namespace TaxRate {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = TaxRate.validateField("state", data.state);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       isActive: {
         path: ["isActive"] as const,
         name: "isActive",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Active",
+>>>>>>> Stashed changes
         get: () => data.isActive,
         set: (value: boolean) => {
           data.isActive = value;
@@ -19677,6 +26075,7 @@ export namespace TaxRate {
           tainted.isActive = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = TaxRate.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -19685,13 +26084,21 @@ export namespace TaxRate {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = TaxRate.validateField("isActive", data.isActive);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       description: {
         path: ["description"] as const,
         name: "description",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Description",
+>>>>>>> Stashed changes
         get: () => data.description,
         set: (value: string) => {
           data.description = value;
@@ -19705,6 +26112,7 @@ export namespace TaxRate {
           tainted.description = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = TaxRate.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -19713,6 +26121,13 @@ export namespace TaxRate {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = TaxRate.validateField(
+            "description",
+            data.description,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       taxComponents: {
@@ -19733,6 +26148,7 @@ export namespace TaxRate {
           tainted.taxComponents = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = TaxRate.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -19741,6 +26157,13 @@ export namespace TaxRate {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = TaxRate.validateField(
+            "taxComponents",
+            data.taxComponents,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -19973,6 +26396,76 @@ export namespace Address {
     }
     return instance as Address;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Address>(
+    field: K,
+    value: Address[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "street": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "street", message: "must not be empty" });
+        }
+        break;
+      }
+      case "city": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "city", message: "must not be empty" });
+        }
+        break;
+      }
+      case "state": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "state", message: "must not be empty" });
+        }
+        break;
+      }
+      case "zipcode": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "zipcode", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Address>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("street" in partial && partial.street !== undefined) {
+      const __val = partial.street as string;
+      if (__val.length === 0) {
+        errors.push({ field: "street", message: "must not be empty" });
+      }
+    }
+    if ("city" in partial && partial.city !== undefined) {
+      const __val = partial.city as string;
+      if (__val.length === 0) {
+        errors.push({ field: "city", message: "must not be empty" });
+      }
+    }
+    if ("state" in partial && partial.state !== undefined) {
+      const __val = partial.state as string;
+      if (__val.length === 0) {
+        errors.push({ field: "state", message: "must not be empty" });
+      }
+    }
+    if ("zipcode" in partial && partial.zipcode !== undefined) {
+      const __val = partial.zipcode as string;
+      if (__val.length === 0) {
+        errors.push({ field: "zipcode", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Address {
@@ -19990,6 +26483,7 @@ export namespace Address {
       state: Option<boolean>;
       zipcode: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -20009,6 +26503,8 @@ export namespace Address {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly street: FieldController<string>;
     readonly city: FieldController<string>;
@@ -20059,6 +26555,7 @@ export namespace Address {
           tainted.street = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Address.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -20067,6 +26564,10 @@ export namespace Address {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Address.validateField("street", data.street);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       city: {
@@ -20087,6 +26588,7 @@ export namespace Address {
           tainted.city = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Address.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -20095,6 +26597,10 @@ export namespace Address {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Address.validateField("city", data.city);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       state: {
@@ -20115,6 +26621,7 @@ export namespace Address {
           tainted.state = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Address.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -20123,6 +26630,10 @@ export namespace Address {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Address.validateField("state", data.state);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       zipcode: {
@@ -20143,6 +26654,7 @@ export namespace Address {
           tainted.zipcode = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Address.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -20151,6 +26663,10 @@ export namespace Address {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Address.validateField("zipcode", data.zipcode);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -20214,6 +26730,7 @@ export namespace Address {
 
 export interface Lead {
   id: string;
+<<<<<<< Updated upstream
   number: number | null;
   accepted: boolean;
   probability: number;
@@ -20221,11 +26738,27 @@ export interface Lead {
   priority: Priority;
   dueDate: string | null;
   closeDate: string | null;
+=======
+
+  number: number | null;
+
+  accepted: boolean;
+
+  probability: number;
+
+  priority: Priority;
+
+  dueDate: string | null;
+
+  closeDate: string | null;
+
+>>>>>>> Stashed changes
   value: number;
 
   stage: LeadStage;
 
   status: string;
+<<<<<<< Updated upstream
   description: string | null;
 
   nextStep: NextStep;
@@ -20237,23 +26770,64 @@ export interface Lead {
   leadName: AccountName;
   phones: PhoneNumber[];
   email: Email;
+=======
+
+  description: string | null;
+
+  nextStep: NextStep;
+
+  favorite: boolean;
+
+  dateAdded: string | null;
+
+  taxRate: (string | TaxRate) | null;
+
+  sector: Sector;
+
+  leadName: AccountName;
+
+  phones: PhoneNumber[];
+
+  email: Email;
+
+>>>>>>> Stashed changes
   leadSource: string | null;
 
   site: string | Site;
 
   memo: string;
+<<<<<<< Updated upstream
   needsReview: boolean;
   hasAlert: boolean;
   salesRep: Represents[] | null;
+=======
+
+  needsReview: boolean;
+
+  hasAlert: boolean;
+
+  salesRep: Represents[] | null;
+
+>>>>>>> Stashed changes
   color: string | null;
 
   accountType: string;
 
   subtype: string;
+<<<<<<< Updated upstream
   isTaxExempt: boolean;
 
   paymentTerms: string;
   tags: string[];
+=======
+
+  isTaxExempt: boolean;
+
+  paymentTerms: string;
+
+  tags: string[];
+
+>>>>>>> Stashed changes
   customFields: [string, string][];
 }
 
@@ -20620,7 +27194,18 @@ export namespace Lead {
       const __raw_priority = obj["priority"];
       if (typeof (Priority as any)?.__deserialize === "function") {
         const __result = (Priority as any).__deserialize(__raw_priority, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "priority", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.priority = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.priority = v;
+          });
+        } else {
+          instance.priority = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.priority = __raw_priority;
       }
@@ -20641,7 +27226,18 @@ export namespace Lead {
       const __raw_stage = obj["stage"];
       if (typeof (LeadStage as any)?.__deserialize === "function") {
         const __result = (LeadStage as any).__deserialize(__raw_stage, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "stage", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.stage = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.stage = v;
+          });
+        } else {
+          instance.stage = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.stage = __raw_stage;
       }
@@ -20658,7 +27254,18 @@ export namespace Lead {
       const __raw_nextStep = obj["nextStep"];
       if (typeof (NextStep as any)?.__deserialize === "function") {
         const __result = (NextStep as any).__deserialize(__raw_nextStep, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "nextStep", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.nextStep = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.nextStep = v;
+          });
+        } else {
+          instance.nextStep = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.nextStep = __raw_nextStep;
       }
@@ -20679,7 +27286,18 @@ export namespace Lead {
       const __raw_sector = obj["sector"];
       if (typeof (Sector as any)?.__deserialize === "function") {
         const __result = (Sector as any).__deserialize(__raw_sector, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "sector", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.sector = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.sector = v;
+          });
+        } else {
+          instance.sector = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.sector = __raw_sector;
       }
@@ -20691,7 +27309,18 @@ export namespace Lead {
           __raw_leadName,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "leadName", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.leadName = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.leadName = v;
+          });
+        } else {
+          instance.leadName = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.leadName = __raw_leadName;
       }
@@ -20704,7 +27333,18 @@ export namespace Lead {
       const __raw_email = obj["email"];
       if (typeof (Email as any)?.__deserialize === "function") {
         const __result = (Email as any).__deserialize(__raw_email, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "email", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.email = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.email = v;
+          });
+        } else {
+          instance.email = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.email = __raw_email;
       }
@@ -20766,6 +27406,89 @@ export namespace Lead {
     }
     return instance as Lead;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Lead>(
+    field: K,
+    value: Lead[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "status": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "status", message: "must not be empty" });
+        }
+        break;
+      }
+      case "memo": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "memo", message: "must not be empty" });
+        }
+        break;
+      }
+      case "accountType": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "accountType", message: "must not be empty" });
+        }
+        break;
+      }
+      case "subtype": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "subtype", message: "must not be empty" });
+        }
+        break;
+      }
+      case "paymentTerms": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "paymentTerms", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Lead>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("status" in partial && partial.status !== undefined) {
+      const __val = partial.status as string;
+      if (__val.length === 0) {
+        errors.push({ field: "status", message: "must not be empty" });
+      }
+    }
+    if ("memo" in partial && partial.memo !== undefined) {
+      const __val = partial.memo as string;
+      if (__val.length === 0) {
+        errors.push({ field: "memo", message: "must not be empty" });
+      }
+    }
+    if ("accountType" in partial && partial.accountType !== undefined) {
+      const __val = partial.accountType as string;
+      if (__val.length === 0) {
+        errors.push({ field: "accountType", message: "must not be empty" });
+      }
+    }
+    if ("subtype" in partial && partial.subtype !== undefined) {
+      const __val = partial.subtype as string;
+      if (__val.length === 0) {
+        errors.push({ field: "subtype", message: "must not be empty" });
+      }
+    }
+    if ("paymentTerms" in partial && partial.paymentTerms !== undefined) {
+      const __val = partial.paymentTerms as string;
+      if (__val.length === 0) {
+        errors.push({ field: "paymentTerms", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Lead {
@@ -20839,6 +27562,7 @@ export namespace Lead {
       tags: Option<boolean>;
       customFields: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -20858,6 +27582,8 @@ export namespace Lead {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly id: FieldController<string>;
     readonly number: FieldController<number | null>;
@@ -20992,6 +27718,7 @@ export namespace Lead {
           tainted.id = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21000,6 +27727,10 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       number: {
@@ -21020,6 +27751,7 @@ export namespace Lead {
           tainted.number = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21028,6 +27760,10 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("number", data.number);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       accepted: {
@@ -21048,6 +27784,7 @@ export namespace Lead {
           tainted.accepted = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21056,13 +27793,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("accepted", data.accepted);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       probability: {
         path: ["probability"] as const,
         name: "probability",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Probability",
+>>>>>>> Stashed changes
         get: () => data.probability,
         set: (value: number) => {
           data.probability = value;
@@ -21076,6 +27821,7 @@ export namespace Lead {
           tainted.probability = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21084,13 +27830,24 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField(
+            "probability",
+            data.probability,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       priority: {
         path: ["priority"] as const,
         name: "priority",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Priority",
+>>>>>>> Stashed changes
         get: () => data.priority,
         set: (value: Priority) => {
           data.priority = value;
@@ -21104,6 +27861,7 @@ export namespace Lead {
           tainted.priority = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21112,13 +27870,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("priority", data.priority);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       dueDate: {
         path: ["dueDate"] as const,
         name: "dueDate",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Due Date",
+>>>>>>> Stashed changes
         get: () => data.dueDate,
         set: (value: string | null) => {
           data.dueDate = value;
@@ -21132,6 +27898,7 @@ export namespace Lead {
           tainted.dueDate = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21140,13 +27907,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("dueDate", data.dueDate);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       closeDate: {
         path: ["closeDate"] as const,
         name: "closeDate",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Close Date",
+>>>>>>> Stashed changes
         get: () => data.closeDate,
         set: (value: string | null) => {
           data.closeDate = value;
@@ -21160,6 +27935,7 @@ export namespace Lead {
           tainted.closeDate = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21168,13 +27944,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("closeDate", data.closeDate);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       value: {
         path: ["value"] as const,
         name: "value",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Value",
+>>>>>>> Stashed changes
         get: () => data.value,
         set: (value: number) => {
           data.value = value;
@@ -21188,6 +27972,7 @@ export namespace Lead {
           tainted.value = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21196,13 +27981,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("value", data.value);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       stage: {
         path: ["stage"] as const,
         name: "stage",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Stage",
+>>>>>>> Stashed changes
         get: () => data.stage,
         set: (value: LeadStage) => {
           data.stage = value;
@@ -21216,6 +28009,7 @@ export namespace Lead {
           tainted.stage = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21224,13 +28018,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("stage", data.stage);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       status: {
         path: ["status"] as const,
         name: "status",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Status",
+>>>>>>> Stashed changes
         get: () => data.status,
         set: (value: string) => {
           data.status = value;
@@ -21244,6 +28046,7 @@ export namespace Lead {
           tainted.status = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21252,13 +28055,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("status", data.status);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       description: {
         path: ["description"] as const,
         name: "description",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Description",
+>>>>>>> Stashed changes
         get: () => data.description,
         set: (value: string | null) => {
           data.description = value;
@@ -21272,6 +28083,7 @@ export namespace Lead {
           tainted.description = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21280,6 +28092,13 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField(
+            "description",
+            data.description,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       nextStep: {
@@ -21300,6 +28119,7 @@ export namespace Lead {
           tainted.nextStep = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21308,13 +28128,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("nextStep", data.nextStep);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       favorite: {
         path: ["favorite"] as const,
         name: "favorite",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Favorite",
+>>>>>>> Stashed changes
         get: () => data.favorite,
         set: (value: boolean) => {
           data.favorite = value;
@@ -21328,6 +28156,7 @@ export namespace Lead {
           tainted.favorite = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21336,6 +28165,10 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("favorite", data.favorite);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       dateAdded: {
@@ -21356,6 +28189,7 @@ export namespace Lead {
           tainted.dateAdded = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21364,13 +28198,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("dateAdded", data.dateAdded);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       taxRate: {
         path: ["taxRate"] as const,
         name: "taxRate",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Tax Rate",
+>>>>>>> Stashed changes
         get: () => data.taxRate,
         set: (value: (string | TaxRate) | null) => {
           data.taxRate = value;
@@ -21384,6 +28226,7 @@ export namespace Lead {
           tainted.taxRate = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21392,13 +28235,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("taxRate", data.taxRate);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       sector: {
         path: ["sector"] as const,
         name: "sector",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Sector",
+>>>>>>> Stashed changes
         get: () => data.sector,
         set: (value: Sector) => {
           data.sector = value;
@@ -21412,6 +28263,7 @@ export namespace Lead {
           tainted.sector = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21420,6 +28272,10 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("sector", data.sector);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       leadName: {
@@ -21440,6 +28296,7 @@ export namespace Lead {
           tainted.leadName = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21448,6 +28305,10 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("leadName", data.leadName);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       phones: {
@@ -21468,6 +28329,7 @@ export namespace Lead {
           tainted.phones = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21476,6 +28338,10 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("phones", data.phones);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["phones", index] as const,
@@ -21509,7 +28375,11 @@ export namespace Lead {
         path: ["email"] as const,
         name: "email",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Email",
+>>>>>>> Stashed changes
         get: () => data.email,
         set: (value: Email) => {
           data.email = value;
@@ -21523,6 +28393,7 @@ export namespace Lead {
           tainted.email = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21531,13 +28402,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("email", data.email);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       leadSource: {
         path: ["leadSource"] as const,
         name: "leadSource",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Lead Source",
+>>>>>>> Stashed changes
         get: () => data.leadSource,
         set: (value: string | null) => {
           data.leadSource = value;
@@ -21551,6 +28430,7 @@ export namespace Lead {
           tainted.leadSource = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21559,13 +28439,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("leadSource", data.leadSource);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       site: {
         path: ["site"] as const,
         name: "site",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Site",
+>>>>>>> Stashed changes
         get: () => data.site,
         set: (value: string | Site) => {
           data.site = value;
@@ -21579,6 +28467,7 @@ export namespace Lead {
           tainted.site = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21587,13 +28476,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("site", data.site);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       memo: {
         path: ["memo"] as const,
         name: "memo",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Memo",
+>>>>>>> Stashed changes
         get: () => data.memo,
         set: (value: string) => {
           data.memo = value;
@@ -21607,6 +28504,7 @@ export namespace Lead {
           tainted.memo = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21615,13 +28513,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("memo", data.memo);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       needsReview: {
         path: ["needsReview"] as const,
         name: "needsReview",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Needs Review",
+>>>>>>> Stashed changes
         get: () => data.needsReview,
         set: (value: boolean) => {
           data.needsReview = value;
@@ -21635,6 +28541,7 @@ export namespace Lead {
           tainted.needsReview = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21643,13 +28550,24 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField(
+            "needsReview",
+            data.needsReview,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       hasAlert: {
         path: ["hasAlert"] as const,
         name: "hasAlert",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Has Alert",
+>>>>>>> Stashed changes
         get: () => data.hasAlert,
         set: (value: boolean) => {
           data.hasAlert = value;
@@ -21663,6 +28581,7 @@ export namespace Lead {
           tainted.hasAlert = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21671,13 +28590,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("hasAlert", data.hasAlert);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       salesRep: {
         path: ["salesRep"] as const,
         name: "salesRep",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Sales Rep",
+>>>>>>> Stashed changes
         get: () => data.salesRep,
         set: (value: Represents[] | null) => {
           data.salesRep = value;
@@ -21691,6 +28618,7 @@ export namespace Lead {
           tainted.salesRep = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21699,6 +28627,10 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("salesRep", data.salesRep);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       color: {
@@ -21719,6 +28651,7 @@ export namespace Lead {
           tainted.color = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21727,13 +28660,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("color", data.color);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       accountType: {
         path: ["accountType"] as const,
         name: "accountType",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Account Type",
+>>>>>>> Stashed changes
         get: () => data.accountType,
         set: (value: string) => {
           data.accountType = value;
@@ -21747,6 +28688,7 @@ export namespace Lead {
           tainted.accountType = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21755,13 +28697,24 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField(
+            "accountType",
+            data.accountType,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       subtype: {
         path: ["subtype"] as const,
         name: "subtype",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Subtype",
+>>>>>>> Stashed changes
         get: () => data.subtype,
         set: (value: string) => {
           data.subtype = value;
@@ -21775,6 +28728,7 @@ export namespace Lead {
           tainted.subtype = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21783,13 +28737,21 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("subtype", data.subtype);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       isTaxExempt: {
         path: ["isTaxExempt"] as const,
         name: "isTaxExempt",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Tax Exempt",
+>>>>>>> Stashed changes
         get: () => data.isTaxExempt,
         set: (value: boolean) => {
           data.isTaxExempt = value;
@@ -21803,6 +28765,7 @@ export namespace Lead {
           tainted.isTaxExempt = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21811,13 +28774,24 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField(
+            "isTaxExempt",
+            data.isTaxExempt,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       paymentTerms: {
         path: ["paymentTerms"] as const,
         name: "paymentTerms",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Payment Terms",
+>>>>>>> Stashed changes
         get: () => data.paymentTerms,
         set: (value: string) => {
           data.paymentTerms = value;
@@ -21831,6 +28805,7 @@ export namespace Lead {
           tainted.paymentTerms = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21839,13 +28814,24 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField(
+            "paymentTerms",
+            data.paymentTerms,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       tags: {
         path: ["tags"] as const,
         name: "tags",
         constraints: { required: true },
+<<<<<<< Updated upstream
 
+=======
+        label: "Tags",
+>>>>>>> Stashed changes
         get: () => data.tags,
         set: (value: string[]) => {
           data.tags = value;
@@ -21859,6 +28845,7 @@ export namespace Lead {
           tainted.tags = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21867,6 +28854,10 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField("tags", data.tags);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["tags", index] as const,
@@ -21914,6 +28905,7 @@ export namespace Lead {
           tainted.customFields = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Lead.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -21922,6 +28914,13 @@ export namespace Lead {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Lead.validateField(
+            "customFields",
+            data.customFields,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["customFields", index] as const,
@@ -22449,6 +29448,20 @@ export namespace AppPermissions {
     }
     return instance as AppPermissions;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof AppPermissions>(
+    field: K,
+    value: AppPermissions[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<AppPermissions>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace AppPermissions {
@@ -22464,6 +29477,7 @@ export namespace AppPermissions {
       pages: Option<boolean>;
       data: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -22483,6 +29497,8 @@ export namespace AppPermissions {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly applications: ArrayFieldController<Applications>;
     readonly pages: ArrayFieldController<Page>;
@@ -22533,6 +29549,7 @@ export namespace AppPermissions {
           tainted.applications = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = AppPermissions.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -22541,6 +29558,13 @@ export namespace AppPermissions {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = AppPermissions.validateField(
+            "applications",
+            data.applications,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["applications", index] as const,
@@ -22591,6 +29615,7 @@ export namespace AppPermissions {
           tainted.pages = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = AppPermissions.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -22599,6 +29624,10 @@ export namespace AppPermissions {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = AppPermissions.validateField("pages", data.pages);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["pages", index] as const,
@@ -22646,6 +29675,7 @@ export namespace AppPermissions {
           tainted.data = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = AppPermissions.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -22654,6 +29684,10 @@ export namespace AppPermissions {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = AppPermissions.validateField("data", data.data);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["data", index] as const,
@@ -23297,7 +30331,18 @@ export namespace Company {
           __raw_colorsConfig,
           ctx,
         );
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "colorsConfig", __result);
+=======
+        if (PendingRef.is(__result)) {
+          instance.colorsConfig = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.colorsConfig = v;
+          });
+        } else {
+          instance.colorsConfig = __result;
+        }
+>>>>>>> Stashed changes
       } else {
         instance.colorsConfig = __raw_colorsConfig;
       }
@@ -23307,6 +30352,221 @@ export namespace Company {
     }
     return instance as Company;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Company>(
+    field: K,
+    value: Company[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "legalName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "legalName", message: "must not be empty" });
+        }
+        break;
+      }
+      case "fax": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "fax", message: "must not be empty" });
+        }
+        break;
+      }
+      case "email": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "email", message: "must not be empty" });
+        }
+        break;
+      }
+      case "website": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "website", message: "must not be empty" });
+        }
+        break;
+      }
+      case "taxId": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "taxId", message: "must not be empty" });
+        }
+        break;
+      }
+      case "postalCodeLookup": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "postalCodeLookup",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+      case "defaultTaxLocation": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "defaultTaxLocation",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+      case "defaultAccountType": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "defaultAccountType",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+      case "lookupFormatting": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "lookupFormatting",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+      case "accountNameFormat": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "accountNameFormat",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+      case "dateDisplayStyle": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "dateDisplayStyle",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Company>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("legalName" in partial && partial.legalName !== undefined) {
+      const __val = partial.legalName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "legalName", message: "must not be empty" });
+      }
+    }
+    if ("fax" in partial && partial.fax !== undefined) {
+      const __val = partial.fax as string;
+      if (__val.length === 0) {
+        errors.push({ field: "fax", message: "must not be empty" });
+      }
+    }
+    if ("email" in partial && partial.email !== undefined) {
+      const __val = partial.email as string;
+      if (__val.length === 0) {
+        errors.push({ field: "email", message: "must not be empty" });
+      }
+    }
+    if ("website" in partial && partial.website !== undefined) {
+      const __val = partial.website as string;
+      if (__val.length === 0) {
+        errors.push({ field: "website", message: "must not be empty" });
+      }
+    }
+    if ("taxId" in partial && partial.taxId !== undefined) {
+      const __val = partial.taxId as string;
+      if (__val.length === 0) {
+        errors.push({ field: "taxId", message: "must not be empty" });
+      }
+    }
+    if (
+      "postalCodeLookup" in partial &&
+      partial.postalCodeLookup !== undefined
+    ) {
+      const __val = partial.postalCodeLookup as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "postalCodeLookup",
+          message: "must not be empty",
+        });
+      }
+    }
+    if (
+      "defaultTaxLocation" in partial &&
+      partial.defaultTaxLocation !== undefined
+    ) {
+      const __val = partial.defaultTaxLocation as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "defaultTaxLocation",
+          message: "must not be empty",
+        });
+      }
+    }
+    if (
+      "defaultAccountType" in partial &&
+      partial.defaultAccountType !== undefined
+    ) {
+      const __val = partial.defaultAccountType as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "defaultAccountType",
+          message: "must not be empty",
+        });
+      }
+    }
+    if (
+      "lookupFormatting" in partial &&
+      partial.lookupFormatting !== undefined
+    ) {
+      const __val = partial.lookupFormatting as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "lookupFormatting",
+          message: "must not be empty",
+        });
+      }
+    }
+    if (
+      "accountNameFormat" in partial &&
+      partial.accountNameFormat !== undefined
+    ) {
+      const __val = partial.accountNameFormat as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "accountNameFormat",
+          message: "must not be empty",
+        });
+      }
+    }
+    if (
+      "dateDisplayStyle" in partial &&
+      partial.dateDisplayStyle !== undefined
+    ) {
+      const __val = partial.dateDisplayStyle as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "dateDisplayStyle",
+          message: "must not be empty",
+        });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Company {
@@ -23374,6 +30634,7 @@ export namespace Company {
       scheduleInterval: Option<boolean>;
       colorsConfig: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -23393,6 +30654,8 @@ export namespace Company {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly id: FieldController<string>;
     readonly legalName: FieldController<string>;
@@ -23518,6 +30781,7 @@ export namespace Company {
           tainted.id = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23526,6 +30790,10 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       legalName: {
@@ -23546,6 +30814,7 @@ export namespace Company {
           tainted.legalName = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23554,6 +30823,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "legalName",
+            data.legalName,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       headquarters: {
@@ -23574,6 +30850,7 @@ export namespace Company {
           tainted.headquarters = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23582,6 +30859,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "headquarters",
+            data.headquarters,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       phones: {
@@ -23602,6 +30886,7 @@ export namespace Company {
           tainted.phones = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23610,6 +30895,10 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField("phones", data.phones);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["phones", index] as const,
@@ -23657,6 +30946,7 @@ export namespace Company {
           tainted.fax = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23665,6 +30955,10 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField("fax", data.fax);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       email: {
@@ -23685,6 +30979,7 @@ export namespace Company {
           tainted.email = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23693,6 +30988,10 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField("email", data.email);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       website: {
@@ -23713,6 +31012,7 @@ export namespace Company {
           tainted.website = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23721,6 +31021,10 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField("website", data.website);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       taxId: {
@@ -23741,6 +31045,7 @@ export namespace Company {
           tainted.taxId = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23749,6 +31054,10 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField("taxId", data.taxId);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       referenceNumber: {
@@ -23769,6 +31078,7 @@ export namespace Company {
           tainted.referenceNumber = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23777,6 +31087,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "referenceNumber",
+            data.referenceNumber,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       postalCodeLookup: {
@@ -23797,6 +31114,7 @@ export namespace Company {
           tainted.postalCodeLookup = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23805,6 +31123,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "postalCodeLookup",
+            data.postalCodeLookup,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       timeZone: {
@@ -23825,6 +31150,7 @@ export namespace Company {
           tainted.timeZone = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23833,6 +31159,10 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField("timeZone", data.timeZone);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       defaultTax: {
@@ -23853,6 +31183,7 @@ export namespace Company {
           tainted.defaultTax = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23861,6 +31192,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "defaultTax",
+            data.defaultTax,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       defaultTaxLocation: {
@@ -23881,6 +31219,7 @@ export namespace Company {
           tainted.defaultTaxLocation = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23889,6 +31228,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "defaultTaxLocation",
+            data.defaultTaxLocation,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       defaultAreaCode: {
@@ -23909,6 +31255,7 @@ export namespace Company {
           tainted.defaultAreaCode = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23917,6 +31264,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "defaultAreaCode",
+            data.defaultAreaCode,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       defaultAccountType: {
@@ -23937,6 +31291,7 @@ export namespace Company {
           tainted.defaultAccountType = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23945,6 +31300,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "defaultAccountType",
+            data.defaultAccountType,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       lookupFormatting: {
@@ -23965,6 +31327,7 @@ export namespace Company {
           tainted.lookupFormatting = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -23973,6 +31336,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "lookupFormatting",
+            data.lookupFormatting,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       accountNameFormat: {
@@ -23993,6 +31363,7 @@ export namespace Company {
           tainted.accountNameFormat = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24001,6 +31372,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "accountNameFormat",
+            data.accountNameFormat,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       merchantServiceProvider: {
@@ -24021,6 +31399,7 @@ export namespace Company {
           tainted.merchantServiceProvider = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24029,6 +31408,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "merchantServiceProvider",
+            data.merchantServiceProvider,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       dateDisplayStyle: {
@@ -24049,6 +31435,7 @@ export namespace Company {
           tainted.dateDisplayStyle = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24057,6 +31444,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "dateDisplayStyle",
+            data.dateDisplayStyle,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       hasAutoCommission: {
@@ -24077,6 +31471,7 @@ export namespace Company {
           tainted.hasAutoCommission = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24085,6 +31480,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "hasAutoCommission",
+            data.hasAutoCommission,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       hasAutoDaylightSavings: {
@@ -24105,6 +31507,7 @@ export namespace Company {
           tainted.hasAutoDaylightSavings = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24113,6 +31516,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "hasAutoDaylightSavings",
+            data.hasAutoDaylightSavings,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       hasAutoFmsTracking: {
@@ -24133,6 +31543,7 @@ export namespace Company {
           tainted.hasAutoFmsTracking = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24141,6 +31552,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "hasAutoFmsTracking",
+            data.hasAutoFmsTracking,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       hasNotifications: {
@@ -24161,6 +31579,7 @@ export namespace Company {
           tainted.hasNotifications = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24169,6 +31588,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "hasNotifications",
+            data.hasNotifications,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       hasRequiredLeadSource: {
@@ -24189,6 +31615,7 @@ export namespace Company {
           tainted.hasRequiredLeadSource = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24197,6 +31624,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "hasRequiredLeadSource",
+            data.hasRequiredLeadSource,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       hasRequiredEmail: {
@@ -24217,6 +31651,7 @@ export namespace Company {
           tainted.hasRequiredEmail = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24225,6 +31660,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "hasRequiredEmail",
+            data.hasRequiredEmail,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       hasSortServiceItemsAlphabetically: {
@@ -24245,6 +31687,7 @@ export namespace Company {
           tainted.hasSortServiceItemsAlphabetically = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24253,6 +31696,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "hasSortServiceItemsAlphabetically",
+            data.hasSortServiceItemsAlphabetically,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       hasAttachOrderToAppointmentEmails: {
@@ -24273,6 +31723,7 @@ export namespace Company {
           tainted.hasAttachOrderToAppointmentEmails = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24281,6 +31732,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "hasAttachOrderToAppointmentEmails",
+            data.hasAttachOrderToAppointmentEmails,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       scheduleInterval: {
@@ -24301,6 +31759,7 @@ export namespace Company {
           tainted.scheduleInterval = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24309,6 +31768,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "scheduleInterval",
+            data.scheduleInterval,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       colorsConfig: {
@@ -24329,6 +31795,7 @@ export namespace Company {
           tainted.colorsConfig = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Company.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24337,6 +31804,13 @@ export namespace Company {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Company.validateField(
+            "colorsConfig",
+            data.colorsConfig,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -24788,6 +32262,20 @@ export namespace Ordinal {
     }
     return instance as Ordinal;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Ordinal>(
+    field: K,
+    value: Ordinal[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Ordinal>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Ordinal {
@@ -24813,6 +32301,7 @@ export namespace Ordinal {
       west: Option<boolean>;
       northwest: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -24832,6 +32321,8 @@ export namespace Ordinal {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly north: FieldController<number>;
     readonly northeast: FieldController<number>;
@@ -24894,6 +32385,7 @@ export namespace Ordinal {
           tainted.north = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Ordinal.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24902,6 +32394,10 @@ export namespace Ordinal {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Ordinal.validateField("north", data.north);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       northeast: {
@@ -24922,6 +32418,7 @@ export namespace Ordinal {
           tainted.northeast = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Ordinal.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24930,6 +32427,13 @@ export namespace Ordinal {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Ordinal.validateField(
+            "northeast",
+            data.northeast,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       east: {
@@ -24950,6 +32454,7 @@ export namespace Ordinal {
           tainted.east = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Ordinal.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24958,6 +32463,10 @@ export namespace Ordinal {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Ordinal.validateField("east", data.east);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       southeast: {
@@ -24978,6 +32487,7 @@ export namespace Ordinal {
           tainted.southeast = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Ordinal.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -24986,6 +32496,13 @@ export namespace Ordinal {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Ordinal.validateField(
+            "southeast",
+            data.southeast,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       south: {
@@ -25006,6 +32523,7 @@ export namespace Ordinal {
           tainted.south = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Ordinal.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -25014,6 +32532,10 @@ export namespace Ordinal {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Ordinal.validateField("south", data.south);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       southwest: {
@@ -25034,6 +32556,7 @@ export namespace Ordinal {
           tainted.southwest = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Ordinal.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -25042,6 +32565,13 @@ export namespace Ordinal {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Ordinal.validateField(
+            "southwest",
+            data.southwest,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       west: {
@@ -25062,6 +32592,7 @@ export namespace Ordinal {
           tainted.west = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Ordinal.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -25070,6 +32601,10 @@ export namespace Ordinal {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Ordinal.validateField("west", data.west);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       northwest: {
@@ -25090,6 +32625,7 @@ export namespace Ordinal {
           tainted.northwest = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Ordinal.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -25098,6 +32634,13 @@ export namespace Ordinal {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Ordinal.validateField(
+            "northwest",
+            data.northwest,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -25322,6 +32865,37 @@ export namespace Password {
     }
     return instance as Password;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Password>(
+    field: K,
+    value: Password[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "password": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "password", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Password>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("password" in partial && partial.password !== undefined) {
+      const __val = partial.password as string;
+      if (__val.length === 0) {
+        errors.push({ field: "password", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Password {
@@ -25331,6 +32905,7 @@ export namespace Password {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { password: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -25350,6 +32925,8 @@ export namespace Password {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly password: FieldController<string>;
   }
@@ -25389,6 +32966,7 @@ export namespace Password {
           tainted.password = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Password.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -25397,6 +32975,10 @@ export namespace Password {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Password.validateField("password", data.password);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -25566,6 +33148,20 @@ export namespace Created {
     }
     return instance as Created;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Created>(
+    field: K,
+    value: Created[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Created>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Created {
@@ -25575,6 +33171,7 @@ export namespace Created {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { initialData: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -25594,6 +33191,8 @@ export namespace Created {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly initialData: FieldController<string | null>;
   }
@@ -25633,6 +33232,7 @@ export namespace Created {
           tainted.initialData = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Created.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -25641,6 +33241,13 @@ export namespace Created {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Created.validateField(
+            "initialData",
+            data.initialData,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -25962,6 +33569,7 @@ export namespace Employee {
       const __raw_title = obj["title"];
       if (typeof (JobTitle as any)?.__deserialize === "function") {
         const __result = (JobTitle as any).__deserialize(__raw_title, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "title", __result);
       } else {
         instance.title = __raw_title;
@@ -26857,6 +34465,882 @@ export namespace Employee {
           }
           current[parts[parts.length - 1]] = value;
         }
+=======
+        if (PendingRef.is(__result)) {
+          instance.title = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.title = v;
+          });
+        } else {
+          instance.title = __result;
+        }
+      } else {
+        instance.title = __raw_title;
+      }
+    }
+    {
+      const __raw_email = obj["email"];
+      if (typeof (Email as any)?.__deserialize === "function") {
+        const __result = (Email as any).__deserialize(__raw_email, ctx);
+        if (PendingRef.is(__result)) {
+          instance.email = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.email = v;
+          });
+        } else {
+          instance.email = __result;
+        }
+      } else {
+        instance.email = __raw_email;
+      }
+    }
+    {
+      const __raw_address = obj["address"];
+      instance.address = __raw_address;
+    }
+    {
+      const __raw_username = obj["username"];
+      instance.username = __raw_username;
+    }
+    {
+      const __raw_route = obj["route"];
+      instance.route = __raw_route;
+    }
+    {
+      const __raw_ratePerHour = obj["ratePerHour"];
+      instance.ratePerHour = __raw_ratePerHour;
+    }
+    {
+      const __raw_active = obj["active"];
+      instance.active = __raw_active;
+    }
+    {
+      const __raw_isTechnician = obj["isTechnician"];
+      instance.isTechnician = __raw_isTechnician;
+    }
+    {
+      const __raw_isSalesRep = obj["isSalesRep"];
+      instance.isSalesRep = __raw_isSalesRep;
+    }
+    {
+      const __raw_description = obj["description"];
+      instance.description = __raw_description;
+    }
+    {
+      const __raw_linkedinUrl = obj["linkedinUrl"];
+      instance.linkedinUrl = __raw_linkedinUrl;
+    }
+    {
+      const __raw_attendance = obj["attendance"];
+      instance.attendance = __raw_attendance;
+    }
+    {
+      const __raw_settings = obj["settings"];
+      if (typeof (Settings as any)?.__deserialize === "function") {
+        const __result = (Settings as any).__deserialize(__raw_settings, ctx);
+        if (PendingRef.is(__result)) {
+          instance.settings = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.settings = v;
+          });
+        } else {
+          instance.settings = __result;
+        }
+      } else {
+        instance.settings = __raw_settings;
+      }
+    }
+    if (errors.length > 0) {
+      throw new DeserializeError(errors);
+    }
+    return instance as Employee;
+  }
+  export function validateField<K extends keyof Employee>(
+    field: K,
+    value: Employee[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+      case "role": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "role", message: "must not be empty" });
+        }
+        break;
+      }
+      case "address": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "address", message: "must not be empty" });
+        }
+        break;
+      }
+      case "username": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "username", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Employee>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    if ("role" in partial && partial.role !== undefined) {
+      const __val = partial.role as string;
+      if (__val.length === 0) {
+        errors.push({ field: "role", message: "must not be empty" });
+      }
+    }
+    if ("address" in partial && partial.address !== undefined) {
+      const __val = partial.address as string;
+      if (__val.length === 0) {
+        errors.push({ field: "address", message: "must not be empty" });
+      }
+    }
+    if ("username" in partial && partial.username !== undefined) {
+      const __val = partial.username as string;
+      if (__val.length === 0) {
+        errors.push({ field: "username", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+}
+
+export namespace Employee {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    id: Option<Array<string>>;
+    imageUrl: Option<Array<string>>;
+    name: Option<Array<string>>;
+    phones: Option<Array<string>>;
+    role: Option<Array<string>>;
+    title: Option<Array<string>>;
+    email: Option<Array<string>>;
+    address: Option<Array<string>>;
+    username: Option<Array<string>>;
+    route: Option<Array<string>>;
+    ratePerHour: Option<Array<string>>;
+    active: Option<Array<string>>;
+    isTechnician: Option<Array<string>>;
+    isSalesRep: Option<Array<string>>;
+    description: Option<Array<string>>;
+    linkedinUrl: Option<Array<string>>;
+    attendance: Option<Array<string>>;
+    settings: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    {
+      id: Option<boolean>;
+      imageUrl: Option<boolean>;
+      name: Option<boolean>;
+      phones: Option<boolean>;
+      role: Option<boolean>;
+      title: Option<boolean>;
+      email: Option<boolean>;
+      address: Option<boolean>;
+      username: Option<boolean>;
+      route: Option<boolean>;
+      ratePerHour: Option<boolean>;
+      active: Option<boolean>;
+      isTechnician: Option<boolean>;
+      isSalesRep: Option<boolean>;
+      description: Option<boolean>;
+      linkedinUrl: Option<boolean>;
+      attendance: Option<boolean>;
+      settings: Option<boolean>;
+    };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly id: FieldController<string>;
+    readonly imageUrl: FieldController<string | null>;
+    readonly name: FieldController<string>;
+    readonly phones: ArrayFieldController<PhoneNumber>;
+    readonly role: FieldController<string>;
+    readonly title: FieldController<JobTitle>;
+    readonly email: FieldController<Email>;
+    readonly address: FieldController<string>;
+    readonly username: FieldController<string>;
+    readonly route: FieldController<string | Route>;
+    readonly ratePerHour: FieldController<number>;
+    readonly active: FieldController<boolean>;
+    readonly isTechnician: FieldController<boolean>;
+    readonly isSalesRep: FieldController<boolean>;
+    readonly description: FieldController<string | null>;
+    readonly linkedinUrl: FieldController<string | null>;
+    readonly attendance: ArrayFieldController<string>;
+    readonly settings: FieldController<Settings>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: Employee;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<Employee, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Employee>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<Employee>,
+  ): Gigaform {
+    let data = $state({ ...Employee.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      id: Option.none(),
+      imageUrl: Option.none(),
+      name: Option.none(),
+      phones: Option.none(),
+      role: Option.none(),
+      title: Option.none(),
+      email: Option.none(),
+      address: Option.none(),
+      username: Option.none(),
+      route: Option.none(),
+      ratePerHour: Option.none(),
+      active: Option.none(),
+      isTechnician: Option.none(),
+      isSalesRep: Option.none(),
+      description: Option.none(),
+      linkedinUrl: Option.none(),
+      attendance: Option.none(),
+      settings: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      id: Option.none(),
+      imageUrl: Option.none(),
+      name: Option.none(),
+      phones: Option.none(),
+      role: Option.none(),
+      title: Option.none(),
+      email: Option.none(),
+      address: Option.none(),
+      username: Option.none(),
+      route: Option.none(),
+      ratePerHour: Option.none(),
+      active: Option.none(),
+      isTechnician: Option.none(),
+      isSalesRep: Option.none(),
+      description: Option.none(),
+      linkedinUrl: Option.none(),
+      attendance: Option.none(),
+      settings: Option.none(),
+    });
+    const fields: FieldControllers = {
+      id: {
+        path: ["id"] as const,
+        name: "id",
+        constraints: { required: true },
+
+        get: () => data.id,
+        set: (value: string) => {
+          data.id = value;
+        },
+        getError: () => errors.id,
+        setError: (value: Option<Array<string>>) => {
+          errors.id = value;
+        },
+        getTainted: () => tainted.id,
+        setTainted: (value: Option<boolean>) => {
+          tainted.id = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      imageUrl: {
+        path: ["imageUrl"] as const,
+        name: "imageUrl",
+        constraints: { required: true },
+
+        get: () => data.imageUrl,
+        set: (value: string | null) => {
+          data.imageUrl = value;
+        },
+        getError: () => errors.imageUrl,
+        setError: (value: Option<Array<string>>) => {
+          errors.imageUrl = value;
+        },
+        getTainted: () => tainted.imageUrl,
+        setTainted: (value: Option<boolean>) => {
+          tainted.imageUrl = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField("imageUrl", data.imageUrl);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      name: {
+        path: ["name"] as const,
+        name: "name",
+        constraints: { required: true },
+
+        get: () => data.name,
+        set: (value: string) => {
+          data.name = value;
+        },
+        getError: () => errors.name,
+        setError: (value: Option<Array<string>>) => {
+          errors.name = value;
+        },
+        getTainted: () => tainted.name,
+        setTainted: (value: Option<boolean>) => {
+          tainted.name = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField("name", data.name);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      phones: {
+        path: ["phones"] as const,
+        name: "phones",
+        constraints: { required: true },
+
+        get: () => data.phones,
+        set: (value: PhoneNumber[]) => {
+          data.phones = value;
+        },
+        getError: () => errors.phones,
+        setError: (value: Option<Array<string>>) => {
+          errors.phones = value;
+        },
+        getTainted: () => tainted.phones,
+        setTainted: (value: Option<boolean>) => {
+          tainted.phones = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField("phones", data.phones);
+          return fieldErrors.map((e) => e.message);
+        },
+        at: (index: number) => ({
+          path: ["phones", index] as const,
+          name: `phones.${index}`,
+          constraints: { required: true },
+          get: () => data.phones[index],
+          set: (value: PhoneNumber) => {
+            data.phones[index] = value;
+          },
+          getError: () => errors.phones,
+          setError: (value: Option<Array<string>>) => {
+            errors.phones = value;
+          },
+          getTainted: () => tainted.phones,
+          setTainted: (value: Option<boolean>) => {
+            tainted.phones = value;
+          },
+          validate: (): Array<string> => [],
+        }),
+        push: (item: PhoneNumber) => {
+          data.phones.push(item);
+        },
+        remove: (index: number) => {
+          data.phones.splice(index, 1);
+        },
+        swap: (a: number, b: number) => {
+          [data.phones[a], data.phones[b]] = [data.phones[b], data.phones[a]];
+        },
+      },
+      role: {
+        path: ["role"] as const,
+        name: "role",
+        constraints: { required: true },
+
+        get: () => data.role,
+        set: (value: string) => {
+          data.role = value;
+        },
+        getError: () => errors.role,
+        setError: (value: Option<Array<string>>) => {
+          errors.role = value;
+        },
+        getTainted: () => tainted.role,
+        setTainted: (value: Option<boolean>) => {
+          tainted.role = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField("role", data.role);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      title: {
+        path: ["title"] as const,
+        name: "title",
+        constraints: { required: true },
+
+        get: () => data.title,
+        set: (value: JobTitle) => {
+          data.title = value;
+        },
+        getError: () => errors.title,
+        setError: (value: Option<Array<string>>) => {
+          errors.title = value;
+        },
+        getTainted: () => tainted.title,
+        setTainted: (value: Option<boolean>) => {
+          tainted.title = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField("title", data.title);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      email: {
+        path: ["email"] as const,
+        name: "email",
+        constraints: { required: true },
+
+        get: () => data.email,
+        set: (value: Email) => {
+          data.email = value;
+        },
+        getError: () => errors.email,
+        setError: (value: Option<Array<string>>) => {
+          errors.email = value;
+        },
+        getTainted: () => tainted.email,
+        setTainted: (value: Option<boolean>) => {
+          tainted.email = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField("email", data.email);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      address: {
+        path: ["address"] as const,
+        name: "address",
+        constraints: { required: true },
+
+        get: () => data.address,
+        set: (value: string) => {
+          data.address = value;
+        },
+        getError: () => errors.address,
+        setError: (value: Option<Array<string>>) => {
+          errors.address = value;
+        },
+        getTainted: () => tainted.address,
+        setTainted: (value: Option<boolean>) => {
+          tainted.address = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField("address", data.address);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      username: {
+        path: ["username"] as const,
+        name: "username",
+        constraints: { required: true },
+
+        get: () => data.username,
+        set: (value: string) => {
+          data.username = value;
+        },
+        getError: () => errors.username,
+        setError: (value: Option<Array<string>>) => {
+          errors.username = value;
+        },
+        getTainted: () => tainted.username,
+        setTainted: (value: Option<boolean>) => {
+          tainted.username = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField("username", data.username);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      route: {
+        path: ["route"] as const,
+        name: "route",
+        constraints: { required: true },
+
+        get: () => data.route,
+        set: (value: string | Route) => {
+          data.route = value;
+        },
+        getError: () => errors.route,
+        setError: (value: Option<Array<string>>) => {
+          errors.route = value;
+        },
+        getTainted: () => tainted.route,
+        setTainted: (value: Option<boolean>) => {
+          tainted.route = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField("route", data.route);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      ratePerHour: {
+        path: ["ratePerHour"] as const,
+        name: "ratePerHour",
+        constraints: { required: true },
+
+        get: () => data.ratePerHour,
+        set: (value: number) => {
+          data.ratePerHour = value;
+        },
+        getError: () => errors.ratePerHour,
+        setError: (value: Option<Array<string>>) => {
+          errors.ratePerHour = value;
+        },
+        getTainted: () => tainted.ratePerHour,
+        setTainted: (value: Option<boolean>) => {
+          tainted.ratePerHour = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField(
+            "ratePerHour",
+            data.ratePerHour,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      active: {
+        path: ["active"] as const,
+        name: "active",
+        constraints: { required: true },
+
+        get: () => data.active,
+        set: (value: boolean) => {
+          data.active = value;
+        },
+        getError: () => errors.active,
+        setError: (value: Option<Array<string>>) => {
+          errors.active = value;
+        },
+        getTainted: () => tainted.active,
+        setTainted: (value: Option<boolean>) => {
+          tainted.active = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField("active", data.active);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      isTechnician: {
+        path: ["isTechnician"] as const,
+        name: "isTechnician",
+        constraints: { required: true },
+
+        get: () => data.isTechnician,
+        set: (value: boolean) => {
+          data.isTechnician = value;
+        },
+        getError: () => errors.isTechnician,
+        setError: (value: Option<Array<string>>) => {
+          errors.isTechnician = value;
+        },
+        getTainted: () => tainted.isTechnician,
+        setTainted: (value: Option<boolean>) => {
+          tainted.isTechnician = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField(
+            "isTechnician",
+            data.isTechnician,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      isSalesRep: {
+        path: ["isSalesRep"] as const,
+        name: "isSalesRep",
+        constraints: { required: true },
+
+        get: () => data.isSalesRep,
+        set: (value: boolean) => {
+          data.isSalesRep = value;
+        },
+        getError: () => errors.isSalesRep,
+        setError: (value: Option<Array<string>>) => {
+          errors.isSalesRep = value;
+        },
+        getTainted: () => tainted.isSalesRep,
+        setTainted: (value: Option<boolean>) => {
+          tainted.isSalesRep = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField(
+            "isSalesRep",
+            data.isSalesRep,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      description: {
+        path: ["description"] as const,
+        name: "description",
+        constraints: { required: true },
+
+        get: () => data.description,
+        set: (value: string | null) => {
+          data.description = value;
+        },
+        getError: () => errors.description,
+        setError: (value: Option<Array<string>>) => {
+          errors.description = value;
+        },
+        getTainted: () => tainted.description,
+        setTainted: (value: Option<boolean>) => {
+          tainted.description = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField(
+            "description",
+            data.description,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      linkedinUrl: {
+        path: ["linkedinUrl"] as const,
+        name: "linkedinUrl",
+        constraints: { required: true },
+
+        get: () => data.linkedinUrl,
+        set: (value: string | null) => {
+          data.linkedinUrl = value;
+        },
+        getError: () => errors.linkedinUrl,
+        setError: (value: Option<Array<string>>) => {
+          errors.linkedinUrl = value;
+        },
+        getTainted: () => tainted.linkedinUrl,
+        setTainted: (value: Option<boolean>) => {
+          tainted.linkedinUrl = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField(
+            "linkedinUrl",
+            data.linkedinUrl,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      attendance: {
+        path: ["attendance"] as const,
+        name: "attendance",
+        constraints: { required: true },
+
+        get: () => data.attendance,
+        set: (value: string[]) => {
+          data.attendance = value;
+        },
+        getError: () => errors.attendance,
+        setError: (value: Option<Array<string>>) => {
+          errors.attendance = value;
+        },
+        getTainted: () => tainted.attendance,
+        setTainted: (value: Option<boolean>) => {
+          tainted.attendance = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField(
+            "attendance",
+            data.attendance,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+        at: (index: number) => ({
+          path: ["attendance", index] as const,
+          name: `attendance.${index}`,
+          constraints: { required: true },
+          get: () => data.attendance[index],
+          set: (value: string) => {
+            data.attendance[index] = value;
+          },
+          getError: () => errors.attendance,
+          setError: (value: Option<Array<string>>) => {
+            errors.attendance = value;
+          },
+          getTainted: () => tainted.attendance,
+          setTainted: (value: Option<boolean>) => {
+            tainted.attendance = value;
+          },
+          validate: (): Array<string> => [],
+        }),
+        push: (item: string) => {
+          data.attendance.push(item);
+        },
+        remove: (index: number) => {
+          data.attendance.splice(index, 1);
+        },
+        swap: (a: number, b: number) => {
+          [data.attendance[a], data.attendance[b]] = [
+            data.attendance[b],
+            data.attendance[a],
+          ];
+        },
+      },
+      settings: {
+        path: ["settings"] as const,
+        name: "settings",
+        constraints: { required: true },
+
+        get: () => data.settings,
+        set: (value: Settings) => {
+          data.settings = value;
+        },
+        getError: () => errors.settings,
+        setError: (value: Option<Array<string>>) => {
+          errors.settings = value;
+        },
+        getTainted: () => tainted.settings,
+        setTainted: (value: Option<boolean>) => {
+          tainted.settings = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Employee.validateField("settings", data.settings);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+    };
+    function validate(): Result<
+      Employee,
+      Array<{ field: string; message: string }>
+    > {
+      return Employee.fromObject(data);
+    }
+    function reset(newOverrides?: Partial<Employee>): void {
+      data = { ...Employee.defaultValue(), ...newOverrides };
+      errors = {
+        _errors: Option.none(),
+        id: Option.none(),
+        imageUrl: Option.none(),
+        name: Option.none(),
+        phones: Option.none(),
+        role: Option.none(),
+        title: Option.none(),
+        email: Option.none(),
+        address: Option.none(),
+        username: Option.none(),
+        route: Option.none(),
+        ratePerHour: Option.none(),
+        active: Option.none(),
+        isTechnician: Option.none(),
+        isSalesRep: Option.none(),
+        description: Option.none(),
+        linkedinUrl: Option.none(),
+        attendance: Option.none(),
+        settings: Option.none(),
+      };
+      tainted = {
+        id: Option.none(),
+        imageUrl: Option.none(),
+        name: Option.none(),
+        phones: Option.none(),
+        role: Option.none(),
+        title: Option.none(),
+        email: Option.none(),
+        address: Option.none(),
+        username: Option.none(),
+        route: Option.none(),
+        ratePerHour: Option.none(),
+        active: Option.none(),
+        isTechnician: Option.none(),
+        isSalesRep: Option.none(),
+        description: Option.none(),
+        linkedinUrl: Option.none(),
+        attendance: Option.none(),
+        settings: Option.none(),
+      };
+    }
+    return {
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      fields,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<Employee, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+    obj.id = formData.get("id") ?? "";
+    obj.imageUrl = formData.get("imageUrl") ?? "";
+    obj.name = formData.get("name") ?? "";
+    {
+      // Collect array items from indexed form fields
+      const phonesItems: Array<Record<string, unknown>> = [];
+      let idx = 0;
+      while (formData.has("phones." + idx + ".") || idx === 0) {
+        // Check if any field with this index exists
+        const hasAny = Array.from(formData.keys()).some((k) =>
+          k.startsWith("phones." + idx + "."),
+        );
+        if (!hasAny && idx > 0) break;
+        if (hasAny) {
+          const item: Record<string, unknown> = {};
+          for (const [key, value] of formData.entries()) {
+            if (key.startsWith("phones." + idx + ".")) {
+              const fieldName = key.slice(
+                "phones.".length + String(idx).length + 1,
+              );
+              item[fieldName] = value;
+            }
+          }
+          phonesItems.push(item);
+        }
+        idx++;
+        if (idx > 1000) break; // Safety limit
+      }
+      obj.phones = phonesItems;
+    }
+    obj.role = formData.get("role") ?? "";
+    {
+      // Collect nested object fields with prefix "title."
+      const titleObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("title.")) {
+          const fieldName = key.slice("title.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = titleObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+>>>>>>> Stashed changes
       }
       obj.title = titleObj;
     }
@@ -27065,6 +35549,50 @@ export namespace Commissions {
     }
     return instance as Commissions;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Commissions>(
+    field: K,
+    value: Commissions[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "technician": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "technician", message: "must not be empty" });
+        }
+        break;
+      }
+      case "salesRep": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "salesRep", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Commissions>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("technician" in partial && partial.technician !== undefined) {
+      const __val = partial.technician as string;
+      if (__val.length === 0) {
+        errors.push({ field: "technician", message: "must not be empty" });
+      }
+    }
+    if ("salesRep" in partial && partial.salesRep !== undefined) {
+      const __val = partial.salesRep as string;
+      if (__val.length === 0) {
+        errors.push({ field: "salesRep", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Commissions {
@@ -27075,6 +35603,7 @@ export namespace Commissions {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { technician: Option<boolean>; salesRep: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -27094,6 +35623,8 @@ export namespace Commissions {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly technician: FieldController<string>;
     readonly salesRep: FieldController<string>;
@@ -27138,6 +35669,7 @@ export namespace Commissions {
           tainted.technician = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Commissions.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -27146,6 +35678,13 @@ export namespace Commissions {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Commissions.validateField(
+            "technician",
+            data.technician,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       salesRep: {
@@ -27166,6 +35705,7 @@ export namespace Commissions {
           tainted.salesRep = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Commissions.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -27174,6 +35714,13 @@ export namespace Commissions {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Commissions.validateField(
+            "salesRep",
+            data.salesRep,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -27358,6 +35905,63 @@ export namespace Number {
     }
     return instance as Number;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Number>(
+    field: K,
+    value: Number[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "countryCode": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "countryCode", message: "must not be empty" });
+        }
+        break;
+      }
+      case "areaCode": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "areaCode", message: "must not be empty" });
+        }
+        break;
+      }
+      case "localNumber": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "localNumber", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Number>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("countryCode" in partial && partial.countryCode !== undefined) {
+      const __val = partial.countryCode as string;
+      if (__val.length === 0) {
+        errors.push({ field: "countryCode", message: "must not be empty" });
+      }
+    }
+    if ("areaCode" in partial && partial.areaCode !== undefined) {
+      const __val = partial.areaCode as string;
+      if (__val.length === 0) {
+        errors.push({ field: "areaCode", message: "must not be empty" });
+      }
+    }
+    if ("localNumber" in partial && partial.localNumber !== undefined) {
+      const __val = partial.localNumber as string;
+      if (__val.length === 0) {
+        errors.push({ field: "localNumber", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Number {
@@ -27373,6 +35977,7 @@ export namespace Number {
       areaCode: Option<boolean>;
       localNumber: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -27392,6 +35997,8 @@ export namespace Number {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly countryCode: FieldController<string>;
     readonly areaCode: FieldController<string>;
@@ -27439,6 +36046,7 @@ export namespace Number {
           tainted.countryCode = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Number.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -27447,6 +36055,13 @@ export namespace Number {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Number.validateField(
+            "countryCode",
+            data.countryCode,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       areaCode: {
@@ -27467,6 +36082,7 @@ export namespace Number {
           tainted.areaCode = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Number.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -27475,6 +36091,10 @@ export namespace Number {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Number.validateField("areaCode", data.areaCode);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       localNumber: {
@@ -27495,6 +36115,7 @@ export namespace Number {
           tainted.localNumber = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Number.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -27503,6 +36124,13 @@ export namespace Number {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Number.validateField(
+            "localNumber",
+            data.localNumber,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -27694,6 +36322,20 @@ export namespace DataPath {
     }
     return instance as DataPath;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof DataPath>(
+    field: K,
+    value: DataPath[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<DataPath>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace DataPath {
@@ -27704,6 +36346,7 @@ export namespace DataPath {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { path: Option<boolean>; formatter: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -27723,6 +36366,8 @@ export namespace DataPath {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly path: ArrayFieldController<string>;
     readonly formatter: FieldController<string | null>;
@@ -27767,6 +36412,7 @@ export namespace DataPath {
           tainted.path = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = DataPath.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -27775,6 +36421,10 @@ export namespace DataPath {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = DataPath.validateField("path", data.path);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["path", index] as const,
@@ -27822,6 +36472,7 @@ export namespace DataPath {
           tainted.formatter = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = DataPath.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -27830,6 +36481,13 @@ export namespace DataPath {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = DataPath.validateField(
+            "formatter",
+            data.formatter,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -28125,6 +36783,63 @@ export namespace Route {
     }
     return instance as Route;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Route>(
+    field: K,
+    value: Route[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+      case "phone": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "phone", message: "must not be empty" });
+        }
+        break;
+      }
+      case "position": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "position", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Route>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    if ("phone" in partial && partial.phone !== undefined) {
+      const __val = partial.phone as string;
+      if (__val.length === 0) {
+        errors.push({ field: "phone", message: "must not be empty" });
+      }
+    }
+    if ("position" in partial && partial.position !== undefined) {
+      const __val = partial.position as string;
+      if (__val.length === 0) {
+        errors.push({ field: "position", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Route {
@@ -28156,6 +36871,7 @@ export namespace Route {
       icon: Option<boolean>;
       color: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -28175,6 +36891,8 @@ export namespace Route {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly id: FieldController<string>;
     readonly techs: FieldController<(string | Employee)[] | null>;
@@ -28246,6 +36964,7 @@ export namespace Route {
           tainted.id = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Route.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -28254,6 +36973,10 @@ export namespace Route {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Route.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       techs: {
@@ -28274,6 +36997,7 @@ export namespace Route {
           tainted.techs = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Route.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -28282,6 +37006,10 @@ export namespace Route {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Route.validateField("techs", data.techs);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       active: {
@@ -28302,6 +37030,7 @@ export namespace Route {
           tainted.active = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Route.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -28310,6 +37039,10 @@ export namespace Route {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Route.validateField("active", data.active);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       name: {
@@ -28330,6 +37063,7 @@ export namespace Route {
           tainted.name = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Route.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -28338,6 +37072,10 @@ export namespace Route {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Route.validateField("name", data.name);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       phone: {
@@ -28358,6 +37096,7 @@ export namespace Route {
           tainted.phone = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Route.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -28366,6 +37105,10 @@ export namespace Route {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Route.validateField("phone", data.phone);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       position: {
@@ -28386,6 +37129,7 @@ export namespace Route {
           tainted.position = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Route.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -28394,6 +37138,10 @@ export namespace Route {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Route.validateField("position", data.position);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       serviceRoute: {
@@ -28414,6 +37162,7 @@ export namespace Route {
           tainted.serviceRoute = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Route.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -28422,6 +37171,13 @@ export namespace Route {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Route.validateField(
+            "serviceRoute",
+            data.serviceRoute,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       defaultDurationHours: {
@@ -28442,6 +37198,7 @@ export namespace Route {
           tainted.defaultDurationHours = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Route.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -28450,6 +37207,13 @@ export namespace Route {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Route.validateField(
+            "defaultDurationHours",
+            data.defaultDurationHours,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       tags: {
@@ -28470,6 +37234,7 @@ export namespace Route {
           tainted.tags = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Route.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -28478,6 +37243,10 @@ export namespace Route {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Route.validateField("tags", data.tags);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
         at: (index: number) => ({
           path: ["tags", index] as const,
@@ -28525,6 +37294,7 @@ export namespace Route {
           tainted.icon = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Route.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -28533,6 +37303,10 @@ export namespace Route {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Route.validateField("icon", data.icon);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       color: {
@@ -28553,6 +37327,7 @@ export namespace Route {
           tainted.color = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Route.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -28561,6 +37336,10 @@ export namespace Route {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Route.validateField("color", data.color);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -28802,6 +37581,66 @@ export namespace EmailParts {
     }
     return instance as EmailParts;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof EmailParts>(
+    field: K,
+    value: EmailParts[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "local": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "local", message: "must not be empty" });
+        }
+        break;
+      }
+      case "domainName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "domainName", message: "must not be empty" });
+        }
+        break;
+      }
+      case "topLevelDomain": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "topLevelDomain",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<EmailParts>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("local" in partial && partial.local !== undefined) {
+      const __val = partial.local as string;
+      if (__val.length === 0) {
+        errors.push({ field: "local", message: "must not be empty" });
+      }
+    }
+    if ("domainName" in partial && partial.domainName !== undefined) {
+      const __val = partial.domainName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "domainName", message: "must not be empty" });
+      }
+    }
+    if ("topLevelDomain" in partial && partial.topLevelDomain !== undefined) {
+      const __val = partial.topLevelDomain as string;
+      if (__val.length === 0) {
+        errors.push({ field: "topLevelDomain", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace EmailParts {
@@ -28817,6 +37656,7 @@ export namespace EmailParts {
       domainName: Option<boolean>;
       topLevelDomain: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -28836,6 +37676,8 @@ export namespace EmailParts {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly local: FieldController<string>;
     readonly domainName: FieldController<string>;
@@ -28883,6 +37725,7 @@ export namespace EmailParts {
           tainted.local = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = EmailParts.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -28891,6 +37734,10 @@ export namespace EmailParts {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = EmailParts.validateField("local", data.local);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       domainName: {
@@ -28911,6 +37758,7 @@ export namespace EmailParts {
           tainted.domainName = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = EmailParts.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -28919,6 +37767,13 @@ export namespace EmailParts {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = EmailParts.validateField(
+            "domainName",
+            data.domainName,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       topLevelDomain: {
@@ -28939,6 +37794,7 @@ export namespace EmailParts {
           tainted.topLevelDomain = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = EmailParts.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -28947,6 +37803,13 @@ export namespace EmailParts {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = EmailParts.validateField(
+            "topLevelDomain",
+            data.topLevelDomain,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -29140,6 +38003,20 @@ export namespace Sent {
     }
     return instance as Sent;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Sent>(
+    field: K,
+    value: Sent[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Sent>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Sent {
@@ -29150,6 +38027,7 @@ export namespace Sent {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { recipient: Option<boolean>; method: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -29169,6 +38047,8 @@ export namespace Sent {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly recipient: FieldController<string | null>;
     readonly method: FieldController<string | null>;
@@ -29213,6 +38093,7 @@ export namespace Sent {
           tainted.recipient = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Sent.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -29221,6 +38102,10 @@ export namespace Sent {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Sent.validateField("recipient", data.recipient);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       method: {
@@ -29241,6 +38126,7 @@ export namespace Sent {
           tainted.method = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Sent.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -29249,6 +38135,10 @@ export namespace Sent {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Sent.validateField("method", data.method);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -29303,8 +38193,16 @@ export namespace Sent {
 
 export interface BilledItem {
   item: Item;
+<<<<<<< Updated upstream
   quantity: number;
   taxed: boolean;
+=======
+
+  quantity: number;
+
+  taxed: boolean;
+
+>>>>>>> Stashed changes
   upsale: boolean;
 }
 
@@ -29430,6 +38328,7 @@ export namespace BilledItem {
       const __raw_item = obj["item"];
       if (typeof (Item as any)?.__deserialize === "function") {
         const __result = (Item as any).__deserialize(__raw_item, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "item", __result);
       } else {
         instance.item = __raw_item;
@@ -29701,6 +38600,257 @@ export namespace BilledItem {
           }
           current[parts[parts.length - 1]] = value;
         }
+=======
+        if (PendingRef.is(__result)) {
+          instance.item = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.item = v;
+          });
+        } else {
+          instance.item = __result;
+        }
+      } else {
+        instance.item = __raw_item;
+      }
+    }
+    {
+      const __raw_quantity = obj["quantity"];
+      instance.quantity = __raw_quantity;
+    }
+    {
+      const __raw_taxed = obj["taxed"];
+      instance.taxed = __raw_taxed;
+    }
+    {
+      const __raw_upsale = obj["upsale"];
+      instance.upsale = __raw_upsale;
+    }
+    if (errors.length > 0) {
+      throw new DeserializeError(errors);
+    }
+    return instance as BilledItem;
+  }
+  export function validateField<K extends keyof BilledItem>(
+    field: K,
+    value: BilledItem[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<BilledItem>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+}
+
+export namespace BilledItem {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    item: Option<Array<string>>;
+    quantity: Option<Array<string>>;
+    taxed: Option<Array<string>>;
+    upsale: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    {
+      item: Option<boolean>;
+      quantity: Option<boolean>;
+      taxed: Option<boolean>;
+      upsale: Option<boolean>;
+    };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly item: FieldController<Item>;
+    readonly quantity: FieldController<number>;
+    readonly taxed: FieldController<boolean>;
+    readonly upsale: FieldController<boolean>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: BilledItem;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<BilledItem, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<BilledItem>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<BilledItem>,
+  ): Gigaform {
+    let data = $state({ ...BilledItem.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      item: Option.none(),
+      quantity: Option.none(),
+      taxed: Option.none(),
+      upsale: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      item: Option.none(),
+      quantity: Option.none(),
+      taxed: Option.none(),
+      upsale: Option.none(),
+    });
+    const fields: FieldControllers = {
+      item: {
+        path: ["item"] as const,
+        name: "item",
+        constraints: { required: true },
+        label: "Item",
+        get: () => data.item,
+        set: (value: Item) => {
+          data.item = value;
+        },
+        getError: () => errors.item,
+        setError: (value: Option<Array<string>>) => {
+          errors.item = value;
+        },
+        getTainted: () => tainted.item,
+        setTainted: (value: Option<boolean>) => {
+          tainted.item = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = BilledItem.validateField("item", data.item);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      quantity: {
+        path: ["quantity"] as const,
+        name: "quantity",
+        constraints: { required: true },
+        label: "Quantity",
+        get: () => data.quantity,
+        set: (value: number) => {
+          data.quantity = value;
+        },
+        getError: () => errors.quantity,
+        setError: (value: Option<Array<string>>) => {
+          errors.quantity = value;
+        },
+        getTainted: () => tainted.quantity,
+        setTainted: (value: Option<boolean>) => {
+          tainted.quantity = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = BilledItem.validateField(
+            "quantity",
+            data.quantity,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      taxed: {
+        path: ["taxed"] as const,
+        name: "taxed",
+        constraints: { required: true },
+        label: "Taxed",
+        get: () => data.taxed,
+        set: (value: boolean) => {
+          data.taxed = value;
+        },
+        getError: () => errors.taxed,
+        setError: (value: Option<Array<string>>) => {
+          errors.taxed = value;
+        },
+        getTainted: () => tainted.taxed,
+        setTainted: (value: Option<boolean>) => {
+          tainted.taxed = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = BilledItem.validateField("taxed", data.taxed);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      upsale: {
+        path: ["upsale"] as const,
+        name: "upsale",
+        constraints: { required: true },
+        label: "Upsale",
+        get: () => data.upsale,
+        set: (value: boolean) => {
+          data.upsale = value;
+        },
+        getError: () => errors.upsale,
+        setError: (value: Option<Array<string>>) => {
+          errors.upsale = value;
+        },
+        getTainted: () => tainted.upsale,
+        setTainted: (value: Option<boolean>) => {
+          tainted.upsale = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = BilledItem.validateField("upsale", data.upsale);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+    };
+    function validate(): Result<
+      BilledItem,
+      Array<{ field: string; message: string }>
+    > {
+      return BilledItem.fromObject(data);
+    }
+    function reset(newOverrides?: Partial<BilledItem>): void {
+      data = { ...BilledItem.defaultValue(), ...newOverrides };
+      errors = {
+        _errors: Option.none(),
+        item: Option.none(),
+        quantity: Option.none(),
+        taxed: Option.none(),
+        upsale: Option.none(),
+      };
+      tainted = {
+        item: Option.none(),
+        quantity: Option.none(),
+        taxed: Option.none(),
+        upsale: Option.none(),
+      };
+    }
+    return {
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      fields,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<BilledItem, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+    {
+      // Collect nested object fields with prefix "item."
+      const itemObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("item.")) {
+          const fieldName = key.slice("item.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = itemObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+>>>>>>> Stashed changes
       }
       obj.item = itemObj;
     }
@@ -29848,6 +38998,20 @@ export namespace Coordinates {
     }
     return instance as Coordinates;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Coordinates>(
+    field: K,
+    value: Coordinates[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Coordinates>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Coordinates {
@@ -29858,6 +39022,7 @@ export namespace Coordinates {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { lat: Option<boolean>; lng: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -29877,6 +39042,8 @@ export namespace Coordinates {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly lat: FieldController<number>;
     readonly lng: FieldController<number>;
@@ -29918,6 +39085,7 @@ export namespace Coordinates {
           tainted.lat = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Coordinates.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -29926,6 +39094,10 @@ export namespace Coordinates {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Coordinates.validateField("lat", data.lat);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       lng: {
@@ -29946,6 +39118,7 @@ export namespace Coordinates {
           tainted.lng = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Coordinates.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -29954,6 +39127,10 @@ export namespace Coordinates {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Coordinates.validateField("lng", data.lng);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -30158,6 +39335,20 @@ export namespace Ordered {
     }
     return instance as Ordered;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Ordered>(
+    field: K,
+    value: Ordered[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Ordered>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Ordered {
@@ -30175,6 +39366,7 @@ export namespace Ordered {
       out: Option<boolean>;
       date: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -30194,6 +39386,8 @@ export namespace Ordered {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly id: FieldController<string>;
     readonly in: FieldController<string | Account>;
@@ -30244,6 +39438,7 @@ export namespace Ordered {
           tainted.id = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Ordered.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -30252,6 +39447,10 @@ export namespace Ordered {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Ordered.validateField("id", data.id);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       in: {
@@ -30272,6 +39471,7 @@ export namespace Ordered {
           tainted.in = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Ordered.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -30280,6 +39480,10 @@ export namespace Ordered {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Ordered.validateField("in", data.in);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       out: {
@@ -30300,6 +39504,7 @@ export namespace Ordered {
           tainted.out = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Ordered.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -30308,6 +39513,10 @@ export namespace Ordered {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Ordered.validateField("out", data.out);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       date: {
@@ -30328,6 +39537,7 @@ export namespace Ordered {
           tainted.date = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Ordered.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -30336,6 +39546,10 @@ export namespace Ordered {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Ordered.validateField("date", data.date);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -30519,6 +39733,7 @@ export namespace Email {
     }
     return instance as Email;
   }
+<<<<<<< Updated upstream
 }
 
 export namespace Email {
@@ -30607,6 +39822,110 @@ export namespace Email {
         name: "emailString",
         constraints: { required: true },
 
+=======
+  export function validateField<K extends keyof Email>(
+    field: K,
+    value: Email[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "emailString": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "emailString", message: "must not be empty" });
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
+          errors.push({
+            field: "emailString",
+            message: "must be a valid email",
+          });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Email>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("emailString" in partial && partial.emailString !== undefined) {
+      const __val = partial.emailString as string;
+      if (__val.length === 0) {
+        errors.push({ field: "emailString", message: "must not be empty" });
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
+        errors.push({ field: "emailString", message: "must be a valid email" });
+      }
+    }
+    return errors;
+  }
+}
+
+export namespace Email {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    canEmail: Option<Array<string>>;
+    emailString: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    { canEmail: Option<boolean>; emailString: Option<boolean> };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly canEmail: FieldController<boolean>;
+    readonly emailString: FieldController<string>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: Email;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<Email, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Email>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<Email>,
+  ): Gigaform {
+    let data = $state({ ...Email.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      canEmail: Option.none(),
+      emailString: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      canEmail: Option.none(),
+      emailString: Option.none(),
+    });
+    const fields: FieldControllers = {
+      canEmail: {
+        path: ["canEmail"] as const,
+        name: "canEmail",
+        constraints: { required: true },
+        label: "Can Email",
+        get: () => data.canEmail,
+        set: (value: boolean) => {
+          data.canEmail = value;
+        },
+        getError: () => errors.canEmail,
+        setError: (value: Option<Array<string>>) => {
+          errors.canEmail = value;
+        },
+        getTainted: () => tainted.canEmail,
+        setTainted: (value: Option<boolean>) => {
+          tainted.canEmail = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = Email.validateField("canEmail", data.canEmail);
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      emailString: {
+        path: ["emailString"] as const,
+        name: "emailString",
+        constraints: { required: true, type: "email" },
+        label: "Email",
+>>>>>>> Stashed changes
         get: () => data.emailString,
         set: (value: string) => {
           data.emailString = value;
@@ -30620,6 +39939,7 @@ export namespace Email {
           tainted.emailString = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Email.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -30628,6 +39948,13 @@ export namespace Email {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Email.validateField(
+            "emailString",
+            data.emailString,
+          );
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -30857,6 +40184,7 @@ export namespace RecurrenceRule {
       const __raw_interval = obj["interval"];
       if (typeof (Interval as any)?.__deserialize === "function") {
         const __result = (Interval as any).__deserialize(__raw_interval, ctx);
+<<<<<<< Updated upstream
         ctx.assignOrDefer(instance, "interval", __result);
       } else {
         instance.interval = __raw_interval;
@@ -31170,6 +40498,305 @@ export namespace RecurrenceRule {
           }
           current[parts[parts.length - 1]] = value;
         }
+=======
+        if (PendingRef.is(__result)) {
+          instance.interval = null;
+          ctx.deferPatch(__result.id, (v) => {
+            instance.interval = v;
+          });
+        } else {
+          instance.interval = __result;
+        }
+      } else {
+        instance.interval = __raw_interval;
+      }
+    }
+    {
+      const __raw_recurrenceBegins = obj["recurrenceBegins"];
+      instance.recurrenceBegins = __raw_recurrenceBegins;
+    }
+    {
+      const __raw_recurrenceEnds = obj["recurrenceEnds"];
+      instance.recurrenceEnds = __raw_recurrenceEnds;
+    }
+    {
+      const __raw_cancelledInstances = obj["cancelledInstances"];
+      instance.cancelledInstances = __raw_cancelledInstances;
+    }
+    {
+      const __raw_additionalInstances = obj["additionalInstances"];
+      instance.additionalInstances = __raw_additionalInstances;
+    }
+    if (errors.length > 0) {
+      throw new DeserializeError(errors);
+    }
+    return instance as RecurrenceRule;
+  }
+  export function validateField<K extends keyof RecurrenceRule>(
+    field: K,
+    value: RecurrenceRule[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<RecurrenceRule>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+}
+
+export namespace RecurrenceRule {
+  /** Nested error structure matching the data shape */ export type Errors = {
+    _errors: Option<Array<string>>;
+    interval: Option<Array<string>>;
+    recurrenceBegins: Option<Array<string>>;
+    recurrenceEnds: Option<Array<string>>;
+    cancelledInstances: Option<Array<string>>;
+    additionalInstances: Option<Array<string>>;
+  };
+  /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
+    {
+      interval: Option<boolean>;
+      recurrenceBegins: Option<boolean>;
+      recurrenceEnds: Option<boolean>;
+      cancelledInstances: Option<boolean>;
+      additionalInstances: Option<boolean>;
+    };
+  /** Type-safe field controllers for this form */ export interface FieldControllers {
+    readonly interval: FieldController<Interval>;
+    readonly recurrenceBegins: FieldController<string>;
+    readonly recurrenceEnds: FieldController<RecurrenceEnd | null>;
+    readonly cancelledInstances: FieldController<string[] | null>;
+    readonly additionalInstances: FieldController<string[] | null>;
+  }
+  /** Gigaform instance containing reactive state and field controllers */ export interface Gigaform {
+    readonly data: RecurrenceRule;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly fields: FieldControllers;
+    validate(): Result<
+      RecurrenceRule,
+      Array<{ field: string; message: string }>
+    >;
+    reset(overrides?: Partial<RecurrenceRule>): void;
+  }
+  /** Creates a new Gigaform instance with reactive state and field controllers. */ export function createForm(
+    overrides?: Partial<RecurrenceRule>,
+  ): Gigaform {
+    let data = $state({ ...RecurrenceRule.defaultValue(), ...overrides });
+    let errors = $state<Errors>({
+      _errors: Option.none(),
+      interval: Option.none(),
+      recurrenceBegins: Option.none(),
+      recurrenceEnds: Option.none(),
+      cancelledInstances: Option.none(),
+      additionalInstances: Option.none(),
+    });
+    let tainted = $state<Tainted>({
+      interval: Option.none(),
+      recurrenceBegins: Option.none(),
+      recurrenceEnds: Option.none(),
+      cancelledInstances: Option.none(),
+      additionalInstances: Option.none(),
+    });
+    const fields: FieldControllers = {
+      interval: {
+        path: ["interval"] as const,
+        name: "interval",
+        constraints: { required: true },
+
+        get: () => data.interval,
+        set: (value: Interval) => {
+          data.interval = value;
+        },
+        getError: () => errors.interval,
+        setError: (value: Option<Array<string>>) => {
+          errors.interval = value;
+        },
+        getTainted: () => tainted.interval,
+        setTainted: (value: Option<boolean>) => {
+          tainted.interval = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = RecurrenceRule.validateField(
+            "interval",
+            data.interval,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      recurrenceBegins: {
+        path: ["recurrenceBegins"] as const,
+        name: "recurrenceBegins",
+        constraints: { required: true },
+
+        get: () => data.recurrenceBegins,
+        set: (value: string) => {
+          data.recurrenceBegins = value;
+        },
+        getError: () => errors.recurrenceBegins,
+        setError: (value: Option<Array<string>>) => {
+          errors.recurrenceBegins = value;
+        },
+        getTainted: () => tainted.recurrenceBegins,
+        setTainted: (value: Option<boolean>) => {
+          tainted.recurrenceBegins = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = RecurrenceRule.validateField(
+            "recurrenceBegins",
+            data.recurrenceBegins,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      recurrenceEnds: {
+        path: ["recurrenceEnds"] as const,
+        name: "recurrenceEnds",
+        constraints: { required: true },
+
+        get: () => data.recurrenceEnds,
+        set: (value: RecurrenceEnd | null) => {
+          data.recurrenceEnds = value;
+        },
+        getError: () => errors.recurrenceEnds,
+        setError: (value: Option<Array<string>>) => {
+          errors.recurrenceEnds = value;
+        },
+        getTainted: () => tainted.recurrenceEnds,
+        setTainted: (value: Option<boolean>) => {
+          tainted.recurrenceEnds = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = RecurrenceRule.validateField(
+            "recurrenceEnds",
+            data.recurrenceEnds,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      cancelledInstances: {
+        path: ["cancelledInstances"] as const,
+        name: "cancelledInstances",
+        constraints: { required: true },
+
+        get: () => data.cancelledInstances,
+        set: (value: string[] | null) => {
+          data.cancelledInstances = value;
+        },
+        getError: () => errors.cancelledInstances,
+        setError: (value: Option<Array<string>>) => {
+          errors.cancelledInstances = value;
+        },
+        getTainted: () => tainted.cancelledInstances,
+        setTainted: (value: Option<boolean>) => {
+          tainted.cancelledInstances = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = RecurrenceRule.validateField(
+            "cancelledInstances",
+            data.cancelledInstances,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+      additionalInstances: {
+        path: ["additionalInstances"] as const,
+        name: "additionalInstances",
+        constraints: { required: true },
+
+        get: () => data.additionalInstances,
+        set: (value: string[] | null) => {
+          data.additionalInstances = value;
+        },
+        getError: () => errors.additionalInstances,
+        setError: (value: Option<Array<string>>) => {
+          errors.additionalInstances = value;
+        },
+        getTainted: () => tainted.additionalInstances,
+        setTainted: (value: Option<boolean>) => {
+          tainted.additionalInstances = value;
+        },
+        validate: (): Array<string> => {
+          const fieldErrors = RecurrenceRule.validateField(
+            "additionalInstances",
+            data.additionalInstances,
+          );
+          return fieldErrors.map((e) => e.message);
+        },
+      },
+    };
+    function validate(): Result<
+      RecurrenceRule,
+      Array<{ field: string; message: string }>
+    > {
+      return RecurrenceRule.fromObject(data);
+    }
+    function reset(newOverrides?: Partial<RecurrenceRule>): void {
+      data = { ...RecurrenceRule.defaultValue(), ...newOverrides };
+      errors = {
+        _errors: Option.none(),
+        interval: Option.none(),
+        recurrenceBegins: Option.none(),
+        recurrenceEnds: Option.none(),
+        cancelledInstances: Option.none(),
+        additionalInstances: Option.none(),
+      };
+      tainted = {
+        interval: Option.none(),
+        recurrenceBegins: Option.none(),
+        recurrenceEnds: Option.none(),
+        cancelledInstances: Option.none(),
+        additionalInstances: Option.none(),
+      };
+    }
+    return {
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      fields,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */ export function fromFormData(
+    formData: FormData,
+  ): Result<RecurrenceRule, Array<{ field: string; message: string }>> {
+    const obj: Record<string, unknown> = {};
+    {
+      // Collect nested object fields with prefix "interval."
+      const intervalObj: Record<string, unknown> = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("interval.")) {
+          const fieldName = key.slice("interval.".length);
+          // Handle deeper nesting by splitting on dots
+          const parts = fieldName.split(".");
+          let current = intervalObj;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+              current[part] = {};
+            }
+            current = current[part] as Record<string, unknown>;
+          }
+          current[parts[parts.length - 1]] = value;
+        }
+>>>>>>> Stashed changes
       }
       obj.interval = intervalObj;
     }
@@ -31296,6 +40923,37 @@ export namespace LastName {
     }
     return instance as LastName;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof LastName>(
+    field: K,
+    value: LastName[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<LastName>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    return errors;
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace LastName {
@@ -31305,6 +40963,7 @@ export namespace LastName {
   };
   /** Nested boolean structure for tracking touched/dirty fields */ export type Tainted =
     { name: Option<boolean> };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -31324,6 +40983,8 @@ export namespace LastName {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly name: FieldController<string>;
   }
@@ -31363,6 +41024,7 @@ export namespace LastName {
           tainted.name = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = LastName.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -31371,6 +41033,10 @@ export namespace LastName {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = LastName.validateField("name", data.name);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -31560,6 +41226,20 @@ export namespace Cardinal {
     }
     return instance as Cardinal;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Cardinal>(
+    field: K,
+    value: Cardinal[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Cardinal>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Cardinal {
@@ -31577,6 +41257,7 @@ export namespace Cardinal {
       south: Option<boolean>;
       west: Option<boolean>;
     };
+<<<<<<< Updated upstream
   /** Field controller interface for a single field */ export interface FieldController<
     T,
   > {
@@ -31596,6 +41277,8 @@ export namespace Cardinal {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Type-safe field controllers for this form */ export interface FieldControllers {
     readonly north: FieldController<number>;
     readonly east: FieldController<number>;
@@ -31646,6 +41329,7 @@ export namespace Cardinal {
           tainted.north = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Cardinal.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -31654,6 +41338,10 @@ export namespace Cardinal {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Cardinal.validateField("north", data.north);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       east: {
@@ -31674,6 +41362,7 @@ export namespace Cardinal {
           tainted.east = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Cardinal.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -31682,6 +41371,10 @@ export namespace Cardinal {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Cardinal.validateField("east", data.east);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       south: {
@@ -31702,6 +41395,7 @@ export namespace Cardinal {
           tainted.south = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Cardinal.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -31710,6 +41404,10 @@ export namespace Cardinal {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Cardinal.validateField("south", data.south);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
       west: {
@@ -31730,6 +41428,7 @@ export namespace Cardinal {
           tainted.west = value;
         },
         validate: (): Array<string> => {
+<<<<<<< Updated upstream
           const result = Cardinal.fromObject(data);
           if (Result.isErr(result)) {
             const allErrors = Result.unwrapErr(result);
@@ -31738,6 +41437,10 @@ export namespace Cardinal {
               .map((e) => e.message);
           }
           return [];
+=======
+          const fieldErrors = Cardinal.validateField("west", data.west);
+          return fieldErrors.map((e) => e.message);
+>>>>>>> Stashed changes
         },
       },
     };
@@ -31871,7 +41574,11 @@ export namespace Interval {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<Interval>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -31891,6 +41598,20 @@ export namespace Interval {
     }
     return value as Interval;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Interval>(
+    field: K,
+    value: Interval[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Interval>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Interval {
@@ -31914,6 +41635,7 @@ export namespace Interval {
     | ({ _type: "WeeklyRecurrenceRule" } & WeeklyRecurrenceRuleTainted)
     | ({ _type: "MonthlyRecurrenceRule" } & MonthlyRecurrenceRuleTainted)
     | ({ _type: "YearlyRecurrenceRule" } & YearlyRecurrenceRuleTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -31931,6 +41653,8 @@ export namespace Interval {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface DailyRecurrenceRuleFieldControllers {}
   export interface WeeklyRecurrenceRuleFieldControllers {}
   export interface MonthlyRecurrenceRuleFieldControllers {}
@@ -32173,7 +41897,11 @@ export namespace Page {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<Page>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -32193,6 +41921,20 @@ export namespace Page {
     }
     return value as Page;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Page>(
+    field: K,
+    value: Page[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Page>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Page {
@@ -32318,6 +42060,7 @@ export namespace Page {
     | ({ _value: "SalesSchedulingRoutes" } & SalesSchedulingRoutesTainted)
     | ({ _value: "SalesSchedulingReminders" } & SalesSchedulingRemindersTainted)
     | ({ _value: "UserHome" } & UserHomeTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -32335,6 +42078,8 @@ export namespace Page {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface SalesHomeDashboardFieldControllers {}
   export interface SalesHomeProductsFieldControllers {}
   export interface SalesHomeServicesFieldControllers {}
@@ -32915,7 +42660,11 @@ export namespace UserRole {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<UserRole>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -32935,6 +42684,20 @@ export namespace UserRole {
     }
     return value as UserRole;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof UserRole>(
+    field: K,
+    value: UserRole[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<UserRole>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace UserRole {
@@ -32962,6 +42725,7 @@ export namespace UserRole {
     | ({ _value: "Technician" } & TechnicianTainted)
     | ({ _value: "HumanResources" } & HumanResourcesTainted)
     | ({ _value: "InformationTechnology" } & InformationTechnologyTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -32979,6 +42743,8 @@ export namespace UserRole {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface AdministratorFieldControllers {}
   export interface SalesRepresentativeFieldControllers {}
   export interface TechnicianFieldControllers {}
@@ -33231,7 +42997,11 @@ export namespace Target {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<Target>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -33251,6 +43021,20 @@ export namespace Target {
     }
     return value as Target;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Target>(
+    field: K,
+    value: Target[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Target>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Target {
@@ -33326,6 +43110,7 @@ export namespace Target {
     | ({ _type: "Promotion" } & PromotionTainted)
     | ({ _type: "Represents" } & RepresentsTainted)
     | ({ _type: "Ordered" } & OrderedTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -33343,6 +43128,8 @@ export namespace Target {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface AccountFieldControllers {}
   export interface UserFieldControllers {}
   export interface EmployeeFieldControllers {}
@@ -33735,7 +43522,11 @@ export namespace RecurrenceEnd {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<RecurrenceEnd>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -33758,6 +43549,7 @@ export namespace RecurrenceEnd {
     }
     return value as RecurrenceEnd;
   }
+<<<<<<< Updated upstream
 }
 
 export type OverviewDisplay = /** @default */ "Card" | "Table";
@@ -33785,10 +43577,158 @@ export namespace OverviewDisplay {
       return (value as any).__serialize(ctx);
     }
     return value;
+=======
+  export function validateField<K extends keyof RecurrenceEnd>(
+    field: K,
+    value: RecurrenceEnd[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<RecurrenceEnd>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+}
+
+export namespace RecurrenceEnd {
+  /** Per-variant error types */ export type NumberErrors = {
+    _errors: Option<Array<string>>;
+  };
+  export type StringErrors = { _errors: Option<Array<string>> };
+  /** Per-variant tainted types */ export type NumberTainted = {};
+  export type StringTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _type: "number" } & NumberErrors)
+    | ({ _type: "string" } & StringErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _type: "number" } & NumberTainted)
+    | ({ _type: "string" } & StringTainted);
+  /** Per-variant field controller types */ export interface NumberFieldControllers {}
+  export interface StringFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "number" | "string";
+    readonly data: RecurrenceEnd;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "number" | "string"): void;
+    validate(): Result<
+      RecurrenceEnd,
+      Array<{ field: string; message: string }>
+    >;
+    reset(overrides?: Partial<RecurrenceEnd>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly number: { readonly fields: NumberFieldControllers };
+    readonly string: { readonly fields: StringFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): RecurrenceEnd {
+    switch (variant) {
+      case "number":
+        return 0 as RecurrenceEnd;
+      case "string":
+        return "" as RecurrenceEnd;
+      default:
+        return 0 as RecurrenceEnd;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: RecurrenceEnd,
+  ): Gigaform {
+    const initialVariant: "number" | "string" = "number";
+    let currentVariant = $state<"number" | "string">(initialVariant);
+    let data = $state<RecurrenceEnd>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      number: {
+        fields: {} as NumberFieldControllers,
+      },
+      string: {
+        fields: {} as StringFieldControllers,
+      },
+    };
+    function switchVariant(variant: "number" | "string"): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      RecurrenceEnd,
+      Array<{ field: string; message: string }>
+    > {
+      return RecurrenceEnd.fromObject(data);
+    }
+    function reset(overrides?: Partial<RecurrenceEnd>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<RecurrenceEnd, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_type") as "number" | "string" | null;
+    if (!discriminant) {
+      return Result.err([
+        { field: "_type", message: "Missing discriminant field" },
+      ]);
+    }
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+    if (discriminant === "number") {
+    } else if (discriminant === "string") {
+    }
+    return RecurrenceEnd.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type OverviewDisplay = /** @default */ "Card" | "Table";
+
+export namespace OverviewDisplay {
+  export function defaultValue(): OverviewDisplay {
+    return "Card";
+>>>>>>> Stashed changes
   }
 }
 
 export namespace OverviewDisplay {
+<<<<<<< Updated upstream
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
@@ -33837,10 +43777,29 @@ export namespace OverviewDisplay {
       );
     }
     return value as OverviewDisplay;
+=======
+  export function toStringifiedJSON(value: OverviewDisplay): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: OverviewDisplay): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(
+    value: OverviewDisplay,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+>>>>>>> Stashed changes
   }
 }
 
 export namespace OverviewDisplay {
+<<<<<<< Updated upstream
   /** Per-variant error types */ export type CardErrors = {
     _errors: Option<Array<string>>;
   };
@@ -34010,10 +43969,208 @@ export namespace IntervalUnit {
       return (value as any).__serialize(ctx);
     }
     return value;
+=======
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Result<OverviewDisplay, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<OverviewDisplay, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok<OverviewDisplay>(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function __deserialize(
+    value: any,
+    ctx: DeserializeContext,
+  ): OverviewDisplay {
+    if (value?.__ref !== undefined) {
+      return ctx.getOrDefer(value.__ref) as OverviewDisplay;
+    }
+    if (typeof (value as any)?.__type === "string") {
+      throw new Error(
+        "OverviewDisplay.__deserialize: polymorphic deserialization requires type registry (TODO)",
+      );
+    }
+    return value as OverviewDisplay;
+  }
+  export function validateField<K extends keyof OverviewDisplay>(
+    field: K,
+    value: OverviewDisplay[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<OverviewDisplay>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+}
+
+export namespace OverviewDisplay {
+  /** Per-variant error types */ export type CardErrors = {
+    _errors: Option<Array<string>>;
+  };
+  export type TableErrors = { _errors: Option<Array<string>> };
+  /** Per-variant tainted types */ export type CardTainted = {};
+  export type TableTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Card" } & CardErrors)
+    | ({ _value: "Table" } & TableErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Card" } & CardTainted)
+    | ({ _value: "Table" } & TableTainted);
+  /** Per-variant field controller types */ export interface CardFieldControllers {}
+  export interface TableFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "Card" | "Table";
+    readonly data: OverviewDisplay;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "Card" | "Table"): void;
+    validate(): Result<
+      OverviewDisplay,
+      Array<{ field: string; message: string }>
+    >;
+    reset(overrides?: Partial<OverviewDisplay>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Card: { readonly fields: CardFieldControllers };
+    readonly Table: { readonly fields: TableFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): OverviewDisplay {
+    switch (variant) {
+      case "Card":
+        return "Card" as OverviewDisplay;
+      case "Table":
+        return "Table" as OverviewDisplay;
+      default:
+        return "Card" as OverviewDisplay;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: OverviewDisplay,
+  ): Gigaform {
+    const initialVariant: "Card" | "Table" =
+      (initial as "Card" | "Table") ?? "Card";
+    let currentVariant = $state<"Card" | "Table">(initialVariant);
+    let data = $state<OverviewDisplay>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Card: {
+        fields: {} as CardFieldControllers,
+      },
+      Table: {
+        fields: {} as TableFieldControllers,
+      },
+    };
+    function switchVariant(variant: "Card" | "Table"): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      OverviewDisplay,
+      Array<{ field: string; message: string }>
+    > {
+      return OverviewDisplay.fromObject(data);
+    }
+    function reset(overrides?: Partial<OverviewDisplay>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<OverviewDisplay, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as "Card" | "Table" | null;
+    if (!discriminant) {
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Card") {
+    } else if (discriminant === "Table") {
+    }
+    return OverviewDisplay.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type IntervalUnit = /** @default */ "Day" | "Week" | "Month" | "Year";
+
+export namespace IntervalUnit {
+  export function defaultValue(): IntervalUnit {
+    return "Day";
+>>>>>>> Stashed changes
   }
 }
 
 export namespace IntervalUnit {
+<<<<<<< Updated upstream
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
@@ -34062,10 +44219,29 @@ export namespace IntervalUnit {
       );
     }
     return value as IntervalUnit;
+=======
+  export function toStringifiedJSON(value: IntervalUnit): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: IntervalUnit): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(
+    value: IntervalUnit,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+>>>>>>> Stashed changes
   }
 }
 
 export namespace IntervalUnit {
+<<<<<<< Updated upstream
   /** Per-variant error types */ export type DayErrors = {
     _errors: Option<Array<string>>;
   };
@@ -34260,10 +44436,236 @@ export namespace Sector {
       return (value as any).__serialize(ctx);
     }
     return value;
+=======
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Result<IntervalUnit, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<IntervalUnit, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok<IntervalUnit>(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function __deserialize(
+    value: any,
+    ctx: DeserializeContext,
+  ): IntervalUnit {
+    if (value?.__ref !== undefined) {
+      return ctx.getOrDefer(value.__ref) as IntervalUnit;
+    }
+    if (typeof (value as any)?.__type === "string") {
+      throw new Error(
+        "IntervalUnit.__deserialize: polymorphic deserialization requires type registry (TODO)",
+      );
+    }
+    return value as IntervalUnit;
+  }
+  export function validateField<K extends keyof IntervalUnit>(
+    field: K,
+    value: IntervalUnit[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<IntervalUnit>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+}
+
+export namespace IntervalUnit {
+  /** Per-variant error types */ export type DayErrors = {
+    _errors: Option<Array<string>>;
+  };
+  export type WeekErrors = { _errors: Option<Array<string>> };
+  export type MonthErrors = { _errors: Option<Array<string>> };
+  export type YearErrors = { _errors: Option<Array<string>> };
+  /** Per-variant tainted types */ export type DayTainted = {};
+  export type WeekTainted = {};
+  export type MonthTainted = {};
+  export type YearTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Day" } & DayErrors)
+    | ({ _value: "Week" } & WeekErrors)
+    | ({ _value: "Month" } & MonthErrors)
+    | ({ _value: "Year" } & YearErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Day" } & DayTainted)
+    | ({ _value: "Week" } & WeekTainted)
+    | ({ _value: "Month" } & MonthTainted)
+    | ({ _value: "Year" } & YearTainted);
+  /** Per-variant field controller types */ export interface DayFieldControllers {}
+  export interface WeekFieldControllers {}
+  export interface MonthFieldControllers {}
+  export interface YearFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "Day" | "Week" | "Month" | "Year";
+    readonly data: IntervalUnit;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "Day" | "Week" | "Month" | "Year"): void;
+    validate(): Result<IntervalUnit, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<IntervalUnit>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Day: { readonly fields: DayFieldControllers };
+    readonly Week: { readonly fields: WeekFieldControllers };
+    readonly Month: { readonly fields: MonthFieldControllers };
+    readonly Year: { readonly fields: YearFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): IntervalUnit {
+    switch (variant) {
+      case "Day":
+        return "Day" as IntervalUnit;
+      case "Week":
+        return "Week" as IntervalUnit;
+      case "Month":
+        return "Month" as IntervalUnit;
+      case "Year":
+        return "Year" as IntervalUnit;
+      default:
+        return "Day" as IntervalUnit;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: IntervalUnit,
+  ): Gigaform {
+    const initialVariant: "Day" | "Week" | "Month" | "Year" =
+      (initial as "Day" | "Week" | "Month" | "Year") ?? "Day";
+    let currentVariant = $state<"Day" | "Week" | "Month" | "Year">(
+      initialVariant,
+    );
+    let data = $state<IntervalUnit>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Day: {
+        fields: {} as DayFieldControllers,
+      },
+      Week: {
+        fields: {} as WeekFieldControllers,
+      },
+      Month: {
+        fields: {} as MonthFieldControllers,
+      },
+      Year: {
+        fields: {} as YearFieldControllers,
+      },
+    };
+    function switchVariant(variant: "Day" | "Week" | "Month" | "Year"): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      IntervalUnit,
+      Array<{ field: string; message: string }>
+    > {
+      return IntervalUnit.fromObject(data);
+    }
+    function reset(overrides?: Partial<IntervalUnit>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<IntervalUnit, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "Day"
+      | "Week"
+      | "Month"
+      | "Year"
+      | null;
+    if (!discriminant) {
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Day") {
+    } else if (discriminant === "Week") {
+    } else if (discriminant === "Month") {
+    } else if (discriminant === "Year") {
+    }
+    return IntervalUnit.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type Sector = /** @default */ "Residential" | "Commercial";
+
+export namespace Sector {
+  export function defaultValue(): Sector {
+    return "Residential";
+>>>>>>> Stashed changes
   }
 }
 
 export namespace Sector {
+<<<<<<< Updated upstream
   export function fromStringifiedJSON(
     json: string,
     opts?: DeserializeOptions,
@@ -34309,10 +44711,88 @@ export namespace Sector {
       );
     }
     return value as Sector;
+=======
+  export function toStringifiedJSON(value: Sector): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: Sector): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(value: Sector, ctx: SerializeContext): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+>>>>>>> Stashed changes
   }
 }
 
 export namespace Sector {
+<<<<<<< Updated upstream
+=======
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Result<Sector, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Sector, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok<Sector>(result);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function __deserialize(value: any, ctx: DeserializeContext): Sector {
+    if (value?.__ref !== undefined) {
+      return ctx.getOrDefer(value.__ref) as Sector;
+    }
+    if (typeof (value as any)?.__type === "string") {
+      throw new Error(
+        "Sector.__deserialize: polymorphic deserialization requires type registry (TODO)",
+      );
+    }
+    return value as Sector;
+  }
+  export function validateField<K extends keyof Sector>(
+    field: K,
+    value: Sector[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Sector>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+}
+
+export namespace Sector {
+>>>>>>> Stashed changes
   /** Per-variant error types */ export type ResidentialErrors = {
     _errors: Option<Array<string>>;
   };
@@ -34325,6 +44805,7 @@ export namespace Sector {
   /** Union tainted type */ export type Tainted =
     | ({ _value: "Residential" } & ResidentialTainted)
     | ({ _value: "Commercial" } & CommercialTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -34342,6 +44823,8 @@ export namespace Sector {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface ResidentialFieldControllers {}
   export interface CommercialFieldControllers {}
   /** Union Gigaform interface with variant switching */ export interface Gigaform {
@@ -34514,7 +44997,11 @@ export namespace Weekday {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<Weekday>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -34534,6 +45021,20 @@ export namespace Weekday {
     }
     return value as Weekday;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Weekday>(
+    field: K,
+    value: Weekday[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Weekday>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Weekday {
@@ -34569,6 +45070,7 @@ export namespace Weekday {
     | ({ _value: "Friday" } & FridayTainted)
     | ({ _value: "Saturday" } & SaturdayTainted)
     | ({ _value: "Sunday" } & SundayTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -34586,6 +45088,8 @@ export namespace Weekday {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface MondayFieldControllers {}
   export interface TuesdayFieldControllers {}
   export interface WednesdayFieldControllers {}
@@ -34843,7 +45347,11 @@ export namespace Status {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<Status>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -34863,6 +45371,20 @@ export namespace Status {
     }
     return value as Status;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Status>(
+    field: K,
+    value: Status[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Status>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Status {
@@ -34882,6 +45404,7 @@ export namespace Status {
     | ({ _value: "Scheduled" } & ScheduledTainted)
     | ({ _value: "OnDeck" } & OnDeckTainted)
     | ({ _value: "Waiting" } & WaitingTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -34899,6 +45422,8 @@ export namespace Status {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface ScheduledFieldControllers {}
   export interface OnDeckFieldControllers {}
   export interface WaitingFieldControllers {}
@@ -35079,7 +45604,11 @@ export namespace NextStep {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<NextStep>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -35099,6 +45628,20 @@ export namespace NextStep {
     }
     return value as NextStep;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof NextStep>(
+    field: K,
+    value: NextStep[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<NextStep>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace NextStep {
@@ -35122,6 +45665,7 @@ export namespace NextStep {
     | ({ _value: "Qualified" } & QualifiedTainted)
     | ({ _value: "Estimate" } & EstimateTainted)
     | ({ _value: "Negotiation" } & NegotiationTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -35139,6 +45683,8 @@ export namespace NextStep {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface InitialContactFieldControllers {}
   export interface QualifiedFieldControllers {}
   export interface EstimateFieldControllers {}
@@ -35352,7 +45898,11 @@ export namespace LeadStage {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<LeadStage>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -35375,6 +45925,20 @@ export namespace LeadStage {
     }
     return value as LeadStage;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof LeadStage>(
+    field: K,
+    value: LeadStage[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<LeadStage>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace LeadStage {
@@ -35402,6 +45966,7 @@ export namespace LeadStage {
     | ({ _value: "Qualified" } & QualifiedTainted)
     | ({ _value: "Estimate" } & EstimateTainted)
     | ({ _value: "Negotiation" } & NegotiationTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -35419,6 +45984,8 @@ export namespace LeadStage {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface OpenFieldControllers {}
   export interface InitialContactFieldControllers {}
   export interface QualifiedFieldControllers {}
@@ -35649,7 +46216,11 @@ export namespace AccountName {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<AccountName>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -35672,6 +46243,20 @@ export namespace AccountName {
     }
     return value as AccountName;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof AccountName>(
+    field: K,
+    value: AccountName[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<AccountName>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace AccountName {
@@ -35687,6 +46272,7 @@ export namespace AccountName {
   /** Union tainted type */ export type Tainted =
     | ({ _type: "CompanyName" } & CompanyNameTainted)
     | ({ _type: "PersonName" } & PersonNameTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -35704,6 +46290,8 @@ export namespace AccountName {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface CompanyNameFieldControllers {}
   export interface PersonNameFieldControllers {}
   /** Union Gigaform interface with variant switching */ export interface Gigaform {
@@ -35870,7 +46458,11 @@ export namespace Priority {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<Priority>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -35890,6 +46482,20 @@ export namespace Priority {
     }
     return value as Priority;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Priority>(
+    field: K,
+    value: Priority[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Priority>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Priority {
@@ -35909,6 +46515,7 @@ export namespace Priority {
     | ({ _value: "Medium" } & MediumTainted)
     | ({ _value: "High" } & HighTainted)
     | ({ _value: "Low" } & LowTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -35926,6 +46533,8 @@ export namespace Priority {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface MediumFieldControllers {}
   export interface HighFieldControllers {}
   export interface LowFieldControllers {}
@@ -36112,7 +46721,11 @@ export namespace Applications {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<Applications>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -36135,6 +46748,20 @@ export namespace Applications {
     }
     return value as Applications;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Applications>(
+    field: K,
+    value: Applications[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Applications>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Applications {
@@ -36170,6 +46797,7 @@ export namespace Applications {
     | ({ _value: "Logistics" } & LogisticsTainted)
     | ({ _value: "Marketing" } & MarketingTainted)
     | ({ _value: "Website" } & WebsiteTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -36187,6 +46815,8 @@ export namespace Applications {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface SalesFieldControllers {}
   export interface AccountingFieldControllers {}
   export interface ErrandFieldControllers {}
@@ -36452,7 +47082,11 @@ export namespace JobTitle {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<JobTitle>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -36472,6 +47106,20 @@ export namespace JobTitle {
     }
     return value as JobTitle;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof JobTitle>(
+    field: K,
+    value: JobTitle[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<JobTitle>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace JobTitle {
@@ -36495,6 +47143,7 @@ export namespace JobTitle {
     | ({ _value: "SalesRepresentative" } & SalesRepresentativeTainted)
     | ({ _value: "HumanResources" } & HumanResourcesTainted)
     | ({ _value: "InformationTechnology" } & InformationTechnologyTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -36512,6 +47161,8 @@ export namespace JobTitle {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface TechnicianFieldControllers {}
   export interface SalesRepresentativeFieldControllers {}
   export interface HumanResourcesFieldControllers {}
@@ -36739,7 +47390,11 @@ export namespace ColorsConfig {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<ColorsConfig>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -36762,6 +47417,20 @@ export namespace ColorsConfig {
     }
     return value as ColorsConfig;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof ColorsConfig>(
+    field: K,
+    value: ColorsConfig[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<ColorsConfig>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace ColorsConfig {
@@ -36785,6 +47454,7 @@ export namespace ColorsConfig {
     | ({ _type: "Ordinal" } & OrdinalTainted)
     | ({ _type: "Custom" } & CustomTainted)
     | ({ _type: "Gradient" } & GradientTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -36802,6 +47472,8 @@ export namespace ColorsConfig {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface CardinalFieldControllers {}
   export interface OrdinalFieldControllers {}
   export interface CustomFieldControllers {}
@@ -37001,7 +47673,11 @@ export namespace WeekOfMonth {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<WeekOfMonth>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -37024,6 +47700,20 @@ export namespace WeekOfMonth {
     }
     return value as WeekOfMonth;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof WeekOfMonth>(
+    field: K,
+    value: WeekOfMonth[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<WeekOfMonth>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace WeekOfMonth {
@@ -37051,6 +47741,7 @@ export namespace WeekOfMonth {
     | ({ _value: "Third" } & ThirdTainted)
     | ({ _value: "Fourth" } & FourthTainted)
     | ({ _value: "Last" } & LastTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -37068,6 +47759,8 @@ export namespace WeekOfMonth {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface FirstFieldControllers {}
   export interface SecondFieldControllers {}
   export interface ThirdFieldControllers {}
@@ -37277,7 +47970,11 @@ export namespace ActivityType {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<ActivityType>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -37300,6 +47997,20 @@ export namespace ActivityType {
     }
     return value as ActivityType;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof ActivityType>(
+    field: K,
+    value: ActivityType[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<ActivityType>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace ActivityType {
@@ -37331,6 +48042,7 @@ export namespace ActivityType {
     | ({ _type: "Viewed" } & ViewedTainted)
     | ({ _type: "Commented" } & CommentedTainted)
     | ({ _type: "Paid" } & PaidTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -37348,6 +48060,8 @@ export namespace ActivityType {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface CreatedFieldControllers {}
   export interface EditedFieldControllers {}
   export interface SentFieldControllers {}
@@ -37575,7 +48289,11 @@ export namespace RowHeight {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<RowHeight>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -37598,6 +48316,20 @@ export namespace RowHeight {
     }
     return value as RowHeight;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof RowHeight>(
+    field: K,
+    value: RowHeight[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<RowHeight>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace RowHeight {
@@ -37621,6 +48353,7 @@ export namespace RowHeight {
     | ({ _value: "Small" } & SmallTainted)
     | ({ _value: "Medium" } & MediumTainted)
     | ({ _value: "Large" } & LargeTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -37638,6 +48371,8 @@ export namespace RowHeight {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface ExtraSmallFieldControllers {}
   export interface SmallFieldControllers {}
   export interface MediumFieldControllers {}
@@ -37830,7 +48565,11 @@ export namespace OrderStage {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<OrderStage>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -37853,6 +48592,20 @@ export namespace OrderStage {
     }
     return value as OrderStage;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof OrderStage>(
+    field: K,
+    value: OrderStage[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<OrderStage>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace OrderStage {
@@ -37872,6 +48625,7 @@ export namespace OrderStage {
     | ({ _value: "Estimate" } & EstimateTainted)
     | ({ _value: "Active" } & ActiveTainted)
     | ({ _value: "Invoice" } & InvoiceTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -37889,6 +48643,8 @@ export namespace OrderStage {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface EstimateFieldControllers {}
   export interface ActiveFieldControllers {}
   export interface InvoiceFieldControllers {}
@@ -38085,7 +48841,11 @@ export namespace Table {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<Table>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -38105,6 +48865,7 @@ export namespace Table {
     }
     return value as Table;
   }
+<<<<<<< Updated upstream
 }
 
 export namespace Table {
@@ -38572,6 +49333,467 @@ export namespace Table {
 }
 
 export type Item = (string | Product) | (string | Service);
+=======
+  export function validateField<K extends keyof Table>(
+    field: K,
+    value: Table[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Table>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+}
+
+export namespace Table {
+  /** Per-variant error types */ export type AccountErrors = {
+    _errors: Option<Array<string>>;
+  };
+  export type DidErrors = { _errors: Option<Array<string>> };
+  export type AppointmentErrors = { _errors: Option<Array<string>> };
+  export type LeadErrors = { _errors: Option<Array<string>> };
+  export type TaxRateErrors = { _errors: Option<Array<string>> };
+  export type SiteErrors = { _errors: Option<Array<string>> };
+  export type EmployeeErrors = { _errors: Option<Array<string>> };
+  export type RouteErrors = { _errors: Option<Array<string>> };
+  export type CompanyErrors = { _errors: Option<Array<string>> };
+  export type ProductErrors = { _errors: Option<Array<string>> };
+  export type ServiceErrors = { _errors: Option<Array<string>> };
+  export type UserErrors = { _errors: Option<Array<string>> };
+  export type OrderErrors = { _errors: Option<Array<string>> };
+  export type PaymentErrors = { _errors: Option<Array<string>> };
+  export type PackageErrors = { _errors: Option<Array<string>> };
+  export type PromotionErrors = { _errors: Option<Array<string>> };
+  export type RepresentsErrors = { _errors: Option<Array<string>> };
+  export type OrderedErrors = { _errors: Option<Array<string>> };
+  /** Per-variant tainted types */ export type AccountTainted = {};
+  export type DidTainted = {};
+  export type AppointmentTainted = {};
+  export type LeadTainted = {};
+  export type TaxRateTainted = {};
+  export type SiteTainted = {};
+  export type EmployeeTainted = {};
+  export type RouteTainted = {};
+  export type CompanyTainted = {};
+  export type ProductTainted = {};
+  export type ServiceTainted = {};
+  export type UserTainted = {};
+  export type OrderTainted = {};
+  export type PaymentTainted = {};
+  export type PackageTainted = {};
+  export type PromotionTainted = {};
+  export type RepresentsTainted = {};
+  export type OrderedTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _value: "Account" } & AccountErrors)
+    | ({ _value: "Did" } & DidErrors)
+    | ({ _value: "Appointment" } & AppointmentErrors)
+    | ({ _value: "Lead" } & LeadErrors)
+    | ({ _value: "TaxRate" } & TaxRateErrors)
+    | ({ _value: "Site" } & SiteErrors)
+    | ({ _value: "Employee" } & EmployeeErrors)
+    | ({ _value: "Route" } & RouteErrors)
+    | ({ _value: "Company" } & CompanyErrors)
+    | ({ _value: "Product" } & ProductErrors)
+    | ({ _value: "Service" } & ServiceErrors)
+    | ({ _value: "User" } & UserErrors)
+    | ({ _value: "Order" } & OrderErrors)
+    | ({ _value: "Payment" } & PaymentErrors)
+    | ({ _value: "Package" } & PackageErrors)
+    | ({ _value: "Promotion" } & PromotionErrors)
+    | ({ _value: "Represents" } & RepresentsErrors)
+    | ({ _value: "Ordered" } & OrderedErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _value: "Account" } & AccountTainted)
+    | ({ _value: "Did" } & DidTainted)
+    | ({ _value: "Appointment" } & AppointmentTainted)
+    | ({ _value: "Lead" } & LeadTainted)
+    | ({ _value: "TaxRate" } & TaxRateTainted)
+    | ({ _value: "Site" } & SiteTainted)
+    | ({ _value: "Employee" } & EmployeeTainted)
+    | ({ _value: "Route" } & RouteTainted)
+    | ({ _value: "Company" } & CompanyTainted)
+    | ({ _value: "Product" } & ProductTainted)
+    | ({ _value: "Service" } & ServiceTainted)
+    | ({ _value: "User" } & UserTainted)
+    | ({ _value: "Order" } & OrderTainted)
+    | ({ _value: "Payment" } & PaymentTainted)
+    | ({ _value: "Package" } & PackageTainted)
+    | ({ _value: "Promotion" } & PromotionTainted)
+    | ({ _value: "Represents" } & RepresentsTainted)
+    | ({ _value: "Ordered" } & OrderedTainted);
+  /** Per-variant field controller types */ export interface AccountFieldControllers {}
+  export interface DidFieldControllers {}
+  export interface AppointmentFieldControllers {}
+  export interface LeadFieldControllers {}
+  export interface TaxRateFieldControllers {}
+  export interface SiteFieldControllers {}
+  export interface EmployeeFieldControllers {}
+  export interface RouteFieldControllers {}
+  export interface CompanyFieldControllers {}
+  export interface ProductFieldControllers {}
+  export interface ServiceFieldControllers {}
+  export interface UserFieldControllers {}
+  export interface OrderFieldControllers {}
+  export interface PaymentFieldControllers {}
+  export interface PackageFieldControllers {}
+  export interface PromotionFieldControllers {}
+  export interface RepresentsFieldControllers {}
+  export interface OrderedFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant:
+      | "Account"
+      | "Did"
+      | "Appointment"
+      | "Lead"
+      | "TaxRate"
+      | "Site"
+      | "Employee"
+      | "Route"
+      | "Company"
+      | "Product"
+      | "Service"
+      | "User"
+      | "Order"
+      | "Payment"
+      | "Package"
+      | "Promotion"
+      | "Represents"
+      | "Ordered";
+    readonly data: Table;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(
+      variant:
+        | "Account"
+        | "Did"
+        | "Appointment"
+        | "Lead"
+        | "TaxRate"
+        | "Site"
+        | "Employee"
+        | "Route"
+        | "Company"
+        | "Product"
+        | "Service"
+        | "User"
+        | "Order"
+        | "Payment"
+        | "Package"
+        | "Promotion"
+        | "Represents"
+        | "Ordered",
+    ): void;
+    validate(): Result<Table, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Table>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly Account: { readonly fields: AccountFieldControllers };
+    readonly Did: { readonly fields: DidFieldControllers };
+    readonly Appointment: { readonly fields: AppointmentFieldControllers };
+    readonly Lead: { readonly fields: LeadFieldControllers };
+    readonly TaxRate: { readonly fields: TaxRateFieldControllers };
+    readonly Site: { readonly fields: SiteFieldControllers };
+    readonly Employee: { readonly fields: EmployeeFieldControllers };
+    readonly Route: { readonly fields: RouteFieldControllers };
+    readonly Company: { readonly fields: CompanyFieldControllers };
+    readonly Product: { readonly fields: ProductFieldControllers };
+    readonly Service: { readonly fields: ServiceFieldControllers };
+    readonly User: { readonly fields: UserFieldControllers };
+    readonly Order: { readonly fields: OrderFieldControllers };
+    readonly Payment: { readonly fields: PaymentFieldControllers };
+    readonly Package: { readonly fields: PackageFieldControllers };
+    readonly Promotion: { readonly fields: PromotionFieldControllers };
+    readonly Represents: { readonly fields: RepresentsFieldControllers };
+    readonly Ordered: { readonly fields: OrderedFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): Table {
+    switch (variant) {
+      case "Account":
+        return "Account" as Table;
+      case "Did":
+        return "Did" as Table;
+      case "Appointment":
+        return "Appointment" as Table;
+      case "Lead":
+        return "Lead" as Table;
+      case "TaxRate":
+        return "TaxRate" as Table;
+      case "Site":
+        return "Site" as Table;
+      case "Employee":
+        return "Employee" as Table;
+      case "Route":
+        return "Route" as Table;
+      case "Company":
+        return "Company" as Table;
+      case "Product":
+        return "Product" as Table;
+      case "Service":
+        return "Service" as Table;
+      case "User":
+        return "User" as Table;
+      case "Order":
+        return "Order" as Table;
+      case "Payment":
+        return "Payment" as Table;
+      case "Package":
+        return "Package" as Table;
+      case "Promotion":
+        return "Promotion" as Table;
+      case "Represents":
+        return "Represents" as Table;
+      case "Ordered":
+        return "Ordered" as Table;
+      default:
+        return "Account" as Table;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: Table,
+  ): Gigaform {
+    const initialVariant:
+      | "Account"
+      | "Did"
+      | "Appointment"
+      | "Lead"
+      | "TaxRate"
+      | "Site"
+      | "Employee"
+      | "Route"
+      | "Company"
+      | "Product"
+      | "Service"
+      | "User"
+      | "Order"
+      | "Payment"
+      | "Package"
+      | "Promotion"
+      | "Represents"
+      | "Ordered" =
+      (initial as
+        | "Account"
+        | "Did"
+        | "Appointment"
+        | "Lead"
+        | "TaxRate"
+        | "Site"
+        | "Employee"
+        | "Route"
+        | "Company"
+        | "Product"
+        | "Service"
+        | "User"
+        | "Order"
+        | "Payment"
+        | "Package"
+        | "Promotion"
+        | "Represents"
+        | "Ordered") ?? "Account";
+    let currentVariant = $state<
+      | "Account"
+      | "Did"
+      | "Appointment"
+      | "Lead"
+      | "TaxRate"
+      | "Site"
+      | "Employee"
+      | "Route"
+      | "Company"
+      | "Product"
+      | "Service"
+      | "User"
+      | "Order"
+      | "Payment"
+      | "Package"
+      | "Promotion"
+      | "Represents"
+      | "Ordered"
+    >(initialVariant);
+    let data = $state<Table>(initial ?? getDefaultForVariant(initialVariant));
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      Account: {
+        fields: {} as AccountFieldControllers,
+      },
+      Did: {
+        fields: {} as DidFieldControllers,
+      },
+      Appointment: {
+        fields: {} as AppointmentFieldControllers,
+      },
+      Lead: {
+        fields: {} as LeadFieldControllers,
+      },
+      TaxRate: {
+        fields: {} as TaxRateFieldControllers,
+      },
+      Site: {
+        fields: {} as SiteFieldControllers,
+      },
+      Employee: {
+        fields: {} as EmployeeFieldControllers,
+      },
+      Route: {
+        fields: {} as RouteFieldControllers,
+      },
+      Company: {
+        fields: {} as CompanyFieldControllers,
+      },
+      Product: {
+        fields: {} as ProductFieldControllers,
+      },
+      Service: {
+        fields: {} as ServiceFieldControllers,
+      },
+      User: {
+        fields: {} as UserFieldControllers,
+      },
+      Order: {
+        fields: {} as OrderFieldControllers,
+      },
+      Payment: {
+        fields: {} as PaymentFieldControllers,
+      },
+      Package: {
+        fields: {} as PackageFieldControllers,
+      },
+      Promotion: {
+        fields: {} as PromotionFieldControllers,
+      },
+      Represents: {
+        fields: {} as RepresentsFieldControllers,
+      },
+      Ordered: {
+        fields: {} as OrderedFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant:
+        | "Account"
+        | "Did"
+        | "Appointment"
+        | "Lead"
+        | "TaxRate"
+        | "Site"
+        | "Employee"
+        | "Route"
+        | "Company"
+        | "Product"
+        | "Service"
+        | "User"
+        | "Order"
+        | "Payment"
+        | "Package"
+        | "Promotion"
+        | "Represents"
+        | "Ordered",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      Table,
+      Array<{ field: string; message: string }>
+    > {
+      return Table.fromObject(data);
+    }
+    function reset(overrides?: Partial<Table>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<Table, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_value") as
+      | "Account"
+      | "Did"
+      | "Appointment"
+      | "Lead"
+      | "TaxRate"
+      | "Site"
+      | "Employee"
+      | "Route"
+      | "Company"
+      | "Product"
+      | "Service"
+      | "User"
+      | "Order"
+      | "Payment"
+      | "Package"
+      | "Promotion"
+      | "Represents"
+      | "Ordered"
+      | null;
+    if (!discriminant) {
+      return Result.err([
+        { field: "_value", message: "Missing discriminant field" },
+      ]);
+    }
+    const obj: Record<string, unknown> = {};
+    obj._value = discriminant;
+    if (discriminant === "Account") {
+    } else if (discriminant === "Did") {
+    } else if (discriminant === "Appointment") {
+    } else if (discriminant === "Lead") {
+    } else if (discriminant === "TaxRate") {
+    } else if (discriminant === "Site") {
+    } else if (discriminant === "Employee") {
+    } else if (discriminant === "Route") {
+    } else if (discriminant === "Company") {
+    } else if (discriminant === "Product") {
+    } else if (discriminant === "Service") {
+    } else if (discriminant === "User") {
+    } else if (discriminant === "Order") {
+    } else if (discriminant === "Payment") {
+    } else if (discriminant === "Package") {
+    } else if (discriminant === "Promotion") {
+    } else if (discriminant === "Represents") {
+    } else if (discriminant === "Ordered") {
+    }
+    return Table.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+>>>>>>> Stashed changes
 
 export namespace Item {
   export function defaultValue(): Item {
@@ -38580,6 +49802,15 @@ export namespace Item {
 }
 
 export namespace Item {
+<<<<<<< Updated upstream
+=======
+  export function defaultValue(): Item {
+    return RecordLink.defaultValue<Service>();
+  }
+}
+
+export namespace Item {
+>>>>>>> Stashed changes
   export function toStringifiedJSON(value: Item): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(value, ctx));
@@ -38595,6 +49826,14 @@ export namespace Item {
     return value;
   }
 }
+<<<<<<< Updated upstream
+
+export namespace Item {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Result<Item, Array<{ field: string; message: string }>> {
+=======
 
 export namespace Item {
   export function fromStringifiedJSON(
@@ -38623,7 +49862,7 @@ export namespace Item {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
-      return Result.ok(result);
+      return Result.ok<Item>(result);
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -38642,6 +49881,270 @@ export namespace Item {
       );
     }
     return value as Item;
+  }
+  export function validateField<K extends keyof Item>(
+    field: K,
+    value: Item[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Item>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+}
+
+export namespace Item {
+  /** Per-variant error types */ export type RecordLinkProductErrors = {
+    _errors: Option<Array<string>>;
+  };
+  export type RecordLinkServiceErrors = { _errors: Option<Array<string>> };
+  /** Per-variant tainted types */ export type RecordLinkProductTainted = {};
+  export type RecordLinkServiceTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _type: "RecordLink<Product>" } & RecordLinkProductErrors)
+    | ({ _type: "RecordLink<Service>" } & RecordLinkServiceErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _type: "RecordLink<Product>" } & RecordLinkProductTainted)
+    | ({ _type: "RecordLink<Service>" } & RecordLinkServiceTainted);
+  /** Per-variant field controller types */ export interface RecordLinkProductFieldControllers {}
+  export interface RecordLinkServiceFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "RecordLink<Product>" | "RecordLink<Service>";
+    readonly data: Item;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "RecordLink<Product>" | "RecordLink<Service>"): void;
+    validate(): Result<Item, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<Item>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly "RecordLink<Product>": {
+      readonly fields: RecordLinkProductFieldControllers;
+    };
+    readonly "RecordLink<Service>": {
+      readonly fields: RecordLinkServiceFieldControllers;
+    };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): Item {
+    switch (variant) {
+      case "RecordLink<Product>":
+        return RecordLink.defaultValue<Product>() as Item;
+      case "RecordLink<Service>":
+        return RecordLink.defaultValue<Service>() as Item;
+      default:
+        return RecordLink.defaultValue<Product>() as Item;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: Item,
+  ): Gigaform {
+    const initialVariant: "RecordLink<Product>" | "RecordLink<Service>" =
+      "RecordLink<Product>";
+    let currentVariant = $state<"RecordLink<Product>" | "RecordLink<Service>">(
+      initialVariant,
+    );
+    let data = $state<Item>(initial ?? getDefaultForVariant(initialVariant));
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      "RecordLink<Product>": {
+        fields: {} as RecordLinkProductFieldControllers,
+      },
+      "RecordLink<Service>": {
+        fields: {} as RecordLinkServiceFieldControllers,
+      },
+    };
+    function switchVariant(
+      variant: "RecordLink<Product>" | "RecordLink<Service>",
+    ): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      Item,
+      Array<{ field: string; message: string }>
+    > {
+      return Item.fromObject(data);
+    }
+    function reset(overrides?: Partial<Item>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<Item, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_type") as
+      | "RecordLink<Product>"
+      | "RecordLink<Service>"
+      | null;
+    if (!discriminant) {
+      return Result.err([
+        { field: "_type", message: "Missing discriminant field" },
+      ]);
+    }
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+    if (discriminant === "RecordLink<Product>") {
+    } else if (discriminant === "RecordLink<Service>") {
+    }
+    return Item.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
+
+export type RecordLink<T> = /** @default */ string | T;
+
+export namespace RecordLink {
+  export function defaultValue<T>(): RecordLink<T> {
+    return "";
+  }
+}
+
+export namespace RecordLink {
+  export function toStringifiedJSON<T>(value: RecordLink<T>): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject<T>(value: RecordLink<T>): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize<T>(
+    value: RecordLink<T>,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
+
+export namespace RecordLink {
+  export function fromStringifiedJSON<T>(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Result<RecordLink<T>, Array<{ field: string; message: string }>> {
+>>>>>>> Stashed changes
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+<<<<<<< Updated upstream
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<Item, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize(obj, ctx);
+=======
+  export function fromObject<T>(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<RecordLink<T>, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const result = __deserialize<T>(obj, ctx);
+>>>>>>> Stashed changes
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+<<<<<<< Updated upstream
+      return Result.ok(result);
+=======
+      return Result.ok<RecordLink<T>>(result);
+>>>>>>> Stashed changes
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+<<<<<<< Updated upstream
+  export function __deserialize(value: any, ctx: DeserializeContext): Item {
+    if (value?.__ref !== undefined) {
+      return ctx.getOrDefer(value.__ref) as Item;
+    }
+    if (typeof (value as any)?.__type === "string") {
+      throw new Error(
+        "Item.__deserialize: polymorphic deserialization requires type registry (TODO)",
+      );
+    }
+    return value as Item;
+=======
+  export function __deserialize<T>(
+    value: any,
+    ctx: DeserializeContext,
+  ): RecordLink<T> {
+    if (value?.__ref !== undefined) {
+      return ctx.getOrDefer(value.__ref) as RecordLink<T>;
+    }
+    if (typeof (value as any)?.__type === "string") {
+      throw new Error(
+        "RecordLink.__deserialize: polymorphic deserialization requires type registry (TODO)",
+      );
+    }
+    return value as RecordLink<T>;
+  }
+  export function validateField<T, K extends keyof RecordLink<T>>(
+    field: K,
+    value: RecordLink<T>[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields<T>(
+    partial: Partial<RecordLink<T>>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+>>>>>>> Stashed changes
   }
 }
 
@@ -38697,7 +50200,11 @@ export namespace Actor {
       if (opts?.freeze) {
         ctx.freezeAll();
       }
+<<<<<<< Updated upstream
       return Result.ok(result);
+=======
+      return Result.ok<Actor>(result);
+>>>>>>> Stashed changes
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -38717,6 +50224,20 @@ export namespace Actor {
     }
     return value as Actor;
   }
+<<<<<<< Updated upstream
+=======
+  export function validateField<K extends keyof Actor>(
+    field: K,
+    value: Actor[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Actor>,
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+>>>>>>> Stashed changes
 }
 
 export namespace Actor {
@@ -38736,6 +50257,7 @@ export namespace Actor {
     | ({ _type: "User" } & UserTainted)
     | ({ _type: "Employee" } & EmployeeTainted)
     | ({ _type: "Account" } & AccountTainted);
+<<<<<<< Updated upstream
   /** Field controller interface */ export interface FieldController<T> {
     readonly path: ReadonlyArray<string | number>;
     readonly name: string;
@@ -38753,6 +50275,8 @@ export namespace Actor {
     setTainted(value: Option<boolean>): void;
     validate(): Array<string>;
   }
+=======
+>>>>>>> Stashed changes
   /** Per-variant field controller types */ export interface UserFieldControllers {}
   export interface EmployeeFieldControllers {}
   export interface AccountFieldControllers {}

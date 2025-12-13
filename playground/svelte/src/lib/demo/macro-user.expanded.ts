@@ -229,6 +229,23 @@ export class MacroUser {
         }
         return instance;
     }
+
+    static validateField<K extends keyof MacroUser>(
+        field: K,
+        value: MacroUser[K]
+    ): Array<{
+        field: string;
+        message: string;
+    }> {
+        return [];
+    }
+
+    static validateFields(partial: Partial<MacroUser>): Array<{
+        field: string;
+        message: string;
+    }> {
+        return [];
+    }
 }
 
 const showcaseUser = new MacroUser({

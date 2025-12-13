@@ -10,6 +10,7 @@ import type { DeserializeOptions } from 'macroforge/serde';
 
 // ==================== ENUM EXAMPLES ====================
 
+/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 export enum Status {
     Active = 'active',
     Inactive = 'inactive',
@@ -63,6 +64,7 @@ export namespace Status {
     }
 }
 
+/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 export enum Priority {
     Low = 1,
     Medium = 2,
@@ -117,6 +119,7 @@ export namespace Priority {
     }
 }
 
+/** @derive(Debug, PartialEq) */
 export enum Color {
     Red,
     Green,
@@ -141,6 +144,7 @@ export namespace Color {
 
 // ==================== TYPE ALIAS EXAMPLES ====================
 
+/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 export type Point = {
     x: number;
     y: number;
@@ -217,7 +221,7 @@ export namespace Point {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return Result.ok(result);
+            return Result.ok<Point>(result);
         } catch (e) {
             if (e instanceof DeserializeError) {
                 return Result.err(e.errors);
@@ -239,8 +243,20 @@ export namespace Point {
         ctx.trackForFreeze(instance);
         return instance as Point;
     }
+    export function validateField<K extends keyof Point>(
+        field: K,
+        value: Point[K]
+    ): Array<{ field: string; message: string }> {
+        return [];
+    }
+    export function validateFields(
+        partial: Partial<Point>
+    ): Array<{ field: string; message: string }> {
+        return [];
+    }
 }
 
+/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 export type UserProfile = {
     id: string;
     username: string;
@@ -341,7 +357,7 @@ export namespace UserProfile {
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return Result.ok(result);
+            return Result.ok<UserProfile>(result);
         } catch (e) {
             if (e instanceof DeserializeError) {
                 return Result.err(e.errors);
@@ -363,8 +379,20 @@ export namespace UserProfile {
         ctx.trackForFreeze(instance);
         return instance as UserProfile;
     }
+    export function validateField<K extends keyof UserProfile>(
+        field: K,
+        value: UserProfile[K]
+    ): Array<{ field: string; message: string }> {
+        return [];
+    }
+    export function validateFields(
+        partial: Partial<UserProfile>
+    ): Array<{ field: string; message: string }> {
+        return [];
+    }
 }
 
+/** @derive(Debug, Clone, PartialEq) */
 export type Coordinate3D = {
     x: number;
     y: number;
@@ -394,6 +422,7 @@ export namespace Coordinate3D {
     }
 }
 
+/** @derive(Debug, PartialEq) */
 export type ApiStatus = 'loading' | 'success' | 'error';
 
 export namespace ApiStatus {

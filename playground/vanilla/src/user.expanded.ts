@@ -1,13 +1,15 @@
 /** import macro { JSON } from "@playground/macro"; */
 
 // Example of using Derive decorator and dynamic macro
-
+/** @derive(Debug, JSON) */
 export class User {
+    /** @debug({ rename: "identifier" }) */
     id: number;
 
     name: string;
     email: string;
 
+    /** @debug({ skip: true }) */
     authToken: string;
 
     constructor(id: number, name: string, email: string, authToken: string) {

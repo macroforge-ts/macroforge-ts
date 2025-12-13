@@ -201,6 +201,17 @@ export namespace SvelteAllMacrosTest {
         }
         return instance as SvelteAllMacrosTest;
     }
+    export function validateField<K extends keyof SvelteAllMacrosTest>(
+        field: K,
+        value: SvelteAllMacrosTest[K]
+    ): Array<{ field: string; message: string }> {
+        return [];
+    }
+    export function validateFields(
+        partial: Partial<SvelteAllMacrosTest>
+    ): Array<{ field: string; message: string }> {
+        return [];
+    }
 }
 
 export namespace SvelteAllMacrosTest {
