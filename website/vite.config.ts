@@ -3,9 +3,5 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit()],
-	ssr: {
-		// Temporary: needed for local file: dependency build
-		external: ['macroforge']
-	}
+	plugins: [tailwindcss(), sveltekit()]
 });
