@@ -1,3 +1,44 @@
+/**
+ * # Macroforge Utils Module
+ *
+ * This module provides Rust-like utility types for use in generated macro code.
+ * It re-exports `Result` and `Option` from `@rydshift/mirror` to provide
+ * ergonomic error handling and null safety in TypeScript.
+ *
+ * ## Result<T, E>
+ *
+ * A discriminated union representing either success (`Ok<T>`) or failure (`Err<E>`).
+ * Used by the `Deserialize` macro for validation errors.
+ *
+ * ```typescript
+ * import { Result } from "macroforge/utils";
+ *
+ * const result = User.fromStringifiedJSON(json);
+ * if (Result.isOk(result)) {
+ *   const user = result.value;
+ * } else {
+ *   console.error(result.error); // Array of field errors
+ * }
+ * ```
+ *
+ * ## Option<T>
+ *
+ * A discriminated union representing either a value (`Some<T>`) or absence (`None`).
+ * Used by `PartialOrd` macro for incomparable values.
+ *
+ * ```typescript
+ * import { Option } from "macroforge/utils";
+ *
+ * const cmp = user1.compareTo(user2);
+ * if (Option.isSome(cmp)) {
+ *   console.log(cmp.value); // -1, 0, or 1
+ * } else {
+ *   console.log("Values are incomparable");
+ * }
+ * ```
+ *
+ * @module macroforge/utils
+ */
 export { Result, Option } from "@rydshift/mirror/declarative";
 /**
  *

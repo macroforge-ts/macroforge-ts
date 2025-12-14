@@ -1,23 +1,142 @@
-//! /** @derive(PartialOrd) */ macro implementation
+//! # PartialOrd Macro Implementation
 //!
-//! Generates a `compareTo()` method for partial ordering comparison.
-//! Returns Option.some(-1) (less), Option.some(0) (equal), Option.some(1) (greater),
-//! or Option.none() (incomparable).
-//! Supports @ord(skip) decorator on fields to exclude them from comparison.
+//! The `PartialOrd` macro generates a `compareTo()` method for **partial ordering**
+//! comparison. This is analogous to Rust's `PartialOrd` trait, enabling comparison
+//! between values where some pairs may be incomparable.
+//!
+//! ## Generated Output
+//!
+//! | Type | Generated Method | Description |
+//! |------|------------------|-------------|
+//! | Class | `compareTo(other): Option<number>` | Instance method with optional result |
+//! | Enum | `EnumName.compareTo(a, b)` | Namespace function returning Option |
+//! | Interface | `InterfaceName.compareTo(self, other)` | Namespace function with Option |
+//! | Type Alias | `TypeName.compareTo(a, b)` | Namespace function with Option |
+//!
+//! ## Return Values
+//!
+//! Unlike `Ord`, `PartialOrd` returns an `Option<number>` to handle incomparable values:
+//!
+//! - **Option.some(-1)**: `this` is less than `other`
+//! - **Option.some(0)**: `this` is equal to `other`
+//! - **Option.some(1)**: `this` is greater than `other`
+//! - **Option.none()**: Values are incomparable
+//!
+//! ## When to Use PartialOrd vs Ord
+//!
+//! - **PartialOrd**: When some values may not be comparable
+//!   - Example: Floating-point NaN values
+//!   - Example: Mixed-type unions
+//!   - Example: Type mismatches between objects
+//!
+//! - **Ord**: When all values are guaranteed comparable (total ordering)
+//!
+//! ## Comparison Strategy
+//!
+//! Fields are compared **lexicographically** in declaration order:
+//!
+//! 1. Compare first field
+//! 2. If incomparable, return `Option.none()`
+//! 3. If not equal, return that result wrapped in `Option.some()`
+//! 4. Otherwise, compare next field
+//! 5. Continue until a difference is found or all fields are equal
+//!
+//! ## Type-Specific Comparisons
+//!
+//! | Type | Comparison Method |
+//! |------|-------------------|
+//! | `number`/`bigint` | Direct comparison, returns some() |
+//! | `string` | `localeCompare()` wrapped in some() |
+//! | `boolean` | false < true, wrapped in some() |
+//! | null/undefined | Returns none() for mismatched nullability |
+//! | Arrays | Lexicographic, propagates none() on incomparable elements |
+//! | `Date` | Timestamp comparison, none() if invalid |
+//! | Objects | Unwraps nested Option from compareTo() |
+//!
+//! ## Field-Level Options
+//!
+//! The `@ord` decorator supports:
+//!
+//! - `skip` - Exclude the field from ordering comparison
+//!
+//! ## Example
+//!
+//! ```typescript
+//! @derive(PartialOrd)
+//! class Temperature {
+//!     value: number | null;  // null represents "unknown"
+//!     unit: string;
+//! }
+//!
+//! // Generated:
+//! // compareTo(other: unknown): Option<number> {
+//! //     if (this === other) return Option.some(0);
+//! //     if (!(other instanceof Temperature)) return Option.none();
+//! //     const typedOther = other as Temperature;
+//! //     const cmp0 = ...;  // Compare value field
+//! //     if (cmp0 === null) return Option.none();
+//! //     if (cmp0 !== 0) return Option.some(cmp0);
+//! //     const cmp1 = ...;  // Compare unit field
+//! //     if (cmp1 === null) return Option.none();
+//! //     if (cmp1 !== 0) return Option.some(cmp1);
+//! //     return Option.some(0);
+//! // }
+//! ```
+//!
+//! ## Required Import
+//!
+//! The generated code automatically adds an import for `Option` from `macroforge/utils`.
 
 use crate::builtin::derive_common::{is_numeric_type, is_primitive_type, CompareFieldOptions};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
 
-/// Field info for ordering comparison: (field_name, ts_type)
+/// Contains field information needed for partial ordering comparison generation.
+///
+/// Each field that participates in ordering is represented by this struct,
+/// which captures both the field name (for access) and its TypeScript type
+/// (to select the appropriate comparison strategy).
 struct OrdField {
+    /// The field name as it appears in the source TypeScript class.
+    /// Used to generate property access expressions like `this.name`.
     name: String,
+
+    /// The TypeScript type annotation for this field.
+    /// Used to determine which comparison strategy to apply
+    /// (e.g., numeric comparison, string localeCompare, recursive compareTo).
     ts_type: String,
 }
 
-/// Generate comparison code for a single field (class method version)
-/// Returns code that evaluates to a raw number (-1, 0, 1) or null for incomparable
-/// The caller wraps the final result in Option
+/// Generates JavaScript code that compares a single class field for partial ordering.
+///
+/// This function produces an expression that evaluates to -1, 0, 1, or `null`.
+/// The `null` value indicates incomparable values (the caller wraps results in `Option`).
+///
+/// # Arguments
+///
+/// * `field` - The field to generate comparison code for
+/// * `allow_null` - Whether to return `null` for incomparable values (true for
+///   PartialOrd, false for Ord which uses 0 instead)
+///
+/// # Returns
+///
+/// A string containing a JavaScript expression that evaluates to -1, 0, 1, or null.
+/// The expression compares `this.field` with `typedOther.field`.
+///
+/// # Type-Specific Strategies
+///
+/// - **number/bigint**: Direct comparison, never null
+/// - **string**: `localeCompare()`, never null
+/// - **boolean**: false < true, never null
+/// - **null/undefined**: Returns `null_return` if values differ
+/// - **Arrays**: Returns null if element comparison returns null
+/// - **Date**: Returns null if either value is not a valid Date
+/// - **Objects**: Unwraps `Option` from nested `compareTo()` calls
+///
+/// # Example Output
+///
+/// For a number field: `"(this.count < typedOther.count ? -1 : this.count > typedOther.count ? 1 : 0)"`
+/// For an object field: `"(() => { if (typeof (this.user as any)?.compareTo === 'function') { ... } })()"`
 fn generate_field_compare(field: &OrdField, allow_null: bool) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;
@@ -92,7 +211,22 @@ fn generate_field_compare(field: &OrdField, allow_null: bool) -> String {
     }
 }
 
-/// Generate comparison code for interface/type alias fields
+/// Generates JavaScript code that compares interface/type alias fields for partial ordering.
+///
+/// Similar to [`generate_field_compare`], but uses variable name parameters instead
+/// of `this`, making it suitable for namespace functions that take objects as parameters.
+///
+/// # Arguments
+///
+/// * `field` - The field to generate comparison code for
+/// * `self_var` - Variable name for the first object (e.g., "self", "a")
+/// * `other_var` - Variable name for the second object (e.g., "other", "b")
+/// * `allow_null` - Whether to return null for incomparable values
+///
+/// # Returns
+///
+/// A string containing a JavaScript expression that evaluates to -1, 0, 1, or null.
+/// Field access uses the provided variable names.
 fn generate_field_compare_for_interface(
     field: &OrdField,
     self_var: &str,

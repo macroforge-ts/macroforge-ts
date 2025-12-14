@@ -1,8 +1,80 @@
-//! Macro expansion engine
+//! # Macro Expansion Engine
 //!
 //! This module provides the core expansion functionality for TypeScript macros.
-//! It handles both classes and interfaces, supports external macro loading via Node.js,
-//! and provides source mapping for IDE integration.
+//! It handles classes, interfaces, enums, and type aliases, supports external
+//! macro loading via Node.js, and provides source mapping for IDE integration.
+//!
+//! ## Architecture Overview
+//!
+//! ```text
+//! Source Code + AST
+//!        │
+//!        ▼
+//! ┌──────────────────────────────────────────┐
+//! │            MacroExpander                  │
+//! │                                           │
+//! │  1. prepare_expansion_context()           │
+//! │     - Lower AST to IR (ClassIR, etc.)    │
+//! │                                           │
+//! │  2. collect_macro_patches()               │
+//! │     - Find @derive decorators             │
+//! │     - Dispatch to macro implementations   │
+//! │     - Collect patches from each macro     │
+//! │                                           │
+//! │  3. apply_and_finalize_expansion()        │
+//! │     - Apply patches to source code        │
+//! │     - Generate source mapping             │
+//! │     - Optionally strip decorators         │
+//! └──────────────────────────────────────────┘
+//!        │
+//!        ▼
+//!  MacroExpansion
+//!  (expanded code + diagnostics + source mapping)
+//! ```
+//!
+//! ## Key Types
+//!
+//! - [`MacroExpander`] - The main expansion engine
+//! - [`MacroExpansion`] - Result of expansion with code, diagnostics, mapping
+//! - `LoweredItems` - IR representations of TypeScript declarations
+//!
+//! ## External Macro Loading
+//!
+//! When a macro is not found in the built-in registry, the expander can
+//! load external macros by spawning a Node.js process. This enables:
+//!
+//! - User-defined macros in JavaScript/TypeScript
+//! - Workspace-local macros in monorepos
+//! - npm-published macro packages
+//!
+//! The external loader searches for macros in:
+//! 1. `node_modules` nearest to the file being processed
+//! 2. The module path specified in the import
+//! 3. Workspace packages defined in `package.json`
+//!
+//! ## Usage Example
+//!
+//! ```ignore
+//! use macroforge_ts::host::MacroExpander;
+//!
+//! let expander = MacroExpander::new()?;
+//!
+//! // Simple API for CLI usage
+//! let expansion = expander.expand_source(source_code, "file.ts")?;
+//!
+//! // Or with a pre-parsed AST
+//! let expansion = expander.expand(source_code, &program, "file.ts")?;
+//!
+//! // Check for errors
+//! for diag in &expansion.diagnostics {
+//!     if diag.level == DiagnosticLevel::Error {
+//!         eprintln!("Error: {}", diag.message);
+//!     }
+//! }
+//!
+//! // Use the expanded code
+//! println!("{}", expansion.code);
+//! ```
 
 use std::collections::HashMap;
 use std::path::Path;
@@ -1408,6 +1480,10 @@ fn collect_from_class(
     out: &mut Vec<DeriveTarget>,
 ) {
     for decorator in &class_ir.decorators {
+        // Only process @derive decorators, skip other decorators like @enumFieldsetController
+        if !decorator.name.eq_ignore_ascii_case("derive") {
+            continue;
+        }
         if let Some(macro_names) = parse_derive_decorator(&decorator.args_src, import_sources) {
             if macro_names.is_empty() {
                 continue;
@@ -1441,6 +1517,10 @@ fn collect_from_interface(
     out: &mut Vec<DeriveTarget>,
 ) {
     for decorator in &interface_ir.decorators {
+        // Only process @derive decorators, skip other decorators like @enumFieldsetController
+        if !decorator.name.eq_ignore_ascii_case("derive") {
+            continue;
+        }
         if let Some(macro_names) = parse_derive_decorator(&decorator.args_src, import_sources) {
             if macro_names.is_empty() {
                 continue;
@@ -1474,6 +1554,10 @@ fn collect_from_enum(
     out: &mut Vec<DeriveTarget>,
 ) {
     for decorator in &enum_ir.decorators {
+        // Only process @derive decorators, skip other decorators like @enumFieldsetController
+        if !decorator.name.eq_ignore_ascii_case("derive") {
+            continue;
+        }
         if let Some(macro_names) = parse_derive_decorator(&decorator.args_src, import_sources) {
             if macro_names.is_empty() {
                 continue;
@@ -1507,6 +1591,10 @@ fn collect_from_type_alias(
     out: &mut Vec<DeriveTarget>,
 ) {
     for decorator in &type_alias_ir.decorators {
+        // Only process @derive decorators, skip other decorators like @enumFieldsetController
+        if !decorator.name.eq_ignore_ascii_case("derive") {
+            continue;
+        }
         if let Some(macro_names) = parse_derive_decorator(&decorator.args_src, import_sources) {
             if macro_names.is_empty() {
                 continue;

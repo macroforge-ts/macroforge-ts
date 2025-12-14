@@ -1,13 +1,104 @@
+//! AST lowering from SWC types to IR representations.
+//!
+//! This module provides functions to convert SWC's parsed AST into the
+//! intermediate representation (IR) types used by the macro system. This
+//! "lowering" process extracts the information relevant for macros while
+//! discarding unnecessary AST details.
+//!
+//! ## Overview
+//!
+//! The lowering process:
+//! 1. Visits the SWC [`Module`](swc_core::ecma::ast::Module) AST
+//! 2. Extracts declarations (classes, interfaces, enums, type aliases)
+//! 3. Collects decorators from both TypeScript decorators and JSDoc comments
+//! 4. Computes source spans for each declaration
+//! 5. Returns IR types ready for macro processing
+//!
+//! ## Functions
+//!
+//! | Function | Extracts |
+//! |----------|----------|
+//! | [`lower_classes`] | All class declarations |
+//! | [`lower_interfaces`] | All interface declarations |
+//! | [`lower_enums`] | All enum declarations |
+//! | [`lower_type_aliases`] | All type alias declarations |
+//! | [`lower_targets`] | All supported declarations as [`LoweredTarget`] |
+//!
+//! ## Example
+//!
+//! ```rust,ignore
+//! use macroforge_ts_syn::{lower_classes, parse_ts_module};
+//!
+//! let source = r#"
+//!     /** @derive(Debug) */
+//!     class User {
+//!         name: string;
+//!         age: number;
+//!     }
+//! "#;
+//!
+//! let module = parse_ts_module(source, "input.ts")?;
+//! let classes = lower_classes(&module, source)?;
+//!
+//! for class in classes {
+//!     println!("Found class: {}", class.name);
+//!     for field in &class.fields {
+//!         println!("  Field: {} ({})", field.name, field.ts_type);
+//!     }
+//! }
+//! ```
+//!
+//! ## JSDoc Decorators
+//!
+//! The lowering process collects decorators from JSDoc comments using the
+//! `@name(args)` syntax. For example:
+//!
+//! ```typescript
+//! /**
+//!  * @derive(Debug, Clone)
+//!  * @serde(rename = "user")
+//!  */
+//! class User { }
+//! ```
+//!
+//! Both `@derive(Debug, Clone)` and `@serde(rename = "user")` are collected
+//! as decorators on the class.
+
 use crate::abi::*;
 
 use crate::TsSynError;
 
-/// A lowered target that can be a class, interface, enum, or type alias
+/// A union type representing any lowerable TypeScript declaration.
+///
+/// This enum allows functions to return mixed collections of different
+/// declaration types, useful when processing an entire module without
+/// knowing what types of declarations it contains.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use macroforge_ts_syn::{lower_targets, LoweredTarget};
+///
+/// let targets = lower_targets(&module, source)?;
+///
+/// for target in targets {
+///     match target {
+///         LoweredTarget::Class(c) => println!("Class: {}", c.name),
+///         LoweredTarget::Interface(i) => println!("Interface: {}", i.name),
+///         LoweredTarget::Enum(e) => println!("Enum: {}", e.name),
+///         LoweredTarget::TypeAlias(t) => println!("Type alias: {}", t.name),
+///     }
+/// }
+/// ```
 #[derive(Clone, Debug)]
 pub enum LoweredTarget {
+    /// A lowered class declaration.
     Class(ClassIR),
+    /// A lowered interface declaration.
     Interface(InterfaceIR),
+    /// A lowered enum declaration.
     Enum(EnumIR),
+    /// A lowered type alias declaration.
     TypeAlias(TypeAliasIR),
 }
 
@@ -18,7 +109,36 @@ use swc_core::ecma::ast::*;
 #[cfg(feature = "swc")]
 use swc_core::ecma::visit::{Visit, VisitWith};
 
-/// Lower a module into ClassIR list (derive targets).
+/// Extracts all class declarations from a module and converts them to IR.
+///
+/// This function visits the parsed module AST and extracts all class
+/// declarations, converting them to [`ClassIR`] representations. It collects:
+/// - Class name and spans
+/// - Fields with types and modifiers
+/// - Methods with signatures
+/// - Decorators from both TypeScript decorator syntax and JSDoc comments
+///
+/// # Arguments
+///
+/// - `module` - The parsed SWC module AST
+/// - `source` - The original source code (needed for span extraction)
+///
+/// # Returns
+///
+/// A `Vec<ClassIR>` containing all class declarations in the module.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use macroforge_ts_syn::{lower_classes, parse_ts_module};
+///
+/// let source = "class User { name: string; }";
+/// let module = parse_ts_module(source, "input.ts")?;
+/// let classes = lower_classes(&module, source)?;
+///
+/// assert_eq!(classes.len(), 1);
+/// assert_eq!(classes[0].name, "User");
+/// ```
 #[cfg(feature = "swc")]
 pub fn lower_classes(module: &Module, source: &str) -> Result<Vec<ClassIR>, TsSynError> {
     let mut v = ClassCollector {
@@ -29,7 +149,30 @@ pub fn lower_classes(module: &Module, source: &str) -> Result<Vec<ClassIR>, TsSy
     Ok(v.out)
 }
 
-/// Lower a module into InterfaceIR list (derive targets).
+/// Extracts all interface declarations from a module and converts them to IR.
+///
+/// Similar to [`lower_classes`], but for TypeScript interfaces. Collects:
+/// - Interface name and spans
+/// - Properties with types and modifiers
+/// - Method signatures
+/// - Decorators from JSDoc comments
+///
+/// # Arguments
+///
+/// - `module` - The parsed SWC module AST
+/// - `source` - The original source code
+///
+/// # Example
+///
+/// ```rust,ignore
+/// let source = "interface User { name: string; greet(): void; }";
+/// let module = parse_ts_module(source, "input.ts")?;
+/// let interfaces = lower_interfaces(&module, source)?;
+///
+/// assert_eq!(interfaces[0].name, "User");
+/// assert_eq!(interfaces[0].fields.len(), 1);
+/// assert_eq!(interfaces[0].methods.len(), 1);
+/// ```
 #[cfg(feature = "swc")]
 pub fn lower_interfaces(module: &Module, source: &str) -> Result<Vec<InterfaceIR>, TsSynError> {
     let mut v = InterfaceCollector {
@@ -40,7 +183,33 @@ pub fn lower_interfaces(module: &Module, source: &str) -> Result<Vec<InterfaceIR
     Ok(v.out)
 }
 
-/// Lower a module into all derive targets (classes and interfaces).
+/// Extracts all supported declarations from a module as [`LoweredTarget`].
+///
+/// This function is useful when you need to process all macro targets in
+/// a module without knowing their types in advance. It collects classes,
+/// interfaces, enums, and type aliases into a single vector.
+///
+/// # Arguments
+///
+/// - `module` - The parsed SWC module AST
+/// - `source` - The original source code
+///
+/// # Example
+///
+/// ```rust,ignore
+/// let source = r#"
+///     class User { }
+///     interface IUser { }
+///     enum Status { Active }
+///     type ID = string;
+/// "#;
+///
+/// let module = parse_ts_module(source, "input.ts")?;
+/// let targets = lower_targets(&module, source)?;
+///
+/// // targets contains all 4 declarations
+/// assert_eq!(targets.len(), 4);
+/// ```
 #[cfg(feature = "swc")]
 pub fn lower_targets(module: &Module, source: &str) -> Result<Vec<LoweredTarget>, TsSynError> {
     let mut v = TargetCollector {
@@ -51,7 +220,36 @@ pub fn lower_targets(module: &Module, source: &str) -> Result<Vec<LoweredTarget>
     Ok(v.out)
 }
 
-/// Lower a module into EnumIR list (derive targets).
+/// Extracts all enum declarations from a module and converts them to IR.
+///
+/// Collects TypeScript enum declarations including:
+/// - Enum name and spans
+/// - Variants with their values (string, number, auto, or expression)
+/// - Whether the enum is a `const enum`
+/// - Decorators from JSDoc comments
+///
+/// # Arguments
+///
+/// - `module` - The parsed SWC module AST
+/// - `source` - The original source code
+///
+/// # Example
+///
+/// ```rust,ignore
+/// let source = r#"
+///     /** @derive(Debug) */
+///     enum Status {
+///         Active = "ACTIVE",
+///         Inactive = "INACTIVE",
+///     }
+/// "#;
+///
+/// let module = parse_ts_module(source, "input.ts")?;
+/// let enums = lower_enums(&module, source)?;
+///
+/// assert_eq!(enums[0].name, "Status");
+/// assert_eq!(enums[0].variants.len(), 2);
+/// ```
 #[cfg(feature = "swc")]
 pub fn lower_enums(module: &Module, source: &str) -> Result<Vec<EnumIR>, TsSynError> {
     let mut v = EnumCollector {
@@ -62,7 +260,72 @@ pub fn lower_enums(module: &Module, source: &str) -> Result<Vec<EnumIR>, TsSynEr
     Ok(v.out)
 }
 
-/// Lower a module into TypeAliasIR list (derive targets).
+/// Extracts all type alias declarations from a module and converts them to IR.
+///
+/// Collects TypeScript type alias declarations including:
+/// - Type alias name and spans
+/// - Type parameters (generics)
+/// - The type body (union, intersection, object literal, tuple, or simple alias)
+/// - Decorators from JSDoc comments
+///
+/// For union and intersection types, the individual members are also lowered
+/// with their own decorators, enabling features like marking a default variant.
+///
+/// # Arguments
+///
+/// - `module` - The parsed SWC module AST
+/// - `source` - The original source code
+///
+/// # Type Body Variants
+///
+/// The [`TypeBody`] returned in [`TypeAliasIR::body`] reflects the structure:
+/// - `TypeBody::Union` - For `A | B | C` union types
+/// - `TypeBody::Intersection` - For `A & B & C` intersection types
+/// - `TypeBody::Object` - For inline object types `{ x: number; y: string }`
+/// - `TypeBody::Tuple` - For tuple types `[string, number]`
+/// - `TypeBody::Alias` - For simple type references `string`, `Array<T>`
+/// - `TypeBody::Other` - For complex types (mapped, conditional, etc.)
+///
+/// # Example
+///
+/// ```rust,ignore
+/// let source = r#"
+///     /** @derive(Default, Deserialize) */
+///     type Status = "active" | "inactive" | "pending";
+///
+///     /** @derive(Serialize) */
+///     type Point = { x: number; y: number };
+///
+///     type Result<T, E> = { ok: true; value: T } | { ok: false; error: E };
+/// "#;
+///
+/// let module = parse_ts_module(source, "input.ts")?;
+/// let type_aliases = lower_type_aliases(&module, source)?;
+///
+/// for alias in &type_aliases {
+///     println!("Type alias: {}", alias.name);
+///     match &alias.body {
+///         TypeBody::Union(members) => println!("  Union with {} variants", members.len()),
+///         TypeBody::Object { fields } => println!("  Object with {} fields", fields.len()),
+///         TypeBody::Alias(s) => println!("  Simple alias to {}", s),
+///         _ => {}
+///     }
+/// }
+/// ```
+///
+/// # Union Variant Decorators
+///
+/// Each member of a union type can have its own decorators from inline JSDoc:
+///
+/// ```typescript
+/// /** @derive(Default) */
+/// type Mode =
+///   | /** @default */ "light"
+///   | "dark";
+/// ```
+///
+/// The `@default` decorator on the "light" variant is captured in the
+/// corresponding [`TypeMember::decorators`] field.
 #[cfg(feature = "swc")]
 pub fn lower_type_aliases(module: &Module, source: &str) -> Result<Vec<TypeAliasIR>, TsSynError> {
     let mut v = TypeAliasCollector {

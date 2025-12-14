@@ -1,37 +1,171 @@
-//! Macro execution context
+//! Macro execution context types.
+//!
+//! This module provides the context that is passed to macro functions during
+//! execution. The [`MacroContextIR`] contains all the information a macro needs
+//! to process its input and generate output.
+//!
+//! ## Context Flow
+//!
+//! ```text
+//! TypeScript Source
+//!        │
+//!        ▼
+//! ┌─────────────────┐
+//! │  Parse & Lower  │  (SWC parser → IR types)
+//! └────────┬────────┘
+//!          │
+//!          ▼
+//! ┌─────────────────┐
+//! │ MacroContextIR  │  (Serialized to macro)
+//! └────────┬────────┘
+//!          │
+//!          ▼
+//! ┌─────────────────┐
+//! │  Macro Function │  (Your code!)
+//! └────────┬────────┘
+//!          │
+//!          ▼
+//! ┌─────────────────┐
+//! │   MacroResult   │  (Patches to apply)
+//! └─────────────────┘
+//! ```
+//!
+//! ## Example Usage
+//!
+//! ```rust,ignore
+//! use macroforge_ts_syn::{MacroContextIR, MacroResult, DeriveInput};
+//!
+//! pub fn my_derive_macro(ctx: MacroContextIR) -> MacroResult {
+//!     // Access macro metadata
+//!     println!("Macro: {} from {}", ctx.macro_name, ctx.module_path);
+//!     println!("File: {}", ctx.file_name);
+//!
+//!     // Work with the target
+//!     if let Some(class) = ctx.as_class() {
+//!         println!("Processing class: {}", class.name);
+//!     }
+//!
+//!     MacroResult::ok()
+//! }
+//! ```
 
 use crate::abi::{ClassIR, EnumIR, InterfaceIR, SpanIR, TypeAliasIR};
 use serde::{Deserialize, Serialize};
 
-/// The kind of macro being executed
+/// The kind of macro being executed.
+///
+/// Different macro kinds have different invocation syntax and capabilities:
+///
+/// - **Derive**: Attached to types, generates additional code alongside the type
+/// - **Attribute**: Attached to declarations, can transform the declaration
+/// - **Call**: Invoked inline, generates code at the call site
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MacroKind {
-    /// Derive macro: /** @derive(Debug, Clone) */
+    /// A derive macro attached via JSDoc.
+    ///
+    /// Example: `/** @derive(Debug, Clone) */`
+    ///
+    /// Derive macros receive the type definition and generate additional
+    /// code (methods, traits, etc.) without modifying the original type.
     Derive,
-    /// Attribute macro: @log, @sqlTable
+
+    /// An attribute macro attached to a declaration.
+    ///
+    /// Example: `@log`, `@sqlTable("users")`
+    ///
+    /// Attribute macros can transform or augment the target declaration.
     Attribute,
-    /// Call macro: macro.sql, Foo!()
+
+    /// A call macro invoked inline.
+    ///
+    /// Example: `sql!("SELECT * FROM users")`, `html!(<div>...</div>)`
+    ///
+    /// Call macros generate code at the invocation site.
     Call,
 }
 
-/// Target of a macro application
+/// The target declaration of a macro application.
+///
+/// Wraps the IR type of the declaration that the macro is applied to,
+/// allowing macros to handle different target types uniformly.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use macroforge_ts_syn::TargetIR;
+///
+/// fn get_target_name(target: &TargetIR) -> &str {
+///     match target {
+///         TargetIR::Class(c) => &c.name,
+///         TargetIR::Interface(i) => &i.name,
+///         TargetIR::Enum(e) => &e.name,
+///         TargetIR::TypeAlias(t) => &t.name,
+///         _ => "<unknown>",
+///     }
+/// }
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TargetIR {
-    /// Macro applied to a class
+    /// Macro applied to a class declaration.
     Class(ClassIR),
-    /// Macro applied to an enum
+
+    /// Macro applied to an enum declaration.
     Enum(EnumIR),
-    /// Macro applied to an interface
+
+    /// Macro applied to an interface declaration.
     Interface(InterfaceIR),
-    /// Macro applied to a type alias
+
+    /// Macro applied to a type alias declaration.
     TypeAlias(TypeAliasIR),
-    /// Macro applied to a function (future)
+
+    /// Macro applied to a function (reserved for future use).
     Function,
-    /// Macro applied to other construct
+
+    /// Macro applied to an unsupported construct.
     Other,
 }
 
-/// Context provided to macros during execution
+/// Context provided to macros during execution.
+///
+/// This is the primary input to all macro functions. It contains:
+/// - Metadata about the macro invocation (name, kind, source location)
+/// - The target declaration ([`TargetIR`]) the macro is applied to
+/// - Source spans for accurate error reporting
+/// - The raw source code of the target for custom parsing
+///
+/// # ABI Stability
+///
+/// The `abi_version` field allows for backwards compatibility checking.
+/// Macros can verify they're compatible with the runtime version.
+///
+/// # Error Reporting
+///
+/// Use [`error_span()`](Self::error_span) to get the best span for error
+/// messages. It prefers `macro_name_span` (pointing to the specific macro)
+/// over `decorator_span` (pointing to the entire decorator).
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use macroforge_ts_syn::{MacroContextIR, MacroResult, Patch};
+///
+/// pub fn debug_derive(ctx: MacroContextIR) -> MacroResult {
+///     let class = ctx.as_class().expect("Debug requires a class");
+///
+///     // Generate a debug method
+///     let method_code = format!(
+///         r#"debug(): string {{
+///             return "{}({{}})";
+///         }}"#,
+///         class.name
+///     );
+///
+///     // Insert at end of class body
+///     MacroResult::ok().with_patches(vec![
+///         Patch::insert_into_class(class.body_span, method_code)
+///     ])
+/// }
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MacroContextIR {
     /// ABI version for compatibility checking

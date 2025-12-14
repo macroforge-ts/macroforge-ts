@@ -8,12 +8,7 @@ import { PendingRef } from 'macroforge/serde';
  * Tests string, number, array, and date validators with real form validation.
  */
 
-<<<<<<< Updated upstream
-=======
-import { Result } from 'macroforge/utils';
-
 /** @derive(Deserialize) */
->>>>>>> Stashed changes
 export class UserRegistrationForm {
     /** @serde({ validate: ["email"] }) */
     email: string;

@@ -3,6 +3,7 @@ import { SerializeContext } from 'macroforge/serde';
 import { Result } from 'macroforge/utils';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
 /**
  * Examples demonstrating derive macros on enums and type aliases.
  * These showcase the new enum and type alias support for all built-in macros.
@@ -216,12 +217,20 @@ export namespace Point {
     ): Result<Point, Array<{ field: string; message: string }>> {
         try {
             const ctx = DeserializeContext.create();
-            const result = __deserialize(obj, ctx);
+            const resultOrRef = __deserialize(obj, ctx);
+            if (PendingRef.is(resultOrRef)) {
+                return Result.err([
+                    {
+                        field: '_root',
+                        message: 'Point.fromObject: root cannot be a forward reference'
+                    }
+                ]);
+            }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return Result.ok<Point>(result);
+            return Result.ok(resultOrRef);
         } catch (e) {
             if (e instanceof DeserializeError) {
                 return Result.err(e.errors);
@@ -230,29 +239,43 @@ export namespace Point {
             return Result.err([{ field: '_root', message }]);
         }
     }
-    export function __deserialize(value: any, ctx: DeserializeContext): Point {
+    export function __deserialize(value: any, ctx: DeserializeContext): Point | PendingRef<Point> {
         if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref) as Point;
+            return ctx.getOrDefer(value.__ref) as Point | PendingRef<Point>;
         }
-        const instance = { ...value };
-        delete instance.__type;
-        delete instance.__id;
-        if (value.__id !== undefined) {
-            ctx.register(value.__id as number, instance);
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new DeserializeError([
+                { field: '_root', message: 'Point.__deserialize: expected an object' }
+            ]);
+        }
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!('x' in obj)) {
+            errors.push({ field: 'x', message: 'missing required field' });
+        }
+        if (!('y' in obj)) {
+            errors.push({ field: 'y', message: 'missing required field' });
+        }
+        if (errors.length > 0) {
+            throw new DeserializeError(errors);
+        }
+        const instance: any = {};
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
         }
         ctx.trackForFreeze(instance);
+        {
+            const __raw_x = obj['x'];
+            instance.x = __raw_x;
+        }
+        {
+            const __raw_y = obj['y'];
+            instance.y = __raw_y;
+        }
+        if (errors.length > 0) {
+            throw new DeserializeError(errors);
+        }
         return instance as Point;
-    }
-    export function validateField<K extends keyof Point>(
-        field: K,
-        value: Point[K]
-    ): Array<{ field: string; message: string }> {
-        return [];
-    }
-    export function validateFields(
-        partial: Partial<Point>
-    ): Array<{ field: string; message: string }> {
-        return [];
     }
 }
 
@@ -352,12 +375,20 @@ export namespace UserProfile {
     ): Result<UserProfile, Array<{ field: string; message: string }>> {
         try {
             const ctx = DeserializeContext.create();
-            const result = __deserialize(obj, ctx);
+            const resultOrRef = __deserialize(obj, ctx);
+            if (PendingRef.is(resultOrRef)) {
+                return Result.err([
+                    {
+                        field: '_root',
+                        message: 'UserProfile.fromObject: root cannot be a forward reference'
+                    }
+                ]);
+            }
             ctx.applyPatches();
             if (opts?.freeze) {
                 ctx.freezeAll();
             }
-            return Result.ok<UserProfile>(result);
+            return Result.ok(resultOrRef);
         } catch (e) {
             if (e instanceof DeserializeError) {
                 return Result.err(e.errors);
@@ -366,29 +397,67 @@ export namespace UserProfile {
             return Result.err([{ field: '_root', message }]);
         }
     }
-    export function __deserialize(value: any, ctx: DeserializeContext): UserProfile {
+    export function __deserialize(
+        value: any,
+        ctx: DeserializeContext
+    ): UserProfile | PendingRef<UserProfile> {
         if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref) as UserProfile;
+            return ctx.getOrDefer(value.__ref) as UserProfile | PendingRef<UserProfile>;
         }
-        const instance = { ...value };
-        delete instance.__type;
-        delete instance.__id;
-        if (value.__id !== undefined) {
-            ctx.register(value.__id as number, instance);
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new DeserializeError([
+                { field: '_root', message: 'UserProfile.__deserialize: expected an object' }
+            ]);
+        }
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!('id' in obj)) {
+            errors.push({ field: 'id', message: 'missing required field' });
+        }
+        if (!('username' in obj)) {
+            errors.push({ field: 'username', message: 'missing required field' });
+        }
+        if (!('email' in obj)) {
+            errors.push({ field: 'email', message: 'missing required field' });
+        }
+        if (!('age' in obj)) {
+            errors.push({ field: 'age', message: 'missing required field' });
+        }
+        if (!('isVerified' in obj)) {
+            errors.push({ field: 'isVerified', message: 'missing required field' });
+        }
+        if (errors.length > 0) {
+            throw new DeserializeError(errors);
+        }
+        const instance: any = {};
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
         }
         ctx.trackForFreeze(instance);
+        {
+            const __raw_id = obj['id'];
+            instance.id = __raw_id;
+        }
+        {
+            const __raw_username = obj['username'];
+            instance.username = __raw_username;
+        }
+        {
+            const __raw_email = obj['email'];
+            instance.email = __raw_email;
+        }
+        {
+            const __raw_age = obj['age'];
+            instance.age = __raw_age;
+        }
+        {
+            const __raw_isVerified = obj['isVerified'];
+            instance.isVerified = __raw_isVerified;
+        }
+        if (errors.length > 0) {
+            throw new DeserializeError(errors);
+        }
         return instance as UserProfile;
-    }
-    export function validateField<K extends keyof UserProfile>(
-        field: K,
-        value: UserProfile[K]
-    ): Array<{ field: string; message: string }> {
-        return [];
-    }
-    export function validateFields(
-        partial: Partial<UserProfile>
-    ): Array<{ field: string; message: string }> {
-        return [];
     }
 }
 

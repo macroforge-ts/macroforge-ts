@@ -268,7 +268,7 @@ fn generate_array_extraction(name: &str, form_key: &str, field: &ParsedField) ->
                     if (!hasAny && idx > 0) break;
                     if (hasAny) {{
                         const item: Record<string, unknown> = {{}};
-                        for (const [key, value] of formData.entries()) {{
+                        for (const [key, value] of Array.from(formData.entries())) {{
                             if (key.startsWith("{form_key}." + idx + ".")) {{
                                 const fieldName = key.slice("{form_key}.".length + String(idx).length + 1);
                                 item[fieldName] = value;
@@ -296,20 +296,20 @@ fn generate_nested_extraction(name: &str, form_key: &str, field: &ParsedField) -
         r#"{{
             // Collect nested object fields with prefix "{form_key}."
             const {name}Obj: Record<string, unknown> = {{}};
-            for (const [key, value] of formData.entries()) {{
+            for (const [key, value] of Array.from(formData.entries())) {{
                 if (key.startsWith("{form_key}.")) {{
                     const fieldName = key.slice("{form_key}.".length);
                     // Handle deeper nesting by splitting on dots
                     const parts = fieldName.split(".");
                     let current = {name}Obj;
                     for (let i = 0; i < parts.length - 1; i++) {{
-                        const part = parts[i];
+                        const part = parts[i]!;
                         if (!(part in current)) {{
                             current[part] = {{}};
                         }}
                         current = current[part] as Record<string, unknown>;
                     }}
-                    current[parts[parts.length - 1]] = value;
+                    current[parts[parts.length - 1]!] = value;
                 }}
             }}
             obj.{name} = {name}Obj;

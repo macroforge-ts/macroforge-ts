@@ -1,21 +1,134 @@
-//! /** @derive(Ord) */ macro implementation
+//! # Ord Macro Implementation
 //!
-//! Generates a `compareTo()` method for total ordering.
-//! Returns -1 (less), 0 (equal), or 1 (greater) - never null.
-//! Supports @ord(skip) decorator on fields to exclude them from comparison.
+//! The `Ord` macro generates a `compareTo()` method for **total ordering** comparison.
+//! This is analogous to Rust's `Ord` trait, enabling objects to be sorted and
+//! compared with a guaranteed ordering relationship.
+//!
+//! ## Generated Output
+//!
+//! | Type | Generated Method | Description |
+//! |------|------------------|-------------|
+//! | Class | `compareTo(other): number` | Instance method returning -1, 0, or 1 |
+//! | Enum | `EnumName.compareTo(a, b)` | Namespace function comparing enum values |
+//! | Interface | `InterfaceName.compareTo(self, other)` | Namespace function comparing fields |
+//! | Type Alias | `TypeName.compareTo(a, b)` | Namespace function with type-appropriate comparison |
+//!
+//! ## Return Values
+//!
+//! Unlike `PartialOrd`, `Ord` provides **total ordering** - every pair of values
+//! can be compared:
+//!
+//! - **-1**: `this` is less than `other`
+//! - **0**: `this` is equal to `other`
+//! - **1**: `this` is greater than `other`
+//!
+//! The method **never returns null** - all values must be comparable.
+//!
+//! ## Comparison Strategy
+//!
+//! Fields are compared **lexicographically** in declaration order:
+//!
+//! 1. Compare first field
+//! 2. If not equal, return that result
+//! 3. Otherwise, compare next field
+//! 4. Continue until a difference is found or all fields are equal
+//!
+//! ## Type-Specific Comparisons
+//!
+//! | Type | Comparison Method |
+//! |------|-------------------|
+//! | `number`/`bigint` | Direct `<` and `>` comparison |
+//! | `string` | `localeCompare()` (clamped to -1, 0, 1) |
+//! | `boolean` | false < true |
+//! | Arrays | Lexicographic element-by-element |
+//! | `Date` | `getTime()` timestamp comparison |
+//! | Objects | Calls `compareTo()` if available, else 0 |
+//!
+//! ## Field-Level Options
+//!
+//! The `@ord` decorator supports:
+//!
+//! - `skip` - Exclude the field from ordering comparison
+//!
+//! ## Example
+//!
+//! ```typescript
+//! @derive(Ord)
+//! class Version {
+//!     major: number;
+//!     minor: number;
+//!     patch: number;
+//! }
+//!
+//! // Generated:
+//! // compareTo(other: Version): number {
+//! //     if (this === other) return 0;
+//! //     const typedOther = other;
+//! //     const cmp0 = this.major < typedOther.major ? -1 : this.major > typedOther.major ? 1 : 0;
+//! //     if (cmp0 !== 0) return cmp0;
+//! //     const cmp1 = this.minor < typedOther.minor ? -1 : ...;
+//! //     if (cmp1 !== 0) return cmp1;
+//! //     const cmp2 = this.patch < typedOther.patch ? -1 : ...;
+//! //     if (cmp2 !== 0) return cmp2;
+//! //     return 0;
+//! // }
+//!
+//! // Usage:
+//! versions.sort((a, b) => a.compareTo(b));
+//! ```
+//!
+//! ## Ord vs PartialOrd
+//!
+//! - Use **Ord** when all values are comparable (total ordering)
+//! - Use **PartialOrd** when some values may be incomparable (returns `Option<number>`)
 
 use crate::builtin::derive_common::{is_numeric_type, is_primitive_type, CompareFieldOptions};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
 
-/// Field info for ordering comparison: (field_name, ts_type)
+/// Contains field information needed for ordering comparison generation.
+///
+/// Each field that participates in ordering is represented by this struct,
+/// which captures both the field name (for access) and its TypeScript type
+/// (to select the appropriate comparison strategy).
 struct OrdField {
+    /// The field name as it appears in the source TypeScript class.
+    /// Used to generate property access expressions like `this.name`.
     name: String,
+
+    /// The TypeScript type annotation for this field.
+    /// Used to determine which comparison strategy to apply
+    /// (e.g., numeric comparison, string localeCompare, recursive compareTo).
     ts_type: String,
 }
 
-/// Generate comparison code for a single field (class method version)
-/// Returns code that evaluates to -1, 0, or 1 (never null - total ordering)
+/// Generates JavaScript code that compares a single class field for ordering.
+///
+/// This function produces an expression that evaluates to -1, 0, or 1 indicating
+/// the ordering relationship between two values. The generated code handles
+/// different TypeScript types with appropriate comparison strategies.
+///
+/// Unlike `PartialOrd`, this function guarantees a total ordering - it **never
+/// returns null**. For incomparable values, it falls back to 0 (equal).
+///
+/// # Arguments
+///
+/// * `field` - The field to generate comparison code for
+///
+/// # Returns
+///
+/// A string containing a JavaScript expression that evaluates to -1, 0, or 1.
+/// The expression compares `this.field` with `typedOther.field`.
+///
+/// # Type-Specific Strategies
+///
+/// - **number/bigint**: Direct `<` and `>` comparison
+/// - **string**: Uses `localeCompare()`, result clamped to -1, 0, 1
+/// - **boolean**: false is less than true
+/// - **null/undefined**: Treated as equal (returns 0)
+/// - **Arrays**: Lexicographic comparison with fallback to 0 for incomparable elements
+/// - **Date**: Timestamp comparison via `getTime()`
+/// - **Objects**: Calls `compareTo()` if available (with `?? 0` fallback), else 0
 fn generate_field_compare(field: &OrdField) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;
@@ -75,7 +188,21 @@ fn generate_field_compare(field: &OrdField) -> String {
     }
 }
 
-/// Generate comparison code for interface/type alias fields
+/// Generates JavaScript code that compares interface/type alias fields for ordering.
+///
+/// Similar to [`generate_field_compare`], but uses variable name parameters instead
+/// of `this`, making it suitable for namespace functions that take objects as parameters.
+///
+/// # Arguments
+///
+/// * `field` - The field to generate comparison code for
+/// * `self_var` - Variable name for the first object (e.g., "self", "a")
+/// * `other_var` - Variable name for the second object (e.g., "other", "b")
+///
+/// # Returns
+///
+/// A string containing a JavaScript expression that evaluates to -1, 0, or 1.
+/// Field access uses the provided variable names: `self_var.field` vs `other_var.field`.
 fn generate_field_compare_for_interface(
     field: &OrdField,
     self_var: &str,

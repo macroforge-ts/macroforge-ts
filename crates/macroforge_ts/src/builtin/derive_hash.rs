@@ -1,19 +1,125 @@
-//! /** @derive(Hash) */ macro implementation
+//! # Hash Macro Implementation
 //!
-//! Generates a `hashCode()` method for hashing.
-//! Supports @hash(skip) decorator on fields to exclude them from the hash.
+//! The `Hash` macro generates a `hashCode()` method for computing numeric hash codes.
+//! This is analogous to Rust's `Hash` trait and Java's `hashCode()` method, enabling
+//! objects to be used as keys in hash-based collections.
+//!
+//! ## Generated Output
+//!
+//! | Type | Generated Method | Description |
+//! |------|------------------|-------------|
+//! | Class | `hashCode(): number` | Instance method computing hash from all fields |
+//! | Enum | `EnumName.hashCode(value)` | Namespace function hashing by enum value |
+//! | Interface | `InterfaceName.hashCode(self)` | Namespace function computing hash |
+//! | Type Alias | `TypeName.hashCode(value)` | Namespace function computing hash |
+//!
+//! ## Hash Algorithm
+//!
+//! Uses the standard polynomial rolling hash algorithm:
+//!
+//! ```text
+//! hash = 17  // Initial seed
+//! for each field:
+//!     hash = (hash * 31 + fieldHash) | 0  // Bitwise OR keeps it 32-bit integer
+//! ```
+//!
+//! This algorithm is consistent with Java's `Objects.hash()` implementation.
+//!
+//! ## Type-Specific Hashing
+//!
+//! | Type | Hash Strategy |
+//! |------|---------------|
+//! | `number` | Integer: direct value; Float: string hash of decimal |
+//! | `bigint` | String hash of decimal representation |
+//! | `string` | Character-by-character polynomial hash |
+//! | `boolean` | 1231 for true, 1237 for false (Java convention) |
+//! | `Date` | `getTime()` timestamp |
+//! | Arrays | Element-by-element hash combination |
+//! | `Map` | Entry-by-entry key+value hash |
+//! | `Set` | Element-by-element hash |
+//! | Objects | Calls `hashCode()` if available, else JSON string hash |
+//!
+//! ## Field-Level Options
+//!
+//! The `@hash` decorator supports:
+//!
+//! - `skip` - Exclude the field from hash calculation
+//!
+//! ## Example
+//!
+//! ```typescript
+//! @derive(Hash, PartialEq)
+//! class User {
+//!     id: number;
+//!     name: string;
+//!
+//!     @hash(skip)  // Cached value shouldn't affect hash
+//!     cachedScore: number;
+//! }
+//!
+//! // Generated:
+//! // hashCode(): number {
+//! //     let hash = 17;
+//! //     hash = (hash * 31 + (Number.isInteger(this.id) ? this.id | 0 : ...)) | 0;
+//! //     hash = (hash * 31 + (this.name ?? '').split('').reduce(...)) | 0;
+//! //     return hash;
+//! // }
+//! ```
+//!
+//! ## Hash Contract
+//!
+//! Objects that are equal (`PartialEq`) should produce the same hash code.
+//! When using `@hash(skip)`, ensure the same fields are skipped in both
+//! `Hash` and `PartialEq` to maintain this contract.
 
 use crate::builtin::derive_common::{is_primitive_type, CompareFieldOptions};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
 
-/// Field info for hashing: (field_name, ts_type)
+/// Contains field information needed for hash code generation.
+///
+/// Each field that participates in hashing is represented by this struct,
+/// which captures both the field name (for access) and its TypeScript type
+/// (to select the appropriate hashing strategy).
 struct HashField {
+    /// The field name as it appears in the source TypeScript class.
+    /// Used to generate property access expressions like `this.name`.
     name: String,
+
+    /// The TypeScript type annotation for this field.
+    /// Used to determine which hashing strategy to apply
+    /// (e.g., numeric comparison, string hashing, recursive hashCode call).
     ts_type: String,
 }
 
-/// Generate hash contribution code for a single field (class method version)
+/// Generates JavaScript code that computes a hash contribution for a single class field.
+///
+/// This function produces an expression that evaluates to an integer hash value
+/// for the given field when accessed via `this.fieldName`. The generated code
+/// handles different TypeScript types with appropriate hashing strategies.
+///
+/// # Arguments
+///
+/// * `field` - The field to generate hash code for, containing name and type info
+///
+/// # Returns
+///
+/// A string containing a JavaScript expression that evaluates to an integer.
+/// The expression is designed to be combined with other field hashes using
+/// the polynomial rolling hash algorithm: `hash = (hash * 31 + fieldHash) | 0`.
+///
+/// # Type-Specific Strategies
+///
+/// - **number**: Uses direct bit manipulation for integers, string-based hash for floats
+/// - **bigint**: Converts to string and hashes character by character
+/// - **string**: Polynomial hash of each character code
+/// - **boolean**: Returns 1231 for true, 1237 for false (Java's Boolean.hashCode constants)
+/// - **null/undefined**: Returns 1 if non-null, 0 if null
+/// - **Array**: Recursively hashes each element, combining with polynomial formula
+/// - **Date**: Uses `getTime()` timestamp as hash
+/// - **Map**: Hashes all key-value pairs
+/// - **Set**: Hashes all elements
+/// - **Objects**: Calls `hashCode()` method if available, falls back to JSON string hash
 fn generate_field_hash(field: &HashField) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;
@@ -95,7 +201,27 @@ fn generate_field_hash(field: &HashField) -> String {
     }
 }
 
-/// Generate hash contribution code for interface/type alias fields
+/// Generates JavaScript code that computes a hash contribution for interface/type alias fields.
+///
+/// Similar to [`generate_field_hash`], but uses a variable name parameter instead of `this`,
+/// making it suitable for namespace functions that take the object as a parameter.
+///
+/// # Arguments
+///
+/// * `field` - The field to generate hash code for
+/// * `var` - The variable name to use for field access (e.g., "self", "value")
+///
+/// # Returns
+///
+/// A string containing a JavaScript expression that evaluates to an integer hash value.
+/// Field access uses the provided variable name: `var.fieldName`.
+///
+/// # Example
+///
+/// ```ignore
+/// let code = generate_field_hash_for_interface(&field, "self");
+/// // Generates: "(self.name ?? '').split('').reduce(...)"
+/// ```
 fn generate_field_hash_for_interface(field: &HashField, var: &str) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;

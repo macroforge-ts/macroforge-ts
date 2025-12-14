@@ -3,11 +3,18 @@
 use macroforge_ts::macros::ts_template;
 use macroforge_ts::ts_syn::TsStream;
 
-use crate::gigaform::parser::{BaseControllerOptions, GigaformOptions, ParsedField, UnionConfig, UnionMode, ValidatorSpec};
 use crate::gigaform::GenericInfo;
+use crate::gigaform::parser::{
+    BaseControllerOptions, ControllerOptions, GigaformOptions, ParsedField, UnionConfig, UnionMode,
+    ValidatorSpec,
+};
 
 /// Generates the createForm factory function that returns a Gigaform instance.
-pub fn generate_factory(interface_name: &str, fields: &[ParsedField], options: &GigaformOptions) -> TsStream {
+pub fn generate_factory(
+    interface_name: &str,
+    fields: &[ParsedField],
+    options: &GigaformOptions,
+) -> TsStream {
     let field_controllers = generate_field_controllers(fields, options, interface_name);
     let default_init = generate_default_init(interface_name, options);
     let default_errors_init = generate_default_errors_init(fields);
@@ -127,8 +134,14 @@ pub fn generate_union_factory_with_generics(
 }
 
 /// Generates the createForm factory for a discriminated union.
-pub fn generate_union_factory(type_name: &str, config: &UnionConfig, options: &GigaformOptions) -> TsStream {
-    let variant_literals = config.variants.iter()
+pub fn generate_union_factory(
+    type_name: &str,
+    config: &UnionConfig,
+    options: &GigaformOptions,
+) -> TsStream {
+    let variant_literals = config
+        .variants
+        .iter()
         .map(|v| format!("\"{}\"", v.discriminant_value))
         .collect::<Vec<_>>()
         .join(" | ");
@@ -138,7 +151,9 @@ pub fn generate_union_factory(type_name: &str, config: &UnionConfig, options: &G
         UnionMode::Untagged => "_variant",
     };
 
-    let first_variant = config.variants.first()
+    let first_variant = config
+        .variants
+        .first()
         .map(|v| v.discriminant_value.as_str())
         .unwrap_or("unknown");
 
@@ -228,8 +243,43 @@ pub fn generate_union_factory(type_name: &str, config: &UnionConfig, options: &G
     }
 }
 
+/// Returns the default value expression for a type ref in a union.
+/// For primitive types, returns the primitive default (0, "", false, etc.)
+/// For named types, returns TypeName.defaultValue()
+fn get_type_ref_default(type_ref: &str, cast_type: &str) -> String {
+    let tr = type_ref.trim();
+    match tr {
+        "number" => format!("0 as {cast_type}"),
+        "string" => format!("\"\" as {cast_type}"),
+        "boolean" => format!("false as {cast_type}"),
+        "bigint" => format!("0n as {cast_type}"),
+        "undefined" => format!("undefined as {cast_type}"),
+        "null" => format!("null as {cast_type}"),
+        "symbol" => format!("Symbol() as {cast_type}"),
+        "object" => format!("{{}} as {cast_type}"),
+        "any" | "unknown" => format!("undefined as {cast_type}"),
+        "void" | "never" => format!("undefined as {cast_type}"),
+        // Generic type like RecordLink<Service> -> RecordLink.defaultValue<Service>()
+        _ if tr.contains('<') => {
+            if let Some(bracket_pos) = tr.find('<') {
+                let base_type = &tr[..bracket_pos];
+                let type_args = &tr[bracket_pos..]; // includes the <>
+                format!("{base_type}.defaultValue{type_args}() as {cast_type}")
+            } else {
+                format!("{tr}.defaultValue() as {cast_type}")
+            }
+        }
+        // Named type - use TypeName.defaultValue()
+        _ => format!("{tr}.defaultValue() as {cast_type}"),
+    }
+}
+
 /// Generates the getDefaultForVariant function.
-fn generate_default_for_variant(type_name: &str, config: &UnionConfig, discriminant_field: &str) -> String {
+fn generate_default_for_variant(
+    type_name: &str,
+    config: &UnionConfig,
+    discriminant_field: &str,
+) -> String {
     // Determine how to generate the default value based on the discriminant field
     // - "_value": literal union (e.g., "Home" | "About") - return the literal
     // - "_type": type ref union (e.g., DailyRule | WeeklyRule) - return TypeName.defaultValue()
@@ -242,20 +292,24 @@ fn generate_default_for_variant(type_name: &str, config: &UnionConfig, discrimin
         if is_literal_union {
             format!(r#"case "{value}": return "{value}" as {type_name};"#)
         } else if is_type_ref_union {
-            format!(r#"case "{value}": return {value}.defaultValue() as {type_name};"#)
+            let default_expr = get_type_ref_default(value, type_name);
+            format!(r#"case "{value}": return {default_expr};"#)
         } else {
             format!(r#"case "{value}": return {{ {discriminant_field}: "{value}" }} as {type_name};"#)
         }
     }).collect::<Vec<_>>().join("\n            ");
 
-    let first_value = config.variants.first()
+    let first_value = config
+        .variants
+        .first()
         .map(|v| v.discriminant_value.as_str())
         .unwrap_or("unknown");
 
     let default_return = if is_literal_union {
         format!(r#"return "{first_value}" as {type_name};"#)
     } else if is_type_ref_union {
-        format!(r#"return {first_value}.defaultValue() as {type_name};"#)
+        let default_expr = get_type_ref_default(first_value, type_name);
+        format!(r#"return {default_expr};"#)
     } else {
         format!(r#"return {{ {discriminant_field}: "{first_value}" }} as {type_name};"#)
     };
@@ -271,34 +325,43 @@ fn generate_default_for_variant(type_name: &str, config: &UnionConfig, discrimin
 }
 
 /// Generates per-variant field controllers.
-fn generate_union_variant_controllers(config: &UnionConfig, options: &GigaformOptions, type_name: &str) -> String {
-    config.variants.iter().map(|variant| {
-        let value = &variant.discriminant_value;
-        let variant_name = to_pascal_case(&variant.discriminant_value);
-        let field_controllers = generate_field_controllers(&variant.fields, options, type_name);
+fn generate_union_variant_controllers(
+    config: &UnionConfig,
+    options: &GigaformOptions,
+    type_name: &str,
+) -> String {
+    config
+        .variants
+        .iter()
+        .map(|variant| {
+            let value = &variant.discriminant_value;
+            let variant_name = to_pascal_case(&variant.discriminant_value);
+            let field_controllers = generate_field_controllers(&variant.fields, options, type_name);
 
-        // Quote the property key if it contains special characters
-        let prop_key = if needs_quoting(value) {
-            format!("\"{}\"", value)
-        } else {
-            value.clone()
-        };
+            // Quote the property key if it contains special characters
+            let prop_key = if needs_quoting(value) {
+                format!("\"{}\"", value)
+            } else {
+                value.clone()
+            };
 
-        format!(
-            r#"{prop_key}: {{
+            format!(
+                r#"{prop_key}: {{
                     fields: {{
                         {field_controllers}
                     }} as {variant_name}FieldControllers
                 }}"#
-        )
-    }).collect::<Vec<_>>().join(",\n                ")
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(",\n                ")
 }
 
 /// Returns true if a string needs to be quoted when used as an object property key.
 fn needs_quoting(s: &str) -> bool {
     // Needs quoting if it contains special chars or starts with a digit
-    s.chars().any(|c| !c.is_alphanumeric() && c != '_') ||
-    s.chars().next().map(|c| c.is_numeric()).unwrap_or(true)
+    s.chars().any(|c| !c.is_alphanumeric() && c != '_')
+        || s.chars().next().map(|c| c.is_numeric()).unwrap_or(true)
 }
 
 /// Converts a string to a valid PascalCase TypeScript identifier.
@@ -317,7 +380,15 @@ fn to_pascal_case(s: &str) -> String {
             // Use "And" for intersection types
             result.push_str("And");
             capitalize_next = true;
-        } else if c == '_' || c == '-' || c == ' ' || c == '(' || c == ')' || c == '<' || c == '>' || c == ',' {
+        } else if c == '_'
+            || c == '-'
+            || c == ' '
+            || c == '('
+            || c == ')'
+            || c == '<'
+            || c == '>'
+            || c == ','
+        {
             // Skip these characters but capitalize the next letter
             capitalize_next = true;
         } else if c.is_alphanumeric() {
@@ -332,7 +403,13 @@ fn to_pascal_case(s: &str) -> String {
     }
 
     // Ensure the result is a valid identifier (starts with letter or underscore)
-    if result.is_empty() || result.chars().next().map(|c| c.is_numeric()).unwrap_or(false) {
+    if result.is_empty()
+        || result
+            .chars()
+            .next()
+            .map(|c| c.is_numeric())
+            .unwrap_or(false)
+    {
         format!("Variant{}", result)
     } else {
         result
@@ -413,6 +490,9 @@ fn generate_field_controller(
     // Generate the validate function that delegates to form validation
     let validate_fn = generate_field_validate_function(name, interface_name);
 
+    // Generate the transform function
+    let transform_fn = generate_transform_function(field, ts_type);
+
     // For array fields, add array-specific methods
     let array_methods = if field.is_array {
         generate_array_methods(field, name)
@@ -428,6 +508,7 @@ fn generate_field_controller(
                     {ui_metadata}
                     get: () => data.{name},
                     set: (value: {ts_type}) => {{ data.{name} = value; }},
+                    {transform_fn}
                     getError: () => errors.{name},
                     setError: (value: Option<Array<string>>) => {{ errors.{name} = value; }},
                     getTainted: () => tainted.{name},
@@ -436,6 +517,50 @@ fn generate_field_controller(
                     {array_methods}
                 }}"#
     )
+}
+
+/// Generates the transform function for a field based on controller options.
+fn generate_transform_function(field: &ParsedField, ts_type: &str) -> String {
+    let default_base = BaseControllerOptions::default();
+    let base = field
+        .controller
+        .as_ref()
+        .map(|c| c.base())
+        .unwrap_or(&default_base);
+
+    // Check for transform option in base options
+    if let Some(transform) = &base.transform {
+        let transform_logic = match transform.as_str() {
+            "uppercase" => "typeof value === 'string' ? value.toUpperCase() : value".to_string(),
+            "lowercase" => "typeof value === 'string' ? value.toLowerCase() : value".to_string(),
+            "trim" => "typeof value === 'string' ? value.trim() : value".to_string(),
+            "trimUppercase" | "trim_uppercase" => {
+                "typeof value === 'string' ? value.trim().toUpperCase() : value".to_string()
+            }
+            "trimLowercase" | "trim_lowercase" => {
+                "typeof value === 'string' ? value.trim().toLowerCase() : value".to_string()
+            }
+            // Custom function name - call it directly
+            custom_fn => format!("{custom_fn}(value)"),
+        };
+        return format!(
+            r#"transform: (value: {ts_type}): {ts_type} => {{ return {transform_logic}; }},"#
+        );
+    }
+
+    // Check for formatter in TextOptions (legacy support)
+    if let Some(controller) = &field.controller
+        && let ControllerOptions::Text(text_opts) | ControllerOptions::TextArea(text_opts) =
+            &controller.options
+        && let Some(formatter) = &text_opts.formatter
+    {
+        return format!(
+            r#"transform: (value: {ts_type}): {ts_type} => {{ return {formatter}(value); }},"#
+        );
+    }
+
+    // Default: identity transform
+    format!(r#"transform: (value: {ts_type}): {ts_type} => value,"#)
 }
 
 /// Generates UI metadata properties from controller options.
@@ -548,16 +673,12 @@ fn generate_constraints(validators: &[ValidatorSpec], required: bool) -> String 
     }
 }
 
-/// Generates the field-level validate function that delegates to form validation.
+/// Generates the field-level validate function that uses per-field validation.
 fn generate_field_validate_function(field_name: &str, interface_name: &str) -> String {
     format!(
         r#"validate: (): Array<string> => {{
-                        const result = {interface_name}.fromObject(data);
-                        if (Result.isErr(result)) {{
-                            const allErrors = Result.unwrapErr(result);
-                            return allErrors.filter(e => e.field === "{field_name}").map(e => e.message);
-                        }}
-                        return [];
+                        const fieldErrors = {interface_name}.validateField("{field_name}", data.{field_name});
+                        return fieldErrors.map((e: {{ field: string; message: string }}) => e.message);
                     }},"#
     )
 }
@@ -571,8 +692,9 @@ fn generate_array_methods(field: &ParsedField, name: &str) -> String {
                         path: ["{name}", index] as const,
                         name: `{name}.${{index}}`,
                         constraints: {{ required: true }},
-                        get: () => data.{name}[index],
+                        get: () => data.{name}[index]!,
                         set: (value: {element_type}) => {{ data.{name}[index] = value; }},
+                        transform: (value: {element_type}): {element_type} => value,
                         getError: () => errors.{name},
                         setError: (value: Option<Array<string>>) => {{ errors.{name} = value; }},
                         getTainted: () => tainted.{name},
@@ -582,14 +704,20 @@ fn generate_array_methods(field: &ParsedField, name: &str) -> String {
                     push: (item: {element_type}) => {{ data.{name}.push(item); }},
                     remove: (index: number) => {{ data.{name}.splice(index, 1); }},
                     swap: (a: number, b: number) => {{
-                        [data.{name}[a], data.{name}[b]] = [data.{name}[b], data.{name}[a]];
+                        const tmp = data.{name}[a]!;
+                        data.{name}[a] = data.{name}[b]!;
+                        data.{name}[b] = tmp;
                     }},"#
     )
 }
 
 // Keep the old generate function for backward compatibility during migration
 #[allow(dead_code)]
-pub fn generate(_interface_name: &str, fields: &[ParsedField], options: &GigaformOptions) -> TsStream {
+pub fn generate(
+    _interface_name: &str,
+    fields: &[ParsedField],
+    options: &GigaformOptions,
+) -> TsStream {
     let field_descriptors = generate_old_field_descriptors(fields, options, &[]);
 
     ts_template! {

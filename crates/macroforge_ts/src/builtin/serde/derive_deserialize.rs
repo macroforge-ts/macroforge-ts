@@ -1,40 +1,185 @@
-//! /** @derive(Deserialize) */ macro implementation
+//! # Deserialize Macro Implementation
 //!
-//! Generates JSON deserialization methods with cycle/forward-reference support:
-//! - For classes: `static fromStringifiedJSON(json: string, opts?)`, `static __deserialize(value, ctx)`
-//! - For interfaces: `namespace InterfaceName { fromStringifiedJSON, __deserialize }`
+//! The `Deserialize` macro generates JSON deserialization methods with **cycle and
+//! forward-reference support**, plus comprehensive runtime validation. This enables
+//! safe parsing of complex JSON structures including circular references.
 //!
-//! Uses deferred patching to handle cycles and forward references.
+//! ## Generated Methods
+//!
+//! | Type | Generated Methods | Description |
+//! |------|-------------------|-------------|
+//! | Class | `static fromStringifiedJSON()`, `static fromObject()`, `static __deserialize()` | Static factory methods |
+//! | Enum | `EnumName.fromStringifiedJSON()`, `__deserialize()` | Namespace functions |
+//! | Interface | `InterfaceName.fromStringifiedJSON()`, etc. | Namespace functions |
+//! | Type Alias | `TypeName.fromStringifiedJSON()`, etc. | Namespace functions |
+//!
+//! ## Return Type
+//!
+//! All public deserialization methods return `Result<T, Array<{ field: string; message: string }>>`:
+//!
+//! - `Result.ok(value)` - Successfully deserialized value
+//! - `Result.err(errors)` - Array of validation errors with field names and messages
+//!
+//! ## Cycle/Forward-Reference Support
+//!
+//! Uses deferred patching to handle references:
+//!
+//! 1. When encountering `{ "__ref": id }`, returns a `PendingRef` marker
+//! 2. Continues deserializing other fields
+//! 3. After all objects are created, `ctx.applyPatches()` resolves all pending references
+//!
+//! ## Validation
+//!
+//! The macro supports 30+ validators via `@serde(validate(...))`:
+//!
+//! ### String Validators
+//! - `email`, `url`, `uuid` - Format validation
+//! - `minLength(n)`, `maxLength(n)`, `length(n)` - Length constraints
+//! - `pattern("regex")` - Regular expression matching
+//! - `nonEmpty`, `trimmed`, `lowercase`, `uppercase` - String properties
+//!
+//! ### Number Validators
+//! - `gt(n)`, `gte(n)`, `lt(n)`, `lte(n)`, `between(min, max)` - Range checks
+//! - `int`, `positive`, `nonNegative`, `finite` - Number properties
+//!
+//! ### Array Validators
+//! - `minItems(n)`, `maxItems(n)`, `itemsCount(n)` - Collection size
+//!
+//! ### Date Validators
+//! - `validDate`, `afterDate("ISO")`, `beforeDate("ISO")` - Date validation
+//!
+//! ## Field-Level Options
+//!
+//! The `@serde` decorator supports:
+//!
+//! - `skip` / `skip_deserializing` - Exclude field from deserialization
+//! - `rename = "jsonKey"` - Read from different JSON property
+//! - `default` / `default = expr` - Use default value if missing
+//! - `flatten` - Read fields from parent object level
+//! - `validate(...)` - Apply validators
+//!
+//! ## Container-Level Options
+//!
+//! - `deny_unknown_fields` - Error on unrecognized JSON properties
+//! - `rename_all = "camelCase"` - Apply naming convention to all fields
+//!
+//! ## Example
+//!
+//! ```typescript
+//! @derive(Deserialize)
+//! @serde(deny_unknown_fields)
+//! class User {
+//!     id: number;
+//!
+//!     @serde(validate(email, maxLength(255)))
+//!     email: string;
+//!
+//!     @serde(default = "guest")
+//!     name: string;
+//!
+//!     @serde(validate(positive))
+//!     age?: number;
+//! }
+//!
+//! // Usage:
+//! const result = User.fromStringifiedJSON('{"id":1,"email":"test@example.com"}');
+//! if (Result.isOk(result)) {
+//!     const user = result.value;
+//! } else {
+//!     console.error(result.error);  // [{ field: "email", message: "must be a valid email" }]
+//! }
+//! ```
+//!
+//! ## Required Imports
+//!
+//! The generated code automatically imports:
+//! - `Result` from `macroforge/utils`
+//! - `DeserializeContext`, `DeserializeError`, `PendingRef` from `macroforge/serde`
 
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, parse_ts_macro_input};
 use crate::ts_syn::abi::DiagnosticCollector;
+use crate::ts_syn::{
+    parse_ts_macro_input, Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream,
+};
 
 use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory, Validator, ValidatorSpec};
 
-/// Field info for deserialization
+/// Contains field information needed for JSON deserialization code generation.
+///
+/// Each field that should be deserialized is represented by this struct,
+/// capturing all the information needed to generate parsing, validation,
+/// and assignment code.
 #[derive(Clone)]
 struct DeserializeField {
+    /// The JSON property name to read from the input object.
+    /// This may differ from `field_name` if `@serde(rename = "...")` is used.
     json_key: String,
+
+    /// The TypeScript field name as it appears in the source class.
+    /// Used for generating property assignments like `instance.fieldName = value`.
     field_name: String,
+
+    /// The TypeScript type annotation string (e.g., "string", "number[]").
+    /// Used for type casting in generated code.
     #[allow(dead_code)]
     ts_type: String,
+
+    /// The category of the field's type, used to select the appropriate
+    /// deserialization strategy (primitive, Date, Array, Map, Set, etc.).
     type_cat: TypeCategory,
+
+    /// Whether the field is optional (has `?` modifier or `@serde(default)`).
+    /// Optional fields don't require the JSON property to be present.
     optional: bool,
+
+    /// Whether the field has a default value specified.
     #[allow(dead_code)]
     has_default: bool,
+
+    /// The default value expression to use if the field is missing.
+    /// Example: `Some("\"guest\"".to_string())` for `@serde(default = "guest")`.
     default_expr: Option<String>,
+
+    /// Whether the field should be read from the parent object level.
+    /// Flattened fields look for their properties directly in the parent JSON.
     flatten: bool,
+
+    /// List of validators to apply after parsing the field value.
+    /// Each validator generates a condition check and error message.
     validators: Vec<ValidatorSpec>,
 }
 
 impl DeserializeField {
+    /// Returns true if this field has any validators that need to be applied.
     fn has_validators(&self) -> bool {
         !self.validators.is_empty()
     }
 }
 
-/// Generate JavaScript validation code for a single validator
+/// Generates a JavaScript boolean expression that evaluates to `true` when validation fails.
+///
+/// This function produces the *failure condition* - the expression should be used in
+/// `if (condition) { errors.push(...) }` to detect invalid values.
+///
+/// # Arguments
+///
+/// * `validator` - The validator type to generate a condition for
+/// * `value_var` - The variable name containing the value to validate
+///
+/// # Returns
+///
+/// A string containing a JavaScript boolean expression. The expression evaluates to
+/// `true` when the value is **invalid** (fails validation).
+///
+/// # Example
+///
+/// ```ignore
+/// let condition = generate_validation_condition(&Validator::Email, "email");
+/// // Returns: "!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)"
+///
+/// let condition = generate_validation_condition(&Validator::MaxLength(100), "name");
+/// // Returns: "name.length > 100"
+/// ```
 fn generate_validation_condition(validator: &Validator, value_var: &str) -> String {
     match validator {
         // String validators
@@ -136,7 +281,24 @@ fn generate_validation_condition(validator: &Validator, value_var: &str) -> Stri
     }
 }
 
-/// Get default error message for a validator
+/// Returns the default human-readable error message for a validator.
+///
+/// These messages are used when no custom message is provided via
+/// `@serde(validate(..., message = "custom"))`.
+///
+/// # Arguments
+///
+/// * `validator` - The validator to get a message for
+///
+/// # Returns
+///
+/// A user-friendly error message describing the validation requirement.
+///
+/// # Example Messages
+///
+/// - `Validator::Email` → "must be a valid email"
+/// - `Validator::MaxLength(100)` → "must have at most 100 characters"
+/// - `Validator::Between(1, 10)` → "must be between 1 and 10"
 fn get_validator_message(validator: &Validator) -> String {
     match validator {
         Validator::Email => "must be a valid email".to_string(),
@@ -194,8 +356,33 @@ fn get_validator_message(validator: &Validator) -> String {
     }
 }
 
-/// Generate validation code snippet for a field
-/// Generates code that pushes `{ field: string, message: string }` objects to the errors array
+/// Generates JavaScript code that validates a field and collects errors.
+///
+/// This function produces a series of `if` statements that check each validator
+/// and push error objects to the `errors` array when validation fails.
+///
+/// # Arguments
+///
+/// * `validators` - List of validators to apply, each with optional custom message
+/// * `value_var` - The variable name containing the value to validate
+/// * `json_key` - The JSON property name (used in error messages)
+/// * `_class_name` - The class name (reserved for future use)
+///
+/// # Returns
+///
+/// A string containing JavaScript code that performs validation checks.
+/// The generated code assumes an `errors` array is in scope.
+///
+/// # Example Output
+///
+/// ```javascript
+/// if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+///     errors.push({ field: "email", message: "must be a valid email" });
+/// }
+/// if (email.length > 255) {
+///     errors.push({ field: "email", message: "must have at most 255 characters" });
+/// }
+/// ```
 fn generate_field_validations(
     validators: &[ValidatorSpec],
     value_var: &str,
