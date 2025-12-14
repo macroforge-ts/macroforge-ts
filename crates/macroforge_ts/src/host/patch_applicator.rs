@@ -71,12 +71,14 @@
 //! ```
 
 use super::error::{MacroError, Result};
+use crate::ts_syn::abi::{
+    GeneratedRegion, MappingSegment, Patch, PatchCode, SourceMapping, SpanIR,
+};
 use std::collections::HashSet;
 use swc_core::{
     common::{SourceMap, sync::Lrc},
     ecma::codegen::{Config, Emitter, Node, text_writer::JsWriter},
 };
-use crate::ts_syn::abi::{GeneratedRegion, MappingSegment, Patch, PatchCode, SourceMapping, SpanIR};
 
 /// Result of applying patches with source mapping
 #[derive(Clone, Debug)]

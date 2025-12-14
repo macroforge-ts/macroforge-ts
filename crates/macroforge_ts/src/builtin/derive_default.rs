@@ -102,11 +102,11 @@
 //! - A union type has no `@default` on a variant
 
 use crate::builtin::derive_common::{
-    get_type_default, has_known_default, is_generic_type, parse_generic_type, DefaultFieldOptions,
+    DefaultFieldOptions, get_type_default, has_known_default, is_generic_type, parse_generic_type,
 };
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::abi::FunctionNamingStyle;
-use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 /// Convert a PascalCase name to camelCase (for prefix naming style)
 fn to_camel_case(name: &str) -> String {
@@ -231,22 +231,18 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 Some(variant) => {
                     let variant_name = &variant.name;
                     match naming_style {
-                        FunctionNamingStyle::Namespace => {
-                            Ok(ts_template! {
-                                export namespace @{enum_name} {
-                                    export function defaultValue(): @{enum_name} {
-                                        return @{enum_name}.@{variant_name};
-                                    }
+                        FunctionNamingStyle::Namespace => Ok(ts_template! {
+                            export namespace @{enum_name} {
+                                export function defaultValue(): @{enum_name} {
+                                    return @{enum_name}.@{variant_name};
                                 }
-                            })
-                        }
-                        FunctionNamingStyle::Generic => {
-                            Ok(ts_template! {
-                                export function defaultValue<T extends @{enum_name}>(): T {
-                                    return @{enum_name}.@{variant_name} as T;
-                                }
-                            })
-                        }
+                            }
+                        }),
+                        FunctionNamingStyle::Generic => Ok(ts_template! {
+                            export function defaultValue<T extends @{enum_name}>(): T {
+                                return @{enum_name}.@{variant_name} as T;
+                            }
+                        }),
                         FunctionNamingStyle::Prefix => {
                             let fn_name = format!("{}DefaultValue", to_camel_case(enum_name));
                             Ok(ts_template! {
@@ -342,30 +338,26 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
             };
 
             match naming_style {
-                FunctionNamingStyle::Namespace => {
-                    Ok(ts_template! {
-                        export namespace @{interface_name} {
-                            export function defaultValue(): @{interface_name} {
-                                return {
-                                    {#if has_defaults}
-                                        @{object_body}
-                                    {/if}
-                                } as @{interface_name};
-                            }
-                        }
-                    })
-                }
-                FunctionNamingStyle::Generic => {
-                    Ok(ts_template! {
-                        export function defaultValue<T extends @{interface_name}>(): T {
+                FunctionNamingStyle::Namespace => Ok(ts_template! {
+                    export namespace @{interface_name} {
+                        export function defaultValue(): @{interface_name} {
                             return {
                                 {#if has_defaults}
                                     @{object_body}
                                 {/if}
-                            } as T;
+                            } as @{interface_name};
                         }
-                    })
-                }
+                    }
+                }),
+                FunctionNamingStyle::Generic => Ok(ts_template! {
+                    export function defaultValue<T extends @{interface_name}>(): T {
+                        return {
+                            {#if has_defaults}
+                                @{object_body}
+                            {/if}
+                        } as T;
+                    }
+                }),
                 FunctionNamingStyle::Prefix => {
                     let fn_name = format!("{}DefaultValue", to_camel_case(interface_name));
                     Ok(ts_template! {
@@ -469,21 +461,8 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 };
 
                 match naming_style {
-                    FunctionNamingStyle::Namespace => {
-                        Ok(ts_template! {
-                            export namespace @{type_name} {
-                                export function {|defaultValue@{generic_decl}|}(): @{full_type_name} {
-                                    return {
-                                        {#if has_defaults}
-                                            @{object_body}
-                                        {/if}
-                                    } as @{full_type_name};
-                                }
-                            }
-                        })
-                    }
-                    FunctionNamingStyle::Generic => {
-                        Ok(ts_template! {
+                    FunctionNamingStyle::Namespace => Ok(ts_template! {
+                        export namespace @{type_name} {
                             export function {|defaultValue@{generic_decl}|}(): @{full_type_name} {
                                 return {
                                     {#if has_defaults}
@@ -491,8 +470,17 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                                     {/if}
                                 } as @{full_type_name};
                             }
-                        })
-                    }
+                        }
+                    }),
+                    FunctionNamingStyle::Generic => Ok(ts_template! {
+                        export function {|defaultValue@{generic_decl}|}(): @{full_type_name} {
+                            return {
+                                {#if has_defaults}
+                                    @{object_body}
+                                {/if}
+                            } as @{full_type_name};
+                        }
+                    }),
                     FunctionNamingStyle::Prefix => {
                         let fn_name = format!("{}DefaultValue", to_camel_case(type_name));
                         Ok(ts_template! {
@@ -568,10 +556,16 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     // Determine the default expression based on variant type
                     // Use as-is if it's already an expression, a literal, or a primitive value
                     let is_expression = variant.contains('.') || variant.contains('(');
-                    let is_string_literal = variant.starts_with('"') || variant.starts_with('\'') || variant.starts_with('`');
-                    let is_primitive_value = variant.parse::<f64>().is_ok() || variant == "true" || variant == "false" || variant == "null";
+                    let is_string_literal = variant.starts_with('"')
+                        || variant.starts_with('\'')
+                        || variant.starts_with('`');
+                    let is_primitive_value = variant.parse::<f64>().is_ok()
+                        || variant == "true"
+                        || variant == "false"
+                        || variant == "null";
                     // Primitive TYPE names like "string", "number", etc. need to use get_type_default
-                    let is_primitive_type = matches!(variant.as_str(), "string" | "number" | "boolean" | "bigint");
+                    let is_primitive_type =
+                        matches!(variant.as_str(), "string" | "number" | "boolean" | "bigint");
 
                     let default_expr = if is_expression || is_string_literal || is_primitive_value {
                         variant // Use as-is
@@ -628,22 +622,18 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     };
 
                     match naming_style {
-                        FunctionNamingStyle::Namespace => {
-                            Ok(ts_template! {
-                                export namespace @{type_name} {
-                                    export function defaultValue@{generic_params}(): @{return_type} {
-                                        return @{default_expr};
-                                    }
-                                }
-                            })
-                        }
-                        FunctionNamingStyle::Generic => {
-                            Ok(ts_template! {
+                        FunctionNamingStyle::Namespace => Ok(ts_template! {
+                            export namespace @{type_name} {
                                 export function defaultValue@{generic_params}(): @{return_type} {
                                     return @{default_expr};
                                 }
-                            })
-                        }
+                            }
+                        }),
+                        FunctionNamingStyle::Generic => Ok(ts_template! {
+                            export function defaultValue@{generic_params}(): @{return_type} {
+                                return @{default_expr};
+                            }
+                        }),
                         FunctionNamingStyle::Prefix => {
                             let fn_name = format!("{}DefaultValue", to_camel_case(type_name));
                             Ok(ts_template! {
@@ -683,22 +673,18 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 
                 if let Some(default_variant) = default_opts.value {
                     match naming_style {
-                        FunctionNamingStyle::Namespace => {
-                            Ok(ts_template! {
-                                export namespace @{type_name} {
-                                    export function {|defaultValue@{generic_decl}|}(): @{full_type_name} {
-                                        return @{default_variant};
-                                    }
-                                }
-                            })
-                        }
-                        FunctionNamingStyle::Generic => {
-                            Ok(ts_template! {
+                        FunctionNamingStyle::Namespace => Ok(ts_template! {
+                            export namespace @{type_name} {
                                 export function {|defaultValue@{generic_decl}|}(): @{full_type_name} {
                                     return @{default_variant};
                                 }
-                            })
-                        }
+                            }
+                        }),
+                        FunctionNamingStyle::Generic => Ok(ts_template! {
+                            export function {|defaultValue@{generic_decl}|}(): @{full_type_name} {
+                                return @{default_variant};
+                            }
+                        }),
                         FunctionNamingStyle::Prefix => {
                             let fn_name = format!("{}DefaultValue", to_camel_case(type_name));
                             Ok(ts_template! {
@@ -776,7 +762,10 @@ mod tests {
             macroforge_ts_syn::parse_ts_stmt(&wrapped).is_ok(),
             "Generated Default macro output should parse as class members"
         );
-        assert!(source.contains("defaultValue"), "Should contain defaultValue method");
+        assert!(
+            source.contains("defaultValue"),
+            "Should contain defaultValue method"
+        );
         assert!(source.contains("static"), "Should be a static method");
     }
 

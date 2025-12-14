@@ -80,17 +80,17 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::process::Command;
 
+use crate::ts_syn::abi::{
+    ClassIR, Diagnostic, DiagnosticLevel, EnumIR, InterfaceIR, MacroContextIR, MacroResult, Patch,
+    PatchCode, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
+};
+use crate::ts_syn::{lower_classes, lower_enums, lower_interfaces, lower_type_aliases};
 use anyhow::Context;
 use napi::Status;
 use swc_core::{
     common::Span,
     ecma::ast::{ClassMember, Module, Program},
 };
-use crate::ts_syn::abi::{
-    ClassIR, Diagnostic, DiagnosticLevel, EnumIR, InterfaceIR, MacroContextIR, MacroResult, Patch,
-    PatchCode, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
-};
-use crate::ts_syn::{lower_classes, lower_enums, lower_interfaces, lower_type_aliases};
 
 use super::{
     MacroConfig, MacroDispatcher, MacroError, MacroRegistry, PatchCollector, Result, derived,
@@ -104,8 +104,15 @@ const DYNAMIC_MODULE_MARKER: &str = "__DYNAMIC_MODULE__";
 
 /// Built-in macro names that don't need to be imported
 const BUILTIN_MACRO_NAMES: &[&str] = &[
-    "Debug", "Clone", "Default", "Hash", "Ord",
-    "PartialEq", "PartialOrd", "Serialize", "Deserialize",
+    "Debug",
+    "Clone",
+    "Default",
+    "Hash",
+    "Ord",
+    "PartialEq",
+    "PartialOrd",
+    "Serialize",
+    "Deserialize",
 ];
 
 /// Result of macro expansion
@@ -260,7 +267,12 @@ impl MacroExpander {
         let type_aliases = lower_type_aliases(&module, source)
             .map_err(|e| MacroError::InvalidConfig(format!("Lower error: {:?}", e)))?;
 
-        let items = LoweredItems { classes, interfaces, enums, type_aliases };
+        let items = LoweredItems {
+            classes,
+            interfaces,
+            enums,
+            type_aliases,
+        };
         if items.is_empty() {
             return Ok(MacroExpansion {
                 code: source.to_string(),
@@ -352,13 +364,18 @@ impl MacroExpander {
         let interfaces = lower_interfaces(&module, source)
             .context("failed to lower interfaces for macro processing")?;
 
-        let enums = lower_enums(&module, source)
-            .context("failed to lower enums for macro processing")?;
+        let enums =
+            lower_enums(&module, source).context("failed to lower enums for macro processing")?;
 
         let type_aliases = lower_type_aliases(&module, source)
             .context("failed to lower type aliases for macro processing")?;
 
-        let items = LoweredItems { classes, interfaces, enums, type_aliases };
+        let items = LoweredItems {
+            classes,
+            interfaces,
+            enums,
+            type_aliases,
+        };
         if items.is_empty() {
             return Ok(None);
         }
@@ -373,7 +390,12 @@ impl MacroExpander {
         file_name: &str,
         source: &str,
     ) -> (PatchCollector, Vec<Diagnostic>) {
-        let LoweredItems { classes, interfaces, enums, type_aliases } = items;
+        let LoweredItems {
+            classes,
+            interfaces,
+            enums,
+            type_aliases,
+        } = items;
         let mut collector = PatchCollector::new();
         let mut diagnostics = Vec::new();
 
@@ -400,7 +422,14 @@ impl MacroExpander {
             .map(|ta| (SpanKey::from(ta.span), ta))
             .collect();
 
-        let derive_targets = collect_derive_targets(module, &class_map, &interface_map, &enum_map, &type_alias_map, source);
+        let derive_targets = collect_derive_targets(
+            module,
+            &class_map,
+            &interface_map,
+            &enum_map,
+            &type_alias_map,
+            source,
+        );
 
         if derive_targets.is_empty() {
             return (collector, diagnostics);
@@ -941,7 +970,12 @@ impl MacroExpander {
         diagnostics: &mut Vec<Diagnostic>,
         items: LoweredItems,
     ) -> Result<MacroExpansion> {
-        let LoweredItems { classes, interfaces, enums, type_aliases } = items;
+        let LoweredItems {
+            classes,
+            interfaces,
+            enums,
+            type_aliases,
+        } = items;
         let has_patches = collector.has_patches();
         let runtime_result = collector
             .apply_runtime_patches_with_mapping(source, None)
@@ -1251,8 +1285,8 @@ const tryImport = async (id) => {
             )
         })?;
 
-        let host_result: crate::ts_syn::abi::MacroResult =
-            serde_json::from_str(&result_json).map_err(|e| {
+        let host_result: crate::ts_syn::abi::MacroResult = serde_json::from_str(&result_json)
+            .map_err(|e| {
                 napi::Error::new(
                     Status::InvalidArg,
                     format!("Failed to parse macro result: {e}"),
@@ -1367,9 +1401,7 @@ fn check_builtin_import_warnings(module: &Module, _source: &str) -> Vec<Diagnost
 
             for specifier in specifiers {
                 let (local_name, import_span) = match specifier {
-                    ImportSpecifier::Named(named) => {
-                        (named.local.sym.to_string(), named.span)
-                    }
+                    ImportSpecifier::Named(named) => (named.local.sym.to_string(), named.span),
                     ImportSpecifier::Default(default) => {
                         (default.local.sym.to_string(), default.span)
                     }
@@ -1595,8 +1627,18 @@ fn collect_from_type_alias(
 ) {
     // Compute combined span for ALL adjacent decorators (to remove all JSDoc comments)
     let combined_span = if !type_alias_ir.decorators.is_empty() {
-        let min_start = type_alias_ir.decorators.iter().map(|d| d.span.start).min().unwrap_or(0);
-        let max_end = type_alias_ir.decorators.iter().map(|d| d.span.end).max().unwrap_or(0);
+        let min_start = type_alias_ir
+            .decorators
+            .iter()
+            .map(|d| d.span.start)
+            .min()
+            .unwrap_or(0);
+        let max_end = type_alias_ir
+            .decorators
+            .iter()
+            .map(|d| d.span.end)
+            .max()
+            .unwrap_or(0);
         Some(SpanIR::new(min_start, max_end))
     } else {
         None
@@ -1966,9 +2008,9 @@ fn register_packages(
 #[cfg(test)]
 mod external_macro_loader_tests {
     use super::ExternalMacroLoader;
+    use crate::ts_syn::abi::{ClassIR, MacroContextIR, SpanIR};
     use std::{fs, path::Path};
     use tempfile::tempdir;
-    use crate::ts_syn::abi::{ClassIR, MacroContextIR, SpanIR};
 
     fn write(path: &Path, contents: &str) {
         if let Some(parent) = path.parent() {
@@ -2111,7 +2153,13 @@ class User {
         assert_eq!(warnings[0].level, DiagnosticLevel::Warning);
         assert!(warnings[0].message.contains("Debug"));
         assert!(warnings[0].message.contains("built-in macro"));
-        assert!(warnings[0].help.as_ref().unwrap().contains("@derive(Debug)"));
+        assert!(
+            warnings[0]
+                .help
+                .as_ref()
+                .unwrap()
+                .contains("@derive(Debug)")
+        );
     }
 
     #[test]
