@@ -1,18 +1,22 @@
 /**
  * Examples demonstrating derive macros on enums and type aliases.
  * These showcase the new enum and type alias support for all built-in macros.
+ *
+ * Generated functions use suffix naming style (default):
+ * - toStringStatus, cloneStatus, equalsStatus, etc.
+ * - toStringPoint, clonePoint, equalsPoint, etc.
  */
 
 // ==================== ENUM EXAMPLES ====================
 
-/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
 export enum Status {
     Active = 'active',
     Inactive = 'inactive',
     Pending = 'pending'
 }
 
-/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
 export enum Priority {
     Low = 1,
     Medium = 2,
@@ -20,7 +24,7 @@ export enum Priority {
     Critical = 4
 }
 
-/** @derive(Debug, PartialEq) */
+/** @derive(Debug, PartialEq, Hash) */
 export enum Color {
     Red,
     Green,
@@ -29,13 +33,13 @@ export enum Color {
 
 // ==================== TYPE ALIAS EXAMPLES ====================
 
-/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
 export type Point = {
     x: number;
     y: number;
 };
 
-/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
+/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
 export type UserProfile = {
     id: string;
     username: string;
@@ -44,14 +48,14 @@ export type UserProfile = {
     isVerified: boolean;
 };
 
-/** @derive(Debug, Clone, PartialEq) */
+/** @derive(Debug, Clone, PartialEq, Hash) */
 export type Coordinate3D = {
     x: number;
     y: number;
     z: number;
 };
 
-/** @derive(Debug, PartialEq) */
+/** @derive(Debug, PartialEq, Hash) */
 export type ApiStatus = 'loading' | 'success' | 'error';
 
 // ==================== USAGE EXAMPLES ====================
@@ -60,28 +64,30 @@ export type ApiStatus = 'loading' | 'success' | 'error';
 export const currentStatus = Status.Active;
 export const highPriority = Priority.High;
 
-// Using generated namespace functions on enums
+// Using generated standalone functions on enums (suffix naming style)
 export function demoEnumFunctions() {
-    // Debug - toString
-    console.log('Status string:', Status.toString(Status.Active));
-    console.log('Priority string:', Priority.toString(Priority.High));
+    // Debug - toStringStatus
+    console.log('Status string:', toStringStatus(Status.Active));
+    console.log('Priority string:', toStringPriority(Priority.High));
 
     // Clone - returns the same value for enums (primitives)
-    const clonedStatus = Status.clone(Status.Pending);
+    const clonedStatus = cloneStatus(Status.Pending);
     console.log('Cloned status:', clonedStatus);
 
-    // Eq - equals and hashCode
-    const areEqual = Status.equals(Status.Active, Status.Active);
+    // PartialEq - equalsStatus
+    const areEqual = equalsStatus(Status.Active, Status.Active);
     console.log('Are equal:', areEqual);
-    const hash = Status.hashCode(Status.Active);
+
+    // Hash - hashCodeStatus
+    const hash = hashCodeStatus(Status.Active);
     console.log('Hash code:', hash);
 
-    // Serialize - toJSON
-    const json = Status.toJSON(Status.Inactive);
+    // Serialize - toJSONStatus
+    const json = toJSONStatus(Status.Inactive);
     console.log('Serialized:', json);
 
-    // Deserialize - fromJSON
-    const parsed = Status.fromJSON('pending');
+    // Deserialize - fromJSONStatus
+    const parsed = fromJSONStatus('pending');
     console.log('Parsed:', parsed);
 }
 
@@ -95,31 +101,33 @@ export const user: UserProfile = {
     isVerified: true
 };
 
-// Using generated namespace functions on type aliases
+// Using generated standalone functions on type aliases (suffix naming style)
 export function demoTypeFunctions() {
     const point1: Point = { x: 10, y: 20 };
     const point2: Point = { x: 10, y: 20 };
 
-    // Debug - toString
-    console.log('Point string:', Point.toString(point1));
-    console.log('User string:', UserProfile.toString(user));
+    // Debug - toStringPoint
+    console.log('Point string:', toStringPoint(point1));
+    console.log('User string:', toStringUserProfile(user));
 
     // Clone - creates a shallow copy
-    const clonedPoint = Point.clone(point1);
+    const clonedPoint = clonePoint(point1);
     console.log('Cloned point:', clonedPoint);
 
-    // Eq - equals and hashCode
-    const pointsEqual = Point.equals(point1, point2);
+    // PartialEq - equalsPoint
+    const pointsEqual = equalsPoint(point1, point2);
     console.log('Points equal:', pointsEqual);
-    const pointHash = Point.hashCode(point1);
+
+    // Hash - hashCodePoint
+    const pointHash = hashCodePoint(point1);
     console.log('Point hash:', pointHash);
 
-    // Serialize - toJSON
-    const pointJson = Point.toJSON(point1);
+    // Serialize - toJSONPoint
+    const pointJson = toJSONPoint(point1);
     console.log('Point JSON:', pointJson);
 
-    // Deserialize - fromJSON
-    const parsedPoint = Point.fromJSON({ x: 5, y: 10 });
+    // Deserialize - fromJSONPoint
+    const parsedPoint = fromJSONPoint({ x: 5, y: 10 });
     console.log('Parsed point:', parsedPoint);
 }
 
