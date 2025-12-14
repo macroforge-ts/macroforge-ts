@@ -58,3 +58,61 @@ impl std::fmt::Display for MacroforgeError {
 }
 
 impl std::error::Error for MacroforgeError {}
+
+/// Error type that can carry multiple diagnostics (e.g., from multiple field validation errors)
+#[derive(Debug)]
+pub struct MacroforgeErrors {
+    pub diagnostics: Vec<Diagnostic>,
+}
+
+impl MacroforgeErrors {
+    /// Create from a vector of diagnostics
+    pub fn new(diagnostics: Vec<Diagnostic>) -> Self {
+        Self { diagnostics }
+    }
+
+    /// Check if there are any errors
+    pub fn has_errors(&self) -> bool {
+        self.diagnostics.iter().any(|d| d.level == DiagnosticLevel::Error)
+    }
+
+    /// Check if empty
+    pub fn is_empty(&self) -> bool {
+        self.diagnostics.is_empty()
+    }
+}
+
+impl From<MacroforgeErrors> for MacroResult {
+    fn from(err: MacroforgeErrors) -> Self {
+        MacroResult {
+            diagnostics: err.diagnostics,
+            ..Default::default()
+        }
+    }
+}
+
+impl std::fmt::Display for MacroforgeErrors {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let error_count = self.diagnostics.iter().filter(|d| d.level == DiagnosticLevel::Error).count();
+        write!(f, "{} error(s)", error_count)
+    }
+}
+
+impl std::error::Error for MacroforgeErrors {}
+
+impl From<MacroforgeErrors> for MacroforgeError {
+    fn from(errors: MacroforgeErrors) -> Self {
+        // Take the first error, noting if there are more
+        let first_error = errors.diagnostics.into_iter()
+            .find(|d| d.level == DiagnosticLevel::Error);
+
+        if let Some(diag) = first_error {
+            MacroforgeError {
+                message: diag.message,
+                span: diag.span,
+            }
+        } else {
+            MacroforgeError::new_global("Multiple validation errors occurred")
+        }
+    }
+}
