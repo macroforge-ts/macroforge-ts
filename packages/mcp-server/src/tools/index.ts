@@ -1,3 +1,32 @@
+/**
+ * @module tools
+ *
+ * MCP Tool Registry and Request Handlers
+ *
+ * This module registers and implements all MCP tools exposed by the Macroforge server.
+ * It serves as the main business logic layer, handling tool requests from MCP clients.
+ *
+ * ## Registered Tools
+ *
+ * | Tool | Purpose |
+ * |------|---------|
+ * | `list-sections` | List all documentation sections with metadata |
+ * | `get-documentation` | Retrieve full content for specific sections |
+ * | `macroforge-autofixer` | Validate TypeScript code with @derive decorators |
+ * | `expand-code` | Expand macros and show generated code |
+ * | `get-macro-info` | Get documentation for macros and decorators |
+ *
+ * ## Architecture
+ *
+ * The module uses:
+ * - `docs-loader.js` for documentation loading and search
+ * - `@macroforge/core` (optional) for native code validation and expansion
+ *
+ * Native bindings are loaded dynamically and gracefully degrade if unavailable.
+ *
+ * @see {@link registerTools} for the main entry point
+ */
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
   CallToolRequestSchema,
@@ -7,10 +36,30 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { loadSections, getSection, searchSections, type Section } from './docs-loader.js';
 
+/** Cached documentation sections loaded at server startup */
 let sections: Section[] = [];
 
 /**
- * Register all Macroforge MCP tools with the server
+ * Registers all Macroforge MCP tools with the server instance.
+ *
+ * This function:
+ * 1. Loads documentation sections from disk
+ * 2. Registers a `tools/list` handler returning all available tools
+ * 3. Registers a `tools/call` handler routing requests to appropriate handlers
+ *
+ * The tools registered provide documentation access and code analysis capabilities
+ * for AI assistants working with Macroforge.
+ *
+ * @param server - The MCP Server instance to register tools with
+ *
+ * @example
+ * ```typescript
+ * import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+ * import { registerTools } from './tools/index.js';
+ *
+ * const server = new Server({ name: 'macroforge', version: '1.0.0' }, { capabilities: { tools: {} } });
+ * registerTools(server);
+ * ```
  */
 export function registerTools(server: Server): void {
   // Load documentation sections
@@ -183,8 +232,16 @@ Use with a name parameter to get info for a specific macro or decorator.`,
 }
 
 /**
- * Handle list-sections tool call
- * Filters out sub-chunks to show only top-level sections
+ * Handles the `list-sections` tool call.
+ *
+ * Returns a formatted list of all available documentation sections, filtering out
+ * sub-chunks to show only top-level sections. Each section displays its title,
+ * use cases, file path, and category.
+ *
+ * Sub-chunks (sections with a `parent_id`) are excluded from this list as they
+ * are accessed through their parent section via `get-documentation`.
+ *
+ * @returns MCP response with formatted text listing all sections
  */
 function handleListSections() {
   // Filter out sub-chunks (sections with parent_id) - only show top-level sections
@@ -208,8 +265,23 @@ function handleListSections() {
 }
 
 /**
- * Handle get-documentation tool call
- * For chunked sections, returns the first chunk with a list of available sub-chunks
+ * Handles the `get-documentation` tool call.
+ *
+ * Retrieves full documentation content for one or more sections. Supports flexible
+ * lookups by ID, title, or partial match.
+ *
+ * ## Chunked Section Handling
+ *
+ * For large documentation sections that are split into chunks:
+ * 1. Returns the first chunk's content as the main response
+ * 2. Appends a list of additional chunk IDs that can be requested separately
+ *
+ * This allows clients to progressively load large documentation without
+ * overwhelming context windows.
+ *
+ * @param args - Tool arguments
+ * @param args.section - Section name(s) to retrieve (string or array of strings)
+ * @returns MCP response with formatted markdown documentation content
  */
 function handleGetDocumentation(args: { section: string | string[] }) {
   const sectionNames = Array.isArray(args.section) ? args.section : [args.section];
@@ -294,8 +366,29 @@ function handleGetDocumentation(args: { section: string | string[] }) {
 }
 
 /**
- * Handle macroforge-autofixer tool call
- * Returns structured diagnostics from Macroforge's native validation
+ * Handles the `macroforge-autofixer` tool call.
+ *
+ * Validates TypeScript code containing @derive decorators using Macroforge's
+ * native Rust-based analyzer. Returns structured JSON diagnostics that clients
+ * can use to provide error messages and fix suggestions.
+ *
+ * ## Diagnostic Levels
+ *
+ * - `error` - Invalid code that will fail to compile
+ * - `warning` - Code that works but may have issues
+ * - `info` - Informational messages about the code
+ *
+ * ## Response Format
+ *
+ * Returns JSON with:
+ * - `diagnostics` - Array of issues with location, message, and help text
+ * - `summary` - Counts of errors, warnings, and info messages
+ * - `require_another_tool_call_after_fixing` - True if errors exist (should revalidate)
+ *
+ * @param args - Tool arguments
+ * @param args.code - TypeScript source code to validate
+ * @param args.filename - Optional filename for error messages (default: "input.ts")
+ * @returns MCP response with JSON-formatted diagnostics
  */
 async function handleAutofixer(args: { code: string; filename?: string }) {
   const filename = args.filename || 'input.ts';
@@ -369,8 +462,23 @@ async function handleAutofixer(args: { code: string; filename?: string }) {
 }
 
 /**
- * Handle expand-code tool call
- * Returns expanded code with structured diagnostics
+ * Handles the `expand-code` tool call.
+ *
+ * Expands Macroforge macros in TypeScript code and returns the transformed result.
+ * This is useful for understanding what code the macros generate and debugging
+ * macro expansion issues.
+ *
+ * ## Output Format
+ *
+ * Returns human-readable markdown with:
+ * - The fully expanded TypeScript code in a code block
+ * - Any diagnostics (errors, warnings, info) with line/column locations
+ * - Help text for fixing issues when available
+ *
+ * @param args - Tool arguments
+ * @param args.code - TypeScript source code with @derive decorators to expand
+ * @param args.filename - Optional filename for error messages (default: "input.ts")
+ * @returns MCP response with formatted expanded code and diagnostics
  */
 async function handleExpandCode(args: { code: string; filename?: string }) {
   const filename = args.filename || 'input.ts';
@@ -440,8 +548,25 @@ async function handleExpandCode(args: { code: string; filename?: string }) {
 }
 
 /**
- * Handle get-macro-info tool call
- * Returns documentation for macros and decorators from the manifest
+ * Handles the `get-macro-info` tool call.
+ *
+ * Retrieves documentation for Macroforge macros and field decorators from the
+ * native manifest. Can return info for a specific macro/decorator or the full
+ * manifest of all available macros and decorators.
+ *
+ * ## Usage Modes
+ *
+ * - **Without name**: Returns full manifest with all macros and decorators
+ * - **With name**: Returns detailed info for the specific macro or decorator
+ *
+ * ## Manifest Contents
+ *
+ * - **Macros**: @derive decorators like Debug, Serialize, Clone
+ * - **Decorators**: Field decorators like @serde.skip, @serde.rename
+ *
+ * @param args - Tool arguments
+ * @param args.name - Optional macro or decorator name to look up
+ * @returns MCP response with formatted macro/decorator documentation
  */
 async function handleGetMacroInfo(args: { name?: string }) {
   try {
@@ -539,11 +664,33 @@ Available decorators: ${manifest.decorators.map(d => d.export).join(', ')}`,
 // Types - Match Rust's Diagnostic structure from macroforge_ts_syn/src/abi/patch.rs
 // ============================================================================
 
+/**
+ * Represents a location span in source code.
+ *
+ * Used by diagnostics to indicate where an error or warning occurred.
+ * Matches the Rust `Span` type from the macroforge_ts_syn crate.
+ *
+ * @property start - Starting position (line and column, 1-indexed)
+ * @property end - Ending position (line and column, 1-indexed)
+ */
 interface DiagnosticSpan {
   start: { line: number; column: number };
   end: { line: number; column: number };
 }
 
+/**
+ * Represents a diagnostic message from the Macroforge analyzer.
+ *
+ * Diagnostics are produced during code validation and expansion to report
+ * errors, warnings, and informational messages. Matches the Rust `Diagnostic`
+ * type from macroforge_ts_syn/src/abi/patch.rs.
+ *
+ * @property level - Severity level: 'Error', 'Warning', or 'Info'
+ * @property message - Human-readable description of the issue
+ * @property span - Optional source location where the issue occurred
+ * @property notes - Additional context or explanatory notes
+ * @property help - Optional suggestion for how to fix the issue
+ */
 interface Diagnostic {
   level: 'Error' | 'Warning' | 'Info';
   message: string;
@@ -552,6 +699,16 @@ interface Diagnostic {
   help?: string;
 }
 
+/**
+ * Metadata for a Macroforge macro in the manifest.
+ *
+ * Describes a @derive macro that can be applied to classes.
+ *
+ * @property name - Macro name as used in @derive (e.g., "Debug", "Serialize")
+ * @property kind - Type of macro (e.g., "derive")
+ * @property description - Human-readable description of what the macro does
+ * @property package - Package that provides this macro
+ */
 interface MacroManifestEntry {
   name: string;
   kind: string;
@@ -559,6 +716,17 @@ interface MacroManifestEntry {
   package: string;
 }
 
+/**
+ * Metadata for a field decorator in the manifest.
+ *
+ * Describes a decorator that can be applied to class fields to customize
+ * macro behavior (e.g., @serde.skip, @debug.format).
+ *
+ * @property module - Module path where the decorator is defined
+ * @property export - Export name of the decorator
+ * @property kind - Type of decorator (e.g., "field")
+ * @property docs - Documentation string for the decorator
+ */
 interface DecoratorManifestEntry {
   module: string;
   export: string;
@@ -566,17 +734,49 @@ interface DecoratorManifestEntry {
   docs: string;
 }
 
+/**
+ * Complete manifest of available Macroforge macros and decorators.
+ *
+ * Returned by the native bindings to provide documentation and metadata
+ * for all available macros and field decorators.
+ *
+ * @property version - Manifest format version
+ * @property macros - Array of available @derive macros
+ * @property decorators - Array of available field decorators
+ */
 interface MacroManifest {
   version: number;
   macros: MacroManifestEntry[];
   decorators: DecoratorManifestEntry[];
 }
 
+/**
+ * Interface for the native Macroforge module (@macroforge/core).
+ *
+ * Defines the expected API surface of the optional native bindings that
+ * provide code validation, expansion, and manifest access.
+ *
+ * @property expandSync - Synchronously expands macros in TypeScript code
+ * @property __macroforgeGetManifest - Optional function to retrieve the macro manifest
+ */
 interface MacroforgeModule {
+  /**
+   * Synchronously expands Macroforge macros in TypeScript code.
+   *
+   * @param code - TypeScript source code with @derive decorators
+   * @param filename - Filename for error reporting
+   * @param options - Expansion options (currently unused)
+   * @returns Object with expanded code and any diagnostics
+   */
   expandSync: (code: string, filename: string, options: object) => {
     code: string;
     diagnostics?: Diagnostic[];
   };
+
+  /**
+   * Retrieves the macro manifest with all available macros and decorators.
+   * Optional - may not be available in all versions.
+   */
   __macroforgeGetManifest?: () => MacroManifest;
 }
 
@@ -584,28 +784,59 @@ interface MacroforgeModule {
 // Output types for structured responses
 // ============================================================================
 
+/**
+ * Structured output format for the `macroforge-autofixer` tool.
+ *
+ * Provides a JSON response that clients can parse to display errors,
+ * navigate to problem locations, and determine if re-validation is needed.
+ *
+ * @property diagnostics - Array of diagnostic messages with locations
+ * @property summary - Counts of errors, warnings, and info messages
+ * @property require_another_tool_call_after_fixing - True if errors exist and client should revalidate after fixing
+ */
 interface AutofixerResult {
   diagnostics: Array<{
+    /** Severity level: "error", "warning", or "info" */
     level: string;
+    /** Human-readable description of the issue */
     message: string;
+    /** Source location (line and column) if available */
     location?: { line: number; column: number };
+    /** Suggested fix for the issue */
     help?: string;
+    /** Additional context or explanatory notes */
     notes?: string[];
   }>;
+  /** Summary counts for quick overview */
   summary: {
     errors: number;
     warnings: number;
     info: number;
   };
+  /** If true, client should fix issues and call autofixer again */
   require_another_tool_call_after_fixing: boolean;
 }
 
+/**
+ * Structured output format for the `expand-code` tool.
+ *
+ * Contains the fully expanded code along with any diagnostics produced
+ * during expansion.
+ *
+ * @property expandedCode - The TypeScript code after macro expansion
+ * @property diagnostics - Array of diagnostic messages from expansion
+ * @property hasErrors - True if any error-level diagnostics were produced
+ */
 interface ExpandResult {
   expandedCode: string;
   diagnostics: Array<{
+    /** Severity level: "error", "warning", or "info" */
     level: string;
+    /** Human-readable description of the issue */
     message: string;
+    /** Source location (line and column) if available */
     location?: { line: number; column: number };
+    /** Suggested fix for the issue */
     help?: string;
   }>;
   hasErrors: boolean;
@@ -616,21 +847,46 @@ interface ExpandResult {
 // ============================================================================
 
 /**
- * Try to import native Macroforge bindings
+ * Dynamically imports the native Macroforge bindings.
+ *
+ * The @macroforge/core package is an optional peer dependency that provides
+ * native Rust-based code analysis and expansion. This function attempts to
+ * load it at runtime and gracefully returns null if unavailable.
+ *
+ * Using dynamic import allows the MCP server to run and serve documentation
+ * even when the native bindings are not installed.
+ *
+ * @returns The Macroforge module if available, or null if not installed
+ *
+ * @example
+ * ```typescript
+ * const macroforge = await importMacroforge();
+ * if (macroforge) {
+ *   const result = macroforge.expandSync(code, 'input.ts', {});
+ * }
+ * ```
  */
 async function importMacroforge(): Promise<MacroforgeModule | null> {
   try {
-    // Dynamic import to avoid build-time errors
+    // Dynamic import to avoid build-time errors when @macroforge/core is not installed
     // @ts-expect-error - dynamic import of optional dependency
     const mod = await import('@macroforge/core');
     return mod as MacroforgeModule;
   } catch {
+    // Package not installed - return null to indicate unavailability
     return null;
   }
 }
 
 /**
- * Normalize diagnostic level to lowercase for output
+ * Normalizes a diagnostic level string to lowercase.
+ *
+ * The Rust analyzer returns levels as PascalCase ('Error', 'Warning', 'Info'),
+ * but JSON output should use lowercase ('error', 'warning', 'info') for
+ * consistency with common diagnostic formats.
+ *
+ * @param level - Diagnostic level from Rust (e.g., 'Error')
+ * @returns Lowercase level string (e.g., 'error')
  */
 function normalizeLevel(level: string): string {
   return level.toLowerCase();
