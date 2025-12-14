@@ -3,6 +3,8 @@
  * Tests string, number, array, and date validators with real form validation.
  */
 
+import { Result } from 'macroforge/utils';
+
 /** @derive(Deserialize) */
 export class UserRegistrationForm {
     /** @serde({ validate: ["email"] }) */
@@ -62,12 +64,17 @@ export type ValidationResult<T> = {
 };
 
 // Helper to convert Result to ValidationResult
-// The Result type is provided by the macro expansion
+// The Result type uses static methods
 export function toValidationResult<T>(result: any): ValidationResult<T> {
-    if (result.isOk()) {
-        return { success: true, data: result.unwrap() };
+    if (Result.isOk(result)) {
+        return { success: true, data: Result.unwrap(result) };
     } else {
-        return { success: false, errors: result.unwrapErr() };
+        // Errors are now structured as {field, message} objects
+        const errors = Result.unwrapErr(result);
+        return {
+            success: false,
+            errors: errors.map((e: any) => (typeof e === 'string' ? e : e.message))
+        };
     }
 }
 

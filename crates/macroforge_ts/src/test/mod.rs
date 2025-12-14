@@ -2664,6 +2664,50 @@ export type UnionWithVariantDefault =
 }
 
 #[test]
+fn test_derive_default_inline_union_without_leading_pipes() {
+    // Test inline union without leading | for first variant (common format)
+    // This matches: export type ActivityType = /** @default */ Created | Edited | Sent;
+    let source = r#"
+/** @derive(Default) */
+export type ActivityType = /** @default */ Created | Edited | Sent;
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // Debug: Print what we got
+        eprintln!("[TEST] Expanded code:\n{}", result.code);
+        eprintln!("[TEST] Diagnostics: {:?}", result.diagnostics);
+
+        // Should have no error diagnostics
+        let error_count = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors with /** @default */ before first variant. Got: {:?}",
+            result.diagnostics
+        );
+
+        // Should generate namespace with defaultValue calling Created.defaultValue()
+        assert!(
+            result.code.contains("namespace ActivityType"),
+            "Should generate namespace. Got:\n{}",
+            result.code
+        );
+        assert!(
+            result.code.contains("Created.defaultValue()"),
+            "Should call Created.defaultValue(). Got:\n{}",
+            result.code
+        );
+    });
+}
+
+#[test]
 fn test_inline_jsdoc_with_export_interface() {
     // Test that /** @derive(X) */ export interface works on same line
     let source = r#"/** @derive(Deserialize) */ export interface User { name: string; age: number; }"#;

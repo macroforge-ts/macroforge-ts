@@ -18,7 +18,7 @@ const { expandSync } = require(swcMacrosPath);
 // ============================================================================
 
 describe("Serialize macro expansion", () => {
-  test("generates toStringifiedJSON, toJSON, and __serialize methods for classes", () => {
+  test("generates toStringifiedJSON, toObject, and __serialize methods for classes", () => {
     const code = `
       /** @derive(Serialize) */
       class User {
@@ -29,7 +29,7 @@ describe("Serialize macro expansion", () => {
     const result = expandSync(code, "test.ts");
 
     assert.ok(result.code.includes("toStringifiedJSON():"), "Should generate toStringifiedJSON method");
-    assert.ok(result.code.includes("toJSON():"), "Should generate toJSON method");
+    assert.ok(result.code.includes("toObject():"), "Should generate toObject method");
     assert.ok(result.code.includes("__serialize("), "Should generate __serialize method");
     assert.ok(result.code.includes("SerializeContext"), "Should use SerializeContext");
   });
