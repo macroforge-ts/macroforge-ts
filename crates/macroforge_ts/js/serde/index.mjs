@@ -31,18 +31,26 @@ var DeserializeContext;
         }
         return PendingRef.create(refId);
       },
-      deferPatch: (refId, setter) => {
-        patches.push({ refId, setter });
+      assignOrDefer: (target, prop, value) => {
+        if (PendingRef.is(value)) {
+          target[prop] = null;
+          patches.push({ target, prop, refId: value.id });
+        } else {
+          target[prop] = value;
+        }
+      },
+      addPatch: (target, prop, refId) => {
+        patches.push({ target, prop, refId });
       },
       trackForFreeze: (obj) => {
         toFreeze.push(obj);
       },
       applyPatches: () => {
-        for (const { refId, setter } of patches) {
+        for (const { target, prop, refId } of patches) {
           if (!registry.has(refId)) {
             throw new Error(`Unresolved reference: __ref ${refId}`);
           }
-          setter(registry.get(refId));
+          target[prop] = registry.get(refId);
         }
       },
       freezeAll: () => {
