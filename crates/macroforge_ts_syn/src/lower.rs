@@ -1183,6 +1183,7 @@ pub fn lower_classes(_module: &(), _source: &str) -> Result<Vec<ClassIR>, TsSynE
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::abi::ir::type_alias::TypeBody;
     #[cfg(feature = "swc")]
     use swc_core::common::{FileName, GLOBALS, Globals, SourceMap, sync::Lrc};
     #[cfg(feature = "swc")]
@@ -1431,6 +1432,91 @@ export type UnionWithDefault =
                 );
             } else {
                 panic!("Expected Union type body, got {:?}", alias.body);
+            }
+        });
+    }
+
+    #[cfg(feature = "swc")]
+    #[test]
+    fn interface_field_jsdoc_decorators() {
+        GLOBALS.set(&Globals::new(), || {
+            let source = r#"
+interface UserProfile {
+    /** @serde(email) */
+    email: string;
+
+    /** @serde(minLength(2), maxLength(50)) */
+    username: string;
+}
+"#;
+            let module = parse_module(source);
+            let interfaces = lower_interfaces(&module, source).expect("lowering to succeed");
+            let iface = interfaces.first().expect("interface");
+
+            assert_eq!(iface.name, "UserProfile");
+            assert_eq!(iface.fields.len(), 2, "Should have 2 fields");
+
+            // Check email field has @serde decorator
+            let email_field = iface.fields.iter().find(|f| f.name == "email").expect("email field");
+            eprintln!("Email field decorators: {:?}", email_field.decorators);
+            assert!(
+                email_field.decorators.iter().any(|d| d.name == "serde"),
+                "Email field should have @serde decorator. Got: {:?}",
+                email_field.decorators
+            );
+
+            // Check username field has @serde decorator
+            let username_field = iface.fields.iter().find(|f| f.name == "username").expect("username field");
+            eprintln!("Username field decorators: {:?}", username_field.decorators);
+            assert!(
+                username_field.decorators.iter().any(|d| d.name == "serde"),
+                "Username field should have @serde decorator. Got: {:?}",
+                username_field.decorators
+            );
+        });
+    }
+
+    #[cfg(feature = "swc")]
+    #[test]
+    fn type_alias_object_field_jsdoc_decorators() {
+        GLOBALS.set(&Globals::new(), || {
+            let source = r#"
+type ContactInfo = {
+    /** @serde(email) */
+    primaryEmail: string;
+
+    /** @serde(minLength(1)) */
+    address: string;
+};
+"#;
+            let module = parse_module(source);
+            let type_aliases = lower_type_aliases(&module, source).expect("lowering to succeed");
+            let alias = type_aliases.first().expect("type alias");
+
+            assert_eq!(alias.name, "ContactInfo");
+
+            if let TypeBody::Object { fields } = &alias.body {
+                assert_eq!(fields.len(), 2, "Should have 2 fields");
+
+                // Check primaryEmail field has @serde decorator
+                let email_field = fields.iter().find(|f| f.name == "primaryEmail").expect("primaryEmail field");
+                eprintln!("primaryEmail field decorators: {:?}", email_field.decorators);
+                assert!(
+                    email_field.decorators.iter().any(|d| d.name == "serde"),
+                    "primaryEmail field should have @serde decorator. Got: {:?}",
+                    email_field.decorators
+                );
+
+                // Check address field has @serde decorator
+                let address_field = fields.iter().find(|f| f.name == "address").expect("address field");
+                eprintln!("address field decorators: {:?}", address_field.decorators);
+                assert!(
+                    address_field.decorators.iter().any(|d| d.name == "serde"),
+                    "address field should have @serde decorator. Got: {:?}",
+                    address_field.decorators
+                );
+            } else {
+                panic!("Expected Object type body, got {:?}", alias.body);
             }
         });
     }
