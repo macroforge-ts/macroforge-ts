@@ -128,59 +128,13 @@ export class ValidDateValidator {
                         message: 'must be a valid date'
                     });
                 }
-                instance.date = __dateVal;
+                (instance as any).date = __dateVal;
             }
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
         return instance;
-    }
-
-    static validateField<K extends keyof ValidDateValidator>(
-        field: K,
-        value: ValidDateValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        switch (field) {
-            case 'date': {
-                const __val = value as Date;
-                if (__val == null || isNaN(__val.getTime())) {
-                    errors.push({
-                        field: 'date',
-                        message: 'must be a valid date'
-                    });
-                }
-                break;
-            }
-        }
-        return errors;
-    }
-
-    static validateFields(partial: Partial<ValidDateValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('date' in partial && partial.date !== undefined) {
-            const __val = partial.date as Date;
-            if (__val == null || isNaN(__val.getTime())) {
-                errors.push({
-                    field: 'date',
-                    message: 'must be a valid date'
-                });
-            }
-        }
-        return errors;
     }
 }
 
@@ -311,59 +265,13 @@ export class GreaterThanDateValidator {
                         message: 'must be after 2020-01-01'
                     });
                 }
-                instance.date = __dateVal;
+                (instance as any).date = __dateVal;
             }
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
         return instance;
-    }
-
-    static validateField<K extends keyof GreaterThanDateValidator>(
-        field: K,
-        value: GreaterThanDateValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        switch (field) {
-            case 'date': {
-                const __val = value as Date;
-                if (__val == null || __val.getTime() <= new Date('2020-01-01').getTime()) {
-                    errors.push({
-                        field: 'date',
-                        message: 'must be after 2020-01-01'
-                    });
-                }
-                break;
-            }
-        }
-        return errors;
-    }
-
-    static validateFields(partial: Partial<GreaterThanDateValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('date' in partial && partial.date !== undefined) {
-            const __val = partial.date as Date;
-            if (__val == null || __val.getTime() <= new Date('2020-01-01').getTime()) {
-                errors.push({
-                    field: 'date',
-                    message: 'must be after 2020-01-01'
-                });
-            }
-        }
-        return errors;
     }
 }
 
@@ -494,59 +402,13 @@ export class GreaterThanOrEqualToDateValidator {
                         message: 'must be on or after 2020-01-01'
                     });
                 }
-                instance.date = __dateVal;
+                (instance as any).date = __dateVal;
             }
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
         return instance;
-    }
-
-    static validateField<K extends keyof GreaterThanOrEqualToDateValidator>(
-        field: K,
-        value: GreaterThanOrEqualToDateValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        switch (field) {
-            case 'date': {
-                const __val = value as Date;
-                if (__val == null || __val.getTime() < new Date('2020-01-01').getTime()) {
-                    errors.push({
-                        field: 'date',
-                        message: 'must be on or after 2020-01-01'
-                    });
-                }
-                break;
-            }
-        }
-        return errors;
-    }
-
-    static validateFields(partial: Partial<GreaterThanOrEqualToDateValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('date' in partial && partial.date !== undefined) {
-            const __val = partial.date as Date;
-            if (__val == null || __val.getTime() < new Date('2020-01-01').getTime()) {
-                errors.push({
-                    field: 'date',
-                    message: 'must be on or after 2020-01-01'
-                });
-            }
-        }
-        return errors;
     }
 }
 
@@ -672,59 +534,13 @@ export class LessThanDateValidator {
                         message: 'must be before 2030-01-01'
                     });
                 }
-                instance.date = __dateVal;
+                (instance as any).date = __dateVal;
             }
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
         return instance;
-    }
-
-    static validateField<K extends keyof LessThanDateValidator>(
-        field: K,
-        value: LessThanDateValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        switch (field) {
-            case 'date': {
-                const __val = value as Date;
-                if (__val == null || __val.getTime() >= new Date('2030-01-01').getTime()) {
-                    errors.push({
-                        field: 'date',
-                        message: 'must be before 2030-01-01'
-                    });
-                }
-                break;
-            }
-        }
-        return errors;
-    }
-
-    static validateFields(partial: Partial<LessThanDateValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('date' in partial && partial.date !== undefined) {
-            const __val = partial.date as Date;
-            if (__val == null || __val.getTime() >= new Date('2030-01-01').getTime()) {
-                errors.push({
-                    field: 'date',
-                    message: 'must be before 2030-01-01'
-                });
-            }
-        }
-        return errors;
     }
 }
 
@@ -855,59 +671,13 @@ export class LessThanOrEqualToDateValidator {
                         message: 'must be on or before 2030-01-01'
                     });
                 }
-                instance.date = __dateVal;
+                (instance as any).date = __dateVal;
             }
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
         return instance;
-    }
-
-    static validateField<K extends keyof LessThanOrEqualToDateValidator>(
-        field: K,
-        value: LessThanOrEqualToDateValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        switch (field) {
-            case 'date': {
-                const __val = value as Date;
-                if (__val == null || __val.getTime() > new Date('2030-01-01').getTime()) {
-                    errors.push({
-                        field: 'date',
-                        message: 'must be on or before 2030-01-01'
-                    });
-                }
-                break;
-            }
-        }
-        return errors;
-    }
-
-    static validateFields(partial: Partial<LessThanOrEqualToDateValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('date' in partial && partial.date !== undefined) {
-            const __val = partial.date as Date;
-            if (__val == null || __val.getTime() > new Date('2030-01-01').getTime()) {
-                errors.push({
-                    field: 'date',
-                    message: 'must be on or before 2030-01-01'
-                });
-            }
-        }
-        return errors;
     }
 }
 
@@ -1037,66 +807,12 @@ export class BetweenDateValidator {
                         message: 'must be between 2020-01-01 and 2030-01-01'
                     });
                 }
-                instance.date = __dateVal;
+                (instance as any).date = __dateVal;
             }
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
         return instance;
-    }
-
-    static validateField<K extends keyof BetweenDateValidator>(
-        field: K,
-        value: BetweenDateValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        switch (field) {
-            case 'date': {
-                const __val = value as Date;
-                if (
-                    __val == null ||
-                    __val.getTime() < new Date('2020-01-01').getTime() ||
-                    __val.getTime() > new Date('2030-01-01').getTime()
-                ) {
-                    errors.push({
-                        field: 'date',
-                        message: 'must be between 2020-01-01 and 2030-01-01'
-                    });
-                }
-                break;
-            }
-        }
-        return errors;
-    }
-
-    static validateFields(partial: Partial<BetweenDateValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('date' in partial && partial.date !== undefined) {
-            const __val = partial.date as Date;
-            if (
-                __val == null ||
-                __val.getTime() < new Date('2020-01-01').getTime() ||
-                __val.getTime() > new Date('2030-01-01').getTime()
-            ) {
-                errors.push({
-                    field: 'date',
-                    message: 'must be between 2020-01-01 and 2030-01-01'
-                });
-            }
-        }
-        return errors;
     }
 }

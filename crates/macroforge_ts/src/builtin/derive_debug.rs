@@ -1,4 +1,45 @@
-//! /** @derive(Debug) */ macro implementation
+//! # Debug Macro Implementation
+//!
+//! The `Debug` macro generates a human-readable `toString()` method for
+//! TypeScript classes, interfaces, enums, and type aliases.
+//!
+//! ## Generated Output
+//!
+//! **Classes and Interfaces**: Generates an instance method returning a string
+//! like `"ClassName { field1: value1, field2: value2 }"`.
+//!
+//! **Enums**: Generates a namespace function `toString(value)` that performs
+//! reverse lookup on numeric enums.
+//!
+//! **Type Aliases**: Generates a namespace function using JSON.stringify for
+//! complex types, or field enumeration for object types.
+//!
+//! ## Field-Level Options
+//!
+//! The `@debug` decorator supports:
+//!
+//! - `skip` - Exclude the field from debug output
+//! - `rename = "label"` - Use a custom label instead of the field name
+//!
+//! ## Example
+//!
+//! ```typescript
+//! @derive(Debug)
+//! class User {
+//!     @debug(rename = "id")
+//!     userId: number;
+//!
+//!     @debug(skip)
+//!     password: string;
+//!
+//!     email: string;
+//! }
+//!
+//! // Generated:
+//! // toString(): string {
+//! //     return "User { id: " + this.userId + ", email: " + this.email + " }";
+//! // }
+//! ```
 
 use crate::macros::{ts_macro_derive, body, ts_template};
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};

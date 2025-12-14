@@ -264,23 +264,6 @@ export class AllMacrosTestClass {
         }
         return instance;
     }
-
-    static validateField<K extends keyof AllMacrosTestClass>(
-        field: K,
-        value: AllMacrosTestClass[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static validateFields(partial: Partial<AllMacrosTestClass>): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
 }
 
 // Pre-instantiated test instance for e2e tests

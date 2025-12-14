@@ -24,25 +24,6 @@ pub fn generate(interface_name: &str, fields: &[ParsedField]) -> TsStream {
             @{tainted_fields}
         };
 
-        {>> "Field controller interface for a single field" <<}
-        export interface FieldController<T> {
-            readonly path: ReadonlyArray<string | number>;
-            readonly name: string;
-            readonly constraints: Record<string, unknown>;
-            readonly label?: string;
-            readonly description?: string;
-            readonly placeholder?: string;
-            readonly disabled?: boolean;
-            readonly readonly?: boolean;
-            get(): T;
-            set(value: T): void;
-            getError(): Option<Array<string>>;
-            setError(value: Option<Array<string>>): void;
-            getTainted(): Option<boolean>;
-            setTainted(value: Option<boolean>): void;
-            validate(): Array<string>;
-        }
-
         {>> "Type-safe field controllers for this form" <<}
         export interface FieldControllers {
             @{field_controller_types}
@@ -83,25 +64,6 @@ pub fn generate_with_generics(interface_name: &str, fields: &[ParsedField], gene
         export type Tainted@{generic_decl} = {
             @{tainted_fields}
         };
-
-        {>> "Field controller interface for a single field" <<}
-        export interface FieldController<T> {
-            readonly path: ReadonlyArray<string | number>;
-            readonly name: string;
-            readonly constraints: Record<string, unknown>;
-            readonly label?: string;
-            readonly description?: string;
-            readonly placeholder?: string;
-            readonly disabled?: boolean;
-            readonly readonly?: boolean;
-            get(): T;
-            set(value: T): void;
-            getError(): Option<Array<string>>;
-            setError(value: Option<Array<string>>): void;
-            getTainted(): Option<boolean>;
-            setTainted(value: Option<boolean>): void;
-            validate(): Array<string>;
-        }
 
         {>> "Type-safe field controllers for this form" <<}
         export interface FieldControllers@{generic_decl} {
@@ -237,25 +199,6 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
 
         {>> "Union tainted type" <<}
         export type Tainted = @{variant_union_tainted};
-
-        {>> "Field controller interface" <<}
-        export interface FieldController<T> {
-            readonly path: ReadonlyArray<string | number>;
-            readonly name: string;
-            readonly constraints: Record<string, unknown>;
-            readonly label?: string;
-            readonly description?: string;
-            readonly placeholder?: string;
-            readonly disabled?: boolean;
-            readonly readonly?: boolean;
-            get(): T;
-            set(value: T): void;
-            getError(): Option<Array<string>>;
-            setError(value: Option<Array<string>>): void;
-            getTainted(): Option<boolean>;
-            setTainted(value: Option<boolean>): void;
-            validate(): Array<string>;
-        }
 
         {>> "Per-variant field controller types" <<}
         @{variant_field_controllers}

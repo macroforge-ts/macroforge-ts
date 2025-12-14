@@ -262,6 +262,9 @@ pub struct BaseControllerOptions {
     pub readonly: Option<bool>,
     /// CSS class for label background.
     pub label_bg_class: Option<String>,
+    /// Transform function to apply to input values.
+    /// Can be a preset name ("uppercase", "lowercase", "trim") or a custom function name.
+    pub transform: Option<String>,
 }
 
 impl BaseControllerOptions {
@@ -514,39 +517,6 @@ pub enum UnionKind {
     Mixed,
 }
 
-/// List of TypeScript primitive types that cannot have namespace methods.
-const PRIMITIVE_TYPES: &[&str] = &[
-    "number", "string", "boolean", "bigint", "symbol",
-    "undefined", "null", "void", "any", "unknown", "never", "object",
-];
-
-/// Returns true if the given type name is a TypeScript primitive type.
-/// Primitive types cannot have namespace methods like `.defaultValue()`.
-fn is_primitive_type(type_name: &str) -> bool {
-    PRIMITIVE_TYPES.contains(&type_name.trim())
-}
-
-/// Returns true if the type ref contains any primitive types.
-/// This catches cases like `(string | Product)` where the type ref is a parenthesized union.
-fn contains_primitive_type(type_ref: &str) -> bool {
-    // First check if it's a simple primitive
-    if is_primitive_type(type_ref) {
-        return true;
-    }
-
-    // Check if it's a parenthesized type containing primitives
-    // e.g., "(string | Product)" contains "string"
-    let cleaned = type_ref.trim().trim_start_matches('(').trim_end_matches(')');
-    for part in cleaned.split('|') {
-        let part = part.trim();
-        if is_primitive_type(part) {
-            return true;
-        }
-    }
-
-    false
-}
-
 /// Classifies a union type based on its members
 pub fn classify_union(members: &[macroforge_ts::ts_syn::TypeMember]) -> UnionKind {
     if members.is_empty() {
@@ -587,19 +557,21 @@ pub fn parse_union_config(
             })
         }
         UnionKind::TypeRefUnion => {
-            // Check for primitive types - these cannot have namespace methods
-            let primitive_containing: Vec<&str> = members
+            // Check for parenthesized unions - these are not supported because
+            // formatters cannot preserve doc comments inside parentheses
+            let parenthesized: Vec<&str> = members
                 .iter()
                 .filter_map(|m| m.as_type_ref())
-                .filter(|t| contains_primitive_type(t))
+                .filter(|t| t.trim().starts_with('('))
                 .collect();
 
-            if !primitive_containing.is_empty() {
+            if !parenthesized.is_empty() {
                 return Err(format!(
-                    "Union contains primitive types ({}) which cannot be used with Gigaform. \
-                     Primitive unions like `number | string` or `(string | Product)` are not supported - \
-                     use a discriminated union with object variants instead.",
-                    primitive_containing.join(", ")
+                    "Parenthesized union expressions ({}) are not supported. \
+                     Formatters cannot preserve doc comments inside parentheses. \
+                     Create a named type alias for each variant instead \
+                     (e.g., use `RecordLink<Product>` instead of `(string | Product)`).",
+                    parenthesized.join(", ")
                 ));
             }
 

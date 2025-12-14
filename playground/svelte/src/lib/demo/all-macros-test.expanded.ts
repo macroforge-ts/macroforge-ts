@@ -6,7 +6,7 @@ import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
 /**
  * Comprehensive test class for Svelte playground.
- * Uses all available macros for Playwright e2e testing.
+ * Uses all available ../../../../../crates/macroforge_ts/js/utilsight e2e testing.
  */
 
 export interface SvelteAllMacrosTest {
@@ -200,17 +200,6 @@ export namespace SvelteAllMacrosTest {
             throw new DeserializeError(errors);
         }
         return instance as SvelteAllMacrosTest;
-    }
-    export function validateField<K extends keyof SvelteAllMacrosTest>(
-        field: K,
-        value: SvelteAllMacrosTest[K]
-    ): Array<{ field: string; message: string }> {
-        return [];
-    }
-    export function validateFields(
-        partial: Partial<SvelteAllMacrosTest>
-    ): Array<{ field: string; message: string }> {
-        return [];
     }
 }
 

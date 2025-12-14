@@ -1,15 +1,98 @@
+/**
+ * @fileoverview TypeScript Language Service Plugin for Macroforge
+ *
+ * This plugin integrates Macroforge's compile-time macro expansion with TypeScript's
+ * Language Service to provide seamless IDE support for macro-decorated classes.
+ *
+ * ## Architecture Overview
+ *
+ * The plugin operates by intercepting TypeScript's Language Service methods and
+ * transforming source code on-the-fly:
+ *
+ * 1. **Macro Expansion**: When TypeScript requests a file's content via `getScriptSnapshot`,
+ *    this plugin intercepts the call and returns the macro-expanded version instead.
+ *
+ * 2. **Position Mapping**: Since expanded code has different positions than the original,
+ *    the plugin maintains a {@link PositionMapper} for each file to translate positions
+ *    between original and expanded coordinates.
+ *
+ * 3. **Virtual .d.ts Files**: For each macro-containing file, the plugin generates a
+ *    companion `.macroforge.d.ts` file containing type declarations for generated methods.
+ *
+ * ## Supported File Types
+ *
+ * - `.ts` - TypeScript files
+ * - `.tsx` - TypeScript JSX files
+ * - `.svelte` - Svelte components (with `<script lang="ts">`)
+ *
+ * ## Hook Categories
+ *
+ * The plugin hooks into three categories of Language Service methods:
+ *
+ * - **Host-level hooks**: Control what TypeScript "sees" (`getScriptSnapshot`, `fileExists`, etc.)
+ * - **Diagnostic hooks**: Map error positions back to original source (`getSemanticDiagnostics`)
+ * - **Navigation hooks**: Handle go-to-definition, references, completions, etc.
+ *
+ * @example
+ * ```typescript
+ * // tsconfig.json
+ * {
+ *   "compilerOptions": {
+ *     "plugins": [{ "name": "@macroforge/typescript-plugin" }]
+ *   }
+ * }
+ * ```
+ *
+ * @see {@link init} - The main plugin factory function
+ * @see {@link PositionMapper} - Position mapping between original and expanded code
+ * @module @macroforge/typescript-plugin
+ */
+
 import type ts from "typescript/lib/tsserverlibrary";
 import type { ExpandResult, MacroManifest, MacroManifestEntry, DecoratorManifestEntry } from "macroforge";
 import { NativePlugin, PositionMapper, __macroforgeGetManifest } from "macroforge";
 import path from "path";
 import fs from "fs";
 
-// Macro manifest cache for hover info
+/**
+ * Cached macro manifest for hover information.
+ *
+ * This cache stores macro and decorator metadata loaded from the native Macroforge
+ * plugin. The cache is populated on first access and persists for the lifetime of
+ * the language server process.
+ *
+ * @internal
+ */
 let macroManifestCache: {
+  /** Map of lowercase macro name to its manifest entry */
   macros: Map<string, MacroManifestEntry>;
+  /** Map of lowercase decorator export name to its manifest entry */
   decorators: Map<string, DecoratorManifestEntry>;
 } | null = null;
 
+/**
+ * Retrieves the cached macro manifest, loading it if necessary.
+ *
+ * The manifest contains metadata about all available macros and decorators,
+ * including their names, descriptions, and documentation. This information
+ * is used to provide hover tooltips in the IDE.
+ *
+ * @returns The macro manifest with Maps for quick lookup by name, or `null` if
+ *          the manifest could not be loaded (e.g., native plugin not available)
+ *
+ * @remarks
+ * The manifest is cached after first load. Macro names and decorator exports
+ * are stored in lowercase for case-insensitive lookups.
+ *
+ * @example
+ * ```typescript
+ * const manifest = getMacroManifest();
+ * if (manifest) {
+ *   const debugMacro = manifest.macros.get('debug');
+ *   const serdeDecorator = manifest.decorators.get('serde');
+ * }
+ * ```
+ */
 function getMacroManifest() {
   if (macroManifestCache) return macroManifestCache;
 
@@ -26,7 +109,40 @@ function getMacroManifest() {
 }
 
 /**
- * Find macro name at position in @derive(...) comment
+ * Finds a macro name within `@derive(...)` decorators at a given cursor position.
+ *
+ * This function parses JSDoc comments looking for `@derive` directives and determines
+ * if the cursor position falls within a specific macro name in the argument list.
+ *
+ * @param text - The source text to search
+ * @param position - The cursor position as a 0-indexed character offset from the start of the file
+ * @returns An object containing the macro name and its character span, or `null` if the
+ *          position is not within a macro name
+ *
+ * @remarks
+ * The function uses the regex `/@derive\s*\(\s*([^)]+)\s*\)/gi` to find all `@derive`
+ * decorators, then parses the comma-separated macro names within the parentheses.
+ *
+ * Position calculation accounts for:
+ * - Whitespace between `@derive` and the opening parenthesis
+ * - Whitespace around macro names in the argument list
+ * - Multiple macros separated by commas
+ *
+ * @example
+ * ```typescript
+ * // Given text: "/** @derive(Debug, Clone) * /"
+ * // Position 14 (on "Debug") returns:
+ * findDeriveAtPosition(text, 14);
+ * // => { macroName: "Debug", start: 12, end: 17 }
+ *
+ * // Position 20 (on "Clone") returns:
+ * findDeriveAtPosition(text, 20);
+ * // => { macroName: "Clone", start: 19, end: 24 }
+ *
+ * // Position 5 (before @derive) returns:
+ * findDeriveAtPosition(text, 5);
+ * // => null
+ * ```
  */
 function findDeriveAtPosition(
   text: string,
@@ -66,7 +182,39 @@ function findDeriveAtPosition(
 }
 
 /**
- * Find decorator at position like @serde or @debug
+ * Finds a field decorator (like `@serde` or `@debug`) at a given cursor position.
+ *
+ * This function searches for decorator patterns (`@name`) in the source text and
+ * determines if the cursor falls within one. It's used to provide hover information
+ * for Macroforge field decorators.
+ *
+ * @param text - The source text to search
+ * @param position - The cursor position as a 0-indexed character offset
+ * @returns An object containing the decorator name (without `@`) and its span
+ *          (including the `@` symbol), or `null` if not found
+ *
+ * @remarks
+ * This function explicitly skips `@derive` decorators that appear within JSDoc comments,
+ * as those are handled by {@link findDeriveAtPosition} instead. The detection works by
+ * checking if the match is between an unclosed JSDoc start and end markers.
+ *
+ * The span returned includes the `@` symbol, so for `@serde`:
+ * - `start` points to the `@` character
+ * - `end` points to the character after the last letter of the name
+ *
+ * @example
+ * ```typescript
+ * // Given text: "class User { @serde name: string; }"
+ * findDecoratorAtPosition(text, 14);
+ * // => { name: "serde", start: 13, end: 19 }
+ *
+ * // @derive in JSDoc is skipped (handled by findDeriveAtPosition)
+ * // Given text: "/** @derive(Debug) * /"
+ * findDecoratorAtPosition(text, 5);
+ * // => null
+ * ```
+ *
+ * @see {@link findDeriveAtPosition} - For `@derive` decorators in JSDoc comments
  */
 function findDecoratorAtPosition(
   text: string,
@@ -99,8 +247,47 @@ function findDecoratorAtPosition(
 }
 
 /**
- * Get macro hover info at position
- * Returns QuickInfo if hovering on a macro or decorator, null otherwise
+ * Generates hover information (QuickInfo) for macros and decorators at a cursor position.
+ *
+ * This function provides IDE hover tooltips for Macroforge-specific syntax:
+ * - Macro names within `@derive(...)` JSDoc decorators
+ * - Field decorators like `@serde`, `@debug`, etc.
+ *
+ * @param text - The source text to analyze
+ * @param position - The cursor position as a 0-indexed character offset
+ * @param tsModule - The TypeScript module reference (for creating QuickInfo structures)
+ * @returns A TypeScript QuickInfo object suitable for hover display, or `null` if the
+ *          position is not on a recognized macro or decorator
+ *
+ * @remarks
+ * The function checks positions in the following order:
+ * 1. First, check if cursor is on a macro name within `@derive(...)` via {@link findDeriveAtPosition}
+ * 2. Then, check if cursor is on a field decorator via {@link findDecoratorAtPosition}
+ *
+ * The returned QuickInfo includes:
+ * - `kind`: Always `functionElement` (displayed as a function in the IDE)
+ * - `textSpan`: The highlighted range in the editor
+ * - `displayParts`: The formatted display text (e.g., "@derive(Debug)")
+ * - `documentation`: The macro/decorator description from the manifest
+ *
+ * @example
+ * ```typescript
+ * // Hovering over "Debug" in "@derive(Debug, Clone)"
+ * const info = getMacroHoverInfo(text, 14, ts);
+ * // Returns QuickInfo with:
+ * // - displayParts: "@derive(Debug)"
+ * // - documentation: "Generates a fmt_debug() method for debugging output"
+ *
+ * // Hovering over "@serde" field decorator
+ * const info = getMacroHoverInfo(text, 5, ts);
+ * // Returns QuickInfo with:
+ * // - displayParts: "@serde"
+ * // - documentation: "Serialization/deserialization field options"
+ * ```
+ *
+ * @see {@link findDeriveAtPosition} - Locates macro names in @derive decorators
+ * @see {@link findDecoratorAtPosition} - Locates field decorators
+ * @see {@link getMacroManifest} - Provides macro/decorator metadata
  */
 function getMacroHoverInfo(
   text: string,
@@ -179,8 +366,37 @@ function getMacroHoverInfo(
   return null;
 }
 
+/**
+ * File extensions that the plugin will process for macro expansion.
+ * @internal
+ */
 const FILE_EXTENSIONS = [".ts", ".tsx", ".svelte"];
 
+/**
+ * Determines whether a file should be processed for macro expansion.
+ *
+ * This is a gatekeeper function that filters out files that should not
+ * go through macro expansion, either because they're in excluded directories
+ * or have unsupported file types.
+ *
+ * @param fileName - The absolute path to the file
+ * @returns `true` if the file should be processed, `false` otherwise
+ *
+ * @remarks
+ * Files are excluded if they:
+ * - Are in `node_modules` (dependencies should not be processed)
+ * - Are in the `.macroforge` cache directory
+ * - End with `.macroforge.d.ts` (generated type declaration files)
+ * - Don't have a supported extension (`.ts`, `.tsx`, `.svelte`)
+ *
+ * @example
+ * ```typescript
+ * shouldProcess('/project/src/User.ts');        // => true
+ * shouldProcess('/project/src/App.svelte');     // => true
+ * shouldProcess('/project/node_modules/...');   // => false
+ * shouldProcess('/project/User.macroforge.d.ts'); // => false
+ * ```
+ */
 function shouldProcess(fileName: string) {
   const lower = fileName.toLowerCase();
   if (lower.includes("node_modules")) return false;
@@ -190,6 +406,33 @@ function shouldProcess(fileName: string) {
   return FILE_EXTENSIONS.some((ext) => lower.endsWith(ext));
 }
 
+/**
+ * Performs a quick check to determine if a file contains any macro-related directives.
+ *
+ * This is a fast pre-filter to avoid expensive macro expansion on files that
+ * don't contain any macros. It uses simple string/regex checks rather than
+ * full parsing for performance.
+ *
+ * @param text - The source text to check
+ * @returns `true` if the file likely contains macro directives, `false` otherwise
+ *
+ * @remarks
+ * The function checks for the following patterns:
+ * - `@derive` anywhere in the text (catches both JSDoc and decorator usage)
+ * - `/** @derive(` pattern (JSDoc macro declaration)
+ * - `/** import macro` pattern (inline macro import syntax)
+ *
+ * This is intentionally permissive - it's better to have false positives
+ * (which just result in unnecessary expansion attempts) than false negatives
+ * (which would break macro functionality).
+ *
+ * @example
+ * ```typescript
+ * hasMacroDirectives('/** @derive(Debug) * /');  // => true
+ * hasMacroDirectives('@Debug class User {}');    // => true (contains @derive substring? no, but @Debug yes)
+ * hasMacroDirectives('class User {}');           // => false
+ * ```
+ */
 function hasMacroDirectives(text: string) {
   return (
     text.includes("@derive") ||
@@ -198,10 +441,56 @@ function hasMacroDirectives(text: string) {
   );
 }
 
+/**
+ * Configuration options loaded from `macroforge.json`.
+ *
+ * @remarks
+ * This configuration affects how macros are expanded and what artifacts
+ * are preserved in the output.
+ */
 type MacroConfig = {
+  /**
+   * Whether to preserve decorator syntax in the expanded output.
+   *
+   * When `true`, decorators like `@serde` are kept in the expanded code
+   * (useful for runtime decorator processing). When `false`, they are
+   * stripped during expansion.
+   *
+   * @default false
+   */
   keepDecorators: boolean;
 };
 
+/**
+ * Loads Macroforge configuration by searching for `macroforge.json` up the directory tree.
+ *
+ * Starting from the given directory, this function walks up the filesystem hierarchy
+ * looking for a `macroforge.json` configuration file. The first one found is parsed
+ * and its settings are returned.
+ *
+ * @param startDir - The directory to start searching from (typically the project root)
+ * @returns The parsed configuration, or default values if no config file is found
+ *
+ * @remarks
+ * The search stops when:
+ * - A `macroforge.json` file is found and successfully parsed
+ * - The filesystem root is reached
+ * - A parse error occurs (falls back to defaults)
+ *
+ * This allows monorepo setups where a root `macroforge.json` can configure
+ * all packages, while individual packages can override with their own config.
+ *
+ * @example
+ * ```typescript
+ * // With /project/macroforge.json containing: { "keepDecorators": true }
+ * loadMacroConfig('/project/src/components');
+ * // => { keepDecorators: true }
+ *
+ * // With no macroforge.json found:
+ * loadMacroConfig('/some/other/path');
+ * // => { keepDecorators: false }
+ * ```
+ */
 function loadMacroConfig(startDir: string): MacroConfig {
   let current = startDir;
   const fallback: MacroConfig = { keepDecorators: false };
@@ -226,22 +515,138 @@ function loadMacroConfig(startDir: string): MacroConfig {
   return fallback;
 }
 
+/**
+ * Main plugin factory function conforming to the TypeScript Language Service Plugin API.
+ *
+ * This function is called by TypeScript when the plugin is loaded. It receives the
+ * TypeScript module reference and returns an object with a `create` function that
+ * TypeScript will call to instantiate the plugin for each project.
+ *
+ * @param modules - Object containing the TypeScript module reference
+ * @param modules.typescript - The TypeScript module (`typescript/lib/tsserverlibrary`)
+ * @returns An object with a `create` method that TypeScript calls to instantiate the plugin
+ *
+ * @remarks
+ * The plugin follows the standard TypeScript Language Service Plugin pattern:
+ * 1. `init()` is called once when the plugin is loaded
+ * 2. `create()` is called for each TypeScript project that uses the plugin
+ * 3. The returned LanguageService has hooked methods that intercept TypeScript operations
+ *
+ * ## Plugin Architecture
+ *
+ * The plugin maintains several internal data structures:
+ * - **virtualDtsFiles**: Stores generated `.macroforge.d.ts` type declaration files
+ * - **snapshotCache**: Caches expanded file snapshots for stable identity across TS requests
+ * - **processingFiles**: Guards against reentrancy during macro expansion
+ * - **nativePlugin**: Rust-backed expansion engine (handles actual macro processing)
+ *
+ * ## Hooked Methods
+ *
+ * The plugin hooks into ~22 TypeScript Language Service methods to provide seamless
+ * IDE support. These fall into three categories:
+ *
+ * 1. **Host-level hooks** (what TS "sees"):
+ *    - `getScriptSnapshot` - Returns expanded code instead of original
+ *    - `getScriptVersion` - Provides versions for virtual .d.ts files
+ *    - `getScriptFileNames` - Includes virtual .d.ts in project file list
+ *    - `fileExists` - Resolves virtual .d.ts files
+ *
+ * 2. **Diagnostic hooks** (error reporting):
+ *    - `getSemanticDiagnostics` - Maps error positions, adds macro errors
+ *    - `getSyntacticDiagnostics` - Maps syntax error positions
+ *
+ * 3. **Navigation hooks** (IDE features):
+ *    - `getQuickInfoAtPosition` - Hover information
+ *    - `getCompletionsAtPosition` - IntelliSense completions
+ *    - `getDefinitionAtPosition` - Go to definition
+ *    - `findReferences` - Find all references
+ *    - ... and many more
+ *
+ * @example
+ * ```typescript
+ * // This is how TypeScript loads the plugin (internal to TS)
+ * const plugin = require('@macroforge/typescript-plugin');
+ * const { create } = plugin(modules);
+ * const languageService = create(pluginCreateInfo);
+ * ```
+ *
+ * @see {@link shouldProcess} - File filtering logic
+ * @see {@link processFile} - Main macro expansion entry point
+ */
 function init(modules: { typescript: typeof ts }) {
+  /**
+   * Creates the plugin instance for a TypeScript project.
+   *
+   * This function is called by TypeScript for each project that has the plugin configured.
+   * It sets up all the necessary hooks and state, then returns the modified LanguageService.
+   *
+   * @param info - Plugin creation info provided by TypeScript, containing:
+   *   - `project`: The TypeScript project instance
+   *   - `languageService`: The base LanguageService to augment
+   *   - `languageServiceHost`: The host providing file system access
+   *   - `config`: Plugin configuration from tsconfig.json
+   * @returns The augmented LanguageService with macro support
+   */
   function create(info: ts.server.PluginCreateInfo) {
     const tsModule = modules.typescript;
-    // Map to store generated virtual .d.ts files
+
+    /**
+     * Map storing generated virtual `.macroforge.d.ts` files.
+     *
+     * For each source file containing macros, we generate a companion `.d.ts` file
+     * with type declarations for the generated methods. These virtual files are
+     * served to TypeScript as if they existed on disk.
+     *
+     * @remarks
+     * Key: Virtual file path (e.g., `/project/src/User.ts.macroforge.d.ts`)
+     * Value: ScriptSnapshot containing the generated type declarations
+     */
     const virtualDtsFiles = new Map<string, ts.IScriptSnapshot>();
-    // Cache snapshots to ensure identity stability for TypeScript's incremental compiler
+
+    /**
+     * Cache for processed file snapshots to ensure identity stability.
+     *
+     * TypeScript's incremental compiler relies on snapshot identity to detect changes.
+     * By caching snapshots keyed by version, we ensure the same snapshot object is
+     * returned for unchanged files, preventing unnecessary recompilation.
+     *
+     * @remarks
+     * Key: Source file path
+     * Value: Object containing the file version and its expanded snapshot
+     */
     const snapshotCache = new Map<
       string,
       { version: string; snapshot: ts.IScriptSnapshot }
     >();
-    // Guard against reentrancy
+
+    /**
+     * Set of files currently being processed for macro expansion.
+     *
+     * This guards against reentrancy - if TypeScript requests a file while we're
+     * already processing it (e.g., due to import resolution during expansion),
+     * we return the original content to prevent infinite loops.
+     */
     const processingFiles = new Set<string>();
 
-    // Instantiate native plugin (handles caching and logging in Rust)
+    /**
+     * Native Rust-backed plugin instance for macro expansion.
+     *
+     * The NativePlugin handles the actual macro expansion logic, caching, and
+     * source mapping. It's implemented in Rust for performance and is accessed
+     * via N-API bindings.
+     */
     const nativePlugin = new NativePlugin();
 
+    /**
+     * Gets the current working directory for the project.
+     *
+     * Tries multiple sources in order of preference:
+     * 1. Project's getCurrentDirectory method
+     * 2. Language service host's getCurrentDirectory method
+     * 3. Falls back to process.cwd()
+     *
+     * @returns The project's root directory path
+     */
     const getCurrentDirectory = () =>
       info.project.getCurrentDirectory?.() ??
       info.languageServiceHost.getCurrentDirectory?.() ??
@@ -250,7 +655,16 @@ function init(modules: { typescript: typeof ts }) {
     const macroConfig = loadMacroConfig(getCurrentDirectory());
     const keepDecorators = macroConfig.keepDecorators;
 
-    // Log helper - delegates to Rust
+    /**
+     * Logs a message to multiple destinations for debugging.
+     *
+     * Messages are sent to:
+     * 1. The native Rust plugin (for unified logging)
+     * 2. TypeScript's project service logger (visible in tsserver logs)
+     * 3. stderr (for development debugging)
+     *
+     * @param msg - The message to log (will be prefixed with timestamp and [macroforge])
+     */
     const log = (msg: string) => {
       const line = `[${new Date().toISOString()}] ${msg}`;
       nativePlugin.log(line);
@@ -262,6 +676,19 @@ function init(modules: { typescript: typeof ts }) {
       } catch {}
     };
 
+    /**
+     * Registers a virtual `.macroforge.d.ts` file with TypeScript's project service.
+     *
+     * This makes TypeScript aware of our generated type declaration files so they
+     * can be resolved during import resolution and type checking.
+     *
+     * @param fileName - The path to the virtual .d.ts file to register
+     *
+     * @remarks
+     * Uses internal TypeScript APIs (`getOrCreateScriptInfoNotOpenedByClient`)
+     * which may change between TypeScript versions. The function gracefully
+     * handles missing APIs.
+     */
     const ensureVirtualDtsRegistered = (fileName: string) => {
       const projectService = info.project.projectService as any;
       const register = projectService?.getOrCreateScriptInfoNotOpenedByClient;
@@ -284,6 +711,19 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
+    /**
+     * Removes a virtual `.macroforge.d.ts` file from TypeScript's project service.
+     *
+     * Called when a source file no longer generates types (e.g., macros removed)
+     * to clean up stale virtual files and prevent memory leaks.
+     *
+     * @param fileName - The path to the virtual .d.ts file to remove
+     *
+     * @remarks
+     * The cleanup is conservative - it only deletes the ScriptInfo if:
+     * 1. The file is not open in an editor
+     * 2. The file is not attached to any other projects
+     */
     const cleanupVirtualDts = (fileName: string) => {
       const projectService = info.project.projectService as any;
       const getScriptInfo = projectService?.getScriptInfo;
@@ -307,6 +747,12 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
+    /**
+     * Override projectService.setDocument to handle virtual files safely.
+     *
+     * This guards against TypeScript crashes when it tries to cache source files
+     * for virtual .d.ts files that don't have full ScriptInfo backing.
+     */
     const projectService = info.project.projectService as any;
     if (projectService?.setDocument) {
       projectService.setDocument = (
@@ -340,10 +786,42 @@ function init(modules: { typescript: typeof ts }) {
       };
     }
 
-    // Log plugin initialization
     log("Plugin initialized");
 
-    // Process file through macro expansion (caching handled in Rust)
+    /**
+     * Processes a file through macro expansion via the native Rust plugin.
+     *
+     * This is the main entry point for macro expansion. It delegates to the native
+     * Rust plugin for the actual transformation and handles virtual .d.ts file
+     * management for generated type declarations.
+     *
+     * @param fileName - The absolute path to the source file
+     * @param content - The source file content to expand
+     * @param version - The file version (used for cache invalidation)
+     * @returns An object containing:
+     *   - `result`: The full ExpandResult from the native plugin (includes diagnostics, source mapping)
+     *   - `code`: The expanded code (shorthand for result.code)
+     *
+     * @remarks
+     * The function handles several important concerns:
+     *
+     * 1. **Empty file fast path**: Returns immediately for empty content
+     * 2. **Virtual .d.ts management**: Creates/updates/removes companion type declaration files
+     * 3. **Error recovery**: On expansion failure, returns original content and cleans up virtual files
+     *
+     * Caching is handled by the native Rust plugin based on the version parameter.
+     * If the version hasn't changed since the last call, the cached result is returned.
+     *
+     * @example
+     * ```typescript
+     * const { result, code } = processFile('/project/src/User.ts', sourceText, '1');
+     *
+     * // result.code - The expanded TypeScript code
+     * // result.types - Generated .d.ts content (if any)
+     * // result.diagnostics - Macro expansion errors/warnings
+     * // result.sourceMapping - Position mapping data
+     * ```
+     */
     function processFile(
       fileName: string,
       content: string,
@@ -406,13 +884,26 @@ function init(modules: { typescript: typeof ts }) {
       }
     }
 
-    // Hook getScriptVersion to provide versions for virtual .d.ts files
+    // =========================================================================
+    // HOST-LEVEL HOOKS
+    // These hooks control what TypeScript "sees" - the file content, versions,
+    // and existence checks. They're the foundation of the plugin's operation.
+    // =========================================================================
+
+    /**
+     * Hook: getScriptVersion
+     *
+     * Provides version strings for virtual `.macroforge.d.ts` files by deriving
+     * them from the source file's version. This ensures TypeScript invalidates
+     * the virtual file when its source changes.
+     */
     const originalGetScriptVersion =
       info.languageServiceHost.getScriptVersion.bind(info.languageServiceHost);
 
     info.languageServiceHost.getScriptVersion = (fileName) => {
       try {
         if (virtualDtsFiles.has(fileName)) {
+          // Virtual .d.ts files inherit version from their source file
           const sourceFileName = fileName.replace(".macroforge.d.ts", "");
           return originalGetScriptVersion(sourceFileName);
         }
@@ -425,8 +916,13 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getScriptFileNames to include our virtual .d.ts files
-    // This allows TS to "see" these new files as part of the project
+    /**
+     * Hook: getScriptFileNames
+     *
+     * Includes virtual `.macroforge.d.ts` files in the project's file list.
+     * This allows TypeScript to "see" our generated type declaration files
+     * and include them in type checking and import resolution.
+     */
     const originalGetScriptFileNames = info.languageServiceHost
       .getScriptFileNames
       ? info.languageServiceHost.getScriptFileNames.bind(
@@ -437,6 +933,7 @@ function init(modules: { typescript: typeof ts }) {
     info.languageServiceHost.getScriptFileNames = () => {
       try {
         const originalFiles = originalGetScriptFileNames();
+        // Append all virtual .d.ts files to the project's file list
         return [...originalFiles, ...Array.from(virtualDtsFiles.keys())];
       } catch (e) {
         log(
@@ -446,7 +943,13 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook fileExists to resolve our virtual .d.ts files
+    /**
+     * Hook: fileExists
+     *
+     * Makes virtual `.macroforge.d.ts` files appear to exist on disk.
+     * This allows TypeScript's module resolution to find our generated
+     * type declaration files.
+     */
     const originalFileExists = info.languageServiceHost.fileExists
       ? info.languageServiceHost.fileExists.bind(info.languageServiceHost)
       : tsModule.sys.fileExists;
@@ -454,7 +957,7 @@ function init(modules: { typescript: typeof ts }) {
     info.languageServiceHost.fileExists = (fileName) => {
       try {
         if (virtualDtsFiles.has(fileName)) {
-          return true;
+          return true; // Virtual file exists in our cache
         }
         return originalFileExists(fileName);
       } catch (e) {
@@ -465,7 +968,25 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getScriptSnapshot to provide the "expanded" type definition view
+    /**
+     * Hook: getScriptSnapshot (CRITICAL)
+     *
+     * This is the most important hook - it intercepts file content requests
+     * and returns macro-expanded code instead of the original source.
+     *
+     * The hook handles several scenarios:
+     * 1. Virtual .d.ts files - Returns the generated type declarations
+     * 2. Reentrancy - Returns original content if file is already being processed
+     * 3. Excluded files - Returns original content for node_modules, etc.
+     * 4. Non-macro files - Returns original content if no @derive directives
+     * 5. Macro files - Returns expanded content with generated methods
+     *
+     * @remarks
+     * Caching strategy:
+     * - Uses `snapshotCache` for identity stability (TS incremental compiler needs this)
+     * - Uses `processingFiles` Set to prevent infinite loops during expansion
+     * - Version-based cache invalidation ensures fresh expansions on file changes
+     */
     const originalGetScriptSnapshot =
       info.languageServiceHost.getScriptSnapshot.bind(info.languageServiceHost);
 
@@ -473,19 +994,19 @@ function init(modules: { typescript: typeof ts }) {
       try {
         log(`getScriptSnapshot: ${fileName}`);
 
-        // If it's one of our virtual .d.ts files, return its snapshot
+        // Scenario 1: Virtual .d.ts file - return from our cache
         if (virtualDtsFiles.has(fileName)) {
           log(`  -> virtual .d.ts cache hit`);
           return virtualDtsFiles.get(fileName);
         }
 
-        // Guard against reentrancy - if we're already processing this file, return original
+        // Scenario 2: Reentrancy guard - prevent infinite loops
         if (processingFiles.has(fileName)) {
           log(`  -> REENTRANCY DETECTED, returning original`);
           return originalGetScriptSnapshot(fileName);
         }
 
-        // Don't process non-TypeScript files or .expanded.ts files
+        // Scenario 3: Excluded file (node_modules, .macroforge, wrong extension)
         if (!shouldProcess(fileName)) {
           log(`  -> not processable (excluded file), returning original`);
           return originalGetScriptSnapshot(fileName);
@@ -502,20 +1023,20 @@ function init(modules: { typescript: typeof ts }) {
 
         const text = snapshot.getText(0, snapshot.getLength());
 
-        // Only process files with macro directives
+        // Scenario 4: No macro directives - return original
         if (!hasMacroDirectives(text)) {
           log(`  -> no macro directives, returning original`);
           return snapshot;
         }
 
+        // Scenario 5: Has macros - expand and return
         log(`  -> has @derive, expanding...`);
-        // Mark as processing to prevent reentrancy
         processingFiles.add(fileName);
         try {
           const version = info.languageServiceHost.getScriptVersion(fileName);
           log(`  -> version: ${version}`);
 
-          // Check if we have a cached snapshot for this version
+          // Check snapshot cache for stable identity
           const cached = snapshotCache.get(fileName);
           if (cached && cached.version === version) {
             log(`  -> snapshot cache hit`);
@@ -528,7 +1049,7 @@ function init(modules: { typescript: typeof ts }) {
           if (code && code !== text) {
             log(`  -> creating expanded snapshot (${code.length} chars)`);
             const expandedSnapshot = tsModule.ScriptSnapshot.fromString(code);
-            // Cache the snapshot for stable identity
+            // Cache for stable identity across TS requests
             snapshotCache.set(fileName, {
               version,
               snapshot: expandedSnapshot,
@@ -537,7 +1058,7 @@ function init(modules: { typescript: typeof ts }) {
             return expandedSnapshot;
           }
 
-          // Cache the original snapshot
+          // No change after expansion - cache original
           snapshotCache.set(fileName, { version, snapshot });
           return snapshot;
         } finally {
@@ -547,12 +1068,27 @@ function init(modules: { typescript: typeof ts }) {
         log(
           `ERROR in getScriptSnapshot for ${fileName}: ${e instanceof Error ? e.stack || e.message : String(e)}`,
         );
-        // Make sure we clean up on error
         processingFiles.delete(fileName);
         return originalGetScriptSnapshot(fileName);
       }
     };
 
+    // =========================================================================
+    // DIAGNOSTIC HELPER FUNCTIONS
+    // These utilities convert and map diagnostics between expanded and original
+    // code positions.
+    // =========================================================================
+
+    /**
+     * Converts a TypeScript diagnostic to a plain object for the native plugin.
+     *
+     * The native Rust plugin expects a simplified diagnostic format. This function
+     * extracts the essential fields and normalizes the message text (which can be
+     * either a string or a DiagnosticMessageChain).
+     *
+     * @param diag - The TypeScript diagnostic to convert
+     * @returns A plain object with diagnostic information
+     */
     function toPlainDiagnostic(diag: ts.Diagnostic): {
       start?: number;
       length?: number;
@@ -580,6 +1116,17 @@ function init(modules: { typescript: typeof ts }) {
       };
     }
 
+    /**
+     * Applies mapped positions to diagnostics, updating their start/length.
+     *
+     * Takes the original diagnostics and a parallel array of mapped positions
+     * (from the native plugin) and creates new diagnostics with corrected positions
+     * pointing to the original source instead of the expanded code.
+     *
+     * @param original - The original diagnostics from TypeScript
+     * @param mapped - Array of mapped positions (parallel to original)
+     * @returns New diagnostic array with corrected positions
+     */
     function applyMappedDiagnostics(
       original: readonly ts.Diagnostic[],
       mapped: Array<{ start?: number; length?: number }>,
@@ -591,7 +1138,7 @@ function init(modules: { typescript: typeof ts }) {
           mappedDiag.start === undefined ||
           mappedDiag.length === undefined
         ) {
-          return diag;
+          return diag; // No mapping available, keep original
         }
 
         return {
@@ -602,7 +1149,24 @@ function init(modules: { typescript: typeof ts }) {
       });
     }
 
-    // Hook getSemanticDiagnostics to provide macro errors and map positions
+    // =========================================================================
+    // DIAGNOSTIC HOOKS
+    // These hooks map error positions from expanded code back to original source
+    // and inject macro-specific diagnostics.
+    // =========================================================================
+
+    /**
+     * Hook: getSemanticDiagnostics (COMPLEX)
+     *
+     * This is one of the most complex hooks. It handles:
+     * 1. Mapping TypeScript error positions from expanded code back to original
+     * 2. Converting errors in generated code to point at the responsible @derive macro
+     * 3. Injecting Macroforge-specific diagnostics (expansion errors, warnings)
+     *
+     * The hook uses sophisticated position mapping to ensure errors appear at
+     * meaningful locations in the user's source code, even when the actual error
+     * occurred in macro-generated code.
+     */
     const originalGetSemanticDiagnostics =
       info.languageService.getSemanticDiagnostics.bind(info.languageService);
 
@@ -902,7 +1466,13 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getSyntacticDiagnostics to map positions
+    /**
+     * Hook: getSyntacticDiagnostics
+     *
+     * Maps syntax error positions from expanded code back to original source.
+     * Simpler than semantic diagnostics as it doesn't need to handle generated
+     * code errors (syntax errors are in user code, not generated code).
+     */
     const originalGetSyntacticDiagnostics =
       info.languageService.getSyntacticDiagnostics.bind(info.languageService);
 
@@ -938,7 +1508,29 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getQuickInfoAtPosition to map input position and output spans
+    // =========================================================================
+    // NAVIGATION & IDE FEATURE HOOKS
+    // These hooks provide IDE features like hover, completions, go-to-definition,
+    // find references, rename, etc. All follow a similar pattern:
+    // 1. Map input position from original to expanded coordinates
+    // 2. Call the original method on expanded code
+    // 3. Map output positions back from expanded to original coordinates
+    // =========================================================================
+
+    /**
+     * Hook: getQuickInfoAtPosition
+     *
+     * Provides hover information for symbols. This hook has special handling
+     * for Macroforge-specific syntax:
+     *
+     * 1. First checks for macro hover info (@derive macros, field decorators)
+     * 2. If not on a macro, maps position and delegates to TypeScript
+     * 3. Maps result spans back to original positions
+     *
+     * @remarks
+     * If the hover would be in generated code, returns undefined to hide it
+     * (prevents confusing users with hover info for code they can't see).
+     */
     const originalGetQuickInfoAtPosition =
       info.languageService.getQuickInfoAtPosition.bind(info.languageService);
 
@@ -990,7 +1582,13 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getCompletionsAtPosition to map input position
+    /**
+     * Hook: getCompletionsAtPosition
+     *
+     * Provides IntelliSense completions. Maps the cursor position to expanded
+     * coordinates to get accurate completions that include generated methods,
+     * then maps any replacement spans back to original coordinates.
+     */
     const originalGetCompletionsAtPosition =
       info.languageService.getCompletionsAtPosition.bind(info.languageService);
 
@@ -1073,7 +1671,18 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getDefinitionAtPosition to map input and output positions
+    /**
+     * Hook: getDefinitionAtPosition
+     *
+     * Provides "Go to Definition" functionality. Maps cursor position to
+     * expanded code, gets definitions, then maps definition spans back
+     * to original positions.
+     *
+     * @remarks
+     * For definitions in other files (not macro-expanded), positions are
+     * passed through unchanged. Only same-file definitions need mapping.
+     * Definitions pointing to generated code are filtered out.
+     */
     const originalGetDefinitionAtPosition =
       info.languageService.getDefinitionAtPosition.bind(info.languageService);
 
@@ -1126,7 +1735,13 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getDefinitionAndBoundSpan for more complete definition handling
+    /**
+     * Hook: getDefinitionAndBoundSpan
+     *
+     * Enhanced version of getDefinitionAtPosition that also returns the
+     * text span that was used to find the definition (useful for highlighting).
+     * Maps both the bound span and definition spans.
+     */
     const originalGetDefinitionAndBoundSpan =
       info.languageService.getDefinitionAndBoundSpan.bind(info.languageService);
 
@@ -1191,7 +1806,13 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getTypeDefinitionAtPosition
+    /**
+     * Hook: getTypeDefinitionAtPosition
+     *
+     * Provides "Go to Type Definition" functionality. Similar to
+     * getDefinitionAtPosition but navigates to the type's definition
+     * rather than the symbol's definition.
+     */
     const originalGetTypeDefinitionAtPosition =
       info.languageService.getTypeDefinitionAtPosition.bind(
         info.languageService,
@@ -1245,7 +1866,13 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getReferencesAtPosition
+    /**
+     * Hook: getReferencesAtPosition
+     *
+     * Provides "Find All References" functionality. Maps the cursor position,
+     * finds all references in the expanded code, then maps each reference
+     * span back to original positions. References in generated code are filtered.
+     */
     const originalGetReferencesAtPosition =
       info.languageService.getReferencesAtPosition.bind(info.languageService);
 
@@ -1294,7 +1921,12 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook findReferences
+    /**
+     * Hook: findReferences
+     *
+     * Alternative "Find All References" that returns grouped references by symbol.
+     * Similar to getReferencesAtPosition but with richer structure.
+     */
     const originalFindReferences = info.languageService.findReferences.bind(
       info.languageService,
     );
@@ -1349,7 +1981,12 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getSignatureHelpItems
+    /**
+     * Hook: getSignatureHelpItems
+     *
+     * Provides function signature help (parameter hints shown while typing
+     * function arguments). Maps cursor position and the applicable span.
+     */
     const originalGetSignatureHelpItems =
       info.languageService.getSignatureHelpItems.bind(info.languageService);
 
@@ -1398,15 +2035,30 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getRenameInfo
+    /**
+     * Hook: getRenameInfo
+     *
+     * Provides information about whether a symbol can be renamed and what
+     * text span should be highlighted. Returns an error message if the
+     * cursor is in generated code (can't rename generated symbols).
+     *
+     * @remarks
+     * Uses a compatibility wrapper (callGetRenameInfo) to handle different
+     * TypeScript version signatures for this method.
+     */
     const originalGetRenameInfo = (
       info.languageService.getRenameInfo as any
     ).bind(info.languageService);
 
+    /** Options for getRenameInfo - varies by TypeScript version */
     type RenameInfoOptions = {
       allowRenameOfImportPath?: boolean;
     };
 
+    /**
+     * Compatibility wrapper for getRenameInfo that handles both old and new
+     * TypeScript API signatures.
+     */
     const callGetRenameInfo = (
       fileName: string,
       position: number,
@@ -1461,16 +2113,31 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook findRenameLocations (newer overload prefers options object)
+    /**
+     * Hook: findRenameLocations
+     *
+     * Finds all locations that would be affected by a rename operation.
+     * Maps each location's span back to original positions. Locations in
+     * generated code are filtered out.
+     *
+     * @remarks
+     * Uses a compatibility wrapper (callFindRenameLocations) to handle
+     * different TypeScript version signatures.
+     */
     const originalFindRenameLocations =
       info.languageService.findRenameLocations.bind(info.languageService);
 
+    /** Options for findRenameLocations - varies by TypeScript version */
     type RenameLocationOptions = {
       findInStrings?: boolean;
       findInComments?: boolean;
       providePrefixAndSuffixTextForRename?: boolean;
     };
 
+    /**
+     * Compatibility wrapper for findRenameLocations that handles both old
+     * and new TypeScript API signatures.
+     */
     const callFindRenameLocations = (
       fileName: string,
       position: number,
@@ -1545,7 +2212,13 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getDocumentHighlights
+    /**
+     * Hook: getDocumentHighlights
+     *
+     * Highlights all occurrences of a symbol in the document (used when you
+     * click on a variable and see all usages highlighted). Maps highlight
+     * spans back to original positions.
+     */
     const originalGetDocumentHighlights =
       info.languageService.getDocumentHighlights.bind(info.languageService);
 
@@ -1615,7 +2288,12 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getImplementationAtPosition
+    /**
+     * Hook: getImplementationAtPosition
+     *
+     * Provides "Go to Implementation" functionality. Similar to definition
+     * but finds concrete implementations of abstract methods/interfaces.
+     */
     const originalGetImplementationAtPosition =
       info.languageService.getImplementationAtPosition.bind(
         info.languageService,
@@ -1668,7 +2346,18 @@ function init(modules: { typescript: typeof ts }) {
         return originalGetImplementationAtPosition(fileName, position);
       }
     };
-    // Hook getCodeFixesAtPosition
+    /**
+     * Hook: getCodeFixesAtPosition
+     *
+     * Provides quick fix suggestions for errors at a position. Maps the
+     * input span to expanded coordinates to get fixes that work with
+     * generated code context.
+     *
+     * @remarks
+     * Note: The returned fixes may include edits to expanded code, which
+     * could be problematic. Consider filtering or mapping fix edits in
+     * future versions.
+     */
     const originalGetCodeFixesAtPosition =
       info.languageService.getCodeFixesAtPosition.bind(info.languageService);
 
@@ -1728,7 +2417,12 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getNavigationTree
+    /**
+     * Hook: getNavigationTree
+     *
+     * Provides the document outline/structure tree (shown in the Outline
+     * panel). Recursively maps all spans in the tree back to original positions.
+     */
     const originalGetNavigationTree =
       info.languageService.getNavigationTree.bind(info.languageService);
 
@@ -1780,7 +2474,12 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook getOutliningSpans
+    /**
+     * Hook: getOutliningSpans
+     *
+     * Provides code folding regions. Maps both the text span (what gets
+     * folded) and hint span (what's shown when collapsed) back to original.
+     */
     const originalGetOutliningSpans =
       info.languageService.getOutliningSpans.bind(info.languageService);
 
@@ -1828,7 +2527,17 @@ function init(modules: { typescript: typeof ts }) {
       }
     };
 
-    // Hook provideInlayHints to map positions
+    /**
+     * Hook: provideInlayHints
+     *
+     * Provides inlay hints (inline type annotations shown in the editor).
+     * Maps the requested span to expanded coordinates, then maps each hint's
+     * position back to original. Hints in generated code are filtered out.
+     *
+     * @remarks
+     * This hook is conditional - provideInlayHints may not exist in older
+     * TypeScript versions.
+     */
     const originalProvideInlayHints =
       info.languageService.provideInlayHints?.bind(info.languageService);
 

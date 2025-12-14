@@ -1,9 +1,48 @@
-//! Thin wrappers around SWC's `quote!` machinery tailored for macroforge.
+//! TypeScript code generation macros for macroforge.
 //!
-//! Macro authors can depend on this crate to access the familiar `quote!`
-//! macro (re-exported from `swc_core`) plus a couple of helpers for creating
-//! identifiers with predictable hygiene. The goal is to decouple codegen
-//! utilities from the heavier parsing utilities that live in `ts_syn`.
+//! This crate provides procedural macros for generating TypeScript code from Rust.
+//! It offers two primary approaches:
+//!
+//! - [`ts_quote!`] - A thin wrapper around SWC's `quote!` macro with enhanced
+//!   interpolation syntax for compile-time validated TypeScript generation.
+//!
+//! - [`ts_template!`] - A Rust-style template syntax with control flow (`{#if}`,
+//!   `{#for}`, `{#match}`) and expression interpolation (`@{expr}`).
+//!
+//! Additionally, scoped template macros are provided for code injection:
+//! - [`above!`] - Inject code above a definition
+//! - [`below!`] - Inject code below a definition
+//! - [`body!`] - Inject code into method/function bodies
+//! - [`signature!`] - Inject code into function signatures
+//!
+//! # Architecture
+//!
+//! The crate is designed to decouple code generation utilities from the heavier
+//! parsing utilities in `ts_syn`. Templates compile to string-building Rust code
+//! at macro expansion time, then produce [`TsStream`] objects at runtime that can
+//! be parsed by SWC into typed AST nodes.
+//!
+//! # Examples
+//!
+//! Using `ts_quote!` for simple interpolation:
+//!
+//! ```ignore
+//! let name = quote_ident("MyClass");
+//! let stmt = ts_quote!(class $name {} as Stmt, name = name);
+//! ```
+//!
+//! Using `ts_template!` for complex code generation:
+//!
+//! ```ignore
+//! let fields = vec!["name", "age"];
+//! let stream = ts_template! {
+//!     {#for field in &fields}
+//!         this.@{field} = @{field};
+//!     {/for}
+//! };
+//! ```
+//!
+//! [`TsStream`]: macroforge_ts::ts_syn::TsStream
 
 mod template;
 #[cfg(test)]
@@ -17,14 +56,61 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use syn::parse::{Parse, ParseStream};
 use syn::{Expr, Ident, Type, parse_macro_input, parse_str};
 
+/// Global counter for generating unique binding names in macro expansions.
+///
+/// Each call to [`parse_interpolation`] increments this counter to ensure
+/// that generated variable names (e.g., `__ts_bind_0_0`, `__ts_bind_1_0`)
+/// don't collide within a single compilation unit.
 static COUNTER: AtomicUsize = AtomicUsize::new(0);
 
+/// Parsed input for the [`ts_quote!`] macro.
+///
+/// This struct captures the token stream that will be converted to a TypeScript
+/// template string, along with an optional output type annotation.
+///
+/// # Input Format
+///
+/// The macro accepts tokens followed by an optional `as Type` suffix:
+/// - `ts_quote!(class Foo {})` - No type annotation (default)
+/// - `ts_quote!(class Foo {} as Stmt)` - Explicit `Stmt` type
+/// - `ts_quote!({ x: 1 } as Expr)` - Object literal as `Expr` (auto-wrapped)
+///
+/// # Type Detection Heuristic
+///
+/// The parser scans backwards from the end looking for an `as Type` pattern.
+/// When the last two tokens are an `as` identifier followed by a valid type,
+/// they are extracted as the output type annotation.
 struct TsQuoteInput {
-    // We store the raw tokens to be stringified later as the template
+    /// The raw tokens to be converted to a TypeScript template string.
+    /// These tokens are processed by [`process_tokens`] to extract
+    /// interpolation bindings and build the template.
     template_tokens: TokenStream2,
+
+    /// Optional output type for the generated AST node.
+    /// When specified (e.g., `as Stmt`), this type is passed to SWC's `quote!`
+    /// macro to produce a typed result. When `Some(Expr)` and the template
+    /// looks like an object literal `{ ... }`, it's automatically wrapped
+    /// in parentheses to avoid parsing ambiguity.
     output_type: Option<Type>,
 }
 
+/// Implements [`syn::Parse`] to extract the template tokens and optional type annotation.
+///
+/// # Parsing Strategy
+///
+/// 1. Collect all tokens from the input stream
+/// 2. Scan backwards looking for `as Type` pattern at the end
+/// 3. If found, extract the type and truncate the template tokens
+///
+/// # Example Parsing
+///
+/// ```text
+/// Input: `class $name {} as Stmt`
+/// Result: template_tokens = `class $name {}`, output_type = Some(Stmt)
+///
+/// Input: `{ x: $(value) }`
+/// Result: template_tokens = `{ x: $(value) }`, output_type = None
+/// ```
 impl Parse for TsQuoteInput {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let mut tokens = Vec::new();
@@ -66,6 +152,65 @@ impl Parse for TsQuoteInput {
     }
 }
 
+/// Generates TypeScript AST nodes using SWC's `quote!` macro with enhanced interpolation.
+///
+/// This macro provides a thin wrapper around `swc_core::quote!` with additional
+/// conveniences for TypeScript code generation:
+///
+/// - **Automatic binding extraction**: `$(expr)` patterns are converted to SWC bindings
+/// - **Type-aware interpolation**: `ident!()`, `stmt!()`, `stmt_vec!()` for typed codegen
+/// - **Smart object literal handling**: `{ ... } as Expr` is auto-wrapped in parentheses
+///
+/// # Syntax
+///
+/// ```text
+/// ts_quote!(template_tokens as Type, bindings...)
+/// ts_quote!(template_tokens)
+/// ```
+///
+/// ## Interpolation Patterns
+///
+/// | Pattern | Description |
+/// |---------|-------------|
+/// | `$(expr)` | Interpolate expression (inferred type) |
+/// | `$(expr: Type)` | Interpolate with explicit type annotation |
+/// | `$(ident!("name"))` | Create an `Ident` with formatted name |
+/// | `$(stmt!(expr))` | Interpolate as `Stmt` |
+/// | `$(stmt_vec!(vec))` | Inline a `Vec<Stmt>` |
+///
+/// # Examples
+///
+/// Simple class generation:
+///
+/// ```ignore
+/// let name = quote_ident("MyClass");
+/// let stmt = ts_quote!(class $name {} as Stmt, name = name);
+/// ```
+///
+/// With formatted identifier:
+///
+/// ```ignore
+/// let field = "userName";
+/// let stmt = ts_quote!(
+///     this.$(ident!("get{}", field.to_pascal_case()))()
+/// as Expr);
+/// ```
+///
+/// Object literal (auto-wrapped):
+///
+/// ```ignore
+/// let key = "status";
+/// let value = quote_ident("active");
+/// // Generates: ({ status: active })
+/// let expr = ts_quote!({ $(ident!(key)): $value } as Expr, value = value);
+/// ```
+///
+/// # Generated Code
+///
+/// The macro expands to a call to `swc_core::quote!` with:
+/// 1. The template string (with `$var` placeholders)
+/// 2. Optional `as Type` annotation
+/// 3. Extracted bindings (e.g., `var_name = expression`)
 #[proc_macro]
 pub fn ts_quote(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as TsQuoteInput);
@@ -128,11 +273,42 @@ pub fn ts_quote(input: TokenStream) -> TokenStream {
     TokenStream::from(output)
 }
 
+/// Creates a [`TokenStream2`] containing a single identifier token.
+///
+/// This is a convenience function for building token streams programmatically
+/// when generating macro output. The identifier is created with [`Span::call_site()`]
+/// for proper hygiene.
+///
+/// # Arguments
+///
+/// * `s` - The identifier string (must be a valid Rust identifier)
+///
+/// # Example
+///
+/// ```ignore
+/// // Creates tokens for: swc_core
+/// let ts = quote_ident("swc_core");
+/// ```
 fn quote_ident(s: &str) -> TokenStream2 {
     let ident = Ident::new(s, Span::call_site());
     TokenStream2::from(TokenTree::Ident(ident))
 }
 
+/// Creates a [`TokenStream2`] containing punctuation tokens.
+///
+/// Each character in the input string becomes a separate [`Punct`] token
+/// with [`Spacing::Joint`], allowing multi-character operators like `::` or `->`.
+///
+/// # Arguments
+///
+/// * `s` - The punctuation characters to convert
+///
+/// # Example
+///
+/// ```ignore
+/// // Creates tokens for: ::
+/// let ts = quote_punct("::");
+/// ```
 fn quote_punct(s: &str) -> TokenStream2 {
     use proc_macro2::Punct;
     s.chars()
@@ -140,7 +316,36 @@ fn quote_punct(s: &str) -> TokenStream2 {
         .collect()
 }
 
-/// Walks the token stream to reconstruct the JS string while extracting $(...) patterns.
+/// Walks the token stream to build a TypeScript template string and extract bindings.
+///
+/// This function processes the raw tokens from [`ts_quote!`] input, converting them
+/// into a string template suitable for SWC's `quote!` macro while extracting
+/// `$(...)` interpolation patterns as separate bindings.
+///
+/// # Arguments
+///
+/// * `tokens` - The token stream to process
+///
+/// # Returns
+///
+/// A tuple of:
+/// 1. The template string with `$var_name` placeholders for SWC
+/// 2. A vector of binding token streams (e.g., `var_name = expression`)
+///
+/// # Processing Rules
+///
+/// - `$(...)` patterns are extracted and replaced with `$__ts_bind_N_0`
+/// - Groups (`{}`, `()`, `[]`) are recursively processed
+/// - Identifiers get trailing spaces to prevent accidental merging
+/// - Punctuation spacing follows the original token's [`Spacing`]
+///
+/// # Example
+///
+/// ```text
+/// Input tokens: class $(name) { $(stmt_vec!(methods)) }
+/// Output: ("class $__ts_bind_0_0 { *$__ts_bind_1_0 }",
+///          [name = name, __ts_bind_1_0 = methods])
+/// ```
 fn process_tokens(tokens: TokenStream2) -> (String, Vec<TokenStream2>) {
     let mut output = String::new();
     let mut bindings = Vec::new();
@@ -213,15 +418,41 @@ fn process_tokens(tokens: TokenStream2) -> (String, Vec<TokenStream2>) {
     (output, bindings)
 }
 
-/// Parses the content inside $(...).
-/// Handles:
-/// 1. ident!("fmt", args...) -> Ident coercion with formatting
-/// 2. stmt_vec!(expr) -> Vec<Stmt> expansion (returns is_vec=true)
-/// 3. stmt!(expr) -> Stmt coercion
-/// 4. expr : Type -> Explicit typing
-/// 5. expr -> Default (untyped, usually Expr)
+/// Parses the content inside a `$(...)` interpolation pattern.
 ///
-/// Returns: (bind_name, binding_code, is_vec_expansion)
+/// This function analyzes the tokens inside an interpolation and generates
+/// the appropriate SWC binding code. It supports several syntax forms for
+/// different use cases.
+///
+/// # Arguments
+///
+/// * `tokens` - The token stream inside `$(...)` to parse
+///
+/// # Returns
+///
+/// A tuple of:
+/// 1. `bind_name` - The generated unique binding name (e.g., `__ts_bind_0_0`)
+/// 2. `binding_code` - Token stream for the binding (e.g., `name: Expr = expr`)
+/// 3. `is_vec_expansion` - Whether this should use `*$var` syntax for vec inlining
+///
+/// # Supported Syntax Forms
+///
+/// | Input | Generated Binding | Vec Expansion |
+/// |-------|-------------------|---------------|
+/// | `$(ident!("get{}", name))` | `__bind = Ident::new_no_ctxt(format!(...).into(), DUMMY_SP)` | No |
+/// | `$(stmt_vec!(methods))` | `__bind = methods` | Yes (`*$__bind`) |
+/// | `$(stmt!(s))` | `__bind: Stmt = s` | No |
+/// | `$(expr: Type)` | `__bind: Type = expr` | No |
+/// | `$(expr: Vec<Stmt>)` | `__bind: Vec<Stmt> = expr` | Yes |
+/// | `$(expr)` | `__bind = expr` | No |
+/// | `$(StmtVec(vec))` | `__bind = vec` | Yes |
+///
+/// # Panics
+///
+/// Panics if:
+/// - Expression inside wrapper macro is invalid
+/// - Type annotation cannot be parsed
+/// - Expression cannot be parsed
 fn parse_interpolation(tokens: TokenStream2) -> (String, TokenStream2, bool) {
     // Generate a unique binding name for SWC
     let bind_name = format!(
@@ -480,30 +711,166 @@ pub fn ts_template(input: TokenStream) -> TokenStream {
     TokenStream::from(output)
 }
 
+/// Generates code to be inserted **above** a class or function definition.
+///
+/// This macro creates a [`TsStream`] prefixed with a special marker comment
+/// (`/* @macroforge:above */`) that instructs the macroforge runtime to place
+/// the generated code above the decorated definition.
+///
+/// # Use Cases
+///
+/// - Adding imports or type declarations before a class
+/// - Generating helper functions that should precede the main definition
+/// - Adding JSDoc comments or decorators
+///
+/// # Example
+///
+/// ```ignore
+/// let import_name = "lodash";
+/// let stream = above! {
+///     import * as _ from "@{import_name}";
+/// };
+/// // Result: /* @macroforge:above */import * as _ from "lodash";
+/// ```
+///
+/// # Syntax
+///
+/// Supports the same template syntax as [`ts_template!`]:
+/// - `@{expr}` for interpolation
+/// - `{#if}`, `{#for}`, `{#match}` for control flow
+/// - `{$let}`, `{$do}` for local bindings
+///
+/// [`TsStream`]: macroforge_ts::ts_syn::TsStream
 #[proc_macro]
 pub fn above(input: TokenStream) -> TokenStream {
     let input = TokenStream2::from(input);
     generate_scoped_template(input, "/* @macroforge:above */")
 }
 
+/// Generates code to be inserted **below** a class or function definition.
+///
+/// This macro creates a [`TsStream`] prefixed with a special marker comment
+/// (`/* @macroforge:below */`) that instructs the macroforge runtime to place
+/// the generated code after the decorated definition.
+///
+/// # Use Cases
+///
+/// - Adding prototype extensions after a class definition
+/// - Generating registration or initialization code
+/// - Adding exports or module augmentations
+///
+/// # Example
+///
+/// ```ignore
+/// let class_name = "User";
+/// let stream = below! {
+///     @{class_name}.prototype.toJSON = function() {
+///         return { ...this };
+///     };
+/// };
+/// // Result: /* @macroforge:below */User.prototype.toJSON = function() { ... };
+/// ```
+///
+/// # Syntax
+///
+/// Supports the same template syntax as [`ts_template!`].
+///
+/// [`TsStream`]: macroforge_ts::ts_syn::TsStream
 #[proc_macro]
 pub fn below(input: TokenStream) -> TokenStream {
     let input = TokenStream2::from(input);
     generate_scoped_template(input, "/* @macroforge:below */")
 }
 
+/// Generates code to be inserted into a method or function **body**.
+///
+/// This macro creates a [`TsStream`] prefixed with a special marker comment
+/// (`/* @macroforge:body */`) that instructs the macroforge runtime to inject
+/// the generated code into the body of a function or method.
+///
+/// # Use Cases
+///
+/// - Adding validation logic at the start of methods
+/// - Injecting logging or instrumentation
+/// - Generating field initialization in constructors
+///
+/// # Example
+///
+/// ```ignore
+/// let fields = vec!["name", "age"];
+/// let stream = body! {
+///     {#for field in &fields}
+///         this.@{field} = @{field};
+///     {/for}
+/// };
+/// // Result: /* @macroforge:body */this.name = name; this.age = age;
+/// ```
+///
+/// # Syntax
+///
+/// Supports the same template syntax as [`ts_template!`].
+///
+/// [`TsStream`]: macroforge_ts::ts_syn::TsStream
 #[proc_macro]
 pub fn body(input: TokenStream) -> TokenStream {
     let input = TokenStream2::from(input);
     generate_scoped_template(input, "/* @macroforge:body */")
 }
 
+/// Generates code to be inserted into a function **signature**.
+///
+/// This macro creates a [`TsStream`] prefixed with a special marker comment
+/// (`/* @macroforge:signature */`) that instructs the macroforge runtime to
+/// modify the function signature (parameters, return type, etc.).
+///
+/// # Use Cases
+///
+/// - Adding generated parameters to function signatures
+/// - Injecting type annotations or modifiers
+/// - Adding decorators to parameters
+///
+/// # Example
+///
+/// ```ignore
+/// let param_name = "context";
+/// let param_type = "RequestContext";
+/// let stream = signature! {
+///     @{param_name}: @{param_type}
+/// };
+/// // Result: /* @macroforge:signature */context: RequestContext
+/// ```
+///
+/// # Syntax
+///
+/// Supports the same template syntax as [`ts_template!`].
+///
+/// [`TsStream`]: macroforge_ts::ts_syn::TsStream
 #[proc_macro]
 pub fn signature(input: TokenStream) -> TokenStream {
     let input = TokenStream2::from(input);
     generate_scoped_template(input, "/* @macroforge:signature */")
 }
 
+/// Internal helper that generates a scoped template with a position marker.
+///
+/// This function wraps [`template::parse_template`] to create a [`TsStream`]
+/// that is prefixed with a marker comment indicating where the generated code
+/// should be placed relative to the decorated definition.
+///
+/// # Arguments
+///
+/// * `input` - The template token stream to process
+/// * `marker` - The position marker comment (e.g., `/* @macroforge:above */`)
+///
+/// # Returns
+///
+/// A proc macro token stream that, when executed, produces a [`TsStream`] with:
+/// - The marker comment prepended to the source
+/// - Any runtime patches (imports, etc.) collected from `{$typescript}` injections
+///
+/// # Errors
+///
+/// Returns a compile error if template parsing fails.
 fn generate_scoped_template(input: TokenStream2, marker: &str) -> TokenStream {
     let template_builder = match template::parse_template(input) {
         Ok(s) => s,

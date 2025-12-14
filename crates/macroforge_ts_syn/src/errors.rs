@@ -1,15 +1,131 @@
+//! Error types for the macro system.
+//!
+//! This module provides error types for handling failures in parsing,
+//! macro expansion, and validation. These errors integrate with the
+//! macro result system to provide rich diagnostics to users.
+//!
+//! ## Error Types
+//!
+//! | Type | Use Case |
+//! |------|----------|
+//! | [`TsSynError`] | Low-level parsing and syntax errors |
+//! | [`MacroforgeError`] | Single-error macro failures with span |
+//! | [`MacroforgeErrors`] | Multiple errors (e.g., validation failures) |
+//!
+//! ## Usage Patterns
+//!
+//! ### Returning Errors from Macros
+//!
+//! ```rust,ignore
+//! use macroforge_ts_syn::{MacroforgeError, MacroResult};
+//!
+//! fn my_macro(input: DeriveInput) -> Result<MacroResult, MacroforgeError> {
+//!     // Error with source span
+//!     if some_condition {
+//!         return Err(MacroforgeError::new(
+//!             input.error_span(),
+//!             "Unsupported type for this macro"
+//!         ));
+//!     }
+//!
+//!     // Global error (no specific span)
+//!     if other_condition {
+//!         return Err(MacroforgeError::new_global("Configuration error"));
+//!     }
+//!
+//!     Ok(MacroResult::default())
+//! }
+//! ```
+//!
+//! ### Converting Errors to MacroResult
+//!
+//! Both [`MacroforgeError`] and [`MacroforgeErrors`] implement `Into<MacroResult>`,
+//! allowing direct conversion:
+//!
+//! ```rust,ignore
+//! // Single error
+//! let error = MacroforgeError::new(span, "Something went wrong");
+//! let result: MacroResult = error.into();
+//!
+//! // Multiple errors
+//! let errors = MacroforgeErrors::new(diagnostics);
+//! let result: MacroResult = errors.into();
+//! ```
+
 use thiserror::Error;
 use crate::abi::{Diagnostic, DiagnosticLevel, MacroResult, SpanIR};
 
+/// Low-level error type for parsing and syntax issues.
+///
+/// This error type is used for failures in the parsing layer, before
+/// macro logic runs. For errors in macro implementations, prefer
+/// [`MacroforgeError`].
+///
+/// # Variants
+///
+/// - `Parse` - SWC parsing failures (syntax errors)
+/// - `Unsupported` - Valid syntax that isn't supported by the lowering layer
+///
+/// # Example
+///
+/// ```rust,ignore
+/// fn parse_something(input: &str) -> Result<Module, TsSynError> {
+///     let module = parse_ts_module(input, "input.ts")?;
+///
+///     if !is_supported(&module) {
+///         return Err(TsSynError::Unsupported(
+///             "Async generators are not supported".into()
+///         ));
+///     }
+///
+///     Ok(module)
+/// }
+/// ```
 #[derive(Error, Debug)]
 pub enum TsSynError {
+    /// A parsing error from SWC.
     #[error("parse error: {0}")]
     Parse(String),
 
+    /// Valid TypeScript syntax that isn't supported by the macro system.
     #[error("unsupported TS syntax: {0}")]
     Unsupported(String),
 }
 
+/// A macro error with an optional source span.
+///
+/// This is the primary error type for macro implementations. It carries
+/// an error message and optionally a source span for precise error reporting.
+/// When converted to a [`MacroResult`], it becomes an error-level diagnostic.
+///
+/// # Creating Errors
+///
+/// ```rust,ignore
+/// // With a span (preferred for user-facing errors)
+/// let error = MacroforgeError::new(
+///     field.span,
+///     format!("Field '{}' has unsupported type", field.name)
+/// );
+///
+/// // Without a span (for internal/configuration errors)
+/// let error = MacroforgeError::new_global("Missing required configuration");
+/// ```
+///
+/// # Converting to MacroResult
+///
+/// `MacroforgeError` implements `Into<MacroResult>` for easy error returns:
+///
+/// ```rust,ignore
+/// fn my_macro(input: DeriveInput) -> Result<MacroResult, MacroforgeError> {
+///     if some_error_condition {
+///         return Err(MacroforgeError::new(span, "Something went wrong"));
+///     }
+///     Ok(MacroResult::default())
+/// }
+///
+/// // Or convert directly:
+/// let result: MacroResult = MacroforgeError::new_global("Error").into();
+/// ```
 #[derive(Debug)]
 pub struct MacroforgeError {
     message: String,
@@ -17,6 +133,15 @@ pub struct MacroforgeError {
 }
 
 impl MacroforgeError {
+    /// Creates a new error with a source span.
+    ///
+    /// Use this for errors that can be traced to a specific location in the
+    /// source code. The span will be used for error highlighting.
+    ///
+    /// # Arguments
+    ///
+    /// - `span` - The source span where the error occurred
+    /// - `message` - A human-readable error message
     pub fn new(span: SpanIR, message: impl Into<String>) -> Self {
         Self {
             message: message.into(),
@@ -24,6 +149,14 @@ impl MacroforgeError {
         }
     }
 
+    /// Creates a new error without a source span.
+    ///
+    /// Use this for errors that aren't tied to a specific source location,
+    /// such as configuration errors or internal failures.
+    ///
+    /// # Arguments
+    ///
+    /// - `message` - A human-readable error message
     pub fn new_global(message: impl Into<String>) -> Self {
         Self {
             message: message.into(),
@@ -31,6 +164,10 @@ impl MacroforgeError {
         }
     }
 
+    /// Converts this error into a [`Diagnostic`].
+    ///
+    /// The resulting diagnostic has [`DiagnosticLevel::Error`] and includes
+    /// the message and span from this error.
     pub fn to_diagnostic(self) -> Diagnostic {
         Diagnostic {
             level: DiagnosticLevel::Error,
@@ -59,24 +196,73 @@ impl std::fmt::Display for MacroforgeError {
 
 impl std::error::Error for MacroforgeError {}
 
-/// Error type that can carry multiple diagnostics (e.g., from multiple field validation errors)
+/// A collection of multiple diagnostics, for reporting multiple errors at once.
+///
+/// Use this when a macro needs to report multiple errors simultaneously,
+/// such as validating all fields in a class and collecting all validation
+/// failures. This provides a better user experience than failing on the
+/// first error, as users can fix all issues in one iteration.
+///
+/// # Example: Field Validation
+///
+/// ```rust,ignore
+/// use macroforge_ts_syn::{MacroforgeErrors, Diagnostic, DiagnosticLevel};
+///
+/// fn validate_fields(fields: &[FieldIR]) -> Result<(), MacroforgeErrors> {
+///     let mut diagnostics = Vec::new();
+///
+///     for field in fields {
+///         if field.ts_type == "any" {
+///             diagnostics.push(Diagnostic {
+///                 level: DiagnosticLevel::Error,
+///                 message: format!("Field '{}' cannot use 'any' type", field.name),
+///                 span: Some(field.span),
+///                 notes: vec![],
+///                 help: Some("Use a specific type instead".into()),
+///             });
+///         }
+///     }
+///
+///     if diagnostics.is_empty() {
+///         Ok(())
+///     } else {
+///         Err(MacroforgeErrors::new(diagnostics))
+///     }
+/// }
+/// ```
+///
+/// # Converting to MacroResult
+///
+/// ```rust,ignore
+/// let errors = MacroforgeErrors::new(diagnostics);
+/// let result: MacroResult = errors.into();
+/// // result.diagnostics contains all the errors
+/// ```
 #[derive(Debug)]
 pub struct MacroforgeErrors {
+    /// The collected diagnostics (errors, warnings, etc.).
     pub diagnostics: Vec<Diagnostic>,
 }
 
 impl MacroforgeErrors {
-    /// Create from a vector of diagnostics
+    /// Creates a new error collection from a vector of diagnostics.
+    ///
+    /// # Arguments
+    ///
+    /// - `diagnostics` - The diagnostics to include in this error
     pub fn new(diagnostics: Vec<Diagnostic>) -> Self {
         Self { diagnostics }
     }
 
-    /// Check if there are any errors
+    /// Returns `true` if any diagnostic has error level.
+    ///
+    /// Use this to check if the collection contains actual errors
+    /// vs only warnings or info messages.
     pub fn has_errors(&self) -> bool {
         self.diagnostics.iter().any(|d| d.level == DiagnosticLevel::Error)
     }
 
-    /// Check if empty
+    /// Returns `true` if the collection contains no diagnostics.
     pub fn is_empty(&self) -> bool {
         self.diagnostics.is_empty()
     }

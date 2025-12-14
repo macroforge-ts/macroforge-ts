@@ -1,7 +1,74 @@
 //! A `syn`-like parsing API for TypeScript using SWC.
 //!
-//! This module provides a `TsStream` type and `ParseTs` trait that abstracts
-//! over SWC's parser, making it feel more like Rust's syn crate.
+//! This module provides a [`TsStream`] type and [`ParseTs`] trait that abstract
+//! over SWC's parser, making it feel more like Rust's `syn` crate. This is the
+//! low-level parsing API; most macro authors will prefer using
+//! [`DeriveInput`](crate::DeriveInput) from the [`derive`](crate::derive) module.
+//!
+//! ## Overview
+//!
+//! - [`TsStream`] - A parsing stream wrapping SWC's parser
+//! - [`ParseTs`] - A trait for types that can be parsed from TypeScript source
+//! - [`parse_ts_str`] - Parse a string into any [`ParseTs`] type
+//! - [`parse_ts_expr`], [`parse_ts_stmt`], [`parse_ts_module`] - Convenience functions
+//! - [`format_ts_source`] - Format TypeScript code using SWC's emitter
+//!
+//! ## Basic Usage
+//!
+//! ```rust,ignore
+//! use macroforge_ts_syn::{TsStream, parse_ts_str};
+//! use swc_core::ecma::ast::{Expr, Stmt, Module};
+//!
+//! // Parse individual constructs
+//! let expr: Box<Expr> = parse_ts_str("x + y")?;
+//! let stmt: Stmt = parse_ts_str("const x = 5;")?;
+//! let module: Module = parse_ts_str("export class Foo {}")?;
+//!
+//! // Or use TsStream directly
+//! let mut stream = TsStream::new("const x = 5;", "input.ts")?;
+//! let stmt = stream.parse_stmt()?;
+//! ```
+//!
+//! ## Macro Context
+//!
+//! When used within the macro system, [`TsStream`] carries context information
+//! about the macro invocation:
+//!
+//! ```rust,ignore
+//! // In a macro implementation
+//! let ctx = stream.context().expect("macro context");
+//! let decorator_span = ctx.decorator_span;
+//! let target = &ctx.target;
+//! ```
+//!
+//! ## Adding Imports
+//!
+//! [`TsStream`] provides helpers for adding imports that will be inserted
+//! at the top of the file:
+//!
+//! ```rust,ignore
+//! let mut stream = TsStream::new(source, "input.ts")?;
+//!
+//! // Add a runtime import
+//! stream.add_import("deserialize", "./runtime");
+//!
+//! // Add a type-only import
+//! stream.add_type_import("Options", "./types");
+//!
+//! // Convert to result
+//! let result = stream.into_result();
+//! ```
+//!
+//! ## ParseTs Implementations
+//!
+//! The following SWC types implement [`ParseTs`]:
+//!
+//! - `Ident` - Single identifier
+//! - `Stmt` - Any statement
+//! - `Box<Expr>` - Any expression
+//! - `Module` - Complete module
+//!
+//! Custom types can implement [`ParseTs`] to enable parsing with [`TsStream::parse`].
 
 #[cfg(feature = "swc")]
 use swc_core::common::{FileName, SourceMap, sync::Lrc};
@@ -14,13 +81,50 @@ use swc_core::ecma::parser::{PResult, Parser, StringInput, Syntax, TsSyntax, lex
 
 use crate::TsSynError;
 
-/// A parsing stream that wraps SWC's parser.
-/// This is analogous to `syn::parse::ParseBuffer`.
+/// A parsing stream that wraps SWC's parser, analogous to `syn::parse::ParseBuffer`.
 ///
-/// # Example
-/// ```ignore
-/// let mut stream = TsStream::new("const x = 5;", "input.ts")?;
-/// let stmt = stream.parse::<Stmt>()?;
+/// `TsStream` manages the parsing context for TypeScript source code. It holds:
+/// - The source code being parsed
+/// - An optional macro context with span information
+/// - Accumulated runtime patches (imports, etc.)
+///
+/// # Creating a TsStream
+///
+/// ```rust,ignore
+/// // From source code
+/// let stream = TsStream::new("const x = 5;", "input.ts")?;
+///
+/// // With macro context (used by the host system)
+/// let stream = TsStream::with_context(source, "input.ts", ctx)?;
+///
+/// // From an owned string
+/// let stream = TsStream::from_string(generated_code);
+/// ```
+///
+/// # Parsing
+///
+/// ```rust,ignore
+/// // Parse specific constructs
+/// let ident = stream.parse_ident()?;
+/// let stmt = stream.parse_stmt()?;
+/// let expr = stream.parse_expr()?;
+/// let module = stream.parse_module()?;
+///
+/// // Generic parsing (requires ParseTs implementation)
+/// let value: MyType = stream.parse()?;
+/// ```
+///
+/// # Working with Imports
+///
+/// ```rust,ignore
+/// let mut stream = TsStream::new(source, "file.ts")?;
+///
+/// // These imports will be added to the file
+/// stream.add_import("deserialize", "./runtime");
+/// stream.add_type_import("Options", "./types");
+///
+/// // Get the result with accumulated patches
+/// let result = stream.into_result();
 /// ```
 #[cfg(feature = "swc")]
 pub struct TsStream {
@@ -34,6 +138,28 @@ pub struct TsStream {
     pub runtime_patches: Vec<crate::abi::Patch>,
 }
 
+/// Formats TypeScript source code using SWC's emitter.
+///
+/// Attempts to parse and re-emit the code with consistent formatting. This is
+/// useful for normalizing generated code output.
+///
+/// # Parsing Strategy
+///
+/// The function tries two parsing approaches:
+/// 1. Parse as a complete module (for full file content)
+/// 2. If that fails, wrap in a class and extract (for class members)
+///
+/// # Example
+///
+/// ```rust,ignore
+/// let messy = "function foo(){return 42}";
+/// let formatted = format_ts_source(messy);
+/// // Returns: "function foo() {\n    return 42;\n}"
+/// ```
+///
+/// # Fallback
+///
+/// If parsing fails entirely, returns the original source unchanged.
 #[cfg(feature = "swc")]
 pub fn format_ts_source(source: &str) -> String {
     let cm = Lrc::new(SourceMap::default());
@@ -260,21 +386,60 @@ impl TsStream {
     }
 }
 
-/// The Parse trait for TypeScript AST nodes.
-/// This is analogous to `syn::parse::Parse`.
+/// A trait for types that can be parsed from TypeScript source, analogous to `syn::parse::Parse`.
 ///
-/// # Example
-/// ```ignore
+/// Implement this trait to enable parsing your custom types with [`TsStream::parse`]
+/// and [`parse_ts_str`].
+///
+/// # Built-in Implementations
+///
+/// The following SWC types already implement `ParseTs`:
+/// - `Ident` - A single identifier
+/// - `Stmt` - Any statement
+/// - `Box<Expr>` - Any expression
+/// - `Module` - A complete module
+///
+/// # Implementing ParseTs
+///
+/// ```rust,ignore
+/// use macroforge_ts_syn::{ParseTs, TsStream, TsSynError};
+///
+/// struct MyType {
+///     name: String,
+///     value: i32,
+/// }
+///
 /// impl ParseTs for MyType {
 ///     fn parse(input: &mut TsStream) -> Result<Self, TsSynError> {
+///         // Use TsStream's parsing methods
 ///         let ident = input.parse_ident()?;
-///         // ... more parsing
-///         Ok(MyType { /* ... */ })
+///
+///         // Or parse sub-expressions
+///         let expr = input.parse_expr()?;
+///
+///         // Return the parsed type
+///         Ok(MyType {
+///             name: ident.sym.to_string(),
+///             value: 42,
+///         })
 ///     }
 /// }
+///
+/// // Now you can use it with parse_ts_str
+/// let my_value: MyType = parse_ts_str("identifier")?;
 /// ```
+///
+/// # Using with DeriveInput
+///
+/// [`DeriveInput`](crate::DeriveInput) implements `ParseTs`, allowing it to be
+/// parsed from a `TsStream` using the `parse_ts_macro_input!` macro.
 pub trait ParseTs: Sized {
     /// Parse a value of this type from a parsing stream.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`TsSynError::Parse`] if the source code doesn't match the
+    /// expected syntax for this type.
     fn parse(input: &mut TsStream) -> Result<Self, TsSynError>;
 }
 

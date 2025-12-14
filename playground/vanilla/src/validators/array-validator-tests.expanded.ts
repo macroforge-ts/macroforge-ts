@@ -139,12 +139,10 @@ export class MaxItemsValidator {
                     }
                     return item as string;
                 });
-                instance.items = __arr;
+                (instance as any).items = __arr;
                 __arr.forEach((item, idx) => {
                     if (item && typeof item === 'object' && '__pendingIdx' in item) {
-                        ctx.deferPatch((item as any).__refId, (v) => {
-                            instance.items[idx] = v;
-                        });
+                        ctx.addPatch((instance as any).items, idx, (item as any).__refId);
                     }
                 });
             }
@@ -153,52 +151,6 @@ export class MaxItemsValidator {
             throw new DeserializeError(errors);
         }
         return instance;
-    }
-
-    static validateField<K extends keyof MaxItemsValidator>(
-        field: K,
-        value: MaxItemsValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        switch (field) {
-            case 'items': {
-                const __val = value as string[];
-                if (__val.length > 5) {
-                    errors.push({
-                        field: 'items',
-                        message: 'must have at most 5 items'
-                    });
-                }
-                break;
-            }
-        }
-        return errors;
-    }
-
-    static validateFields(partial: Partial<MaxItemsValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('items' in partial && partial.items !== undefined) {
-            const __val = partial.items as string[];
-            if (__val.length > 5) {
-                errors.push({
-                    field: 'items',
-                    message: 'must have at most 5 items'
-                });
-            }
-        }
-        return errors;
     }
 }
 
@@ -334,12 +286,10 @@ export class MinItemsValidator {
                     }
                     return item as string;
                 });
-                instance.items = __arr;
+                (instance as any).items = __arr;
                 __arr.forEach((item, idx) => {
                     if (item && typeof item === 'object' && '__pendingIdx' in item) {
-                        ctx.deferPatch((item as any).__refId, (v) => {
-                            instance.items[idx] = v;
-                        });
+                        ctx.addPatch((instance as any).items, idx, (item as any).__refId);
                     }
                 });
             }
@@ -348,52 +298,6 @@ export class MinItemsValidator {
             throw new DeserializeError(errors);
         }
         return instance;
-    }
-
-    static validateField<K extends keyof MinItemsValidator>(
-        field: K,
-        value: MinItemsValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        switch (field) {
-            case 'items': {
-                const __val = value as string[];
-                if (__val.length < 2) {
-                    errors.push({
-                        field: 'items',
-                        message: 'must have at least 2 items'
-                    });
-                }
-                break;
-            }
-        }
-        return errors;
-    }
-
-    static validateFields(partial: Partial<MinItemsValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('items' in partial && partial.items !== undefined) {
-            const __val = partial.items as string[];
-            if (__val.length < 2) {
-                errors.push({
-                    field: 'items',
-                    message: 'must have at least 2 items'
-                });
-            }
-        }
-        return errors;
     }
 }
 
@@ -530,12 +434,10 @@ export class ItemsCountValidator {
                     }
                     return item as string;
                 });
-                instance.items = __arr;
+                (instance as any).items = __arr;
                 __arr.forEach((item, idx) => {
                     if (item && typeof item === 'object' && '__pendingIdx' in item) {
-                        ctx.deferPatch((item as any).__refId, (v) => {
-                            instance.items[idx] = v;
-                        });
+                        ctx.addPatch((instance as any).items, idx, (item as any).__refId);
                     }
                 });
             }
@@ -544,51 +446,5 @@ export class ItemsCountValidator {
             throw new DeserializeError(errors);
         }
         return instance;
-    }
-
-    static validateField<K extends keyof ItemsCountValidator>(
-        field: K,
-        value: ItemsCountValidator[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        switch (field) {
-            case 'items': {
-                const __val = value as string[];
-                if (__val.length !== 3) {
-                    errors.push({
-                        field: 'items',
-                        message: 'must have exactly 3 items'
-                    });
-                }
-                break;
-            }
-        }
-        return errors;
-    }
-
-    static validateFields(partial: Partial<ItemsCountValidator>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('items' in partial && partial.items !== undefined) {
-            const __val = partial.items as string[];
-            if (__val.length !== 3) {
-                errors.push({
-                    field: 'items',
-                    message: 'must have exactly 3 items'
-                });
-            }
-        }
-        return errors;
     }
 }

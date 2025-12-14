@@ -1,26 +1,111 @@
 //! `syn`-like derive input types for TypeScript macros.
 //!
-//! This module provides a `DeriveInput` type analogous to `syn::DeriveInput`,
-//! making it easy to write derive macros with a familiar API.
+//! This module provides a [`DeriveInput`] type analogous to `syn::DeriveInput`,
+//! making it easy to write derive macros with a familiar API. If you've written
+//! proc macros in Rust using `syn`, this API will feel very natural.
 //!
-//! # Example
-//! ```ignore
-//! use ts_syn::{parse_ts_macro_input, DeriveInput, Data};
+//! ## Overview
 //!
-//! #[ts_macro_derive(MyMacro)]
-//! pub fn my_macro(input: TsStream) -> MacroResult {
+//! The derive input system provides:
+//!
+//! - [`DeriveInput`] - The main entry point, containing the type name, attributes, and data
+//! - [`Data`] - An enum distinguishing classes, enums, interfaces, and type aliases
+//! - [`DataClass`], [`DataEnum`], [`DataInterface`], [`DataTypeAlias`] - Type-specific data
+//! - [`Ident`] - A simple identifier type with span information
+//! - [`Attribute`] - Decorator/attribute representation
+//!
+//! ## Comparison with syn
+//!
+//! | syn | macroforge_ts_syn | Notes |
+//! |-----|-------------------|-------|
+//! | `syn::DeriveInput` | [`DeriveInput`] | Same purpose |
+//! | `syn::Ident` | [`Ident`] | Same purpose |
+//! | `syn::Data` | [`Data`] | Includes more variants (Interface, TypeAlias) |
+//! | `syn::DataStruct` | [`DataClass`] | TypeScript classes ≈ Rust structs |
+//! | `syn::DataEnum` | [`DataEnum`] | Same purpose |
+//! | `syn::Attribute` | [`Attribute`] | Wraps JSDoc/TS decorators |
+//!
+//! ## Example: Basic Derive Macro
+//!
+//! ```rust,ignore
+//! use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput, Data, MacroResult};
+//!
+//! pub fn my_macro(mut input: TsStream) -> MacroResult {
 //!     let input = parse_ts_macro_input!(input as DeriveInput);
+//!
+//!     // Get the type name
+//!     let name = input.name();
 //!
 //!     match &input.data {
 //!         Data::Class(class) => {
-//!             // Handle class
+//!             // Access class fields and methods
+//!             for field in class.fields() {
+//!                 println!("Field: {} ({})", field.name, field.ts_type);
+//!             }
 //!         }
 //!         Data::Enum(enum_) => {
-//!             // Handle enum
+//!             // Access enum variants
+//!             for variant in enum_.variants() {
+//!                 println!("Variant: {}", variant.name);
+//!             }
+//!         }
+//!         Data::Interface(iface) => {
+//!             // Access interface fields and methods
+//!             for field in iface.fields() {
+//!                 println!("Property: {}", field.name);
+//!             }
+//!         }
+//!         Data::TypeAlias(alias) => {
+//!             // Handle union types, object types, etc.
+//!             if let Some(members) = alias.as_union() {
+//!                 println!("Union with {} variants", members.len());
+//!             }
 //!         }
 //!     }
+//!
+//!     MacroResult::default()
 //! }
 //! ```
+//!
+//! ## Example: Accessing Decorators
+//!
+//! ```rust,ignore
+//! use macroforge_ts_syn::{parse_ts_macro_input, DeriveInput};
+//!
+//! pub fn my_macro(mut input: TsStream) -> MacroResult {
+//!     let input = parse_ts_macro_input!(input as DeriveInput);
+//!
+//!     // Check for a specific decorator
+//!     for attr in &input.attrs {
+//!         if attr.name() == "serde" {
+//!             let args = attr.args(); // e.g., "rename = \"user\""
+//!             // Parse and handle decorator arguments
+//!         }
+//!     }
+//!
+//!     // Or check field-level decorators
+//!     if let Some(class) = input.as_class() {
+//!         for field in class.fields() {
+//!             for dec in &field.decorators {
+//!                 if dec.name == "serde" {
+//!                     // Handle field-level serde options
+//!                 }
+//!             }
+//!         }
+//!     }
+//!
+//!     MacroResult::default()
+//! }
+//! ```
+//!
+//! ## Span Information
+//!
+//! [`DeriveInput`] provides several useful spans for code generation:
+//!
+//! - [`DeriveInput::decorator_span()`] - The span of the `@derive(...)` decorator
+//! - [`DeriveInput::target_span()`] - The span of the entire type definition
+//! - [`DeriveInput::body_span()`] - The span inside `{ }` for inserting members
+//! - [`DeriveInput::error_span()`] - Best span for error reporting
 
 use crate::abi::{
     ClassIR, DecoratorIR, EnumIR, EnumVariantIR, FieldIR, InterfaceFieldIR, InterfaceIR,
@@ -35,8 +120,53 @@ use crate::TsStream;
 
 /// The input to a derive macro, analogous to `syn::DeriveInput`.
 ///
-/// This provides a unified representation of the different types that can
-/// have derive macros applied to them in TypeScript.
+/// This is the primary entry point for derive macros. It provides a unified
+/// representation of all TypeScript types that can have derive macros applied:
+/// classes, enums, interfaces, and type aliases.
+///
+/// # Creating a DeriveInput
+///
+/// Use the `parse_ts_macro_input!` macro to parse a [`TsStream`] into
+/// a `DeriveInput`:
+///
+/// ```rust,ignore
+/// let input = parse_ts_macro_input!(stream as DeriveInput);
+/// ```
+///
+/// Or create one directly from a [`MacroContextIR`]:
+///
+/// ```rust,ignore
+/// let input = DeriveInput::from_context(ctx)?;
+/// ```
+///
+/// # Accessing Type Data
+///
+/// Use the `data` field or convenience methods to access type-specific information:
+///
+/// ```rust,ignore
+/// // Using pattern matching
+/// match &input.data {
+///     Data::Class(class) => { /* ... */ }
+///     Data::Enum(enum_) => { /* ... */ }
+///     Data::Interface(iface) => { /* ... */ }
+///     Data::TypeAlias(alias) => { /* ... */ }
+/// }
+///
+/// // Using convenience methods
+/// if let Some(class) = input.as_class() {
+///     for field in class.fields() {
+///         // ...
+///     }
+/// }
+/// ```
+///
+/// # Fields
+///
+/// - `ident` - The name of the type as an [`Ident`]
+/// - `span` - The source span of the entire type definition
+/// - `attrs` - Decorators on the type (excluding `@derive`)
+/// - `data` - The type-specific data (class fields, enum variants, etc.)
+/// - `context` - The full macro context with additional metadata
 #[derive(Debug, Clone)]
 pub struct DeriveInput {
     /// The name of the type (class or enum name)
@@ -55,7 +185,29 @@ pub struct DeriveInput {
     pub context: MacroContextIR,
 }
 
-/// A simple identifier, analogous to `syn::Ident`
+/// A simple identifier with span information, analogous to `syn::Ident`.
+///
+/// Represents a TypeScript identifier (type name, field name, etc.) along
+/// with its source location. The identifier preserves the exact text from
+/// the source code.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// let ident = Ident::new("MyClass", SpanIR::new(0, 7));
+/// assert_eq!(ident.as_str(), "MyClass");
+/// assert_eq!(format!("{}", ident), "MyClass");
+/// ```
+///
+/// # Converting to String
+///
+/// `Ident` implements `Display`, `AsRef<str>`, and provides `as_str()`:
+///
+/// ```rust,ignore
+/// let name: &str = ident.as_str();
+/// let name: &str = ident.as_ref();
+/// let name: String = ident.to_string();
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Ident {
     name: String,
@@ -94,10 +246,37 @@ impl AsRef<str> for Ident {
     }
 }
 
-/// An attribute (decorator), analogous to `syn::Attribute`
+/// An attribute (decorator), analogous to `syn::Attribute`.
+///
+/// Wraps a [`DecoratorIR`] and provides convenient access to decorator
+/// information. Attributes can come from either TypeScript decorators
+/// (`@Decorator()`) or JSDoc comments (`/** @decorator(...) */`).
+///
+/// # Example
+///
+/// ```rust,ignore
+/// for attr in &input.attrs {
+///     match attr.name() {
+///         "serde" => {
+///             // Parse serde options from attr.args()
+///             let args = attr.args(); // e.g., "rename = \"user_id\""
+///         }
+///         "validate" => {
+///             // Handle validation decorator
+///         }
+///         _ => {}
+///     }
+/// }
+/// ```
+///
+/// # Note
+///
+/// The `@derive(...)` decorator itself is automatically filtered out from
+/// the `attrs` list in [`DeriveInput`], since the macro is already being
+/// invoked as a result of that decorator.
 #[derive(Debug, Clone)]
 pub struct Attribute {
-    /// The decorator IR
+    /// The underlying decorator IR with full details.
     pub inner: DecoratorIR,
 }
 
@@ -118,23 +297,99 @@ impl Attribute {
     }
 }
 
-/// The data within a derive input, analogous to `syn::Data`
+/// The data within a derive input, analogous to `syn::Data`.
+///
+/// This enum distinguishes between the different kinds of TypeScript types
+/// that can have derive macros applied. Each variant contains the type-specific
+/// information needed for code generation.
+///
+/// # Variants
+///
+/// - [`Data::Class`] - A TypeScript class with fields, methods, and modifiers
+/// - [`Data::Enum`] - A TypeScript enum with variants and values
+/// - [`Data::Interface`] - A TypeScript interface with properties and method signatures
+/// - [`Data::TypeAlias`] - A type alias (union, intersection, object, tuple, or simple)
+///
+/// # Example
+///
+/// ```rust,ignore
+/// match &input.data {
+///     Data::Class(class) => {
+///         // Generate methods for a class
+///         let body_span = class.body_span();
+///         for field in class.fields() {
+///             // Access field.name, field.ts_type, field.optional, etc.
+///         }
+///     }
+///     Data::Enum(enum_) => {
+///         // Generate match arms or utility functions
+///         for variant in enum_.variants() {
+///             // Access variant.name, variant.value
+///         }
+///     }
+///     Data::Interface(iface) => {
+///         // Generate class implementing the interface
+///         for field in iface.fields() {
+///             // Access field.name, field.ts_type, field.optional
+///         }
+///     }
+///     Data::TypeAlias(alias) => {
+///         // Handle different alias structures
+///         if let Some(union) = alias.as_union() {
+///             // Handle union type
+///         } else if let Some(fields) = alias.as_object() {
+///             // Handle object type
+///         }
+///     }
+/// }
+/// ```
 #[derive(Debug, Clone)]
 pub enum Data {
-    /// A TypeScript class
+    /// A TypeScript class with fields, methods, and optional modifiers.
     Class(DataClass),
-    /// A TypeScript enum
+    /// A TypeScript enum with named variants.
     Enum(DataEnum),
-    /// A TypeScript interface
+    /// A TypeScript interface with property and method signatures.
     Interface(DataInterface),
-    /// A TypeScript type alias
+    /// A TypeScript type alias (union, intersection, object, etc.).
     TypeAlias(DataTypeAlias),
 }
 
-/// Data for a class, analogous to `syn::DataStruct`
+/// Data for a TypeScript class, analogous to `syn::DataStruct`.
+///
+/// Provides access to class fields, methods, and metadata. The underlying
+/// [`ClassIR`] contains the full parsed information including AST nodes
+/// for advanced use cases.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// if let Data::Class(class) = &input.data {
+///     // Iterate over fields
+///     for field in class.fields() {
+///         println!("Field: {} ({})", field.name, field.ts_type);
+///         if field.optional {
+///             println!("  (optional)");
+///         }
+///     }
+///
+///     // Check for specific fields
+///     if let Some(id_field) = class.field("id") {
+///         // Handle id field specifically
+///     }
+///
+///     // Access methods
+///     for method in class.methods() {
+///         println!("Method: {}({})", method.name, method.params_src);
+///     }
+///
+///     // Get the body span for inserting generated code
+///     let body = class.body_span();
+/// }
+/// ```
 #[derive(Debug, Clone)]
 pub struct DataClass {
-    /// The class IR with full details
+    /// The underlying class IR with full details.
     pub inner: ClassIR,
 }
 
@@ -185,10 +440,38 @@ impl DataClass {
     }
 }
 
-/// Data for an enum, analogous to `syn::DataEnum`
+/// Data for a TypeScript enum, analogous to `syn::DataEnum`.
+///
+/// Provides access to enum variants and their values. TypeScript enums
+/// support string, numeric, auto-incremented, and expression values.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// if let Data::Enum(enum_) = &input.data {
+///     // Iterate over variants
+///     for variant in enum_.variants() {
+///         println!("Variant: {}", variant.name);
+///         match &variant.value {
+///             EnumValue::String(s) => println!("  = \"{}\"", s),
+///             EnumValue::Number(n) => println!("  = {}", n),
+///             EnumValue::Auto => println!("  (auto)"),
+///             EnumValue::Expr(e) => println!("  = {}", e),
+///         }
+///     }
+///
+///     // Get specific variant
+///     if let Some(active) = enum_.variant("Active") {
+///         // Handle Active variant
+///     }
+///
+///     // Get all variant names
+///     let names: Vec<_> = enum_.variant_names().collect();
+/// }
+/// ```
 #[derive(Debug, Clone)]
 pub struct DataEnum {
-    /// The enum IR with full details
+    /// The underlying enum IR with full details.
     pub inner: EnumIR,
 }
 
@@ -209,10 +492,41 @@ impl DataEnum {
     }
 }
 
-/// Data for an interface
+/// Data for a TypeScript interface.
+///
+/// Provides access to interface properties and method signatures. Interfaces
+/// are similar to classes but define only the shape of data without
+/// implementation details.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// if let Data::Interface(iface) = &input.data {
+///     // Iterate over properties
+///     for field in iface.fields() {
+///         let opt = if field.optional { "?" } else { "" };
+///         let ro = if field.readonly { "readonly " } else { "" };
+///         println!("{}{}{}: {}", ro, field.name, opt, field.ts_type);
+///     }
+///
+///     // Access method signatures
+///     for method in iface.methods() {
+///         println!("{}({}): {}", method.name, method.params_src, method.return_type_src);
+///     }
+///
+///     // Get body span for inserting code (useful for generating companion class)
+///     let body = iface.body_span();
+/// }
+/// ```
+///
+/// # Note
+///
+/// Unlike classes, interfaces cannot contain method implementations. Macros
+/// targeting interfaces typically generate companion classes or utility
+/// functions rather than modifying the interface directly.
 #[derive(Debug, Clone)]
 pub struct DataInterface {
-    /// The interface IR with full details
+    /// The underlying interface IR with full details.
     pub inner: InterfaceIR,
 }
 
@@ -258,10 +572,50 @@ impl DataInterface {
     }
 }
 
-/// Data for a type alias
+/// Data for a TypeScript type alias.
+///
+/// Type aliases can represent various type structures:
+/// - Union types: `type Status = "active" | "inactive"`
+/// - Intersection types: `type Combined = A & B`
+/// - Object types: `type Point = { x: number; y: number }`
+/// - Tuple types: `type Pair = [string, number]`
+/// - Simple aliases: `type ID = string`
+///
+/// # Example
+///
+/// ```rust,ignore
+/// if let Data::TypeAlias(alias) = &input.data {
+///     // Check the type structure
+///     if let Some(union) = alias.as_union() {
+///         println!("Union with {} members", union.len());
+///         for member in union {
+///             // Each member may have decorators like @default
+///             if member.has_decorator("default") {
+///                 println!("  Default: {:?}", member.kind);
+///             }
+///         }
+///     } else if let Some(fields) = alias.as_object() {
+///         println!("Object type with {} fields", fields.len());
+///         for field in fields {
+///             println!("  {}: {}", field.name, field.ts_type);
+///         }
+///     } else if alias.is_tuple() {
+///         let elements = alias.as_tuple().unwrap();
+///         println!("Tuple: [{}]", elements.join(", "));
+///     } else if let Some(aliased) = alias.as_alias() {
+///         println!("Simple alias to: {}", aliased);
+///     }
+///
+///     // Access type parameters
+///     let params = alias.type_params();
+///     if !params.is_empty() {
+///         println!("Generic: <{}>", params.join(", "));
+///     }
+/// }
+/// ```
 #[derive(Debug, Clone)]
 pub struct DataTypeAlias {
-    /// The type alias IR with full details
+    /// The underlying type alias IR with full details.
     pub inner: TypeAliasIR,
 }
 

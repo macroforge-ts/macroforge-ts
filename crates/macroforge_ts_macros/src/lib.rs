@@ -1,9 +1,119 @@
+//! # Macroforge TypeScript Macros
+//!
+//! This crate provides procedural macros for generating TypeScript macro infrastructure
+//! in the Macroforge ecosystem. It simplifies the creation of derive macros that can
+//! transform TypeScript classes at compile time.
+//!
+//! ## Overview
+//!
+//! The primary macro provided is [`ts_macro_derive`], which transforms a Rust function
+//! into a fully-fledged TypeScript macro that integrates with the Macroforge runtime.
+//!
+//! ## Example
+//!
+//! ```rust,ignore
+//! use macroforge_ts_macros::ts_macro_derive;
+//!
+//! #[ts_macro_derive(Debug, description = "Generates debug formatting")]
+//! fn debug_macro(input: TsStream) -> Result<TsStream, MacroError> {
+//!     // Transform the input TypeScript class
+//!     Ok(input)
+//! }
+//! ```
+//!
+//! This generates:
+//! - A struct implementing the [`Macroforge`] trait
+//! - A NAPI function for JavaScript interop
+//! - Registration with the macro registry via `inventory`
+//!
+//! ## Architecture
+//!
+//! The generated code follows this pattern:
+//!
+//! 1. **Macro Struct**: A unit struct that implements the `Macroforge` trait
+//! 2. **NAPI Bridge**: A function exposed to JavaScript that handles JSON serialization
+//! 3. **Descriptor**: Static metadata about the macro for runtime discovery
+//! 4. **Registration**: Automatic registration with the `inventory` crate
+
 use convert_case::{Case, Casing};
 use proc_macro::TokenStream;
 use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::{format_ident, quote};
 use syn::{Ident, ItemFn, LitStr, Result, parse::Parser, parse_macro_input, spanned::Spanned};
 
+/// A procedural macro attribute that transforms a function into a TypeScript derive macro.
+///
+/// This attribute macro takes a function that processes TypeScript code and generates
+/// all the necessary infrastructure for it to work as a Macroforge derive macro.
+///
+/// # Arguments
+///
+/// The macro accepts the following arguments:
+///
+/// - **name** (required, positional): The macro name as an identifier (e.g., `Debug`, `Clone`)
+/// - **description** (optional): A string literal describing the macro's purpose
+/// - **kind** (optional): The macro type - `"derive"` (default), `"attribute"`, or `"function"`
+/// - **attributes** (optional): Decorator attributes that modify the macro's behavior
+///
+/// # Generated Code
+///
+/// For a function `debug_macro` with macro name `Debug`, this generates:
+///
+/// 1. **`Debug` struct**: Implements the `Macroforge` trait
+/// 2. **`__ts_macro_run_debug` function**: NAPI-exported function for JS interop
+/// 3. **`__TS_MACRO_DESCRIPTOR_DEBUG` static**: Metadata descriptor
+/// 4. **Inventory registration**: Automatic discovery at runtime
+///
+/// # Examples
+///
+/// ## Basic Usage
+///
+/// ```rust,ignore
+/// #[ts_macro_derive(Clone)]
+/// fn clone_macro(input: TsStream) -> Result<TsStream, MacroError> {
+///     // Implementation
+///     Ok(input)
+/// }
+/// ```
+///
+/// ## With Description
+///
+/// ```rust,ignore
+/// #[ts_macro_derive(Serialize, description = "Generates JSON serialization methods")]
+/// fn serialize_macro(input: TsStream) -> Result<TsStream, MacroError> {
+///     Ok(input)
+/// }
+/// ```
+///
+/// ## With Decorators
+///
+/// ```rust,ignore
+/// #[ts_macro_derive(
+///     Serde,
+///     description = "Serialization with validation",
+///     attributes((serde, "Configure serialization"), (validate, "Add validators"))
+/// )]
+/// fn serde_macro(input: TsStream) -> Result<TsStream, MacroError> {
+///     Ok(input)
+/// }
+/// ```
+///
+/// ## Attribute Macro
+///
+/// ```rust,ignore
+/// #[ts_macro_derive(Route, kind = "attribute")]
+/// fn route_macro(input: TsStream) -> Result<TsStream, MacroError> {
+///     Ok(input)
+/// }
+/// ```
+///
+/// # Panics
+///
+/// This macro will produce a compile error if:
+/// - No macro name is provided
+/// - The macro name is not a valid identifier
+/// - An unknown option is specified
+/// - The `kind` value is not one of the valid options
 #[proc_macro_attribute]
 pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
     let options = match parse_macro_options(TokenStream2::from(attr)) {
@@ -67,8 +177,30 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
     let run_macro_js_name_lit = LitStr::new(&run_macro_js_name, Span::call_site());
 
     let run_macro_napi = quote! {
-        /// Run this macro with the given context
-        /// Called by the TS plugin to execute macro expansion
+        /// Run this macro with the given context.
+        ///
+        /// This function is automatically generated and exposed to JavaScript via NAPI.
+        /// It deserializes the macro context from JSON, executes the macro transformation,
+        /// and serializes the result back to JSON for the TypeScript plugin.
+        ///
+        /// # Arguments
+        ///
+        /// * `context_json` - A JSON string containing the [`MacroContextIR`] with:
+        ///   - `target_source`: The TypeScript source code to transform
+        ///   - `file_name`: The source file path for error reporting
+        ///   - Additional context metadata
+        ///
+        /// # Returns
+        ///
+        /// A JSON string containing the [`MacroResult`] with the transformed code
+        /// or any diagnostic errors.
+        ///
+        /// # Errors
+        ///
+        /// Returns a NAPI error if:
+        /// - The input JSON cannot be parsed
+        /// - The `TsStream` cannot be created from the context
+        /// - The result cannot be serialized to JSON
         #[macroforge_ts::napi_derive::napi(js_name = #run_macro_js_name_lit)]
         pub fn #run_macro_fn_ident(context_json: String) -> macroforge_ts::napi::Result<String> {
             use macroforge_ts::host::Macroforge;
@@ -94,17 +226,27 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
     let output = quote! {
         #function
 
+        /// Generated macro struct implementing the [`Macroforge`] trait.
+        ///
+        /// This struct is automatically created by the `#[ts_macro_derive]` attribute
+        /// and provides the interface between the macro runtime and the implementation function.
         pub struct #struct_ident;
 
         impl macroforge_ts::host::Macroforge for #struct_ident {
+            /// Returns the name of this macro as used in `@derive` decorators.
             fn name(&self) -> &str {
                 #macro_name
             }
 
+            /// Returns the kind of macro (Derive, Attribute, or Call).
             fn kind(&self) -> macroforge_ts::ts_syn::MacroKind {
                 #kind_expr
             }
 
+            /// Executes the macro transformation on the input TypeScript stream.
+            ///
+            /// This method delegates to the user-defined function and converts
+            /// the result into a [`MacroResult`] for the runtime.
             fn run(&self, input: macroforge_ts::ts_syn::TsStream) -> macroforge_ts::ts_syn::MacroResult {
                 match #fn_ident(input) {
                     Ok(stream) => macroforge_ts::ts_syn::TsStream::into_result(stream),
@@ -112,6 +254,7 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
                 }
             }
 
+            /// Returns a human-readable description of what this macro does.
             fn description(&self) -> &str {
                 #description
             }
@@ -152,6 +295,24 @@ pub fn ts_macro_derive(attr: TokenStream, item: TokenStream) -> TokenStream {
     output.into()
 }
 
+/// Converts a snake_case identifier to PascalCase.
+///
+/// This is used to derive struct names from function names. For example,
+/// `debug_macro` becomes `DebugMacro`.
+///
+/// # Arguments
+///
+/// * `ident` - The identifier to convert
+///
+/// # Returns
+///
+/// A new identifier in PascalCase, preserving the original span.
+///
+/// # Examples
+///
+/// - `debug_macro` → `DebugMacro`
+/// - `r#type` → `Type` (raw identifier prefix stripped)
+/// - `serialize_json` → `SerializeJson`
 fn pascal_case_ident(ident: &Ident) -> Ident {
     let raw = ident.to_string();
     let trimmed = raw.trim_start_matches("r#");
@@ -159,6 +320,64 @@ fn pascal_case_ident(ident: &Ident) -> Ident {
     format_ident!("{}", pascal)
 }
 
+/// Parses the attribute arguments into a [`MacroOptions`] struct.
+///
+/// This function handles the custom syntax of `#[ts_macro_derive(...)]`:
+///
+/// ```text
+/// #[ts_macro_derive(MacroName, description = "...", kind = "...", attributes(...))]
+/// ```
+///
+/// # Arguments
+///
+/// * `tokens` - The token stream from the attribute arguments
+///
+/// # Returns
+///
+/// - `Ok(MacroOptions)` with the parsed configuration
+/// - `Err(syn::Error)` if parsing fails with a descriptive message
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - No macro name is provided (empty tokens)
+/// - The first token is not an identifier
+/// - An unknown option key is used
+/// - Option values have incorrect types
+///
+/// # Syntax
+///
+/// ## Macro Name (Required)
+///
+/// The first argument must be a bare identifier representing the macro name:
+///
+/// ```rust,ignore
+/// #[ts_macro_derive(Debug)]  // ✓ Valid
+/// #[ts_macro_derive("Debug")]  // ✗ Invalid - must be identifier, not string
+/// ```
+///
+/// ## Optional Arguments
+///
+/// After the name, comma-separated key-value pairs can be provided:
+///
+/// - `description = "..."` - A string describing the macro
+/// - `kind = "derive"` - One of "derive", "attribute", or "function"/"call"
+/// - `attributes(...)` - List of decorator attributes
+///
+/// ## Attributes Syntax
+///
+/// The `attributes` option supports two forms:
+///
+/// ```rust,ignore
+/// // Simple identifier (no documentation)
+/// attributes(serde, clone)
+///
+/// // Tuple with documentation
+/// attributes((serde, "Configure serialization"), (validate, "Add validators"))
+///
+/// // Mixed
+/// attributes(clone, (serde, "Serialization support"))
+/// ```
 fn parse_macro_options(tokens: TokenStream2) -> Result<MacroOptions> {
     if tokens.is_empty() {
         return Err(syn::Error::new(
@@ -185,7 +404,7 @@ fn parse_macro_options(tokens: TokenStream2) -> Result<MacroOptions> {
         }
     };
 
-    // Consume optional comma
+    // Consume optional comma after the macro name
     if let Some(proc_macro2::TokenTree::Punct(p)) = tokens_iter.peek()
         && p.as_char() == ','
     {
@@ -245,14 +464,45 @@ fn parse_macro_options(tokens: TokenStream2) -> Result<MacroOptions> {
     Ok(opts)
 }
 
-/// An attribute with optional documentation
-/// Supports both `attr_name` and `(attr_name, "documentation")` syntax
+/// Represents a decorator attribute with optional documentation.
+///
+/// Decorators are field-level annotations that modify how the macro processes
+/// individual class members. For example, `@serde.skip` might exclude a field
+/// from serialization.
+///
+/// # Syntax
+///
+/// Supports two forms in the `attributes` option:
+///
+/// - Simple: `attr_name` - Creates an attribute with empty documentation
+/// - Documented: `(attr_name, "Documentation string")` - Includes docs
+///
+/// # Examples
+///
+/// ```rust,ignore
+/// // In macro definition
+/// #[ts_macro_derive(Serde, attributes(
+///     skip,                                    // Simple form
+///     (rename, "Rename the field in output")   // With documentation
+/// ))]
+/// ```
 struct AttributeWithDoc {
+    /// The attribute identifier (e.g., `skip`, `rename`)
     name: Ident,
+    /// Documentation string for the attribute, empty if not provided
     docs: LitStr,
 }
 
 impl AttributeWithDoc {
+    /// Creates a new attribute with empty documentation.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - The attribute identifier
+    ///
+    /// # Returns
+    ///
+    /// An `AttributeWithDoc` with an empty documentation string.
     fn new(name: Ident) -> Self {
         Self {
             docs: LitStr::new("", name.span()),
@@ -260,15 +510,52 @@ impl AttributeWithDoc {
         }
     }
 
+    /// Creates a new attribute with the specified documentation.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - The attribute identifier
+    /// * `docs` - The documentation string literal
+    ///
+    /// # Returns
+    ///
+    /// An `AttributeWithDoc` with the provided documentation.
     fn with_docs(name: Ident, docs: LitStr) -> Self {
         Self { name, docs }
     }
 }
 
+/// Configuration options parsed from the `#[ts_macro_derive]` attribute.
+///
+/// This struct holds all the settings extracted from the macro attribute
+/// and is used to generate the appropriate code.
+///
+/// # Fields
+///
+/// - `name`: The macro's public name (required)
+/// - `description`: Human-readable description (optional)
+/// - `kind`: The type of macro - derive, attribute, or function
+/// - `attributes`: List of decorator attributes the macro supports
 struct MacroOptions {
+    /// The name of the macro as used in `@derive` decorators.
+    ///
+    /// This is the first positional argument and is required.
+    /// Example: `Debug` in `@derive(Debug)`
     name: Ident,
+
+    /// An optional human-readable description of the macro.
+    ///
+    /// This is displayed in documentation and error messages.
     description: Option<LitStr>,
+
+    /// The kind of macro (derive, attribute, or call).
+    ///
+    /// Defaults to `Derive` if not specified.
     kind: MacroKindOption,
+
+    /// List of decorator attributes that this macro recognizes.
+    ///
+    /// These are field-level annotations like `@serde.skip` or `@validate.email`.
     attributes: Vec<AttributeWithDoc>,
 }
 
@@ -283,7 +570,30 @@ impl Default for MacroOptions {
     }
 }
 
-// Helper function to generate a decorator descriptor from an attribute with docs
+/// Generates a `DecoratorDescriptor` token stream for a given attribute.
+///
+/// This function creates the static descriptor that describes a decorator
+/// attribute, including its module, export name, kind, and documentation.
+///
+/// # Arguments
+///
+/// * `attr` - The attribute definition with name and optional docs
+/// * `package_expr` - Token stream evaluating to the package name
+///
+/// # Returns
+///
+/// A token stream that constructs a `DecoratorDescriptor` at compile time.
+///
+/// # Generated Structure
+///
+/// ```rust,ignore
+/// DecoratorDescriptor {
+///     module: "package-name",
+///     export: "attribute_name",
+///     kind: DecoratorKind::Property,
+///     docs: "Documentation string",
+/// }
+/// ```
 fn generate_decorator_descriptor(attr: &AttributeWithDoc, package_expr: &TokenStream2) -> TokenStream2 {
     let attr_str = LitStr::new(&attr.name.to_string(), attr.name.span());
     let kind = quote! { macroforge_ts::host::derived::DecoratorKind::Property };
@@ -299,15 +609,57 @@ fn generate_decorator_descriptor(attr: &AttributeWithDoc, package_expr: &TokenSt
     }
 }
 
+/// Represents the different kinds of macros supported by Macroforge.
+///
+/// This enum maps to `MacroKind` in the runtime but is used at compile time
+/// for code generation.
+///
+/// # Variants
+///
+/// - `Derive`: Class-level macros applied via `@derive(MacroName)`
+/// - `Attribute`: Decorators that modify declarations (e.g., `@Route("/path")`)
+/// - `Call`: Function-like macros invoked directly (e.g., `include!("file.ts")`)
 #[derive(Clone, Default)]
 enum MacroKindOption {
+    /// Derive macros that generate code based on class structure.
+    ///
+    /// These are the most common type and are applied using `@derive`:
+    ///
+    /// ```typescript
+    /// @derive(Debug, Clone)
+    /// class User { ... }
+    /// ```
     #[default]
     Derive,
+
+    /// Attribute macros that transform decorated items.
+    ///
+    /// These work like TypeScript decorators and can modify
+    /// the structure or behavior of the decorated element:
+    ///
+    /// ```typescript
+    /// @Route("/api/users")
+    /// class UserController { ... }
+    /// ```
     Attribute,
+
+    /// Function-like macros that are invoked with arguments.
+    ///
+    /// These macros are called like functions and can generate
+    /// arbitrary code:
+    ///
+    /// ```typescript
+    /// const config = include!("config.json");
+    /// ```
     Call,
 }
 
 impl MacroKindOption {
+    /// Converts this option to a token stream representing the runtime `MacroKind`.
+    ///
+    /// # Returns
+    ///
+    /// A token stream that evaluates to the corresponding `MacroKind` variant.
     fn as_tokens(&self) -> TokenStream2 {
         match self {
             MacroKindOption::Derive => quote! { macroforge_ts::ts_syn::MacroKind::Derive },
@@ -316,6 +668,24 @@ impl MacroKindOption {
         }
     }
 
+    /// Parses a string literal into a `MacroKindOption`.
+    ///
+    /// # Arguments
+    ///
+    /// * `lit` - A string literal containing the kind name
+    ///
+    /// # Returns
+    ///
+    /// - `Ok(MacroKindOption)` for valid kind names
+    /// - `Err(syn::Error)` for invalid values
+    ///
+    /// # Valid Values
+    ///
+    /// - `"derive"` → `Derive`
+    /// - `"attribute"` → `Attribute`
+    /// - `"function"` or `"call"` → `Call`
+    ///
+    /// Matching is case-insensitive.
     fn from_lit(lit: &LitStr) -> Result<Self> {
         match lit.value().to_ascii_lowercase().as_str() {
             "derive" => Ok(MacroKindOption::Derive),

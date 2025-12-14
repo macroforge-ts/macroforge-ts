@@ -23,24 +23,36 @@ export interface User {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Service {
+    /** @hiddenController({}) */
     id: string;
+    /** @textController({ label: "Name" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     name: string;
+    /** @textController({ label: "Quick Code" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     quickCode: string;
+    /** @comboboxController({ label: "Group", allowCustom: true }) */
     group: string | null;
+    /** @comboboxController({ label: "Subgroup", allowCustom: true }) */
     subgroup: string | null;
+    /** @comboboxController({ label: "Unit", allowCustom: true }) */
     unit: string | null;
+    /** @switchController({ label: "Active" }) */
     active: boolean;
+    /** @switchController({ label: "Commission" }) */
     commission: boolean;
+    /** @switchController({ label: "Favorite" }) */
     favorite: boolean;
+    /** @textController({ label: "Average Time" }) */
     averageTime: string | null;
     defaults: ServiceDefaults;
 }
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface ServiceDefaults {
+    /** @numberController({ label: "Price", min: 0, step: 0.01 }) */
     price: number;
+    /** @textAreaController({ label: "Description" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     description: string;
 }
@@ -59,8 +71,10 @@ export interface Did {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface PersonName {
+    /** @textController({ label: "First Name" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     firstName: string;
+    /** @textController({ label: "Last Name" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     lastName: string;
 }
@@ -109,12 +123,17 @@ export interface ColumnConfig {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface PhoneNumber {
+    /** @switchController({ label: "Main" }) */
     main: boolean;
+    /** @comboboxController({ label: "Phone Type", allowCustom: true }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     phoneType: string;
+    /** @textController({ label: "Number" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     number: string;
+    /** @switchController({ label: "Can Text" }) */
     canText: boolean;
+    /** @switchController({ label: "Can Call" }) */
     canCall: boolean;
 }
 
@@ -125,16 +144,25 @@ export interface Gradient {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Product {
+    /** @hiddenController({}) */
     id: string;
+    /** @textController({ label: "Name" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     name: string;
+    /** @textController({ label: "Quick Code" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     quickCode: string;
+    /** @comboboxController({ label: "Group", allowCustom: true }) */
     group: string | null;
+    /** @comboboxController({ label: "Subgroup", allowCustom: true }) */
     subgroup: string | null;
+    /** @comboboxController({ label: "Unit", allowCustom: true }) */
     unit: string | null;
+    /** @switchController({ label: "Active" }) */
     active: boolean;
+    /** @switchController({ label: "Commission" }) */
     commission: boolean;
+    /** @switchController({ label: "Favorite" }) */
     favorite: boolean;
     defaults: ProductDefaults;
 }
@@ -208,35 +236,52 @@ export interface Color {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface CompanyName {
+    /** @textController({ label: "Company Name" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     companyName: string;
 }
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Appointment {
+    /** @hiddenController({}) */
     id: string;
+    /** @textController({ label: "Title" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     title: string;
+    /** @selectController({ label: "Status", options: [{ label: "Scheduled", value: "Scheduled" }, { label: "On Deck", value: "OnDeck" }, { label: "Waiting", value: "Waiting" }] }) */
     /** @default("Scheduled") */
     status: Status;
+    /** @dateTimeController({ label: "Begins" }) */
     begins: string;
+    /** @numberController({ label: "Duration", min: 0 }) */
     duration: number;
+    /** @textController({ label: "Time Zone" }) */
     timeZone: string;
+    /** @hiddenController({}) */
     offsetMs: number;
+    /** @switchController({ label: "All Day" }) */
     allDay: boolean;
+    /** @switchController({ label: "Multi Day" }) */
     multiDay: boolean;
+    /** @comboboxMultipleController({ label: "Employees", fetchUrls: ["/api/employees"] }) */
     employees: (string | Employee)[];
+    /** @siteFieldsetController({ label: "Location" }) */
     /** @default("") */
     location: string | Site;
+    /** @textAreaController({ label: "Description" }) */
     description: string | null;
+    /** @hiddenController({}) */
     /** @default({ main: "#000000", hover: "#333333", active: "#666666" }) */
     colors: Colors;
+    /** @hiddenController({}) */
     recurrenceRule: RecurrenceRule | null;
 }
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Package {
+    /** @hiddenController({}) */
     id: string;
+    /** @dateTimeController({ label: "Date" }) */
     date: string;
 }
 
@@ -281,34 +326,56 @@ export interface FirstName {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Account {
+    /** @hiddenController({}) */
     id: string;
+    /** @comboboxController({ label: "Tax Rate", allowCustom: false, fetchUrls: ["/api/tax-rates"] }) */
     /** @default("") */
     taxRate: string | TaxRate;
+    /** @siteFieldsetController({ label: "Site" }) */
     /** @default("") */
     site: string | Site;
+    /** @comboboxMultipleController({ label: "Sales Rep", fetchUrls: ["/api/employees"] }) */
     salesRep: Represents[] | null;
+    /** @hiddenController({}) */
     orders: Ordered[];
+    /** @hiddenController({}) */
     activity: Did[];
+    /** @arrayFieldsetController({ legend: "Custom Fields" }) */
     customFields: [string, string][];
+    /** @enumFieldsetController({ legend: "Name", variants: { CompanyName: { label: "Company" }, PersonName: { label: "Person" } } }) */
     accountName: AccountName;
+    /** @radioGroupController({ label: "Sector", options: [{ label: "Residential", value: "Residential" }, { label: "Commercial", value: "Commercial" }], orientation: "horizontal" }) */
     /** @default("Residential") */
     sector: Sector;
+    /** @textAreaController({ label: "Memo" }) */
     memo: string | null;
+    /** @arrayFieldsetController({ legend: "Phones" }) */
     phones: PhoneNumber[];
+    /** @emailFieldController({ label: "Email" }) */
     email: Email;
+    /** @comboboxController({ label: "Lead Source", allowCustom: true }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     leadSource: string;
+    /** @hiddenController({}) */
     colors: Colors;
+    /** @toggleController({ label: "Needs Review" }) */
     needsReview: boolean;
+    /** @toggleController({ label: "Has Alert" }) */
     hasAlert: boolean;
+    /** @comboboxController({ label: "Account Type", allowCustom: true }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     accountType: string;
+    /** @comboboxController({ label: "Subtype", allowCustom: true }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     subtype: string;
+    /** @toggleController({ label: "Tax Exempt" }) */
     isTaxExempt: boolean;
+    /** @comboboxController({ label: "Payment Terms", allowCustom: true }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     paymentTerms: string;
+    /** @tagsController({ label: "Tags" }) */
     tags: string[];
+    /** @hiddenController({}) */
     dateAdded: string;
 }
 
@@ -322,46 +389,75 @@ export interface Edited {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Order {
+    /** @hiddenController({}) */
     id: string;
+    /** @comboboxController({ label: "Account", allowCustom: false, fetchUrls: ["/api/accounts"] }) */
     /** @default("") */
     account: string | Account;
+    /** @selectController({ label: "Stage", options: [{ label: "Estimate", value: "Estimate" }, { label: "Active", value: "Active" }, { label: "Invoice", value: "Invoice" }] }) */
     /** @default("Estimate") */
     stage: OrderStage;
+    /** @hiddenController({}) */
     number: number;
+    /** @hiddenController({}) */
     payments: (string | Payment)[];
+    /** @textController({ label: "Opportunity" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     opportunity: string;
+    /** @textController({ label: "Reference" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     reference: string;
+    /** @comboboxController({ label: "Lead Source", allowCustom: true }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     leadSource: string;
+    /** @comboboxController({ label: "Sales Rep", allowCustom: false, fetchUrls: ["/api/employees"] }) */
     /** @default("") */
     salesRep: string | Employee;
+    /** @comboboxController({ label: "Group", allowCustom: true }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     group: string;
+    /** @comboboxController({ label: "Subgroup", allowCustom: true }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     subgroup: string;
+    /** @switchController({ label: "Posted" }) */
     isPosted: boolean;
+    /** @switchController({ label: "Needs Review" }) */
     needsReview: boolean;
+    /** @textController({ label: "Action Item" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     actionItem: string;
+    /** @hiddenController({}) */
     upsale: number;
+    /** @hiddenController({}) */
     dateCreated: string;
+    /** @comboboxController({ label: "Appointment", allowCustom: false, fetchUrls: ["/api/appointments"] }) */
     /** @default("") */
     appointment: string | Appointment;
+    /** @comboboxMultipleController({ label: "Technicians", fetchUrls: ["/api/employees"] }) */
     lastTechs: (string | Employee)[];
+    /** @hiddenController({}) */
     package: (string | Package)[] | null;
+    /** @hiddenController({}) */
     promotion: (string | Promotion)[] | null;
+    /** @hiddenController({}) */
     balance: number;
+    /** @dateTimeController({ label: "Due" }) */
     due: string;
+    /** @hiddenController({}) */
     total: number;
+    /** @siteFieldsetController({ label: "Site" }) */
     /** @default("") */
     site: string | Site;
+    /** @arrayFieldsetController({ legend: "Billed Items" }) */
     billedItems: BilledItem[];
+    /** @textAreaController({ label: "Memo" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     memo: string;
+    /** @hiddenController({}) */
     discount: number;
+    /** @hiddenController({}) */
     tip: number;
+    /** @hiddenController({}) */
     commissions: number[];
 }
 
@@ -389,7 +485,9 @@ export interface Colors {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface ProductDefaults {
+    /** @numberController({ label: "Price", min: 0, step: 0.01 }) */
     price: number;
+    /** @textAreaController({ label: "Description" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     description: string;
 }
@@ -415,21 +513,31 @@ export interface Paid {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface TaxRate {
+    /** @hiddenController({}) */
     id: string;
+    /** @textController({ label: "Name" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     name: string;
+    /** @textController({ label: "Tax Agency" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     taxAgency: string;
+    /** @numberController({ label: "Zip", min: 0 }) */
     zip: number;
+    /** @textController({ label: "City" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     city: string;
+    /** @textController({ label: "County" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     county: string;
+    /** @textController({ label: "State" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     state: string;
+    /** @switchController({ label: "Active" }) */
     isActive: boolean;
+    /** @textAreaController({ label: "Description" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     description: string;
+    /** @hiddenController({}) */
     /** @default({}) */
     taxComponents: { [key: string]: number };
 }
@@ -448,47 +556,79 @@ export interface Address {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Lead {
+    /** @hiddenController({}) */
     id: string;
+    /** @hiddenController({}) */
     number: number | null;
+    /** @hiddenController({}) */
     accepted: boolean;
+    /** @numberController({ label: "Probability", min: 0, max: 100 }) */
     probability: number;
+    /** @radioGroupController({ label: "Priority", options: [{ label: "High", value: "High" }, { label: "Medium", value: "Medium" }, { label: "Low", value: "Low" }], orientation: "horizontal" }) */
     /** @default("Medium") */
     priority: Priority;
+    /** @dateTimeController({ label: "Due Date" }) */
     dueDate: string | null;
+    /** @dateTimeController({ label: "Close Date" }) */
     closeDate: string | null;
+    /** @numberController({ label: "Value", min: 0, step: 0.01 }) */
     value: number;
+    /** @selectController({ label: "Stage", options: [{ label: "Open", value: "Open" }, { label: "Working", value: "Working" }, { label: "Lost", value: "Lost" }, { label: "Qualified", value: "Qualified" }, { label: "Estimate", value: "Estimate" }, { label: "Negotiation", value: "Negotiation" }] }) */
     /** @default("Open") */
     stage: LeadStage;
+    /** @textController({ label: "Status" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     status: string;
+    /** @textAreaController({ label: "Description" }) */
     description: string | null;
+    /** @hiddenController({}) */
     /** @default("InitialContact") */
     nextStep: NextStep;
+    /** @switchController({ label: "Favorite" }) */
     favorite: boolean;
+    /** @hiddenController({}) */
     dateAdded: string | null;
+    /** @comboboxController({ label: "Tax Rate", allowCustom: false, fetchUrls: ["/api/tax-rates"] }) */
     taxRate: (string | TaxRate) | null;
+    /** @radioGroupController({ label: "Sector", options: [{ label: "Residential", value: "Residential" }, { label: "Commercial", value: "Commercial" }], orientation: "horizontal" }) */
     /** @default("Residential") */
     sector: Sector;
+    /** @enumFieldsetController({ legend: "Name", variants: { CompanyName: { label: "Company" }, PersonName: { label: "Person" } } }) */
     leadName: AccountName;
+    /** @arrayFieldsetController({ legend: "Phones" }) */
     phones: PhoneNumber[];
+    /** @emailFieldController({ label: "Email" }) */
     email: Email;
+    /** @comboboxController({ label: "Lead Source", allowCustom: true }) */
     leadSource: string | null;
+    /** @siteFieldsetController({ label: "Site" }) */
     /** @default("") */
     site: string | Site;
+    /** @textAreaController({ label: "Memo" }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     memo: string;
+    /** @toggleController({ label: "Needs Review" }) */
     needsReview: boolean;
+    /** @toggleController({ label: "Has Alert" }) */
     hasAlert: boolean;
+    /** @comboboxMultipleController({ label: "Sales Rep", fetchUrls: ["/api/employees"] }) */
     salesRep: Represents[] | null;
+    /** @hiddenController({}) */
     color: string | null;
+    /** @comboboxController({ label: "Account Type", allowCustom: true }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     accountType: string;
+    /** @comboboxController({ label: "Subtype", allowCustom: true }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     subtype: string;
+    /** @toggleController({ label: "Tax Exempt" }) */
     isTaxExempt: boolean;
+    /** @comboboxController({ label: "Payment Terms", allowCustom: true }) */
     /** @serde({ validate: ["nonEmpty"] }) */
     paymentTerms: string;
+    /** @tagsController({ label: "Tags" }) */
     tags: string[];
+    /** @arrayFieldsetController({ legend: "Custom Fields" }) */
     customFields: [string, string][];
 }
 
@@ -656,10 +796,14 @@ export interface Sent {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface BilledItem {
+    /** @comboboxController({ label: "Item", allowCustom: true, fetchUrls: ["/api/products", "/api/services"] }) */
     /** @default("") */
     item: Item;
+    /** @numberController({ label: "Quantity", min: 0, step: 1 }) */
     quantity: number;
+    /** @switchController({ label: "Taxed" }) */
     taxed: boolean;
+    /** @switchController({ label: "Upsale" }) */
     upsale: boolean;
 }
 
@@ -681,8 +825,10 @@ export interface Ordered {
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Email {
+    /** @switchController({ label: "Can Email" }) */
     canEmail: boolean;
-    /** @serde({ validate: ["nonEmpty"] }) */
+    /** @textController({ label: "Email" }) */
+    /** @serde({ validate: ["nonEmpty", "email"] }) */
     emailString: string;
 }
 
@@ -772,10 +918,8 @@ export type Target =
     | Represents
     | Ordered;
 
-/** @derive(Default, Serialize, Deserialize, Gigaform)
- *  @default(0)
- */
-export type RecurrenceEnd = number | string;
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type RecurrenceEnd = /** @default(0) */ number | string;
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type OverviewDisplay = /** @default */ 'Card' | 'Table';
@@ -811,6 +955,7 @@ export type LeadStage =
     | 'Negotiation';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
+/** @enumFieldsetController({ legend: "Name", variants: { CompanyName: { label: "Company" }, PersonName: { label: "Person" } } }) */
 export type AccountName = /** @default */ CompanyName | PersonName;
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
@@ -869,10 +1014,11 @@ export type Table =
     | 'Represents'
     | 'Ordered';
 
-/** @derive(Default, Serialize, Deserialize, Gigaform)
- * @default("")
- */
-export type Item = (string | Product) | (string | Service);
+/** @derive(Default, Serialize, Deserialize, Gigaform) */
+export type Item = RecordLink<Product> | /** @default */ RecordLink<Service>;
+
+/** @derive(Default, Serialize, Deserialize) */
+export type RecordLink<T> = /** @default */ string | T;
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export type Actor = /** @default */ User | Employee | Account;

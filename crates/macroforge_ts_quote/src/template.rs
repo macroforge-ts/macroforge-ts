@@ -27,7 +27,27 @@ use proc_macro2::{Delimiter, Group, Span, TokenStream as TokenStream2, TokenTree
 use quote::{ToTokens, quote};
 use std::iter::Peekable;
 
-/// Creates a syntax error with contextual information about position in the template
+/// Creates a syntax error with contextual information about the template location.
+///
+/// This function constructs a [`syn::Error`] with an optional context string that
+/// helps users identify where in their template the error occurred.
+///
+/// # Arguments
+///
+/// * `span` - The source span for error reporting
+/// * `message` - The primary error message
+/// * `context` - Optional context showing the problematic template code
+///
+/// # Returns
+///
+/// A [`syn::Error`] that can be converted to a compile error via `.to_compile_error()`.
+///
+/// # Example Output
+///
+/// ```text
+/// error: Unclosed {#if} block: Missing {/if}
+///   --> in: {#if condition}...
+/// ```
 fn template_error(span: Span, message: &str, context: Option<&str>) -> syn::Error {
     let full_message = if let Some(ctx) = context {
         format!("{}\n  --> in: {}", message, ctx)
@@ -37,8 +57,40 @@ fn template_error(span: Span, message: &str, context: Option<&str>) -> syn::Erro
     syn::Error::new(span, full_message)
 }
 
-/// Parse the template stream and generate code to build a TypeScript string
-/// Returns a tuple of (String, Vec<Patch>) to support TsStream injection via {$typescript}
+/// Entry point for parsing a template token stream.
+///
+/// This function transforms template tokens into Rust code that builds a TypeScript
+/// string at runtime. The generated code handles all interpolation, control flow,
+/// and patch collection.
+///
+/// # Arguments
+///
+/// * `input` - The raw token stream from the template macro invocation
+///
+/// # Returns
+///
+/// On success, returns a [`TokenStream2`] containing Rust code that evaluates to
+/// `(String, Vec<Patch>)` - the generated TypeScript source and any runtime patches
+/// (imports, etc.) collected from `{$typescript}` injections.
+///
+/// # Errors
+///
+/// Returns a [`syn::Error`] if:
+/// - A control flow block is unclosed (`{#if}` without `{/if}`)
+/// - A terminator appears in an unexpected context
+/// - String interpolation syntax is malformed
+/// - An expression inside `@{}` cannot be parsed
+///
+/// # Generated Code Structure
+///
+/// ```ignore
+/// {
+///     let mut __out = String::new();
+///     let mut __patches: Vec<Patch> = Vec::new();
+///     // ... generated string-building code ...
+///     (__out, __patches)
+/// }
+/// ```
 pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
     // Parse the tokens into a Rust block that returns a String or a templating error
     let (body, _) = parse_fragment(&mut input.into_iter().peekable(), None)?;
@@ -53,43 +105,158 @@ pub fn parse_template(input: TokenStream2) -> syn::Result<TokenStream2> {
     })
 }
 
-// Terminators tell the parser when to stop current recursion level
+/// Signals that cause the recursive parser to stop and return control.
+///
+/// When [`parse_fragment`] encounters one of these terminators while parsing,
+/// it returns the accumulated output along with the terminator, allowing the
+/// caller to handle the control flow appropriately.
+///
+/// # Variants
+///
+/// - `Else` - Encountered `{:else}`, signals end of if-true block
+/// - `ElseIf(cond)` - Encountered `{:else if cond}`, signals chained conditional
+/// - `EndIf` - Encountered `{/if}`, signals end of if block
+/// - `EndFor` - Encountered `{/for}`, signals end of for loop
+/// - `EndWhile` - Encountered `{/while}`, signals end of while loop
+/// - `Case(pattern)` - Encountered `{:case pattern}`, signals new match arm
+/// - `EndMatch` - Encountered `{/match}`, signals end of match block
 #[derive(Debug, Clone)]
 enum Terminator {
+    /// `{:else}` - End of if-true block, start of else block
     Else,
+    /// `{:else if condition}` - Chained conditional with new condition
     ElseIf(TokenStream2),
+    /// `{/if}` - End of entire if/else-if/else chain
     EndIf,
+    /// `{/for}` - End of for loop body
     EndFor,
+    /// `{/while}` - End of while loop body
     EndWhile,
+    /// `{:case pattern}` - Start of new match arm with pattern
     Case(TokenStream2),
+    /// `{/match}` - End of entire match block
     EndMatch,
 }
 
-// Analyzes a braces group { ... } to see if it's a Macro Tag or just TS code
+/// Classification of brace-delimited groups in the template.
+///
+/// When the parser encounters a `{ ... }` group, [`analyze_tag`] examines its
+/// contents to determine whether it's a template control tag or regular
+/// TypeScript code. This enum represents all possible classifications.
+///
+/// # Control Flow Tags
+///
+/// Tags starting with `#` introduce control structures:
+/// - `{#if}`, `{#if let}` - Conditionals
+/// - `{#for}` - Iteration
+/// - `{#while}`, `{#while let}` - While loops
+/// - `{#match}` - Pattern matching
+///
+/// Tags starting with `:` are continuations:
+/// - `{:else}`, `{:else if}` - Conditional branches
+/// - `{:case}` - Match arms
+///
+/// Tags starting with `/` close blocks:
+/// - `{/if}`, `{/for}`, `{/while}`, `{/match}`
+///
+/// # Action Tags
+///
+/// Tags starting with `$` perform actions:
+/// - `{$let}`, `{$let mut}` - Local bindings
+/// - `{$do}` - Side effects
+/// - `{$typescript}` - TsStream injection
+///
+/// # Special Syntax
+///
+/// - `{| ... |}` - Ident blocks (no-space concatenation)
+/// - `{> "..." <}` - Block comments
+/// - `{>> "..." <<}` - Doc comments
+/// - `{ ... }` (no prefix) - Regular TypeScript blocks
 enum TagType {
+    /// `{#if condition}` - Start of conditional block
     If(TokenStream2),
-    IfLet(TokenStream2, TokenStream2),    // pattern, expression
-    While(TokenStream2),                  // {#while cond}
-    WhileLet(TokenStream2, TokenStream2), // {#while let pattern = expr}
-    For(TokenStream2, TokenStream2),      // item_name, collection
-    Match(TokenStream2),                  // expression to match
+    /// `{#if let pattern = expr}` - Pattern-matching conditional (pattern, expression)
+    IfLet(TokenStream2, TokenStream2),
+    /// `{#while condition}` - Start of while loop
+    While(TokenStream2),
+    /// `{#while let pattern = expr}` - Pattern-matching while loop (pattern, expression)
+    WhileLet(TokenStream2, TokenStream2),
+    /// `{#for item in collection}` - Start of for loop (item binding, collection expression)
+    For(TokenStream2, TokenStream2),
+    /// `{#match expr}` - Start of match block with expression to match
+    Match(TokenStream2),
+    /// `{:else}` - Else branch of conditional
     Else,
+    /// `{:else if condition}` - Else-if branch with condition
     ElseIf(TokenStream2),
-    Case(TokenStream2), // pattern for match arm
+    /// `{:case pattern}` - Match arm with pattern
+    Case(TokenStream2),
+    /// `{/if}` - End of if/else-if/else block
     EndIf,
+    /// `{/for}` - End of for loop
     EndFor,
+    /// `{/while}` - End of while loop
     EndWhile,
+    /// `{/match}` - End of match block
     EndMatch,
+    /// `{$let name = expr}` - Immutable local binding
     Let(TokenStream2),
-    LetMut(TokenStream2),     // {$let mut name = expr}
-    Do(TokenStream2),         // {$do expr} - side-effectful expression
-    Typescript(TokenStream2), // {$typescript stream_expr} - inject TsStream with patches
-    IdentBlock,                // {| ... |} - identifier block with no internal spacing
-    BlockComment(String),      // {> "string" <} - block comment /* string */
-    DocComment(String),        // {>> "string" <<} - doc comment /** string */
-    Block,                     // Standard TypeScript Block { ... }
+    /// `{$let mut name = expr}` - Mutable local binding
+    LetMut(TokenStream2),
+    /// `{$do expr}` - Execute expression for side effects (discard result)
+    Do(TokenStream2),
+    /// `{$typescript stream}` - Inject TsStream, preserving source and patches
+    Typescript(TokenStream2),
+    /// `{| content |}` - Identifier block with no internal spacing
+    IdentBlock,
+    /// `{> "comment" <}` - Block comment: outputs `/* comment */`
+    BlockComment(String),
+    /// `{>> "doc" <<}` - Doc comment: outputs `/** doc */`
+    DocComment(String),
+    /// Standard TypeScript/JavaScript block (no template syntax detected)
+    Block,
 }
 
+/// Analyzes a brace-delimited group to determine its tag type.
+///
+/// This function examines the tokens inside a `{ ... }` group to classify
+/// whether it's a template control tag (like `{#if}`, `{#for}`) or just
+/// regular TypeScript code that should be passed through.
+///
+/// # Arguments
+///
+/// * `g` - The [`Group`] token to analyze (must have brace delimiter)
+///
+/// # Returns
+///
+/// A [`TagType`] classification indicating what kind of template construct
+/// (if any) the group represents.
+///
+/// # Recognition Patterns
+///
+/// The function checks tokens in order of specificity:
+///
+/// 1. **Ident blocks**: `{| ... |}` - First and last tokens are `|`
+/// 2. **Doc comments**: `{>> "..." <<}` - Starts with `>>`, ends with `<<`
+/// 3. **Block comments**: `{> "..." <}` - Starts with `>`, ends with `<`
+/// 4. **Control tags**: First token is `#`, `:`, `/`, or `$`
+///    - `#if`, `#for`, `#while`, `#match` - Block openers
+///    - `:else`, `:else if`, `:case` - Continuations
+///    - `/if`, `/for`, `/while`, `/match` - Block closers
+///    - `$let`, `$do`, `$typescript` - Actions
+/// 5. **Plain blocks**: Anything else is treated as TypeScript code
+///
+/// # Example Classifications
+///
+/// ```text
+/// {#if x > 0}     -> TagType::If(tokens for "x > 0")
+/// {#for i in 0..5} -> TagType::For(tokens for "i", tokens for "0..5")
+/// {:else}          -> TagType::Else
+/// {/if}            -> TagType::EndIf
+/// {$let x = 1}     -> TagType::Let(tokens for "x = 1")
+/// {| foo @{bar} |} -> TagType::IdentBlock
+/// { x: 1 }         -> TagType::Block
+/// ```
 fn analyze_tag(g: &Group) -> TagType {
     let tokens: Vec<TokenTree> = g.stream().into_iter().collect();
 
@@ -318,7 +485,45 @@ fn analyze_tag(g: &Group) -> TagType {
     TagType::Block
 }
 
-/// Parse an if/else-if/else chain starting from the condition
+/// Parses an if/else-if/else chain and generates the corresponding Rust code.
+///
+/// This function handles the complete parsing of a conditional block, including
+/// any `{:else}` or `{:else if}` continuations. It recursively processes
+/// else-if chains to support arbitrarily deep conditional nesting.
+///
+/// # Arguments
+///
+/// * `iter` - Mutable iterator over remaining template tokens
+/// * `initial_cond` - The condition expression from `{#if condition}`
+/// * `open_span` - Span of the opening `{#if}` tag for error reporting
+///
+/// # Returns
+///
+/// On success, returns Rust code that implements the conditional:
+///
+/// ```ignore
+/// if condition {
+///     // true block
+/// } else if other_condition {
+///     // else-if block
+/// } else {
+///     // else block
+/// }
+/// ```
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - The `{#if}` block is never closed with `{/if}`
+/// - A `{:else}` block is opened but never closed
+///
+/// # State Machine
+///
+/// ```text
+/// {#if cond} -> parse true block -> {:else if} -> recurse
+///                                -> {:else}    -> parse else block -> {/if}
+///                                -> {/if}      -> done (no else)
+/// ```
 fn parse_if_chain(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     initial_cond: TokenStream2,
@@ -383,7 +588,46 @@ fn parse_if_chain(
     }
 }
 
-/// Parse an if-let/else chain starting from the pattern and expression
+/// Parses an if-let/else chain and generates the corresponding Rust code.
+///
+/// This function handles pattern-matching conditionals that use the
+/// `{#if let pattern = expr}` syntax. Unlike regular if chains, if-let
+/// does not support `{:else if}` continuations (only `{:else}`).
+///
+/// # Arguments
+///
+/// * `iter` - Mutable iterator over remaining template tokens
+/// * `pattern` - The destructuring pattern (e.g., `Some(value)`)
+/// * `expr` - The expression to match against
+/// * `open_span` - Span of the opening tag for error reporting
+///
+/// # Returns
+///
+/// On success, returns Rust code that implements the pattern match:
+///
+/// ```ignore
+/// if let pattern = expr {
+///     // body when pattern matches
+/// } else {
+///     // optional else body
+/// }
+/// ```
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - The block is never closed with `{/if}`
+/// - A `{:else}` block is opened but never closed
+///
+/// # Example
+///
+/// ```text
+/// {#if let Some(name) = user.name}
+///     Hello, @{name}!
+/// {:else}
+///     Hello, anonymous!
+/// {/if}
+/// ```
 fn parse_if_let_chain(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     pattern: TokenStream2,
@@ -430,7 +674,40 @@ fn parse_if_let_chain(
     }
 }
 
-/// Parse a while loop starting from the condition
+/// Parses a while loop and generates the corresponding Rust code.
+///
+/// This function handles `{#while condition}...{/while}` blocks, generating
+/// a Rust while loop that conditionally produces template output.
+///
+/// # Arguments
+///
+/// * `iter` - Mutable iterator over remaining template tokens
+/// * `cond` - The loop condition expression
+/// * `open_span` - Span of the opening tag for error reporting
+///
+/// # Returns
+///
+/// On success, returns Rust code:
+///
+/// ```ignore
+/// while condition {
+///     // loop body (string building code)
+/// }
+/// ```
+///
+/// # Errors
+///
+/// Returns an error if the block is never closed with `{/while}`.
+///
+/// # Example
+///
+/// ```text
+/// {$let mut i = 0}
+/// {#while i < 3}
+///     Item @{i}
+///     {$do i += 1}
+/// {/while}
+/// ```
 fn parse_while_loop(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     cond: TokenStream2,
@@ -453,7 +730,39 @@ fn parse_while_loop(
     })
 }
 
-/// Parse a while-let loop starting from the pattern and expression
+/// Parses a while-let loop and generates the corresponding Rust code.
+///
+/// This function handles `{#while let pattern = expr}...{/while}` blocks,
+/// generating a Rust while-let loop that iterates while a pattern matches.
+///
+/// # Arguments
+///
+/// * `iter` - Mutable iterator over remaining template tokens
+/// * `pattern` - The destructuring pattern to match
+/// * `expr` - The expression to match against each iteration
+/// * `open_span` - Span of the opening tag for error reporting
+///
+/// # Returns
+///
+/// On success, returns Rust code:
+///
+/// ```ignore
+/// while let pattern = expr {
+///     // loop body (string building code)
+/// }
+/// ```
+///
+/// # Errors
+///
+/// Returns an error if the block is never closed with `{/while}`.
+///
+/// # Example
+///
+/// ```text
+/// {#while let Some(item) = iter.next()}
+///     Processing @{item}
+/// {/while}
+/// ```
 fn parse_while_let_loop(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     pattern: TokenStream2,
@@ -477,8 +786,55 @@ fn parse_while_let_loop(
     })
 }
 
-/// Parse match arms starting after {#match expr}
-/// Format: {#match expr}{:case pattern1}body1{:case pattern2}body2{/match}
+/// Parses a match expression with case arms and generates the corresponding Rust code.
+///
+/// This function handles `{#match expr}{:case pattern}...{/match}` blocks,
+/// generating a Rust match expression with multiple arms. Each `{:case pattern}`
+/// starts a new arm.
+///
+/// # Arguments
+///
+/// * `iter` - Mutable iterator over remaining template tokens
+/// * `match_expr` - The expression being matched against
+/// * `open_span` - Span of the opening tag for error reporting
+///
+/// # Returns
+///
+/// On success, returns Rust code:
+///
+/// ```ignore
+/// match expr {
+///     pattern1 => {
+///         // body1 (string building code)
+///     }
+///     pattern2 => {
+///         // body2 (string building code)
+///     }
+///     // ...
+/// }
+/// ```
+///
+/// # Errors
+///
+/// Returns an error if the block is never closed with `{/match}`.
+///
+/// # Example
+///
+/// ```text
+/// {#match status}
+///     {:case "active"}
+///         Status: Active
+///     {:case "pending"}
+///         Status: Pending
+///     {:case _}
+///         Status: Unknown
+/// {/match}
+/// ```
+///
+/// # Note
+///
+/// Content before the first `{:case}` is ignored. Each arm's body consists
+/// of all content between its `{:case}` tag and the next `{:case}` or `{/match}`.
 fn parse_match_arms(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     match_expr: TokenStream2,
@@ -536,7 +892,33 @@ fn parse_match_arms(
     })
 }
 
-/// Parse tokens without adding any spaces - for {| |} ident blocks
+/// Parses tokens without adding spaces between them.
+///
+/// This is a specialized parser for `{| ... |}` ident blocks where tokens
+/// should be concatenated without any whitespace. This is essential for
+/// building compound identifiers or strings from multiple parts.
+///
+/// # Arguments
+///
+/// * `iter` - Mutable iterator over the tokens inside the ident block
+///
+/// # Returns
+///
+/// Rust code that builds a string by concatenating all tokens without spaces.
+///
+/// # Differences from `parse_fragment`
+///
+/// - No automatic spacing between tokens
+/// - No handling of control flow tags (they would break ident generation)
+/// - Simplified interpolation handling (just `@{expr}`)
+///
+/// # Example
+///
+/// ```text
+/// {| get @{field_name} |}
+/// // Produces: "getfieldName" (if field_name = "fieldName")
+/// // NOT: "get fieldName " (with spaces)
+/// ```
 fn parse_fragment_no_spacing(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
 ) -> syn::Result<TokenStream2> {
@@ -590,7 +972,47 @@ fn parse_fragment_no_spacing(
     Ok(output)
 }
 
-/// Recursive function to parse tokens until a terminator is found
+/// Main recursive parser that processes template tokens and generates string-building code.
+///
+/// This is the core parsing function that walks through template tokens, generating
+/// Rust code that builds the output string at runtime. It handles all template
+/// syntax including interpolation, control flow, and special blocks.
+///
+/// # Arguments
+///
+/// * `iter` - Mutable iterator over template tokens to process
+/// * `stop_at` - Optional list of terminators that should cause this function to return.
+///   Used by control flow parsers to stop at `{:else}`, `{/if}`, etc.
+///
+/// # Returns
+///
+/// A tuple of:
+/// 1. Rust code that builds the string (appends to `__out`)
+/// 2. The terminator that caused parsing to stop, or `None` if EOF was reached
+///
+/// # Processing Cases
+///
+/// The function handles tokens in this order of priority:
+///
+/// 1. **Interpolation** (`@{expr}`) - Calls `expr.to_string()` and appends
+/// 2. **Brace groups** (`{...}`) - Analyzed via [`analyze_tag`]:
+///    - Control flow tags spawn sub-parsers
+///    - Terminators cause early return
+///    - Plain blocks are recursively processed
+/// 3. **Other groups** (`(...)`, `[...]`) - Recursively processed
+/// 4. **Backtick templates** (`"'^...^'"`) - Processed for `@{}` interpolation
+/// 5. **String literals** - Checked for `@{}` interpolation
+/// 6. **Plain tokens** - Appended with intelligent spacing
+///
+/// # Spacing Logic
+///
+/// The parser adds spaces between tokens following these rules:
+/// - Space after identifiers (unless followed by punctuation or groups)
+/// - No space after `.`, `!`, `(`, `[`, `{`, `<`, `>`, `@`, `$`
+/// - No space before `)`, `]`, `}`, `>`, `.`, `,`, `;`
+/// - Joint punctuation (like `::`) stays together
+///
+/// For explicit no-space concatenation, use `{| ... |}` ident blocks.
 fn parse_fragment(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     stop_at: Option<&[Terminator]>,
@@ -985,8 +1407,26 @@ fn parse_fragment(
     Ok((output, None))
 }
 
-/// Converts a slice of tokens to a string with spaces between tokens.
-/// This preserves the logical structure while adding consistent spacing.
+/// Converts a slice of tokens to a space-separated string.
+///
+/// This is a simple utility for converting token sequences to strings
+/// when the exact formatting doesn't matter (e.g., for fallback content
+/// in comment blocks).
+///
+/// # Arguments
+///
+/// * `tokens` - Slice of tokens to convert
+///
+/// # Returns
+///
+/// A string with each token separated by a single space.
+///
+/// # Example
+///
+/// ```ignore
+/// let tokens = vec![ident("hello"), punct(','), ident("world")];
+/// assert_eq!(tokens_to_spaced_string(&tokens), "hello , world");
+/// ```
 fn tokens_to_spaced_string(tokens: &[TokenTree]) -> String {
     let mut result = String::new();
     for (i, token) in tokens.iter().enumerate() {
@@ -998,7 +1438,30 @@ fn tokens_to_spaced_string(tokens: &[TokenTree]) -> String {
     result
 }
 
-/// Extracts the content from a string literal token, removing quotes.
+/// Extracts the inner content from a string literal, removing quotes and unescaping.
+///
+/// This function handles multiple string literal formats:
+/// - Regular strings: `"hello"` → `hello`
+/// - Raw strings: `r"hello"` → `hello`
+/// - Raw strings with hashes: `r#"hello"#` → `hello`
+///
+/// # Arguments
+///
+/// * `lit` - The string literal token to extract from
+///
+/// # Returns
+///
+/// The unquoted and unescaped string content.
+///
+/// # Processing
+///
+/// For regular strings, escape sequences are processed via [`unescape_string`]:
+/// - `\n` → newline
+/// - `\t` → tab
+/// - `\"` → quote
+/// - etc.
+///
+/// Raw strings are returned verbatim (no escape processing needed).
 fn extract_string_literal(lit: &proc_macro2::Literal) -> String {
     let s = lit.to_string();
     // Handle regular strings "..."
@@ -1018,7 +1481,31 @@ fn extract_string_literal(lit: &proc_macro2::Literal) -> String {
     s
 }
 
-/// Unescape common escape sequences in a string.
+/// Unescapes common escape sequences in a string.
+///
+/// This function processes backslash escape sequences commonly found in
+/// string literals, converting them to their actual character representations.
+///
+/// # Arguments
+///
+/// * `s` - The string with potential escape sequences
+///
+/// # Returns
+///
+/// The string with escape sequences replaced by their actual characters.
+///
+/// # Supported Escapes
+///
+/// | Escape | Result |
+/// |--------|--------|
+/// | `\n` | Newline |
+/// | `\r` | Carriage return |
+/// | `\t` | Tab |
+/// | `\\` | Backslash |
+/// | `\"` | Double quote |
+/// | `\'` | Single quote |
+///
+/// Unknown escape sequences are preserved as-is (e.g., `\x` becomes `\x`).
 fn unescape_string(s: &str) -> String {
     let mut result = String::new();
     let mut chars = s.chars().peekable();
@@ -1044,14 +1531,49 @@ fn unescape_string(s: &str) -> String {
     result
 }
 
-/// Check if a literal is a string (starts with " or ')
+/// Checks if a literal token represents a string literal.
+///
+/// This function identifies various string literal formats in Rust:
+/// - Double-quoted strings: `"hello"`
+/// - Single-quoted strings: `'c'` (char literals, treated as strings here)
+/// - Raw strings: `r"hello"` or `r#"hello"#`
+///
+/// # Arguments
+///
+/// * `lit` - The literal token to check
+///
+/// # Returns
+///
+/// `true` if the literal is a string-like literal that may contain
+/// interpolation patterns (`@{expr}`), `false` otherwise.
 fn is_string_literal(lit: &proc_macro2::Literal) -> bool {
     let s = lit.to_string();
     s.starts_with('"') || s.starts_with('\'') || s.starts_with("r\"") || s.starts_with("r#")
 }
 
-/// Check if a literal is a backtick template literal marker: "'^...^'"
-/// This syntax outputs JS template literals with backticks: `...`
+/// Checks if a literal is a backtick template literal marker.
+///
+/// The syntax `"'^...^'"` is used to generate JavaScript template literals
+/// with backticks. This allows embedding JS `${...}` interpolation while
+/// also supporting Rust `@{...}` interpolation.
+///
+/// # Arguments
+///
+/// * `lit` - The literal token to check
+///
+/// # Returns
+///
+/// `true` if the literal matches the backtick template pattern:
+/// - `"'^content^'"` - Regular string with markers
+/// - `r"'^content^'"` - Raw string with markers
+/// - `r#"'^content^'"#` - Raw string with hashes
+///
+/// # Example
+///
+/// ```text
+/// "'^Hello ${name}^'"   -> `Hello ${name}`
+/// "'^<@{tag}>^'"        -> `<div>` (if tag = "div")
+/// ```
 fn is_backtick_template(lit: &proc_macro2::Literal) -> bool {
     let s = lit.to_string();
     // Check for "'^...^'" pattern (the outer quotes are part of the Rust string)
@@ -1068,8 +1590,42 @@ fn is_backtick_template(lit: &proc_macro2::Literal) -> bool {
     false
 }
 
-/// Process a backtick template literal "'^...^'" -> `...`
-/// Supports @{expr} interpolation for Rust expressions within the template
+/// Processes a backtick template literal and generates string-building code.
+///
+/// This function transforms the `"'^...^'"` syntax into JavaScript template
+/// literals (backticks). It handles both JavaScript `${...}` interpolation
+/// (passed through) and Rust `@{expr}` interpolation (evaluated at runtime).
+///
+/// # Arguments
+///
+/// * `lit` - The literal token containing the backtick template
+///
+/// # Returns
+///
+/// Rust code that builds the template literal string, wrapped in backticks.
+///
+/// # Processing
+///
+/// 1. Extracts content between `'^` and `^'` markers
+/// 2. Outputs opening backtick
+/// 3. Scans for `@{...}` patterns and generates interpolation code
+/// 4. Handles `@@` escape for literal `@`
+/// 5. Passes through `${...}` as-is for JS runtime interpolation
+/// 6. Outputs closing backtick
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - Control flow tags (`{#...}`, `{/...}`, `{:...}`) are found inside
+/// - `@{...}` interpolation is unclosed
+/// - Expression inside `@{...}` cannot be parsed
+///
+/// # Example
+///
+/// ```text
+/// Input:  "'^<@{tag}>${content}</@{tag}>^'"
+/// Output: `<div>${content}</div>` (if tag = "div")
+/// ```
 fn process_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<TokenStream2> {
     let raw = lit.to_string();
     let span = lit.span();
@@ -1205,7 +1761,43 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<TokenStr
     Ok(output)
 }
 
-/// Process a string literal and handle @{expr} interpolations inside it
+/// Processes a string literal and handles `@{expr}` interpolations inside it.
+///
+/// This function allows Rust expressions to be interpolated within string
+/// literals in the template. It generates code that builds the string at
+/// runtime, inserting evaluated expressions where `@{...}` patterns appear.
+///
+/// # Arguments
+///
+/// * `lit` - The string literal token to process
+///
+/// # Returns
+///
+/// Rust code that builds the string with interpolated values.
+///
+/// # Processing
+///
+/// 1. Determines quote character (`"` or `'`) and extracts content
+/// 2. If no `@` is present, outputs the literal unchanged
+/// 3. Otherwise, scans for `@{...}` patterns:
+///    - `@{expr}` → evaluates `expr.to_string()` and inserts result
+///    - `@@` → outputs literal `@` (escape sequence)
+///    - Lone `@` → outputs literal `@`
+/// 4. Preserves escape sequences (`\n`, `\t`, etc.) by passing through
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - Control flow tags are found inside the string (not supported)
+/// - `@{...}` interpolation is unclosed
+/// - Expression inside `@{...}` cannot be parsed
+///
+/// # Example
+///
+/// ```text
+/// Input:  "Hello @{name}, you have @{count} messages"
+/// Output: "Hello Alice, you have 5 messages" (at runtime)
+/// ```
 fn interpolate_string_literal(lit: &proc_macro2::Literal) -> syn::Result<TokenStream2> {
     let raw = lit.to_string();
     let span = lit.span();

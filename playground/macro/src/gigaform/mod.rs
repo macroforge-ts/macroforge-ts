@@ -20,7 +20,7 @@ pub mod parser;
 pub mod types;
 
 use macroforge_ts::macros::{ts_macro_derive, ts_template};
-use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use macroforge_ts::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
 
 /// Generates the Gigaform namespace with types, fromFormData, and field descriptors.
 pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
@@ -60,7 +60,7 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
                     .map_err(|e| {
                         MacroforgeError::new(
                             input.decorator_span(),
-                            &format!("@derive(Gigaform): {}", e),
+                            format!("@derive(Gigaform): {}", e),
                         )
                     })?;
 
@@ -119,6 +119,9 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     // Add required imports
     output.add_import("Result", "macroforge/utils");
     output.add_import("Option", "macroforge/utils");
+
+    // Import FieldController from the canonical location
+    output.add_type_import("FieldController", "@playground/macro/gigaform");
 
     // Add ArrayFieldController import if any fields are arrays
     if fields.iter().any(|f| f.is_array) {
@@ -225,6 +228,9 @@ fn generate_union_form(
 
     output.add_import("Result", "macroforge/utils");
     output.add_import("Option", "macroforge/utils");
+
+    // Import FieldController from the canonical location
+    output.add_type_import("FieldController", "@playground/macro/gigaform");
 
     // Add ArrayFieldController import if any variant has array fields
     if union_config
