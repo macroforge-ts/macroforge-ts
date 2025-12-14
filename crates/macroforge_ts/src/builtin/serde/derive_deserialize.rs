@@ -4,14 +4,22 @@
 //! forward-reference support**, plus comprehensive runtime validation. This enables
 //! safe parsing of complex JSON structures including circular references.
 //!
-//! ## Generated Methods
+//! ## Generated Output
 //!
-//! | Type | Generated Methods | Description |
-//! |------|-------------------|-------------|
+//! | Type | Generated Code | Description |
+//! |------|----------------|-------------|
 //! | Class | `static fromStringifiedJSON()`, `static fromObject()`, `static __deserialize()` | Static factory methods |
-//! | Enum | `EnumName.fromStringifiedJSON()`, `__deserialize()` | Namespace functions |
-//! | Interface | `InterfaceName.fromStringifiedJSON()`, etc. | Namespace functions |
-//! | Type Alias | `TypeName.fromStringifiedJSON()`, etc. | Namespace functions |
+//! | Enum | `fromStringifiedJSONEnumName(json)`, `__deserializeEnumName(data)`, `isEnumName(value)` | Standalone functions |
+//! | Interface | `fromStringifiedJSONInterfaceName(json)`, `fromObjectInterfaceName(obj)`, etc. | Standalone functions |
+//! | Type Alias | `fromStringifiedJSONTypeName(json)`, `fromObjectTypeName(obj)`, etc. | Standalone functions |
+//!
+//! ## Configuration
+//!
+//! The `functionNamingStyle` option in `macroforge.json` controls naming:
+//! - `"suffix"` (default): Suffixes with type name (e.g., `fromStringifiedJSONMyType`)
+//! - `"prefix"`: Prefixes with type name (e.g., `myTypeFromStringifiedJSON`)
+//! - `"generic"`: Uses TypeScript generics (e.g., `fromStringifiedJSON<T extends MyType>`)
+//! - `"namespace"`: Legacy namespace wrapping
 //!
 //! ## Return Type
 //!
@@ -125,12 +133,21 @@
 //! - `DeserializeContext`, `DeserializeError`, `PendingRef` from `macroforge/serde`
 
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::abi::DiagnosticCollector;
+use crate::ts_syn::abi::{DiagnosticCollector, FunctionNamingStyle};
 use crate::ts_syn::{
     parse_ts_macro_input, Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream,
 };
 
 use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory, Validator, ValidatorSpec};
+
+/// Convert a PascalCase name to camelCase (for prefix naming style)
+fn to_camel_case(name: &str) -> String {
+    let mut chars = name.chars();
+    match chars.next() {
+        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
+        None => String::new(),
+    }
+}
 
 /// Contains field information needed for JSON deserialization code generation.
 ///
@@ -909,6 +926,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     return [];
                     {/if}
                 }
+
+                static is(obj: unknown): obj is @{class_name} {
+                    return obj instanceof @{class_name};
+                }
             };
             result.add_import("Result", "macroforge/utils");
             result.add_import("DeserializeContext", "macroforge/serde");
@@ -919,21 +940,127 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::Enum(_) => {
             let enum_name = input.name();
-            let mut result = ts_template! {
-                export namespace @{enum_name} {
-                    export function fromStringifiedJSON(json: string): @{enum_name} {
-                        const data = JSON.parse(json);
-                        return __deserialize(data);
-                    }
+            let naming_style = input.context.function_naming_style;
 
-                    export function __deserialize(data: unknown): @{enum_name} {
-                        for (const key of Object.keys(@{enum_name})) {
-                            const enumValue = @{enum_name}[key as keyof typeof @{enum_name}];
-                            if (enumValue === data) {
-                                return data as @{enum_name};
+            let mut result = match naming_style {
+                FunctionNamingStyle::Namespace => {
+                    ts_template! {
+                        export namespace @{enum_name} {
+                            export function fromStringifiedJSON(json: string): @{enum_name} {
+                                const data = JSON.parse(json);
+                                return __deserialize(data);
+                            }
+
+                            export function __deserialize(data: unknown): @{enum_name} {
+                                for (const key of Object.keys(@{enum_name})) {
+                                    const enumValue = @{enum_name}[key as keyof typeof @{enum_name}];
+                                    if (enumValue === data) {
+                                        return data as @{enum_name};
+                                    }
+                                }
+                                throw new Error("Invalid @{enum_name} value: " + JSON.stringify(data));
+                            }
+
+                            export function is(value: unknown): value is @{enum_name} {
+                                for (const key of Object.keys(@{enum_name})) {
+                                    const enumValue = @{enum_name}[key as keyof typeof @{enum_name}];
+                                    if (enumValue === value) {
+                                        return true;
+                                    }
+                                }
+                                return false;
                             }
                         }
-                        throw new Error("Invalid @{enum_name} value: " + JSON.stringify(data));
+                    }
+                }
+                FunctionNamingStyle::Generic => {
+                    ts_template! {
+                        export function fromStringifiedJSON<T extends @{enum_name}>(json: string): T {
+                            const data = JSON.parse(json);
+                            return __deserialize<T>(data);
+                        }
+
+                        export function __deserialize<T extends @{enum_name}>(data: unknown): T {
+                            for (const key of Object.keys(@{enum_name})) {
+                                const enumValue = @{enum_name}[key as keyof typeof @{enum_name}];
+                                if (enumValue === data) {
+                                    return data as T;
+                                }
+                            }
+                            throw new Error("Invalid @{enum_name} value: " + JSON.stringify(data));
+                        }
+
+                        export function is<T extends @{enum_name}>(value: unknown): value is T {
+                            for (const key of Object.keys(@{enum_name})) {
+                                const enumValue = @{enum_name}[key as keyof typeof @{enum_name}];
+                                if (enumValue === value) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        }
+                    }
+                }
+                FunctionNamingStyle::Prefix => {
+                    let fn_from_json = format!("{}FromStringifiedJSON", to_camel_case(enum_name));
+                    let fn_deserialize = format!("{}__deserialize", to_camel_case(enum_name));
+                    let fn_is = format!("{}Is", to_camel_case(enum_name));
+                    ts_template! {
+                        export function @{fn_from_json}(json: string): @{enum_name} {
+                            const data = JSON.parse(json);
+                            return @{fn_deserialize}(data);
+                        }
+
+                        export function @{fn_deserialize}(data: unknown): @{enum_name} {
+                            for (const key of Object.keys(@{enum_name})) {
+                                const enumValue = @{enum_name}[key as keyof typeof @{enum_name}];
+                                if (enumValue === data) {
+                                    return data as @{enum_name};
+                                }
+                            }
+                            throw new Error("Invalid @{enum_name} value: " + JSON.stringify(data));
+                        }
+
+                        export function @{fn_is}(value: unknown): value is @{enum_name} {
+                            for (const key of Object.keys(@{enum_name})) {
+                                const enumValue = @{enum_name}[key as keyof typeof @{enum_name}];
+                                if (enumValue === value) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        }
+                    }
+                }
+                FunctionNamingStyle::Suffix => {
+                    let fn_from_json = format!("fromStringifiedJSON{}", enum_name);
+                    let fn_deserialize = format!("__deserialize{}", enum_name);
+                    let fn_is = format!("is{}", enum_name);
+                    ts_template! {
+                        export function @{fn_from_json}(json: string): @{enum_name} {
+                            const data = JSON.parse(json);
+                            return @{fn_deserialize}(data);
+                        }
+
+                        export function @{fn_deserialize}(data: unknown): @{enum_name} {
+                            for (const key of Object.keys(@{enum_name})) {
+                                const enumValue = @{enum_name}[key as keyof typeof @{enum_name}];
+                                if (enumValue === data) {
+                                    return data as @{enum_name};
+                                }
+                            }
+                            throw new Error("Invalid @{enum_name} value: " + JSON.stringify(data));
+                        }
+
+                        export function @{fn_is}(value: unknown): value is @{enum_name} {
+                            for (const key of Object.keys(@{enum_name})) {
+                                const enumValue = @{enum_name}[key as keyof typeof @{enum_name}];
+                                if (enumValue === value) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        }
                     }
                 }
             };
@@ -1010,12 +1137,50 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 .collect();
             let has_validators = !fields_with_validators.is_empty();
 
-            let mut result = ts_template! {
-                export namespace @{interface_name} {
-                    export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{interface_name}, Array<{ field: string; message: string }>> {
-                        try {
-                            const raw = JSON.parse(json);
-                            return fromObject(raw, opts);
+            let naming_style = input.context.function_naming_style;
+            let (fn_from_json, fn_from_obj, fn_deserialize, fn_validate_field, fn_validate_fields, fn_is) = match naming_style {
+                FunctionNamingStyle::Namespace => (
+                    "fromStringifiedJSON".to_string(),
+                    "fromObject".to_string(),
+                    "__deserialize".to_string(),
+                    "validateField".to_string(),
+                    "validateFields".to_string(),
+                    "is".to_string(),
+                ),
+                FunctionNamingStyle::Generic => (
+                    "fromStringifiedJSON".to_string(),
+                    "fromObject".to_string(),
+                    "__deserialize".to_string(),
+                    "validateField".to_string(),
+                    "validateFields".to_string(),
+                    "is".to_string(),
+                ),
+                FunctionNamingStyle::Prefix => (
+                    format!("{}FromStringifiedJSON", to_camel_case(interface_name)),
+                    format!("{}FromObject", to_camel_case(interface_name)),
+                    format!("{}__deserialize", to_camel_case(interface_name)),
+                    format!("{}ValidateField", to_camel_case(interface_name)),
+                    format!("{}ValidateFields", to_camel_case(interface_name)),
+                    format!("{}Is", to_camel_case(interface_name)),
+                ),
+                FunctionNamingStyle::Suffix => (
+                    format!("fromStringifiedJSON{}", interface_name),
+                    format!("fromObject{}", interface_name),
+                    format!("__deserialize{}", interface_name),
+                    format!("validateField{}", interface_name),
+                    format!("validateFields{}", interface_name),
+                    format!("is{}", interface_name),
+                ),
+            };
+
+            let mut result = match naming_style {
+                FunctionNamingStyle::Namespace => {
+                    ts_template! {
+                        export namespace @{interface_name} {
+                            export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{interface_name}, Array<{ field: string; message: string }>> {
+                                try {
+                                    const raw = JSON.parse(json);
+                                    return fromObject(raw, opts);
                         } catch (e) {
                             if (e instanceof DeserializeError) {
                                 return Result.err(e.errors);
@@ -1277,6 +1442,303 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         return [];
                         {/if}
                     }
+
+                    export function is(obj: unknown): obj is @{interface_name} {
+                        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                            return false;
+                        }
+                        {#if has_required}
+                            const o = obj as Record<string, unknown>;
+                            {$let mut first = true}
+                            return {#for field in &required_fields}{#if !first} && {/if}{$do first = false}"@{field.json_key}" in o{/for};
+                        {:else}
+                            return true;
+                        {/if}
+                    }
+                }
+                    }
+                }
+                _ => {
+                    ts_template! {
+                        export function @{fn_from_json}(json: string, opts?: DeserializeOptions): Result<@{interface_name}, Array<{ field: string; message: string }>> {
+                            try {
+                                const raw = JSON.parse(json);
+                                return @{fn_from_obj}(raw, opts);
+                            } catch (e) {
+                                if (e instanceof DeserializeError) {
+                                    return Result.err(e.errors);
+                                }
+                                const message = e instanceof Error ? e.message : String(e);
+                                return Result.err([{ field: "_root", message }]);
+                            }
+                        }
+
+                        export function @{fn_from_obj}(obj: unknown, opts?: DeserializeOptions): Result<@{interface_name}, Array<{ field: string; message: string }>> {
+                            try {
+                                const ctx = DeserializeContext.create();
+                                const resultOrRef = @{fn_deserialize}(obj, ctx);
+
+                                if (PendingRef.is(resultOrRef)) {
+                                    return Result.err([{ field: "_root", message: "@{interface_name}.fromObject: root cannot be a forward reference" }]);
+                                }
+
+                                ctx.applyPatches();
+                                if (opts?.freeze) {
+                                    ctx.freezeAll();
+                                }
+
+                                return Result.ok(resultOrRef);
+                            } catch (e) {
+                                if (e instanceof DeserializeError) {
+                                    return Result.err(e.errors);
+                                }
+                                const message = e instanceof Error ? e.message : String(e);
+                                return Result.err([{ field: "_root", message }]);
+                            }
+                        }
+
+                        export function @{fn_deserialize}(value: any, ctx: DeserializeContext): @{interface_name} | PendingRef {
+                            if (value?.__ref !== undefined) {
+                                return ctx.getOrDefer(value.__ref);
+                            }
+
+                            if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                                throw new DeserializeError([{ field: "_root", message: "@{interface_name}.__deserialize: expected an object" }]);
+                            }
+
+                            const obj = value as Record<string, unknown>;
+                            const errors: Array<{ field: string; message: string }> = [];
+
+                            {#if deny_unknown}
+                                const knownKeys = new Set(["__type", "__id", "__ref", {#for key in known_keys}"@{key}", {/for}]);
+                                for (const key of Object.keys(obj)) {
+                                    if (!knownKeys.has(key)) {
+                                        errors.push({ field: key, message: "unknown field" });
+                                    }
+                                }
+                            {/if}
+
+                            {#if has_required}
+                                {#for field in &required_fields}
+                                    if (!("@{field.json_key}" in obj)) {
+                                        errors.push({ field: "@{field.json_key}", message: "missing required field" });
+                                    }
+                                {/for}
+                            {/if}
+
+                            if (errors.length > 0) {
+                                throw new DeserializeError(errors);
+                            }
+
+                            const instance: any = {};
+
+                            if (obj.__id !== undefined) {
+                                ctx.register(obj.__id as number, instance);
+                            }
+
+                            ctx.trackForFreeze(instance);
+
+                            {#if has_fields}
+                                {#for field in all_fields}
+                                    {$let raw_var = format!("__raw_{}", field.field_name)}
+                                    {$let has_validators = field.has_validators()}
+                                    {#if field.optional}
+                                        if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
+                                            const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
+                                            {#match &field.type_cat}
+                                                {:case TypeCategory::Primitive}
+                                                    {#if has_validators}
+                                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, interface_name)}
+                                                        @{validation_code}
+                                                    {/if}
+                                                    instance.@{field.field_name} = @{raw_var};
+
+                                                {:case TypeCategory::Date}
+                                                    {
+                                                        const __dateVal = typeof @{raw_var} === "string" ? new Date(@{raw_var}) : @{raw_var} as Date;
+                                                        {#if has_validators}
+                                                            {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, interface_name)}
+                                                            @{validation_code}
+                                                        {/if}
+                                                        instance.@{field.field_name} = __dateVal;
+                                                    }
+
+                                                {:case TypeCategory::Array(inner)}
+                                                    if (Array.isArray(@{raw_var})) {
+                                                        {#if has_validators}
+                                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, interface_name)}
+                                                            @{validation_code}
+                                                        {/if}
+                                                        instance.@{field.field_name} = @{raw_var} as @{inner}[];
+                                                    }
+
+                                                {:case TypeCategory::Map(key_type, value_type)}
+                                                    if (typeof @{raw_var} === "object" && @{raw_var} !== null) {
+                                                        instance.@{field.field_name} = new Map(
+                                                            Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
+                                                        );
+                                                    }
+
+                                                {:case TypeCategory::Set(inner)}
+                                                    if (Array.isArray(@{raw_var})) {
+                                                        instance.@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
+                                                    }
+
+                                                {:case TypeCategory::Serializable(type_name)}
+                                                    if (typeof (@{type_name} as any)?.__deserialize === "function") {
+                                                        const __result = (@{type_name} as any).__deserialize(@{raw_var}, ctx);
+                                                        ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                    } else {
+                                                        instance.@{field.field_name} = @{raw_var};
+                                                    }
+
+                                                {:case TypeCategory::Nullable(_)}
+                                                    if (@{raw_var} === null) {
+                                                        instance.@{field.field_name} = null;
+                                                    } else if (typeof (@{raw_var} as any)?.__ref !== "undefined") {
+                                                        const __result = ctx.getOrDefer((@{raw_var} as any).__ref);
+                                                        ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                    } else {
+                                                        instance.@{field.field_name} = @{raw_var};
+                                                    }
+
+                                                {:case _}
+                                                    instance.@{field.field_name} = @{raw_var};
+                                            {/match}
+                                        }
+                                        {#if let Some(default_expr) = &field.default_expr}
+                                            else {
+                                                instance.@{field.field_name} = @{default_expr};
+                                            }
+                                        {/if}
+                                    {:else}
+                                        {
+                                            const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
+                                            {#match &field.type_cat}
+                                                {:case TypeCategory::Primitive}
+                                                    {#if has_validators}
+                                                        {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, interface_name)}
+                                                        @{validation_code}
+                                                    {/if}
+                                                    instance.@{field.field_name} = @{raw_var};
+
+                                                {:case TypeCategory::Date}
+                                                    {
+                                                        const __dateVal = typeof @{raw_var} === "string" ? new Date(@{raw_var}) : @{raw_var} as Date;
+                                                        {#if has_validators}
+                                                            {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, interface_name)}
+                                                            @{validation_code}
+                                                        {/if}
+                                                        instance.@{field.field_name} = __dateVal;
+                                                    }
+
+                                                {:case TypeCategory::Array(inner)}
+                                                    if (Array.isArray(@{raw_var})) {
+                                                        {#if has_validators}
+                                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, interface_name)}
+                                                            @{validation_code}
+                                                        {/if}
+                                                        instance.@{field.field_name} = @{raw_var} as @{inner}[];
+                                                    }
+
+                                                {:case TypeCategory::Map(key_type, value_type)}
+                                                    if (typeof @{raw_var} === "object" && @{raw_var} !== null) {
+                                                        instance.@{field.field_name} = new Map(
+                                                            Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
+                                                        );
+                                                    }
+
+                                                {:case TypeCategory::Set(inner)}
+                                                    if (Array.isArray(@{raw_var})) {
+                                                        instance.@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
+                                                    }
+
+                                                {:case TypeCategory::Serializable(type_name)}
+                                                    if (typeof (@{type_name} as any)?.__deserialize === "function") {
+                                                        const __result = (@{type_name} as any).__deserialize(@{raw_var}, ctx);
+                                                        ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                    } else {
+                                                        instance.@{field.field_name} = @{raw_var};
+                                                    }
+
+                                                {:case TypeCategory::Nullable(_)}
+                                                    if (@{raw_var} === null) {
+                                                        instance.@{field.field_name} = null;
+                                                    } else if (typeof (@{raw_var} as any)?.__ref !== "undefined") {
+                                                        const __result = ctx.getOrDefer((@{raw_var} as any).__ref);
+                                                        ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                    } else {
+                                                        instance.@{field.field_name} = @{raw_var};
+                                                    }
+
+                                                {:case _}
+                                                    instance.@{field.field_name} = @{raw_var};
+                                            {/match}
+                                        }
+                                    {/if}
+                                {/for}
+                            {/if}
+
+                            if (errors.length > 0) {
+                                throw new DeserializeError(errors);
+                            }
+
+                            return instance as @{interface_name};
+                        }
+
+                        export function @{fn_validate_field}<K extends keyof @{interface_name}>(
+                            field: K,
+                            value: @{interface_name}[K]
+                        ): Array<{ field: string; message: string }> {
+                            {#if has_validators}
+                            const errors: Array<{ field: string; message: string }> = [];
+                            switch (field) {
+                                {#for field in &fields_with_validators}
+                                case "@{field.field_name}": {
+                                    const __val = value as @{field.ts_type};
+                                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, interface_name)}
+                                    @{validation_code}
+                                    break;
+                                }
+                                {/for}
+                            }
+                            return errors;
+                            {:else}
+                            return [];
+                            {/if}
+                        }
+
+                        export function @{fn_validate_fields}(
+                            partial: Partial<@{interface_name}>
+                        ): Array<{ field: string; message: string }> {
+                            {#if has_validators}
+                            const errors: Array<{ field: string; message: string }> = [];
+                            {#for field in &fields_with_validators}
+                            if ("@{field.field_name}" in partial && partial.@{field.field_name} !== undefined) {
+                                const __val = partial.@{field.field_name} as @{field.ts_type};
+                                {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, interface_name)}
+                                @{validation_code}
+                            }
+                            {/for}
+                            return errors;
+                            {:else}
+                            return [];
+                            {/if}
+                        }
+
+                        export function @{fn_is}(obj: unknown): obj is @{interface_name} {
+                            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                                return false;
+                            }
+                            {#if has_required}
+                                const o = obj as Record<string, unknown>;
+                                {$let mut first = true}
+                                return {#for field in &required_fields}{#if !first} && {/if}{$do first = false}"@{field.json_key}" in o{/for};
+                            {:else}
+                                return true;
+                            {/if}
+                        }
+                    }
                 }
             };
             result.add_import("Result", "macroforge/utils");
@@ -1378,12 +1840,50 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     .collect();
                 let has_validators = !fields_with_validators.is_empty();
 
-                let mut result = ts_template! {
-                    export namespace @{type_name} {
-                        export function {|fromStringifiedJSON@{generic_decl}|}(json: string, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
-                            try {
-                                const raw = JSON.parse(json);
-                                return fromObject(raw, opts);
+                let naming_style = input.context.function_naming_style;
+                let (fn_from_json, fn_from_obj, fn_deserialize, fn_validate_field, fn_validate_fields, fn_is) = match naming_style {
+                    FunctionNamingStyle::Namespace => (
+                        format!("fromStringifiedJSON{}", generic_decl),
+                        format!("fromObject{}", generic_decl),
+                        "__deserialize".to_string(),
+                        format!("validateField{}", validate_field_generic_decl),
+                        "validateFields".to_string(),
+                        format!("is{}", generic_decl),
+                    ),
+                    FunctionNamingStyle::Generic => (
+                        format!("fromStringifiedJSON{}", generic_decl),
+                        format!("fromObject{}", generic_decl),
+                        "__deserialize".to_string(),
+                        format!("validateField{}", validate_field_generic_decl),
+                        "validateFields".to_string(),
+                        format!("is{}", generic_decl),
+                    ),
+                    FunctionNamingStyle::Prefix => (
+                        format!("{}FromStringifiedJSON{}", to_camel_case(type_name), generic_decl),
+                        format!("{}FromObject{}", to_camel_case(type_name), generic_decl),
+                        format!("{}__deserialize", to_camel_case(type_name)),
+                        format!("{}ValidateField{}", to_camel_case(type_name), validate_field_generic_decl),
+                        format!("{}ValidateFields", to_camel_case(type_name)),
+                        format!("{}Is{}", to_camel_case(type_name), generic_decl),
+                    ),
+                    FunctionNamingStyle::Suffix => (
+                        format!("fromStringifiedJSON{}{}", type_name, generic_decl),
+                        format!("fromObject{}{}", type_name, generic_decl),
+                        format!("__deserialize{}", type_name),
+                        format!("validateField{}{}", type_name, validate_field_generic_decl),
+                        format!("validateFields{}", type_name),
+                        format!("is{}{}", type_name, generic_decl),
+                    ),
+                };
+
+                let mut result = match naming_style {
+                    FunctionNamingStyle::Namespace => {
+                        ts_template! {
+                            export namespace @{type_name} {
+                                export function {|fromStringifiedJSON@{generic_decl}|}(json: string, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
+                                    try {
+                                        const raw = JSON.parse(json);
+                                        return fromObject(raw, opts);
                             } catch (e) {
                                 if (e instanceof DeserializeError) {
                                     return Result.err(e.errors);
@@ -1645,6 +2145,303 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             return [];
                             {/if}
                         }
+
+                        export function {|is@{generic_decl}|}(obj: unknown): obj is @{full_type_name} {
+                            if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                                return false;
+                            }
+                            {#if has_required}
+                                const o = obj as Record<string, unknown>;
+                                {$let mut first = true}
+                                return {#for field in &required_fields}{#if !first} && {/if}{$do first = false}"@{field.json_key}" in o{/for};
+                            {:else}
+                                return true;
+                            {/if}
+                        }
+                    }
+                        }
+                    }
+                    _ => {
+                        ts_template! {
+                            export function @{fn_from_json}(json: string, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
+                                try {
+                                    const raw = JSON.parse(json);
+                                    return @{fn_from_obj}(raw, opts);
+                                } catch (e) {
+                                    if (e instanceof DeserializeError) {
+                                        return Result.err(e.errors);
+                                    }
+                                    const message = e instanceof Error ? e.message : String(e);
+                                    return Result.err([{ field: "_root", message }]);
+                                }
+                            }
+
+                            export function @{fn_from_obj}(obj: unknown, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
+                                try {
+                                    const ctx = DeserializeContext.create();
+                                    const resultOrRef = @{fn_deserialize}(obj, ctx);
+
+                                    if (PendingRef.is(resultOrRef)) {
+                                        return Result.err([{ field: "_root", message: "@{type_name}.fromObject: root cannot be a forward reference" }]);
+                                    }
+
+                                    ctx.applyPatches();
+                                    if (opts?.freeze) {
+                                        ctx.freezeAll();
+                                    }
+
+                                    return Result.ok(resultOrRef);
+                                } catch (e) {
+                                    if (e instanceof DeserializeError) {
+                                        return Result.err(e.errors);
+                                    }
+                                    const message = e instanceof Error ? e.message : String(e);
+                                    return Result.err([{ field: "_root", message }]);
+                                }
+                            }
+
+                            export function @{fn_deserialize}(value: any, ctx: DeserializeContext): @{type_name} | PendingRef {
+                                if (value?.__ref !== undefined) {
+                                    return ctx.getOrDefer(value.__ref) as @{type_name} | PendingRef;
+                                }
+
+                                if (typeof value !== "object" || value === null || Array.isArray(value)) {
+                                    throw new DeserializeError([{ field: "_root", message: "@{type_name}.__deserialize: expected an object" }]);
+                                }
+
+                                const obj = value as Record<string, unknown>;
+                                const errors: Array<{ field: string; message: string }> = [];
+
+                                {#if deny_unknown}
+                                    const knownKeys = new Set(["__type", "__id", "__ref", {#for key in known_keys}"@{key}", {/for}]);
+                                    for (const key of Object.keys(obj)) {
+                                        if (!knownKeys.has(key)) {
+                                            errors.push({ field: key, message: "unknown field" });
+                                        }
+                                    }
+                                {/if}
+
+                                {#if has_required}
+                                    {#for field in &required_fields}
+                                        if (!("@{field.json_key}" in obj)) {
+                                            errors.push({ field: "@{field.json_key}", message: "missing required field" });
+                                        }
+                                    {/for}
+                                {/if}
+
+                                if (errors.length > 0) {
+                                    throw new DeserializeError(errors);
+                                }
+
+                                const instance: any = {};
+
+                                if (obj.__id !== undefined) {
+                                    ctx.register(obj.__id as number, instance);
+                                }
+
+                                ctx.trackForFreeze(instance);
+
+                                {#if has_fields}
+                                    {#for field in all_fields}
+                                        {$let raw_var = format!("__raw_{}", field.field_name)}
+                                        {$let has_validators = field.has_validators()}
+                                        {#if field.optional}
+                                            if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
+                                                const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
+                                                {#match &field.type_cat}
+                                                    {:case TypeCategory::Primitive}
+                                                        {#if has_validators}
+                                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, type_name)}
+                                                            @{validation_code}
+                                                        {/if}
+                                                        instance.@{field.field_name} = @{raw_var};
+
+                                                    {:case TypeCategory::Date}
+                                                        {
+                                                            const __dateVal = typeof @{raw_var} === "string" ? new Date(@{raw_var}) : @{raw_var} as Date;
+                                                            {#if has_validators}
+                                                                {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name)}
+                                                                @{validation_code}
+                                                            {/if}
+                                                            instance.@{field.field_name} = __dateVal;
+                                                        }
+
+                                                    {:case TypeCategory::Array(inner)}
+                                                        if (Array.isArray(@{raw_var})) {
+                                                            {#if has_validators}
+                                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, type_name)}
+                                                                @{validation_code}
+                                                            {/if}
+                                                            instance.@{field.field_name} = @{raw_var} as @{inner}[];
+                                                        }
+
+                                                    {:case TypeCategory::Map(key_type, value_type)}
+                                                        if (typeof @{raw_var} === "object" && @{raw_var} !== null) {
+                                                            instance.@{field.field_name} = new Map(
+                                                                Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
+                                                            );
+                                                        }
+
+                                                    {:case TypeCategory::Set(inner)}
+                                                        if (Array.isArray(@{raw_var})) {
+                                                            instance.@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
+                                                        }
+
+                                                    {:case TypeCategory::Serializable(inner_type_name)}
+                                                        if (typeof (@{inner_type_name} as any)?.__deserialize === "function") {
+                                                            const __result = (@{inner_type_name} as any).__deserialize(@{raw_var}, ctx);
+                                                            ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                        } else {
+                                                            instance.@{field.field_name} = @{raw_var};
+                                                        }
+
+                                                    {:case TypeCategory::Nullable(_)}
+                                                        if (@{raw_var} === null) {
+                                                            instance.@{field.field_name} = null;
+                                                        } else if (typeof (@{raw_var} as any)?.__ref !== "undefined") {
+                                                            const __result = ctx.getOrDefer((@{raw_var} as any).__ref);
+                                                            ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                        } else {
+                                                            instance.@{field.field_name} = @{raw_var};
+                                                        }
+
+                                                    {:case _}
+                                                        instance.@{field.field_name} = @{raw_var};
+                                                {/match}
+                                            }
+                                            {#if let Some(default_expr) = &field.default_expr}
+                                                else {
+                                                    instance.@{field.field_name} = @{default_expr};
+                                                }
+                                            {/if}
+                                        {:else}
+                                            {
+                                                const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
+                                                {#match &field.type_cat}
+                                                    {:case TypeCategory::Primitive}
+                                                        {#if has_validators}
+                                                            {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, type_name)}
+                                                            @{validation_code}
+                                                        {/if}
+                                                        instance.@{field.field_name} = @{raw_var};
+
+                                                    {:case TypeCategory::Date}
+                                                        {
+                                                            const __dateVal = typeof @{raw_var} === "string" ? new Date(@{raw_var}) : @{raw_var} as Date;
+                                                            {#if has_validators}
+                                                                {$let validation_code = generate_field_validations(&field.validators, "__dateVal", &field.json_key, type_name)}
+                                                                @{validation_code}
+                                                            {/if}
+                                                            instance.@{field.field_name} = __dateVal;
+                                                        }
+
+                                                    {:case TypeCategory::Array(inner)}
+                                                        if (Array.isArray(@{raw_var})) {
+                                                            {#if has_validators}
+                                                                {$let validation_code = generate_field_validations(&field.validators, &raw_var, &field.json_key, type_name)}
+                                                                @{validation_code}
+                                                            {/if}
+                                                            instance.@{field.field_name} = @{raw_var} as @{inner}[];
+                                                        }
+
+                                                    {:case TypeCategory::Map(key_type, value_type)}
+                                                        if (typeof @{raw_var} === "object" && @{raw_var} !== null) {
+                                                            instance.@{field.field_name} = new Map(
+                                                                Object.entries(@{raw_var} as Record<string, unknown>).map(([k, v]) => [k as @{key_type}, v as @{value_type}])
+                                                            );
+                                                        }
+
+                                                    {:case TypeCategory::Set(inner)}
+                                                        if (Array.isArray(@{raw_var})) {
+                                                            instance.@{field.field_name} = new Set(@{raw_var} as @{inner}[]);
+                                                        }
+
+                                                    {:case TypeCategory::Serializable(inner_type_name)}
+                                                        if (typeof (@{inner_type_name} as any)?.__deserialize === "function") {
+                                                            const __result = (@{inner_type_name} as any).__deserialize(@{raw_var}, ctx);
+                                                            ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                        } else {
+                                                            instance.@{field.field_name} = @{raw_var};
+                                                        }
+
+                                                    {:case TypeCategory::Nullable(_)}
+                                                        if (@{raw_var} === null) {
+                                                            instance.@{field.field_name} = null;
+                                                        } else if (typeof (@{raw_var} as any)?.__ref !== "undefined") {
+                                                            const __result = ctx.getOrDefer((@{raw_var} as any).__ref);
+                                                            ctx.assignOrDefer(instance, "@{field.field_name}", __result);
+                                                        } else {
+                                                            instance.@{field.field_name} = @{raw_var};
+                                                        }
+
+                                                    {:case _}
+                                                        instance.@{field.field_name} = @{raw_var};
+                                                {/match}
+                                            }
+                                        {/if}
+                                    {/for}
+                                {/if}
+
+                                if (errors.length > 0) {
+                                    throw new DeserializeError(errors);
+                                }
+
+                                return instance as @{type_name};
+                            }
+
+                            export function @{fn_validate_field}(
+                                field: K,
+                                value: @{type_name}[K]
+                            ): Array<{ field: string; message: string }> {
+                                {#if has_validators}
+                                const errors: Array<{ field: string; message: string }> = [];
+                                switch (field) {
+                                    {#for field in &fields_with_validators}
+                                    case "@{field.field_name}": {
+                                        const __val = value as @{field.ts_type};
+                                        {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name)}
+                                        @{validation_code}
+                                        break;
+                                    }
+                                    {/for}
+                                }
+                                return errors;
+                                {:else}
+                                return [];
+                                {/if}
+                            }
+
+                            export function @{fn_validate_fields}(
+                                partial: Partial<@{type_name}>
+                            ): Array<{ field: string; message: string }> {
+                                {#if has_validators}
+                                const errors: Array<{ field: string; message: string }> = [];
+                                {#for field in &fields_with_validators}
+                                if ("@{field.field_name}" in partial && partial.@{field.field_name} !== undefined) {
+                                    const __val = partial.@{field.field_name} as @{field.ts_type};
+                                    {$let validation_code = generate_field_validations(&field.validators, "__val", &field.json_key, type_name)}
+                                    @{validation_code}
+                                }
+                                {/for}
+                                return errors;
+                                {:else}
+                                return [];
+                                {/if}
+                            }
+
+                            export function @{fn_is}(obj: unknown): obj is @{full_type_name} {
+                                if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+                                    return false;
+                                }
+                                {#if has_required}
+                                    const o = obj as Record<string, unknown>;
+                                    {$let mut first = true}
+                                    return {#for field in &required_fields}{#if !first} && {/if}{$do first = false}"@{field.json_key}" in o{/for};
+                                {:else}
+                                    return true;
+                                {/if}
+                            }
+                        }
                     }
                 };
                 result.add_import("Result", "macroforge/utils");
@@ -1743,12 +2540,42 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     type_refs.join(", ")
                 };
 
-                let mut result = ts_template! {
-                    export namespace @{type_name} {
-                        export function {|fromStringifiedJSON@{generic_decl}|}(json: string, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
-                            try {
-                                const raw = JSON.parse(json);
-                                return {|fromObject@{generic_args}|}(raw, opts);
+                let naming_style = input.context.function_naming_style;
+                let (fn_from_json, fn_from_obj, fn_deserialize, fn_is) = match naming_style {
+                    FunctionNamingStyle::Namespace => (
+                        format!("fromStringifiedJSON{}", generic_decl),
+                        format!("fromObject{}", generic_decl),
+                        format!("__deserialize{}", generic_decl),
+                        format!("is{}", generic_decl),
+                    ),
+                    FunctionNamingStyle::Generic => (
+                        format!("fromStringifiedJSON{}", generic_decl),
+                        format!("fromObject{}", generic_decl),
+                        format!("__deserialize{}", generic_decl),
+                        format!("is{}", generic_decl),
+                    ),
+                    FunctionNamingStyle::Prefix => (
+                        format!("{}FromStringifiedJSON{}", to_camel_case(type_name), generic_decl),
+                        format!("{}FromObject{}", to_camel_case(type_name), generic_decl),
+                        format!("{}__deserialize{}", to_camel_case(type_name), generic_decl),
+                        format!("{}Is{}", to_camel_case(type_name), generic_decl),
+                    ),
+                    FunctionNamingStyle::Suffix => (
+                        format!("fromStringifiedJSON{}{}", type_name, generic_decl),
+                        format!("fromObject{}{}", type_name, generic_decl),
+                        format!("__deserialize{}{}", type_name, generic_decl),
+                        format!("is{}{}", type_name, generic_decl),
+                    ),
+                };
+
+                let mut result = match naming_style {
+                    FunctionNamingStyle::Namespace => {
+                        ts_template! {
+                            export namespace @{type_name} {
+                                export function {|fromStringifiedJSON@{generic_decl}|}(json: string, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
+                                    try {
+                                        const raw = JSON.parse(json);
+                                        return {|fromObject@{generic_args}|}(raw, opts);
                             } catch (e) {
                                 if (e instanceof DeserializeError) {
                                     return Result.err(e.errors);
@@ -1788,7 +2615,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                             {#if is_literal_only}
                                 // Literal-only union: validate value is one of the allowed literals
-                                const allowedValues = [{#for lit in literals}@{lit}, {/for}] as const;
+                                const allowedValues = [{#for lit in &literals}@{lit}, {/for}] as const;
                                 if (!allowedValues.includes(value)) {
                                     throw new DeserializeError([{
                                         field: "_root",
@@ -1842,7 +2669,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             {:else}
                                 // Mixed union: check literals first, then primitives, then Date, then generic params, then serializable types
                                 {#if has_literals}
-                                    const allowedLiterals = [{#for lit in literals}@{lit}, {/for}] as const;
+                                    const allowedLiterals = [{#for lit in &literals}@{lit}, {/for}] as const;
                                     if (allowedLiterals.includes(value as any)) {
                                         return value as @{full_type_name};
                                     }
@@ -1899,6 +2726,240 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 }]);
                             {/if}
                         }
+
+                        export function {|is@{generic_decl}|}(value: unknown): value is @{full_type_name} {
+                            {#if is_literal_only}
+                                const allowedValues = [{#for lit in &literals}@{lit}, {/for}] as const;
+                                return allowedValues.includes(value as any);
+                            {:else if is_primitive_only}
+                                {$let mut first = true}
+                                return {#for prim in &primitive_types}{#if !first} || {/if}{$do first = false}typeof value === "@{prim}"{/for};
+                            {:else if is_serializable_only}
+                                if (typeof value !== "object" || value === null) {
+                                    return false;
+                                }
+                                const __typeName = (value as any).__type;
+                                {$let mut first = true}
+                                return {#for type_ref in &serializable_types}{#if !first} || {/if}{$do first = false}__typeName === "@{type_ref.full_type}"{/for};
+                            {:else}
+                                {#if has_literals}
+                                    const allowedLiterals = [{#for lit in &literals}@{lit}, {/for}] as const;
+                                    if (allowedLiterals.includes(value as any)) return true;
+                                {/if}
+                                {#if has_primitives}
+                                    {#for prim in &primitive_types}
+                                        if (typeof value === "@{prim}") return true;
+                                    {/for}
+                                {/if}
+                                {#if has_dates}
+                                    if (value instanceof Date) return true;
+                                {/if}
+                                {#if has_serializables}
+                                    if (typeof value === "object" && value !== null) {
+                                        const __typeName = (value as any).__type;
+                                        {$let mut first = true}
+                                        if ({#for type_ref in &serializable_types}{#if !first} || {/if}{$do first = false}__typeName === "@{type_ref.full_type}"{/for}) return true;
+                                    }
+                                {/if}
+                                {#if has_generic_params}
+                                    return true;
+                                {:else}
+                                    return false;
+                                {/if}
+                            {/if}
+                        }
+                    }
+                        }
+                    }
+                    _ => {
+                        ts_template! {
+                            export function @{fn_from_json}(json: string, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
+                                try {
+                                    const raw = JSON.parse(json);
+                                    return @{fn_from_obj}(raw, opts);
+                                } catch (e) {
+                                    if (e instanceof DeserializeError) {
+                                        return Result.err(e.errors);
+                                    }
+                                    const message = e instanceof Error ? e.message : String(e);
+                                    return Result.err([{ field: "_root", message }]);
+                                }
+                            }
+
+                            export function @{fn_from_obj}(obj: unknown, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
+                                try {
+                                    const ctx = DeserializeContext.create();
+                                    const resultOrRef = @{fn_deserialize}(obj, ctx);
+
+                                    if (PendingRef.is(resultOrRef)) {
+                                        return Result.err([{ field: "_root", message: "@{type_name}.fromObject: root cannot be a forward reference" }]);
+                                    }
+
+                                    ctx.applyPatches();
+                                    if (opts?.freeze) {
+                                        ctx.freezeAll();
+                                    }
+                                    return Result.ok(resultOrRef);
+                                } catch (e) {
+                                    if (e instanceof DeserializeError) {
+                                        return Result.err(e.errors);
+                                    }
+                                    const message = e instanceof Error ? e.message : String(e);
+                                    return Result.err([{ field: "_root", message }]);
+                                }
+                            }
+
+                            export function @{fn_deserialize}(value: any, ctx: DeserializeContext): @{full_type_name} | PendingRef {
+                                if (value?.__ref !== undefined) {
+                                    return ctx.getOrDefer(value.__ref) as @{full_type_name} | PendingRef;
+                                }
+
+                                {#if is_literal_only}
+                                    const allowedValues = [{#for lit in &literals}@{lit}, {/for}] as const;
+                                    if (!allowedValues.includes(value)) {
+                                        throw new DeserializeError([{
+                                            field: "_root",
+                                            message: "Invalid value for @{type_name}: expected one of " + allowedValues.map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
+                                        }]);
+                                    }
+                                    return value as @{full_type_name};
+                                {:else if is_primitive_only}
+                                    {#for prim in &primitive_types}
+                                        if (typeof value === "@{prim}") {
+                                            return value as @{full_type_name};
+                                        }
+                                    {/for}
+
+                                    throw new DeserializeError([{
+                                        field: "_root",
+                                        message: "@{type_name}.__deserialize: expected @{expected_types_str}, got " + typeof value
+                                    }]);
+                                {:else if is_serializable_only}
+                                    if (typeof value !== "object" || value === null) {
+                                        throw new DeserializeError([{
+                                            field: "_root",
+                                            message: "@{type_name}.__deserialize: expected an object"
+                                        }]);
+                                    }
+
+                                    const __typeName = (value as any).__type;
+                                    if (typeof __typeName !== "string") {
+                                        throw new DeserializeError([{
+                                            field: "_root",
+                                            message: "@{type_name}.__deserialize: missing __type field for union dispatch"
+                                        }]);
+                                    }
+
+                                    {#for type_ref in &serializable_types}
+                                        if (__typeName === "@{type_ref.full_type}") {
+                                            if (typeof (@{type_ref.base_type} as any)?.__deserialize === "function") {
+                                                return (@{type_ref.base_type} as any).__deserialize(value, ctx) as @{full_type_name};
+                                            }
+                                            return value as @{full_type_name};
+                                        }
+                                    {/for}
+
+                                    throw new DeserializeError([{
+                                        field: "_root",
+                                        message: "@{type_name}.__deserialize: unknown type \"" + __typeName + "\". Expected one of: @{expected_types_str}"
+                                    }]);
+                                {:else}
+                                    {#if has_literals}
+                                        const allowedLiterals = [{#for lit in &literals}@{lit}, {/for}] as const;
+                                        if (allowedLiterals.includes(value as any)) {
+                                            return value as @{full_type_name};
+                                        }
+                                    {/if}
+
+                                    {#if has_primitives}
+                                        {#for prim in &primitive_types}
+                                            if (typeof value === "@{prim}") {
+                                                return value as @{full_type_name};
+                                            }
+                                        {/for}
+                                    {/if}
+
+                                    {#if has_dates}
+                                        if (value instanceof Date) {
+                                            return value as @{full_type_name};
+                                        }
+                                        if (typeof value === "string") {
+                                            const __dateVal = new Date(value);
+                                            if (!isNaN(__dateVal.getTime())) {
+                                                return __dateVal as unknown as @{full_type_name};
+                                            }
+                                        }
+                                    {/if}
+
+                                    {#if has_serializables}
+                                        if (typeof value === "object" && value !== null) {
+                                            const __typeName = (value as any).__type;
+                                            if (typeof __typeName === "string") {
+                                                {#for type_ref in &serializable_types}
+                                                    if (__typeName === "@{type_ref.full_type}") {
+                                                        if (typeof (@{type_ref.base_type} as any)?.__deserialize === "function") {
+                                                            return (@{type_ref.base_type} as any).__deserialize(value, ctx) as @{full_type_name};
+                                                        }
+                                                        return value as @{full_type_name};
+                                                    }
+                                                {/for}
+                                            }
+                                        }
+                                    {/if}
+
+                                    {#if has_generic_params}
+                                        return value as @{full_type_name};
+                                    {/if}
+
+                                    throw new DeserializeError([{
+                                        field: "_root",
+                                        message: "@{type_name}.__deserialize: value does not match any union member"
+                                    }]);
+                                {/if}
+                            }
+
+                            export function @{fn_is}(value: unknown): value is @{full_type_name} {
+                                {#if is_literal_only}
+                                    const allowedValues = [{#for lit in &literals}@{lit}, {/for}] as const;
+                                    return allowedValues.includes(value as any);
+                                {:else if is_primitive_only}
+                                    {$let mut first = true}
+                                    return {#for prim in &primitive_types}{#if !first} || {/if}{$do first = false}typeof value === "@{prim}"{/for};
+                                {:else if is_serializable_only}
+                                    if (typeof value !== "object" || value === null) {
+                                        return false;
+                                    }
+                                    const __typeName = (value as any).__type;
+                                    {$let mut first = true}
+                                    return {#for type_ref in &serializable_types}{#if !first} || {/if}{$do first = false}__typeName === "@{type_ref.full_type}"{/for};
+                                {:else}
+                                    {#if has_literals}
+                                        const allowedLiterals = [{#for lit in &literals}@{lit}, {/for}] as const;
+                                        if (allowedLiterals.includes(value as any)) return true;
+                                    {/if}
+                                    {#if has_primitives}
+                                        {#for prim in &primitive_types}
+                                            if (typeof value === "@{prim}") return true;
+                                        {/for}
+                                    {/if}
+                                    {#if has_dates}
+                                        if (value instanceof Date) return true;
+                                    {/if}
+                                    {#if has_serializables}
+                                        if (typeof value === "object" && value !== null) {
+                                            const __typeName = (value as any).__type;
+                                            {$let mut first = true}
+                                            if ({#for type_ref in &serializable_types}{#if !first} || {/if}{$do first = false}__typeName === "@{type_ref.full_type}"{/for}) return true;
+                                        }
+                                    {/if}
+                                    {#if has_generic_params}
+                                        return true;
+                                    {:else}
+                                        return false;
+                                    {/if}
+                                {/if}
+                            }
+                        }
                     }
                 };
                 result.add_import("Result", "macroforge/utils");
@@ -1909,12 +2970,50 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 Ok(result)
             } else {
                 // Fallback for other type alias forms (simple alias, tuple, etc.)
-                let mut result = ts_template! {
-                    export namespace @{type_name} {
-                        export function {|fromStringifiedJSON@{generic_decl}|}(json: string, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
-                            try {
-                                const raw = JSON.parse(json);
-                                return fromObject(raw, opts);
+                let naming_style = input.context.function_naming_style;
+                let (fn_from_json, fn_from_obj, fn_deserialize, fn_validate_field, fn_validate_fields, fn_is) = match naming_style {
+                    FunctionNamingStyle::Namespace => (
+                        format!("fromStringifiedJSON{}", generic_decl),
+                        format!("fromObject{}", generic_decl),
+                        format!("__deserialize{}", generic_args),
+                        format!("validateField{}", validate_field_generic_decl),
+                        "validateFields".to_string(),
+                        format!("is{}", generic_decl),
+                    ),
+                    FunctionNamingStyle::Generic => (
+                        format!("fromStringifiedJSON{}", generic_decl),
+                        format!("fromObject{}", generic_decl),
+                        format!("__deserialize{}", generic_args),
+                        format!("validateField{}", validate_field_generic_decl),
+                        "validateFields".to_string(),
+                        format!("is{}", generic_decl),
+                    ),
+                    FunctionNamingStyle::Prefix => (
+                        format!("{}FromStringifiedJSON{}", to_camel_case(type_name), generic_decl),
+                        format!("{}FromObject{}", to_camel_case(type_name), generic_decl),
+                        format!("{}__deserialize{}", to_camel_case(type_name), generic_args),
+                        format!("{}ValidateField{}", to_camel_case(type_name), validate_field_generic_decl),
+                        format!("{}ValidateFields", to_camel_case(type_name)),
+                        format!("{}Is{}", to_camel_case(type_name), generic_decl),
+                    ),
+                    FunctionNamingStyle::Suffix => (
+                        format!("fromStringifiedJSON{}{}", type_name, generic_decl),
+                        format!("fromObject{}{}", type_name, generic_decl),
+                        format!("__deserialize{}{}", type_name, generic_args),
+                        format!("validateField{}{}", type_name, validate_field_generic_decl),
+                        format!("validateFields{}", type_name),
+                        format!("is{}{}", type_name, generic_decl),
+                    ),
+                };
+
+                let mut result = match naming_style {
+                    FunctionNamingStyle::Namespace => {
+                        ts_template! {
+                            export namespace @{type_name} {
+                                export function {|fromStringifiedJSON@{generic_decl}|}(json: string, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
+                                    try {
+                                        const raw = JSON.parse(json);
+                                        return fromObject(raw, opts);
                             } catch (e) {
                                 if (e instanceof DeserializeError) {
                                     return Result.err(e.errors);
@@ -1962,6 +3061,70 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             partial: Partial<@{type_name}>
                         ): Array<{ field: string; message: string }> {
                             return [];
+                        }
+
+                        export function {|is@{generic_decl}|}(value: unknown): value is @{full_type_name} {
+                            return value != null;
+                        }
+                    }
+                        }
+                    }
+                    _ => {
+                        ts_template! {
+                            export function @{fn_from_json}(json: string, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
+                                try {
+                                    const raw = JSON.parse(json);
+                                    return @{fn_from_obj}(raw, opts);
+                                } catch (e) {
+                                    if (e instanceof DeserializeError) {
+                                        return Result.err(e.errors);
+                                    }
+                                    const message = e instanceof Error ? e.message : String(e);
+                                    return Result.err([{ field: "_root", message }]);
+                                }
+                            }
+
+                            export function @{fn_from_obj}(obj: unknown, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
+                                try {
+                                    const ctx = DeserializeContext.create();
+                                    const result = @{fn_deserialize}(obj, ctx);
+                                    ctx.applyPatches();
+                                    if (opts?.freeze) {
+                                        ctx.freezeAll();
+                                    }
+                                    return Result.ok<@{full_type_name}>(result);
+                                } catch (e) {
+                                    if (e instanceof DeserializeError) {
+                                        return Result.err(e.errors);
+                                    }
+                                    const message = e instanceof Error ? e.message : String(e);
+                                    return Result.err([{ field: "_root", message }]);
+                                }
+                            }
+
+                            export function @{fn_deserialize}(value: any, ctx: DeserializeContext): @{full_type_name} {
+                                if (value?.__ref !== undefined) {
+                                    return ctx.getOrDefer(value.__ref) as @{full_type_name};
+                                }
+                                return value as @{type_name};
+                            }
+
+                            export function @{fn_validate_field}(
+                                field: K,
+                                value: @{type_name}[K]
+                            ): Array<{ field: string; message: string }> {
+                                return [];
+                            }
+
+                            export function @{fn_validate_fields}(
+                                partial: Partial<@{type_name}>
+                            ): Array<{ field: string; message: string }> {
+                                return [];
+                            }
+
+                            export function @{fn_is}(value: unknown): value is @{full_type_name} {
+                                return value != null;
+                            }
                         }
                     }
                 };

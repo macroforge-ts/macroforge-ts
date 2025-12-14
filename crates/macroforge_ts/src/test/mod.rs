@@ -1434,14 +1434,10 @@ interface Status {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Output should contain namespace with toString function
+        // Output should contain suffix-style toString function (default naming style)
         assert!(
-            result.code.contains("namespace Status"),
-            "Should generate namespace Status. Got:\n{}", result.code
-        );
-        assert!(
-            result.code.contains("function toString(self: Status)"),
-            "Should generate toString function with self parameter. Got:\n{}", result.code
+            result.code.contains("toStringStatus"),
+            "Should generate suffix-style toStringStatus function. Got:\n{}", result.code
         );
     });
 }
@@ -1469,14 +1465,10 @@ interface UserData {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Output should contain namespace with clone function
+        // Output should contain suffix-style clone function (default naming style)
         assert!(
-            result.code.contains("namespace UserData"),
-            "Should generate namespace UserData"
-        );
-        assert!(
-            result.code.contains("function clone(self: UserData)"),
-            "Should generate clone function with self parameter"
+            result.code.contains("cloneUserData"),
+            "Should generate suffix-style cloneUserData function"
         );
     });
 }
@@ -1504,18 +1496,14 @@ interface Point {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Output should contain namespace with equals and hashCode functions
+        // Output should contain suffix-style equals and hashCode functions (default naming style)
         assert!(
-            result.code.contains("namespace Point"),
-            "Should generate namespace Point"
+            result.code.contains("equalsPoint"),
+            "Should generate suffix-style equalsPoint function"
         );
         assert!(
-            result.code.contains("function equals(self: Point, other: Point)"),
-            "Should generate equals function with self and other parameters"
-        );
-        assert!(
-            result.code.contains("function hashCode(self: Point)"),
-            "Should generate hashCode function with self parameter"
+            result.code.contains("hashCodePoint"),
+            "Should generate suffix-style hashCodePoint function"
         );
     });
 }
@@ -1543,8 +1531,8 @@ interface Status {
             .count();
         assert_eq!(error_count, 0, "Should succeed without errors");
 
-        // Verify the output contains expected patterns
-        assert!(result.code.contains("self.active"), "Should reference self.active");
+        // Verify the output contains expected patterns (suffix-style uses value parameter)
+        assert!(result.code.contains("value.active"), "Should reference value.active");
     });
 }
 
@@ -1575,22 +1563,22 @@ interface Status {
             error_count
         );
 
-        // Should have all three namespaces generated
+        // Should have all suffix-style functions generated
         assert!(
-            result.code.contains("function toString(self: Status)"),
-            "Should have Debug's toString"
+            result.code.contains("toStringStatus"),
+            "Should have Debug's toStringStatus"
         );
         assert!(
-            result.code.contains("function clone(self: Status)"),
-            "Should have Clone's clone"
+            result.code.contains("cloneStatus"),
+            "Should have Clone's cloneStatus"
         );
         assert!(
-            result.code.contains("function equals(self: Status"),
-            "Should have Eq's equals"
+            result.code.contains("equalsStatus"),
+            "Should have PartialEq's equalsStatus"
         );
         assert!(
-            result.code.contains("function hashCode(self: Status)"),
-            "Should have Eq's hashCode"
+            result.code.contains("hashCodeStatus"),
+            "Should have Hash's hashCodeStatus"
         );
     });
 }
@@ -1817,18 +1805,14 @@ interface Point {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Output should contain namespace with toStringifiedJSON and __serialize functions
+        // Output should contain suffix-style serialize functions (default naming style)
         assert!(
-            result.code.contains("namespace Point"),
-            "Should generate namespace Point"
+            result.code.contains("toStringifiedJSONPoint"),
+            "Should generate suffix-style toStringifiedJSONPoint function"
         );
         assert!(
-            result.code.contains("function toStringifiedJSON(self: Point)"),
-            "Should generate toStringifiedJSON function with self parameter"
-        );
-        assert!(
-            result.code.contains("function __serialize(self: Point"),
-            "Should generate __serialize function"
+            result.code.contains("__serializePoint"),
+            "Should generate suffix-style __serializePoint function"
         );
     });
 }
@@ -1856,18 +1840,14 @@ interface Point {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Output should contain namespace with fromStringifiedJSON and __deserialize functions
+        // Output should contain suffix-style deserialize functions (default naming style)
         assert!(
-            result.code.contains("namespace Point"),
-            "Should generate namespace Point"
+            result.code.contains("fromStringifiedJSONPoint"),
+            "Should generate suffix-style fromStringifiedJSONPoint function"
         );
         assert!(
-            result.code.contains("function fromStringifiedJSON(json: string"),
-            "Should generate fromStringifiedJSON function"
-        );
-        assert!(
-            result.code.contains("function __deserialize(value: any, ctx: DeserializeContext)"),
-            "Should generate __deserialize function"
+            result.code.contains("__deserializePoint"),
+            "Should generate suffix-style __deserializePoint function"
         );
     });
 }
@@ -1938,14 +1918,10 @@ enum Status {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Debug macro on enum generates namespace with toString
+        // Debug macro on enum generates suffix-style toString function
         assert!(
-            result.code.contains("namespace Status"),
-            "Should generate namespace for enum"
-        );
-        assert!(
-            result.code.contains("toString"),
-            "Should have toString function"
+            result.code.contains("toStringStatus"),
+            "Should generate suffix-style toStringStatus function"
         );
     });
 }
@@ -1974,10 +1950,10 @@ enum Priority {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Clone macro on enum generates namespace with clone function
+        // Clone macro on enum generates suffix-style standalone function (default style)
         assert!(
-            result.code.contains("namespace Priority"),
-            "Should generate namespace for enum"
+            result.code.contains("clonePriority"),
+            "Should generate suffix-style clone function for enum"
         );
         assert!(
             result.code.contains("clone"),
@@ -2010,15 +1986,14 @@ enum Color {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // PartialEq and Hash macros on enum generate namespace with equals and hashCode
+        // PartialEq and Hash macros on enum generate suffix-style functions
         assert!(
-            result.code.contains("namespace Color"),
-            "Should generate namespace for enum"
+            result.code.contains("equalsColor"),
+            "Should generate suffix-style equalsColor function"
         );
-        assert!(result.code.contains("equals"), "Should have equals function");
         assert!(
-            result.code.contains("hashCode"),
-            "Should have hashCode function"
+            result.code.contains("hashCodeColor"),
+            "Should generate suffix-style hashCodeColor function"
         );
     });
 }
@@ -2048,12 +2023,11 @@ enum Direction {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Serialize macro on enum generates namespace with toStringifiedJSON
+        // Serialize macro on enum generates suffix-style toStringifiedJSON
         assert!(
-            result.code.contains("namespace Direction"),
-            "Should generate namespace for enum"
+            result.code.contains("toStringifiedJSONDirection"),
+            "Should generate suffix-style toStringifiedJSONDirection function"
         );
-        assert!(result.code.contains("toStringifiedJSON"), "Should have toStringifiedJSON function");
     });
 }
 
@@ -2081,14 +2055,10 @@ enum Role {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Deserialize macro on enum generates namespace with fromStringifiedJSON
+        // Deserialize macro on enum generates suffix-style fromStringifiedJSON
         assert!(
-            result.code.contains("namespace Role"),
-            "Should generate namespace for enum"
-        );
-        assert!(
-            result.code.contains("fromStringifiedJSON"),
-            "Should have fromStringifiedJSON function"
+            result.code.contains("fromStringifiedJSONRole"),
+            "Should generate suffix-style fromStringifiedJSONRole function"
         );
     });
 }
@@ -2120,28 +2090,30 @@ enum Status {
             error_count
         );
 
-        // All macros should generate functions in the namespace
+        // All macros should generate suffix-style functions
         assert!(
-            result.code.contains("namespace Status"),
-            "Should generate namespace for enum"
+            result.code.contains("toStringStatus"),
+            "Should have Debug's toStringStatus"
         );
         assert!(
-            result.code.contains("toString"),
-            "Should have Debug's toString"
-        );
-        assert!(result.code.contains("clone"), "Should have Clone's clone");
-        assert!(result.code.contains("equals"), "Should have Eq's equals");
-        assert!(
-            result.code.contains("hashCode"),
-            "Should have Eq's hashCode"
+            result.code.contains("cloneStatus"),
+            "Should have Clone's cloneStatus"
         );
         assert!(
-            result.code.contains("toStringifiedJSON"),
-            "Should have Serialize's toStringifiedJSON"
+            result.code.contains("equalsStatus"),
+            "Should have PartialEq's equalsStatus"
         );
         assert!(
-            result.code.contains("fromStringifiedJSON"),
-            "Should have Deserialize's fromStringifiedJSON"
+            result.code.contains("hashCodeStatus"),
+            "Should have Hash's hashCodeStatus"
+        );
+        assert!(
+            result.code.contains("toStringifiedJSONStatus"),
+            "Should have Serialize's toStringifiedJSONStatus"
+        );
+        assert!(
+            result.code.contains("fromStringifiedJSONStatus"),
+            "Should have Deserialize's fromStringifiedJSONStatus"
         );
     });
 }
@@ -2171,14 +2143,10 @@ type Point = {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Debug macro on type alias generates namespace with toString
+        // Debug macro on type alias generates standalone toStringPoint function
         assert!(
-            result.code.contains("namespace Point"),
-            "Should generate namespace for type"
-        );
-        assert!(
-            result.code.contains("toString"),
-            "Should have toString function"
+            result.code.contains("toStringPoint"),
+            "Should generate toStringPoint function for type"
         );
     });
 }
@@ -2206,12 +2174,11 @@ type Config = {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Clone macro on type alias generates namespace with clone
+        // Clone macro on type alias generates standalone cloneConfig function
         assert!(
-            result.code.contains("namespace Config"),
-            "Should generate namespace for type"
+            result.code.contains("cloneConfig"),
+            "Should generate cloneConfig function for type"
         );
-        assert!(result.code.contains("clone"), "Should have clone function");
     });
 }
 
@@ -2239,15 +2206,14 @@ type Vector = {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // PartialEq and Hash macros on type alias generate namespace with equals and hashCode
+        // PartialEq and Hash macros on type alias generate standalone functions
         assert!(
-            result.code.contains("namespace Vector"),
-            "Should generate namespace for type"
+            result.code.contains("equalsVector"),
+            "Should generate equalsVector function for type"
         );
-        assert!(result.code.contains("equals"), "Should have equals function");
         assert!(
-            result.code.contains("hashCode"),
-            "Should have hashCode function"
+            result.code.contains("hashCodeVector"),
+            "Should generate hashCodeVector function for type"
         );
     });
 }
@@ -2275,12 +2241,11 @@ type User = {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Serialize macro on type alias generates namespace with toStringifiedJSON
+        // Serialize macro on type alias generates standalone toStringifiedJSONUser function
         assert!(
-            result.code.contains("namespace User"),
-            "Should generate namespace for type"
+            result.code.contains("toStringifiedJSONUser"),
+            "Should generate toStringifiedJSONUser function for type"
         );
-        assert!(result.code.contains("toStringifiedJSON"), "Should have toStringifiedJSON function");
     });
 }
 
@@ -2307,14 +2272,10 @@ type Settings = {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Deserialize macro on type alias generates namespace with fromStringifiedJSON
+        // Deserialize macro on type alias generates standalone fromStringifiedJSONSettings function
         assert!(
-            result.code.contains("namespace Settings"),
-            "Should generate namespace for type"
-        );
-        assert!(
-            result.code.contains("fromStringifiedJSON"),
-            "Should have fromStringifiedJSON function"
+            result.code.contains("fromStringifiedJSONSettings"),
+            "Should generate fromStringifiedJSONSettings function for type"
         );
     });
 }
@@ -2346,28 +2307,30 @@ type Coordinate = {
             error_count
         );
 
-        // All macros should generate functions in the namespace
+        // All macros should generate standalone functions with suffix naming
         assert!(
-            result.code.contains("namespace Coordinate"),
-            "Should generate namespace for type"
+            result.code.contains("toStringCoordinate"),
+            "Should have Debug's toStringCoordinate"
         );
         assert!(
-            result.code.contains("toString"),
-            "Should have Debug's toString"
-        );
-        assert!(result.code.contains("clone"), "Should have Clone's clone");
-        assert!(result.code.contains("equals"), "Should have Eq's equals");
-        assert!(
-            result.code.contains("hashCode"),
-            "Should have Eq's hashCode"
+            result.code.contains("cloneCoordinate"),
+            "Should have Clone's cloneCoordinate"
         );
         assert!(
-            result.code.contains("toStringifiedJSON"),
-            "Should have Serialize's toStringifiedJSON"
+            result.code.contains("equalsCoordinate"),
+            "Should have PartialEq's equalsCoordinate"
         );
         assert!(
-            result.code.contains("fromStringifiedJSON"),
-            "Should have Deserialize's fromStringifiedJSON"
+            result.code.contains("hashCodeCoordinate"),
+            "Should have Hash's hashCodeCoordinate"
+        );
+        assert!(
+            result.code.contains("toStringifiedJSONCoordinate"),
+            "Should have Serialize's toStringifiedJSONCoordinate"
+        );
+        assert!(
+            result.code.contains("fromStringifiedJSONCoordinate"),
+            "Should have Deserialize's fromStringifiedJSONCoordinate"
         );
     });
 }
@@ -2497,10 +2460,18 @@ type Status = "active" | "inactive" | "pending";
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Macros should generate namespace for union type alias
+        // Macros should generate standalone functions for union type alias
         assert!(
-            result.code.contains("namespace Status"),
-            "Should generate namespace for union type"
+            result.code.contains("toStringStatus"),
+            "Should generate toStringStatus function for union type"
+        );
+        assert!(
+            result.code.contains("equalsStatus"),
+            "Should generate equalsStatus function for union type"
+        );
+        assert!(
+            result.code.contains("hashCodeStatus"),
+            "Should generate hashCodeStatus function for union type"
         );
     });
 }
@@ -2526,15 +2497,10 @@ export type UnionType = VariantA | VariantB;
             .count();
         assert_eq!(error_count, 0, "Should have no errors with @default specified, got {}", error_count);
 
-        // Should generate namespace with defaultValue function
+        // Should generate standalone defaultValueUnionType function
         assert!(
-            result.code.contains("namespace UnionType"),
-            "Should generate namespace for union type. Got:\n{}",
-            result.code
-        );
-        assert!(
-            result.code.contains("defaultValue"),
-            "Should have defaultValue function. Got:\n{}",
+            result.code.contains("defaultValueUnionType"),
+            "Should generate defaultValueUnionType function. Got:\n{}",
             result.code
         );
         assert!(
@@ -2607,15 +2573,10 @@ export type MultilineUnion = TypeA | TypeB | TypeC;
             result.diagnostics
         );
 
-        // Should generate namespace with defaultValue
+        // Should generate standalone defaultValueMultilineUnion function
         assert!(
-            result.code.contains("namespace MultilineUnion"),
-            "Should generate namespace for multi-line union type. Got:\n{}",
-            result.code
-        );
-        assert!(
-            result.code.contains("defaultValue"),
-            "Should have defaultValue function. Got:\n{}",
+            result.code.contains("defaultValueMultilineUnion"),
+            "Should generate defaultValueMultilineUnion function. Got:\n{}",
             result.code
         );
     });
@@ -2649,10 +2610,10 @@ export type UnionWithVariantDefault =
             result.diagnostics
         );
 
-        // Should generate namespace with defaultValue calling VariantA.defaultValue()
+        // Should generate standalone defaultValueUnionWithVariantDefault function
         assert!(
-            result.code.contains("namespace UnionWithVariantDefault"),
-            "Should generate namespace. Got:\n{}",
+            result.code.contains("defaultValueUnionWithVariantDefault"),
+            "Should generate defaultValueUnionWithVariantDefault function. Got:\n{}",
             result.code
         );
         assert!(
@@ -2693,10 +2654,10 @@ export type ActivityType = /** @default */ Created | Edited | Sent;
             result.diagnostics
         );
 
-        // Should generate namespace with defaultValue calling Created.defaultValue()
+        // Should generate standalone defaultValueActivityType function
         assert!(
-            result.code.contains("namespace ActivityType"),
-            "Should generate namespace. Got:\n{}",
+            result.code.contains("defaultValueActivityType"),
+            "Should generate defaultValueActivityType function. Got:\n{}",
             result.code
         );
         assert!(

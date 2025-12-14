@@ -632,8 +632,10 @@ fn write_file(path: &PathBuf, contents: &str) -> Result<()> {
 fn run_tsc_wrapper(project: Option<PathBuf>) -> Result<()> {
     // Write a temporary Node.js script that wraps tsc and expands macros on file load
     let script = r#"
-const ts = require('typescript');
-const macros = require('macroforge');
+const { createRequire } = require('module');
+const cwdRequire = createRequire(process.cwd() + '/package.json');
+const ts = cwdRequire('typescript');
+const macros = cwdRequire('macroforge');
 const path = require('path');
 
 const projectArg = process.argv[2] || 'tsconfig.json';

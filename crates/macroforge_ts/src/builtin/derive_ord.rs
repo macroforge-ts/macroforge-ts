@@ -6,12 +6,20 @@
 //!
 //! ## Generated Output
 //!
-//! | Type | Generated Method | Description |
-//! |------|------------------|-------------|
+//! | Type | Generated Code | Description |
+//! |------|----------------|-------------|
 //! | Class | `compareTo(other): number` | Instance method returning -1, 0, or 1 |
-//! | Enum | `EnumName.compareTo(a, b)` | Namespace function comparing enum values |
-//! | Interface | `InterfaceName.compareTo(self, other)` | Namespace function comparing fields |
-//! | Type Alias | `TypeName.compareTo(a, b)` | Namespace function with type-appropriate comparison |
+//! | Enum | `compareEnumName(a: EnumName, b: EnumName): number` | Standalone function comparing enum values |
+//! | Interface | `compareInterfaceName(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields |
+//! | Type Alias | `compareTypeName(a: TypeName, b: TypeName): number` | Standalone function with type-appropriate comparison |
+//!
+//! ## Configuration
+//!
+//! The `functionNamingStyle` option in `macroforge.json` controls naming:
+//! - `"suffix"` (default): Suffixes with type name (e.g., `compareMyType`)
+//! - `"prefix"`: Prefixes with type name (e.g., `myTypeCompare`)
+//! - `"generic"`: Uses TypeScript generics (e.g., `compare<T extends MyType>`)
+//! - `"namespace"`: Legacy namespace wrapping
 //!
 //! ## Return Values
 //!
@@ -84,7 +92,17 @@
 
 use crate::builtin::derive_common::{is_numeric_type, is_primitive_type, CompareFieldOptions};
 use crate::macros::{body, ts_macro_derive, ts_template};
+use crate::ts_syn::abi::FunctionNamingStyle;
 use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
+
+/// Convert a PascalCase name to camelCase (for prefix naming style)
+fn to_camel_case(name: &str) -> String {
+    let mut chars = name.chars();
+    match chars.next() {
+        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
+        None => String::new(),
+    }
+}
 
 /// Contains field information needed for ordering comparison generation.
 ///
@@ -320,24 +338,78 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
         }
         Data::Enum(_) => {
             let enum_name = input.name();
-            Ok(ts_template! {
-                export namespace @{enum_name} {
-                    export function compareTo(a: @{enum_name}, b: @{enum_name}): number {
-                        // For enums, compare by value (numeric enums) or string
-                        if (typeof a === "number" && typeof b === "number") {
-                            return a < b ? -1 : a > b ? 1 : 0;
+            let naming_style = input.context.function_naming_style;
+
+            match naming_style {
+                FunctionNamingStyle::Namespace => {
+                    Ok(ts_template! {
+                        export namespace @{enum_name} {
+                            export function compareTo(a: @{enum_name}, b: @{enum_name}): number {
+                                // For enums, compare by value (numeric enums) or string
+                                if (typeof a === "number" && typeof b === "number") {
+                                    return a < b ? -1 : a > b ? 1 : 0;
+                                }
+                                if (typeof a === "string" && typeof b === "string") {
+                                    const cmp = a.localeCompare(b);
+                                    return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+                                }
+                                return 0;
+                            }
                         }
-                        if (typeof a === "string" && typeof b === "string") {
-                            const cmp = a.localeCompare(b);
-                            return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
-                        }
-                        return 0;
-                    }
+                    })
                 }
-            })
+                FunctionNamingStyle::Generic => {
+                    Ok(ts_template! {
+                        export function compare<T extends @{enum_name}>(a: T, b: T): number {
+                            // For enums, compare by value (numeric enums) or string
+                            if (typeof a === "number" && typeof b === "number") {
+                                return a < b ? -1 : a > b ? 1 : 0;
+                            }
+                            if (typeof a === "string" && typeof b === "string") {
+                                const cmp = a.localeCompare(b);
+                                return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+                            }
+                            return 0;
+                        }
+                    })
+                }
+                FunctionNamingStyle::Prefix => {
+                    let fn_name = format!("{}Compare", to_camel_case(enum_name));
+                    Ok(ts_template! {
+                        export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): number {
+                            // For enums, compare by value (numeric enums) or string
+                            if (typeof a === "number" && typeof b === "number") {
+                                return a < b ? -1 : a > b ? 1 : 0;
+                            }
+                            if (typeof a === "string" && typeof b === "string") {
+                                const cmp = a.localeCompare(b);
+                                return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+                            }
+                            return 0;
+                        }
+                    })
+                }
+                FunctionNamingStyle::Suffix => {
+                    let fn_name = format!("compare{}", enum_name);
+                    Ok(ts_template! {
+                        export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): number {
+                            // For enums, compare by value (numeric enums) or string
+                            if (typeof a === "number" && typeof b === "number") {
+                                return a < b ? -1 : a > b ? 1 : 0;
+                            }
+                            if (typeof a === "string" && typeof b === "string") {
+                                const cmp = a.localeCompare(b);
+                                return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+                            }
+                            return 0;
+                        }
+                    })
+                }
+            }
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
+            let naming_style = input.context.function_naming_style;
 
             let ord_fields: Vec<OrdField> = interface
                 .fields()
@@ -364,7 +436,7 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                         let var_name = format!("cmp{}", i);
                         format!(
                             "const {var_name} = {};\n                        if ({var_name} !== 0) return {var_name};",
-                            generate_field_compare_for_interface(f, "self", "other")
+                            generate_field_compare_for_interface(f, "a", "b")
                         )
                     })
                     .collect::<Vec<_>>()
@@ -373,20 +445,76 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 String::new()
             };
 
-            Ok(ts_template! {
-                export namespace @{interface_name} {
-                    export function compareTo(self: @{interface_name}, other: @{interface_name}): number {
-                        if (self === other) return 0;
-                        {#if has_fields}
-                            @{compare_body}
-                        {/if}
-                        return 0;
-                    }
+            match naming_style {
+                FunctionNamingStyle::Namespace => {
+                    let compare_body_self = if has_fields {
+                        ord_fields
+                            .iter()
+                            .enumerate()
+                            .map(|(i, f)| {
+                                let var_name = format!("cmp{}", i);
+                                format!(
+                                    "const {var_name} = {};\n                            if ({var_name} !== 0) return {var_name};",
+                                    generate_field_compare_for_interface(f, "self", "other")
+                                )
+                            })
+                            .collect::<Vec<_>>()
+                            .join("\n                            ")
+                    } else {
+                        String::new()
+                    };
+                    Ok(ts_template! {
+                        export namespace @{interface_name} {
+                            export function compareTo(self: @{interface_name}, other: @{interface_name}): number {
+                                if (self === other) return 0;
+                                {#if has_fields}
+                                    @{compare_body_self}
+                                {/if}
+                                return 0;
+                            }
+                        }
+                    })
                 }
-            })
+                FunctionNamingStyle::Generic => {
+                    Ok(ts_template! {
+                        export function compare<T extends @{interface_name}>(a: T, b: T): number {
+                            if (a === b) return 0;
+                            {#if has_fields}
+                                @{compare_body}
+                            {/if}
+                            return 0;
+                        }
+                    })
+                }
+                FunctionNamingStyle::Prefix => {
+                    let fn_name = format!("{}Compare", to_camel_case(interface_name));
+                    Ok(ts_template! {
+                        export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): number {
+                            if (a === b) return 0;
+                            {#if has_fields}
+                                @{compare_body}
+                            {/if}
+                            return 0;
+                        }
+                    })
+                }
+                FunctionNamingStyle::Suffix => {
+                    let fn_name = format!("compare{}", interface_name);
+                    Ok(ts_template! {
+                        export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): number {
+                            if (a === b) return 0;
+                            {#if has_fields}
+                                @{compare_body}
+                            {/if}
+                            return 0;
+                        }
+                    })
+                }
+            }
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
+            let naming_style = input.context.function_naming_style;
 
             if type_alias.is_object() {
                 let ord_fields: Vec<OrdField> = type_alias
@@ -424,35 +552,128 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                     String::new()
                 };
 
-                Ok(ts_template! {
-                    export namespace @{type_name} {
-                        export function compareTo(a: @{type_name}, b: @{type_name}): number {
-                            if (a === b) return 0;
-                            {#if has_fields}
-                                @{compare_body}
-                            {/if}
-                            return 0;
-                        }
+                match naming_style {
+                    FunctionNamingStyle::Namespace => {
+                        Ok(ts_template! {
+                            export namespace @{type_name} {
+                                export function compareTo(a: @{type_name}, b: @{type_name}): number {
+                                    if (a === b) return 0;
+                                    {#if has_fields}
+                                        @{compare_body}
+                                    {/if}
+                                    return 0;
+                                }
+                            }
+                        })
                     }
-                })
+                    FunctionNamingStyle::Generic => {
+                        Ok(ts_template! {
+                            export function compare<T extends @{type_name}>(a: T, b: T): number {
+                                if (a === b) return 0;
+                                {#if has_fields}
+                                    @{compare_body}
+                                {/if}
+                                return 0;
+                            }
+                        })
+                    }
+                    FunctionNamingStyle::Prefix => {
+                        let fn_name = format!("{}Compare", to_camel_case(type_name));
+                        Ok(ts_template! {
+                            export function @{fn_name}(a: @{type_name}, b: @{type_name}): number {
+                                if (a === b) return 0;
+                                {#if has_fields}
+                                    @{compare_body}
+                                {/if}
+                                return 0;
+                            }
+                        })
+                    }
+                    FunctionNamingStyle::Suffix => {
+                        let fn_name = format!("compare{}", type_name);
+                        Ok(ts_template! {
+                            export function @{fn_name}(a: @{type_name}, b: @{type_name}): number {
+                                if (a === b) return 0;
+                                {#if has_fields}
+                                    @{compare_body}
+                                {/if}
+                                return 0;
+                            }
+                        })
+                    }
+                }
             } else {
                 // Union, tuple, or simple alias: basic comparison
-                Ok(ts_template! {
-                    export namespace @{type_name} {
-                        export function compareTo(a: @{type_name}, b: @{type_name}): number {
-                            if (a === b) return 0;
-                            // For unions/tuples, try primitive comparison
-                            if (typeof a === "number" && typeof b === "number") {
-                                return a < b ? -1 : a > b ? 1 : 0;
+                match naming_style {
+                    FunctionNamingStyle::Namespace => {
+                        Ok(ts_template! {
+                            export namespace @{type_name} {
+                                export function compareTo(a: @{type_name}, b: @{type_name}): number {
+                                    if (a === b) return 0;
+                                    // For unions/tuples, try primitive comparison
+                                    if (typeof a === "number" && typeof b === "number") {
+                                        return a < b ? -1 : a > b ? 1 : 0;
+                                    }
+                                    if (typeof a === "string" && typeof b === "string") {
+                                        const cmp = a.localeCompare(b);
+                                        return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+                                    }
+                                    return 0;
+                                }
                             }
-                            if (typeof a === "string" && typeof b === "string") {
-                                const cmp = a.localeCompare(b);
-                                return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
-                            }
-                            return 0;
-                        }
+                        })
                     }
-                })
+                    FunctionNamingStyle::Generic => {
+                        Ok(ts_template! {
+                            export function compare<T extends @{type_name}>(a: T, b: T): number {
+                                if (a === b) return 0;
+                                // For unions/tuples, try primitive comparison
+                                if (typeof a === "number" && typeof b === "number") {
+                                    return a < b ? -1 : a > b ? 1 : 0;
+                                }
+                                if (typeof a === "string" && typeof b === "string") {
+                                    const cmp = a.localeCompare(b);
+                                    return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+                                }
+                                return 0;
+                            }
+                        })
+                    }
+                    FunctionNamingStyle::Prefix => {
+                        let fn_name = format!("{}Compare", to_camel_case(type_name));
+                        Ok(ts_template! {
+                            export function @{fn_name}(a: @{type_name}, b: @{type_name}): number {
+                                if (a === b) return 0;
+                                // For unions/tuples, try primitive comparison
+                                if (typeof a === "number" && typeof b === "number") {
+                                    return a < b ? -1 : a > b ? 1 : 0;
+                                }
+                                if (typeof a === "string" && typeof b === "string") {
+                                    const cmp = a.localeCompare(b);
+                                    return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+                                }
+                                return 0;
+                            }
+                        })
+                    }
+                    FunctionNamingStyle::Suffix => {
+                        let fn_name = format!("compare{}", type_name);
+                        Ok(ts_template! {
+                            export function @{fn_name}(a: @{type_name}, b: @{type_name}): number {
+                                if (a === b) return 0;
+                                // For unions/tuples, try primitive comparison
+                                if (typeof a === "number" && typeof b === "number") {
+                                    return a < b ? -1 : a > b ? 1 : 0;
+                                }
+                                if (typeof a === "string" && typeof b === "string") {
+                                    const cmp = a.localeCompare(b);
+                                    return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+                                }
+                                return 0;
+                            }
+                        })
+                    }
+                }
             }
         }
     }
