@@ -7,7 +7,8 @@
 //! Uses `__id` and `__ref` markers for object identity tracking.
 
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, parse_ts_macro_input};
+use crate::ts_syn::abi::DiagnosticCollector;
 
 use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory};
 
@@ -34,12 +35,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let class_name = input.name();
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
 
-            // Collect serializable fields
+            // Collect serializable fields with diagnostic collection
+            let mut all_diagnostics = DiagnosticCollector::new();
             let fields: Vec<SerializeField> = class
                 .fields()
                 .iter()
                 .filter_map(|field| {
-                    let opts = SerdeFieldOptions::from_decorators(&field.decorators);
+                    let parse_result = SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
+                    all_diagnostics.extend(parse_result.diagnostics);
+                    let opts = parse_result.options;
+
                     if !opts.should_serialize() {
                         return None;
                     }
@@ -60,6 +65,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     })
                 })
                 .collect();
+
+            // Check for errors in field parsing before continuing
+            if all_diagnostics.has_errors() {
+                return Err(MacroforgeErrors::new(all_diagnostics.into_vec()).into());
+            }
 
             // Separate regular fields from flattened fields
             let regular_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
@@ -261,12 +271,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let container_opts =
                 SerdeContainerOptions::from_decorators(&interface.inner.decorators);
 
-            // Collect serializable fields from interface
+            // Collect serializable fields from interface with diagnostic collection
+            let mut all_diagnostics = DiagnosticCollector::new();
             let fields: Vec<SerializeField> = interface
                 .fields()
                 .iter()
                 .filter_map(|field| {
-                    let opts = SerdeFieldOptions::from_decorators(&field.decorators);
+                    let parse_result = SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
+                    all_diagnostics.extend(parse_result.diagnostics);
+                    let opts = parse_result.options;
+
                     if !opts.should_serialize() {
                         return None;
                     }
@@ -287,6 +301,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     })
                 })
                 .collect();
+
+            // Check for errors in field parsing before continuing
+            if all_diagnostics.has_errors() {
+                return Err(MacroforgeErrors::new(all_diagnostics.into_vec()).into());
+            }
 
             // Separate regular fields from flattened fields
             let regular_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
@@ -476,12 +495,17 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 let container_opts =
                     SerdeContainerOptions::from_decorators(&type_alias.inner.decorators);
 
+                // Collect serializable fields with diagnostic collection
+                let mut all_diagnostics = DiagnosticCollector::new();
                 let fields: Vec<SerializeField> = type_alias
                     .as_object()
                     .unwrap()
                     .iter()
                     .filter_map(|field| {
-                        let opts = SerdeFieldOptions::from_decorators(&field.decorators);
+                        let parse_result = SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
+                        all_diagnostics.extend(parse_result.diagnostics);
+                        let opts = parse_result.options;
+
                         if !opts.should_serialize() {
                             return None;
                         }
@@ -502,6 +526,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         })
                     })
                     .collect();
+
+                // Check for errors in field parsing before continuing
+                if all_diagnostics.has_errors() {
+                    return Err(MacroforgeErrors::new(all_diagnostics.into_vec()).into());
+                }
 
                 let regular_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
                 let has_regular = !regular_fields.is_empty();
