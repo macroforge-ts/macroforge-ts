@@ -1,32 +1,20 @@
 # Rust Setup
-
-*Create a new Rust crate that will contain your custom macros. This crate compiles to a native Node.js addon.*
-
-## Prerequisites
-
-- Rust toolchain (1.88 or later)
-
-    - Node.js 24 or later
-
-    - NAPI-RS CLI: `cargo install macroforge_ts`
-
-## Create the Project
-
-```bash
+ *Create a new Rust crate that will contain your custom macros. This crate compiles to a native Node.js addon.*
+ ## Prerequisites
+ - Rust toolchain (1.88 or later)
+ - Node.js 24 or later
+ - NAPI-RS CLI: `cargo install macroforge_ts`
+ ## Create the Project
+ ```
 # Create a new directory
 mkdir my-macros
 cd my-macros
 
 # Initialize with NAPI-RS
 napi new --platform --name my-macros
-```
-
-## Configure Cargo.toml
-
-Update your `Cargo.toml` with the required dependencies:
-
-`Cargo.toml`
-```toml
+``` ## Configure Cargo.toml
+ Update your `Cargo.toml` with the required dependencies:
+ ```
 [package]
 name = "my-macros"
 version = "0.1.0"
@@ -46,21 +34,13 @@ napi-build = "2"
 [profile.release]
 lto = true
 strip = true
-```
-
-## Create build.rs
-
-`build.rs`
-```rust
+``` ## Create build.rs
+ ```
 fn main() {
     napi_build::setup();
 }
-```
-
-## Create src/lib.rs
-
-`src/lib.rs`
-```rust
+``` ## Create src/lib.rs
+ ```
 use macroforge_ts::macros::{ts_macro_derive, body};
 use macroforge_ts::ts_syn::{
     Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
@@ -91,12 +71,8 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
         )),
     }
 }
-```
-
-## Create package.json
-
-`package.json`
-```json
+``` ## Create package.json
+ ```
 {
   "name": "@my-org/macros",
   "version": "0.1.0",
@@ -121,11 +97,8 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     "@napi-rs/cli": "^3.0.0-alpha.0"
   }
 }
-```
-
-## Build the Package
-
-```bash
+``` ## Build the Package
+ ```
 # Build the native addon
 npm run build
 
@@ -133,13 +106,7 @@ npm run build
 # - index.js (JavaScript bindings)
 # - index.d.ts (TypeScript types)
 # - *.node (native binary)
-```
-
->
-> For cross-platform builds, use GitHub Actions with the NAPI-RS CI template.
-
-## Next Steps
-
-- <a href="{base}/docs/custom-macros/ts-macro-derive" >Learn the #[ts_macro_derive] attribute</a >
-
-    - <a href="{base}/docs/custom-macros/ts-quote" >Master the template syntax</a >
+```  **Tip For cross-platform builds, use GitHub Actions with the NAPI-RS CI template. ## Next Steps
+ - [Learn the #[ts_macro_derive] attribute](../../docs/custom-macros/ts-macro-derive)
+ - [Master the template syntax](../../docs/custom-macros/ts-quote)
+**

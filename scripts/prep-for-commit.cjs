@@ -11,9 +11,10 @@
  * 1. Bumps version across all packages
  * 2. Clean builds all packages (pixi run cleanbuild:all) - uses workspace symlinks
  * 3. Runs all tests (pixi run test:all)
- * 4. Syncs MCP server docs from website
- * 5. Rebuilds the docs book (BOOK.md)
- * 6. Updates website package-lock.json for deployment
+ * 4. Extracts API documentation from Rust and TypeScript source files
+ * 5. Syncs MCP server docs from website
+ * 6. Rebuilds the docs book (BOOK.md)
+ * 7. Updates website package-lock.json for deployment
  *
  * If any step fails after the bump, the version is rolled back.
  */
@@ -164,13 +165,13 @@ process.on("SIGTERM", () => {
 });
 
 // Step 1: Bump version
-console.log("\n[1/6] Bumping version...");
+console.log("\n[1/8] Bumping version...");
 run(`node scripts/bump-version.cjs ${version}`);
 bumped = true;
 
 try {
   // Step 2: Clean build all packages (workspace uses local macroforge via symlink)
-  console.log("\n[2/6] Clean building all packages...");
+  console.log("\n[2/8] Clean building all packages...");
 
   // Pull latest website from origin before making any config changes
   // This must happen before addExternalConfig() so our changes aren't overwritten
@@ -190,25 +191,34 @@ try {
   externalConfigAdded = false;
 
   // Step 3: Run all tests
-  console.log("\n[3/6] Running all tests...");
+  console.log("\n[3/8] Running all tests...");
   run("pixi run test:all");
 
-  // Step 4: Sync MCP docs from website
-  console.log("\n[4/6] Syncing MCP server docs...");
-  run("npm run build:docs", path.join(root, "packages/mcp-server"));
+  // Step 4: Extract API documentation from source files
+  console.log("\n[4/8] Extracting API documentation...");
+  run("node scripts/extract-rust-docs.cjs");
+  run("node scripts/extract-ts-docs.cjs");
 
-  // Step 5: Rebuild docs book
-  console.log("\n[5/6] Rebuilding docs book...");
+  // Step 5: Build website (renders API docs into HTML)
+  console.log("\n[5/8] Building website...");
+  run("npm run build", websiteDir);
+
+  // Step 6: Rebuild docs book from rendered HTML
+  console.log("\n[6/8] Rebuilding docs book...");
   run("node scripts/build-docs-book.cjs");
+
+  // Step 7: Sync MCP docs from rendered website
+  console.log("\n[7/8] Syncing MCP server docs...");
+  run("npm run build:docs", path.join(root, "packages/mcp-server"));
 } catch (err) {
   rollback();
   process.exit(1);
 }
 
-// Step 6: Note about website deployment
+// Step 8: Note about website deployment
 // The website uses file:../crates/macroforge_ts during local builds (set by bump-version.cjs)
 // CI will update it to registry version and regenerate package-lock.json after npm publish
-console.log("\n[6/6] Website preparation...");
+console.log("\n[8/8] Website preparation...");
 console.log("  Website uses local macroforge for build (file:../crates/macroforge_ts)");
 console.log("  CI will update to registry version after npm publish");
 

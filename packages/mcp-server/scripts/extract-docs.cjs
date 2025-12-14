@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Extract documentation from website Svelte pages into markdown files for MCP server.
+ * Extract documentation from website prerendered HTML into markdown files for MCP server.
+ * Reads from build output (website/build/prerendered/) to include all dynamic content.
  * Auto-discovers all pages from the website's navigation.ts config.
  * Large documents are automatically chunked at H2 headers for better AI consumption.
  *
@@ -12,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 
 const websiteRoot = path.join(__dirname, '..', '..', '..', 'website');
-const routesDir = path.join(websiteRoot, 'src', 'routes');
+const prerenderedDir = path.join(websiteRoot, 'build', 'prerendered');
 const navigationPath = path.join(websiteRoot, 'src', 'lib', 'config', 'navigation.ts');
 const outputDir = path.join(__dirname, '..', 'docs');
 
@@ -150,47 +151,77 @@ function hrefToId(href) {
  * Convert href to file path
  */
 function hrefToFilePath(href) {
-  return path.join(routesDir, href, '+page.svelte');
+  // /docs/getting-started -> website/build/prerendered/docs/getting-started.html
+  return path.join(prerenderedDir, href + '.html');
 }
 
 /**
- * Extract content from Svelte file (remove script tags and convert to markdown)
+ * Extract content from prerendered HTML
+ * Gets the main prose content from <div class="prose">...</div>
  */
-function extractContent(svelteContent) {
-  let content = svelteContent.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
-  content = content.replace(/<svelte:head>[\s\S]*?<\/svelte:head>/gi, '');
-  content = content.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
-  return content.trim();
+function extractContent(htmlContent) {
+  // Extract the prose content area
+  const proseMatch = htmlContent.match(/<div class="prose">([\s\S]*?)<\/div>\s*<nav class="mt-12/);
+  if (!proseMatch) {
+    // Fallback: try to find article content
+    const articleMatch = htmlContent.match(/<article[^>]*>([\s\S]*?)<\/article>/);
+    if (articleMatch) {
+      return articleMatch[1];
+    }
+    return '';
+  }
+  return proseMatch[1];
 }
 
 /**
- * Convert HTML/Svelte content to Markdown
+ * Convert rendered HTML content to Markdown
  */
 function htmlToMarkdown(html) {
+  // First, normalize whitespace in the HTML
   let md = html.replace(/\t/g, '').replace(/\n\s*\n/g, '\n\n');
 
-  // Handle CodeBlock components
-  md = md.replace(/<CodeBlock\s+code=\{`([\s\S]*?)`\}\s+lang="([^"]+)"(?:\s+filename="([^"]+)")?\s*\/>/g,
-    (_, code, lang, filename) => {
-      const header = filename ? `\`${filename}\`\n` : '';
-      return `${header}\`\`\`${lang}\n${code.trim()}\n\`\`\``;
+  // Remove Svelte hydration comments
+  md = md.replace(/<!--\[[\s\S]*?-->/g, '');
+  md = md.replace(/<!--\]-->/g, '');
+  md = md.replace(/<!---->/g, '');
+
+  // Handle rendered code blocks: <pre class="..."><code class="...">
+  md = md.replace(/<div class="relative group[^"]*"[^>]*>[\s\S]*?<pre[^>]*><code[^>]*>([\s\S]*?)<\/code><\/pre>[\s\S]*?<\/div>/gi,
+    (_, codeContent) => {
+      let code = codeContent
+        .replace(/<span[^>]*>/gi, '')
+        .replace(/<\/span>/gi, '')
+        .trim();
+      code = code.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+      return '```\n' + code + '\n```';
     });
 
-  md = md.replace(/<CodeBlock\s+code="([^"]+)"\s+lang="([^"]+)"(?:\s+filename="([^"]+)")?\s*\/>/g,
-    (_, code, lang, filename) => {
-      const header = filename ? `\`${filename}\`\n` : '';
-      return `${header}\`\`\`${lang}\n${code.trim()}\n\`\`\``;
-    });
-
-  // Handle Alert components
-  md = md.replace(/<Alert\s+type="([^"]+)">([\s\S]*?)<\/Alert>/g,
+  // Handle rendered Alert components (Note, Warning, Info, etc.)
+  md = md.replace(/<div class="rounded-lg border[^"]*"[^>]*>[\s\S]*?<span class="[^"]*font-medium[^"]*">([\w\s]+)<\/span>[\s\S]*?<div class="[^"]*text-muted-foreground[^"]*">([\s\S]*?)<\/div>\s*<\/div>/gi,
     (_, type, content) => {
-      const prefix = type === 'warning' ? '> **Warning:**' :
-                     type === 'info' ? '> **Note:**' :
-                     type === 'danger' ? '> **Danger:**' : '>';
-      const lines = content.trim().split('\n').map(l => `> ${l.trim()}`).join('\n');
-      return `${prefix}\n${lines}`;
+      const typeClean = type.toLowerCase().trim();
+      const prefix = typeClean === 'warning' ? '> **Warning:**' :
+                     typeClean === 'note' ? '> **Note:**' :
+                     typeClean === 'info' ? '> **Info:**' :
+                     typeClean === 'danger' ? '> **Danger:**' : '>';
+      const cleanContent = content.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+      return `${prefix} ${cleanContent}`;
     });
+
+  // Handle "Tip" style alerts (lightbulb icon)
+  md = md.replace(/<div class="flex items-center gap-2"><svg[^>]*>[\s\S]*?<\/svg>\s*([\w\s-]+)\s+([\s\S]*?)<\/div>/gi,
+    (_, title, content) => {
+      const titleClean = title.trim();
+      const contentClean = content.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+      const typeWords = ['info', 'note', 'warning', 'danger', 'tip', 'important'];
+      if (typeWords.some(t => titleClean.toLowerCase().includes(t))) {
+        return `> **${titleClean}:** ${contentClean}`;
+      }
+      return `> **${titleClean}** ${contentClean}`;
+    });
+
+  // Remove version badge paragraphs
+  md = md.replace(/<p class="version-badge[^"]*"[^>]*>.*?<\/p>/gi, '');
 
   // Handle headings
   md = md.replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n');
@@ -235,25 +266,74 @@ function htmlToMarkdown(html) {
     }).trim() + '\n';
   });
 
-  // Handle tables (basic support)
-  md = md.replace(/<table[^>]*>([\s\S]*?)<\/table>/gi, (_, content) => {
-    // Simplified table handling - just extract text
-    return content
-      .replace(/<thead[^>]*>[\s\S]*?<\/thead>/gi, '')
-      .replace(/<tbody[^>]*>/gi, '')
-      .replace(/<\/tbody>/gi, '')
-      .replace(/<tr[^>]*>/gi, '')
-      .replace(/<\/tr>/gi, '\n')
-      .replace(/<th[^>]*>([\s\S]*?)<\/th>/gi, '| $1 ')
-      .replace(/<td[^>]*>([\s\S]*?)<\/td>/gi, '| $1 ')
-      .trim() + '\n';
+  // Handle tables - convert to markdown tables
+  md = md.replace(/<table[^>]*>([\s\S]*?)<\/table>/gi, (_, tableContent) => {
+    const rows = [];
+    const theadMatch = tableContent.match(/<thead[^>]*>([\s\S]*?)<\/thead>/i);
+    if (theadMatch) {
+      const headerCells = [];
+      const thMatches = theadMatch[1].matchAll(/<th[^>]*>([\s\S]*?)<\/th>/gi);
+      for (const m of thMatches) {
+        headerCells.push(m[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim());
+      }
+      if (headerCells.length > 0) {
+        rows.push('| ' + headerCells.join(' | ') + ' |');
+        rows.push('| ' + headerCells.map(() => '---').join(' | ') + ' |');
+      }
+    }
+    const tbodyMatch = tableContent.match(/<tbody[^>]*>([\s\S]*?)<\/tbody>/i);
+    if (tbodyMatch) {
+      const trMatches = tbodyMatch[1].matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/gi);
+      for (const tr of trMatches) {
+        const cells = [];
+        const tdMatches = tr[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi);
+        for (const td of tdMatches) {
+          cells.push(td[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim());
+        }
+        if (cells.length > 0) {
+          rows.push('| ' + cells.join(' | ') + ' |');
+        }
+      }
+    }
+    return rows.join('\n') + '\n';
   });
 
   // Handle other elements
   md = md.replace(/<hr\s*\/?>/gi, '\n---\n');
   md = md.replace(/<br\s*\/?>/gi, '\n');
+
+  // Remove SVG elements and buttons
+  md = md.replace(/<svg[^>]*>[\s\S]*?<\/svg>/gi, '');
+  md = md.replace(/<button[^>]*>[\s\S]*?<\/button>/gi, '');
+
+  // Clean up interactive code example panels
+  md = md.replace(/<div class="w-3 h-3 rounded-full bg-warning">\s*Before[^<]*<\/div>/gi, '\n**Before:**\n');
+  md = md.replace(/<div class="w-3 h-3 rounded-full bg-success">\s*After[^<]*<\/div>/gi, '\n**After:**\n');
+  md = md.replace(/<div class="w-3 h-3 rounded-full bg-[^"]*">\s*Source[^<]*<\/div>/gi, '\n**Source:**\n');
+  md = md.replace(/<div class="w-3 h-3 rounded-full bg-[^"]*">[^<]*<\/div>/gi, '');
+  md = md.replace(/<div class="flex items-center gap-2 mb-3">/gi, '');
+  md = md.replace(/<div class="flex items-center justify-between mb-3">/gi, '');
+  md = md.replace(/<div class="flex items-center gap-2">/gi, '');
+  md = md.replace(/<div class="w-px h-\d+ bg-border">\s*<\/div>/gi, '');
+
+  // Handle divs and spans
   md = md.replace(/<div[^>]*>([\s\S]*?)<\/div>/gi, '$1');
+  md = md.replace(/<\/div>/gi, '');
+  md = md.replace(/<\/span>/gi, '');
+  md = md.replace(/<\/p>/gi, '');
+
+  // Remove span elements with specific classes
+  md = md.replace(/<span class="text-sm font-medium text-muted-foreground">(Before[^`]*)/gi, '\n**Before:**\n');
+  md = md.replace(/<span class="text-sm font-medium text-muted-foreground">(After[^`]*)/gi, '\n**After:**\n');
+  md = md.replace(/<span class="text-sm font-medium text-muted-foreground">(Source[^`]*)/gi, '\n**Source:**\n');
+  md = md.replace(/<span class="text-[^"]*font-medium[^"]*">([^<]+)/gi, '**$1**');
+  md = md.replace(/<span class="version-badge[^"]*">[^<]*/gi, '');
   md = md.replace(/<span[^>]*>([\s\S]*?)<\/span>/gi, '$1');
+
+  // Final cleanup
+  md = md.replace(/<div>\s*<\/div>/gi, '');
+  md = md.replace(/<div>\s*\n/gi, '');
+  md = md.replace(/<span>\s*\n/gi, '');
 
   // Clean up
   md = md.replace(/\n{3,}/g, '\n\n');
@@ -386,6 +466,13 @@ function shouldChunk(content) {
  * Extract documentation from website and generate markdown files
  */
 function extractDocs() {
+  // Check if prerendered directory exists
+  if (!fs.existsSync(prerenderedDir)) {
+    console.error(`Error: Prerendered directory not found: ${prerenderedDir}`);
+    console.error('Run "npm run build" in the website directory first.');
+    process.exit(1);
+  }
+
   console.log('Auto-discovering pages from navigation.ts...\n');
 
   // Parse navigation from website
@@ -420,8 +507,8 @@ function extractDocs() {
 
       console.log(`Processing: ${item.title} (${item.href})`);
 
-      const svelteContent = fs.readFileSync(filePath, 'utf-8');
-      const htmlContent = extractContent(svelteContent);
+      const rawHtml = fs.readFileSync(filePath, 'utf-8');
+      const htmlContent = extractContent(rawHtml);
       const markdownContent = htmlToMarkdown(htmlContent);
 
       // Get use_cases from map or generate default

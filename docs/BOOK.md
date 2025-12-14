@@ -57,44 +57,22 @@
 # Getting Started
 
 # Installation
-
-*Get started with Macroforge in just a few minutes. Install the package and configure your project to start using TypeScript macros.*
-
-## Requirements
-
-- Node.js 24.0 or later
-
-- TypeScript 5.9 or later
-
-## Install the Package
-
-Install Macroforge using your preferred package manager:
-
-`npm`
-```bash
+ *Get started with Macroforge in just a few minutes. Install the package and configure your project to start using TypeScript macros.*
+ ## Requirements
+ - Node.js 24.0 or later
+ - TypeScript 5.9 or later
+ ## Install the Package
+ Install Macroforge using your preferred package manager:
+ ```
 npm install macroforge
-```
-
-`bun`
-```bash
+``` ```
 bun add macroforge
-```
-
-`pnpm`
-```bash
+``` ```
 pnpm add macroforge
-```
-
-> **Note:**
-> Macroforge includes pre-built native binaries for macOS (x64, arm64), Linux (x64, arm64), and Windows (x64, arm64).
-
-## Basic Usage
-
-The simplest way to use Macroforge is with the built-in derive macros. Add a `@derive` comment decorator to your class:
-
-`user.ts`
-```typescript
-/** @derive(Debug, Clone, Eq) */
+```  **Info Macroforge includes pre-built native binaries for macOS (x64, arm64), Linux (x64, arm64), and Windows (x64, arm64). ## Basic Usage
+ The simplest way to use Macroforge is with the built-in derive macros. Add a `@derive` comment decorator to your class:
+ ```
+/** @derive(Debug, Clone, PartialEq) */
 class User {
   name: string;
   age: number;
@@ -106,17 +84,12 @@ class User {
 }
 
 // After macro expansion, User has:
-// - toString(): string         (from Debug)
-// - clone(): User              (from Clone)
-// - equals(other: User): boolean  (from Eq)
-```
-
-## IDE Integration
-
-For the best development experience, add the TypeScript plugin to your `tsconfig.json`:
-
-`tsconfig.json`
-```json
+// - toString(): string              (from Debug)
+// - clone(): User                   (from Clone)
+// - equals(other: unknown): boolean (from PartialEq)
+``` ## IDE Integration
+ For the best development experience, add the TypeScript plugin to your `tsconfig.json`:
+ ```
 {
   "compilerOptions": {
     "plugins": [
@@ -126,22 +99,13 @@ For the best development experience, add the TypeScript plugin to your `tsconfig
     ]
   }
 }
-```
-
-This enables features like:
-
-- Accurate error positions in your source code
-
-- Autocompletion for generated methods
-
-- Type checking for expanded code
-
-## Build Integration (Vite)
-
-If you're using Vite, add the plugin to your config for automatic macro expansion during build:
-
-`vite.config.ts`
-```typescript
+``` This enables features like:
+ - Accurate error positions in your source code
+ - Autocompletion for generated methods
+ - Type checking for expanded code
+ ## Build Integration (Vite)
+ If you're using Vite, add the plugin to your config for automatic macro expansion during build:
+ ```
 import macroforge from "@macroforge/vite-plugin";
 import { defineConfig } from "vite";
 
@@ -153,33 +117,78 @@ export default defineConfig({
     })
   ]
 });
-```
-
-## Next Steps
-
-Now that you have Macroforge installed, learn how to use it:
-
-- [Create your first macro]({base}/docs/getting-started/first-macro)
-
-- [Understand how macros work]({base}/docs/concepts)
-
-- [Explore built-in macros]({base}/docs/builtin-macros)
+``` ## Next Steps
+ Now that you have Macroforge installed, learn how to use it:
+ - [Create your first macro](../docs/getting-started/first-macro)
+ - [Understand how macros work](../docs/concepts)
+ - [Explore built-in macros](../docs/builtin-macros)
+**
 
 ---
 
 # Your First Macro
+ *Let's create a class that uses Macroforge's derive macros to automatically generate useful methods.*
+ ## Creating a Class with Derive Macros
+ Start by creating a simple `User` class. We'll use the `@derive` decorator to automatically generate methods.
+ 
+**Before:**
+```
+/** @derive(Debug, Clone, PartialEq) */
+export class User {
+    name: string;
+    age: number;
+    email: string;
 
-*Let's create a class that uses Macroforge's derive macros to automatically generate useful methods.*
+    constructor(name: string, age: number, email: string) {
+        this.name = name;
+        this.age = age;
+        this.email = email;
+    }
+}
+```  
+**After:**
+```
+/**  */
+export class User {
+    name: string;
+    age: number;
+    email: string;
 
-## Creating a Class with Derive Macros
+    constructor(name: string, age: number, email: string) {
+        this.name = name;
+        this.age = age;
+        this.email = email;
+    }
 
-Start by creating a simple `User` class. We'll use the `@derive` decorator to automatically generate methods.
+    toString(): string {
+        const parts: string[] = [];
+        parts.push('name: ' + this.name);
+        parts.push('age: ' + this.age);
+        parts.push('email: ' + this.email);
+        return 'User { ' + parts.join(', ') + ' }';
+    }
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
+    clone(): User {
+        const cloned = Object.create(Object.getPrototypeOf(this));
+        cloned.name = this.name;
+        cloned.age = this.age;
+        cloned.email = this.email;
+        return cloned;
+    }
 
-## Using the Generated Methods
-
-```typescript
+    equals(other: unknown): boolean {
+        if (this === other) return true;
+        if (!(other instanceof User)) return false;
+        const typedOther = other as User;
+        return (
+            this.name === typedOther.name &&
+            this.age === typedOther.age &&
+            this.email === typedOther.email
+        );
+    }
+}
+``` ## Using the Generated Methods
+ ```
 const user = new User("Alice", 30, "alice@example.com");
 
 // Debug: toString()
@@ -195,177 +204,159 @@ console.log(user.equals(copy)); // true
 
 const different = new User("Bob", 25, "bob@example.com");
 console.log(user.equals(different)); // false
+``` ## Customizing Behavior
+ You can customize how macros work using field-level decorators. For example, with the Debug macro:
+ 
+**Before:**
 ```
+/** @derive(Debug) */
+export class User {
+    /** @debug({ rename: "userId" }) */
+    id: number;
 
-## Customizing Behavior
+    name: string;
 
-You can customize how macros work using field-level decorators. For example, with the Debug macro:
+    /** @debug({ skip: true }) */
+    password: string;
 
-<MacroExample before={data.examples.customizing.before} after={data.examples.customizing.after} />
+    constructor(id: number, name: string, password: string) {
+        this.id = id;
+        this.name = name;
+        this.password = password;
+    }
+}
+```  
+**After:**
+```
+/**  */
+export class User {
+    id: number;
 
-```typescript
+    name: string;
+
+    password: string;
+
+    constructor(id: number, name: string, password: string) {
+        this.id = id;
+        this.name = name;
+        this.password = password;
+    }
+
+    toString(): string {
+        const parts: string[] = [];
+        parts.push('userId: ' + this.id);
+        parts.push('name: ' + this.name);
+        return 'User { ' + parts.join(', ') + ' }';
+    }
+}
+``` ```
 const user = new User(42, "Alice", "secret123");
 console.log(user.toString());
 // Output: User { userId: 42, name: Alice }
 // Note: 'id' is renamed to 'userId', 'password' is skipped
-```
-
-<Alert type="tip" title="Field-level decorators">
-Field-level decorators let you control exactly how each field is handled by the macro.
-</Alert>
-
-## Next Steps
-
-- [Learn how macros work under the hood]({base}/docs/concepts)
-
-- [Explore all Debug options]({base}/docs/builtin-macros/debug)
-
-- [Create your own custom macros]({base}/docs/custom-macros)
+```  **Field-level decorators Field-level decorators let you control exactly how each field is handled by the macro. ## Next Steps
+ - [Learn how macros work under the hood](../../docs/concepts)
+ - [Explore all Debug options](../../docs/builtin-macros/debug)
+ - [Create your own custom macros](../../docs/custom-macros)
+**
 
 ---
 
 # Core Concepts
 
 # How Macros Work
+ *Macroforge performs compile-time code generation by parsing your TypeScript, expanding macros, and outputting transformed code. This happens before your code runs, resulting in zero runtime overhead.*
+ ## Compile-Time Expansion
+ Unlike runtime solutions that use reflection or proxies, Macroforge expands macros at compile time:
+ 1. **Parse**: Your TypeScript code is parsed into an AST using SWC
+ 2. **Find**: Macroforge finds `@derive` decorators and their associated items
+ 3. **Expand**: Each macro generates new code based on the class structure
+ 4. **Output**: The transformed TypeScript is written out, ready for normal compilation
+ 
+**Before:**
+```
+/** @derive(Debug) */
+class User {
+    name: string;
+}
+```  
+**After:**
+```
+class User {
+    name: string;
 
-*Macroforge performs compile-time code generation by parsing your TypeScript, expanding macros, and outputting transformed code. This happens before your code runs, resulting in zero runtime overhead.*
-
-## Compile-Time Expansion
-
-Unlike runtime solutions that use reflection or proxies, Macroforge expands macros at compile time:
-
-1. **Parse**: Your TypeScript code is parsed into an AST using SWC
-
-2. **Find**: Macroforge finds `@derive` decorators and their associated items
-
-3. **Expand**: Each macro generates new code based on the class structure
-
-4. **Output**: The transformed TypeScript is written out, ready for normal compilation
-
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
-
-## Zero Runtime Overhead
-
-Because code generation happens at compile time, there's no:
-
-- Runtime reflection or metadata
-
-- Proxy objects or wrappers
-
-- Additional dependencies in your bundle
-
-- Performance cost at runtime
-
-The generated code is plain TypeScript that compiles to efficient JavaScript.
-
-## Source Mapping
-
-Macroforge tracks the relationship between your source code and the expanded output. This means:
-
-- Errors in generated code point back to your source
-
-- Debugging works correctly
-
-- IDE features like "go to definition" work as expected
-
-<Alert type="info" title="Error positioning">
-The TypeScript plugin uses source mapping to show errors at the `@derive` decorator position, not in the generated code.
-</Alert>
-
-## Execution Flow
-
-<Flowchart steps={[
-{ title: "Your Source Code", description: "with @derive decorators" },
-{ title: "SWC Parser", description: "TypeScript → AST" },
-{ title: "Macro Expansion Engine", description: "Finds @derive decorators, runs macros, generates new AST nodes" },
-{ title: "Code Generator", description: "AST → TypeScript" },
-{ title: "Expanded TypeScript", description: "ready for normal compilation" }
-]} />
-
-## Integration Points
-
-Macroforge integrates at two key points:
-
-### IDE (TypeScript Plugin)
-
-The TypeScript plugin intercepts language server calls to provide:
-
-- Diagnostics that reference your source, not expanded code
-
-- Completions for generated methods
-
-- Hover information showing what macros generate
-
-### Build (Vite Plugin)
-
-The Vite plugin runs macro expansion during the build process:
-
-- Transforms files before they reach the TypeScript compiler
-
-- Generates type declaration files (.d.ts)
-
-- Produces metadata for debugging
-
-## Next Steps
-
-- [Learn about the derive system]({base}/docs/concepts/derive-system)
-
-- [Explore the architecture]({base}/docs/concepts/architecture)
+    toString(): string {
+        const parts: string[] = [];
+        parts.push('name: ' + this.name);
+        return 'User { ' + parts.join(', ') + ' }';
+    }
+}
+``` ## Zero Runtime Overhead
+ Because code generation happens at compile time, there's no:
+ - Runtime reflection or metadata
+ - Proxy objects or wrappers
+ - Additional dependencies in your bundle
+ - Performance cost at runtime
+ The generated code is plain TypeScript that compiles to efficient JavaScript.
+ ## Source Mapping
+ Macroforge tracks the relationship between your source code and the expanded output. This means:
+ - Errors in generated code point back to your source
+ - Debugging works correctly
+ - IDE features like "go to definition" work as expected
+ > with @derive decorators   TypeScript → AST   Finds @derive decorators, runs macros, generates new AST nodes   AST → TypeScript   ready for normal compilation  ## Integration Points
+ Macroforge integrates at two key points:
+ ### IDE (TypeScript Plugin)
+ The TypeScript plugin intercepts language server calls to provide:
+ - Diagnostics that reference your source, not expanded code
+ - Completions for generated methods
+ - Hover information showing what macros generate
+ ### Build (Vite Plugin)
+ The Vite plugin runs macro expansion during the build process:
+ - Transforms files before they reach the TypeScript compiler
+ - Generates type declaration files (.d.ts)
+ - Produces metadata for debugging
+ ## Next Steps
+ - [Learn about the derive system](../docs/concepts/derive-system)
+ - [Explore the architecture](../docs/concepts/architecture)
 
 ---
 
 # The Derive System
-
-*The derive system is inspired by Rust's derive macros. It allows you to automatically implement common patterns by annotating your classes with `@derive`.*
-
-## Syntax Reference
-
-Macroforge uses JSDoc comments for all macro annotations. This ensures compatibility with standard TypeScript tooling.
-
-### The @derive Statement
-
-The `@derive` decorator triggers macro expansion on a class or interface:
-
-<InteractiveMacro code={`/** @derive(Debug) */
+ *The derive system is inspired by Rust's derive macros. It allows you to automatically implement common patterns by annotating your classes with `@derive`.*
+ ## Syntax Reference
+ Macroforge uses JSDoc comments for all macro annotations. This ensures compatibility with standard TypeScript tooling.
+ ### The @derive Statement
+ The `@derive` decorator triggers macro expansion on a class or interface:
+ 
+**Source:**
+```
+/** @derive(Debug) */
 class MyClass {
   value: string;
-}`} />
-
-Syntax rules:
-
-- Must be inside a JSDoc comment (`/** */`)
-
-- Must appear immediately before the class/interface declaration
-
-- Multiple macros can be comma-separated: `@derive(A, B, C)`
-
-- Multiple `@derive` statements can be stacked
-
-<InteractiveMacro code={`/** @derive(Debug, Clone) */
+}
+```  Syntax rules:
+ - Must be inside a JSDoc comment (`/** */`)
+ - Must appear immediately before the class/interface declaration
+ - Multiple macros can be comma-separated: `@derive(A, B, C)`
+ - Multiple `@derive` statements can be stacked
+ 
+**Source:**
+```
+/** @derive(Debug, Clone) */
 class User {
   name: string;
   email: string;
-}`} />
-
-### The import macro Statement
-
-To use macros from external packages, you must declare them with `import macro`:
-
-```typescript
+}
+```  ### The import macro Statement
+ To use macros from external packages, you must declare them with `import macro`:
+ ```
 /** import macro { MacroName } from "package-name"; */
-```
-
-Syntax rules:
-
-- Must be inside a JSDoc comment (`/** */`)
-
-- Can appear anywhere in the file (typically at the top)
-
-- Multiple macros can be imported: `import macro &#123; A, B &#125; from "pkg";`
-
-- Multiple import statements can be used for different packages
-
-```typescript
+``` Syntax rules:
+ - Must be inside a JSDoc comment (`/** */`)
+ - Can appear anywhere in the file (typically at the top)
+ - Multiple macros can be imported: `import macro { A, B } from "pkg";`
+ - Multiple import statements can be used for different packages
+ ```
 /** import macro { JSON, Validate } from "@my/macros"; */
 /** import macro { Builder } from "@other/macros"; */
 
@@ -374,218 +365,163 @@ class User {
   name: string;
   email: string;
 }
+```  **Built-in macros Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement. ### Field Attributes
+ Macros can define field-level attributes to customize behavior per field:
+ **
+**Before:**
 ```
+/** @derive(Debug, Serialize) */
+class User {
+    /** @debug({ rename: "userId" }) */
+    /** @serde({ rename: "user_id" }) */
+    id: number;
 
-<Alert type="note" title="Built-in macros">
-Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement.
-</Alert>
+    name: string;
 
-### Field Attributes
+    /** @debug({ skip: true }) */
+    /** @serde({ skip: true }) */
+    password: string;
 
-Macros can define field-level attributes to customize behavior per field:
+    /** @serde({ flatten: true }) */
+    metadata: Record<string, unknown>;
+}
+```  
+**After:**
+```
+import { SerializeContext } from 'macroforge/serde';
 
-<MacroExample before={data.examples.fieldAttributes.before} after={data.examples.fieldAttributes.after} />
+class User {
+    /** @debug({ rename: "userId" }) */
 
-Syntax rules:
+    id: number;
 
-- Must be inside a JSDoc comment immediately before the field
+    name: string;
 
-- Options use object literal syntax: `@attr(&#123; key: value &#125;)`
+    /** @debug({ skip: true }) */
 
-- Boolean options: `@attr(&#123; skip: true &#125;)`
+    password: string;
 
-- String options: `@attr(&#123; rename: "newName" &#125;)`
+    metadata: Record<string, unknown>;
 
-- Multiple attributes can be on separate lines or combined
+    toString(): string {
+        const parts: string[] = [];
+        parts.push('id: ' + this.id);
+        parts.push('name: ' + this.name);
+        parts.push('password: ' + this.password);
+        parts.push('metadata: ' + this.metadata);
+        return 'User { ' + parts.join(', ') + ' }';
+    }
 
-Common field attributes by macro:
+    toStringifiedJSON(): string {
+        const ctx = SerializeContext.create();
+        return JSON.stringify(this.__serialize(ctx));
+    }
 
-<table>
-<thead>
-<tr>
-<th>Macro</th>
-<th>Attribute</th>
-<th>Options</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Debug</td>
-<td>`@debug`</td>
-<td>`skip`, `rename`</td>
-</tr>
-<tr>
-<td>Clone</td>
-<td>`@clone`</td>
-<td>`skip`, `clone_with`</td>
-</tr>
-<tr>
-<td>Serialize/Deserialize</td>
-<td>`@serde`</td>
-<td>`skip`, `rename`, `flatten`, `default`</td>
-</tr>
-<tr>
-<td>Hash</td>
-<td>`@hash`</td>
-<td>`skip`</td>
-</tr>
-<tr>
-<td>PartialEq/Ord</td>
-<td>`@eq`, `@ord`</td>
-<td>`skip`</td>
-</tr>
-</tbody>
-</table>
+    toJSON(): Record<string, unknown> {
+        const ctx = SerializeContext.create();
+        return this.__serialize(ctx);
+    }
 
-## How It Works
-
-1. **Declaration**: You write `@derive(MacroName)` before a class
-
-2. **Discovery**: Macroforge finds all derive decorators in your code
-
-3. **Expansion**: Each named macro receives the class AST and generates code
-
-4. **Injection**: Generated methods/properties are added to the class
-
-## What Can Be Derived
-
-The derive system works on:
-
-- **Classes**: The primary target for derive macros
-
-- **Interfaces**: Macros generate companion namespace functions
-
-- **Enums**: Macros generate namespace functions for enum values
-
-- **Type aliases**: Both object types and union types are supported
-
-## Built-in vs Custom Macros
-
-Macroforge comes with built-in macros that work out of the box. You can also create custom macros in Rust and use them via the `import macro` statement.
-
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Import Required</th>
-<th>Examples</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Built-in</td>
-<td>No</td>
-<td>Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize</td>
-</tr>
-<tr>
-<td>Custom</td>
-<td>Yes</td>
-<td>Any macro from an external package</td>
-</tr>
-</tbody>
-</table>
-
-## Next Steps
-
-- [Explore built-in macros]({base}/docs/builtin-macros)
-
-- [Create custom macros]({base}/docs/custom-macros)
+    __serialize(ctx: SerializeContext): Record<string, unknown> {
+        const existingId = ctx.getId(this);
+        if (existingId !== undefined) {
+            return {
+                __ref: existingId
+            };
+        }
+        const __id = ctx.register(this);
+        const result: Record<string, unknown> = {
+            __type: 'User',
+            __id
+        };
+        result['user_id'] = this.id;
+        result['name'] = this.name;
+        {
+            const __flattened =
+                typeof (this.metadata as any)?.__serialize === 'function'
+                    ? (this.metadata as any).__serialize(ctx)
+                    : this.metadata;
+            const { __type: _, __id: __, ...rest } = __flattened as any;
+            Object.assign(result, rest);
+        }
+        return result;
+    }
+}
+``` Syntax rules:
+ - Must be inside a JSDoc comment immediately before the field
+ - Options use object literal syntax: `@attr({ key: value })`
+ - Boolean options: `@attr({ skip: true })`
+ - String options: `@attr({ rename: "newName" })`
+ - Multiple attributes can be on separate lines or combined
+ Common field attributes by macro:
+ | Macro | Attribute | Options |
+| --- | --- | --- |
+| Debug | `@debug` | `skip`, `rename` |
+| Clone | `@clone` | `skip`, `clone_with` |
+| Serialize/Deserialize | `@serde` | `skip`, `rename`, `flatten`, `default` |
+| Hash | `@hash` | `skip` |
+| PartialEq/Ord | `@eq`, `@ord` | `skip` |
+ ## How It Works
+ 1. **Declaration**: You write `@derive(MacroName)` before a class
+ 2. **Discovery**: Macroforge finds all derive decorators in your code
+ 3. **Expansion**: Each named macro receives the class AST and generates code
+ 4. **Injection**: Generated methods/properties are added to the class
+ ## What Can Be Derived
+ The derive system works on:
+ - **Classes**: The primary target for derive macros
+ - **Interfaces**: Macros generate companion namespace functions
+ - **Enums**: Macros generate namespace functions for enum values
+ - **Type aliases**: Both object types and union types are supported
+ ## Built-in vs Custom Macros
+ Macroforge comes with built-in macros that work out of the box. You can also create custom macros in Rust and use them via the `import macro` statement.
+ | Type | Import Required | Examples |
+| --- | --- | --- |
+| Built-in | No | Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize |
+| Custom | Yes | Any macro from an external package |
+ ## Next Steps
+ - [Explore built-in macros](../../docs/builtin-macros)
+ - [Create custom macros](../../docs/custom-macros)
 
 ---
 
 # Architecture
-
-*Macroforge is built as a native Node.js module using Rust and NAPI-RS. It leverages SWC for fast TypeScript parsing and code generation.*
-
-## Overview
-
-<ArchitectureDiagram layers={[
-{ title: "Node.js / Vite" },
-{ title: "NAPI-RS Bindings" },
-{ title: "Macro Crates", items: ["macroforge_ts_syn", "macroforge_ts_quote", "macroforge_ts_macros"] },
-{ title: "SWC Core", items: ["TypeScript parsing & codegen"] }
-]} />
-
-## Core Components
-
-### SWC Core
-
-The foundation layer provides:
-
-- Fast TypeScript/JavaScript parsing
-
-- AST representation
-
-- Code generation (AST → source code)
-
-### macroforge_ts_syn
-
-A Rust crate that provides:
-
-- TypeScript-specific AST types
-
-- Parsing utilities for macro input
-
-- Derive input structures (class fields, decorators, etc.)
-
-### macroforge_ts_quote
-
-Template-based code generation similar to Rust's `quote!`:
-
-- `ts_template!` - Generate TypeScript code from templates
-
-- `body!` - Generate class body members
-
-- Control flow: `{"{#for}"}`, `{"{#if}"}`, `{"{$let}"}`
-
-### macroforge_ts_macros
-
-The procedural macro attribute for defining derive macros:
-
-- `#[ts_macro_derive(Name)]` attribute
-
-- Automatic registration with the macro system
-
-- Error handling and span tracking
-
-### NAPI-RS Bindings
-
-Bridges Rust and Node.js:
-
-- Exposes `expandSync`, `transformSync`, etc.
-
-- Provides the `NativePlugin` class for caching
-
-- Handles data marshaling between Rust and JavaScript
-
-## Data Flow
-
-<Flowchart steps={[
-{ title: "1. Source Code", description: "TypeScript with @derive" },
-{ title: "2. NAPI-RS", description: "receives JavaScript string" },
-{ title: "3. SWC Parser", description: "parses to AST" },
-{ title: "4. Macro Expander", description: "finds @derive decorators" },
-{ title: "5. For Each Macro", description: "extract data, run macro, generate AST nodes" },
-{ title: "6. Merge", description: "generated nodes into AST" },
-{ title: "7. SWC Codegen", description: "generates source code" },
-{ title: "8. Return", description: "to JavaScript with source mapping" }
-]} />
-
-## Performance Characteristics
-
-- **Thread-safe**: Each expansion runs in an isolated thread with a 32MB stack
-
-- **Caching**: `NativePlugin` caches results by file version
-
-- **Binary search**: Position mapping uses O(log n) lookups
-
-- **Zero-copy**: SWC's arena allocator minimizes allocations
-
-## Re-exported Crates
-
-For custom macro development, `macroforge_ts` re-exports everything you need:
-
-```rust
+ *Macroforge is built as a native Node.js module using Rust and NAPI-RS. It leverages SWC for fast TypeScript parsing and code generation.*
+ ## Overview
+    `macroforge_ts_syn`macroforge_ts_quote`macroforge_ts_macros `TypeScript parsing & codegen ## Core Components
+ ### SWC Core
+ The foundation layer provides:
+ - Fast TypeScript/JavaScript parsing
+ - AST representation
+ - Code generation (AST → source code)
+ ### macroforge_ts_syn
+ A Rust crate that provides:
+ - TypeScript-specific AST types
+ - Parsing utilities for macro input
+ - Derive input structures (class fields, decorators, etc.)
+ ### macroforge_ts_quote
+ Template-based code generation similar to Rust's `quote!`:
+ - `ts_template!` - Generate TypeScript code from templates
+ - `body!` - Generate class body members
+ - Control flow: `{#for}`, `{#if}`, `{$let}`
+ ### macroforge_ts_macros
+ The procedural macro attribute for defining derive macros:
+ - `#[ts_macro_derive(Name)]` attribute
+ - Automatic registration with the macro system
+ - Error handling and span tracking
+ ### NAPI-RS Bindings
+ Bridges Rust and Node.js:
+ - Exposes `expandSync`, `transformSync`, etc.
+ - Provides the `NativePlugin` class for caching
+ - Handles data marshaling between Rust and JavaScript
+ ## Data Flow
+  TypeScript with @derive   receives JavaScript string   parses to AST   finds @derive decorators   extract data, run macro, generate AST nodes   generated nodes into AST   generates source code   to JavaScript with source mapping  ## Performance Characteristics
+ - **Thread-safe**: Each expansion runs in an isolated thread with a 32MB stack
+ - **Caching**: `NativePlugin` caches results by file version
+ - **Binary search**: Position mapping uses O(log n) lookups
+ - **Zero-copy**: SWC's arena allocator minimizes allocations
+ ## Re-exported Crates
+ For custom macro development, `macroforge_ts` re-exports everything you need:
+ ```
 // Convenient re-exports for macro development
 use macroforge_ts::macros::{ts_macro_derive, body, ts_template, above, below, signature};
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
@@ -594,86 +530,31 @@ use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_
 use macroforge_ts::swc_core;
 use macroforge_ts::swc_common;
 use macroforge_ts::swc_ecma_ast;
-```
-
-## Next Steps
-
-- [Write custom macros]({base}/docs/custom-macros)
-
-- [Explore the API reference]({base}/docs/api)
+``` ## Next Steps
+ - [Write custom macros](../../docs/custom-macros)
+ - [Explore the API reference](../../docs/api)
 
 ---
 
 # Built-in Macros
 
 # Built-in Macros
-
-*Macroforge comes with built-in derive macros that cover the most common code generation needs. All macros work with classes, interfaces, enums, and type aliases.*
-
-## Overview
-
-<table>
-<thead>
-<tr>
-<th>Macro</th>
-<th>Generates</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[`Debug`]({base}/docs/builtin-macros/debug)</td>
-<td>`toString(): string`</td>
-<td>Human-readable string representation</td>
-</tr>
-<tr>
-<td>[`Clone`]({base}/docs/builtin-macros/clone)</td>
-<td>`clone(): T`</td>
-<td>Creates a deep copy of the object</td>
-</tr>
-<tr>
-<td>[`Default`]({base}/docs/builtin-macros/default)</td>
-<td>`static default(): T`</td>
-<td>Creates an instance with default values</td>
-</tr>
-<tr>
-<td>[`Hash`]({base}/docs/builtin-macros/hash)</td>
-<td>`hashCode(): number`</td>
-<td>Generates a hash code for the object</td>
-</tr>
-<tr>
-<td>[`PartialEq`]({base}/docs/builtin-macros/partial-eq)</td>
-<td>`equals(other: T): boolean`</td>
-<td>Value equality comparison</td>
-</tr>
-<tr>
-<td>[`Ord`]({base}/docs/builtin-macros/ord)</td>
-<td>`compare(other: T): number`</td>
-<td>Total ordering comparison (-1, 0, 1)</td>
-</tr>
-<tr>
-<td>[`PartialOrd`]({base}/docs/builtin-macros/partial-ord)</td>
-<td>`partialCompare(other: T): number | null`</td>
-<td>Partial ordering comparison</td>
-</tr>
-<tr>
-<td>[`Serialize`]({base}/docs/builtin-macros/serialize)</td>
-<td>`toJSON(): Record<string, unknown>`</td>
-<td>JSON serialization with type handling</td>
-</tr>
-<tr>
-<td>[`Deserialize`]({base}/docs/builtin-macros/deserialize)</td>
-<td>`static fromJSON(data: unknown): T`</td>
-<td>JSON deserialization with validation</td>
-</tr>
-</tbody>
-</table>
-
-## Using Built-in Macros
-
-Built-in macros don't require imports. Just use them with `@derive`:
-
-```typescript
+ *Macroforge comes with built-in derive macros that cover the most common code generation needs. All macros work with classes, interfaces, enums, and type aliases.*
+ ## Overview
+ | Macro | Generates | Description |
+| --- | --- | --- |
+| [`Debug`](../docs/builtin-macros/debug) | `toString(): string` | Human-readable string representation |
+| [`Clone`](../docs/builtin-macros/clone) | `clone(): T` | Creates a deep copy of the object |
+| [`Default`](../docs/builtin-macros/default) | `static default(): T` | Creates an instance with default values |
+| [`Hash`](../docs/builtin-macros/hash) | `hashCode(): number` | Generates a hash code for the object |
+| [`PartialEq`](../docs/builtin-macros/partial-eq) | `equals(other: T): boolean` | Value equality comparison |
+| [`Ord`](../docs/builtin-macros/ord) | `compare(other: T): number` | Total ordering comparison (-1, 0, 1) |
+| [`PartialOrd`](../docs/builtin-macros/partial-ord) | `partialCompare(other: T): number | null` | Partial ordering comparison |
+| [`Serialize`](../docs/builtin-macros/serialize) | `toJSON(): Record<string, unknown>` | JSON serialization with type handling |
+| [`Deserialize`](../docs/builtin-macros/deserialize) | `static fromJSON(data: unknown): T` | JSON deserialization with validation |
+ ## Using Built-in Macros
+ Built-in macros don't require imports. Just use them with `@derive`:
+ ```
 /** @derive(Debug, Clone, PartialEq) */
 class User {
   name: string;
@@ -684,13 +565,9 @@ class User {
     this.age = age;
   }
 }
-```
-
-## Interface Support
-
-All built-in macros work with interfaces. For interfaces, methods are generated as functions in a namespace with the same name, using `self` as the first parameter:
-
-```typescript
+``` ## Interface Support
+ All built-in macros work with interfaces. For interfaces, methods are generated as functions in a namespace with the same name, using `self` as the first parameter:
+ ```
 /** @derive(Debug, Clone, PartialEq) */
 interface Point {
   x: number;
@@ -711,13 +588,9 @@ const point: Point = { x: 10, y: 20 };
 console.log(Point.toString(point));     // "Point { x: 10, y: 20 }"
 const copy = Point.clone(point);        // { x: 10, y: 20 }
 console.log(Point.equals(point, copy)); // true
-```
-
-## Enum Support
-
-All built-in macros work with enums. For enums, methods are generated as functions in a namespace with the same name:
-
-```typescript
+``` ## Enum Support
+ All built-in macros work with enums. For enums, methods are generated as functions in a namespace with the same name:
+ ```
 /** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 enum Status {
   Active = "active",
@@ -740,13 +613,9 @@ console.log(Status.toString(Status.Active));     // "Status.Active"
 console.log(Status.equals(Status.Active, Status.Active)); // true
 const json = Status.toJSON(Status.Pending);      // "pending"
 const parsed = Status.fromJSON("active");        // Status.Active
-```
-
-## Type Alias Support
-
-All built-in macros work with type aliases. For object type aliases, field-aware methods are generated in a namespace:
-
-```typescript
+``` ## Type Alias Support
+ All built-in macros work with type aliases. For object type aliases, field-aware methods are generated in a namespace:
+ ```
 /** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
 type Point = {
   x: number;
@@ -767,24 +636,17 @@ const point: Point = { x: 10, y: 20 };
 console.log(Point.toString(point));     // "Point { x: 10, y: 20 }"
 const copy = Point.clone(point);        // { x: 10, y: 20 }
 console.log(Point.equals(point, copy)); // true
-```
-
-Union type aliases also work, using JSON-based implementations:
-
-```typescript
+``` Union type aliases also work, using JSON-based implementations:
+ ```
 /** @derive(Debug, PartialEq) */
 type ApiStatus = "loading" | "success" | "error";
 
 const status: ApiStatus = "success";
-console.log(ApiStatus.toString(status)); // "ApiStatus(\\"success\\")"
+console.log(ApiStatus.toString(status)); // "ApiStatus(\"success\")"
 console.log(ApiStatus.equals("success", "success")); // true
-```
-
-## Combining Macros
-
-All macros can be used together. They don't conflict and each generates independent methods:
-
-```typescript
+``` ## Combining Macros
+ All macros can be used together. They don't conflict and each generates independent methods:
+ ```
 const user = new User("Alice", 30);
 
 // Debug
@@ -797,80 +659,159 @@ console.log(copy.name); // "Alice"
 
 // Eq
 console.log(user.equals(copy)); // true
-```
-
-## Detailed Documentation
-
-Each macro has its own options and behaviors:
-
-- [**Debug**]({base}/docs/builtin-macros/debug) - Customizable field renaming and skipping
-
-- [**Clone**]({base}/docs/builtin-macros/clone) - Deep copying for all field types
-
-- [**Default**]({base}/docs/builtin-macros/default) - Default value generation with field attributes
-
-- [**Hash**]({base}/docs/builtin-macros/hash) - Hash code generation for use in maps and sets
-
-- [**PartialEq**]({base}/docs/builtin-macros/partial-eq) - Value-based equality comparison
-
-- [**Ord**]({base}/docs/builtin-macros/ord) - Total ordering for sorting
-
-- [**PartialOrd**]({base}/docs/builtin-macros/partial-ord) - Partial ordering comparison
-
-- [**Serialize**]({base}/docs/builtin-macros/serialize) - JSON serialization with serde-style options
-
-- [**Deserialize**]({base}/docs/builtin-macros/deserialize) - JSON deserialization with validation
+``` ## Detailed Documentation
+ Each macro has its own options and behaviors:
+ - [**Debug**](../docs/builtin-macros/debug) - Customizable field renaming and skipping
+ - [**Clone**](../docs/builtin-macros/clone) - Deep copying for all field types
+ - [**Default**](../docs/builtin-macros/default) - Default value generation with field attributes
+ - [**Hash**](../docs/builtin-macros/hash) - Hash code generation for use in maps and sets
+ - [**PartialEq**](../docs/builtin-macros/partial-eq) - Value-based equality comparison
+ - [**Ord**](../docs/builtin-macros/ord) - Total ordering for sorting
+ - [**PartialOrd**](../docs/builtin-macros/partial-ord) - Partial ordering comparison
+ - [**Serialize**](../docs/builtin-macros/serialize) - JSON serialization with serde-style options
+ - [**Deserialize**](../docs/builtin-macros/deserialize) - JSON deserialization with validation
 
 ---
 
 # Debug
+  *The `Debug` macro generates a human-readable `toString()` method for TypeScript classes, interfaces, enums, and type aliases.*
+ ## Basic Usage
+ 
+**Before:**
+```
+/** @derive(Debug) */
+class User {
+    name: string;
+    age: number;
 
-*The `Debug` macro generates a `toString()` method that produces a human-readable string representation of your class.*
+    constructor(name: string, age: number) {
+        this.name = name;
+        this.age = age;
+    }
+}
+```  
+**After:**
+```
+class User {
+    name: string;
+    age: number;
 
-## Basic Usage
+    constructor(name: string, age: number) {
+        this.name = name;
+        this.age = age;
+    }
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
-
-```typescript
+    toString(): string {
+        const parts: string[] = [];
+        parts.push('name: ' + this.name);
+        parts.push('age: ' + this.age);
+        return 'User { ' + parts.join(', ') + ' }';
+    }
+}
+``` ```
 const user = new User("Alice", 30);
 console.log(user.toString());
 // Output: User { name: Alice, age: 30 }
+``` ## Field Options
+ Use the `@debug` field decorator to customize behavior:
+ ### Renaming Fields
+ 
+**Before:**
 ```
+/** @derive(Debug) */
+class User {
+    /** @debug({ rename: "userId" }) */
+    id: number;
 
-## Field Options
+    name: string;
 
-Use the `@debug` field decorator to customize behavior:
+    constructor(id: number, name: string) {
+        this.id = id;
+        this.name = name;
+    }
+}
+```  
+**After:**
+```
+class User {
+    id: number;
 
-### Renaming Fields
+    name: string;
 
-<MacroExample before={data.examples.rename.before} after={data.examples.rename.after} />
+    constructor(id: number, name: string) {
+        this.id = id;
+        this.name = name;
+    }
 
-```typescript
+    toString(): string {
+        const parts: string[] = [];
+        parts.push('userId: ' + this.id);
+        parts.push('name: ' + this.name);
+        return 'User { ' + parts.join(', ') + ' }';
+    }
+}
+``` ```
 const user = new User(42, "Alice");
 console.log(user.toString());
 // Output: User { userId: 42, name: Alice }
+``` ### Skipping Fields
+ Use `skip: true` to exclude sensitive fields from the output:
+ 
+**Before:**
 ```
+/** @derive(Debug) */
+class User {
+    name: string;
+    email: string;
 
-### Skipping Fields
+    /** @debug({ skip: true }) */
+    password: string;
 
-Use `skip: true` to exclude sensitive fields from the output:
+    /** @debug({ skip: true }) */
+    authToken: string;
 
-<MacroExample before={data.examples.skip.before} after={data.examples.skip.after} />
+    constructor(name: string, email: string, password: string, authToken: string) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.authToken = authToken;
+    }
+}
+```  
+**After:**
+```
+class User {
+    name: string;
+    email: string;
 
-```typescript
+    password: string;
+
+    authToken: string;
+
+    constructor(name: string, email: string, password: string, authToken: string) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.authToken = authToken;
+    }
+
+    toString(): string {
+        const parts: string[] = [];
+        parts.push('name: ' + this.name);
+        parts.push('email: ' + this.email);
+        return 'User { ' + parts.join(', ') + ' }';
+    }
+}
+``` ```
 const user = new User("Alice", "alice@example.com", "secret", "tok_xxx");
 console.log(user.toString());
 // Output: User { name: Alice, email: alice@example.com }
 // Note: password and authToken are not included
+```  **Security Always skip sensitive fields like passwords, tokens, and API keys to prevent accidental logging. ## Combining Options
+ **
+**Source:**
 ```
-
-<Alert type="tip" title="Security">
-Always skip sensitive fields like passwords, tokens, and API keys to prevent accidental logging.
-</Alert>
-
-## Combining Options
-
-<InteractiveMacro code={`/** @derive(Debug) */
+/** @derive(Debug) */
 class ApiResponse {
   /** @debug({ rename: "statusCode" }) */
   status: number;
@@ -879,84 +820,123 @@ class ApiResponse {
 
   /** @debug({ skip: true }) */
   internalMetadata: Record<string, unknown>;
-}`} />
+}
+```  ## All Options
+ | Option | Type | Description |
+| --- | --- | --- |
+| `rename` | `string` | Display a different name in the output |
+| `skip` | `boolean` | Exclude this field from the output |
+ ## Interface Support
+ Debug also works with interfaces. For interfaces, a namespace is generated with a `toString` function:
+ 
+**Before:**
+```
+/** @derive(Debug) */
+interface Status {
+    active: boolean;
+    message: string;
+}
+```  
+**After:**
+```
+interface Status {
+    active: boolean;
+    message: string;
+}
 
-## All Options
-
-<table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`rename`</td>
-<td>`string`</td>
-<td>Display a different name in the output</td>
-</tr>
-<tr>
-<td>`skip`</td>
-<td>`boolean`</td>
-<td>Exclude this field from the output</td>
-</tr>
-</tbody>
-</table>
-
-## Interface Support
-
-Debug also works with interfaces. For interfaces, a namespace is generated with a `toString` function:
-
-<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
-
-```typescript
+export namespace Status {
+    export function toString(self: Status): string {
+        const parts: string[] = [];
+        parts.push('active: ' + self.active);
+        parts.push('message: ' + self.message);
+        return 'Status { ' + parts.join(', ') + ' }';
+    }
+}
+``` ```
 const status: Status = { active: true, message: "OK" };
 console.log(Status.toString(status));
 // Output: Status { active: true, message: OK }
+``` ## Enum Support
+ Debug also works with enums. For enums, a namespace is generated with a `toString` function that displays the enum name and variant:
+ 
+**Before:**
 ```
+/** @derive(Debug) */
+enum Priority {
+    Low = 1,
+    Medium = 2,
+    High = 3
+}
+```  
+**After:**
+```
+enum Priority {
+    Low = 1,
+    Medium = 2,
+    High = 3
+}
 
-## Enum Support
-
-Debug also works with enums. For enums, a namespace is generated with a `toString` function that displays the enum name and variant:
-
-<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
-
-```typescript
+export namespace Priority {
+    export function toString(value: Priority): string {
+        const key = Priority[value as unknown as keyof typeof Priority];
+        if (key !== undefined) {
+            return 'Priority.' + key;
+        }
+        return 'Priority(' + String(value) + ')';
+    }
+}
+``` ```
 console.log(Priority.toString(Priority.High));
 // Output: Priority.High
 
 console.log(Priority.toString(Priority.Low));
 // Output: Priority.Low
+``` Works with both numeric and string enums:
+ 
+**Source:**
 ```
-
-Works with both numeric and string enums:
-
-<InteractiveMacro code={`/** @derive(Debug) */
+/** @derive(Debug) */
 enum Status {
   Active = "active",
   Inactive = "inactive",
-}`} />
+}
+```  ## Type Alias Support
+ Debug works with type aliases. For object types, fields are displayed similar to interfaces:
+ 
+**Before:**
+```
+/** @derive(Debug) */
+type Point = {
+    x: number;
+    y: number;
+};
+```  
+**After:**
+```
+type Point = {
+    x: number;
+    y: number;
+};
 
-## Type Alias Support
-
-Debug works with type aliases. For object types, fields are displayed similar to interfaces:
-
-<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
-
-```typescript
+export namespace Point {
+    export function toString(value: Point): string {
+        const parts: string[] = [];
+        parts.push('x: ' + value.x);
+        parts.push('y: ' + value.y);
+        return 'Point { ' + parts.join(', ') + ' }';
+    }
+}
+``` ```
 const point: Point = { x: 10, y: 20 };
 console.log(Point.toString(point));
 // Output: Point { x: 10, y: 20 }
+``` For union types, the value is displayed using JSON.stringify:
+ 
+**Source:**
 ```
-
-For union types, the value is displayed using JSON.stringify:
-
-<InteractiveMacro code={`/** @derive(Debug) */
-type ApiStatus = "loading" | "success" | "error";`} />
-
-```typescript
+/** @derive(Debug) */
+type ApiStatus = "loading" | "success" | "error";
+```  ```
 console.log(ApiStatus.toString("success"));
 // Output: ApiStatus("success")
 ```
@@ -964,38 +944,86 @@ console.log(ApiStatus.toString("success"));
 ---
 
 # Clone
+  *The `Clone` macro generates a `clone()` method for deep copying objects. This is analogous to Rust's `Clone` trait, providing a way to create independent copies of values.*
+ ## Basic Usage
+ 
+**Before:**
+```
+/** @derive(Clone) */
+class Point {
+    x: number;
+    y: number;
 
-*The `Clone` macro generates a `clone()` method that creates a copy of the object.*
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+}
+```  
+**After:**
+```
+class Point {
+    x: number;
+    y: number;
 
-## Basic Usage
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
-
-```typescript
+    clone(): Point {
+        const cloned = Object.create(Object.getPrototypeOf(this));
+        cloned.x = this.x;
+        cloned.y = this.y;
+        return cloned;
+    }
+}
+``` ```
 const original = new Point(10, 20);
 const copy = original.clone();
 
 console.log(copy.x, copy.y); // 10, 20
 console.log(original === copy); // false (different instances)
+``` ## How It Works
+ The Clone macro:
+ 1. Creates a new instance of the class
+ 2. Passes all field values to the constructor
+ 3. Returns the new instance
+ This creates a **shallow clone** - primitive values are copied, but object references remain the same.
+ ## With Nested Objects
+ 
+**Before:**
 ```
+/** @derive(Clone) */
+class User {
+    name: string;
+    address: { city: string; zip: string };
 
-## How It Works
+    constructor(name: string, address: { city: string; zip: string }) {
+        this.name = name;
+        this.address = address;
+    }
+}
+```  
+**After:**
+```
+class User {
+    name: string;
+    address: { city: string; zip: string };
 
-The Clone macro:
+    constructor(name: string, address: { city: string; zip: string }) {
+        this.name = name;
+        this.address = address;
+    }
 
-1. Creates a new instance of the class
-
-2. Passes all field values to the constructor
-
-3. Returns the new instance
-
-This creates a **shallow clone** - primitive values are copied, but object references remain the same.
-
-## With Nested Objects
-
-<MacroExample before={data.examples.nested.before} after={data.examples.nested.after} />
-
-```typescript
+    clone(): User {
+        const cloned = Object.create(Object.getPrototypeOf(this));
+        cloned.name = this.name;
+        cloned.address = this.address;
+        return cloned;
+    }
+}
+``` ```
 const original = new User("Alice", { city: "NYC", zip: "10001" });
 const copy = original.clone();
 
@@ -1005,15 +1033,13 @@ console.log(original.address === copy.address); // true
 // Modifying the copy's address affects the original
 copy.address.city = "LA";
 console.log(original.address.city); // "LA"
+``` For deep cloning of nested objects, you would need to implement custom clone methods or use a deep clone utility.
+ ## Combining with PartialEq
+ Clone works well with PartialEq for creating independent copies that compare as equal:
+ 
+**Source:**
 ```
-
-For deep cloning of nested objects, you would need to implement custom clone methods or use a deep clone utility.
-
-## Combining with PartialEq
-
-Clone works well with PartialEq for creating independent copies that compare as equal:
-
-<InteractiveMacro code={`/** @derive(Clone, PartialEq) */
+/** @derive(Clone, PartialEq) */
 class Point {
   x: number;
   y: number;
@@ -1022,64 +1048,107 @@ class Point {
     this.x = x;
     this.y = y;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const original = new Point(10, 20);
 const copy = original.clone();
 
 console.log(original === copy);       // false (different instances)
 console.log(original.equals(copy));   // true (same values)
+``` ## Interface Support
+ Clone also works with interfaces. For interfaces, a namespace is generated with a `clone` function:
+ 
+**Before:**
 ```
+/** @derive(Clone) */
+interface Point {
+    x: number;
+    y: number;
+}
+```  
+**After:**
+```
+interface Point {
+    x: number;
+    y: number;
+}
 
-## Interface Support
-
-Clone also works with interfaces. For interfaces, a namespace is generated with a `clone` function:
-
-<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
-
-```typescript
+export namespace Point {
+    export function clone(self: Point): Point {
+        return { x: self.x, y: self.y };
+    }
+}
+``` ```
 const original: Point = { x: 10, y: 20 };
 const copy = Point.clone(original);
 
 console.log(copy.x, copy.y);        // 10, 20
 console.log(original === copy);     // false (different objects)
+``` ## Enum Support
+ Clone also works with enums. For enums, the clone function simply returns the value as-is, since enum values are primitives and don't need cloning:
+ 
+**Before:**
 ```
+/** @derive(Clone) */
+enum Status {
+    Active = 'active',
+    Inactive = 'inactive'
+}
+```  
+**After:**
+```
+enum Status {
+    Active = 'active',
+    Inactive = 'inactive'
+}
 
-## Enum Support
-
-Clone also works with enums. For enums, the clone function simply returns the value as-is, since enum values are primitives and don't need cloning:
-
-<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
-
-```typescript
+export namespace Status {
+    export function clone(value: Status): Status {
+        return value;
+    }
+}
+``` ```
 const original = Status.Active;
 const copy = Status.clone(original);
 
 console.log(copy);               // "active"
 console.log(original === copy);  // true (same primitive value)
+``` ## Type Alias Support
+ Clone works with type aliases. For object types, a shallow copy is created using spread:
+ 
+**Before:**
 ```
+/** @derive(Clone) */
+type Point = {
+    x: number;
+    y: number;
+};
+```  
+**After:**
+```
+type Point = {
+    x: number;
+    y: number;
+};
 
-## Type Alias Support
-
-Clone works with type aliases. For object types, a shallow copy is created using spread:
-
-<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
-
-```typescript
+export namespace Point {
+    export function clone(value: Point): Point {
+        return { x: value.x, y: value.y };
+    }
+}
+``` ```
 const original: Point = { x: 10, y: 20 };
 const copy = Point.clone(original);
 
 console.log(copy.x, copy.y);     // 10, 20
 console.log(original === copy);  // false (different objects)
+``` For union types, the value is returned as-is (unions of primitives don't need cloning):
+ 
+**Source:**
 ```
-
-For union types, the value is returned as-is (unions of primitives don't need cloning):
-
-<InteractiveMacro code={`/** @derive(Clone) */
-type ApiStatus = "loading" | "success" | "error";`} />
-
-```typescript
+/** @derive(Clone) */
+type ApiStatus = "loading" | "success" | "error";
+```  ```
 const status: ApiStatus = "success";
 const copy = ApiStatus.clone(status);
 console.log(copy); // "success"
@@ -1088,125 +1157,281 @@ console.log(copy); // "success"
 ---
 
 # Default
+  *The `Default` macro generates a static `defaultValue()` factory method that creates instances with default values. This is analogous to Rust's `Default` trait, providing a standard way to create "zero" or "empty" instances of types.*
+ ## Basic Usage
+ 
+**Before:**
+```
+/** @derive(Default) */
+class Config {
+    host: string;
+    port: number;
+    enabled: boolean;
 
-*The `Default` macro generates a static `defaultValue()` factory method that creates instances with default field values. It works like Rust's `#[derive(Default)]` trait.*
+    constructor(host: string, port: number, enabled: boolean) {
+        this.host = host;
+        this.port = port;
+        this.enabled = enabled;
+    }
+}
+```  
+**After:**
+```
+class Config {
+    host: string;
+    port: number;
+    enabled: boolean;
 
-## Basic Usage
+    constructor(host: string, port: number, enabled: boolean) {
+        this.host = host;
+        this.port = port;
+        this.enabled = enabled;
+    }
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
-
-```typescript
+    static defaultValue(): Config {
+        const instance = new Config();
+        instance.host = '';
+        instance.port = 0;
+        instance.enabled = false;
+        return instance;
+    }
+}
+``` ```
 const config = Config.defaultValue();
 console.log(config.host);    // ""
 console.log(config.port);    // 0
 console.log(config.enabled); // false
+``` ## Automatic Default Values
+ Like Rust's `Default` trait, the macro automatically determines default values for primitive types and common collections:
+ | TypeScript Type | Default Value | Rust Equivalent |
+| --- | --- | --- |
+| `string` | `""` | `String::default()` |
+| `number` | `0` | `i32::default()` |
+| `boolean` | `false` | `bool::default()` |
+| `bigint` | `0n` | `i64::default()` |
+| `T[]` / `Array<T>` | `[]` | `Vec::default()` |
+| `Map<K, V>` | `new Map()` | `HashMap::default()` |
+| `Set<T>` | `new Set()` | `HashSet::default()` |
+| `Date` | `new Date()` | — |
+| `T | null` / `T | undefined` | `null` | `Option::default()` |
+| Custom types | **Error** | **Error** (needs `impl Default`) |
+ ## Nullable Types (like Rust's Option)
+ Just like Rust's `Option<T>` defaults to `None`, nullable TypeScript types automatically default to `null`:
+ 
+**Before:**
 ```
+/** @derive(Default) */
+interface User {
+    name: string;
+    email: string | null;
+    age: number;
+    metadata: Record<string, unknown> | null;
+}
+```  
+**After:**
+```
+interface User {
+    name: string;
+    email: string | null;
+    age: number;
+    metadata: Record<string, unknown> | null;
+}
 
-## Automatic Default Values
-
-Like Rust's `Default` trait, the macro automatically determines default values for primitive types and common collections:
-
-<table class="w-full text-sm">
-<thead>
-<tr>
-<th class="text-left p-2">TypeScript Type</th>
-<th class="text-left p-2">Default Value</th>
-<th class="text-left p-2">Rust Equivalent</th>
-</tr>
-</thead>
-<tbody>
-<tr><td class="p-2">`string`</td><td class="p-2">`""`</td><td class="p-2">`String::default()`</td></tr>
-<tr><td class="p-2">`number`</td><td class="p-2">`0`</td><td class="p-2">`i32::default()`</td></tr>
-<tr><td class="p-2">`boolean`</td><td class="p-2">`false`</td><td class="p-2">`bool::default()`</td></tr>
-<tr><td class="p-2">`bigint`</td><td class="p-2">`0n`</td><td class="p-2">`i64::default()`</td></tr>
-<tr><td class="p-2">`T[]` / `Array<T>`</td><td class="p-2">`[]`</td><td class="p-2">`Vec::default()`</td></tr>
-<tr><td class="p-2">`Map<K, V>`</td><td class="p-2">`new Map()`</td><td class="p-2">`HashMap::default()`</td></tr>
-<tr><td class="p-2">`Set<T>`</td><td class="p-2">`new Set()`</td><td class="p-2">`HashSet::default()`</td></tr>
-<tr><td class="p-2">`Date`</td><td class="p-2">`new Date()`</td><td class="p-2">—</td></tr>
-<tr><td class="p-2">`T | null` / `T | undefined`</td><td class="p-2">`null`</td><td class="p-2">`Option::default()`</td></tr>
-<tr><td class="p-2">Custom types</td><td class="p-2 text-red-500">**Error**</td><td class="p-2 text-red-500">**Error** (needs `impl Default`)</td></tr>
-</tbody>
-</table>
-
-## Nullable Types (like Rust's Option)
-
-Just like Rust's `Option<T>` defaults to `None`, nullable TypeScript types automatically default to `null`:
-
-<MacroExample before={data.examples.nullable.before} after={data.examples.nullable.after} />
-
-```typescript
+export namespace User {
+    export function defaultValue(): User {
+        return { name: '', email: null, age: 0, metadata: null } as User;
+    }
+}
+``` ```
 const user = User.defaultValue();
 console.log(user.name);     // ""
 console.log(user.email);    // null (nullable type)
 console.log(user.age);      // 0
 console.log(user.metadata); // null (nullable type)
+``` ## Custom Types Require @default
+ Just like Rust requires `impl Default` for custom types, Macroforge requires the `@default()` decorator on fields with non-primitive types:
+ 
+**Before:**
 ```
+/** @derive(Default) */
+interface AppConfig {
+    name: string;
+    port: number;
+    /** @default(Settings.defaultValue()) */
+    settings: Settings;
+    /** @default(Permissions.defaultValue()) */
+    permissions: Permissions;
+}
+```  
+**After:**
+```
+interface AppConfig {
+    name: string;
+    port: number;
 
-## Custom Types Require @default
+    settings: Settings;
 
-Just like Rust requires `impl Default` for custom types, Macroforge requires the `@default()` decorator on fields with non-primitive types:
+    permissions: Permissions;
+}
 
-<MacroExample before={data.examples.customType.before} after={data.examples.customType.after} />
-
-<p class="text-red-500 text-sm mt-2">
-Without `@default` on custom type fields, the macro will emit an error:
-</p>
-
-```text
+export namespace AppConfig {
+    export function defaultValue(): AppConfig {
+        return {
+            name: '',
+            port: 0,
+            settings: Settings.defaultValue(),
+            permissions: Permissions.defaultValue()
+        } as AppConfig;
+    }
+}
+```  ```
 // Error: @derive(Default) cannot determine default for non-primitive fields.
 // Add @default(value) to: settings, permissions
+``` ## Custom Default Values
+ Use the `@default()` decorator to specify custom default values for any field:
+ 
+**Before:**
 ```
+/** @derive(Default) */
+class ServerConfig {
+    /** @default("localhost") */
+    host: string;
 
-## Custom Default Values
+    /** @default(8080) */
+    port: number;
 
-Use the `@default()` decorator to specify custom default values for any field:
+    /** @default(true) */
+    enabled: boolean;
 
-<MacroExample before={data.examples.custom.before} after={data.examples.custom.after} />
+    /** @default(["info", "error"]) */
+    logLevels: string[];
 
-```typescript
+    constructor(host: string, port: number, enabled: boolean, logLevels: string[]) {
+        this.host = host;
+        this.port = port;
+        this.enabled = enabled;
+        this.logLevels = logLevels;
+    }
+}
+```  
+**After:**
+```
+class ServerConfig {
+    host: string;
+
+    port: number;
+
+    enabled: boolean;
+
+    logLevels: string[];
+
+    constructor(host: string, port: number, enabled: boolean, logLevels: string[]) {
+        this.host = host;
+        this.port = port;
+        this.enabled = enabled;
+        this.logLevels = logLevels;
+    }
+
+    static defaultValue(): ServerConfig {
+        const instance = new ServerConfig();
+        instance.host = 'localhost';
+        instance.port = 8080;
+        instance.enabled = true;
+        instance.logLevels = ['info', 'error'];
+        return instance;
+    }
+}
+``` ```
 const config = ServerConfig.defaultValue();
 console.log(config.host);      // "localhost"
 console.log(config.port);      // 8080
 console.log(config.enabled);   // true
 console.log(config.logLevels); // ["info", "error"]
+``` ## Interface Support
+ Default also works with interfaces. For interfaces, a namespace is generated with a `defaultValue()` function:
+ 
+**Before:**
 ```
+/** @derive(Default) */
+interface Point {
+    x: number;
+    y: number;
+}
+```  
+**After:**
+```
+interface Point {
+    x: number;
+    y: number;
+}
 
-## Interface Support
-
-Default also works with interfaces. For interfaces, a namespace is generated with a `defaultValue()` function:
-
-<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
-
-```typescript
+export namespace Point {
+    export function defaultValue(): Point {
+        return { x: 0, y: 0 } as Point;
+    }
+}
+``` ```
 const origin = Point.defaultValue();
 console.log(origin); // { x: 0, y: 0 }
+``` ## Enum Support
+ Default works with enums. For enums, it returns the first variant as the default value:
+ 
+**Before:**
 ```
+/** @derive(Default) */
+enum Status {
+    Pending = 'pending',
+    Active = 'active',
+    Completed = 'completed'
+}
+```  
+**After:**
+```
+enum Status {
+    Pending = 'pending',
+    Active = 'active',
+    Completed = 'completed'
+}
 
-## Enum Support
-
-Default works with enums. For enums, it returns the first variant as the default value:
-
-<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
-
-```typescript
+export namespace Status {
+    export function defaultValue(): Status {
+        return Status.Pending;
+    }
+}
+``` ```
 const defaultStatus = Status.defaultValue();
 console.log(defaultStatus); // "pending"
+``` ## Type Alias Support
+ Default works with type aliases. For object types, it creates an object with default field values:
+ 
+**Before:**
 ```
+/** @derive(Default) */
+type Dimensions = {
+    width: number;
+    height: number;
+};
+```  
+**After:**
+```
+type Dimensions = {
+    width: number;
+    height: number;
+};
 
-## Type Alias Support
-
-Default works with type aliases. For object types, it creates an object with default field values:
-
-<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
-
-```typescript
+export namespace Dimensions {
+    export function defaultValue(): Dimensions {
+        return { width: 0, height: 0 } as Dimensions;
+    }
+}
+``` ```
 const dims = Dimensions.defaultValue();
 console.log(dims); // { width: 0, height: 0 }
+``` ## Combining with Other Macros
+ 
+**Source:**
 ```
-
-## Combining with Other Macros
-
-<InteractiveMacro code={`/** @derive(Default, Debug, Clone, PartialEq) */
+/** @derive(Default, Debug, Clone, PartialEq) */
 class User {
   /** @default("Anonymous") */
   name: string;
@@ -1218,9 +1443,8 @@ class User {
     this.name = name;
     this.age = age;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const user1 = User.defaultValue();
 const user2 = user1.clone();
 
@@ -1231,14 +1455,57 @@ console.log(user1.equals(user2)); // true
 ---
 
 # Hash
+  *The `Hash` macro generates a `hashCode()` method for computing numeric hash codes. This is analogous to Rust's `Hash` trait and Java's `hashCode()` method, enabling objects to be used as keys in hash-based collections.*
+ ## Basic Usage
+ 
+**Before:**
+```
+/** @derive(Hash) */
+class Point {
+    x: number;
+    y: number;
 
-*The `Hash` macro generates a `hashCode()` method that computes a numeric hash value based on field values.*
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+}
+```  
+**After:**
+```
+class Point {
+    x: number;
+    y: number;
 
-## Basic Usage
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
-
-```typescript
+    hashCode(): number {
+        let hash = 17;
+        hash =
+            (hash * 31 +
+                (Number.isInteger(this.x)
+                    ? this.x | 0
+                    : this.x
+                          .toString()
+                          .split('')
+                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+            0;
+        hash =
+            (hash * 31 +
+                (Number.isInteger(this.y)
+                    ? this.y | 0
+                    : this.y
+                          .toString()
+                          .split('')
+                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+            0;
+        return hash;
+    }
+}
+``` ```
 const p1 = new Point(10, 20);
 const p2 = new Point(10, 20);
 const p3 = new Point(5, 5);
@@ -1246,52 +1513,82 @@ const p3 = new Point(5, 5);
 console.log(p1.hashCode()); // Same hash
 console.log(p2.hashCode()); // Same hash (equal values = equal hash)
 console.log(p3.hashCode()); // Different hash
+``` ## Hash Algorithm
+ The generated hash function uses the following algorithm for different types:
+ - `number` → Integers use bitwise OR (`| 0`), floats are stringified and hashed
+ - `string` → Character-by-character hash: `(h * 31 + charCode) | 0`
+ - `boolean` → `1231` for true, `1237` for false (Java convention)
+ - `bigint` → Converted to string and hashed character-by-character
+ - `Date` → Uses `getTime() | 0` for timestamp hash
+ - `Array` → Combines element hashes with `h * 31 + elementHash`
+ - `Map/Set` → Combines all entry hashes
+ - `Object` → Calls `hashCode()` if available, otherwise JSON stringifies and hashes
+ - `null` → Returns 0
+ - `undefined` → Returns 1
+ ## Field Options
+ ### @hash(skip)
+ Use `@hash(skip)` to exclude a field from hash computation:
+ 
+**Before:**
 ```
+/** @derive(Hash) */
+class User {
+    id: number;
+    name: string;
 
-## Hash Algorithm
+    /** @hash(skip) */
+    lastLogin: Date;
 
-The generated hash function uses the following algorithm for different types:
+    constructor(id: number, name: string, lastLogin: Date) {
+        this.id = id;
+        this.name = name;
+        this.lastLogin = lastLogin;
+    }
+}
+```  
+**After:**
+```
+class User {
+    id: number;
+    name: string;
 
-- `number` → Integers use bitwise OR (`| 0`), floats are stringified and hashed
+    lastLogin: Date;
 
-- `string` → Character-by-character hash: `(h * 31 + charCode) | 0`
+    constructor(id: number, name: string, lastLogin: Date) {
+        this.id = id;
+        this.name = name;
+        this.lastLogin = lastLogin;
+    }
 
-- `boolean` → `1231` for true, `1237` for false (Java convention)
-
-- `bigint` → Converted to string and hashed character-by-character
-
-- `Date` → Uses `getTime() | 0` for timestamp hash
-
-- `Array` → Combines element hashes with `h * 31 + elementHash`
-
-- `Map/Set` → Combines all entry hashes
-
-- `Object` → Calls `hashCode()` if available, otherwise JSON stringifies and hashes
-
-- `null` → Returns 0
-
-- `undefined` → Returns 1
-
-## Field Options
-
-### @hash(skip)
-
-Use `@hash(skip)` to exclude a field from hash computation:
-
-<MacroExample before={data.examples.skip.before} after={data.examples.skip.after} />
-
-```typescript
+    hashCode(): number {
+        let hash = 17;
+        hash =
+            (hash * 31 +
+                (Number.isInteger(this.id)
+                    ? this.id | 0
+                    : this.id
+                          .toString()
+                          .split('')
+                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+            0;
+        hash =
+            (hash * 31 +
+                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+            0;
+        return hash;
+    }
+}
+``` ```
 const user1 = new User(1, "Alice", new Date("2024-01-01"));
 const user2 = new User(1, "Alice", new Date("2024-12-01"));
 
 console.log(user1.hashCode() === user2.hashCode()); // true (lastLogin is skipped)
+``` ## Use with PartialEq
+ Hash is often used together with PartialEq. Objects that are equal should have the same hash code:
+ 
+**Source:**
 ```
-
-## Use with PartialEq
-
-Hash is often used together with PartialEq. Objects that are equal should have the same hash code:
-
-<InteractiveMacro code={`/** @derive(Hash, PartialEq) */
+/** @derive(Hash, PartialEq) */
 class Product {
   sku: string;
   name: string;
@@ -1300,56 +1597,146 @@ class Product {
     this.sku = sku;
     this.name = name;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const p1 = new Product("ABC123", "Widget");
 const p2 = new Product("ABC123", "Widget");
 
 // Equal objects have equal hash codes
 console.log(p1.equals(p2));                       // true
 console.log(p1.hashCode() === p2.hashCode());     // true
+``` ## Interface Support
+ Hash also works with interfaces. For interfaces, a namespace is generated with a `hashCode` function:
+ 
+**Before:**
 ```
+/** @derive(Hash) */
+interface Point {
+    x: number;
+    y: number;
+}
+```  
+**After:**
+```
+interface Point {
+    x: number;
+    y: number;
+}
 
-## Interface Support
-
-Hash also works with interfaces. For interfaces, a namespace is generated with a `hashCode` function:
-
-<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
-
-```typescript
+export namespace Point {
+    export function hashCode(self: Point): number {
+        let hash = 17;
+        hash =
+            (hash * 31 +
+                (Number.isInteger(self.x)
+                    ? self.x | 0
+                    : self.x
+                          .toString()
+                          .split('')
+                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+            0;
+        hash =
+            (hash * 31 +
+                (Number.isInteger(self.y)
+                    ? self.y | 0
+                    : self.y
+                          .toString()
+                          .split('')
+                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+            0;
+        return hash;
+    }
+}
+``` ```
 const p: Point = { x: 10, y: 20 };
 console.log(Point.hashCode(p)); // numeric hash value
+``` ## Enum Support
+ Hash works with enums. For string enums, it hashes the string value; for numeric enums, it uses the numeric value directly:
+ 
+**Before:**
 ```
+/** @derive(Hash) */
+enum Status {
+    Active = 'active',
+    Inactive = 'inactive',
+    Pending = 'pending'
+}
+```  
+**After:**
+```
+enum Status {
+    Active = 'active',
+    Inactive = 'inactive',
+    Pending = 'pending'
+}
 
-## Enum Support
-
-Hash works with enums. For string enums, it hashes the string value; for numeric enums, it uses the numeric value directly:
-
-<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
-
-```typescript
+export namespace Status {
+    export function hashCode(value: Status): number {
+        if (typeof value === 'string') {
+            let hash = 0;
+            for (let i = 0; i < value.length; i++) {
+                hash = (hash * 31 + value.charCodeAt(i)) | 0;
+            }
+            return hash;
+        }
+        return value as number;
+    }
+}
+``` ```
 console.log(Status.hashCode(Status.Active));   // consistent hash
 console.log(Status.hashCode(Status.Inactive)); // different hash
+``` ## Type Alias Support
+ Hash works with type aliases. For object types, it hashes each field:
+ 
+**Before:**
 ```
+/** @derive(Hash) */
+type Coordinates = {
+    lat: number;
+    lng: number;
+};
+```  
+**After:**
+```
+type Coordinates = {
+    lat: number;
+    lng: number;
+};
 
-## Type Alias Support
-
-Hash works with type aliases. For object types, it hashes each field:
-
-<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
-
-```typescript
+export namespace Coordinates {
+    export function hashCode(value: Coordinates): number {
+        let hash = 17;
+        hash =
+            (hash * 31 +
+                (Number.isInteger(value.lat)
+                    ? value.lat | 0
+                    : value.lat
+                          .toString()
+                          .split('')
+                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+            0;
+        hash =
+            (hash * 31 +
+                (Number.isInteger(value.lng)
+                    ? value.lng | 0
+                    : value.lng
+                          .toString()
+                          .split('')
+                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+            0;
+        return hash;
+    }
+}
+``` ```
 const loc: Coordinates = { lat: 40.7128, lng: -74.0060 };
 console.log(Coordinates.hashCode(loc));
+``` For union types, it uses JSON stringification as a fallback:
+ 
+**Source:**
 ```
-
-For union types, it uses JSON stringification as a fallback:
-
-<InteractiveMacro code={`/** @derive(Hash) */
-type Result = "success" | "error" | "pending";`} />
-
-```typescript
+/** @derive(Hash) */
+type Result = "success" | "error" | "pending";
+```  ```
 console.log(Result.hashCode("success")); // hash of "success" string
 console.log(Result.hashCode("error"));   // hash of "error" string
 ```
@@ -1357,14 +1744,50 @@ console.log(Result.hashCode("error"));   // hash of "error" string
 ---
 
 # Ord
+  *The `Ord` macro generates a `compareTo()` method for **total ordering** comparison. This is analogous to Rust's `Ord` trait, enabling objects to be sorted and compared with a guaranteed ordering relationship.*
+ ## Basic Usage
+ 
+**Before:**
+```
+/** @derive(Ord) */
+class Version {
+    major: number;
+    minor: number;
+    patch: number;
 
-*The `Ord` macro generates a `compareTo()` method that implements total ordering, always returning `-1`, `0`, or `1`.*
+    constructor(major: number, minor: number, patch: number) {
+        this.major = major;
+        this.minor = minor;
+        this.patch = patch;
+    }
+}
+```  
+**After:**
+```
+class Version {
+    major: number;
+    minor: number;
+    patch: number;
 
-## Basic Usage
+    constructor(major: number, minor: number, patch: number) {
+        this.major = major;
+        this.minor = minor;
+        this.patch = patch;
+    }
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
-
-```typescript
+    compareTo(other: Version): number {
+        if (this === other) return 0;
+        const typedOther = other;
+        const cmp0 = this.major < typedOther.major ? -1 : this.major > typedOther.major ? 1 : 0;
+        if (cmp0 !== 0) return cmp0;
+        const cmp1 = this.minor < typedOther.minor ? -1 : this.minor > typedOther.minor ? 1 : 0;
+        if (cmp1 !== 0) return cmp1;
+        const cmp2 = this.patch < typedOther.patch ? -1 : this.patch > typedOther.patch ? 1 : 0;
+        if (cmp2 !== 0) return cmp2;
+        return 0;
+    }
+}
+``` ```
 const v1 = new Version(1, 0, 0);
 const v2 = new Version(1, 2, 0);
 const v3 = new Version(1, 2, 0);
@@ -1372,60 +1795,81 @@ const v3 = new Version(1, 2, 0);
 console.log(v1.compareTo(v2)); // -1 (v1 < v2)
 console.log(v2.compareTo(v1)); // 1  (v2 > v1)
 console.log(v2.compareTo(v3)); // 0  (v2 == v3)
+``` ## Comparison Logic
+ The Ord macro compares fields in declaration order (lexicographic ordering). For each type:
+ - `number` / `bigint` → Direct numeric comparison
+ - `string` → Uses `localeCompare()` clamped to -1/0/1
+ - `boolean` → `false < true`
+ - `Date` → Compares timestamps via `getTime()`
+ - `Array` → Lexicographic: compares element-by-element, then length
+ - `Map/Set` → Size and content comparison
+ - `Object` → Calls `compareTo()` if available, otherwise 0
+ - `null/undefined` → Treated as equal (returns 0)
+ ## Return Values
+ The `compareTo()` method always returns:
+ - `-1` → `this` is less than `other`
+ - `0` → `this` equals `other`
+ - `1` → `this` is greater than `other`
+ Unlike `PartialOrd`, the `Ord` macro never returns `null` - it provides total ordering.
+ ## Field Options
+ ### @ord(skip)
+ Use `@ord(skip)` to exclude a field from ordering comparison:
+ 
+**Before:**
 ```
+/** @derive(Ord) */
+class Task {
+    priority: number;
+    name: string;
 
-## Comparison Logic
+    /** @ord(skip) */
+    createdAt: Date;
 
-The Ord macro compares fields in declaration order (lexicographic ordering). For each type:
+    constructor(priority: number, name: string, createdAt: Date) {
+        this.priority = priority;
+        this.name = name;
+        this.createdAt = createdAt;
+    }
+}
+```  
+**After:**
+```
+class Task {
+    priority: number;
+    name: string;
 
-- `number` / `bigint` → Direct numeric comparison
+    createdAt: Date;
 
-- `string` → Uses `localeCompare()` clamped to -1/0/1
+    constructor(priority: number, name: string, createdAt: Date) {
+        this.priority = priority;
+        this.name = name;
+        this.createdAt = createdAt;
+    }
 
-- `boolean` → `false < true`
-
-- `Date` → Compares timestamps via `getTime()`
-
-- `Array` → Lexicographic: compares element-by-element, then length
-
-- `Map/Set` → Size and content comparison
-
-- `Object` → Calls `compareTo()` if available, otherwise 0
-
-- `null/undefined` → Treated as equal (returns 0)
-
-## Return Values
-
-The `compareTo()` method always returns:
-
-- `-1` → `this` is less than `other`
-
-- `0` → `this` equals `other`
-
-- `1` → `this` is greater than `other`
-
-Unlike `PartialOrd`, the `Ord` macro never returns `null` - it provides total ordering.
-
-## Field Options
-
-### @ord(skip)
-
-Use `@ord(skip)` to exclude a field from ordering comparison:
-
-<MacroExample before={data.examples.skip.before} after={data.examples.skip.after} />
-
-```typescript
+    compareTo(other: Task): number {
+        if (this === other) return 0;
+        const typedOther = other;
+        const cmp0 =
+            this.priority < typedOther.priority ? -1 : this.priority > typedOther.priority ? 1 : 0;
+        if (cmp0 !== 0) return cmp0;
+        const cmp1 = ((cmp) => (cmp < 0 ? -1 : cmp > 0 ? 1 : 0))(
+            this.name.localeCompare(typedOther.name)
+        );
+        if (cmp1 !== 0) return cmp1;
+        return 0;
+    }
+}
+``` ```
 const t1 = new Task(1, "Bug fix", new Date("2024-01-01"));
 const t2 = new Task(1, "Bug fix", new Date("2024-12-01"));
 
 console.log(t1.compareTo(t2)); // 0 (createdAt is skipped)
+``` ## Sorting Arrays
+ The generated `compareTo()` method works directly with `Array.sort()`:
+ 
+**Source:**
 ```
-
-## Sorting Arrays
-
-The generated `compareTo()` method works directly with `Array.sort()`:
-
-<InteractiveMacro code={`/** @derive(Ord) */
+/** @derive(Ord) */
 class Score {
   points: number;
   name: string;
@@ -1434,9 +1878,8 @@ class Score {
     this.points = points;
     this.name = name;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const scores = [
   new Score(100, "Alice"),
   new Score(50, "Bob"),
@@ -1451,15 +1894,35 @@ scores.sort((a, b) => a.compareTo(b));
 // Sort descending
 scores.sort((a, b) => b.compareTo(a));
 // Result: [Charlie(150), Alice(100), Alice(50), Bob(50)]
+``` ## Interface Support
+ Ord works with interfaces. For interfaces, a namespace is generated with a `compareTo` function:
+ 
+**Before:**
 ```
+/** @derive(Ord) */
+interface Point {
+    x: number;
+    y: number;
+}
+```  
+**After:**
+```
+interface Point {
+    x: number;
+    y: number;
+}
 
-## Interface Support
-
-Ord works with interfaces. For interfaces, a namespace is generated with a `compareTo` function:
-
-<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
-
-```typescript
+export namespace Point {
+    export function compareTo(self: Point, other: Point): number {
+        if (self === other) return 0;
+        const cmp0 = self.x < other.x ? -1 : self.x > other.x ? 1 : 0;
+        if (cmp0 !== 0) return cmp0;
+        const cmp1 = self.y < other.y ? -1 : self.y > other.y ? 1 : 0;
+        if (cmp1 !== 0) return cmp1;
+        return 0;
+    }
+}
+``` ```
 const points: Point[] = [
   { x: 5, y: 10 },
   { x: 1, y: 20 },
@@ -1468,38 +1931,83 @@ const points: Point[] = [
 
 points.sort((a, b) => Point.compareTo(a, b));
 // Result: [{ x: 1, y: 20 }, { x: 5, y: 5 }, { x: 5, y: 10 }]
+``` ## Enum Support
+ Ord works with enums. For numeric enums, it compares the numeric values; for string enums, it uses string comparison:
+ 
+**Before:**
 ```
+/** @derive(Ord) */
+enum Priority {
+    Low = 0,
+    Medium = 1,
+    High = 2,
+    Critical = 3
+}
+```  
+**After:**
+```
+enum Priority {
+    Low = 0,
+    Medium = 1,
+    High = 2,
+    Critical = 3
+}
 
-## Enum Support
-
-Ord works with enums. For numeric enums, it compares the numeric values; for string enums, it uses string comparison:
-
-<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
-
-```typescript
+export namespace Priority {
+    export function compareTo(a: Priority, b: Priority): number {
+        if (typeof a === 'number' && typeof b === 'number') {
+            return a < b ? -1 : a > b ? 1 : 0;
+        }
+        if (typeof a === 'string' && typeof b === 'string') {
+            const cmp = a.localeCompare(b);
+            return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
+        }
+        return 0;
+    }
+}
+``` ```
 console.log(Priority.compareTo(Priority.Low, Priority.High));      // -1
 console.log(Priority.compareTo(Priority.Critical, Priority.Low));  // 1
 console.log(Priority.compareTo(Priority.Medium, Priority.Medium)); // 0
+``` ## Type Alias Support
+ Ord works with type aliases. For object types, it uses lexicographic field comparison:
+ 
+**Before:**
 ```
+/** @derive(Ord) */
+type Coordinate = {
+    x: number;
+    y: number;
+};
+```  
+**After:**
+```
+type Coordinate = {
+    x: number;
+    y: number;
+};
 
-## Type Alias Support
-
-Ord works with type aliases. For object types, it uses lexicographic field comparison:
-
-<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
-
-```typescript
+export namespace Coordinate {
+    export function compareTo(a: Coordinate, b: Coordinate): number {
+        if (a === b) return 0;
+        const cmp0 = a.x < b.x ? -1 : a.x > b.x ? 1 : 0;
+        if (cmp0 !== 0) return cmp0;
+        const cmp1 = a.y < b.y ? -1 : a.y > b.y ? 1 : 0;
+        if (cmp1 !== 0) return cmp1;
+        return 0;
+    }
+}
+``` ```
 const c1: Coordinate = { x: 10, y: 20 };
 const c2: Coordinate = { x: 10, y: 30 };
 
 console.log(Coordinate.compareTo(c1, c2)); // -1 (c1 < c2)
+``` ## Ord vs PartialOrd
+ Use `Ord` when all values of a type are comparable. Use `PartialOrd` when some values might be incomparable (e.g., different types at runtime).
+ 
+**Source:**
 ```
-
-## Ord vs PartialOrd
-
-Use `Ord` when all values of a type are comparable. Use `PartialOrd` when some values might be incomparable (e.g., different types at runtime).
-
-<InteractiveMacro code={`// Ord: Total ordering - never returns null
+// Ord: Total ordering - never returns null
 /** @derive(Ord) */
 class Version {
   major: number;
@@ -1508,9 +2016,8 @@ class Version {
     this.major = major;
     this.minor = minor;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const v1 = new Version(1, 0);
 const v2 = new Version(2, 0);
 console.log(v1.compareTo(v2)); // Always -1, 0, or 1
@@ -1519,14 +2026,41 @@ console.log(v1.compareTo(v2)); // Always -1, 0, or 1
 ---
 
 # PartialEq
+  *The `PartialEq` macro generates an `equals()` method for field-by-field structural equality comparison. This is analogous to Rust's `PartialEq` trait, enabling value-based equality semantics instead of reference equality.*
+ ## Basic Usage
+ 
+**Before:**
+```
+/** @derive(PartialEq) */
+class Point {
+    x: number;
+    y: number;
 
-*The `PartialEq` macro generates an `equals()` method for value-based equality comparison between objects.*
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+}
+```  
+**After:**
+```
+class Point {
+    x: number;
+    y: number;
 
-## Basic Usage
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
-
-```typescript
+    equals(other: unknown): boolean {
+        if (this === other) return true;
+        if (!(other instanceof Point)) return false;
+        const typedOther = other as Point;
+        return this.x === typedOther.x && this.y === typedOther.y;
+    }
+}
+``` ```
 const p1 = new Point(10, 20);
 const p2 = new Point(10, 20);
 const p3 = new Point(5, 5);
@@ -1534,63 +2068,84 @@ const p3 = new Point(5, 5);
 console.log(p1.equals(p2)); // true (same values)
 console.log(p1.equals(p3)); // false (different values)
 console.log(p1 === p2);     // false (different references)
+``` ## How It Works
+ The PartialEq macro performs field-by-field comparison using these strategies:
+ - **Primitives** (string, number, boolean, null, undefined) → Strict equality (`===`)
+ - **Date** → Compares timestamps via `getTime()`
+ - **Array** → Length check + element-by-element comparison
+ - **Map** → Size check + entry comparison
+ - **Set** → Size check + membership verification
+ - **Objects** → Calls `equals()` if available, otherwise `===`
+ ## Field Options
+ ### @partialEq(skip)
+ Use `@partialEq(skip)` to exclude a field from equality comparison:
+ 
+**Before:**
 ```
+/** @derive(PartialEq) */
+class User {
+    id: number;
+    name: string;
 
-## How It Works
+    /** @partialEq(skip) */
+    createdAt: Date;
 
-The PartialEq macro performs field-by-field comparison using these strategies:
+    constructor(id: number, name: string, createdAt: Date) {
+        this.id = id;
+        this.name = name;
+        this.createdAt = createdAt;
+    }
+}
+```  
+**After:**
+```
+class User {
+    id: number;
+    name: string;
 
-- **Primitives** (string, number, boolean, null, undefined) → Strict equality (`===`)
+    createdAt: Date;
 
-- **Date** → Compares timestamps via `getTime()`
+    constructor(id: number, name: string, createdAt: Date) {
+        this.id = id;
+        this.name = name;
+        this.createdAt = createdAt;
+    }
 
-- **Array** → Length check + element-by-element comparison
-
-- **Map** → Size check + entry comparison
-
-- **Set** → Size check + membership verification
-
-- **Objects** → Calls `equals()` if available, otherwise `===`
-
-## Field Options
-
-### @partialEq(skip)
-
-Use `@partialEq(skip)` to exclude a field from equality comparison:
-
-<MacroExample before={data.examples.skip.before} after={data.examples.skip.after} />
-
-```typescript
+    equals(other: unknown): boolean {
+        if (this === other) return true;
+        if (!(other instanceof User)) return false;
+        const typedOther = other as User;
+        return this.id === typedOther.id && this.name === typedOther.name;
+    }
+}
+``` ```
 const user1 = new User(1, "Alice", new Date("2024-01-01"));
 const user2 = new User(1, "Alice", new Date("2024-12-01"));
 
 console.log(user1.equals(user2)); // true (createdAt is skipped)
+``` ## Type Safety
+ The generated `equals()` method accepts `unknown` and performs runtime type checking:
+ 
+**Source:**
 ```
-
-## Type Safety
-
-The generated `equals()` method accepts `unknown` and performs runtime type checking:
-
-<InteractiveMacro code={`/** @derive(PartialEq) */
+/** @derive(PartialEq) */
 class User {
   name: string;
   constructor(name: string) {
     this.name = name;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const user = new User("Alice");
 
 console.log(user.equals(new User("Alice"))); // true
 console.log(user.equals("Alice")); // false (not a User instance)
+``` ## With Nested Objects
+ For objects with nested fields, PartialEq recursively calls `equals()` if available:
+ 
+**Source:**
 ```
-
-## With Nested Objects
-
-For objects with nested fields, PartialEq recursively calls `equals()` if available:
-
-<InteractiveMacro code={`/** @derive(PartialEq) */
+/** @derive(PartialEq) */
 class Address {
   city: string;
   zip: string;
@@ -1610,9 +2165,8 @@ class Person {
     this.name = name;
     this.address = address;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const addr1 = new Address("NYC", "10001");
 const addr2 = new Address("NYC", "10001");
 
@@ -1620,62 +2174,109 @@ const p1 = new Person("Alice", addr1);
 const p2 = new Person("Alice", addr2);
 
 console.log(p1.equals(p2)); // true (deep equality via Address.equals)
+``` ## Interface Support
+ PartialEq works with interfaces. For interfaces, a namespace is generated with an `equals` function:
+ 
+**Before:**
 ```
+/** @derive(PartialEq) */
+interface Point {
+    x: number;
+    y: number;
+}
+```  
+**After:**
+```
+interface Point {
+    x: number;
+    y: number;
+}
 
-## Interface Support
-
-PartialEq works with interfaces. For interfaces, a namespace is generated with an `equals` function:
-
-<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
-
-```typescript
+export namespace Point {
+    export function equals(self: Point, other: Point): boolean {
+        if (self === other) return true;
+        return self.x === other.x && self.y === other.y;
+    }
+}
+``` ```
 const p1: Point = { x: 10, y: 20 };
 const p2: Point = { x: 10, y: 20 };
 const p3: Point = { x: 5, y: 5 };
 
 console.log(Point.equals(p1, p2)); // true
 console.log(Point.equals(p1, p3)); // false
+``` ## Enum Support
+ PartialEq works with enums. For enums, strict equality comparison is used:
+ 
+**Before:**
 ```
+/** @derive(PartialEq) */
+enum Status {
+    Active = 'active',
+    Inactive = 'inactive',
+    Pending = 'pending'
+}
+```  
+**After:**
+```
+enum Status {
+    Active = 'active',
+    Inactive = 'inactive',
+    Pending = 'pending'
+}
 
-## Enum Support
-
-PartialEq works with enums. For enums, strict equality comparison is used:
-
-<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
-
-```typescript
+export namespace Status {
+    export function equals(a: Status, b: Status): boolean {
+        return a === b;
+    }
+}
+``` ```
 console.log(Status.equals(Status.Active, Status.Active));   // true
 console.log(Status.equals(Status.Active, Status.Inactive)); // false
+``` ## Type Alias Support
+ PartialEq works with type aliases. For object types, field-by-field comparison is used:
+ 
+**Before:**
 ```
+/** @derive(PartialEq) */
+type Point = {
+    x: number;
+    y: number;
+};
+```  
+**After:**
+```
+type Point = {
+    x: number;
+    y: number;
+};
 
-## Type Alias Support
-
-PartialEq works with type aliases. For object types, field-by-field comparison is used:
-
-<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
-
-```typescript
+export namespace Point {
+    export function equals(a: Point, b: Point): boolean {
+        if (a === b) return true;
+        return a.x === b.x && a.y === b.y;
+    }
+}
+``` ```
 const p1: Point = { x: 10, y: 20 };
 const p2: Point = { x: 10, y: 20 };
 
 console.log(Point.equals(p1, p2)); // true
+``` For union types, strict equality is used:
+ 
+**Source:**
 ```
-
-For union types, strict equality is used:
-
-<InteractiveMacro code={`/** @derive(PartialEq) */
-type ApiStatus = "loading" | "success" | "error";`} />
-
-```typescript
+/** @derive(PartialEq) */
+type ApiStatus = "loading" | "success" | "error";
+```  ```
 console.log(ApiStatus.equals("success", "success")); // true
 console.log(ApiStatus.equals("success", "error"));   // false
+``` ## Common Patterns
+ ### Finding Items in Arrays
+ 
+**Source:**
 ```
-
-## Common Patterns
-
-### Finding Items in Arrays
-
-<InteractiveMacro code={`/** @derive(PartialEq) */
+/** @derive(PartialEq) */
 class Product {
   sku: string;
   name: string;
@@ -1684,9 +2285,8 @@ class Product {
     this.sku = sku;
     this.name = name;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const products = [
   new Product("A1", "Widget"),
   new Product("B2", "Gadget"),
@@ -1697,13 +2297,12 @@ const target = new Product("B2", "Gadget");
 const found = products.find(p => p.equals(target));
 
 console.log(found); // Product { sku: "B2", name: "Gadget" }
+``` ### Use with Hash
+ When using objects as keys in Map-like structures, combine PartialEq with Hash:
+ 
+**Source:**
 ```
-
-### Use with Hash
-
-When using objects as keys in Map-like structures, combine PartialEq with Hash:
-
-<InteractiveMacro code={`/** @derive(PartialEq, Hash) */
+/** @derive(PartialEq, Hash) */
 class Key {
   id: number;
   type: string;
@@ -1712,9 +2311,8 @@ class Key {
     this.id = id;
     this.type = type;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const k1 = new Key(1, "user");
 const k2 = new Key(1, "user");
 
@@ -1726,14 +2324,41 @@ console.log(k1.hashCode() === k2.hashCode()); // true
 ---
 
 # PartialOrd
+  *The `PartialOrd` macro generates a `compareTo()` method for **partial ordering** comparison. This is analogous to Rust's `PartialOrd` trait, enabling comparison between values where some pairs may be incomparable.*
+ ## Basic Usage
+ 
+**Before:**
+```
+/** @derive(PartialOrd) */
+class Temperature {
+    celsius: number;
 
-*The `PartialOrd` macro generates a `compareTo()` method that implements partial ordering, returning `-1`, `0`, `1`, or `null` for incomparable values.*
+    constructor(celsius: number) {
+        this.celsius = celsius;
+    }
+}
+```  
+**After:**
+```
+class Temperature {
+    celsius: number;
 
-## Basic Usage
+    constructor(celsius: number) {
+        this.celsius = celsius;
+    }
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
-
-```typescript
+    compareTo(other: unknown): number | null {
+        if (this === other) return 0;
+        if (!(other instanceof Temperature)) return null;
+        const typedOther = other as Temperature;
+        const cmp0 =
+            this.celsius < typedOther.celsius ? -1 : this.celsius > typedOther.celsius ? 1 : 0;
+        if (cmp0 === null) return null;
+        if (cmp0 !== 0) return cmp0;
+        return 0;
+    }
+}
+``` ```
 const t1 = new Temperature(20);
 const t2 = new Temperature(30);
 const t3 = new Temperature(20);
@@ -1744,67 +2369,88 @@ console.log(t1.compareTo(t3)); // 0  (t1 == t3)
 
 // Returns null for incomparable types
 console.log(t1.compareTo("not a Temperature")); // null
+``` ## Return Values
+ The `compareTo()` method returns:
+ - `-1` → `this` is less than `other`
+ - `0` → `this` equals `other`
+ - `1` → `this` is greater than `other`
+ - `null` → Values are incomparable (e.g., different types)
+ ## Comparison Logic
+ The PartialOrd macro compares fields in declaration order with type checking:
+ - `number` / `bigint` → Direct numeric comparison
+ - `string` → Uses `localeCompare()`
+ - `boolean` → `false < true`
+ - `Date` → Compares timestamps; returns `null` if not both Date instances
+ - `Array` → Lexicographic comparison; returns `null` if not both arrays
+ - `Object` → Calls `compareTo()` if available
+ - **Type mismatch** → Returns `null`
+ ## Field Options
+ ### @ord(skip)
+ Use `@ord(skip)` to exclude a field from ordering comparison:
+ 
+**Before:**
 ```
+/** @derive(PartialOrd) */
+class Item {
+    price: number;
+    name: string;
 
-## Return Values
+    /** @ord(skip) */
+    description: string;
 
-The `compareTo()` method returns:
+    constructor(price: number, name: string, description: string) {
+        this.price = price;
+        this.name = name;
+        this.description = description;
+    }
+}
+```  
+**After:**
+```
+class Item {
+    price: number;
+    name: string;
 
-- `-1` → `this` is less than `other`
+    description: string;
 
-- `0` → `this` equals `other`
+    constructor(price: number, name: string, description: string) {
+        this.price = price;
+        this.name = name;
+        this.description = description;
+    }
 
-- `1` → `this` is greater than `other`
-
-- `null` → Values are incomparable (e.g., different types)
-
-## Comparison Logic
-
-The PartialOrd macro compares fields in declaration order with type checking:
-
-- `number` / `bigint` → Direct numeric comparison
-
-- `string` → Uses `localeCompare()`
-
-- `boolean` → `false < true`
-
-- `Date` → Compares timestamps; returns `null` if not both Date instances
-
-- `Array` → Lexicographic comparison; returns `null` if not both arrays
-
-- `Object` → Calls `compareTo()` if available
-
-- **Type mismatch** → Returns `null`
-
-## Field Options
-
-### @ord(skip)
-
-Use `@ord(skip)` to exclude a field from ordering comparison:
-
-<MacroExample before={data.examples.skip.before} after={data.examples.skip.after} />
-
-```typescript
+    compareTo(other: unknown): number | null {
+        if (this === other) return 0;
+        if (!(other instanceof Item)) return null;
+        const typedOther = other as Item;
+        const cmp0 = this.price < typedOther.price ? -1 : this.price > typedOther.price ? 1 : 0;
+        if (cmp0 === null) return null;
+        if (cmp0 !== 0) return cmp0;
+        const cmp1 = this.name.localeCompare(typedOther.name);
+        if (cmp1 === null) return null;
+        if (cmp1 !== 0) return cmp1;
+        return 0;
+    }
+}
+``` ```
 const i1 = new Item(10, "Widget", "A useful widget");
 const i2 = new Item(10, "Widget", "Different description");
 
 console.log(i1.compareTo(i2)); // 0 (description is skipped)
+``` ## Handling Null Results
+ When using PartialOrd, always handle the `null` case:
+ 
+**Source:**
 ```
-
-## Handling Null Results
-
-When using PartialOrd, always handle the `null` case:
-
-<InteractiveMacro code={`/** @derive(PartialOrd) */
+/** @derive(PartialOrd) */
 class Value {
   amount: number;
 
   constructor(amount: number) {
     this.amount = amount;
   }
-}`} />
-
-```typescript
+}
+```  ```
 function safeCompare(a: Value, b: unknown): string {
   const result = a.compareTo(b);
   if (result === null) {
@@ -1821,22 +2467,20 @@ function safeCompare(a: Value, b: unknown): string {
 const v = new Value(100);
 console.log(safeCompare(v, new Value(50)));  // "greater than"
 console.log(safeCompare(v, "string"));       // "incomparable"
+``` ## Sorting with PartialOrd
+ When sorting, handle `null` values appropriately:
+ 
+**Source:**
 ```
-
-## Sorting with PartialOrd
-
-When sorting, handle `null` values appropriately:
-
-<InteractiveMacro code={`/** @derive(PartialOrd) */
+/** @derive(PartialOrd) */
 class Score {
   value: number;
 
   constructor(value: number) {
     this.value = value;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const scores = [
   new Score(100),
   new Score(50),
@@ -1846,54 +2490,118 @@ const scores = [
 // Safe sort that handles null (treats null as equal)
 scores.sort((a, b) => a.compareTo(b) ?? 0);
 // Result: [Score(50), Score(75), Score(100)]
+``` ## Interface Support
+ PartialOrd works with interfaces. For interfaces, a namespace is generated with a `compareTo` function:
+ 
+**Before:**
 ```
+/** @derive(PartialOrd) */
+interface Measurement {
+    value: number;
+    unit: string;
+}
+```  
+**After:**
+```
+interface Measurement {
+    value: number;
+    unit: string;
+}
 
-## Interface Support
-
-PartialOrd works with interfaces. For interfaces, a namespace is generated with a `compareTo` function:
-
-<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
-
-```typescript
+export namespace Measurement {
+    export function compareTo(self: Measurement, other: Measurement): number | null {
+        if (self === other) return 0;
+        const cmp0 = self.value < other.value ? -1 : self.value > other.value ? 1 : 0;
+        if (cmp0 === null) return null;
+        if (cmp0 !== 0) return cmp0;
+        const cmp1 = self.unit.localeCompare(other.unit);
+        if (cmp1 === null) return null;
+        if (cmp1 !== 0) return cmp1;
+        return 0;
+    }
+}
+``` ```
 const m1: Measurement = { value: 10, unit: "kg" };
 const m2: Measurement = { value: 10, unit: "lb" };
 
 console.log(Measurement.compareTo(m1, m2)); // 1 (kg > lb alphabetically)
+``` ## Enum Support
+ PartialOrd works with enums:
+ 
+**Before:**
 ```
+/** @derive(PartialOrd) */
+enum Size {
+    Small = 1,
+    Medium = 2,
+    Large = 3
+}
+```  
+**After:**
+```
+enum Size {
+    Small = 1,
+    Medium = 2,
+    Large = 3
+}
 
-## Enum Support
-
-PartialOrd works with enums:
-
-<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
-
-```typescript
+export namespace Size {
+    export function compareTo(a: Size, b: Size): number | null {
+        if (typeof a === 'number' && typeof b === 'number') {
+            return a < b ? -1 : a > b ? 1 : 0;
+        }
+        if (typeof a === 'string' && typeof b === 'string') {
+            return a.localeCompare(b);
+        }
+        return a === b ? 0 : null;
+    }
+}
+``` ```
 console.log(Size.compareTo(Size.Small, Size.Large)); // -1
 console.log(Size.compareTo(Size.Large, Size.Small)); // 1
+``` ## Type Alias Support
+ PartialOrd works with type aliases:
+ 
+**Before:**
 ```
+/** @derive(PartialOrd) */
+type Interval = {
+    start: number;
+    end: number;
+};
+```  
+**After:**
+```
+type Interval = {
+    start: number;
+    end: number;
+};
 
-## Type Alias Support
-
-PartialOrd works with type aliases:
-
-<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
-
-```typescript
+export namespace Interval {
+    export function compareTo(a: Interval, b: Interval): number | null {
+        if (a === b) return 0;
+        const cmp0 = a.start < b.start ? -1 : a.start > b.start ? 1 : 0;
+        if (cmp0 === null) return null;
+        if (cmp0 !== 0) return cmp0;
+        const cmp1 = a.end < b.end ? -1 : a.end > b.end ? 1 : 0;
+        if (cmp1 === null) return null;
+        if (cmp1 !== 0) return cmp1;
+        return 0;
+    }
+}
+``` ```
 const i1: Interval = { start: 0, end: 10 };
 const i2: Interval = { start: 0, end: 20 };
 
 console.log(Interval.compareTo(i1, i2)); // -1
+``` ## PartialOrd vs Ord
+ Choose between `Ord` and `PartialOrd` based on your use case:
+ - **Ord** → Use when all values are always comparable (never returns null)
+ - **PartialOrd** → Use when comparing with `unknown` types or when some values might be incomparable
+ 
+**Source:**
 ```
-
-## PartialOrd vs Ord
-
-Choose between `Ord` and `PartialOrd` based on your use case:
-
-- **Ord** → Use when all values are always comparable (never returns null)
-
-- **PartialOrd** → Use when comparing with `unknown` types or when some values might be incomparable
-
-<InteractiveMacro code={`// PartialOrd is safer for public APIs that accept unknown input
+// PartialOrd is safer for public APIs that accept unknown input
 /** @derive(PartialOrd) */
 class SafeValue {
   data: number;
@@ -1906,9 +2614,8 @@ class SafeValue {
     const result = this.compareTo(other);
     return result !== null && result > 0;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const safe = new SafeValue(100);
 console.log(safe.isGreaterThan(new SafeValue(50)));  // true
 console.log(safe.isGreaterThan("invalid"));          // false
@@ -1917,110 +2624,217 @@ console.log(safe.isGreaterThan("invalid"));          // false
 ---
 
 # Serialize
+  *The `Serialize` macro generates JSON serialization methods with **cycle detection** and object identity tracking. This enables serialization of complex object graphs including circular references.*
+ ## Basic Usage
+ 
+**Before:**
+```
+/** @derive(Serialize) */
+class User {
+    name: string;
+    age: number;
+    createdAt: Date;
 
-*The `Serialize` macro generates a `toJSON()` method that converts your object to a JSON-compatible format with automatic handling of complex types like Date, Map, Set, and nested objects.*
+    constructor(name: string, age: number) {
+        this.name = name;
+        this.age = age;
+        this.createdAt = new Date();
+    }
+}
+```  
+**After:**
+```
+import { SerializeContext } from 'macroforge/serde';
 
-## Basic Usage
+class User {
+    name: string;
+    age: number;
+    createdAt: Date;
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
+    constructor(name: string, age: number) {
+        this.name = name;
+        this.age = age;
+        this.createdAt = new Date();
+    }
 
-```typescript
+    toStringifiedJSON(): string {
+        const ctx = SerializeContext.create();
+        return JSON.stringify(this.__serialize(ctx));
+    }
+
+    toJSON(): Record<string, unknown> {
+        const ctx = SerializeContext.create();
+        return this.__serialize(ctx);
+    }
+
+    __serialize(ctx: SerializeContext): Record<string, unknown> {
+        const existingId = ctx.getId(this);
+        if (existingId !== undefined) {
+            return {
+                __ref: existingId
+            };
+        }
+        const __id = ctx.register(this);
+        const result: Record<string, unknown> = {
+            __type: 'User',
+            __id
+        };
+        result['name'] = this.name;
+        result['age'] = this.age;
+        result['createdAt'] = this.createdAt.toISOString();
+        return result;
+    }
+}
+``` ```
 const user = new User("Alice", 30);
 console.log(JSON.stringify(user));
 // {"name":"Alice","age":30,"createdAt":"2024-01-15T10:30:00.000Z"}
+``` ## Automatic Type Handling
+ Serialize automatically handles various TypeScript types:
+ | Type | Serialization |
+| --- | --- |
+| `string`, `number`, `boolean` | Direct copy |
+| `Date` | `.toISOString()` |
+| `T[]` | Maps items, calling `toJSON()` if available |
+| `Map<K, V>` | `Object.fromEntries()` |
+| `Set<T>` | `Array.from()` |
+| Nested objects | Calls `toJSON()` if available |
+ ## Serde Options
+ Use the `@serde` decorator for fine-grained control over serialization:
+ ### Renaming Fields
+ 
+**Before:**
 ```
+/** @derive(Serialize) */
+class User {
+    /** @serde({ rename: "user_id" }) */
+    id: string;
 
-## Automatic Type Handling
+    /** @serde({ rename: "full_name" }) */
+    name: string;
+}
+```  
+**After:**
+```
+import { SerializeContext } from 'macroforge/serde';
 
-Serialize automatically handles various TypeScript types:
+class User {
+    id: string;
 
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Serialization</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`string`, `number`, `boolean`</td>
-<td>Direct copy</td>
-</tr>
-<tr>
-<td>`Date`</td>
-<td>`.toISOString()`</td>
-</tr>
-<tr>
-<td>`T[]`</td>
-<td>Maps items, calling `toJSON()` if available</td>
-</tr>
-<tr>
-<td>`Map<K, V>`</td>
-<td>`Object.fromEntries()`</td>
-</tr>
-<tr>
-<td>`Set<T>`</td>
-<td>`Array.from()`</td>
-</tr>
-<tr>
-<td>Nested objects</td>
-<td>Calls `toJSON()` if available</td>
-</tr>
-</tbody>
-</table>
+    name: string;
 
-## Serde Options
+    toStringifiedJSON(): string {
+        const ctx = SerializeContext.create();
+        return JSON.stringify(this.__serialize(ctx));
+    }
 
-Use the `@serde` decorator for fine-grained control over serialization:
+    toJSON(): Record<string, unknown> {
+        const ctx = SerializeContext.create();
+        return this.__serialize(ctx);
+    }
 
-### Renaming Fields
-
-<MacroExample before={data.examples.rename.before} after={data.examples.rename.after} />
-
-```typescript
+    __serialize(ctx: SerializeContext): Record<string, unknown> {
+        const existingId = ctx.getId(this);
+        if (existingId !== undefined) {
+            return {
+                __ref: existingId
+            };
+        }
+        const __id = ctx.register(this);
+        const result: Record<string, unknown> = {
+            __type: 'User',
+            __id
+        };
+        result['user_id'] = this.id;
+        result['full_name'] = this.name;
+        return result;
+    }
+}
+``` ```
 const user = new User();
 user.id = "123";
 user.name = "Alice";
 console.log(JSON.stringify(user));
 // {"user_id":"123","full_name":"Alice"}
+``` ### Skipping Fields
+ 
+**Before:**
 ```
+/** @derive(Serialize) */
+class User {
+    name: string;
+    email: string;
 
-### Skipping Fields
+    /** @serde({ skip: true }) */
+    password: string;
 
-<MacroExample before={data.examples.skip.before} after={data.examples.skip.after} />
+    /** @serde({ skip_serializing: true }) */
+    internalId: string;
+}
+```  
+**After:**
+```
+import { SerializeContext } from 'macroforge/serde';
 
-<Alert type="tip" title="skip vs skip_serializing">
-Use `skip: true` to exclude from both serialization and deserialization.
-Use `skip_serializing: true` to only skip during serialization.
-</Alert>
+class User {
+    name: string;
+    email: string;
 
-### Rename All Fields
+    password: string;
 
-Apply a naming convention to all fields at the container level:
+    internalId: string;
 
-<InteractiveMacro code={`/** @derive(Serialize) */
+    toStringifiedJSON(): string {
+        const ctx = SerializeContext.create();
+        return JSON.stringify(this.__serialize(ctx));
+    }
+
+    toJSON(): Record<string, unknown> {
+        const ctx = SerializeContext.create();
+        return this.__serialize(ctx);
+    }
+
+    __serialize(ctx: SerializeContext): Record<string, unknown> {
+        const existingId = ctx.getId(this);
+        if (existingId !== undefined) {
+            return {
+                __ref: existingId
+            };
+        }
+        const __id = ctx.register(this);
+        const result: Record<string, unknown> = {
+            __type: 'User',
+            __id
+        };
+        result['name'] = this.name;
+        result['email'] = this.email;
+        return result;
+    }
+}
+```  **skip vs skip_serializing Use `skip: true` to exclude from both serialization and deserialization.
+Use `skip_serializing: true` to only skip during serialization. ### Rename All Fields
+ Apply a naming convention to all fields at the container level:
+ **
+**Source:**
+```
+/** @derive(Serialize) */
 /** @serde({ rename_all: "camelCase" }) */
 class ApiResponse {
   user_name: string;
   created_at: Date;
   is_active: boolean;
-}`} />
-
-Supported conventions:
-
-- `camelCase`
-
-- `snake_case`
-
-- `PascalCase`
-
-- `SCREAMING_SNAKE_CASE`
-
-- `kebab-case`
-
-### Flattening Nested Objects
-
-<InteractiveMacro code={`/** @derive(Serialize) */
+}
+```  Supported conventions:
+ - `camelCase`
+ - `snake_case`
+ - `PascalCase`
+ - `SCREAMING_SNAKE_CASE`
+ - `kebab-case`
+ ### Flattening Nested Objects
+ 
+**Source:**
+```
+/** @derive(Serialize) */
 class Address {
   city: string;
   zip: string;
@@ -2032,78 +2846,66 @@ class User {
 
   /** @serde({ flatten: true }) */
   address: Address;
-}`} />
-
-```typescript
+}
+```  ```
 const user = new User();
 user.name = "Alice";
 user.address = { city: "NYC", zip: "10001" };
 console.log(JSON.stringify(user));
 // {"name":"Alice","city":"NYC","zip":"10001"}
+``` ## All Options
+ ### Container Options (on class/interface)
+ | Option | Type | Description |
+| --- | --- | --- |
+| `rename_all` | `string` | Apply naming convention to all fields |
+ ### Field Options (on properties)
+ | Option | Type | Description |
+| --- | --- | --- |
+| `rename` | `string` | Use a different JSON key |
+| `skip` | `boolean` | Exclude from serialization and deserialization |
+| `skip_serializing` | `boolean` | Exclude from serialization only |
+| `flatten` | `boolean` | Merge nested object fields into parent |
+ ## Interface Support
+ Serialize also works with interfaces. For interfaces, a namespace is generated with a `toJSON` function:
+ 
+**Before:**
 ```
+/** @derive(Serialize) */
+interface ApiResponse {
+    status: number;
+    message: string;
+    timestamp: Date;
+}
+```  
+**After:**
+```
+import { SerializeContext } from 'macroforge/serde';
 
-## All Options
+interface ApiResponse {
+    status: number;
+    message: string;
+    timestamp: Date;
+}
 
-### Container Options (on class/interface)
-
-<table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`rename_all`</td>
-<td>`string`</td>
-<td>Apply naming convention to all fields</td>
-</tr>
-</tbody>
-</table>
-
-### Field Options (on properties)
-
-<table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`rename`</td>
-<td>`string`</td>
-<td>Use a different JSON key</td>
-</tr>
-<tr>
-<td>`skip`</td>
-<td>`boolean`</td>
-<td>Exclude from serialization and deserialization</td>
-</tr>
-<tr>
-<td>`skip_serializing`</td>
-<td>`boolean`</td>
-<td>Exclude from serialization only</td>
-</tr>
-<tr>
-<td>`flatten`</td>
-<td>`boolean`</td>
-<td>Merge nested object fields into parent</td>
-</tr>
-</tbody>
-</table>
-
-## Interface Support
-
-Serialize also works with interfaces. For interfaces, a namespace is generated with a `toJSON` function:
-
-<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
-
-```typescript
+export namespace ApiResponse {
+    export function toStringifiedJSON(self: ApiResponse): string {
+        const ctx = SerializeContext.create();
+        return JSON.stringify(__serialize(self, ctx));
+    }
+    export function __serialize(self: ApiResponse, ctx: SerializeContext): Record<string, unknown> {
+        const existingId = ctx.getId(self);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        const __id = ctx.register(self);
+        const result: Record<string, unknown> = { __type: 'ApiResponse', __id };
+        result['status'] = self.status;
+        result['message'] = self.message;
+        result['timestamp'] = self.timestamp.toISOString();
+        return result;
+    }
+}
+``` ```
 const response: ApiResponse = {
   status: 200,
   message: "OK",
@@ -2112,39 +2914,93 @@ const response: ApiResponse = {
 
 console.log(JSON.stringify(ApiResponse.toJSON(response)));
 // {"status":200,"message":"OK","timestamp":"2024-01-15T10:30:00.000Z"}
+``` ## Enum Support
+ Serialize also works with enums. The `toJSON` function returns the underlying enum value (string or number):
+ 
+**Before:**
 ```
+/** @derive(Serialize) */
+enum Status {
+    Active = 'active',
+    Inactive = 'inactive',
+    Pending = 'pending'
+}
+```  
+**After:**
+```
+enum Status {
+    Active = 'active',
+    Inactive = 'inactive',
+    Pending = 'pending'
+}
 
-## Enum Support
-
-Serialize also works with enums. The `toJSON` function returns the underlying enum value (string or number):
-
-<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
-
-```typescript
+export namespace Status {
+    export function toStringifiedJSON(value: Status): string {
+        return JSON.stringify(value);
+    }
+    export function __serialize(_ctx: SerializeContext): string | number {
+        return value;
+    }
+}
+``` ```
 console.log(Status.toJSON(Status.Active));  // "active"
 console.log(Status.toJSON(Status.Pending)); // "pending"
+``` Works with numeric enums too:
+ 
+**Source:**
 ```
-
-Works with numeric enums too:
-
-<InteractiveMacro code={`/** @derive(Serialize) */
+/** @derive(Serialize) */
 enum Priority {
   Low = 1,
   Medium = 2,
   High = 3,
-}`} />
-
-```typescript
+}
+```  ```
 console.log(Priority.toJSON(Priority.High)); // 3
+``` ## Type Alias Support
+ Serialize works with type aliases. For object types, fields are serialized with full type handling:
+ 
+**Before:**
 ```
+/** @derive(Serialize) */
+type UserProfile = {
+    id: string;
+    name: string;
+    createdAt: Date;
+};
+```  
+**After:**
+```
+import { SerializeContext } from 'macroforge/serde';
 
-## Type Alias Support
+type UserProfile = {
+    id: string;
+    name: string;
+    createdAt: Date;
+};
 
-Serialize works with type aliases. For object types, fields are serialized with full type handling:
-
-<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
-
-```typescript
+export namespace UserProfile {
+    export function toStringifiedJSON(value: UserProfile): string {
+        const ctx = SerializeContext.create();
+        return JSON.stringify(__serialize(value, ctx));
+    }
+    export function __serialize(
+        value: UserProfile,
+        ctx: SerializeContext
+    ): Record<string, unknown> {
+        const existingId = ctx.getId(value);
+        if (existingId !== undefined) {
+            return { __ref: existingId };
+        }
+        const __id = ctx.register(value);
+        const result: Record<string, unknown> = { __type: 'UserProfile', __id };
+        result['id'] = value.id;
+        result['name'] = value.name;
+        result['createdAt'] = value.createdAt;
+        return result;
+    }
+}
+``` ```
 const profile: UserProfile = {
   id: "123",
   name: "Alice",
@@ -2153,28 +3009,25 @@ const profile: UserProfile = {
 
 console.log(JSON.stringify(UserProfile.toJSON(profile)));
 // {"id":"123","name":"Alice","createdAt":"2024-01-15T00:00:00.000Z"}
+``` For union types, the value is returned directly:
+ 
+**Source:**
 ```
-
-For union types, the value is returned directly:
-
-<InteractiveMacro code={`/** @derive(Serialize) */
-type ApiStatus = "loading" | "success" | "error";`} />
-
-```typescript
+/** @derive(Serialize) */
+type ApiStatus = "loading" | "success" | "error";
+```  ```
 console.log(ApiStatus.toJSON("success")); // "success"
+``` ## Combining with Deserialize
+ Use both Serialize and Deserialize for complete JSON round-trip support:
+ 
+**Source:**
 ```
-
-## Combining with Deserialize
-
-Use both Serialize and Deserialize for complete JSON round-trip support:
-
-<InteractiveMacro code={`/** @derive(Serialize, Deserialize) */
+/** @derive(Serialize, Deserialize) */
 class User {
   name: string;
   createdAt: Date;
-}`} />
-
-```typescript
+}
+```  ```
 // Serialize
 const user = new User();
 user.name = "Alice";
@@ -2189,33 +3042,127 @@ console.log(parsed.createdAt instanceof Date); // true
 ---
 
 # Deserialize
+  *The `Deserialize` macro generates JSON deserialization methods with **cycle and forward-reference support**, plus comprehensive runtime validation. This enables safe parsing of complex JSON structures including circular references.*
+ ## Basic Usage
+ 
+**Before:**
+```
+/** @derive(Deserialize) */
+class User {
+    name: string;
+    age: number;
+    createdAt: Date;
+}
+```  
+**After:**
+```
+import { Result } from 'macroforge/result';
+import { DeserializeContext } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
 
-*The `Deserialize` macro generates a static `fromJSON()` method that parses JSON data into your class with runtime validation and automatic type conversion.*
+class User {
+    name: string;
+    age: number;
+    createdAt: Date;
 
-## Basic Usage
+    constructor(props: {
+        name: string;
+        age: number;
+        createdAt: Date;
+    }) {
+        this.name = props.name;
+        this.age = props.age;
+        this.createdAt = props.createdAt;
+    }
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
+    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<User, string[]> {
+        try {
+            const ctx = DeserializeContext.create();
+            const raw = JSON.parse(json);
+            const resultOrRef = User.__deserialize(raw, ctx);
+            if (PendingRef.is(resultOrRef)) {
+                return Result.err(['User.fromStringifiedJSON: root cannot be a forward reference']);
+            }
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+            return Result.ok(resultOrRef);
+        } catch (e) {
+            const message = e instanceof Error ? e.message : String(e);
+            return Result.err(message.split('; '));
+        }
+    }
 
-```typescript
+    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+        if (value?.__ref !== undefined) {
+            return ctx.getOrDefer(value.__ref);
+        }
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new Error('User.__deserialize: expected an object');
+        }
+        const obj = value as Record<string, unknown>;
+        const errors: string[] = [];
+        if (!('name' in obj)) {
+            errors.push('User.__deserialize: missing required field "name"');
+        }
+        if (!('age' in obj)) {
+            errors.push('User.__deserialize: missing required field "age"');
+        }
+        if (!('createdAt' in obj)) {
+            errors.push('User.__deserialize: missing required field "createdAt"');
+        }
+        if (errors.length > 0) {
+            throw new Error(errors.join('; '));
+        }
+        const instance = Object.create(User.prototype) as User;
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+        ctx.trackForFreeze(instance);
+        {
+            const __raw_name = obj['name'];
+            (instance as any).name = __raw_name;
+        }
+        {
+            const __raw_age = obj['age'];
+            (instance as any).age = __raw_age;
+        }
+        {
+            const __raw_createdAt = obj['createdAt'];
+            {
+                const __dateVal =
+                    typeof __raw_createdAt === 'string'
+                        ? new Date(__raw_createdAt)
+                        : (__raw_createdAt as Date);
+                (instance as any).createdAt = __dateVal;
+            }
+        }
+        if (errors.length > 0) {
+            throw new Error(errors.join('; '));
+        }
+        return instance;
+    }
+}
+``` ```
 const json = '{"name":"Alice","age":30,"createdAt":"2024-01-15T10:30:00.000Z"}';
 const user = User.fromJSON(JSON.parse(json));
 
 console.log(user.name);                    // "Alice"
 console.log(user.age);                     // 30
 console.log(user.createdAt instanceof Date); // true
+``` ## Runtime Validation
+ Deserialize validates the input data and throws descriptive errors:
+ 
+**Source:**
 ```
-
-## Runtime Validation
-
-Deserialize validates the input data and throws descriptive errors:
-
-<InteractiveMacro code={`/** @derive(Deserialize) */
+/** @derive(Deserialize) */
 class User {
   name: string;
   email: string;
-}`} />
-
-```typescript
+}
+```  ```
 // Missing required field
 User.fromJSON({ name: "Alice" });
 // Error: User.fromJSON: missing required field "email"
@@ -2227,81 +3174,222 @@ User.fromJSON("not an object");
 // Array instead of object
 User.fromJSON([1, 2, 3]);
 // Error: User.fromJSON: expected an object, got array
+``` ## Automatic Type Conversion
+ Deserialize automatically converts JSON types to their TypeScript equivalents:
+ | JSON Type | TypeScript Type | Conversion |
+| --- | --- | --- |
+| string/number/boolean | `string`/`number`/`boolean` | Direct assignment |
+| ISO string | `Date` | `new Date(string)` |
+| array | `T[]` | Maps items with auto-detection |
+| object | `Map<K, V>` | `new Map(Object.entries())` |
+| array | `Set<T>` | `new Set(array)` |
+| object | Nested class | Calls `fromJSON()` if available |
+ ## Serde Options
+ Use the `@serde` decorator to customize deserialization:
+ ### Renaming Fields
+ 
+**Before:**
 ```
+/** @derive(Deserialize) */
+class User {
+    /** @serde({ rename: "user_id" }) */
+    id: string;
 
-## Automatic Type Conversion
+    /** @serde({ rename: "full_name" }) */
+    name: string;
+}
+```  
+**After:**
+```
+import { Result } from 'macroforge/result';
+import { DeserializeContext } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
 
-Deserialize automatically converts JSON types to their TypeScript equivalents:
+class User {
+    id: string;
 
-<table>
-<thead>
-<tr>
-<th>JSON Type</th>
-<th>TypeScript Type</th>
-<th>Conversion</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>string/number/boolean</td>
-<td>`string`/`number`/`boolean`</td>
-<td>Direct assignment</td>
-</tr>
-<tr>
-<td>ISO string</td>
-<td>`Date`</td>
-<td>`new Date(string)`</td>
-</tr>
-<tr>
-<td>array</td>
-<td>`T[]`</td>
-<td>Maps items with auto-detection</td>
-</tr>
-<tr>
-<td>object</td>
-<td>`Map<K, V>`</td>
-<td>`new Map(Object.entries())`</td>
-</tr>
-<tr>
-<td>array</td>
-<td>`Set<T>`</td>
-<td>`new Set(array)`</td>
-</tr>
-<tr>
-<td>object</td>
-<td>Nested class</td>
-<td>Calls `fromJSON()` if available</td>
-</tr>
-</tbody>
-</table>
+    name: string;
 
-## Serde Options
+    constructor(props: {
+        id: string;
+        name: string;
+    }) {
+        this.id = props.id;
+        this.name = props.name;
+    }
 
-Use the `@serde` decorator to customize deserialization:
+    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<User, string[]> {
+        try {
+            const ctx = DeserializeContext.create();
+            const raw = JSON.parse(json);
+            const resultOrRef = User.__deserialize(raw, ctx);
+            if (PendingRef.is(resultOrRef)) {
+                return Result.err(['User.fromStringifiedJSON: root cannot be a forward reference']);
+            }
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+            return Result.ok(resultOrRef);
+        } catch (e) {
+            const message = e instanceof Error ? e.message : String(e);
+            return Result.err(message.split('; '));
+        }
+    }
 
-### Renaming Fields
-
-<MacroExample before={data.examples.rename.before} after={data.examples.rename.after} />
-
-```typescript
+    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+        if (value?.__ref !== undefined) {
+            return ctx.getOrDefer(value.__ref);
+        }
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new Error('User.__deserialize: expected an object');
+        }
+        const obj = value as Record<string, unknown>;
+        const errors: string[] = [];
+        if (!('user_id' in obj)) {
+            errors.push('User.__deserialize: missing required field "user_id"');
+        }
+        if (!('full_name' in obj)) {
+            errors.push('User.__deserialize: missing required field "full_name"');
+        }
+        if (errors.length > 0) {
+            throw new Error(errors.join('; '));
+        }
+        const instance = Object.create(User.prototype) as User;
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+        ctx.trackForFreeze(instance);
+        {
+            const __raw_id = obj['user_id'];
+            (instance as any).id = __raw_id;
+        }
+        {
+            const __raw_name = obj['full_name'];
+            (instance as any).name = __raw_name;
+        }
+        if (errors.length > 0) {
+            throw new Error(errors.join('; '));
+        }
+        return instance;
+    }
+}
+``` ```
 const user = User.fromJSON({ user_id: "123", full_name: "Alice" });
 console.log(user.id);   // "123"
 console.log(user.name); // "Alice"
+``` ### Default Values
+ 
+**Before:**
 ```
+/** @derive(Deserialize) */
+class Config {
+    host: string;
 
-### Default Values
+    /** @serde({ default: "3000" }) */
+    port: string;
 
-<MacroExample before={data.examples.default.before} after={data.examples.default.after} />
+    /** @serde({ default: "false" }) */
+    debug: boolean;
+}
+```  
+**After:**
+```
+import { Result } from 'macroforge/result';
+import { DeserializeContext } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
 
-```typescript
+class Config {
+    host: string;
+
+    port: string;
+
+    debug: boolean;
+
+    constructor(props: {
+        host: string;
+        port?: string;
+        debug?: boolean;
+    }) {
+        this.host = props.host;
+        this.port = props.port as string;
+        this.debug = props.debug as boolean;
+    }
+
+    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<Config, string[]> {
+        try {
+            const ctx = DeserializeContext.create();
+            const raw = JSON.parse(json);
+            const resultOrRef = Config.__deserialize(raw, ctx);
+            if (PendingRef.is(resultOrRef)) {
+                return Result.err([
+                    'Config.fromStringifiedJSON: root cannot be a forward reference'
+                ]);
+            }
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+            return Result.ok(resultOrRef);
+        } catch (e) {
+            const message = e instanceof Error ? e.message : String(e);
+            return Result.err(message.split('; '));
+        }
+    }
+
+    static __deserialize(value: any, ctx: DeserializeContext): Config | PendingRef {
+        if (value?.__ref !== undefined) {
+            return ctx.getOrDefer(value.__ref);
+        }
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new Error('Config.__deserialize: expected an object');
+        }
+        const obj = value as Record<string, unknown>;
+        const errors: string[] = [];
+        if (!('host' in obj)) {
+            errors.push('Config.__deserialize: missing required field "host"');
+        }
+        if (errors.length > 0) {
+            throw new Error(errors.join('; '));
+        }
+        const instance = Object.create(Config.prototype) as Config;
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+        ctx.trackForFreeze(instance);
+        {
+            const __raw_host = obj['host'];
+            (instance as any).host = __raw_host;
+        }
+        if ('port' in obj && obj['port'] !== undefined) {
+            const __raw_port = obj['port'];
+            (instance as any).port = __raw_port;
+        } else {
+            (instance as any).port = 3000;
+        }
+        if ('debug' in obj && obj['debug'] !== undefined) {
+            const __raw_debug = obj['debug'];
+            (instance as any).debug = __raw_debug;
+        } else {
+            (instance as any).debug = false;
+        }
+        if (errors.length > 0) {
+            throw new Error(errors.join('; '));
+        }
+        return instance;
+    }
+}
+``` ```
 const config = Config.fromJSON({ host: "localhost" });
 console.log(config.port);  // "3000"
 console.log(config.debug); // false
+``` ### Skipping Fields
+ 
+**Source:**
 ```
-
-### Skipping Fields
-
-<InteractiveMacro code={`/** @derive(Deserialize) */
+/** @derive(Deserialize) */
 class User {
   name: string;
   email: string;
@@ -2311,31 +3399,27 @@ class User {
 
   /** @serde({ skip_deserializing: true }) */
   computedField: string;
-}`} />
-
-<Alert type="tip" title="skip vs skip_deserializing">
-Use `skip: true` to exclude from both serialization and deserialization.
-Use `skip_deserializing: true` to only skip during deserialization.
-</Alert>
-
-### Deny Unknown Fields
-
-<InteractiveMacro code={`/** @derive(Deserialize) */
+}
+```   **skip vs skip_deserializing Use `skip: true` to exclude from both serialization and deserialization.
+Use `skip_deserializing: true` to only skip during deserialization. ### Deny Unknown Fields
+ **
+**Source:**
+```
+/** @derive(Deserialize) */
 /** @serde({ deny_unknown_fields: true }) */
 class StrictUser {
   name: string;
   email: string;
-}`} />
-
-```typescript
+}
+```  ```
 // This will throw an error
 StrictUser.fromJSON({ name: "Alice", email: "a@b.com", extra: "field" });
 // Error: StrictUser.fromJSON: unknown field "extra"
+``` ### Flatten Nested Objects
+ 
+**Source:**
 ```
-
-### Flatten Nested Objects
-
-<InteractiveMacro code={`/** @derive(Deserialize) */
+/** @derive(Deserialize) */
 class Address {
   city: string;
   zip: string;
@@ -2347,9 +3431,8 @@ class User {
 
   /** @serde({ flatten: true }) */
   address: Address;
-}`} />
-
-```typescript
+}
+```  ```
 // Flat JSON structure
 const user = User.fromJSON({
   name: "Alice",
@@ -2357,80 +3440,115 @@ const user = User.fromJSON({
   zip: "10001"
 });
 console.log(user.address.city); // "NYC"
+``` ## All Options
+ ### Container Options (on class/interface)
+ | Option | Type | Description |
+| --- | --- | --- |
+| `rename_all` | `string` | Apply naming convention to all fields |
+| `deny_unknown_fields` | `boolean` | Throw error if JSON has unknown keys |
+ ### Field Options (on properties)
+ | Option | Type | Description |
+| --- | --- | --- |
+| `rename` | `string` | Use a different JSON key |
+| `skip` | `boolean` | Exclude from serialization and deserialization |
+| `skip_deserializing` | `boolean` | Exclude from deserialization only |
+| `default` | `boolean | string` | Use TypeScript default or custom expression if missing |
+| `flatten` | `boolean` | Merge nested object fields from parent |
+ ## Interface Support
+ Deserialize also works with interfaces. For interfaces, a namespace is generated with `is` (type guard) and `fromJSON` functions:
+ 
+**Before:**
 ```
+/** @derive(Deserialize) */
+interface ApiResponse {
+    status: number;
+    message: string;
+    timestamp: Date;
+}
+```  
+**After:**
+```
+import { Result } from 'macroforge/result';
+import { DeserializeContext } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
 
-## All Options
+interface ApiResponse {
+    status: number;
+    message: string;
+    timestamp: Date;
+}
 
-### Container Options (on class/interface)
-
-<table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`rename_all`</td>
-<td>`string`</td>
-<td>Apply naming convention to all fields</td>
-</tr>
-<tr>
-<td>`deny_unknown_fields`</td>
-<td>`boolean`</td>
-<td>Throw error if JSON has unknown keys</td>
-</tr>
-</tbody>
-</table>
-
-### Field Options (on properties)
-
-<table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`rename`</td>
-<td>`string`</td>
-<td>Use a different JSON key</td>
-</tr>
-<tr>
-<td>`skip`</td>
-<td>`boolean`</td>
-<td>Exclude from serialization and deserialization</td>
-</tr>
-<tr>
-<td>`skip_deserializing`</td>
-<td>`boolean`</td>
-<td>Exclude from deserialization only</td>
-</tr>
-<tr>
-<td>`default`</td>
-<td>`boolean | string`</td>
-<td>Use TypeScript default or custom expression if missing</td>
-</tr>
-<tr>
-<td>`flatten`</td>
-<td>`boolean`</td>
-<td>Merge nested object fields from parent</td>
-</tr>
-</tbody>
-</table>
-
-## Interface Support
-
-Deserialize also works with interfaces. For interfaces, a namespace is generated with `is` (type guard) and `fromJSON` functions:
-
-<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
-
-```typescript
+export namespace ApiResponse {
+    export function fromStringifiedJSON(
+        json: string,
+        opts?: DeserializeOptions
+    ): Result<ApiResponse, string[]> {
+        try {
+            const ctx = DeserializeContext.create();
+            const raw = JSON.parse(json);
+            const resultOrRef = __deserialize(raw, ctx);
+            if (PendingRef.is(resultOrRef)) {
+                return Result.err([
+                    'ApiResponse.fromStringifiedJSON: root cannot be a forward reference'
+                ]);
+            }
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+            return Result.ok(resultOrRef);
+        } catch (e) {
+            const message = e instanceof Error ? e.message : String(e);
+            return Result.err(message.split('; '));
+        }
+    }
+    export function __deserialize(value: any, ctx: DeserializeContext): ApiResponse | PendingRef {
+        if (value?.__ref !== undefined) {
+            return ctx.getOrDefer(value.__ref);
+        }
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new Error('ApiResponse.__deserialize: expected an object');
+        }
+        const obj = value as Record<string, unknown>;
+        const errors: string[] = [];
+        if (!('status' in obj)) {
+            errors.push('ApiResponse.__deserialize: missing required field "status"');
+        }
+        if (!('message' in obj)) {
+            errors.push('ApiResponse.__deserialize: missing required field "message"');
+        }
+        if (!('timestamp' in obj)) {
+            errors.push('ApiResponse.__deserialize: missing required field "timestamp"');
+        }
+        if (errors.length > 0) {
+            throw new Error(errors.join('; '));
+        }
+        const instance: any = {};
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
+        }
+        ctx.trackForFreeze(instance);
+        {
+            const __raw_status = obj['status'];
+            instance.status = __raw_status;
+        }
+        {
+            const __raw_message = obj['message'];
+            instance.message = __raw_message;
+        }
+        {
+            const __raw_timestamp = obj['timestamp'];
+            instance.timestamp =
+                typeof __raw_timestamp === 'string' ? new Date(__raw_timestamp) : __raw_timestamp;
+        }
+        if (errors.length > 0) {
+            throw new Error(errors.join('; '));
+        }
+        return instance as ApiResponse;
+    }
+}
+``` ```
 const json = { status: 200, message: "OK", timestamp: "2024-01-15T10:30:00.000Z" };
 
 // Type guard
@@ -2441,15 +3559,44 @@ if (ApiResponse.is(json)) {
 // Deserialize with validation
 const response = ApiResponse.fromJSON(json);
 console.log(response.timestamp instanceof Date); // true
+``` ## Enum Support
+ Deserialize also works with enums. The `fromJSON` function validates that the input matches one of the enum values:
+ 
+**Before:**
 ```
+/** @derive(Deserialize) */
+enum Status {
+    Active = 'active',
+    Inactive = 'inactive',
+    Pending = 'pending'
+}
+```  
+**After:**
+```
+import { DeserializeContext } from 'macroforge/serde';
 
-## Enum Support
+enum Status {
+    Active = 'active',
+    Inactive = 'inactive',
+    Pending = 'pending'
+}
 
-Deserialize also works with enums. The `fromJSON` function validates that the input matches one of the enum values:
-
-<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
-
-```typescript
+export namespace Status {
+    export function fromStringifiedJSON(json: string): Status {
+        const data = JSON.parse(json);
+        return __deserialize(data);
+    }
+    export function __deserialize(data: unknown): Status {
+        for (const key of Object.keys(Status)) {
+            const enumValue = Status[key as keyof typeof Status];
+            if (enumValue === data) {
+                return data as Status;
+            }
+        }
+        throw new Error('Invalid Status value: ' + JSON.stringify(data));
+    }
+}
+``` ```
 const status = Status.fromJSON("active");
 console.log(status); // Status.Active
 
@@ -2459,29 +3606,68 @@ try {
 } catch (e) {
   console.log(e.message); // "Invalid Status value: invalid"
 }
+``` Works with numeric enums too:
+ 
+**Source:**
 ```
-
-Works with numeric enums too:
-
-<InteractiveMacro code={`/** @derive(Deserialize) */
+/** @derive(Deserialize) */
 enum Priority {
   Low = 1,
   Medium = 2,
   High = 3,
-}`} />
-
-```typescript
+}
+```  ```
 const priority = Priority.fromJSON(3);
 console.log(priority); // Priority.High
+``` ## Type Alias Support
+ Deserialize works with type aliases. For object types, validation and type conversion is applied:
+ 
+**Before:**
 ```
+/** @derive(Deserialize) */
+type UserProfile = {
+    id: string;
+    name: string;
+    createdAt: Date;
+};
+```  
+**After:**
+```
+import { DeserializeContext } from 'macroforge/serde';
+import type { DeserializeOptions } from 'macroforge/serde';
 
-## Type Alias Support
+type UserProfile = {
+    id: string;
+    name: string;
+    createdAt: Date;
+};
 
-Deserialize works with type aliases. For object types, validation and type conversion is applied:
-
-<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
-
-```typescript
+export namespace UserProfile {
+    export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): UserProfile {
+        const ctx = DeserializeContext.create();
+        const raw = JSON.parse(json);
+        const result = __deserialize(raw, ctx);
+        ctx.applyPatches();
+        if (opts?.freeze) {
+            ctx.freezeAll();
+        }
+        return result;
+    }
+    export function __deserialize(value: any, ctx: DeserializeContext): UserProfile {
+        if (value?.__ref !== undefined) {
+            return ctx.getOrDefer(value.__ref) as UserProfile;
+        }
+        const instance = { ...value };
+        delete instance.__type;
+        delete instance.__id;
+        if (value.__id !== undefined) {
+            ctx.register(value.__id as number, instance);
+        }
+        ctx.trackForFreeze(instance);
+        return instance as UserProfile;
+    }
+}
+``` ```
 const json = {
   id: "123",
   name: "Alice",
@@ -2490,31 +3676,28 @@ const json = {
 
 const profile = UserProfile.fromJSON(json);
 console.log(profile.createdAt instanceof Date); // true
+``` For union types, basic validation is applied:
+ 
+**Source:**
 ```
-
-For union types, basic validation is applied:
-
-<InteractiveMacro code={`/** @derive(Deserialize) */
-type ApiStatus = "loading" | "success" | "error";`} />
-
-```typescript
+/** @derive(Deserialize) */
+type ApiStatus = "loading" | "success" | "error";
+```  ```
 const status = ApiStatus.fromJSON("success");
 console.log(status); // "success"
+``` ## Combining with Serialize
+ Use both Serialize and Deserialize for complete JSON round-trip support:
+ 
+**Source:**
 ```
-
-## Combining with Serialize
-
-Use both Serialize and Deserialize for complete JSON round-trip support:
-
-<InteractiveMacro code={`/** @derive(Serialize, Deserialize) */
+/** @derive(Serialize, Deserialize) */
 /** @serde({ rename_all: "camelCase" }) */
 class UserProfile {
   user_name: string;
   created_at: Date;
   is_active: boolean;
-}`} />
-
-```typescript
+}
+```  ```
 // Create and serialize
 const profile = new UserProfile();
 profile.user_name = "Alice";
@@ -2528,19 +3711,17 @@ const json = JSON.stringify(profile);
 const restored = UserProfile.fromJSON(JSON.parse(json));
 console.log(restored.user_name);              // "Alice"
 console.log(restored.created_at instanceof Date); // true
+``` ## Error Handling
+ Handle deserialization errors gracefully:
+ 
+**Source:**
 ```
-
-## Error Handling
-
-Handle deserialization errors gracefully:
-
-<InteractiveMacro code={`/** @derive(Deserialize) */
+/** @derive(Deserialize) */
 class User {
   name: string;
   email: string;
-}`} />
-
-```typescript
+}
+```  ```
 function parseUser(json: unknown): User | null {
   try {
     return User.fromJSON(json);
@@ -2560,24 +3741,15 @@ const user = parseUser({ name: "Alice" });
 # Custom Macros
 
 # Custom Macros
-
-*Macroforge allows you to create custom derive macros in Rust. Your macros have full access to the class AST and can generate any TypeScript code.*
-
-## Overview
-
-Custom macros are written in Rust and compiled to native Node.js addons. The process involves:
-
-1. Creating a Rust crate with NAPI bindings
-
-2. Defining macro functions with `#[ts_macro_derive]`
-
-3. Using `macroforge_ts_quote` to generate TypeScript code
-
-4. Building and publishing as an npm package
-
-## Quick Example
-
-```rust
+ *Macroforge allows you to create custom derive macros in Rust. Your macros have full access to the class AST and can generate any TypeScript code.*
+ ## Overview
+ Custom macros are written in Rust and compiled to native Node.js addons. The process involves:
+ 1. Creating a Rust crate with NAPI bindings
+ 2. Defining macro functions with `#[ts_macro_derive]`
+ 3. Using `macroforge_ts_quote` to generate TypeScript code
+ 4. Building and publishing as an npm package
+ ## Quick Example
+ ```
 use macroforge_ts::macros::{ts_macro_derive, body};
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
@@ -2606,13 +3778,9 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
         )),
     }
 }
-```
-
-## Using Custom Macros
-
-Once your macro package is published, users can import and use it:
-
-```typescript
+``` ## Using Custom Macros
+ Once your macro package is published, users can import and use it:
+ ```
 /** import macro { JSON } from "@my/macros"; */
 
 /** @derive(JSON) */
@@ -2628,52 +3796,31 @@ class User {
 
 const user = new User("Alice", 30);
 console.log(user.toJSON()); // { name: "Alice", age: 30 }
-```
-
->
-> The `import macro` comment tells Macroforge which package provides the macro.
-
-## Getting Started
-
-Follow these guides to create your own macros:
-
-- [Set up a Rust macro crate]({base}/docs/custom-macros/rust-setup)
-
-- [Learn the #[ts_macro_derive] attribute]({base}/docs/custom-macros/ts-macro-derive)
-
-- [Learn the template syntax]({base}/docs/custom-macros/ts-quote)
+``` > **Note:** The import macro comment tells Macroforge which package provides the macro. ## Getting Started
+ Follow these guides to create your own macros:
+ - [Set up a Rust macro crate](../docs/custom-macros/rust-setup)
+ - [Learn the #[ts_macro_derive] attribute](../docs/custom-macros/ts-macro-derive)
+ - [Learn the template syntax](../docs/custom-macros/ts-quote)
 
 ---
 
 # Rust Setup
-
-*Create a new Rust crate that will contain your custom macros. This crate compiles to a native Node.js addon.*
-
-## Prerequisites
-
-- Rust toolchain (1.88 or later)
-
-    - Node.js 24 or later
-
-    - NAPI-RS CLI: `cargo install macroforge_ts`
-
-## Create the Project
-
-```bash
+ *Create a new Rust crate that will contain your custom macros. This crate compiles to a native Node.js addon.*
+ ## Prerequisites
+ - Rust toolchain (1.88 or later)
+ - Node.js 24 or later
+ - NAPI-RS CLI: `cargo install macroforge_ts`
+ ## Create the Project
+ ```
 # Create a new directory
 mkdir my-macros
 cd my-macros
 
 # Initialize with NAPI-RS
 napi new --platform --name my-macros
-```
-
-## Configure Cargo.toml
-
-Update your `Cargo.toml` with the required dependencies:
-
-`Cargo.toml`
-```toml
+``` ## Configure Cargo.toml
+ Update your `Cargo.toml` with the required dependencies:
+ ```
 [package]
 name = "my-macros"
 version = "0.1.0"
@@ -2693,21 +3840,13 @@ napi-build = "2"
 [profile.release]
 lto = true
 strip = true
-```
-
-## Create build.rs
-
-`build.rs`
-```rust
+``` ## Create build.rs
+ ```
 fn main() {
     napi_build::setup();
 }
-```
-
-## Create src/lib.rs
-
-`src/lib.rs`
-```rust
+``` ## Create src/lib.rs
+ ```
 use macroforge_ts::macros::{ts_macro_derive, body};
 use macroforge_ts::ts_syn::{
     Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
@@ -2738,12 +3877,8 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
         )),
     }
 }
-```
-
-## Create package.json
-
-`package.json`
-```json
+``` ## Create package.json
+ ```
 {
   "name": "@my-org/macros",
   "version": "0.1.0",
@@ -2768,11 +3903,8 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     "@napi-rs/cli": "^3.0.0-alpha.0"
   }
 }
-```
-
-## Build the Package
-
-```bash
+``` ## Build the Package
+ ```
 # Build the native addon
 npm run build
 
@@ -2780,26 +3912,17 @@ npm run build
 # - index.js (JavaScript bindings)
 # - index.d.ts (TypeScript types)
 # - *.node (native binary)
-```
-
->
-> For cross-platform builds, use GitHub Actions with the NAPI-RS CI template.
-
-## Next Steps
-
-- <a href="{base}/docs/custom-macros/ts-macro-derive" >Learn the #[ts_macro_derive] attribute</a >
-
-    - <a href="{base}/docs/custom-macros/ts-quote" >Master the template syntax</a >
+```  **Tip For cross-platform builds, use GitHub Actions with the NAPI-RS CI template. ## Next Steps
+ - [Learn the #[ts_macro_derive] attribute](../../docs/custom-macros/ts-macro-derive)
+ - [Master the template syntax](../../docs/custom-macros/ts-quote)
+**
 
 ---
 
 # ts_macro_derive
-
-*The `#[ts_macro_derive]` attribute is a Rust procedural macro that registers your function as a Macroforge derive macro.*
-
-## Basic Syntax
-
-```rust
+ *The `#[ts_macro_derive]` attribute is a Rust procedural macro that registers your function as a Macroforge derive macro.*
+ ## Basic Syntax
+ ```
 use macroforge_ts::macros::ts_macro_derive;
 use macroforge_ts::ts_syn::{TsStream, MacroforgeError};
 
@@ -2807,77 +3930,39 @@ use macroforge_ts::ts_syn::{TsStream, MacroforgeError};
 pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     // Macro implementation
 }
-```
-
-## Attribute Options
-
-### Name (Required)
-
-The first argument is the macro name that users will reference in `@derive()`:
-
-```rust
+``` ## Attribute Options
+ ### Name (Required)
+ The first argument is the macro name that users will reference in `@derive()`:
+ ```
 #[ts_macro_derive(JSON)]  // Users write: @derive(JSON)
 pub fn derive_json(...)
-```
-
-### Description
-
-Provides documentation for the macro:
-
-```rust
+``` ### Description
+ Provides documentation for the macro:
+ ```
 #[ts_macro_derive(
     JSON,
     description = "Generates toJSON() returning a plain object"
 )]
 pub fn derive_json(...)
-```
-
-### Attributes
-
-Declare which field-level decorators your macro accepts:
-
-```rust
+``` ### Attributes
+ Declare which field-level decorators your macro accepts:
+ ```
 #[ts_macro_derive(
     Debug,
     description = "Generates toString()",
     attributes(debug)  // Allows @debug({ ... }) on fields
 )]
 pub fn derive_debug(...)
-```
-
->
-> Declared attributes become available as `@attributeName(&#123; options &#125;)` decorators in TypeScript.
-
-## Function Signature
-
-```rust
+``` > **Note:** Declared attributes become available as @attributeName({ options }) decorators in TypeScript. ## Function Signature
+ ```
 pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError>
-```
-
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`input: TsStream`</td>
-<td>Token stream containing the class/interface AST</td>
-</tr>
-<tr>
-<td>`Result<TsStream, MacroforgeError>`</td>
-<td>Returns generated code or an error with source location</td>
-</tr>
-</tbody>
-</table>
-
-## Parsing Input
-
-Use `parse_ts_macro_input!` to convert the token stream:
-
-```rust
+``` | Parameter | Description |
+| --- | --- |
+| `input: TsStream` | Token stream containing the class/interface AST |
+| `Result<TsStream, MacroforgeError>` | Returns generated code or an error with source location |
+ ## Parsing Input
+ Use `parse_ts_macro_input!` to convert the token stream:
+ ```
 use macroforge_ts::ts_syn::{Data, DeriveInput, parse_ts_macro_input};
 
 #[ts_macro_derive(MyMacro)]
@@ -2899,11 +3984,8 @@ pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
         }
     }
 }
-```
-
-## DeriveInput Structure
-
-```rust
+``` ## DeriveInput Structure
+ ```
 struct DeriveInput {
     pub ident: Ident,           // The type name
     pub span: SpanIR,           // Span of the type definition
@@ -2961,13 +4043,9 @@ impl DataTypeAlias {
     fn as_union(&self) -> Option<&[TypeMember]>;
     fn as_object(&self) -> Option<&[InterfaceFieldIR]>;
 }
-```
-
-## Accessing Field Data
-
-### Class Fields (FieldIR)
-
-```rust
+``` ## Accessing Field Data
+ ### Class Fields (FieldIR)
+ ```
 struct FieldIR {
     pub name: String,               // Field name
     pub span: SpanIR,               // Field span
@@ -2977,11 +4055,8 @@ struct FieldIR {
     pub visibility: Visibility,     // Public, Protected, Private
     pub decorators: Vec<DecoratorIR>, // Field decorators
 }
-```
-
-### Interface Fields (InterfaceFieldIR)
-
-```rust
+``` ### Interface Fields (InterfaceFieldIR)
+ ```
 struct InterfaceFieldIR {
     pub name: String,
     pub span: SpanIR,
@@ -2991,37 +4066,24 @@ struct InterfaceFieldIR {
     pub decorators: Vec<DecoratorIR>,
     // Note: No visibility field (interfaces are always public)
 }
-```
-
-### Enum Variants (EnumVariantIR)
-
-```rust
+``` ### Enum Variants (EnumVariantIR)
+ ```
 struct EnumVariantIR {
     pub name: String,
     pub span: SpanIR,
     pub value: EnumValue,  // Auto, String(String), or Number(f64)
     pub decorators: Vec<DecoratorIR>,
 }
-```
-
-### Decorator Structure
-
-```rust
+``` ### Decorator Structure
+ ```
 struct DecoratorIR {
     pub name: String,      // e.g., "serde"
     pub args_src: String,  // Raw args text, e.g., "skip, rename: 'id'"
     pub span: SpanIR,
 }
-```
-
->
-> To check for decorators, iterate through `field.decorators` and check `decorator.name`. For parsing options, you can write helper functions like the built-in macros do.
-
-## Adding Imports
-
-If your macro generates code that requires imports, use the `add_import` method on `TsStream`:
-
-```rust
+``` > **Note:** To check for decorators, iterate through field.decorators and check decorator.name. For parsing options, you can write helper functions like the built-in macros do. ## Adding Imports
+ If your macro generates code that requires imports, use the `add_import` method on `TsStream`:
+ ```
 // Add an import to be inserted at the top of the file
 let mut output = body! {
     validate(): ValidationResult {
@@ -3034,16 +4096,9 @@ output.add_import("validateFields", "my-validation-lib");
 output.add_import("ValidationResult", "my-validation-lib");
 
 Ok(output)
-```
-
->
-> Imports are automatically deduplicated. If the same import already exists in the file, it won't be added again.
-
-## Returning Errors
-
-Use `MacroforgeError` to report errors with source locations:
-
-```rust
+``` > **Note:** Imports are automatically deduplicated. If the same import already exists in the file, it won't be added again. ## Returning Errors
+ Use `MacroforgeError` to report errors with source locations:
+ ```
 #[ts_macro_derive(ClassOnly)]
 pub fn class_only(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
@@ -3059,11 +4114,8 @@ pub fn class_only(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
         )),
     }
 }
-```
-
-## Complete Example
-
-```rust
+``` ## Complete Example
+ ```
 use macroforge_ts::macros::{ts_macro_derive, body};
 use macroforge_ts::ts_syn::{
     Data, DeriveInput, FieldIR, MacroforgeError, TsStream, parse_ts_macro_input,
@@ -3107,184 +4159,44 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError>
         )),
     }
 }
-```
-
-## Next Steps
-
-- [Learn the template syntax]({base}/docs/custom-macros/ts-quote)
+``` ## Next Steps
+ - [Learn the template syntax](../../docs/custom-macros/ts-quote)
 
 ---
 
 # Template Syntax
-
-*The `macroforge_ts_quote` crate provides template-based code generation for TypeScript. The `ts_template!` macro uses Rust-inspired syntax for control flow and interpolation, making it easy to generate complex TypeScript code.*
-
-## Available Macros
-
-<table>
-    <thead>
-        <tr>
-            <th>Macro</th>
-            <th>Output</th>
-            <th>Use Case</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>`ts_template!`</td>
-            <td>Any TypeScript code</td>
-            <td>General code generation</td>
-        </tr>
-        <tr>
-            <td>`body!`</td>
-            <td>Class body members</td>
-            <td>Methods and properties</td>
-        </tr>
-    </tbody>
-</table>
-
-## Quick Reference
-
-<table>
-    <thead>
-        <tr>
-            <th>Syntax</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>`@&#123;expr&#125;`</td>
-            <td>Interpolate a Rust expression (adds space after)</td>
-        </tr>
-        <tr>
-            <td>`&#123;| content |&#125;`</td>
-            <td
-                >Ident block: concatenates without spaces (e.g., <code
-                    >&#123;|get@&#123;name&#125;|&#125;</code
-                >
-                → `getUser`)</td
-            >
-        </tr>
-        <tr>
-            <td>`&#123;> "comment" <&#125;`</td>
-            <td
-                >Block comment: outputs `/* comment */` (string preserves
-                whitespace)</td
-            >
-        </tr>
-        <tr>
-            <td>`&#123;>> "doc" <<&#125;`</td>
-            <td
-                >Doc comment: outputs `/** doc */` (string preserves whitespace)</td
-            >
-        </tr>
-        <tr>
-            <td>`@@&#123;`</td>
-            <td
-                >Escape for literal `@&#123;` (e.g.,
-                `"@@&#123;foo&#125;"`
-                → `@&#123;foo&#125;`)</td
-            >
-        </tr>
-        <tr>
-            <td>`"text @&#123;expr&#125;"`</td>
-            <td>String interpolation (auto-detected)</td>
-        </tr>
-        <tr>
-            <td>`"'^template $&#123;js&#125;^'"`</td>
-            <td
-                >JS backtick template literal (outputs <code
-                    >`template $&#123;js&#125;`</code
-                >)</td
-            >
-        </tr>
-        <tr>
-            <td>`&#123;#if cond&#125;...&#123;/if&#125;`</td>
-            <td>Conditional block</td>
-        </tr>
-        <tr>
-            <td
-                ><code
-                    >&#123;#if cond&#125;...&#123;:else&#125;...&#123;/if&#125;</code
-                ></td
-            >
-            <td>Conditional with else</td>
-        </tr>
-        <tr>
-            <td
-                ><code
-                    >&#123;#if a&#125;...&#123;:else if
-                    b&#125;...&#123;:else&#125;...&#123;/if&#125;</code
-                ></td
-            >
-            <td>Full if/else-if/else chain</td>
-        </tr>
-        <tr>
-            <td
-                ><code
-                    >&#123;#if let pattern = expr&#125;...&#123;/if&#125;</code
-                ></td
-            >
-            <td>Pattern matching if-let</td>
-        </tr>
-        <tr>
-            <td
-                ><code
-                    >&#123;#match expr&#125;&#123;:case
-                    pattern&#125;...&#123;/match&#125;</code
-                ></td
-            >
-            <td>Match expression with case arms</td>
-        </tr>
-        <tr>
-            <td
-                ><code>&#123;#for item in list&#125;...&#123;/for&#125;</code
-                ></td
-            >
-            <td>Iterate over a collection</td>
-        </tr>
-        <tr>
-            <td>`&#123;#while cond&#125;...&#123;/while&#125;`</td>
-            <td>While loop</td>
-        </tr>
-        <tr>
-            <td
-                ><code
-                    >&#123;#while let pattern = expr&#125;...&#123;/while&#125;</code
-                ></td
-            >
-            <td>While-let pattern matching loop</td>
-        </tr>
-        <tr>
-            <td>`&#123;$let name = expr&#125;`</td>
-            <td>Define a local constant</td>
-        </tr>
-        <tr>
-            <td>`&#123;$let mut name = expr&#125;`</td>
-            <td>Define a mutable local variable</td>
-        </tr>
-        <tr>
-            <td>`&#123;$do expr&#125;`</td>
-            <td>Execute a side-effectful expression</td>
-        </tr>
-        <tr>
-            <td>`&#123;$typescript stream&#125;`</td>
-            <td
-                >Inject a TsStream, preserving its source and runtime_patches
-                (imports)</td
-            >
-        </tr>
-    </tbody>
-</table>
-
-**Note:** A single `@` not followed by `&#123;` passes through unchanged (e.g., `email@domain.com` works as expected).
-
-## Interpolation: `@&#123;expr&#125;`
-
-Insert Rust expressions into the generated TypeScript:
-
-```rust
+ *The `macroforge_ts_quote` crate provides template-based code generation for TypeScript. The `ts_template!` macro uses Rust-inspired syntax for control flow and interpolation, making it easy to generate complex TypeScript code.*
+ ## Available Macros
+ | Macro | Output | Use Case |
+| --- | --- | --- |
+| `ts_template!` | Any TypeScript code | General code generation |
+| `body!` | Class body members | Methods and properties |
+ ## Quick Reference
+ | Syntax | Description |
+| --- | --- |
+| `@{expr}` | Interpolate a Rust expression (adds space after) |
+| `{| content |}` | Ident block: concatenates without spaces (e.g., `{|get@{name}|}` → `getUser`) |
+| `{> "comment" <}` | Block comment: outputs `/* comment */` (string preserves whitespace) |
+| `{>> "doc" <<}` | Doc comment: outputs `/** doc */` (string preserves whitespace) |
+| `@@{` | Escape for literal `@{` (e.g., `"@@{foo}"` → `@{foo}`) |
+| `"text @{expr}"` | String interpolation (auto-detected) |
+| `"'^template ${js}^'"` | JS backtick template literal (outputs ``template ${js}``) |
+| `{#if cond}...{/if}` | Conditional block |
+| `{#if cond}...{:else}...{/if}` | Conditional with else |
+| {#if a}...{:else if b}...{:else}...{/if} | Full if/else-if/else chain |
+| `{#if let pattern = expr}...{/if}` | Pattern matching if-let |
+| {#match expr}{:case pattern}...{/match} | Match expression with case arms |
+| `{#for item in list}...{/for}` | Iterate over a collection |
+| `{#while cond}...{/while}` | While loop |
+| `{#while let pattern = expr}...{/while}` | While-let pattern matching loop |
+| `{$let name = expr}` | Define a local constant |
+| `{$let mut name = expr}` | Define a mutable local variable |
+| `{$do expr}` | Execute a side-effectful expression |
+| `{$typescript stream}` | Inject a TsStream, preserving its source and runtime_patches (imports) |
+ **Note:** A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com` works as expected).
+ ## Interpolation: `@{expr}`
+ Insert Rust expressions into the generated TypeScript:
+ ```
 let class_name = "User";
 let method = "toString";
 
@@ -3293,23 +4205,14 @@ let code = ts_template! {
         return "User instance";
     };
 };
-```
-
-**Generates:**
-
-```typescript
+``` **Generates:**
+ ```
 User.prototype.toString = function () {
   return "User instance";
 };
-```
-
-<h2 id="ident-blocks">
-    Identifier Concatenation: `&#123;| content |&#125;`
-</h2>
-
-When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block syntax. Everything inside `&#123;| |&#125;` is concatenated without spaces:
-
-```rust
+``` ## Identifier Concatenation: `{| content |}`
+ When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block syntax. Everything inside `{| |}` is concatenated without spaces:
+ ```
 let field_name = "User";
 
 let code = ts_template! {
@@ -3317,19 +4220,13 @@ let code = ts_template! {
         return this.@{field_name.to_lowercase()};
     }
 };
-```
-
-**Generates:**
-
-```typescript
+``` **Generates:**
+ ```
 function getUser() {
   return this.user;
 }
-```
-
-Without ident blocks, `@&#123;&#125;` always adds a space after for readability. Use `&#123;| |&#125;` when you explicitly want concatenation:
-
-```rust
+``` Without ident blocks, `@{}` always adds a space after for readability. Use `{| |}` when you explicitly want concatenation:
+ ```
 let name = "Status";
 
 // With space (default behavior)
@@ -3337,47 +4234,28 @@ ts_template! { namespace @{name} }  // → "namespace Status"
 
 // Without space (ident block)
 ts_template! { {|namespace@{name}|} }  // → "namespaceStatus"
-```
-
-Multiple interpolations can be combined:
-
-```rust
+``` Multiple interpolations can be combined:
+ ```
 let entity = "user";
 let action = "create";
 
 ts_template! { {|@{entity}_@{action}|} }  // → "user_create"
-```
-
-<h2 id="comments">
-    Comments: `&#123;> "..." <&#125;` and
-    `&#123;>> "..." <<&#125;`
-</h2>
-
-Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve exact spacing in comments:
-
-### Block Comments
-
-Use `&#123;> "comment" <&#125;` for block comments:
-
-```rust
+``` ## Comments: `{> "..." <}` and `{>> "..." <<}`
+ Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve exact spacing in comments:
+ ### Block Comments
+ Use `{> "comment" <}` for block comments:
+ ```
 let code = ts_template! {
     {> "This is a block comment" <}
     const x = 42;
 };
-```
-
-**Generates:**
-
-```typescript
+``` **Generates:**
+ ```
 /* This is a block comment */
 const x = 42;
-```
-
-### Doc Comments (JSDoc)
-
-Use `&#123;>> "doc" <<&#125;` for JSDoc comments:
-
-```rust
+``` ### Doc Comments (JSDoc)
+ Use `{>> "doc" <<}` for JSDoc comments:
+ ```
 let code = ts_template! {
     {>> "@param {string} name - The user's name" <<}
     {>> "@returns {string} A greeting message" <<}
@@ -3385,23 +4263,16 @@ let code = ts_template! {
         return "Hello, " + name;
     }
 };
-```
-
-**Generates:**
-
-```typescript
+``` **Generates:**
+ ```
 /** @param {string} name - The user's name */
 /** @returns {string} A greeting message */
 function greet(name: string): string {
     return "Hello, " + name;
 }
-```
-
-### Comments with Interpolation
-
-Use `format!()` or similar to build dynamic comment strings:
-
-```rust
+``` ### Comments with Interpolation
+ Use `format!()` or similar to build dynamic comment strings:
+ ```
 let param_name = "userId";
 let param_type = "number";
 let comment = format!("@param {{{}}} {} - The user ID", param_type, param_name);
@@ -3410,22 +4281,13 @@ let code = ts_template! {
     {>> @{comment} <<}
     function getUser(userId: number) {}
 };
-```
-
-**Generates:**
-
-```typescript
+``` **Generates:**
+ ```
 /** @param {number} userId - The user ID */
 function getUser(userId: number) {}
-```
-
-<h2 id="string-interpolation">
-    String Interpolation: `"text @&#123;expr&#125;"`
-</h2>
-
-Interpolation works automatically inside string literals - no <code >format!()</code > needed:
-
-```rust
+``` ## String Interpolation: `"text @{expr}"`
+ Interpolation works automatically inside string literals - no `format!()` needed:
+ ```
 let name = "World";
 let count = 42;
 
@@ -3433,64 +4295,41 @@ let code = ts_template! {
     console.log("Hello @{name}!");
     console.log("Count: @{count}, doubled: @{count * 2}");
 };
-```
-
-**Generates:**
-
-```typescript
+``` **Generates:**
+ ```
 console.log("Hello World!");
 console.log("Count: 42, doubled: 84");
-```
-
-This also works with method calls and complex expressions:
-
-```rust
+``` This also works with method calls and complex expressions:
+ ```
 let field = "username";
 
 let code = ts_template! {
     throw new Error("Invalid @{field.to_uppercase()}");
 };
-```
-
-<h2 id="backtick-templates">
-    Backtick Template Literals: `"'^...^'"`
-</h2>
-
-For JavaScript template literals (backtick strings), use the <code >'^...^'</code > syntax. This outputs actual backticks and passes through `${"${}"}` for JS interpolation:
-
-```rust
+``` ## Backtick Template Literals: `"'^...^'"`
+ For JavaScript template literals (backtick strings), use the `'^...^'` syntax. This outputs actual backticks and passes through `$${}` for JS interpolation:
+ ```
 let tag_name = "div";
 
 let code = ts_template! {
-    const html = "'^<@{tag_name}>\${content}</@{tag_name}>^'";
+    const html = "'^<@{tag_name}>${content}</@{tag_name}>^'";
 };
-```
-
-**Generates:**
-
-<CodeBlock code={"const html = `${content}`;"} lang="typescript" />
-
-You can mix Rust `@&#123;&#125;` interpolation (evaluated at macro expansion time) with JS `${"${}"}` interpolation (evaluated at runtime):
-
-```rust
+``` **Generates:**
+ ```
+const html = `${content}`;
+``` You can mix Rust `@{}` interpolation (evaluated at macro expansion time) with JS `$${}` interpolation (evaluated at runtime):
+ ```
 let class_name = "User";
 
 let code = ts_template! {
-    "'^Hello \${this.name}, you are a @{class_name}^'"
+    "'^Hello ${this.name}, you are a @{class_name}^'"
 };
-```
-
-**Generates:**
-
-<CodeBlock code={"`Hello ${this.name}, you are a User`"} lang="typescript" />
-
-<h2 id="conditionals">
-    Conditionals: `&#123;#if&#125;...&#123;/if&#125;`
-</h2>
-
-Basic conditional:
-
-```rust
+``` **Generates:**
+ ```
+`Hello ${this.name}, you are a User`
+``` ## Conditionals: `{#if}...{/if}`
+ Basic conditional:
+ ```
 let needs_validation = true;
 
 let code = ts_template! {
@@ -3501,11 +4340,8 @@ let code = ts_template! {
         return this.doSave();
     }
 };
-```
-
-### If-Else
-
-```rust
+``` ### If-Else
+ ```
 let has_default = true;
 
 let code = ts_template! {
@@ -3515,11 +4351,8 @@ let code = ts_template! {
         throw new Error("No default");
     {/if}
 };
-```
-
-### If-Else-If Chains
-
-```rust
+``` ### If-Else-If Chains
+ ```
 let level = 2;
 
 let code = ts_template! {
@@ -3531,15 +4364,9 @@ let code = ts_template! {
         console.log("Other level");
     {/if}
 };
-```
-
-<h2 id="pattern-matching">
-    Pattern Matching: `&#123;#if let&#125;`
-</h2>
-
-Use `if let` for pattern matching on `Option`, `Result`, or other Rust enums:
-
-```rust
+``` ## Pattern Matching: `{#if let}`
+ Use `if let` for pattern matching on `Option`, `Result`, or other Rust enums:
+ ```
 let maybe_name: Option<&str> = Some("Alice");
 
 let code = ts_template! {
@@ -3549,17 +4376,11 @@ let code = ts_template! {
         console.log("Hello, anonymous!");
     {/if}
 };
-```
-
-**Generates:**
-
-```typescript
+``` **Generates:**
+ ```
 console.log("Hello, Alice!");
-```
-
-This is useful when working with optional values from your IR:
-
-```rust
+``` This is useful when working with optional values from your IR:
+ ```
 let code = ts_template! {
     {#if let Some(default_val) = field.default_value}
         this.@{field.name} = @{default_val};
@@ -3567,15 +4388,9 @@ let code = ts_template! {
         this.@{field.name} = undefined;
     {/if}
 };
-```
-
-<h2 id="match-expressions">
-    Match Expressions: `&#123;#match&#125;`
-</h2>
-
-Use `match` for exhaustive pattern matching:
-
-```rust
+``` ## Match Expressions: `{#match}`
+ Use `match` for exhaustive pattern matching:
+ ```
 enum Visibility { Public, Private, Protected }
 let visibility = Visibility::Public;
 
@@ -3590,17 +4405,11 @@ let code = ts_template! {
     {/match}
     field: string;
 };
-```
-
-**Generates:**
-
-```typescript
+``` **Generates:**
+ ```
 public field: string;
-```
-
-### Match with Value Extraction
-
-```rust
+``` ### Match with Value Extraction
+ ```
 let result: Result<i32, &str> = Ok(42);
 
 let code = ts_template! {
@@ -3611,11 +4420,8 @@ let code = ts_template! {
             throw new Error("@{msg}")
     {/match};
 };
-```
-
-### Match with Wildcard
-
-```rust
+``` ### Match with Wildcard
+ ```
 let count = 5;
 
 let code = ts_template! {
@@ -3628,11 +4434,8 @@ let code = ts_template! {
             console.log("many");
     {/match}
 };
-```
-
-## Iteration: `&#123;#for&#125;`
-
-```rust
+``` ## Iteration: `{#for}`
+ ```
 let fields = vec!["name", "email", "age"];
 
 let code = ts_template! {
@@ -3644,11 +4447,8 @@ let code = ts_template! {
         return result;
     }
 };
-```
-
-**Generates:**
-
-```typescript
+``` **Generates:**
+ ```
 function toJSON() {
   const result = {};
   result.name = this.name;
@@ -3656,11 +4456,8 @@ function toJSON() {
   result.age = this.age;
   return result;
 }
-```
-
-### Tuple Destructuring in Loops
-
-```rust
+``` ### Tuple Destructuring in Loops
+ ```
 let items = vec![("user", "User"), ("post", "Post")];
 
 let code = ts_template! {
@@ -3668,11 +4465,8 @@ let code = ts_template! {
         const @{key} = new @{class_name}();
     {/for}
 };
-```
-
-### Nested Iterations
-
-```rust
+``` ### Nested Iterations
+ ```
 let classes = vec![
     ("User", vec!["name", "email"]),
     ("Post", vec!["title", "content"]),
@@ -3689,13 +4483,9 @@ ts_template! {
         };
     {/for}
 }
-```
-
-## While Loops: `&#123;#while&#125;`
-
-Use `while` for loops that need to continue until a condition is false:
-
-```rust
+``` ## While Loops: `{#while}`
+ Use `while` for loops that need to continue until a condition is false:
+ ```
 let items = get_items();
 let mut idx = 0;
 
@@ -3706,13 +4496,9 @@ let code = ts_template! {
         {$do i += 1}
     {/while}
 };
-```
-
-### While-Let Pattern Matching
-
-Use `while let` for iterating with pattern matching, similar to `if let`:
-
-```rust
+``` ### While-Let Pattern Matching
+ Use `while let` for iterating with pattern matching, similar to `if let`:
+ ```
 let mut items = vec!["a", "b", "c"].into_iter();
 
 let code = ts_template! {
@@ -3720,31 +4506,21 @@ let code = ts_template! {
         console.log("@{item}");
     {/while}
 };
-```
-
-**Generates:**
-
-```typescript
+``` **Generates:**
+ ```
 console.log("a");
 console.log("b");
 console.log("c");
-```
-
-This is especially useful when working with iterators or consuming optional values:
-
-```rust
+``` This is especially useful when working with iterators or consuming optional values:
+ ```
 let code = ts_template! {
     {#while let Some(next_field) = remaining_fields.pop()}
         result.@{next_field.name} = this.@{next_field.name};
     {/while}
 };
-```
-
-## Local Constants: `&#123;$let&#125;`
-
-Define local variables within the template scope:
-
-```rust
+``` ## Local Constants: `{$let}`
+ Define local variables within the template scope:
+ ```
 let items = vec![("user", "User"), ("post", "Post")];
 
 let code = ts_template! {
@@ -3754,17 +4530,10 @@ let code = ts_template! {
         const @{key} = new @{class_name}();
     {/for}
 };
-```
-
-This is useful for computing derived values inside loops without cluttering the Rust code.
-
-<h2 id="mutable-variables">
-    Mutable Variables: `&#123;$let mut&#125;`
-</h2>
-
-When you need to modify a variable within the template (e.g., in a <code >while</code > loop), use `&#123;$let mut&#125;`:
-
-```rust
+``` This is useful for computing derived values inside loops without cluttering the Rust code.
+ ## Mutable Variables: `{$let mut}`
+ When you need to modify a variable within the template (e.g., in a `while` loop), use `{$let mut}`:
+ ```
 let code = ts_template! {
     {$let mut count = 0}
     {#for item in items}
@@ -3773,13 +4542,9 @@ let code = ts_template! {
     {/for}
     console.log("Total: @{count}");
 };
-```
-
-## Side Effects: `&#123;$do&#125;`
-
-Execute an expression for its side effects without producing output. This is commonly used with mutable variables:
-
-```rust
+``` ## Side Effects: `{$do}`
+ Execute an expression for its side effects without producing output. This is commonly used with mutable variables:
+ ```
 let code = ts_template! {
     {$let mut results: Vec<String> = Vec::new()}
     {#for field in fields}
@@ -3787,25 +4552,14 @@ let code = ts_template! {
     {/for}
     return [@{results.join(", ")}];
 };
-```
-
-Common uses for `&#123;$do&#125;`:
-
-- Incrementing counters: `&#123;$do i += 1&#125;`
-
-    - Building collections: `&#123;$do vec.push(item)&#125;`
-
-    - Setting flags: `&#123;$do found = true&#125;`
-
-    - Any mutating operation
-
-<h2 id="typescript-injection">
-    TsStream Injection: `&#123;$typescript&#125;`
-</h2>
-
-Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via `add_import()`):
-
-```rust
+``` Common uses for `{$do}`:
+ - Incrementing counters: `{$do i += 1}`
+ - Building collections: `{$do vec.push(item)}`
+ - Setting flags: `{$do found = true}`
+ - Any mutating operation
+ ## TsStream Injection: `{$typescript}`
+ Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via `add_import()`):
+ ```
 // Create a helper method with its own import
 let mut helper = body! {
     validateEmail(email: string): boolean {
@@ -3823,11 +4577,8 @@ let result = body! {
     }
 };
 // result now includes helper's source AND its Result import
-```
-
-This is essential for composing multiple macro outputs while preserving imports and patches:
-
-```rust
+``` This is essential for composing multiple macro outputs while preserving imports and patches:
+ ```
 let extra_methods = if include_validation {
     Some(body! {
         validate(): boolean { return true; }
@@ -3843,33 +4594,21 @@ body! {
         {$typescript methods}
     {/if}
 }
-```
-
-## Escape Syntax
-
-If you need a literal `@&#123;` in your output (not interpolation), use `@@&#123;`:
-
-```rust
+``` ## Escape Syntax
+ If you need a literal `@{` in your output (not interpolation), use `@@{`:
+ ```
 ts_template! {
     // This outputs a literal @{foo}
     const example = "Use @@{foo} for templates";
 }
-```
-
-**Generates:**
-
-```typescript
+``` **Generates:**
+ ```
 // This outputs a literal @{foo}
 const example = "Use @{foo} for templates";
-```
-
-## Complete Example: JSON Derive Macro
-
-Here's a comparison showing how `ts_template!` simplifies code generation:
-
-### Before (Manual AST Building)
-
-```rust
+``` ## Complete Example: JSON Derive Macro
+ Here's a comparison showing how `ts_template!` simplifies code generation:
+ ### Before (Manual AST Building)
+ ```
 pub fn derive_json_macro(input: TsStream) -> MacroResult {
     let input = parse_ts_macro_input!(input as DeriveInput);
 
@@ -3898,11 +4637,8 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
         }
     }
 }
-```
-
-### After (With ts_template!)
-
-```rust
+``` ### After (With ts_template!)
+ ```
 pub fn derive_json_macro(input: TsStream) -> MacroResult {
     let input = parse_ts_macro_input!(input as DeriveInput);
 
@@ -3925,40 +4661,24 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
         }
     }
 }
-```
-
-## How It Works
-
-1. **Compile-Time:** The template is parsed during macro expansion
-
-    2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
-
-    3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
-
-    4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
-
-## Return Type
-
-`ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro automatically unwraps and provides helpful error messages showing the generated TypeScript code if parsing fails:
-
-```text
+``` ## How It Works
+ 1. **Compile-Time:** The template is parsed during macro expansion
+ 2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
+ 3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
+ 4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
+ ## Return Type
+ `ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro automatically unwraps and provides helpful error messages showing the generated TypeScript code if parsing fails:
+ ```
 Failed to parse generated TypeScript:
 User.prototype.toJSON = function( {
     return {};
 }
-```
-
-This shows you exactly what was generated, making debugging easy!
-
-## Nesting and Regular TypeScript
-
-You can mix template syntax with regular TypeScript. Braces <code >&#123;&#125;</code > are recognized as either:
-
-- **Template tags** if they start with `#`, `$`, `:`, or `/`
-
-    - **Regular TypeScript blocks** otherwise
-
-```rust
+``` This shows you exactly what was generated, making debugging easy!
+ ## Nesting and Regular TypeScript
+ You can mix template syntax with regular TypeScript. Braces `{}` are recognized as either:
+ - **Template tags** if they start with `#`, `$`, `:`, or `/`
+ - **Regular TypeScript blocks** otherwise
+ ```
 ts_template! {
     const config = {
         {#if use_strict}
@@ -3969,279 +4689,102 @@ ts_template! {
         timeout: 5000
     };
 }
-```
-
-## Comparison with Alternatives
-
-<table>
-    <thead>
-        <tr>
-            <th>Approach</th>
-            <th>Pros</th>
-            <th>Cons</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>`ts_quote!`</td>
-            <td>Compile-time validation, type-safe</td>
-            <td>Can't handle Vec<Stmt>, verbose</td>
-        </tr>
-        <tr>
-            <td>`parse_ts_str()`</td>
-            <td>Maximum flexibility</td>
-            <td>Runtime parsing, less readable</td>
-        </tr>
-        <tr>
-            <td>`ts_template!`</td>
-            <td>Readable, handles loops/conditions</td>
-            <td>Small runtime parsing overhead</td>
-        </tr>
-    </tbody>
-</table>
-
-## Best Practices
-
-1. Use `ts_template!` for complex code generation with loops/conditions
-
-    2. Use `ts_quote!` for simple, static statements
-
-    3. Keep templates readable - extract complex logic into variables
-
-    4. Don't nest templates too deeply - split into helper functions
+``` ## Comparison with Alternatives
+ | Approach | Pros | Cons |
+| --- | --- | --- |
+| `ts_quote!` | Compile-time validation, type-safe | Can't handle Vec<Stmt>, verbose |
+| `parse_ts_str()` | Maximum flexibility | Runtime parsing, less readable |
+| `ts_template!` | Readable, handles loops/conditions | Small runtime parsing overhead |
+ ## Best Practices
+ 1. Use `ts_template!` for complex code generation with loops/conditions
+ 2. Use `ts_quote!` for simple, static statements
+ 3. Keep templates readable - extract complex logic into variables
+ 4. Don't nest templates too deeply - split into helper functions
 
 ---
 
 # Integration
 
 # Integration
-
-*Macroforge integrates with your development workflow through IDE plugins and build tool integration.*
-
-## Overview
-
-<table>
-<thead>
-<tr>
-<th>Integration</th>
-<th>Purpose</th>
-<th>Package</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>TypeScript Plugin</td>
-<td>IDE support (errors, completions)</td>
-<td>`@macroforge/typescript-plugin`</td>
-</tr>
-<tr>
-<td>Vite Plugin</td>
-<td>Build-time macro expansion</td>
-<td>`@macroforge/vite-plugin`</td>
-</tr>
-</tbody>
-</table>
-
-## Recommended Setup
-
-For the best development experience, use both integrations:
-
-1. **TypeScript Plugin**: Provides real-time feedback in your IDE
-
-2. **Vite Plugin**: Expands macros during development and production builds
-
-```bash
+ *Macroforge integrates with your development workflow through IDE plugins and build tool integration.*
+ ## Overview
+ | Integration | Purpose | Package |
+| --- | --- | --- |
+| TypeScript Plugin | IDE support (errors, completions) | `@macroforge/typescript-plugin` |
+| Vite Plugin | Build-time macro expansion | `@macroforge/vite-plugin` |
+ ## Recommended Setup
+ For the best development experience, use both integrations:
+ 1. **TypeScript Plugin**: Provides real-time feedback in your IDE
+ 2. **Vite Plugin**: Expands macros during development and production builds
+ ```
 # Install both plugins
 npm install -D @macroforge/typescript-plugin @macroforge/vite-plugin
-```
-
-## How They Work Together
-
-<IntegrationFlow
-source="Your Code"
-sourceDesc="TypeScript with @derive decorators"
-branches={[
-{
-plugin: 'TypeScript Plugin',
-pluginDesc: 'Language service integration',
-outputs: [
-{ label: 'IDE Feedback', desc: 'Errors & completions' }
-]
-},
-{
-plugin: 'Vite Plugin',
-pluginDesc: 'Build-time transformation',
-outputs: [
-{ label: 'Dev Server', desc: 'Hot reload' },
-{ label: 'Production Build', desc: 'Optimized output' }
-]
-}
-]}
-/>
-
-## Detailed Guides
-
-- [TypeScript Plugin setup]({base}/docs/integration/typescript-plugin)
-
-- [Vite Plugin configuration]({base}/docs/integration/vite-plugin)
-
-- [Configuration options]({base}/docs/integration/configuration)
+``` ## How They Work Together
+ <div class="flex justify-center"><div class="border-2 border-primary bg-primary/10 rounded-lg px-6 py-3 text-center">Your Code TypeScript with @derive decorators  <div class="absolute top-0 h-px bg-border" style="width: 50%; left: 25%;">
 
 ---
 
 # Command Line Interface
-
-*The `macroforge` CLI provides commands for expanding macros and running type checks with macro support.*
-
-## Installation
-
-The CLI is a Rust binary. You can install it using Cargo:
-
-```bash
+  *This binary provides command-line utilities for working with Macroforge TypeScript macros. It is designed for development workflows, enabling macro expansion and type checking without requiring Node.js integration.*
+ ## Installation
+ The CLI is a Rust binary. You can install it using Cargo:
+ ```
 cargo install macroforge_ts
-```
-
-Or build from source:
-
-```bash
+``` Or build from source:
+ ```
 git clone https://github.com/rymskip/macroforge-ts.git
 cd macroforge-ts/crates
 cargo build --release --bin macroforge
 
 # The binary is at target/release/macroforge
-```
-
-## Commands
-
-### macroforge expand
-
-Expands macros in a TypeScript file and outputs the transformed code.
-
-```bash
+``` ## Commands
+ ### macroforge expand
+ Expands macros in a TypeScript file and outputs the transformed code.
+ ```
 macroforge expand <input> [options]
-```
-
-#### Arguments
-
-<table>
-<thead>
-<tr>
-<th>Argument</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`<input>`</td>
-<td>Path to the TypeScript or TSX file to expand</td>
-</tr>
-</tbody>
-</table>
-
-#### Options
-
-<table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`--out <path>`</td>
-<td>Write the expanded JavaScript/TypeScript to a file</td>
-</tr>
-<tr>
-<td>`--types-out <path>`</td>
-<td>Write the generated `.d.ts` declarations to a file</td>
-</tr>
-<tr>
-<td>`--print`</td>
-<td>Print output to stdout even when `--out` is specified</td>
-</tr>
-<tr>
-<td>`--builtin-only`</td>
-<td>Use only built-in Rust macros (faster, but no external macro support)</td>
-</tr>
-</tbody>
-</table>
-
-#### Examples
-
-Expand a file and print to stdout:
-
-```bash
+``` #### Arguments
+ | Argument | Description |
+| --- | --- |
+| `<input>` | Path to the TypeScript or TSX file to expand |
+ #### Options
+ | Option | Description |
+| --- | --- |
+| `--out <path>` | Write the expanded JavaScript/TypeScript to a file |
+| `--types-out <path>` | Write the generated `.d.ts` declarations to a file |
+| `--print` | Print output to stdout even when `--out` is specified |
+| `--builtin-only` | Use only built-in Rust macros (faster, but no external macro support) |
+ #### Examples
+ Expand a file and print to stdout:
+ ```
 macroforge expand src/user.ts
-```
-
-Expand and write to a file:
-
-```bash
+``` Expand and write to a file:
+ ```
 macroforge expand src/user.ts --out dist/user.js
-```
-
-Expand with both runtime output and type declarations:
-
-```bash
+``` Expand with both runtime output and type declarations:
+ ```
 macroforge expand src/user.ts --out dist/user.js --types-out dist/user.d.ts
-```
-
-Use fast built-in macros only (no external macro support):
-
-```bash
+``` Use fast built-in macros only (no external macro support):
+ ```
 macroforge expand src/user.ts --builtin-only
-```
-
->
-> By default, the CLI uses Node.js for full macro support (including external macros). It must be run from your project's root directory where `macroforge` and any external macro packages are installed in `node_modules`.
-
-### macroforge tsc
-
-Runs TypeScript type checking with macro expansion. This wraps `tsc --noEmit` and expands macros before type checking, so your generated methods are properly type-checked.
-
-```bash
+``` > **Note:** By default, the CLI uses Node.js for full macro support (including external macros). It must be run from your project's root directory where macroforge and any external macro packages are installed in node_modules. ### macroforge tsc
+ Runs TypeScript type checking with macro expansion. This wraps `tsc --noEmit` and expands macros before type checking, so your generated methods are properly type-checked.
+ ```
 macroforge tsc [options]
-```
-
-#### Options
-
-<table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`-p, --project <path>`</td>
-<td>Path to `tsconfig.json` (defaults to `tsconfig.json` in current directory)</td>
-</tr>
-</tbody>
-</table>
-
-#### Examples
-
-Type check with default tsconfig.json:
-
-```bash
+``` #### Options
+ | Option | Description |
+| --- | --- |
+| `-p, --project <path>` | Path to `tsconfig.json` (defaults to `tsconfig.json` in current directory) |
+ #### Examples
+ Type check with default tsconfig.json:
+ ```
 macroforge tsc
-```
-
-Type check with a specific config:
-
-```bash
+``` Type check with a specific config:
+ ```
 macroforge tsc -p tsconfig.build.json
-```
-
-## Output Format
-
-### Expanded Code
-
-When expanding a file like this:
-
-```typescript
+``` ## Output Format
+ ### Expanded Code
+ When expanding a file like this:
+ ```
 /** @derive(Debug) */
 class User {
   name: string;
@@ -4252,11 +4795,8 @@ class User {
     this.age = age;
   }
 }
-```
-
-The CLI outputs the expanded code with the generated methods:
-
-```typescript
+``` The CLI outputs the expanded code with the generated methods:
+ ```
 class User {
   name: string;
   age: number;
@@ -4267,109 +4807,55 @@ class User {
   }
 
   [Symbol.for("nodejs.util.inspect.custom")](): string {
-    return \`User { name: \${this.name}, age: \${this.age} }\`;
+    return `User { name: ${this.name}, age: ${this.age} }`;
   }
 }
-```
-
-### Diagnostics
-
-Errors and warnings are printed to stderr in a readable format:
-
-```text
+``` ### Diagnostics
+ Errors and warnings are printed to stderr in a readable format:
+ ```
 [macroforge] error at src/user.ts:5:1: Unknown derive macro: InvalidMacro
 [macroforge] warning at src/user.ts:10:3: Field 'unused' is never used
-```
-
-## Use Cases
-
-### CI/CD Type Checking
-
-Use `macroforge tsc` in your CI pipeline to type-check with macro expansion:
-
-```json
+``` ## Use Cases
+ ### CI/CD Type Checking
+ Use `macroforge tsc` in your CI pipeline to type-check with macro expansion:
+ ```
 # package.json
 {
   "scripts": {
     "typecheck": "macroforge tsc"
   }
 }
-```
-
-### Debugging Macro Output
-
-Use `macroforge expand` to inspect what code your macros generate:
-
-```bash
+``` ### Debugging Macro Output
+ Use `macroforge expand` to inspect what code your macros generate:
+ ```
 macroforge expand src/models/user.ts | less
-```
-
-### Build Pipeline
-
-Generate expanded files as part of a custom build:
-
-```bash
+``` ### Build Pipeline
+ Generate expanded files as part of a custom build:
+ ```
 #!/bin/bash
 for file in src/**/*.ts; do
   outfile="dist/$(basename "$file" .ts).js"
   macroforge expand "$file" --out "$outfile"
 done
-```
-
-## Built-in vs Full Mode
-
-By default, the CLI uses Node.js for full macro support including external macros. Use `--builtin-only` for faster expansion when you only need built-in macros:
-
-<table>
-<thead>
-<tr>
-<th>Feature</th>
-<th>Default (Node.js)</th>
-<th>`--builtin-only` (Rust)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Built-in macros</td>
-<td>Yes</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>External macros</td>
-<td>Yes</td>
-<td>No</td>
-</tr>
-<tr>
-<td>Performance</td>
-<td>Standard</td>
-<td>Faster</td>
-</tr>
-<tr>
-<td>Dependencies</td>
-<td>Requires `macroforge` in node_modules</td>
-<td>None</td>
-</tr>
-</tbody>
-</table>
+``` ## Built-in vs Full Mode
+ By default, the CLI uses Node.js for full macro support including external macros. Use `--builtin-only` for faster expansion when you only need built-in macros:
+ | Feature | Default (Node.js) | `--builtin-only` (Rust) |
+| --- | --- | --- |
+| Built-in macros | Yes | Yes |
+| External macros | Yes | No |
+| Performance | Standard | Faster |
+| Dependencies | Requires `macroforge` in node_modules | None |
 
 ---
 
 # TypeScript Plugin
-
-*The TypeScript plugin provides IDE integration for Macroforge, including error reporting, completions, and type checking for generated code.*
-
-## Installation
-
-```bash
+ *The TypeScript plugin provides IDE integration for Macroforge, including error reporting, completions, and type checking for generated code.*
+ ## Installation
+ ```
 npm install -D @macroforge/typescript-plugin
-```
-
-## Configuration
-
-Add the plugin to your `tsconfig.json`:
-
-`tsconfig.json`
-```json
+``` ## Configuration
+ Add the plugin to your `tsconfig.json`:
+ ```
 {
   "compilerOptions": {
     "plugins": [
@@ -4379,96 +4865,54 @@ Add the plugin to your `tsconfig.json`:
     ]
   }
 }
-```
-
-## VS Code Setup
-
-VS Code uses its own TypeScript version by default. To use the workspace version (which includes plugins):
-
-1. Open the Command Palette (`Cmd/Ctrl + Shift + P`)
-
-2. Search for "TypeScript: Select TypeScript Version"
-
-3. Choose "Use Workspace Version"
-
->
-> Add this setting to your `.vscode/settings.json` to make it permanent:
-
-`.vscode/settings.json`
-```json
+``` ## VS Code Setup
+ VS Code uses its own TypeScript version by default. To use the workspace version (which includes plugins):
+ 1. Open the Command Palette (`Cmd/Ctrl + Shift + P`)
+ 2. Search for "TypeScript: Select TypeScript Version"
+ 3. Choose "Use Workspace Version"
+  **Tip Add this setting to your `.vscode/settings.json` to make it permanent: ```
 {
   "typescript.tsdk": "node_modules/typescript/lib"
 }
-```
-
-## Features
-
-### Error Reporting
-
-Errors in macro-generated code are reported at the `@derive` decorator position:
-
-```typescript
-/** @derive(Debug) */  // <- Errors appear here
+``` ## Features
+ ### Error Reporting
+ Errors in macro-generated code are reported at the `@derive` decorator position:
+ ```
+/** @derive(Debug) */  // **<- Errors appear here
 class User {
   name: string;
 }
-```
-
-### Completions
-
-The plugin provides completions for generated methods:
-
-```typescript
+``` ### Completions
+ The plugin provides completions for generated methods:
+ ```
 const user = new User("Alice");
 user.to  // Suggests: toString(), toJSON(), etc.
-```
-
-### Type Information
-
-Hover over generated methods to see their types:
-
-```typescript
+``` ### Type Information
+ Hover over generated methods to see their types:
+ ```
 // Hover over 'clone' shows:
 // (method) User.clone(): User
 const copy = user.clone();
-```
-
-## Troubleshooting
-
-### Plugin Not Loading
-
-1. Ensure you're using the workspace TypeScript version
-
-2. Restart the TypeScript server (Command Palette → "TypeScript: Restart TS Server")
-
-3. Check that the plugin is listed in `tsconfig.json`
-
-### Errors Not Showing
-
-If errors from macros aren't appearing:
-
-1. Make sure the Vite plugin is also installed (for source file watching)
-
-2. Check that your file is saved (plugins process on save)
+``` ## Troubleshooting
+ ### Plugin Not Loading
+ 1. Ensure you're using the workspace TypeScript version
+ 2. Restart the TypeScript server (Command Palette → "TypeScript: Restart TS Server")
+ 3. Check that the plugin is listed in `tsconfig.json`
+ ### Errors Not Showing
+ If errors from macros aren't appearing:
+ 1. Make sure the Vite plugin is also installed (for source file watching)
+ 2. Check that your file is saved (plugins process on save)
 
 ---
 
 # Vite Plugin
-
-*The Vite plugin provides build-time macro expansion, transforming your code during development and production builds.*
-
-## Installation
-
-```bash
+ *The Vite plugin provides build-time macro expansion, transforming your code during development and production builds.*
+ ## Installation
+ ```
 npm install -D @macroforge/vite-plugin
-```
-
-## Configuration
-
-Add the plugin to your `vite.config.ts`:
-
-`vite.config.ts`
-```typescript
+``` ## Configuration
+ Add the plugin to your `vite.config.ts`:
+ ```
 import macroforge from "@macroforge/vite-plugin";
 import { defineConfig } from "vite";
 
@@ -4477,11 +4921,8 @@ export default defineConfig({
     macroforge()
   ]
 });
-```
-
-## Options
-
-```typescript
+``` ## Options
+ ```
 macroforge({
   // Generate .d.ts files for expanded code
   generateTypes: true,
@@ -4499,53 +4940,16 @@ macroforge({
   include: ["**/*.ts", "**/*.tsx"],
   exclude: ["node_modules/**"]
 })
-```
-
-### Option Reference
-
-<table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Type</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`generateTypes`</td>
-<td>`boolean`</td>
-<td>`true`</td>
-<td>Generate .d.ts files</td>
-</tr>
-<tr>
-<td>`typesOutputDir`</td>
-<td>`string`</td>
-<td>`.macroforge/types`</td>
-<td>Where to write type files</td>
-</tr>
-<tr>
-<td>`emitMetadata`</td>
-<td>`boolean`</td>
-<td>`false`</td>
-<td>Emit macro metadata files</td>
-</tr>
-<tr>
-<td>`keepDecorators`</td>
-<td>`boolean`</td>
-<td>`false`</td>
-<td>Keep decorators in output</td>
-</tr>
-</tbody>
-</table>
-
-## Framework Integration
-
-### React (Vite)
-
-`vite.config.ts`
-```typescript
+``` ### Option Reference
+ | Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `generateTypes` | `boolean` | `true` | Generate .d.ts files |
+| `typesOutputDir` | `string` | `.macroforge/types` | Where to write type files |
+| `emitMetadata` | `boolean` | `false` | Emit macro metadata files |
+| `keepDecorators` | `boolean` | `false` | Keep decorators in output |
+ ## Framework Integration
+ ### React (Vite)
+ ```
 import macroforge from "@macroforge/vite-plugin";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
@@ -4556,12 +4960,8 @@ export default defineConfig({
     react()
   ]
 });
-```
-
-### SvelteKit
-
-`vite.config.ts`
-```typescript
+``` ### SvelteKit
+ ```
 import macroforge from "@macroforge/vite-plugin";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
@@ -4572,43 +4972,24 @@ export default defineConfig({
     sveltekit()
   ]
 });
-```
-
->
-> Always place the Macroforge plugin before other framework plugins to ensure macros are expanded first.
-
-## Development Server
-
-During development, the plugin:
-
-- Watches for file changes
-
-- Expands macros on save
-
-- Provides HMR support for expanded code
-
-## Production Build
-
-During production builds, the plugin:
-
-- Expands all macros in the source files
-
-- Generates type declaration files
-
-- Strips `@derive` decorators from output
+``` > **Note:** Always place the Macroforge plugin before other framework plugins to ensure macros are expanded first. ## Development Server
+ During development, the plugin:
+ - Watches for file changes
+ - Expands macros on save
+ - Provides HMR support for expanded code
+ ## Production Build
+ During production builds, the plugin:
+ - Expands all macros in the source files
+ - Generates type declaration files
+ - Strips `@derive` decorators from output
 
 ---
 
 # Configuration
-
-*Macroforge can be configured with a `macroforge.json` file in your project root.*
-
-## Configuration File
-
-Create a `macroforge.json` file:
-
-`macroforge.json`
-```json
+ *Macroforge can be configured with a `macroforge.json` file in your project root.*
+ ## Configuration File
+ Create a `macroforge.json` file:
+ ```
 {
   "allowNativeMacros": true,
   "macroPackages": [],
@@ -4620,75 +5001,29 @@ Create a `macroforge.json` file:
     "maxDiagnostics": 100
   }
 }
-```
-
-## Options Reference
-
-### allowNativeMacros
-
-<table>
-<tbody>
-<tr>
-<td>Type</td>
-<td>`boolean`</td>
-</tr>
-<tr>
-<td>Default</td>
-<td>`true`</td>
-</tr>
-</tbody>
-</table>
-
-Enable or disable native (Rust) macro packages. Set to `false` to only allow built-in macros.
-
-### macroPackages
-
-<table>
-<tbody>
-<tr>
-<td>Type</td>
-<td>`string[]`</td>
-</tr>
-<tr>
-<td>Default</td>
-<td>`[]`</td>
-</tr>
-</tbody>
-</table>
-
-List of npm packages that provide macros. Macroforge will look for macros in these packages.
-
-```json
+``` ## Options Reference
+ ### allowNativeMacros
+ | Type | `boolean` |
+| Default | `true` |
+ Enable or disable native (Rust) macro packages. Set to `false` to only allow built-in macros.
+ ### macroPackages
+ | Type | `string[]` |
+| Default | `[]` |
+ List of npm packages that provide macros. Macroforge will look for macros in these packages.
+ ```
 {
   "macroPackages": [
     "@my-org/custom-macros",
     "community-macros"
   ]
 }
-```
-
-### keepDecorators
-
-<table>
-<tbody>
-<tr>
-<td>Type</td>
-<td>`boolean`</td>
-</tr>
-<tr>
-<td>Default</td>
-<td>`false`</td>
-</tr>
-</tbody>
-</table>
-
-Keep `@derive` decorators in the output. Useful for debugging.
-
-### limits
-
-Configure resource limits for macro expansion:
-
-```json
+``` ### keepDecorators
+ | Type | `boolean` |
+| Default | `false` |
+ Keep `@derive` decorators in the output. Useful for debugging.
+ ### limits
+ Configure resource limits for macro expansion:
+ ```
 {
   "limits": {
     // Maximum time for a single macro expansion (ms)
@@ -4704,13 +5039,9 @@ Configure resource limits for macro expansion:
     "maxDiagnostics": 100
   }
 }
-```
-
-## Macro Runtime Overrides
-
-Override settings for specific macros:
-
-```json
+``` ## Macro Runtime Overrides
+ Override settings for specific macros:
+ ```
 {
   "macroRuntimeOverrides": {
     "@my-org/macros": {
@@ -4718,308 +5049,145 @@ Override settings for specific macros:
     }
   }
 }
-```
-
-> **Warning:**
-> Be careful when increasing limits, as this could allow malicious macros to consume excessive resources.
-
-## Environment Variables
-
-Some settings can be overridden with environment variables:
-
-<table>
-<thead>
-<tr>
-<th>Variable</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`MACROFORGE_DEBUG`</td>
-<td>Enable debug logging</td>
-</tr>
-<tr>
-<td>`MACROFORGE_LOG_FILE`</td>
-<td>Write logs to a file</td>
-</tr>
-</tbody>
-</table>
-
-```bash
+```  **Warning Be careful when increasing limits, as this could allow malicious macros to consume excessive resources. ## Environment Variables
+ Some settings can be overridden with environment variables:
+ | Variable | Description |
+| --- | --- |
+| `MACROFORGE_DEBUG` | Enable debug logging |
+| `MACROFORGE_LOG_FILE` | Write logs to a file |
+ ```
 MACROFORGE_DEBUG=1 npm run dev
-```
+```**
 
 ---
 
 # Language Servers
 
 # Language Servers
-
-*Macroforge provides language server integrations for enhanced IDE support beyond the TypeScript plugin.*
-
-<Alert type="warning" title="Work in Progress">
-Language server integrations are currently experimental. They work in the repository but are not yet published as official extensions. You'll need to fork the repo and install them as developer extensions.
-</Alert>
-
-## Overview
-
-While the [TypeScript Plugin]({base}/docs/integration/typescript-plugin) provides macro support in any TypeScript-aware editor, dedicated language servers offer deeper integration for specific frameworks and editors.
-
-<table>
-<thead>
-<tr>
-<th>Integration</th>
-<th>Purpose</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[Svelte Language Server]({base}/docs/language-servers/svelte)</td>
-<td>Full Svelte support with macroforge</td>
-<td>Working (dev install)</td>
-</tr>
-<tr>
-<td>[Zed Extensions]({base}/docs/language-servers/zed)</td>
-<td>VTSLS and Svelte for Zed editor</td>
-<td>Working (dev install)</td>
-</tr>
-</tbody>
-</table>
-
-## Current Status
-
-The language servers are functional and used during development of macroforge itself. However, they require manual installation:
-
-1. Fork or clone the [macroforge-ts repository](https://github.com/rymskip/macroforge-ts)
-
-2. Build the extension you need
-
-3. Install it as a developer extension in your editor
-
-See the individual pages for detailed installation instructions.
-
-## Roadmap
-
-We're working on official extension releases for:
-
-- VS Code (via VTSLS)
-
-- Zed (native extensions)
-
-- Other editors with LSP support
-
-## Detailed Guides
-
-- [Svelte Language Server]({base}/docs/language-servers/svelte) - Full Svelte IDE support
-
-- [Zed Extensions]({base}/docs/language-servers/zed) - VTSLS and Svelte for Zed
+ *Macroforge provides language server integrations for enhanced IDE support beyond the TypeScript plugin.*
+  **Work in Progress Language server integrations are currently experimental. They work in the repository but are not yet published as official extensions. You'll need to fork the repo and install them as developer extensions. ## Overview
+ While the [TypeScript Plugin](../docs/integration/typescript-plugin) provides macro support in any TypeScript-aware editor, dedicated language servers offer deeper integration for specific frameworks and editors.
+ | Integration | Purpose | Status |
+| --- | --- | --- |
+| [Svelte Language Server](../docs/language-servers/svelte) | Full Svelte support with macroforge | Working (dev install) |
+| [Zed Extensions](../docs/language-servers/zed) | VTSLS and Svelte for Zed editor | Working (dev install) |
+ ## Current Status
+ The language servers are functional and used during development of macroforge itself. However, they require manual installation:
+ 1. Fork or clone the [macroforge-ts repository](https://github.com/rymskip/macroforge-ts)
+ 2. Build the extension you need
+ 3. Install it as a developer extension in your editor
+ See the individual pages for detailed installation instructions.
+ ## Roadmap
+ We're working on official extension releases for:
+ - VS Code (via VTSLS)
+ - Zed (native extensions)
+ - Other editors with LSP support
+ ## Detailed Guides
+ - [Svelte Language Server](../docs/language-servers/svelte) - Full Svelte IDE support
+ - [Zed Extensions](../docs/language-servers/zed) - VTSLS and Svelte for Zed
+**
 
 ---
 
 # Svelte Language Server
-
-*`@macroforge/svelte-language-server` provides full Svelte IDE support with macroforge integration.*
-
-<Alert type="warning" title="Developer Installation Required">
-This package is not yet published as an official extension. You'll need to build and install it manually.
-</Alert>
-
-## Features
-
-- **Svelte syntax diagnostics** - Errors and warnings in .svelte files
-
-- **HTML support** - Hover info, autocompletions, Emmet, outline symbols
-
-- **CSS/SCSS/LESS** - Diagnostics, hover, completions, formatting, Emmet, color picking
-
-- **TypeScript/JavaScript** - Full language features with macroforge macro expansion
-
-- **Go-to-definition** - Navigate to macro-generated code
-
-- **Code actions** - Quick fixes and refactorings
-
-## Installation
-
-### 1. Clone the Repository
-
-```bash
+ *`@macroforge/svelte-language-server` provides full Svelte IDE support with macroforge integration.*
+  **Developer Installation Required This package is not yet published as an official extension. You'll need to build and install it manually. ## Features
+ - **Svelte syntax diagnostics** - Errors and warnings in .svelte files
+ - **HTML support** - Hover info, autocompletions, Emmet, outline symbols
+ - **CSS/SCSS/LESS** - Diagnostics, hover, completions, formatting, Emmet, color picking
+ - **TypeScript/JavaScript** - Full language features with macroforge macro expansion
+ - **Go-to-definition** - Navigate to macro-generated code
+ - **Code actions** - Quick fixes and refactorings
+ ## Installation
+ ### 1. Clone the Repository
+ ```
 git clone https://github.com/rymskip/macroforge-ts.git
 cd macroforge-ts
-```
-
-### 2. Build the Language Server
-
-```bash
+``` ### 2. Build the Language Server
+ ```
 # Install dependencies
 npm install
 
 # Build the Svelte language server
 cd packages/svelte-language-server
 npm run build
-```
-
-### 3. Configure Your Editor
-
-The language server exposes a `svelteserver` binary that implements the Language Server Protocol (LSP). Configure your editor to use it:
-
-```bash
+``` ### 3. Configure Your Editor
+ The language server exposes a `svelteserver` binary that implements the Language Server Protocol (LSP). Configure your editor to use it:
+ ```
 # The binary is located at:
 ./packages/svelte-language-server/bin/server.js
-```
-
-## Package Info
-
-<table>
-<tbody>
-<tr>
-<td>Package</td>
-<td>`@macroforge/svelte-language-server`</td>
-</tr>
-<tr>
-<td>Version</td>
-<td>0.1.7</td>
-</tr>
-<tr>
-<td>CLI Command</td>
-<td>`svelteserver`</td>
-</tr>
-<tr>
-<td>Node Version</td>
-<td>>= 18.0.0</td>
-</tr>
-</tbody>
-</table>
-
-## How It Works
-
-The Svelte language server extends the standard Svelte language tooling with macroforge integration:
-
-1. Parses `.svelte` files and extracts TypeScript/JavaScript blocks
-
-2. Expands macros using the `@macroforge/typescript-plugin`
-
-3. Maps diagnostics back to original source positions
-
-4. Provides completions for macro-generated methods
-
-## Using with Zed
-
-For Zed editor, see the [Zed Extensions]({base}/docs/language-servers/zed) page for the dedicated `svelte-macroforge` extension.
+``` ## Package Info
+ | Package | `@macroforge/svelte-language-server` |
+| Version | 0.1.7 |
+| CLI Command | `svelteserver` |
+| Node Version | >= 18.0.0 |
+ ## How It Works
+ The Svelte language server extends the standard Svelte language tooling with macroforge integration:
+ 1. Parses `.svelte` files and extracts TypeScript/JavaScript blocks
+ 2. Expands macros using the `@macroforge/typescript-plugin`
+ 3. Maps diagnostics back to original source positions
+ 4. Provides completions for macro-generated methods
+ ## Using with Zed
+ For Zed editor, see the [Zed Extensions](../../docs/language-servers/zed) page for the dedicated `svelte-macroforge` extension.
+**
 
 ---
 
 # Zed Extensions
-
-*Macroforge provides two extensions for the [Zed editor](https://zed.dev): one for TypeScript via VTSLS, and one for Svelte.*
-
-<Alert type="warning" title="Developer Installation Required">
-These extensions are not yet in the Zed extension registry. You'll need to install them as developer extensions.
-</Alert>
-
-## Available Extensions
-
-<table>
-<thead>
-<tr>
-<th>Extension</th>
-<th>Description</th>
-<th>Location</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`vtsls-macroforge`</td>
-<td>VTSLS with macroforge support for TypeScript</td>
-<td>`crates/extensions/vtsls-macroforge`</td>
-</tr>
-<tr>
-<td>`svelte-macroforge`</td>
-<td>Svelte language support with macroforge</td>
-<td>`crates/extensions/svelte-macroforge`</td>
-</tr>
-</tbody>
-</table>
-
-## Installation
-
-### 1. Clone the Repository
-
-```bash
+ *Macroforge provides two extensions for the [Zed editor](https://zed.dev): one for TypeScript via VTSLS, and one for Svelte.*
+  **Developer Installation Required These extensions are not yet in the Zed extension registry. You'll need to install them as developer extensions. ## Available Extensions
+ | Extension | Description | Location |
+| --- | --- | --- |
+| `vtsls-macroforge` | VTSLS with macroforge support for TypeScript | `crates/extensions/vtsls-macroforge` |
+| `svelte-macroforge` | Svelte language support with macroforge | `crates/extensions/svelte-macroforge` |
+ ## Installation
+ ### 1. Clone the Repository
+ ```
 git clone https://github.com/rymskip/macroforge-ts.git
 cd macroforge-ts
-```
-
-### 2. Build the Extension
-
-Build the extension you want to use:
-
-```bash
+``` ### 2. Build the Extension
+ Build the extension you want to use:
+ ```
 # For VTSLS (TypeScript)
 cd crates/extensions/vtsls-macroforge
 
 # Or for Svelte
 cd crates/extensions/svelte-macroforge
-```
-
-### 3. Install as Dev Extension in Zed
-
-In Zed, open the command palette and run **zed: install dev extension**, then select the extension directory.
-
-Alternatively, symlink the extension to your Zed extensions directory:
-
-```bash
+``` ### 3. Install as Dev Extension in Zed
+ In Zed, open the command palette and run **zed: install dev extension**, then select the extension directory.
+ Alternatively, symlink the extension to your Zed extensions directory:
+ ```
 # macOS
-ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/Library/Application\\ Support/Zed/extensions/installed/vtsls-macroforge
+ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/Library/Application\ Support/Zed/extensions/installed/vtsls-macroforge
 
 # Linux
 ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/.config/zed/extensions/installed/vtsls-macroforge
-```
-
-## vtsls-macroforge
-
-This extension wraps [VTSLS](https://github.com/yioneko/vtsls) (a TypeScript language server) with macroforge integration. It provides:
-
-- Full TypeScript language features
-
-- Macro expansion at edit time
-
-- Accurate error positions in original source
-
-- Completions for macro-generated methods
-
-## svelte-macroforge
-
-This extension provides Svelte support using the `@macroforge/svelte-language-server`. It includes:
-
-- Svelte component syntax support
-
-- HTML, CSS, and TypeScript features
-
-- Macroforge integration in script blocks
-
-## Troubleshooting
-
-### Extension not loading
-
-Make sure you've restarted Zed after installing the extension. Check the Zed logs for any error messages.
-
-### Macros not expanding
-
-Ensure your project has the `macroforge` package installed and a valid `tsconfig.json` with the TypeScript plugin configured.
+``` ## vtsls-macroforge
+ This extension wraps [VTSLS](https://github.com/yioneko/vtsls) (a TypeScript language server) with macroforge integration. It provides:
+ - Full TypeScript language features
+ - Macro expansion at edit time
+ - Accurate error positions in original source
+ - Completions for macro-generated methods
+ ## svelte-macroforge
+ This extension provides Svelte support using the `@macroforge/svelte-language-server`. It includes:
+ - Svelte component syntax support
+ - HTML, CSS, and TypeScript features
+ - Macroforge integration in script blocks
+ ## Troubleshooting
+ ### Extension not loading
+ Make sure you've restarted Zed after installing the extension. Check the Zed logs for any error messages.
+ ### Macros not expanding
+ Ensure your project has the `macroforge` package installed and a valid `tsconfig.json` with the TypeScript plugin configured.
+**
 
 ---
 
 # API Reference
 
 # API Reference
-
-*Macroforge provides a programmatic API for expanding macros in TypeScript code.*
-
-## Overview
-
-```typescript
+ *Macroforge provides a programmatic API for expanding macros in TypeScript code.*
+ ## Overview
+ ```
 import {
   expandSync,
   transformSync,
@@ -5028,64 +5196,23 @@ import {
   NativePlugin,
   PositionMapper
 } from "macroforge";
-```
-
-## Core Functions
-
-<table>
-<thead>
-<tr>
-<th>Function</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[`expandSync()`]({base}/docs/api/expand-sync)</td>
-<td>Expand macros synchronously</td>
-</tr>
-<tr>
-<td>[`transformSync()`]({base}/docs/api/transform-sync)</td>
-<td>Transform code with additional metadata</td>
-</tr>
-<tr>
-<td>`checkSyntax()`</td>
-<td>Validate TypeScript syntax</td>
-</tr>
-<tr>
-<td>`parseImportSources()`</td>
-<td>Extract import information</td>
-</tr>
-</tbody>
-</table>
-
-## Classes
-
-<table>
-<thead>
-<tr>
-<th>Class</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[`NativePlugin`]({base}/docs/api/native-plugin)</td>
-<td>Stateful plugin with caching</td>
-</tr>
-<tr>
-<td>[`PositionMapper`]({base}/docs/api/position-mapper)</td>
-<td>Maps positions between original and expanded code</td>
-</tr>
-</tbody>
-</table>
-
-## Quick Example
-
-```typescript
+``` ## Core Functions
+ | Function | Description |
+| --- | --- |
+| [`expandSync()`](../docs/api/expand-sync) | Expand macros synchronously |
+| [`transformSync()`](../docs/api/transform-sync) | Transform code with additional metadata |
+| `checkSyntax()` | Validate TypeScript syntax |
+| `parseImportSources()` | Extract import information |
+ ## Classes
+ | Class | Description |
+| --- | --- |
+| [`NativePlugin`](../docs/api/native-plugin) | Stateful plugin with caching |
+| [`PositionMapper`](../docs/api/position-mapper) | Maps positions between original and expanded code |
+ ## Quick Example
+ ```
 import { expandSync } from "macroforge";
 
-const sourceCode = \`
+const sourceCode = `
 /** @derive(Debug) */
 class User {
   name: string;
@@ -5093,7 +5220,7 @@ class User {
     this.name = name;
   }
 }
-\`;
+`;
 
 const result = expandSync(sourceCode, "user.ts", {
   keepDecorators: false
@@ -5105,75 +5232,37 @@ console.log(result.code);
 if (result.diagnostics.length > 0) {
   console.error("Errors:", result.diagnostics);
 }
-```
-
-## Detailed Reference
-
-- [`expandSync()`]({base}/docs/api/expand-sync) - Full options and return types
-
-- [`transformSync()`]({base}/docs/api/transform-sync) - Transform with source maps
-
-- [`NativePlugin`]({base}/docs/api/native-plugin) - Caching for language servers
-
-- [`PositionMapper`]({base}/docs/api/position-mapper) - Position mapping utilities
+``` ## Detailed Reference
+ - [`expandSync()`](../docs/api/expand-sync) - Full options and return types
+ - [`transformSync()`](../docs/api/transform-sync) - Transform with source maps
+ - [`NativePlugin`](../docs/api/native-plugin) - Caching for language servers
+ - [`PositionMapper`](../docs/api/position-mapper) - Position mapping utilities
 
 ---
 
 # expandSync()
-
-*Expands macros in TypeScript code synchronously and returns the transformed output.*
-
-## Signature
-
-```typescript
+  *Synchronously expands macros in TypeScript code. This is the standalone macro expansion function that doesn't use caching. For cached expansion, use [`NativePlugin::process_file`] instead.*
+ ## Signature
+ ```
 function expandSync(
   code: string,
   filepath: string,
   options?: ExpandOptions
 ): ExpandResult
-```
-
-## Parameters
-
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`code`</td>
-<td>`string`</td>
-<td>TypeScript source code to transform</td>
-</tr>
-<tr>
-<td>`filepath`</td>
-<td>`string`</td>
-<td>File path (used for error reporting)</td>
-</tr>
-<tr>
-<td>`options`</td>
-<td>`ExpandOptions`</td>
-<td>Optional configuration</td>
-</tr>
-</tbody>
-</table>
-
-## ExpandOptions
-
-```typescript
+``` ## Parameters
+ | Parameter | Type | Description |
+| --- | --- | --- |
+| `code` | `string` | TypeScript source code to transform |
+| `filepath` | `string` | File path (used for error reporting) |
+| `options` | `ExpandOptions` | Optional configuration |
+ ## ExpandOptions
+ ```
 interface ExpandOptions {
   // Keep @derive decorators in output (default: false)
   keepDecorators?: boolean;
 }
-```
-
-## ExpandResult
-
-```typescript
+``` ## ExpandResult
+ ```
 interface ExpandResult {
   // Transformed TypeScript code
   code: string;
@@ -5190,11 +5279,8 @@ interface ExpandResult {
   // Position mapping data for source maps
   sourceMapping?: SourceMappingResult;
 }
-```
-
-## MacroDiagnostic
-
-```typescript
+``` ## MacroDiagnostic
+ ```
 interface MacroDiagnostic {
   message: string;
   severity: "error" | "warning" | "info";
@@ -5203,14 +5289,11 @@ interface MacroDiagnostic {
     end: number;
   };
 }
-```
-
-## Example
-
-```typescript
+``` ## Example
+ ```
 import { expandSync } from "macroforge";
 
-const sourceCode = \`
+const sourceCode = `
 /** @derive(Debug) */
 class User {
   name: string;
@@ -5221,7 +5304,7 @@ class User {
     this.age = age;
   }
 }
-\`;
+`;
 
 const result = expandSync(sourceCode, "user.ts");
 
@@ -5235,21 +5318,17 @@ if (result.types) {
 
 if (result.diagnostics.length > 0) {
   for (const diag of result.diagnostics) {
-    console.log(\`[\${diag.severity}] \${diag.message}\`);
+    console.log(`[${diag.severity}] ${diag.message}`);
   }
 }
-```
-
-## Error Handling
-
-Syntax errors and macro errors are returned in the `diagnostics` array, not thrown as exceptions:
-
-```typescript
+``` ## Error Handling
+ Syntax errors and macro errors are returned in the `diagnostics` array, not thrown as exceptions:
+ ```
 const result = expandSync(invalidCode, "file.ts");
 
 for (const diag of result.diagnostics) {
   if (diag.severity === "error") {
-    console.error(\`Error at \${diag.span.start}: \${diag.message}\`);
+    console.error(`Error at ${diag.span.start}: ${diag.message}`);
   }
 }
 ```
@@ -5257,45 +5336,20 @@ for (const diag of result.diagnostics) {
 ---
 
 # transformSync()
-
-*A lower-level transform function that returns additional metadata alongside the transformed code.*
-
-## Signature
-
-```typescript
+  *Synchronously transforms TypeScript code through the macro expansion system. This is similar to [`expand_sync`] but returns a [`TransformResult`] which includes source map information (when available).*
+ ## Signature
+ ```
 function transformSync(
   code: string,
   filepath: string
 ): TransformResult
-```
-
-## Parameters
-
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>`code`</td>
-<td>`string`</td>
-<td>TypeScript source code to transform</td>
-</tr>
-<tr>
-<td>`filepath`</td>
-<td>`string`</td>
-<td>File path (used for error reporting)</td>
-</tr>
-</tbody>
-</table>
-
-## TransformResult
-
-```typescript
+``` ## Parameters
+ | Parameter | Type | Description |
+| --- | --- | --- |
+| `code` | `string` | TypeScript source code to transform |
+| `filepath` | `string` | File path (used for error reporting) |
+ ## TransformResult
+ ```
 interface TransformResult {
   // Transformed TypeScript code
   code: string;
@@ -5309,53 +5363,23 @@ interface TransformResult {
   // Macro expansion metadata
   metadata?: string;
 }
-```
-
-## Comparison with expandSync()
-
-<table>
-<thead>
-<tr>
-<th>Feature</th>
-<th>`expandSync`</th>
-<th>`transformSync`</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Options</td>
-<td>Yes</td>
-<td>No</td>
-</tr>
-<tr>
-<td>Diagnostics</td>
-<td>Yes</td>
-<td>No</td>
-</tr>
-<tr>
-<td>Source Mapping</td>
-<td>Yes</td>
-<td>Limited</td>
-</tr>
-<tr>
-<td>Use Case</td>
-<td>General purpose</td>
-<td>Build tools</td>
-</tr>
-</tbody>
-</table>
-
-## Example
-
-```typescript
+``` ## Comparison with expandSync()
+ | Feature | `expandSync` | `transformSync` |
+| --- | --- | --- |
+| Options | Yes | No |
+| Diagnostics | Yes | No |
+| Source Mapping | Yes | Limited |
+| Use Case | General purpose | Build tools |
+ ## Example
+ ```
 import { transformSync } from "macroforge";
 
-const sourceCode = \`
+const sourceCode = `
 /** @derive(Debug) */
 class User {
   name: string;
 }
-\`;
+`;
 
 const result = transformSync(sourceCode, "user.ts");
 
@@ -5371,86 +5395,53 @@ if (result.metadata) {
   const meta = JSON.parse(result.metadata);
   console.log("Macros expanded:", meta);
 }
-```
-
-## When to Use
-
-Use `transformSync` when:
-
-- Building custom integrations
-
-- You need raw output without diagnostics
-
-- You're implementing a build tool plugin
-
-Use `expandSync` for most other use cases, as it provides better error handling.
+``` ## When to Use
+ Use `transformSync` when:
+ - Building custom integrations
+ - You need raw output without diagnostics
+ - You're implementing a build tool plugin
+ Use `expandSync` for most other use cases, as it provides better error handling.
 
 ---
 
 # NativePlugin
-
-*A stateful plugin class with version-based caching, designed for integration with language servers and IDEs.*
-
-## Constructor
-
-```typescript
+  *The main plugin class for macro expansion with caching support. `NativePlugin` is designed to be instantiated once and reused across multiple file processing operations. It maintains a cache of expansion results keyed by filepath and version, enabling efficient incremental processing.*
+ ## Constructor
+ ```
 const plugin = new NativePlugin();
-```
-
-## Methods
-
-### processFile()
-
-Process a file with version-based caching:
-
-```typescript
+``` ## Methods
+ ### processFile()
+ Process a file with version-based caching:
+ ```
 processFile(
   filepath: string,
   code: string,
   options?: ProcessFileOptions
 ): ExpandResult
-```
-
-```typescript
+``` ```
 interface ProcessFileOptions {
   // Cache key - if unchanged, returns cached result
   version?: string;
 }
-```
-
-### getMapper()
-
-Get the position mapper for a previously processed file:
-
-```typescript
+``` ### getMapper()
+ Get the position mapper for a previously processed file:
+ ```
 getMapper(filepath: string): NativeMapper | null
-```
-
-### mapDiagnostics()
-
-Map diagnostics from expanded positions to original positions:
-
-```typescript
+``` ### mapDiagnostics()
+ Map diagnostics from expanded positions to original positions:
+ ```
 mapDiagnostics(
   filepath: string,
   diagnostics: JsDiagnostic[]
 ): JsDiagnostic[]
-```
-
-### log() / setLogFile()
-
-Logging utilities for debugging:
-
-```typescript
+``` ### log() / setLogFile()
+ Logging utilities for debugging:
+ ```
 log(message: string): void
 setLogFile(path: string): void
-```
-
-## Caching Behavior
-
-The plugin caches expansion results by file path and version:
-
-```typescript
+``` ## Caching Behavior
+ The plugin caches expansion results by file path and version:
+ ```
 const plugin = new NativePlugin();
 
 // First call - performs expansion
@@ -5461,11 +5452,8 @@ const result2 = plugin.processFile("user.ts", code, { version: "1" });
 
 // Different version - re-expands
 const result3 = plugin.processFile("user.ts", newCode, { version: "2" });
-```
-
-## Example: Language Server Integration
-
-```typescript
+``` ## Example: Language Server Integration
+ ```
 import { NativePlugin } from "macroforge";
 
 class MacroforgeLanguageService {
@@ -5488,21 +5476,15 @@ class MacroforgeLanguageService {
     return this.plugin.mapDiagnostics(uri, diagnostics);
   }
 }
-```
-
-## Thread Safety
-
-The `NativePlugin` class is thread-safe and can be used from multiple async contexts. Each file is processed in an isolated thread with its own stack space.
+``` ## Thread Safety
+ The `NativePlugin` class is thread-safe and can be used from multiple async contexts. Each file is processed in an isolated thread with its own stack space.
 
 ---
 
 # PositionMapper
-
-*Maps positions between original source code and macro-expanded code. Essential for accurate error reporting and debugging.*
-
-## Getting a Mapper
-
-```typescript
+  *Bidirectional position mapper for translating between original and expanded source positions. This mapper enables IDE features like error reporting, go-to-definition, and hover to work correctly with macro-expanded code by translating positions between the original source (what the user wrote) and the expanded source (what the compiler sees).*
+ ## Getting a Mapper
+ ```
 import { NativePlugin, PositionMapper } from "macroforge";
 
 const plugin = new NativePlugin();
@@ -5513,76 +5495,43 @@ const mapper = plugin.getMapper("user.ts");
 if (mapper) {
   // Use the mapper...
 }
-```
-
-## Methods
-
-### isEmpty()
-
-Check if the mapper has any mappings:
-
-```typescript
+``` ## Methods
+ ### isEmpty()
+ Check if the mapper has any mappings:
+ ```
 isEmpty(): boolean
-```
-
-### originalToExpanded()
-
-Map a position from original to expanded code:
-
-```typescript
+``` ### originalToExpanded()
+ Map a position from original to expanded code:
+ ```
 originalToExpanded(pos: number): number
-```
-
-### expandedToOriginal()
-
-Map a position from expanded to original code:
-
-```typescript
+``` ### expandedToOriginal()
+ Map a position from expanded to original code:
+ ```
 expandedToOriginal(pos: number): number | null
-```
-
-Returns `null` if the position is in generated code.
-
-### isInGenerated()
-
-Check if a position is in macro-generated code:
-
-```typescript
+``` Returns `null` if the position is in generated code.
+ ### isInGenerated()
+ Check if a position is in macro-generated code:
+ ```
 isInGenerated(pos: number): boolean
-```
-
-### generatedBy()
-
-Get the name of the macro that generated code at a position:
-
-```typescript
+``` ### generatedBy()
+ Get the name of the macro that generated code at a position:
+ ```
 generatedBy(pos: number): string | null
-```
-
-### mapSpanToOriginal()
-
-Map a span (range) from expanded to original code:
-
-```typescript
+``` ### mapSpanToOriginal()
+ Map a span (range) from expanded to original code:
+ ```
 mapSpanToOriginal(start: number, length: number): SpanResult | null
 
 interface SpanResult {
   start: number;
   length: number;
 }
-```
-
-### mapSpanToExpanded()
-
-Map a span from original to expanded code:
-
-```typescript
+``` ### mapSpanToExpanded()
+ Map a span from original to expanded code:
+ ```
 mapSpanToExpanded(start: number, length: number): SpanResult
-```
-
-## Example: Error Position Mapping
-
-```typescript
+``` ## Example: Error Position Mapping
+ ```
 import { NativePlugin } from "macroforge";
 
 const plugin = new NativePlugin();
@@ -5595,7 +5544,7 @@ function mapError(filepath: string, expandedPos: number, message: string) {
   if (mapper.isInGenerated(expandedPos)) {
     const macroName = mapper.generatedBy(expandedPos);
     return {
-      message: \`Error in code generated by @derive(\${macroName}): \${message}\`,
+      message: `Error in code generated by @derive(${macroName}): ${message}`,
       // Find the @derive decorator position
       position: findDecoratorPosition(filepath)
     };
@@ -5612,16 +5561,10 @@ function mapError(filepath: string, expandedPos: number, message: string) {
 
   return null;
 }
-```
-
-## Performance
-
-Position mapping uses binary search with O(log n) complexity:
-
-- Fast lookups even for large files
-
-- Minimal memory overhead
-
-- Thread-safe access
+``` ## Performance
+ Position mapping uses binary search with O(log n) complexity:
+ - Fast lookups even for large files
+ - Minimal memory overhead
+ - Thread-safe access
 
 ---

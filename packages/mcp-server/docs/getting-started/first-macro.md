@@ -1,16 +1,65 @@
 # Your First Macro
+ *Let's create a class that uses Macroforge's derive macros to automatically generate useful methods.*
+ ## Creating a Class with Derive Macros
+ Start by creating a simple `User` class. We'll use the `@derive` decorator to automatically generate methods.
+ **Before:**
+```
+/** @derive(Debug, Clone, PartialEq) */
+export class User {
+    name: string;
+    age: number;
+    email: string;
 
-*Let's create a class that uses Macroforge's derive macros to automatically generate useful methods.*
+    constructor(name: string, age: number, email: string) {
+        this.name = name;
+        this.age = age;
+        this.email = email;
+    }
+}
+```  
+**After:**
+```
+/**  */
+export class User {
+    name: string;
+    age: number;
+    email: string;
 
-## Creating a Class with Derive Macros
+    constructor(name: string, age: number, email: string) {
+        this.name = name;
+        this.age = age;
+        this.email = email;
+    }
 
-Start by creating a simple `User` class. We'll use the `@derive` decorator to automatically generate methods.
+    toString(): string {
+        const parts: string[] = [];
+        parts.push('name: ' + this.name);
+        parts.push('age: ' + this.age);
+        parts.push('email: ' + this.email);
+        return 'User { ' + parts.join(', ') + ' }';
+    }
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
+    clone(): User {
+        const cloned = Object.create(Object.getPrototypeOf(this));
+        cloned.name = this.name;
+        cloned.age = this.age;
+        cloned.email = this.email;
+        return cloned;
+    }
 
-## Using the Generated Methods
-
-```typescript
+    equals(other: unknown): boolean {
+        if (this === other) return true;
+        if (!(other instanceof User)) return false;
+        const typedOther = other as User;
+        return (
+            this.name === typedOther.name &&
+            this.age === typedOther.age &&
+            this.email === typedOther.email
+        );
+    }
+}
+``` ## Using the Generated Methods
+ ```
 const user = new User("Alice", 30, "alice@example.com");
 
 // Debug: toString()
@@ -26,29 +75,57 @@ console.log(user.equals(copy)); // true
 
 const different = new User("Bob", 25, "bob@example.com");
 console.log(user.equals(different)); // false
+``` ## Customizing Behavior
+ You can customize how macros work using field-level decorators. For example, with the Debug macro:
+ **Before:**
 ```
+/** @derive(Debug) */
+export class User {
+    /** @debug({ rename: "userId" }) */
+    id: number;
 
-## Customizing Behavior
+    name: string;
 
-You can customize how macros work using field-level decorators. For example, with the Debug macro:
+    /** @debug({ skip: true }) */
+    password: string;
 
-<MacroExample before={data.examples.customizing.before} after={data.examples.customizing.after} />
+    constructor(id: number, name: string, password: string) {
+        this.id = id;
+        this.name = name;
+        this.password = password;
+    }
+}
+```  
+**After:**
+```
+/**  */
+export class User {
+    id: number;
 
-```typescript
+    name: string;
+
+    password: string;
+
+    constructor(id: number, name: string, password: string) {
+        this.id = id;
+        this.name = name;
+        this.password = password;
+    }
+
+    toString(): string {
+        const parts: string[] = [];
+        parts.push('userId: ' + this.id);
+        parts.push('name: ' + this.name);
+        return 'User { ' + parts.join(', ') + ' }';
+    }
+}
+``` ```
 const user = new User(42, "Alice", "secret123");
 console.log(user.toString());
 // Output: User { userId: 42, name: Alice }
 // Note: 'id' is renamed to 'userId', 'password' is skipped
-```
-
-<Alert type="tip" title="Field-level decorators">
-Field-level decorators let you control exactly how each field is handled by the macro.
-</Alert>
-
-## Next Steps
-
-- [Learn how macros work under the hood]({base}/docs/concepts)
-
-- [Explore all Debug options]({base}/docs/builtin-macros/debug)
-
-- [Create your own custom macros]({base}/docs/custom-macros)
+```  **Field-level decorators Field-level decorators let you control exactly how each field is handled by the macro. ## Next Steps
+ - [Learn how macros work under the hood](../../docs/concepts)
+ - [Explore all Debug options](../../docs/builtin-macros/debug)
+ - [Create your own custom macros](../../docs/custom-macros)
+**
