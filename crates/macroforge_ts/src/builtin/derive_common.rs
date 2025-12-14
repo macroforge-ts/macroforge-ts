@@ -41,11 +41,20 @@
 //! | `T \| null` | `null` |
 //! | `CustomType` | `CustomType.defaultValue()` |
 
-use crate::ts_syn::abi::DecoratorIR;
+use crate::ts_syn::abi::{DecoratorIR, FunctionNamingStyle};
 
 // ============================================================================
 // Field Options for Comparison Macros
 // ============================================================================
+
+/// Convert a PascalCase name to camelCase (for prefix naming style)
+fn to_camel_case(name: &str) -> String {
+    let mut chars = name.chars();
+    match chars.next() {
+        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
+        None => String::new(),
+    }
+}
 
 /// Options parsed from field-level decorators for comparison macros
 /// Supports @partialEq(skip), @hash(skip), @ord(skip)
@@ -179,7 +188,7 @@ pub fn has_known_default(_ts_type: &str) -> bool {
 }
 
 /// Get default value for a TypeScript type
-pub fn get_type_default(ts_type: &str) -> String {
+pub fn get_type_default(ts_type: &str, naming_style: FunctionNamingStyle) -> String {
     let t = ts_type.trim();
 
     // Nullable first (like Rust's Option::default() -> None)
@@ -198,17 +207,30 @@ pub fn get_type_default(ts_type: &str) -> String {
         t if t.starts_with("Set<") => "new Set()".to_string(),
         "Date" => "new Date()".to_string(),
         // Generic type instantiations like RecordLink<Service>
-        // Generate Base.defaultValue<Args>() instead of Base<Args>.defaultValue()
         t if is_generic_type(t) => {
             if let Some((base, args)) = parse_generic_type(t) {
-                format!("{}.defaultValue<{}>()", base, args)
+                match naming_style {
+                    FunctionNamingStyle::Namespace => format!("{}.defaultValue<{}>()", base, args),
+                    FunctionNamingStyle::Generic => format!("defaultValue<{}>()", t),
+                    FunctionNamingStyle::Prefix => format!("{}DefaultValue<{}>()", to_camel_case(base), args),
+                    FunctionNamingStyle::Suffix => format!("defaultValue{}<{}>()", base, args),
+                }
             } else {
                 // Fallback: shouldn't happen if is_generic_type returned true
-                format!("{}.defaultValue()", t)
+                format_default_call(t, naming_style)
             }
         }
-        // Unknown types: assume they implement Default trait with defaultValue() method
-        type_name => format!("{}.defaultValue()", type_name),
+        // Unknown types: assume they implement Default trait
+        type_name => format_default_call(type_name, naming_style),
+    }
+}
+
+fn format_default_call(type_name: &str, style: FunctionNamingStyle) -> String {
+    match style {
+        FunctionNamingStyle::Namespace => format!("{}.defaultValue()", type_name),
+        FunctionNamingStyle::Generic => format!("defaultValue<{}>()", type_name),
+        FunctionNamingStyle::Prefix => format!("{}DefaultValue()", to_camel_case(type_name)),
+        FunctionNamingStyle::Suffix => format!("defaultValue{}()", type_name),
     }
 }
 
@@ -376,25 +398,34 @@ mod tests {
 
     #[test]
     fn test_get_type_default() {
-        assert_eq!(get_type_default("string"), r#""""#);
-        assert_eq!(get_type_default("number"), "0");
-        assert_eq!(get_type_default("boolean"), "false");
-        assert_eq!(get_type_default("bigint"), "0n");
-        assert_eq!(get_type_default("string[]"), "[]");
-        assert_eq!(get_type_default("Array<number>"), "[]");
-        assert_eq!(get_type_default("Map<string, number>"), "new Map()");
-        assert_eq!(get_type_default("Set<string>"), "new Set()");
-        assert_eq!(get_type_default("Date"), "new Date()");
+        let ns = FunctionNamingStyle::Namespace;
+        assert_eq!(get_type_default("string", ns), r#""""#);
+        assert_eq!(get_type_default("number", ns), "0");
+        assert_eq!(get_type_default("boolean", ns), "false");
+        assert_eq!(get_type_default("bigint", ns), "0n");
+        assert_eq!(get_type_default("string[]", ns), "[]");
+        assert_eq!(get_type_default("Array<number>", ns), "[]");
+        assert_eq!(get_type_default("Map<string, number>", ns), "new Map()");
+        assert_eq!(get_type_default("Set<string>", ns), "new Set()");
+        assert_eq!(get_type_default("Date", ns), "new Date()");
         // Unknown types call their defaultValue() method
-        assert_eq!(get_type_default("User"), "User.defaultValue()");
+        assert_eq!(get_type_default("User", ns), "User.defaultValue()");
         // Generic type instantiations use Base.defaultValue<Args>() syntax
         assert_eq!(
-            get_type_default("RecordLink<Service>"),
+            get_type_default("RecordLink<Service>", ns),
             "RecordLink.defaultValue<Service>()"
         );
         assert_eq!(
-            get_type_default("Result<User, Error>"),
+            get_type_default("Result<User, Error>", ns),
             "Result.defaultValue<User, Error>()"
+        );
+
+        // Test Suffix style
+        let suffix = FunctionNamingStyle::Suffix;
+        assert_eq!(get_type_default("User", suffix), "defaultValueUser()");
+        assert_eq!(
+            get_type_default("RecordLink<Service>", suffix),
+            "defaultValueRecordLink<Service>()"
         );
     }
 

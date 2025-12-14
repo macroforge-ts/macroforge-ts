@@ -8,9 +8,8 @@ import { PendingRef } from 'macroforge/serde';
  */
 
 // GreaterThanBigInt validator
-/** @derive(Deserialize) */
+
 export class GreaterThanBigIntValidator {
-    /** @serde({ validate: ["greaterThanBigInt(0)"] }) */
     value: bigint;
 
     constructor(props: {
@@ -185,15 +184,29 @@ export class GreaterThanBigIntValidator {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'value' in o;
+    }
+
     static is(obj: unknown): obj is GreaterThanBigIntValidator {
-        return obj instanceof GreaterThanBigIntValidator;
+        if (obj instanceof GreaterThanBigIntValidator) {
+            return true;
+        }
+        if (!GreaterThanBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = GreaterThanBigIntValidator.fromObject(obj);
+        return Result.isOk(result);
     }
 }
 
 // GreaterThanOrEqualToBigInt validator
-/** @derive(Deserialize) */
+
 export class GreaterThanOrEqualToBigIntValidator {
-    /** @serde({ validate: ["greaterThanOrEqualToBigInt(0)"] }) */
     value: bigint;
 
     constructor(props: {
@@ -368,15 +381,29 @@ export class GreaterThanOrEqualToBigIntValidator {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'value' in o;
+    }
+
     static is(obj: unknown): obj is GreaterThanOrEqualToBigIntValidator {
-        return obj instanceof GreaterThanOrEqualToBigIntValidator;
+        if (obj instanceof GreaterThanOrEqualToBigIntValidator) {
+            return true;
+        }
+        if (!GreaterThanOrEqualToBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = GreaterThanOrEqualToBigIntValidator.fromObject(obj);
+        return Result.isOk(result);
     }
 }
 
 // LessThanBigInt validator
-/** @derive(Deserialize) */
+
 export class LessThanBigIntValidator {
-    /** @serde({ validate: ["lessThanBigInt(1000)"] }) */
     value: bigint;
 
     constructor(props: {
@@ -551,15 +578,29 @@ export class LessThanBigIntValidator {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'value' in o;
+    }
+
     static is(obj: unknown): obj is LessThanBigIntValidator {
-        return obj instanceof LessThanBigIntValidator;
+        if (obj instanceof LessThanBigIntValidator) {
+            return true;
+        }
+        if (!LessThanBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = LessThanBigIntValidator.fromObject(obj);
+        return Result.isOk(result);
     }
 }
 
 // LessThanOrEqualToBigInt validator
-/** @derive(Deserialize) */
+
 export class LessThanOrEqualToBigIntValidator {
-    /** @serde({ validate: ["lessThanOrEqualToBigInt(1000)"] }) */
     value: bigint;
 
     constructor(props: {
@@ -734,15 +775,29 @@ export class LessThanOrEqualToBigIntValidator {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'value' in o;
+    }
+
     static is(obj: unknown): obj is LessThanOrEqualToBigIntValidator {
-        return obj instanceof LessThanOrEqualToBigIntValidator;
+        if (obj instanceof LessThanOrEqualToBigIntValidator) {
+            return true;
+        }
+        if (!LessThanOrEqualToBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = LessThanOrEqualToBigIntValidator.fromObject(obj);
+        return Result.isOk(result);
     }
 }
 
 // BetweenBigInt validator
-/** @derive(Deserialize) */
+
 export class BetweenBigIntValidator {
-    /** @serde({ validate: ["betweenBigInt(0, 1000)"] }) */
     value: bigint;
 
     constructor(props: {
@@ -912,15 +967,29 @@ export class BetweenBigIntValidator {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'value' in o;
+    }
+
     static is(obj: unknown): obj is BetweenBigIntValidator {
-        return obj instanceof BetweenBigIntValidator;
+        if (obj instanceof BetweenBigIntValidator) {
+            return true;
+        }
+        if (!BetweenBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = BetweenBigIntValidator.fromObject(obj);
+        return Result.isOk(result);
     }
 }
 
 // PositiveBigInt validator
-/** @derive(Deserialize) */
+
 export class PositiveBigIntValidator {
-    /** @serde({ validate: ["positiveBigInt"] }) */
     value: bigint;
 
     constructor(props: {
@@ -1095,15 +1164,29 @@ export class PositiveBigIntValidator {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'value' in o;
+    }
+
     static is(obj: unknown): obj is PositiveBigIntValidator {
-        return obj instanceof PositiveBigIntValidator;
+        if (obj instanceof PositiveBigIntValidator) {
+            return true;
+        }
+        if (!PositiveBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = PositiveBigIntValidator.fromObject(obj);
+        return Result.isOk(result);
     }
 }
 
 // NonNegativeBigInt validator
-/** @derive(Deserialize) */
+
 export class NonNegativeBigIntValidator {
-    /** @serde({ validate: ["nonNegativeBigInt"] }) */
     value: bigint;
 
     constructor(props: {
@@ -1278,15 +1361,29 @@ export class NonNegativeBigIntValidator {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'value' in o;
+    }
+
     static is(obj: unknown): obj is NonNegativeBigIntValidator {
-        return obj instanceof NonNegativeBigIntValidator;
+        if (obj instanceof NonNegativeBigIntValidator) {
+            return true;
+        }
+        if (!NonNegativeBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = NonNegativeBigIntValidator.fromObject(obj);
+        return Result.isOk(result);
     }
 }
 
 // NegativeBigInt validator
-/** @derive(Deserialize) */
+
 export class NegativeBigIntValidator {
-    /** @serde({ validate: ["negativeBigInt"] }) */
     value: bigint;
 
     constructor(props: {
@@ -1461,15 +1558,29 @@ export class NegativeBigIntValidator {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'value' in o;
+    }
+
     static is(obj: unknown): obj is NegativeBigIntValidator {
-        return obj instanceof NegativeBigIntValidator;
+        if (obj instanceof NegativeBigIntValidator) {
+            return true;
+        }
+        if (!NegativeBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = NegativeBigIntValidator.fromObject(obj);
+        return Result.isOk(result);
     }
 }
 
 // NonPositiveBigInt validator
-/** @derive(Deserialize) */
+
 export class NonPositiveBigIntValidator {
-    /** @serde({ validate: ["nonPositiveBigInt"] }) */
     value: bigint;
 
     constructor(props: {
@@ -1644,7 +1755,22 @@ export class NonPositiveBigIntValidator {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'value' in o;
+    }
+
     static is(obj: unknown): obj is NonPositiveBigIntValidator {
-        return obj instanceof NonPositiveBigIntValidator;
+        if (obj instanceof NonPositiveBigIntValidator) {
+            return true;
+        }
+        if (!NonPositiveBigIntValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = NonPositiveBigIntValidator.fromObject(obj);
+        return Result.isOk(result);
     }
 }
