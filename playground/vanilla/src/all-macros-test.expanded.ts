@@ -236,33 +236,50 @@ export class AllMacrosTestClass {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'];
+            const __raw_id = obj['id'] as number;
             instance.id = __raw_id;
         }
         {
-            const __raw_name = obj['name'];
+            const __raw_name = obj['name'] as string;
             instance.name = __raw_name;
         }
         {
-            const __raw_email = obj['email'];
+            const __raw_email = obj['email'] as string;
             instance.email = __raw_email;
         }
         {
-            const __raw_secretToken = obj['secretToken'];
+            const __raw_secretToken = obj['secretToken'] as string;
             instance.secretToken = __raw_secretToken;
         }
         {
-            const __raw_isActive = obj['isActive'];
+            const __raw_isActive = obj['isActive'] as boolean;
             instance.isActive = __raw_isActive;
         }
         {
-            const __raw_score = obj['score'];
+            const __raw_score = obj['score'] as number;
             instance.score = __raw_score;
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
         return instance;
+    }
+
+    static validateField<K extends keyof AllMacrosTestClass>(
+        field: K,
+        value: AllMacrosTestClass[K]
+    ): Array<{
+        field: string;
+        message: string;
+    }> {
+        return [];
+    }
+
+    static validateFields(partial: Partial<AllMacrosTestClass>): Array<{
+        field: string;
+        message: string;
+    }> {
+        return [];
     }
 }
 

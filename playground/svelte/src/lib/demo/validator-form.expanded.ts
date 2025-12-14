@@ -157,7 +157,7 @@ export class UserRegistrationForm {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_email = obj['email'];
+            const __raw_email = obj['email'] as string;
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) {
                 errors.push({
                     field: 'email',
@@ -167,7 +167,7 @@ export class UserRegistrationForm {
             instance.email = __raw_email;
         }
         {
-            const __raw_password = obj['password'];
+            const __raw_password = obj['password'] as string;
             if (__raw_password.length < 8) {
                 errors.push({
                     field: 'password',
@@ -183,7 +183,7 @@ export class UserRegistrationForm {
             instance.password = __raw_password;
         }
         {
-            const __raw_username = obj['username'];
+            const __raw_username = obj['username'] as string;
             if (__raw_username.length < 3) {
                 errors.push({
                     field: 'username',
@@ -211,7 +211,7 @@ export class UserRegistrationForm {
             instance.username = __raw_username;
         }
         {
-            const __raw_age = obj['age'];
+            const __raw_age = obj['age'] as number;
             if (!Number.isInteger(__raw_age)) {
                 errors.push({
                     field: 'age',
@@ -227,7 +227,7 @@ export class UserRegistrationForm {
             instance.age = __raw_age;
         }
         {
-            const __raw_website = obj['website'];
+            const __raw_website = obj['website'] as string;
             if (
                 (() => {
                     try {
@@ -600,7 +600,7 @@ export class ProductForm {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_name = obj['name'];
+            const __raw_name = obj['name'] as string;
             if (__raw_name.length === 0) {
                 errors.push({
                     field: 'name',
@@ -616,7 +616,7 @@ export class ProductForm {
             instance.name = __raw_name;
         }
         {
-            const __raw_price = obj['price'];
+            const __raw_price = obj['price'] as number;
             if (__raw_price <= 0) {
                 errors.push({
                     field: 'price',
@@ -632,7 +632,7 @@ export class ProductForm {
             instance.price = __raw_price;
         }
         {
-            const __raw_quantity = obj['quantity'];
+            const __raw_quantity = obj['quantity'] as number;
             if (!Number.isInteger(__raw_quantity)) {
                 errors.push({
                     field: 'quantity',
@@ -648,7 +648,7 @@ export class ProductForm {
             instance.quantity = __raw_quantity;
         }
         {
-            const __raw_tags = obj['tags'];
+            const __raw_tags = obj['tags'] as string[];
             if (Array.isArray(__raw_tags)) {
                 if (__raw_tags.length < 1) {
                     errors.push({
@@ -678,15 +678,13 @@ export class ProductForm {
                 instance.tags = __arr;
                 __arr.forEach((item, idx) => {
                     if (item && typeof item === 'object' && '__pendingIdx' in item) {
-                        ctx.deferPatch((item as any).__refId, (v) => {
-                            instance.tags[idx] = v;
-                        });
+                        ctx.addPatch(instance.tags, idx, (item as any).__refId);
                     }
                 });
             }
         }
         {
-            const __raw_sku = obj['sku'];
+            const __raw_sku = obj['sku'] as string;
             if (
                 !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
                     __raw_sku
@@ -1022,7 +1020,7 @@ export class EventForm {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_title = obj['title'];
+            const __raw_title = obj['title'] as string;
             if (__raw_title.length === 0) {
                 errors.push({
                     field: 'title',
@@ -1038,7 +1036,7 @@ export class EventForm {
             instance.title = __raw_title;
         }
         {
-            const __raw_startDate = obj['startDate'];
+            const __raw_startDate = obj['startDate'] as Date;
             {
                 const __dateVal =
                     typeof __raw_startDate === 'string'
@@ -1060,7 +1058,7 @@ export class EventForm {
             }
         }
         {
-            const __raw_endDate = obj['endDate'];
+            const __raw_endDate = obj['endDate'] as Date;
             {
                 const __dateVal =
                     typeof __raw_endDate === 'string'
@@ -1076,7 +1074,7 @@ export class EventForm {
             }
         }
         {
-            const __raw_maxAttendees = obj['maxAttendees'];
+            const __raw_maxAttendees = obj['maxAttendees'] as number;
             if (!Number.isInteger(__raw_maxAttendees)) {
                 errors.push({
                     field: 'maxAttendees',

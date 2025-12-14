@@ -6,7 +6,6 @@ import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
 /**
  * Comprehensive test class for Svelte playground.
- * Uses all available ../../../../../crates/macroforge_ts/js/utilsight e2e testing.
  */
 
 export interface SvelteAllMacrosTest {
@@ -173,33 +172,44 @@ export namespace SvelteAllMacrosTest {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'];
+            const __raw_id = obj['id'] as string;
             instance.id = __raw_id;
         }
         {
-            const __raw_title = obj['title'];
+            const __raw_title = obj['title'] as string;
             instance.title = __raw_title;
         }
         {
-            const __raw_content = obj['content'];
+            const __raw_content = obj['content'] as string;
             instance.content = __raw_content;
         }
         {
-            const __raw_apiKey = obj['apiKey'];
+            const __raw_apiKey = obj['apiKey'] as string;
             instance.apiKey = __raw_apiKey;
         }
         {
-            const __raw_count = obj['count'];
+            const __raw_count = obj['count'] as number;
             instance.count = __raw_count;
         }
         {
-            const __raw_enabled = obj['enabled'];
+            const __raw_enabled = obj['enabled'] as boolean;
             instance.enabled = __raw_enabled;
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
         return instance as SvelteAllMacrosTest;
+    }
+    export function validateField<K extends keyof SvelteAllMacrosTest>(
+        field: K,
+        value: SvelteAllMacrosTest[K]
+    ): Array<{ field: string; message: string }> {
+        return [];
+    }
+    export function validateFields(
+        partial: Partial<SvelteAllMacrosTest>
+    ): Array<{ field: string; message: string }> {
+        return [];
     }
 }
 

@@ -201,33 +201,50 @@ export class MacroUser {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'];
+            const __raw_id = obj['id'] as string;
             instance.id = __raw_id;
         }
         {
-            const __raw_name = obj['name'];
+            const __raw_name = obj['name'] as string;
             instance.name = __raw_name;
         }
         {
-            const __raw_role = obj['role'];
+            const __raw_role = obj['role'] as string;
             instance.role = __raw_role;
         }
         {
-            const __raw_favoriteMacro = obj['favoriteMacro'];
+            const __raw_favoriteMacro = obj['favoriteMacro'] as 'Derive' | 'JsonNative';
             instance.favoriteMacro = __raw_favoriteMacro;
         }
         {
-            const __raw_since = obj['since'];
+            const __raw_since = obj['since'] as string;
             instance.since = __raw_since;
         }
         {
-            const __raw_apiToken = obj['apiToken'];
+            const __raw_apiToken = obj['apiToken'] as string;
             instance.apiToken = __raw_apiToken;
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
         return instance;
+    }
+
+    static validateField<K extends keyof MacroUser>(
+        field: K,
+        value: MacroUser[K]
+    ): Array<{
+        field: string;
+        message: string;
+    }> {
+        return [];
+    }
+
+    static validateFields(partial: Partial<MacroUser>): Array<{
+        field: string;
+        message: string;
+    }> {
+        return [];
     }
 }
 
