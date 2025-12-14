@@ -63,6 +63,34 @@
 //! - `deny_unknown_fields` - Error on unrecognized JSON properties
 //! - `rename_all = "camelCase"` - Apply naming convention to all fields
 //!
+//! ## Union Type Deserialization
+//!
+//! Union types are deserialized based on their member types:
+//!
+//! ### Literal Unions
+//! For unions of literal values (`"A" | "B" | 123`), the value is validated against
+//! the allowed literals directly.
+//!
+//! ### Primitive Unions
+//! For unions containing primitive types (`string | number`), the deserializer uses
+//! `typeof` checks to validate the value type. No `__type` discriminator is needed.
+//!
+//! ### Class/Interface Unions
+//! For unions of serializable types (`User | Admin`), the deserializer requires a
+//! `__type` field in the JSON to dispatch to the correct type's `__deserialize` method.
+//!
+//! ### Generic Type Parameters
+//! For generic unions like `type Result<T> = T | Error`, the generic type parameter `T`
+//! is passed through as-is since its concrete type is only known at the call site.
+//!
+//! ### Mixed Unions
+//! Mixed unions (e.g., `string | Date | User`) check in order:
+//! 1. Literal values
+//! 2. Primitives (via `typeof`)
+//! 3. Date (via `instanceof` or ISO string parsing)
+//! 4. Serializable types (via `__type` dispatch)
+//! 5. Generic type parameters (pass-through)
+//!
 //! ## Example
 //!
 //! ```typescript
@@ -153,6 +181,34 @@ impl DeserializeField {
     /// Returns true if this field has any validators that need to be applied.
     fn has_validators(&self) -> bool {
         !self.validators.is_empty()
+    }
+}
+
+/// Holds information about a serializable type reference in a union.
+///
+/// For parameterized types like `RecordLink<Product>`, we need both:
+/// - The full type string for `__type` comparison and type casting
+/// - The base type name for runtime namespace access
+#[derive(Clone)]
+struct SerializableTypeRef {
+    /// The full type reference string (e.g., "RecordLink<Product>")
+    full_type: String,
+    /// The base type name without generic parameters (e.g., "RecordLink")
+    base_type: String,
+}
+
+/// Extracts the base type name from a potentially parameterized type reference.
+///
+/// # Examples
+///
+/// - `"RecordLink<Product>"` → `"RecordLink"`
+/// - `"User"` → `"User"`
+/// - `"Map<string, number>"` → `"Map"`
+fn extract_base_type(type_ref: &str) -> String {
+    if let Some(pos) = type_ref.find('<') {
+        type_ref[..pos].to_string()
+    } else {
+        type_ref.to_string()
     }
 }
 
@@ -623,7 +679,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             {$let has_validators = field.has_validators()}
                             {#if field.optional}
                                 if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
-                                    const @{raw_var} = obj["@{field.json_key}"];
+                                    const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
                                     {#match &field.type_cat}
                                         {:case TypeCategory::Primitive}
                                             {#if has_validators}
@@ -652,8 +708,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     if (typeof item?.__deserialize === "function") {
                                                         const result = item.__deserialize(item, ctx);
                                                         if (PendingRef.is(result)) {
-                                                            ctx.deferPatch(result.id, (v) => { instance.@{field.field_name}[idx] = v; });
-                                                            return null;
+                                                            return { __pendingIdx: idx, __refId: result.id };
                                                         }
                                                         return result;
                                                     }
@@ -661,7 +716,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     if (item?.__ref !== undefined) {
                                                         const result = ctx.getOrDefer(item.__ref);
                                                         if (PendingRef.is(result)) {
-                                                            // Will be patched after array is assigned
                                                             return { __pendingIdx: idx, __refId: result.id };
                                                         }
                                                         return result;
@@ -672,7 +726,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 // Patch array items that were pending
                                                 __arr.forEach((item, idx) => {
                                                     if (item && typeof item === "object" && "__pendingIdx" in item) {
-                                                        ctx.deferPatch((item as any).__refId, (v) => { instance.@{field.field_name}[idx] = v; });
+                                                        ctx.addPatch(instance.@{field.field_name}, idx, (item as any).__refId);
                                                     }
                                                 });
                                             }
@@ -692,12 +746,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         {:case TypeCategory::Serializable(type_name)}
                                             if (typeof (@{type_name} as any)?.__deserialize === "function") {
                                                 const __result = (@{type_name} as any).__deserialize(@{raw_var}, ctx);
-                                                if (PendingRef.is(__result)) {
-                                                    instance.@{field.field_name} = null as @{field.ts_type};
-                                                    ctx.deferPatch(__result.id, (v) => { instance.@{field.field_name} = v; });
-                                                } else {
-                                                    instance.@{field.field_name} = __result;
-                                                }
+                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                             } else {
                                                 instance.@{field.field_name} = @{raw_var};
                                             }
@@ -707,12 +756,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 instance.@{field.field_name} = null;
                                             } else if (typeof (@{raw_var} as any)?.__ref !== "undefined") {
                                                 const __result = ctx.getOrDefer((@{raw_var} as any).__ref);
-                                                if (PendingRef.is(__result)) {
-                                                    instance.@{field.field_name} = null as @{field.ts_type};
-                                                    ctx.deferPatch(__result.id, (v) => { instance.@{field.field_name} = v; });
-                                                } else {
-                                                    instance.@{field.field_name} = __result;
-                                                }
+                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                             } else {
                                                 instance.@{field.field_name} = @{raw_var};
                                             }
@@ -728,7 +772,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 {/if}
                             {:else}
                                 {
-                                    const @{raw_var} = obj["@{field.json_key}"];
+                                    const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
                                     {#match &field.type_cat}
                                         {:case TypeCategory::Primitive}
                                             {#if has_validators}
@@ -766,7 +810,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 instance.@{field.field_name} = __arr;
                                                 __arr.forEach((item, idx) => {
                                                     if (item && typeof item === "object" && "__pendingIdx" in item) {
-                                                        ctx.deferPatch((item as any).__refId, (v) => { instance.@{field.field_name}[idx] = v; });
+                                                        ctx.addPatch(instance.@{field.field_name}, idx, (item as any).__refId);
                                                     }
                                                 });
                                             }
@@ -782,12 +826,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         {:case TypeCategory::Serializable(type_name)}
                                             if (typeof (@{type_name} as any)?.__deserialize === "function") {
                                                 const __result = (@{type_name} as any).__deserialize(@{raw_var}, ctx);
-                                                if (PendingRef.is(__result)) {
-                                                    instance.@{field.field_name} = null as @{field.ts_type};
-                                                    ctx.deferPatch(__result.id, (v) => { instance.@{field.field_name} = v; });
-                                                } else {
-                                                    instance.@{field.field_name} = __result;
-                                                }
+                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                             } else {
                                                 instance.@{field.field_name} = @{raw_var};
                                             }
@@ -797,12 +836,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                 instance.@{field.field_name} = null;
                                             } else if (typeof (@{raw_var} as any)?.__ref !== "undefined") {
                                                 const __result = ctx.getOrDefer((@{raw_var} as any).__ref);
-                                                if (PendingRef.is(__result)) {
-                                                    instance.@{field.field_name} = null as @{field.ts_type};
-                                                    ctx.deferPatch(__result.id, (v) => { instance.@{field.field_name} = v; });
-                                                } else {
-                                                    instance.@{field.field_name} = __result;
-                                                }
+                                                ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                             } else {
                                                 instance.@{field.field_name} = @{raw_var};
                                             }
@@ -821,12 +855,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 {:case TypeCategory::Serializable(type_name)}
                                     if (typeof (@{type_name} as any)?.__deserialize === "function") {
                                         const __result = (@{type_name} as any).__deserialize(obj, ctx);
-                                        if (PendingRef.is(__result)) {
-                                            instance.@{field.field_name} = null as @{field.ts_type};
-                                            ctx.deferPatch(__result.id, (v) => { instance.@{field.field_name} = v; });
-                                        } else {
-                                            instance.@{field.field_name} = __result;
-                                        }
+                                        ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                     }
                                 {:case _}
                                     instance.@{field.field_name} = obj as any;
@@ -1067,7 +1096,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 {$let has_validators = field.has_validators()}
                                 {#if field.optional}
                                     if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
-                                        const @{raw_var} = obj["@{field.json_key}"];
+                                        const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
                                         {#match &field.type_cat}
                                             {:case TypeCategory::Primitive}
                                                 {#if has_validators}
@@ -1110,12 +1139,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             {:case TypeCategory::Serializable(type_name)}
                                                 if (typeof (@{type_name} as any)?.__deserialize === "function") {
                                                     const __result = (@{type_name} as any).__deserialize(@{raw_var}, ctx);
-                                                    if (PendingRef.is(__result)) {
-                                                        instance.@{field.field_name} = null;
-                                                        ctx.deferPatch(__result.id, (v) => { instance.@{field.field_name} = v; });
-                                                    } else {
-                                                        instance.@{field.field_name} = __result;
-                                                    }
+                                                    ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                                 } else {
                                                     instance.@{field.field_name} = @{raw_var};
                                                 }
@@ -1141,7 +1165,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     {/if}
                                 {:else}
                                     {
-                                        const @{raw_var} = obj["@{field.json_key}"];
+                                        const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
                                         {#match &field.type_cat}
                                             {:case TypeCategory::Primitive}
                                                 {#if has_validators}
@@ -1184,12 +1208,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             {:case TypeCategory::Serializable(type_name)}
                                                 if (typeof (@{type_name} as any)?.__deserialize === "function") {
                                                     const __result = (@{type_name} as any).__deserialize(@{raw_var}, ctx);
-                                                    if (PendingRef.is(__result)) {
-                                                        instance.@{field.field_name} = null;
-                                                        ctx.deferPatch(__result.id, (v) => { instance.@{field.field_name} = v; });
-                                                    } else {
-                                                        instance.@{field.field_name} = __result;
-                                                    }
+                                                    ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                                 } else {
                                                     instance.@{field.field_name} = @{raw_var};
                                                 }
@@ -1398,9 +1417,9 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             }
                         }
 
-                        export function __deserialize(value: any, ctx: DeserializeContext): @{type_name} | PendingRef<@{type_name}> {
+                        export function __deserialize(value: any, ctx: DeserializeContext): @{type_name} | PendingRef {
                             if (value?.__ref !== undefined) {
-                                return ctx.getOrDefer(value.__ref) as @{type_name} | PendingRef<@{type_name}>;
+                                return ctx.getOrDefer(value.__ref) as @{type_name} | PendingRef;
                             }
 
                             if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -1445,7 +1464,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     {$let has_validators = field.has_validators()}
                                     {#if field.optional}
                                         if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
-                                            const @{raw_var} = obj["@{field.json_key}"];
+                                            const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
                                             {#match &field.type_cat}
                                                 {:case TypeCategory::Primitive}
                                                     {#if has_validators}
@@ -1514,7 +1533,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         {/if}
                                     {:else}
                                         {
-                                            const @{raw_var} = obj["@{field.json_key}"];
+                                            const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
                                             {#match &field.type_cat}
                                                 {:case TypeCategory::Primitive}
                                                     {#if has_validators}
@@ -1636,6 +1655,21 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 Ok(result)
             } else if let Some(members) = type_alias.as_union() {
                 // Union type - could be literal union, type ref union, or mixed
+
+                // Build generic type signature if type has type params
+                let type_params = type_alias.type_params();
+                let (generic_decl, generic_args) = if type_params.is_empty() {
+                    (String::new(), String::new())
+                } else {
+                    let params = type_params.join(", ");
+                    (format!("<{}>", params), format!("<{}>", params))
+                };
+                let full_type_name = format!("{}{}", type_name, generic_args);
+
+                // Create a set of type parameter names for filtering
+                let type_param_set: std::collections::HashSet<&str> =
+                    type_params.iter().map(|s| s.as_str()).collect();
+
                 let literals: Vec<String> = members
                     .iter()
                     .filter_map(|m| m.as_literal().map(|s| s.to_string()))
@@ -1645,20 +1679,76 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     .filter_map(|m| m.as_type_ref().map(|s| s.to_string()))
                     .collect();
 
+                // Separate primitives, generic type params, and serializable types
+                let primitive_types: Vec<String> = type_refs
+                    .iter()
+                    .filter(|t| matches!(TypeCategory::from_ts_type(t), TypeCategory::Primitive))
+                    .cloned()
+                    .collect();
+
+                // Generic type parameters (like T, U) - these are passed through as-is
+                let generic_type_params: Vec<String> = type_refs
+                    .iter()
+                    .filter(|t| type_param_set.contains(t.as_str()))
+                    .cloned()
+                    .collect();
+
+                // Build SerializableTypeRef with both full type and base type for runtime access
+                let serializable_types: Vec<SerializableTypeRef> = type_refs
+                    .iter()
+                    .filter(|t| {
+                        !matches!(
+                            TypeCategory::from_ts_type(t),
+                            TypeCategory::Primitive | TypeCategory::Date
+                        ) && !type_param_set.contains(t.as_str())
+                    })
+                    .map(|t| SerializableTypeRef {
+                        full_type: t.clone(),
+                        base_type: extract_base_type(t),
+                    })
+                    .collect();
+
+                let date_types: Vec<String> = type_refs
+                    .iter()
+                    .filter(|t| matches!(TypeCategory::from_ts_type(t), TypeCategory::Date))
+                    .cloned()
+                    .collect();
+
+                let has_primitives = !primitive_types.is_empty();
+                let has_serializables = !serializable_types.is_empty();
+                let has_dates = !date_types.is_empty();
+                let has_generic_params = !generic_type_params.is_empty();
+
                 let is_literal_only = !literals.is_empty() && type_refs.is_empty();
-                let is_type_ref_only = literals.is_empty() && !type_refs.is_empty();
+                let is_primitive_only = has_primitives
+                    && !has_serializables
+                    && !has_dates
+                    && !has_generic_params
+                    && literals.is_empty();
+                let is_serializable_only = !has_primitives
+                    && !has_dates
+                    && !has_generic_params
+                    && has_serializables
+                    && literals.is_empty();
                 let has_literals = !literals.is_empty();
-                let has_type_refs = !type_refs.is_empty();
 
                 // Pre-compute the expected types string for error messages
-                let expected_types_str = type_refs.join(", ");
+                let expected_types_str = if has_serializables {
+                    serializable_types
+                        .iter()
+                        .map(|t| t.full_type.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                } else {
+                    type_refs.join(", ")
+                };
 
                 let mut result = ts_template! {
                     export namespace @{type_name} {
-                        export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<@{type_name}, Array<{ field: string; message: string }>> {
+                        export function {|fromStringifiedJSON@{generic_decl}|}(json: string, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
                             try {
                                 const raw = JSON.parse(json);
-                                return fromObject(raw, opts);
+                                return {|fromObject@{generic_args}|}(raw, opts);
                             } catch (e) {
                                 if (e instanceof DeserializeError) {
                                     return Result.err(e.errors);
@@ -1668,10 +1758,10 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             }
                         }
 
-                        export function fromObject(obj: unknown, opts?: DeserializeOptions): Result<@{type_name}, Array<{ field: string; message: string }>> {
+                        export function {|fromObject@{generic_decl}|}(obj: unknown, opts?: DeserializeOptions): Result<@{full_type_name}, Array<{ field: string; message: string }>> {
                             try {
                                 const ctx = DeserializeContext.create();
-                                const resultOrRef = __deserialize(obj, ctx);
+                                const resultOrRef = {|__deserialize@{generic_args}|}(obj, ctx);
 
                                 if (PendingRef.is(resultOrRef)) {
                                     return Result.err([{ field: "_root", message: "@{type_name}.fromObject: root cannot be a forward reference" }]);
@@ -1691,9 +1781,9 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             }
                         }
 
-                        export function __deserialize(value: any, ctx: DeserializeContext): @{type_name} | PendingRef<@{type_name}> {
+                        export function {|__deserialize@{generic_decl}|}(value: any, ctx: DeserializeContext): @{full_type_name} | PendingRef {
                             if (value?.__ref !== undefined) {
-                                return ctx.getOrDefer(value.__ref) as @{type_name} | PendingRef<@{type_name}>;
+                                return ctx.getOrDefer(value.__ref) as @{full_type_name} | PendingRef;
                             }
 
                             {#if is_literal_only}
@@ -1705,9 +1795,21 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         message: "Invalid value for @{type_name}: expected one of " + allowedValues.map(v => JSON.stringify(v)).join(", ") + ", got " + JSON.stringify(value)
                                     }]);
                                 }
-                                return value as @{type_name};
-                            {:else if is_type_ref_only}
-                                // Type reference union: dispatch based on __type
+                                return value as @{full_type_name};
+                            {:else if is_primitive_only}
+                                // Primitive-only union: check typeof
+                                {#for prim in &primitive_types}
+                                    if (typeof value === "@{prim}") {
+                                        return value as @{full_type_name};
+                                    }
+                                {/for}
+
+                                throw new DeserializeError([{
+                                    field: "_root",
+                                    message: "@{type_name}.__deserialize: expected @{expected_types_str}, got " + typeof value
+                                }]);
+                            {:else if is_serializable_only}
+                                // Serializable-only union: dispatch based on __type
                                 if (typeof value !== "object" || value === null) {
                                     throw new DeserializeError([{
                                         field: "_root",
@@ -1724,12 +1826,12 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 }
 
                                 // Dispatch to the appropriate type's deserializer
-                                {#for type_ref in type_refs.clone()}
-                                    if (__typeName === "@{type_ref}") {
-                                        if (typeof (@{type_ref} as any)?.__deserialize === "function") {
-                                            return (@{type_ref} as any).__deserialize(value, ctx) as @{type_name};
+                                {#for type_ref in &serializable_types}
+                                    if (__typeName === "@{type_ref.full_type}") {
+                                        if (typeof (@{type_ref.base_type} as any)?.__deserialize === "function") {
+                                            return (@{type_ref.base_type} as any).__deserialize(value, ctx) as @{full_type_name};
                                         }
-                                        return value as @{type_name};
+                                        return value as @{full_type_name};
                                     }
                                 {/for}
 
@@ -1738,28 +1840,57 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     message: "@{type_name}.__deserialize: unknown type \"" + __typeName + "\". Expected one of: @{expected_types_str}"
                                 }]);
                             {:else}
-                                // Mixed union: try literal check first, then type dispatch
+                                // Mixed union: check literals first, then primitives, then Date, then generic params, then serializable types
                                 {#if has_literals}
                                     const allowedLiterals = [{#for lit in literals}@{lit}, {/for}] as const;
-                                    if (typeof value !== "object" && allowedLiterals.includes(value as any)) {
-                                        return value as @{type_name};
+                                    if (allowedLiterals.includes(value as any)) {
+                                        return value as @{full_type_name};
                                     }
                                 {/if}
 
-                                {#if has_type_refs}
+                                // Check primitives with typeof
+                                {#if has_primitives}
+                                    {#for prim in &primitive_types}
+                                        if (typeof value === "@{prim}") {
+                                            return value as @{full_type_name};
+                                        }
+                                    {/for}
+                                {/if}
+
+                                // Check Date type
+                                {#if has_dates}
+                                    if (value instanceof Date) {
+                                        return value as @{full_type_name};
+                                    }
+                                    if (typeof value === "string") {
+                                        const __dateVal = new Date(value);
+                                        if (!isNaN(__dateVal.getTime())) {
+                                            return __dateVal as unknown as @{full_type_name};
+                                        }
+                                    }
+                                {/if}
+
+                                // Check serializable types via __type dispatch
+                                {#if has_serializables}
                                     if (typeof value === "object" && value !== null) {
                                         const __typeName = (value as any).__type;
                                         if (typeof __typeName === "string") {
-                                            {#for type_ref in type_refs}
-                                                if (__typeName === "@{type_ref}") {
-                                                    if (typeof (@{type_ref} as any)?.__deserialize === "function") {
-                                                        return (@{type_ref} as any).__deserialize(value, ctx) as @{type_name};
+                                            {#for type_ref in &serializable_types}
+                                                if (__typeName === "@{type_ref.full_type}") {
+                                                    if (typeof (@{type_ref.base_type} as any)?.__deserialize === "function") {
+                                                        return (@{type_ref.base_type} as any).__deserialize(value, ctx) as @{full_type_name};
                                                     }
-                                                    return value as @{type_name};
+                                                    return value as @{full_type_name};
                                                 }
                                             {/for}
                                         }
                                     }
+                                {/if}
+
+                                // For generic type params (like T), just pass the value through
+                                // The caller is responsible for ensuring the value matches the type
+                                {#if has_generic_params}
+                                    return value as @{full_type_name};
                                 {/if}
 
                                 throw new DeserializeError([{
