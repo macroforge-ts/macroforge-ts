@@ -1,6 +1,123 @@
-//! Shared utilities for Serialize and Deserialize derive macros
+//! # Serde (Serialization/Deserialization) Module
+//!
+//! This module provides the `Serialize` and `Deserialize` macros for JSON
+//! serialization with cycle detection and validation support.
+//!
+//! ## Generated Methods
+//!
+//! ### Serialize
+//!
+//! - `toStringifiedJSON(): string` - Serialize to JSON string
+//! - `toObject(): Record<string, unknown>` - Serialize to plain object
+//! - `__serialize(ctx): Record<string, unknown>` - Internal method with cycle detection
+//!
+//! ### Deserialize
+//!
+//! - `static fromStringifiedJSON(json: string): T` - Parse JSON and validate
+//! - `static __deserialize(value, ctx): T` - Internal method with cycle resolution
+//!
+//! ## Cycle Detection
+//!
+//! Both macros support cycle detection for object graphs with circular references:
+//!
+//! ```typescript
+//! @derive(Serialize, Deserialize)
+//! class Node {
+//!     value: number;
+//!     next: Node | null;
+//! }
+//!
+//! // Creates: { __type: "Node", __id: 1, value: 1, next: { __ref: 1 } }
+//! ```
+//!
+//! ## Field-Level Options
+//!
+//! The `@serde` decorator supports many options:
+//!
+//! | Option | Description |
+//! |--------|-------------|
+//! | `skip` | Skip both serialization and deserialization |
+//! | `skip_serializing` | Skip only during serialization |
+//! | `skip_deserializing` | Skip only during deserialization |
+//! | `rename = "name"` | Use a different JSON key |
+//! | `default` | Use type's default if missing |
+//! | `default = "expr"` | Use specific expression if missing |
+//! | `flatten` | Flatten nested object fields into parent |
+//!
+//! ## Container-Level Options
+//!
+//! | Option | Description |
+//! |--------|-------------|
+//! | `rename_all = "camelCase"` | Apply naming convention to all fields |
+//! | `deny_unknown_fields` | Reject JSON with extra fields |
+//!
+//! ## Naming Conventions
+//!
+//! Supported values for `rename_all`:
+//! - `camelCase` - `user_name` → `userName`
+//! - `snake_case` - `userName` → `user_name`
+//! - `SCREAMING_SNAKE_CASE` - `userName` → `USER_NAME`
+//! - `kebab-case` - `userName` → `user-name`
+//! - `PascalCase` - `user_name` → `UserName`
+//!
+//! ## Validation
+//!
+//! The Deserialize macro supports 30+ validators for runtime validation:
+//!
+//! ### String Validators
+//! - `email` - Valid email format
+//! - `url` - Valid URL format
+//! - `uuid` - Valid UUID format
+//! - `pattern("regex")` - Match regex pattern
+//! - `minLength(n)`, `maxLength(n)`, `length(n)` - Length constraints
+//! - `nonEmpty`, `trimmed` - Content requirements
+//! - `lowercase`, `uppercase`, `capitalized` - Case requirements
+//! - `startsWith("prefix")`, `endsWith("suffix")`, `includes("text")`
+//!
+//! ### Number Validators
+//! - `int` - Must be integer
+//! - `positive`, `negative`, `nonNegative`, `nonPositive`
+//! - `greaterThan(n)`, `lessThan(n)`, `between(min, max)`
+//! - `multipleOf(n)`, `uint8`, `finite`, `nonNaN`
+//!
+//! ### Array Validators
+//! - `minItems(n)`, `maxItems(n)`, `itemsCount(n)`
+//!
+//! ### Date Validators
+//! - `validDate` - Must be valid Date
+//! - `greaterThanDate("2020-01-01")`, `lessThanDate("2030-01-01")`
+//! - `betweenDate("start", "end")`
+//!
+//! ### Custom Validators
+//! - `custom(functionName)` - Call custom validation function
+//!
+//! ## Example
+//!
+//! ```typescript
+//! @derive(Serialize, Deserialize)
+//! @serde(rename_all = "camelCase")
+//! class User {
+//!     @serde(email)
+//!     emailAddress: string;
+//!
+//!     @serde(minLength(3), maxLength(50))
+//!     username: string;
+//!
+//!     @serde(skip_serializing)
+//!     password: string;
+//!
+//!     @serde(default)
+//!     role: string;
+//!
+//!     @serde(flatten)
+//!     metadata: UserMetadata;
+//! }
+//! ```
 
+/// Deserialize macro implementation.
 pub mod derive_deserialize;
+
+/// Serialize macro implementation.
 pub mod derive_serialize;
 
 use crate::ts_syn::abi::{DecoratorIR, DiagnosticCollector, SpanIR};

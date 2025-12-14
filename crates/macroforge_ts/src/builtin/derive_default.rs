@@ -1,15 +1,116 @@
-//! /** @derive(Default) */ macro implementation
+//! # Default Macro Implementation
 //!
-//! Generates a `static default()` factory method that creates an instance with default values.
-//! Requires @default(value) decorator on fields to specify their default values.
+//! The `Default` macro generates a static `defaultValue()` factory method that creates
+//! instances with default values. This is analogous to Rust's `Default` trait, providing
+//! a standard way to create "zero" or "empty" instances of types.
+//!
+//! ## Generated Output
+//!
+//! | Type | Generated Method | Description |
+//! |------|------------------|-------------|
+//! | Class | `static defaultValue(): ClassName` | Static factory method |
+//! | Enum | `EnumName.defaultValue()` | Namespace function returning marked variant |
+//! | Interface | `InterfaceName.defaultValue()` | Namespace function returning object literal |
+//! | Type Alias | `TypeName.defaultValue()` | Namespace function with type-appropriate default |
+//!
+//! ## Default Values by Type
+//!
+//! The macro uses Rust-like default semantics:
+//!
+//! | Type | Default Value |
+//! |------|---------------|
+//! | `string` | `""` (empty string) |
+//! | `number` | `0` |
+//! | `boolean` | `false` |
+//! | `bigint` | `0n` |
+//! | `T[]` | `[]` (empty array) |
+//! | `Array<T>` | `[]` (empty array) |
+//! | `Map<K,V>` | `new Map()` |
+//! | `Set<T>` | `new Set()` |
+//! | `Date` | `new Date()` (current time) |
+//! | `T \| null` | `null` |
+//! | `CustomType` | `CustomType.defaultValue()` (recursive) |
+//!
+//! ## Field-Level Options
+//!
+//! The `@default` decorator allows specifying explicit default values:
+//!
+//! - `@default(42)` - Use 42 as the default
+//! - `@default("hello")` - Use "hello" as the default
+//! - `@default([])` - Use empty array as the default
+//! - `@default({ value: "test" })` - Named form for complex values
+//!
+//! ## Example
+//!
+//! ```typescript
+//! @derive(Default)
+//! class UserSettings {
+//!     @default("light")
+//!     theme: string;
+//!
+//!     @default(10)
+//!     pageSize: number;
+//!
+//!     notifications: boolean;  // Uses type default: false
+//! }
+//!
+//! // Generated:
+//! // static defaultValue(): UserSettings {
+//! //     const instance = new UserSettings();
+//! //     instance.theme = "light";
+//! //     instance.pageSize = 10;
+//! //     instance.notifications = false;
+//! //     return instance;
+//! // }
+//! ```
+//!
+//! ## Enum Defaults
+//!
+//! For enums, mark one variant with `@default`:
+//!
+//! ```typescript
+//! @derive(Default)
+//! enum Status {
+//!     @default
+//!     Pending,
+//!     Active,
+//!     Completed
+//! }
+//!
+//! // Generated:
+//! // export namespace Status {
+//! //     export function defaultValue(): Status {
+//! //         return Status.Pending;
+//! //     }
+//! // }
+//! ```
+//!
+//! ## Error Handling
+//!
+//! The macro will return an error if:
+//!
+//! - A non-primitive field lacks `@default` and has no known default
+//! - An enum has no variant marked with `@default`
+//! - A union type has no `@default` on a variant
 
-use crate::builtin::derive_common::{get_type_default, has_known_default, DefaultFieldOptions};
+use crate::builtin::derive_common::{
+    get_type_default, has_known_default, is_generic_type, parse_generic_type, DefaultFieldOptions,
+};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
 
-/// Field info for default values: (field_name, default_value)
+/// Contains field information needed for default value generation.
+///
+/// Each non-optional field that needs a default value is represented by this struct,
+/// capturing both the field name and the expression to use as its default value.
 struct DefaultField {
+    /// The field name as it appears in the source TypeScript class.
+    /// Used to generate assignment statements like `instance.name = value`.
     name: String,
+
+    /// The JavaScript expression for the default value.
+    /// This can be a literal (`0`, `""`, `[]`), a constructor call (`new Date()`),
+    /// or a recursive `defaultValue()` call for custom types.
     value: String,
 }
 
@@ -285,6 +386,27 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 // Union type: check for @default on a variant OR @default(...) on the type
                 let members = type_alias.as_union().unwrap();
 
+                // Check for parenthesized union members - can't place @default inside parens
+                // e.g., `(string | Product) | (string | Service)` is not allowed
+                let parenthesized: Vec<&str> = members
+                    .iter()
+                    .filter_map(|m| m.as_type_ref())
+                    .filter(|t| t.trim().starts_with('('))
+                    .collect();
+
+                if !parenthesized.is_empty() {
+                    return Err(MacroforgeError::new(
+                        input.decorator_span(),
+                        format!(
+                            "@derive(Default): Parenthesized union expressions ({}) are not supported. \
+                             Formatters cannot preserve doc comments inside parentheses. \
+                             Create a named type alias for each variant instead \
+                             (e.g., use `RecordLink<Product>` instead of `(string | Product)`).",
+                            parenthesized.join(", ")
+                        ),
+                    ));
+                }
+
                 // First, look for a variant with @default decorator
                 let default_variant_from_member = members.iter().find_map(|member| {
                     if member.has_decorator("default") {
@@ -308,20 +430,47 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 
                 if let Some(variant) = default_variant {
                     // Determine the default expression based on variant type
-                    // Use as-is if it's already an expression, a literal, or a primitive
+                    // Use as-is if it's already an expression, a literal, or a primitive value
                     let is_expression = variant.contains('.') || variant.contains('(');
                     let is_string_literal = variant.starts_with('"') || variant.starts_with('\'') || variant.starts_with('`');
-                    let is_primitive = variant.parse::<f64>().is_ok() || variant == "true" || variant == "false" || variant == "null";
+                    let is_primitive_value = variant.parse::<f64>().is_ok() || variant == "true" || variant == "false" || variant == "null";
+                    // Primitive TYPE names like "string", "number", etc. need to use get_type_default
+                    let is_primitive_type = matches!(variant.as_str(), "string" | "number" | "boolean" | "bigint");
 
-                    let default_expr = if is_expression || is_string_literal || is_primitive {
+                    let default_expr = if is_expression || is_string_literal || is_primitive_value {
                         variant // Use as-is
+                    } else if is_primitive_type {
+                        // Handle primitive type names - use get_type_default to get actual default value
+                        get_type_default(&variant)
+                    } else if is_generic_type(&variant) {
+                        // Handle generic type variants like "RecordLink<Service>"
+                        // Generate Base.defaultValue<Args>() instead of Base<Args>.defaultValue()
+                        if let Some((base, args)) = parse_generic_type(&variant) {
+                            format!("{}.defaultValue<{}>()", base, args)
+                        } else {
+                            format!("{}.defaultValue()", variant)
+                        }
                     } else {
                         format!("{}.defaultValue()", variant) // Type reference - call defaultValue()
                     };
 
+                    // Handle generic type aliases (e.g., type RecordLink<T> = ...)
+                    let type_params = type_alias.type_params();
+                    let has_generics = !type_params.is_empty();
+                    let generic_params = if has_generics {
+                        format!("<{}>", type_params.join(", "))
+                    } else {
+                        String::new()
+                    };
+                    let return_type = if has_generics {
+                        format!("{}<{}>", type_name, type_params.join(", "))
+                    } else {
+                        type_name.to_string()
+                    };
+
                     Ok(ts_template! {
                         export namespace @{type_name} {
-                            export function defaultValue(): @{type_name} {
+                            export function defaultValue@{generic_params}(): @{return_type} {
                                 return @{default_expr};
                             }
                         }

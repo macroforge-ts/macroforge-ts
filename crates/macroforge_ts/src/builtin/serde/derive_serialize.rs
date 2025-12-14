@@ -1,24 +1,119 @@
-//! /** @derive(Serialize) */ macro implementation
+//! # Serialize Macro Implementation
 //!
-//! Generates JSON serialization methods with cycle detection:
-//! - For classes: `toStringifiedJSON()`, `toJSON()`, and `__serialize(ctx)`
-//! - For interfaces: `namespace InterfaceName { toStringifiedJSON, __serialize }`
+//! The `Serialize` macro generates JSON serialization methods with **cycle detection**
+//! and object identity tracking. This enables serialization of complex object graphs
+//! including circular references.
 //!
-//! Uses `__id` and `__ref` markers for object identity tracking.
+//! ## Generated Methods
+//!
+//! | Type | Generated Methods | Description |
+//! |------|-------------------|-------------|
+//! | Class | `toStringifiedJSON()`, `toObject()`, `__serialize(ctx)` | Instance methods |
+//! | Enum | `EnumName.toStringifiedJSON(value)`, `__serialize` | Namespace functions |
+//! | Interface | `InterfaceName.toStringifiedJSON(self)`, etc. | Namespace functions |
+//! | Type Alias | `TypeName.toStringifiedJSON(value)`, etc. | Namespace functions |
+//!
+//! ## Cycle Detection Protocol
+//!
+//! The generated code handles circular references using `__id` and `__ref` markers:
+//!
+//! ```json
+//! {
+//!     "__type": "User",
+//!     "__id": 1,
+//!     "name": "Alice",
+//!     "friend": { "__ref": 2 }  // Reference to object with __id: 2
+//! }
+//! ```
+//!
+//! When an object is serialized:
+//! 1. Check if it's already been serialized (has an `__id`)
+//! 2. If so, return `{ "__ref": existingId }` instead
+//! 3. Otherwise, register the object and serialize its fields
+//!
+//! ## Type-Specific Serialization
+//!
+//! | Type | Serialization Strategy |
+//! |------|------------------------|
+//! | Primitives | Direct value |
+//! | `Date` | `toISOString()` |
+//! | Arrays | Map with recursive `__serialize` |
+//! | `Map<K,V>` | `Object.fromEntries()` |
+//! | `Set<T>` | Convert to array |
+//! | Nullable | Include `null` explicitly |
+//! | Objects | Call `__serialize(ctx)` if available |
+//!
+//! ## Field-Level Options
+//!
+//! The `@serde` decorator supports:
+//!
+//! - `skip` / `skip_serializing` - Exclude field from serialization
+//! - `rename = "jsonKey"` - Use different JSON property name
+//! - `flatten` - Merge nested object's fields into parent
+//!
+//! ## Example
+//!
+//! ```typescript
+//! @derive(Serialize)
+//! class User {
+//!     id: number;
+//!
+//!     @serde(rename = "userName")
+//!     name: string;
+//!
+//!     @serde(skip_serializing)
+//!     password: string;
+//!
+//!     @serde(flatten)
+//!     metadata: UserMetadata;
+//! }
+//!
+//! // Usage:
+//! const user = new User();
+//! const json = user.toStringifiedJSON();
+//! // => '{"__type":"User","__id":1,"id":1,"userName":"Alice",...}'
+//!
+//! const obj = user.toObject();
+//! // => { __type: "User", __id: 1, id: 1, userName: "Alice", ... }
+//! ```
+//!
+//! ## Required Import
+//!
+//! The generated code automatically imports `SerializeContext` from `macroforge/serde`.
 
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, parse_ts_macro_input};
 use crate::ts_syn::abi::DiagnosticCollector;
+use crate::ts_syn::{
+    parse_ts_macro_input, Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream,
+};
 
 use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory};
 
-/// Field info for serialization
+/// Contains field information needed for JSON serialization code generation.
+///
+/// Each field that should be included in serialization is represented by this struct,
+/// capturing the JSON key name, field access name, type category, and serialization options.
 #[derive(Clone)]
 struct SerializeField {
+    /// The JSON property name to use in the serialized output.
+    /// This may differ from `field_name` if `@serde(rename = "...")` is used.
     json_key: String,
+
+    /// The TypeScript field name as it appears in the source class.
+    /// Used for generating property access expressions like `this.fieldName`.
     field_name: String,
+
+    /// The category of the field's type, used to select the appropriate
+    /// serialization strategy (primitive, Date, Array, Map, Set, etc.).
     type_cat: TypeCategory,
+
+    /// Whether the field is optional (has `?` modifier).
+    /// Optional fields are wrapped in `if (value !== undefined)` checks.
     optional: bool,
+
+    /// Whether the field should be flattened into the parent object.
+    /// Flattened fields have their properties merged directly into the parent
+    /// rather than being nested under their field name.
     flatten: bool,
 }
 

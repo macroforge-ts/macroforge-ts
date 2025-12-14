@@ -1,8 +1,86 @@
-//! /** @derive(Clone) */ macro implementation
+//! # Clone Macro Implementation
+//!
+//! The `Clone` macro generates a `clone()` method for deep copying objects.
+//! This is analogous to Rust's `Clone` trait, providing a way to create
+//! independent copies of values.
+//!
+//! ## Generated Output
+//!
+//! | Type | Generated Method | Description |
+//! |------|------------------|-------------|
+//! | Class | `clone(): ClassName` | Instance method creating a new instance with copied fields |
+//! | Enum | `EnumName.clone(value)` | Namespace function (enums are primitives, returns value as-is) |
+//! | Interface | `InterfaceName.clone(self)` | Namespace function creating a new object literal |
+//! | Type Alias | `TypeName.clone(value)` | Namespace function with spread copy for objects |
+//!
+//! ## Cloning Strategy
+//!
+//! The generated clone performs a **shallow copy** of all fields:
+//!
+//! - **Primitives** (`string`, `number`, `boolean`): Copied by value
+//! - **Objects**: Reference is copied (not deep cloned)
+//! - **Arrays**: Reference is copied (not deep cloned)
+//!
+//! For deep cloning of nested objects, those objects should also derive `Clone`
+//! and the caller should clone them explicitly.
+//!
+//! ## Example
+//!
+//! ```typescript
+//! @derive(Clone)
+//! class Point {
+//!     x: number;
+//!     y: number;
+//! }
+//!
+//! // Generated:
+//! // clone(): Point {
+//! //     const cloned = Object.create(Object.getPrototypeOf(this));
+//! //     cloned.x = this.x;
+//! //     cloned.y = this.y;
+//! //     return cloned;
+//! // }
+//!
+//! const p1 = new Point();
+//! const p2 = p1.clone(); // Creates a new Point with same values
+//! ```
+//!
+//! ## Implementation Notes
+//!
+//! - **Classes**: Uses `Object.create(Object.getPrototypeOf(this))` to preserve
+//!   the prototype chain, ensuring `instanceof` checks work correctly
+//! - **Enums**: Simply returns the value (enums are primitives in TypeScript)
+//! - **Interfaces/Type Aliases**: Creates new object literals with spread operator
+//!   for union/tuple types, or field-by-field copy for object types
 
-use crate::macros::{ts_macro_derive, body, ts_template};
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use crate::macros::{body, ts_macro_derive, ts_template};
+use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
 
+/// Generates a `clone()` method for creating copies of objects.
+///
+/// This macro implementation handles four TypeScript data types:
+///
+/// - **Classes**: Generates an instance method that creates a new object via
+///   `Object.create()` and copies all fields
+/// - **Enums**: Generates a namespace function that returns the value unchanged
+/// - **Interfaces**: Generates a namespace function that creates a new object literal
+/// - **Type Aliases**: Generates a namespace function with appropriate copying strategy
+///
+/// # Arguments
+///
+/// * `input` - The parsed derive input containing the type information
+///
+/// # Returns
+///
+/// Returns a `TsStream` containing the generated clone method or function,
+/// or a `MacroforgeError` if code generation fails.
+///
+/// # Generated Signatures
+///
+/// - Classes: `clone(): ClassName`
+/// - Enums: `EnumName.clone(value: EnumName): EnumName`
+/// - Interfaces: `InterfaceName.clone(self: InterfaceName): InterfaceName`
+/// - Type Aliases: `TypeName.clone(value: TypeName): TypeName`
 #[ts_macro_derive(Clone, description = "Generates a clone() method for deep cloning")]
 pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);

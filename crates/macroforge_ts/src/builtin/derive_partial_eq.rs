@@ -1,19 +1,118 @@
-//! /** @derive(PartialEq) */ macro implementation
+//! # PartialEq Macro Implementation
 //!
-//! Generates an `equals()` method for field-by-field comparison.
-//! Supports @partialEq(skip) decorator on fields to exclude them from comparison.
+//! The `PartialEq` macro generates an `equals()` method for field-by-field
+//! structural equality comparison. This is analogous to Rust's `PartialEq` trait,
+//! enabling value-based equality semantics instead of reference equality.
+//!
+//! ## Generated Output
+//!
+//! | Type | Generated Method | Description |
+//! |------|------------------|-------------|
+//! | Class | `equals(other: unknown): boolean` | Instance method with instanceof check |
+//! | Enum | `EnumName.equals(a, b)` | Namespace function using strict equality |
+//! | Interface | `InterfaceName.equals(self, other)` | Namespace function comparing fields |
+//! | Type Alias | `TypeName.equals(a, b)` | Namespace function with type-appropriate comparison |
+//!
+//! ## Comparison Strategy
+//!
+//! The generated equality check:
+//!
+//! 1. **Identity check**: `this === other` returns true immediately
+//! 2. **Type check**: For classes, uses `instanceof`; returns false if wrong type
+//! 3. **Field comparison**: Compares each non-skipped field
+//!
+//! ## Type-Specific Comparisons
+//!
+//! | Type | Comparison Method |
+//! |------|-------------------|
+//! | Primitives | Strict equality (`===`) |
+//! | Arrays | Length + element-by-element (recursive) |
+//! | `Date` | `getTime()` comparison |
+//! | `Map` | Size + entry-by-entry comparison |
+//! | `Set` | Size + membership check |
+//! | Objects | Calls `equals()` if available, else `===` |
+//!
+//! ## Field-Level Options
+//!
+//! The `@partialEq` decorator supports:
+//!
+//! - `skip` - Exclude the field from equality comparison
+//!
+//! ## Example
+//!
+//! ```typescript
+//! @derive(PartialEq, Hash)
+//! class User {
+//!     id: number;
+//!     name: string;
+//!
+//!     @partialEq(skip)  // Don't compare cached values
+//!     @hash(skip)
+//!     cachedScore: number;
+//! }
+//!
+//! // Generated:
+//! // equals(other: unknown): boolean {
+//! //     if (this === other) return true;
+//! //     if (!(other instanceof User)) return false;
+//! //     const typedOther = other as User;
+//! //     return this.id === typedOther.id &&
+//! //            this.name === typedOther.name;
+//! // }
+//! ```
+//!
+//! ## Equality Contract
+//!
+//! When implementing `PartialEq`, consider also implementing `Hash`:
+//!
+//! - **Reflexivity**: `a.equals(a)` is always true
+//! - **Symmetry**: `a.equals(b)` implies `b.equals(a)`
+//! - **Hash consistency**: Equal objects must have equal hash codes
 
 use crate::builtin::derive_common::{is_primitive_type, CompareFieldOptions};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
 
-/// Field info for equality comparison: (field_name, ts_type)
+/// Contains field information needed for equality comparison generation.
+///
+/// Each field that participates in equality checking is represented by this struct,
+/// which captures both the field name (for access) and its TypeScript type
+/// (to select the appropriate comparison strategy).
 struct EqField {
+    /// The field name as it appears in the source TypeScript class.
+    /// Used to generate property access expressions like `this.name`.
     name: String,
+
+    /// The TypeScript type annotation for this field.
+    /// Used to determine which comparison strategy to apply
+    /// (e.g., strict equality for primitives, recursive equals for objects).
     ts_type: String,
 }
 
-/// Generate equality comparison code for a single field
+/// Generates JavaScript code that compares a single class field for equality.
+///
+/// This function produces an expression that evaluates to a boolean indicating
+/// whether the field values are equal. The generated code handles different
+/// TypeScript types with appropriate comparison strategies.
+///
+/// # Arguments
+///
+/// * `field` - The field to generate comparison code for
+///
+/// # Returns
+///
+/// A string containing a JavaScript boolean expression comparing `this.field`
+/// with `typedOther.field`. The expression can be combined with `&&` for
+/// multiple fields.
+///
+/// # Type-Specific Strategies
+///
+/// - **Primitives**: Uses strict equality (`===`)
+/// - **Arrays**: Checks length, then compares elements (calls `equals` if available)
+/// - **Date**: Compares via `getTime()` timestamps
+/// - **Map**: Checks size, then compares all entries
+/// - **Set**: Checks size, then verifies all elements present in both
+/// - **Objects**: Calls `equals()` method if available, falls back to `===`
 fn generate_field_equality(field: &EqField) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;
@@ -66,7 +165,28 @@ fn generate_field_equality(field: &EqField) -> String {
     }
 }
 
-/// Generate equality comparison code for interface/type alias (using parameter names instead of `this`)
+/// Generates JavaScript code that compares interface/type alias fields for equality.
+///
+/// Similar to [`generate_field_equality`], but uses variable name parameters instead
+/// of `this`, making it suitable for namespace functions that take objects as parameters.
+///
+/// # Arguments
+///
+/// * `field` - The field to generate comparison code for
+/// * `self_var` - Variable name for the first object (e.g., "self", "a")
+/// * `other_var` - Variable name for the second object (e.g., "other", "b")
+///
+/// # Returns
+///
+/// A string containing a JavaScript boolean expression comparing `self_var.field`
+/// with `other_var.field`.
+///
+/// # Example
+///
+/// ```ignore
+/// let code = generate_field_equality_for_interface(&field, "self", "other");
+/// // Generates: "self.name === other.name"
+/// ```
 fn generate_field_equality_for_interface(field: &EqField, self_var: &str, other_var: &str) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;

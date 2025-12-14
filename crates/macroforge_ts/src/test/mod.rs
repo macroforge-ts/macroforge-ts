@@ -1,19 +1,82 @@
+//! # Test Suite for Macroforge TypeScript Macro Engine
+//!
+//! This module contains comprehensive tests for the macro expansion system,
+//! covering all built-in macros and their behavior across different TypeScript
+//! type constructs (classes, interfaces, enums, type aliases).
+//!
+//! ## Test Categories
+//!
+//! ### Derive Macro Tests
+//!
+//! Tests for each built-in derive macro:
+//!
+//! - **Debug** - Generates `toString()` methods
+//! - **Clone** - Generates `clone()` methods for deep copying
+//! - **PartialEq** - Generates `equals()` methods for equality comparison
+//! - **Hash** - Generates `hashCode()` methods for hash-based collections
+//! - **Ord/PartialOrd** - Generates `compareTo()` methods for ordering
+//! - **Default** - Generates `defaultValue()` factory methods
+//! - **Serialize** - Generates JSON serialization methods
+//! - **Deserialize** - Generates JSON deserialization methods with validation
+//!
+//! ### Type Construct Tests
+//!
+//! Each macro is tested against:
+//!
+//! - Classes (with constructors, methods, visibility modifiers)
+//! - Interfaces (generates namespace with static functions)
+//! - Enums (numeric and string enums)
+//! - Type Aliases (object types and union types)
+//!
+//! ### DTS Output Tests
+//!
+//! Tests verifying correct `.d.ts` type declaration generation:
+//!
+//! - Method signatures are properly typed
+//! - Constructor bodies are stripped
+//! - Visibility modifiers are preserved
+//! - Generic type parameters are preserved
+//!
+//! ### Source Mapping Tests
+//!
+//! Tests for bidirectional position mapping between original and expanded code.
+//!
+//! ### Early Bailout Tests
+//!
+//! Tests verifying that files without `@derive` are returned unchanged
+//! (important for Svelte runes and other non-macro TypeScript code).
+//!
+//! ## Running Tests
+//!
+//! ```bash
+//! cargo test -p macroforge_ts
+//! ```
+
 use crate::host::PatchCollector;
-use crate::{
-    GeneratedRegionResult, MappingSegmentResult, NativePositionMapper, SourceMappingResult,
-    host::MacroExpander, parse_import_sources,
-};
-use swc_core::ecma::ast::{ClassMember, Program};
-use swc_core::{
-    common::{FileName, GLOBALS, SourceMap, sync::Lrc},
-    ecma::parser::{Lexer, Parser, StringInput, Syntax, TsSyntax},
-};
 use crate::ts_syn::abi::{
     ClassIR, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode, SpanIR,
 };
+use crate::{
+    host::MacroExpander, parse_import_sources, GeneratedRegionResult, MappingSegmentResult,
+    NativePositionMapper, SourceMappingResult,
+};
+use swc_core::ecma::ast::{ClassMember, Program};
+use swc_core::{
+    common::{sync::Lrc, FileName, SourceMap, GLOBALS},
+    ecma::parser::{Lexer, Parser, StringInput, Syntax, TsSyntax},
+};
 
+/// Module path constant used for test derive macros.
 const DERIVE_MODULE_PATH: &str = "@macro/derive";
 
+/// Parses TypeScript source code into an SWC AST `Program`.
+///
+/// This helper function sets up the SWC parser with TypeScript syntax
+/// (including decorator support) and returns the parsed module.
+///
+/// # Panics
+///
+/// Panics if the source code fails to parse.
 fn parse_module(source: &str) -> Program {
     let cm: Lrc<SourceMap> = Default::default();
     let fm = cm.new_source_file(
@@ -36,7 +99,15 @@ fn parse_module(source: &str) -> Program {
     Program::Module(module)
 }
 
+/// Extension trait for whitespace-normalized string comparison.
+///
+/// Used in tests to compare generated code against expected output
+/// without being sensitive to formatting differences.
 trait StringExt {
+    /// Removes all whitespace characters from a string.
+    ///
+    /// This allows comparing code output regardless of indentation
+    /// or line breaks differences.
     fn replace_whitespace(&self) -> String;
 }
 
@@ -46,6 +117,10 @@ impl StringExt for str {
     }
 }
 
+/// Creates a minimal `ClassIR` for testing macro expansion.
+///
+/// Returns a class IR with the given name and default spans,
+/// used as input for testing macro output processing.
 fn base_class(name: &str) -> ClassIR {
     ClassIR {
         name: name.into(),

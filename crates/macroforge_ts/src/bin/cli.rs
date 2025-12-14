@@ -1,4 +1,64 @@
-use anyhow::{Context, Result, anyhow};
+//! # Macroforge CLI Binary
+//!
+//! This binary provides command-line utilities for working with Macroforge TypeScript macros.
+//! It is designed for development workflows, enabling macro expansion and type checking
+//! without requiring Node.js integration.
+//!
+//! ## Commands
+//!
+//! ### `macroforge expand`
+//!
+//! Expands macros in TypeScript/TSX files:
+//!
+//! ```bash
+//! # Expand a single file
+//! macroforge expand src/User.ts
+//!
+//! # Expand to specific output file
+//! macroforge expand src/User.ts --out dist/User.js
+//!
+//! # Scan and expand all files in a directory
+//! macroforge expand --scan src/
+//!
+//! # Use only built-in Rust macros (faster, no external dependencies)
+//! macroforge expand src/User.ts --builtin-only
+//!
+//! # Print expanded output to stdout
+//! macroforge expand src/User.ts --print
+//! ```
+//!
+//! ### `macroforge tsc`
+//!
+//! Run TypeScript type checking with macro expansion baked in:
+//!
+//! ```bash
+//! # Type check with default tsconfig.json
+//! macroforge tsc
+//!
+//! # Type check with custom tsconfig
+//! macroforge tsc -p tsconfig.build.json
+//! ```
+//!
+//! ## Output File Naming
+//!
+//! By default, expanded files are written with `.expanded` inserted before the extension:
+//!
+//! - `foo.ts` → `foo.expanded.ts`
+//! - `foo.svelte.ts` → `foo.expanded.svelte.ts`
+//!
+//! ## Exit Codes
+//!
+//! - `0` - Success
+//! - `1` - Error during expansion
+//! - `2` - No macros found in the input file (with `--quiet` suppresses output)
+//!
+//! ## Node.js Integration
+//!
+//! By default, the CLI uses Node.js to support external/custom macros from npm packages.
+//! Use `--builtin-only` for fast expansion with only the built-in Rust macros (Debug, Clone,
+//! PartialEq, Hash, Ord, PartialOrd, Default, Serialize, Deserialize).
+
+use anyhow::{anyhow, Context, Result};
 use clap::{Parser, Subcommand};
 use ignore::WalkBuilder;
 use macroforge_ts::host::{MacroExpander, MacroExpansion};
@@ -7,6 +67,11 @@ use std::{
     path::{Path, PathBuf},
 };
 
+/// Command-line interface for Macroforge TypeScript macro utilities.
+///
+/// Provides two main commands:
+/// - `expand` - Expand macros in TypeScript files
+/// - `tsc` - Run TypeScript type checking with macro expansion
 #[derive(Parser)]
 #[command(name = "macroforge", about = "TypeScript macro development utilities")]
 struct Cli {
@@ -14,9 +79,13 @@ struct Cli {
     command: Command,
 }
 
+/// Available CLI subcommands.
 #[derive(Subcommand)]
 enum Command {
-    /// Expand a TypeScript file (uses Node.js for full macro support)
+    /// Expand macros in a TypeScript file or directory.
+    ///
+    /// By default, uses Node.js for full macro support including external macros.
+    /// Use `--builtin-only` for faster expansion with only built-in Rust macros.
     Expand {
         /// Path to the TypeScript/TSX file or directory to expand
         input: Option<PathBuf>,
@@ -84,6 +153,25 @@ fn main() -> Result<()> {
     }
 }
 
+/// Recursively scans a directory for TypeScript files and expands macros in each.
+///
+/// This function walks the directory tree, respecting `.gitignore` rules (unless
+/// `include_ignored` is true), and attempts to expand each `.ts` and `.tsx` file.
+///
+/// Files are skipped if:
+/// - They are `.d.ts` declaration files
+/// - They already contain `.expanded.` in their name
+/// - They are in directories ignored by `.gitignore` (unless `include_ignored`)
+///
+/// # Arguments
+///
+/// * `root` - The root directory to start scanning from
+/// * `builtin_only` - If true, use only built-in Rust macros (faster)
+/// * `include_ignored` - If true, also process files ignored by `.gitignore`
+///
+/// # Returns
+///
+/// Returns `Ok(())` on success, or an error if the scan fails.
 fn scan_and_expand(root: PathBuf, builtin_only: bool, include_ignored: bool) -> Result<()> {
     let root = root.canonicalize().unwrap_or(root);
     eprintln!("[macroforge] scanning {}", root.display());
@@ -164,6 +252,23 @@ fn scan_and_expand(root: PathBuf, builtin_only: bool, include_ignored: bool) -> 
     Ok(())
 }
 
+/// Expands macros in a single TypeScript file.
+///
+/// This is the main entry point for single-file expansion. It handles output
+/// routing (to file and/or stdout) and quiet mode behavior.
+///
+/// # Arguments
+///
+/// * `input` - Path to the input TypeScript file
+/// * `out` - Optional path for the expanded output (default: `input.expanded.ts`)
+/// * `types_out` - Optional path for the `.d.ts` type output
+/// * `print` - If true, also print expanded code to stdout
+/// * `builtin_only` - If true, use only built-in Rust macros
+/// * `quiet` - If true, suppress output when no macros are found
+///
+/// # Exit Codes
+///
+/// Calls `std::process::exit(2)` if no macros are found and not in quiet mode.
 fn expand_file(
     input: PathBuf,
     out: Option<PathBuf>,
@@ -183,8 +288,25 @@ fn expand_file(
     }
 }
 
-/// Try to expand a file, returning Ok(true) if macros were found and expanded,
-/// Ok(false) if no macros were found, or Err on failure.
+/// Attempts to expand macros in a file using the built-in Rust expander.
+///
+/// This function uses the Rust-native `MacroExpander` for fast expansion
+/// when `builtin_only` is true. Otherwise, it delegates to Node.js for
+/// full external macro support.
+///
+/// # Arguments
+///
+/// * `input` - Path to the input TypeScript file
+/// * `out` - Optional output path for expanded code
+/// * `types_out` - Optional output path for type declarations
+/// * `print` - Whether to print output to stdout
+/// * `builtin_only` - Whether to use only built-in macros
+///
+/// # Returns
+///
+/// - `Ok(true)` - Macros were found and successfully expanded
+/// - `Ok(false)` - No macros were found in the file
+/// - `Err(...)` - An error occurred during expansion
 fn try_expand_file(
     input: PathBuf,
     out: Option<PathBuf>,
@@ -217,8 +339,28 @@ fn try_expand_file(
     Ok(true)
 }
 
-/// Try to expand a file via Node.js, returning Ok(true) if macros were found and expanded,
-/// Ok(false) if no macros were found, or Err on failure.
+/// Attempts to expand macros by invoking Node.js with the macroforge npm package.
+///
+/// This function writes a temporary Node.js script that calls `macroforge.expandSync()`,
+/// then parses the JSON result. This approach supports external macros from npm packages
+/// but requires Node.js and the macroforge package to be installed.
+///
+/// The function tries to resolve macroforge from:
+/// 1. The current working directory
+/// 2. The input file's parent directory
+///
+/// # Arguments
+///
+/// * `input` - Path to the input TypeScript file
+/// * `out` - Optional output path for expanded code
+/// * `types_out` - Optional output path for type declarations
+/// * `print` - Whether to print output to stdout
+///
+/// # Returns
+///
+/// - `Ok(true)` - Macros were found and successfully expanded
+/// - `Ok(false)` - No macros were found (empty `generatedRegions`)
+/// - `Err(...)` - Node.js execution failed or macroforge not found
 fn try_expand_file_via_node(
     input: PathBuf,
     out: Option<PathBuf>,
@@ -354,6 +496,14 @@ try {
     Ok(true)
 }
 
+/// Writes the expanded runtime code to a file and optionally prints to stdout.
+///
+/// # Arguments
+///
+/// * `result` - The macro expansion result containing the generated code
+/// * `input` - The original input file path (for display purposes)
+/// * `explicit_out` - Optional explicit output path (defaults to `.expanded.ts`)
+/// * `should_print` - Whether to also print the code to stdout
 fn emit_runtime_output(
     result: &MacroExpansion,
     input: &Path,
@@ -377,6 +527,17 @@ fn emit_runtime_output(
     Ok(())
 }
 
+/// Writes the generated type declarations (`.d.ts`) to a file and optionally prints to stdout.
+///
+/// If no explicit output path is provided and `print` is false, the type output
+/// is silently discarded.
+///
+/// # Arguments
+///
+/// * `result` - The macro expansion result containing the type declarations
+/// * `input` - The original input file path (for display purposes)
+/// * `explicit_out` - Optional explicit output path for `.d.ts`
+/// * `print` - Whether to print type declarations to stdout
 fn emit_type_output(
     result: &MacroExpansion,
     input: &Path,
@@ -401,6 +562,7 @@ fn emit_type_output(
     Ok(())
 }
 
+/// Writes content to a file, creating parent directories as needed.
 fn write_file(path: &PathBuf, contents: &str) -> Result<()> {
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent)
@@ -410,6 +572,26 @@ fn write_file(path: &PathBuf, contents: &str) -> Result<()> {
     Ok(())
 }
 
+/// Runs TypeScript type checking with macro expansion baked into file reads.
+///
+/// This function creates a Node.js script that wraps `tsc --noEmit` behavior
+/// while transparently expanding macros when reading `.ts` and `.tsx` files.
+/// Files containing `@derive` are expanded before being passed to the TypeScript
+/// compiler.
+///
+/// The wrapper intercepts `CompilerHost.getSourceFile` to:
+/// 1. Read the file contents
+/// 2. Check for `@derive` decorators
+/// 3. Expand macros if found
+/// 4. Return the expanded source to TypeScript
+///
+/// # Arguments
+///
+/// * `project` - Optional path to `tsconfig.json` (defaults to `tsconfig.json` in cwd)
+///
+/// # Returns
+///
+/// Returns `Ok(())` if type checking passes, or an error with diagnostic details.
 fn run_tsc_wrapper(project: Option<PathBuf>) -> Result<()> {
     // Write a temporary Node.js script that wraps tsc and expands macros on file load
     let script = r#"
@@ -504,6 +686,9 @@ process.exit(hasError ? 1 : 0);
     Ok(())
 }
 
+/// Prints macro expansion diagnostics (warnings, errors) to stderr.
+///
+/// Each diagnostic is formatted with its level, file location, and message.
 fn emit_diagnostics(expansion: &MacroExpansion, source: &str, input: &Path) {
     if expansion.diagnostics.is_empty() {
         return;
@@ -525,6 +710,9 @@ fn emit_diagnostics(expansion: &MacroExpansion, source: &str, input: &Path) {
     }
 }
 
+/// Converts a byte offset in source code to a (line, column) position.
+///
+/// Lines and columns are 1-indexed for user-friendly display.
 fn offset_to_line_col(source: &str, offset: usize) -> (usize, usize) {
     let mut line = 1;
     let mut col = 1;

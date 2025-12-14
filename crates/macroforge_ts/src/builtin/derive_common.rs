@@ -1,4 +1,45 @@
-//! Shared utilities for comparison and equality derive macros
+//! # Shared Utilities for Derive Macros
+//!
+//! This module provides common functionality used by multiple derive macros,
+//! including:
+//!
+//! - **Field options parsing**: `CompareFieldOptions`, `DefaultFieldOptions`
+//! - **Type utilities**: Type checking and default value generation
+//! - **Decorator parsing**: Flag extraction and named argument parsing
+//!
+//! ## Field Options
+//!
+//! Many macros support field-level customization through decorators:
+//!
+//! ```typescript
+//! @derive(PartialEq, Hash, Default)
+//! class User {
+//!     @partialEq(skip)  // Exclude from equality comparison
+//!     @hash(skip)       // Exclude from hash calculation
+//!     cachedValue: number;
+//!
+//!     @default("guest") // Use "guest" as default value
+//!     name: string;
+//! }
+//! ```
+//!
+//! ## Type Defaults (Rust-like Philosophy)
+//!
+//! Like Rust's `Default` trait, this module assumes all types implement
+//! default values:
+//!
+//! | Type | Default Value |
+//! |------|---------------|
+//! | `string` | `""` |
+//! | `number` | `0` |
+//! | `boolean` | `false` |
+//! | `bigint` | `0n` |
+//! | `T[]` | `[]` |
+//! | `Map<K,V>` | `new Map()` |
+//! | `Set<T>` | `new Set()` |
+//! | `Date` | `new Date()` |
+//! | `T \| null` | `null` |
+//! | `CustomType` | `CustomType.defaultValue()` |
 
 use crate::ts_syn::abi::DecoratorIR;
 
@@ -105,6 +146,28 @@ pub fn is_nullable_type(ts_type: &str) -> bool {
     normalized.contains("|null") || normalized.contains("|undefined")
 }
 
+/// Check if a type name contains generic parameters (e.g., "RecordLink<Service>")
+/// This is used to detect generic type instantiations that need special handling.
+pub fn is_generic_type(type_name: &str) -> bool {
+    type_name.contains('<') && type_name.contains('>')
+}
+
+/// Extracts base type and type arguments from a generic type.
+/// "RecordLink<Service>" -> Some(("RecordLink", "Service"))
+/// "Map<string, number>" -> Some(("Map", "string, number"))
+/// "User" -> None
+pub fn parse_generic_type(type_name: &str) -> Option<(&str, &str)> {
+    let open = type_name.find('<')?;
+    let close = type_name.rfind('>')?;
+    if open < close {
+        let base = &type_name[..open];
+        let args = &type_name[open + 1..close];
+        Some((base.trim(), args.trim()))
+    } else {
+        None
+    }
+}
+
 /// Check if a type has a known default value.
 /// All types are assumed to implement Default - primitives/collections have built-in defaults,
 /// unknown types are assumed to have a defaultValue() static method (Rust's derive(Default) philosophy).
@@ -134,6 +197,16 @@ pub fn get_type_default(ts_type: &str) -> String {
         t if t.starts_with("Map<") => "new Map()".to_string(),
         t if t.starts_with("Set<") => "new Set()".to_string(),
         "Date" => "new Date()".to_string(),
+        // Generic type instantiations like RecordLink<Service>
+        // Generate Base.defaultValue<Args>() instead of Base<Args>.defaultValue()
+        t if is_generic_type(t) => {
+            if let Some((base, args)) = parse_generic_type(t) {
+                format!("{}.defaultValue<{}>()", base, args)
+            } else {
+                // Fallback: shouldn't happen if is_generic_type returned true
+                format!("{}.defaultValue()", t)
+            }
+        }
         // Unknown types: assume they implement Default trait with defaultValue() method
         type_name => format!("{}.defaultValue()", type_name),
     }
@@ -314,5 +387,56 @@ mod tests {
         assert_eq!(get_type_default("Date"), "new Date()");
         // Unknown types call their defaultValue() method
         assert_eq!(get_type_default("User"), "User.defaultValue()");
+        // Generic type instantiations use Base.defaultValue<Args>() syntax
+        assert_eq!(
+            get_type_default("RecordLink<Service>"),
+            "RecordLink.defaultValue<Service>()"
+        );
+        assert_eq!(
+            get_type_default("Result<User, Error>"),
+            "Result.defaultValue<User, Error>()"
+        );
+    }
+
+    #[test]
+    fn test_is_generic_type() {
+        // Generic types
+        assert!(is_generic_type("RecordLink<Service>"));
+        assert!(is_generic_type("Map<string, number>"));
+        assert!(is_generic_type("Array<User>"));
+        assert!(is_generic_type("Result<T, E>"));
+
+        // Non-generic types
+        assert!(!is_generic_type("User"));
+        assert!(!is_generic_type("string"));
+        assert!(!is_generic_type("number[]")); // Array syntax, not generic
+    }
+
+    #[test]
+    fn test_parse_generic_type() {
+        // Simple generic
+        assert_eq!(
+            parse_generic_type("RecordLink<Service>"),
+            Some(("RecordLink", "Service"))
+        );
+
+        // Multiple type parameters
+        assert_eq!(
+            parse_generic_type("Map<string, number>"),
+            Some(("Map", "string, number"))
+        );
+
+        // Nested generics
+        assert_eq!(
+            parse_generic_type("Result<Array<User>, Error>"),
+            Some(("Result", "Array<User>, Error"))
+        );
+
+        // Non-generic types return None
+        assert_eq!(parse_generic_type("User"), None);
+        assert_eq!(parse_generic_type("string"), None);
+
+        // Malformed (no closing bracket)
+        assert_eq!(parse_generic_type("Array<User"), None);
     }
 }
