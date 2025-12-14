@@ -585,6 +585,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
 
+            // Build generic type signature if type has type params
+            let type_params = type_alias.type_params();
+            let (generic_decl, generic_args) = if type_params.is_empty() {
+                (String::new(), String::new())
+            } else {
+                let params = type_params.join(", ");
+                (format!("<{}>", params), format!("<{}>", params))
+            };
+            let full_type_name = format!("{}{}", type_name, generic_args);
+
             if type_alias.is_object() {
                 // Object type: serialize fields
                 let container_opts =
@@ -632,17 +642,17 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                 let mut result = ts_template! {
                     export namespace @{type_name} {
-                        export function toStringifiedJSON(value: @{type_name}): string {
+                        export function {|toStringifiedJSON@{generic_decl}|}(value: @{full_type_name}): string {
                             const ctx = SerializeContext.create();
                             return JSON.stringify(__serialize(value, ctx));
                         }
 
-                        export function toObject(value: @{type_name}): Record<string, unknown> {
+                        export function {|toObject@{generic_decl}|}(value: @{full_type_name}): Record<string, unknown> {
                             const ctx = SerializeContext.create();
                             return __serialize(value, ctx);
                         }
 
-                        export function __serialize(value: @{type_name}, ctx: SerializeContext): Record<string, unknown> {
+                        export function {|__serialize@{generic_decl}|}(value: @{full_type_name}, ctx: SerializeContext): Record<string, unknown> {
                             const existingId = ctx.getId(value);
                             if (existingId !== undefined) {
                                 return { __ref: existingId };
@@ -676,17 +686,17 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 // Union, tuple, or simple alias: delegate to inner type's __serialize if available
                 let mut result = ts_template! {
                     export namespace @{type_name} {
-                        export function toStringifiedJSON(value: @{type_name}): string {
+                        export function {|toStringifiedJSON@{generic_decl}|}(value: @{full_type_name}): string {
                             const ctx = SerializeContext.create();
                             return JSON.stringify(__serialize(value, ctx));
                         }
 
-                        export function toObject(value: @{type_name}): unknown {
+                        export function {|toObject@{generic_decl}|}(value: @{full_type_name}): unknown {
                             const ctx = SerializeContext.create();
                             return __serialize(value, ctx);
                         }
 
-                        export function __serialize(value: @{type_name}, ctx: SerializeContext): unknown {
+                        export function {|__serialize@{generic_decl}|}(value: @{full_type_name}, ctx: SerializeContext): unknown {
                             if (typeof (value as any)?.__serialize === "function") {
                                 return (value as any).__serialize(ctx);
                             }

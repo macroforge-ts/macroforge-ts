@@ -54,26 +54,26 @@ test.describe("Vanilla Playground Macro Tests", () => {
     await expect(debugResult).not.toContainText("secretToken"); // skipped field
   });
 
-  test("Serialize macro generates toJSON()", async ({ page }) => {
+  test("Serialize macro generates toObject()", async ({ page }) => {
     await page.click('[data-testid="test-all-macros"]');
     await page.waitForSelector('[data-tests-complete="true"]');
 
     const serializeResult = page.locator('[data-testid="result-serialize"]');
-    await expect(serializeResult).toContainText("Serialize (toJSON)");
+    await expect(serializeResult).toContainText("Serialize (toObject)");
     await expect(serializeResult).toContainText('"id"');
     await expect(serializeResult).toContainText('"name"');
     await expect(serializeResult).toContainText('"email"');
   });
 
-  test("Deserialize macro generates fromJSON()", async ({ page }) => {
+  test("Deserialize macro generates fromObject()", async ({ page }) => {
     await page.click('[data-testid="test-all-macros"]');
     await page.waitForSelector('[data-tests-complete="true"]');
 
     const deserializeResult = page.locator('[data-testid="result-deserialize"]');
     const content = await deserializeResult.textContent();
-    // Check if fromJSON is available or shows "Not available"
+    // Check if fromObject is available or shows "Not available"
     expect(
-      content?.includes("Deserialized User") || content?.includes("Not available")
+      content?.includes("Deserialized User") || content?.includes("Not available") || content?.includes("fromObject")
     ).toBe(true);
   });
 

@@ -66,11 +66,11 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
 
 1. **Compile-Time:** The template is parsed during macro expansion
 
-2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
+    2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
 
-3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
+    3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
 
-4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
+    4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
 
 ## Return Type
 
@@ -87,11 +87,11 @@ This shows you exactly what was generated, making debugging easy!
 
 ## Nesting and Regular TypeScript
 
-You can mix template syntax with regular TypeScript. Braces `&#123;&#125;` are recognized as either:
+You can mix template syntax with regular TypeScript. Braces <code >&#123;&#125;</code > are recognized as either:
 
 - **Template tags** if they start with `#`, `$`, `:`, or `/`
 
-- **Regular TypeScript blocks** otherwise
+    - **Regular TypeScript blocks** otherwise
 
 ```rust
 ts_template! {
@@ -109,23 +109,27 @@ ts_template! {
 ## Comparison with Alternatives
 
 | `ts_quote!` 
-| Compile-time validation, type-safe 
-| Can't handle Vec<Stmt>, verbose 
+            | Compile-time validation, type-safe 
+            | Can't handle Vec<Stmt>, verbose 
+        
 
-| `parse_ts_str()` 
-| Maximum flexibility 
-| Runtime parsing, less readable 
+        
+            | `parse_ts_str()` 
+            | Maximum flexibility 
+            | Runtime parsing, less readable 
+        
 
-| `ts_template!` 
-| Readable, handles loops/conditions 
-| Small runtime parsing overhead
+        
+            | `ts_template!` 
+            | Readable, handles loops/conditions 
+            | Small runtime parsing overhead
 
 ## Best Practices
 
 1. Use `ts_template!` for complex code generation with loops/conditions
 
-2. Use `ts_quote!` for simple, static statements
+    2. Use `ts_quote!` for simple, static statements
 
-3. Keep templates readable - extract complex logic into variables
+    3. Keep templates readable - extract complex logic into variables
 
-4. Don't nest templates too deeply - split into helper functions
+    4. Don't nest templates too deeply - split into helper functions

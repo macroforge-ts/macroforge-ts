@@ -1590,6 +1590,15 @@ fn collect_from_type_alias(
     import_sources: &HashMap<String, String>,
     out: &mut Vec<DeriveTarget>,
 ) {
+    // Compute combined span for ALL adjacent decorators (to remove all JSDoc comments)
+    let combined_span = if !type_alias_ir.decorators.is_empty() {
+        let min_start = type_alias_ir.decorators.iter().map(|d| d.span.start).min().unwrap_or(0);
+        let max_end = type_alias_ir.decorators.iter().map(|d| d.span.end).max().unwrap_or(0);
+        Some(SpanIR::new(min_start, max_end))
+    } else {
+        None
+    };
+
     for decorator in &type_alias_ir.decorators {
         // Only process @derive decorators, skip other decorators like @enumFieldsetController
         if !decorator.name.eq_ignore_ascii_case("derive") {
@@ -1600,9 +1609,14 @@ fn collect_from_type_alias(
                 continue;
             }
 
+            // Use combined span to remove ALL adjacent JSDoc comments
+            let decorator_span = combined_span
+                .map(|s| span_ir_with_at(s, source))
+                .unwrap_or_else(|| span_ir_with_at(decorator.span, source));
+
             out.push(DeriveTarget {
                 macro_names,
-                decorator_span: span_ir_with_at(decorator.span, source),
+                decorator_span,
                 target_ir: DeriveTargetIR::TypeAlias(type_alias_ir.clone()),
             });
             return;

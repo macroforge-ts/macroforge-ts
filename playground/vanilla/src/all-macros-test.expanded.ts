@@ -237,27 +237,27 @@ export class AllMacrosTestClass {
         ctx.trackForFreeze(instance);
         {
             const __raw_id = obj['id'];
-            (instance as any).id = __raw_id;
+            instance.id = __raw_id;
         }
         {
             const __raw_name = obj['name'];
-            (instance as any).name = __raw_name;
+            instance.name = __raw_name;
         }
         {
             const __raw_email = obj['email'];
-            (instance as any).email = __raw_email;
+            instance.email = __raw_email;
         }
         {
             const __raw_secretToken = obj['secretToken'];
-            (instance as any).secretToken = __raw_secretToken;
+            instance.secretToken = __raw_secretToken;
         }
         {
             const __raw_isActive = obj['isActive'];
-            (instance as any).isActive = __raw_isActive;
+            instance.isActive = __raw_isActive;
         }
         {
             const __raw_score = obj['score'];
-            (instance as any).score = __raw_score;
+            instance.score = __raw_score;
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
