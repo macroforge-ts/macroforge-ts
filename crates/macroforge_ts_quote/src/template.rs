@@ -1379,9 +1379,9 @@ fn parse_fragment(
                         '.' => add_space = false,             // obj.prop
                         '!' => add_space = false,             // !unary or non-null!
                         '(' | '[' | '{' => add_space = false, // Openers: (expr)
-                        '<' | '>' => add_space = false,       // Generics: Type<T> or T>(...) (compact)
-                        '@' => add_space = false,             // Decorator: @Dec
-                        '$' => add_space = false,             // Svelte runes: $state, $derived
+                        '<' | '>' => add_space = false, // Generics: Type<T> or T>(...) (compact)
+                        '@' => add_space = false,       // Decorator: @Dec
+                        '$' => add_space = false,       // Svelte runes: $state, $derived
                         _ => {}
                     }
 
@@ -1718,7 +1718,10 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<TokenStr
                     if brace_depth != 0 {
                         return Err(template_error(
                             span,
-                            &format!("Unclosed @{{}} interpolation at position {}", expr_start_pos),
+                            &format!(
+                                "Unclosed @{{}} interpolation at position {}",
+                                expr_start_pos
+                            ),
                             Some(&format!("@{{{}", expr_str)),
                         ));
                     }
@@ -1894,7 +1897,10 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> syn::Result<TokenSt
                     if brace_depth != 0 {
                         return Err(template_error(
                             span,
-                            &format!("Unclosed @{{}} interpolation at position {}", expr_start_pos),
+                            &format!(
+                                "Unclosed @{{}} interpolation at position {}",
+                                expr_start_pos
+                            ),
                             Some(&format!("@{{{}", expr_str)),
                         ));
                     }

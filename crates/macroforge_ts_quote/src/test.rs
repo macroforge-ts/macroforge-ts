@@ -145,7 +145,10 @@ fn test_string_interpolation_simple() {
 
     // Should push the opening quote
     // The generated code will look something like: __out . push_str ("\"") ;
-    assert!(s.contains("push_str (\"\\\"\")"), "Should push opening quote");
+    assert!(
+        s.contains("push_str (\"\\\"\")"),
+        "Should push opening quote"
+    );
     // Should push "Hello "
     assert!(s.contains("\"Hello \""), "Should push 'Hello '");
     // Should interpolate name
@@ -427,7 +430,10 @@ fn test_ident_block_basic() {
     let s = output.unwrap().to_string();
 
     // Should have interpolation without spacing
-    assert!(s.contains("suffix . to_string"), "Should interpolate suffix");
+    assert!(
+        s.contains("suffix . to_string"),
+        "Should interpolate suffix"
+    );
     // Should emit "namespace" without trailing space
     assert!(
         s.contains(r#"__out . push_str ("namespace")"#),
@@ -458,7 +464,10 @@ fn test_ident_block_with_surrounding_text() {
     // Should have the function keyword and interpolation
     assert!(s.contains(r#""function""#), "Should have function keyword");
     assert!(s.contains("name . to_string"), "Should interpolate name");
-    assert!(s.contains(r#"__out . push_str ("get")"#), "Should have get prefix");
+    assert!(
+        s.contains(r#"__out . push_str ("get")"#),
+        "Should have get prefix"
+    );
 }
 
 #[test]
@@ -481,7 +490,10 @@ fn test_ident_block_plain_text_only() {
     let s = output.unwrap().to_string();
 
     // Should emit "hello" without spaces
-    assert!(s.contains(r#"__out . push_str ("hello")"#), "Should emit hello");
+    assert!(
+        s.contains(r#"__out . push_str ("hello")"#),
+        "Should emit hello"
+    );
 }
 
 // ============================================================================
@@ -621,7 +633,11 @@ fn test_do_method_call() {
     let output = parse_template(input);
     let s = output.unwrap().to_string();
 
-    assert!(s.contains("vec . clear ()"), "Should have clear call: {}", s);
+    assert!(
+        s.contains("vec . clear ()"),
+        "Should have clear call: {}",
+        s
+    );
     assert!(
         s.contains("map . insert (key , value)"),
         "Should have insert call: {}",
@@ -648,8 +664,16 @@ fn test_while_with_mut_and_do() {
     let output = parse_template(input);
     let s = output.unwrap().to_string();
 
-    assert!(s.contains("let mut i = 0"), "Should have mutable let: {}", s);
-    assert!(s.contains("while i < 5"), "Should generate while loop: {}", s);
+    assert!(
+        s.contains("let mut i = 0"),
+        "Should have mutable let: {}",
+        s
+    );
+    assert!(
+        s.contains("while i < 5"),
+        "Should generate while loop: {}",
+        s
+    );
     assert!(s.contains("i += 1"), "Should have do expression: {}", s);
 }
 
@@ -676,11 +700,7 @@ fn test_while_with_break_condition() {
         "Should have while with negation: {}",
         s
     );
-    assert!(
-        s.contains("found = true"),
-        "Should have assignment: {}",
-        s
-    );
+    assert!(s.contains("found = true"), "Should have assignment: {}", s);
 }
 
 #[test]
