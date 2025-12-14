@@ -63,8 +63,7 @@ use crate::abi::{DecoratorIR, SpanIR};
 ///     )
 /// }
 /// ```
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct InterfaceIR {
     /// The interface name (identifier).
     pub name: String,
@@ -113,8 +112,7 @@ pub struct InterfaceIR {
 /// - `optional`: `true`
 /// - `readonly`: `true`
 /// - `decorators`: Contains the `@serde(rename = "user_email")` decorator
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct InterfaceFieldIR {
     /// The property name (identifier).
     pub name: String,
@@ -154,8 +152,7 @@ pub struct InterfaceFieldIR {
 /// - `params_src`: `"input: T"`
 /// - `return_type_src`: `"Promise<Result<T>>"`
 /// - `optional`: `false`
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct InterfaceMethodIR {
     /// The method name (identifier).
     pub name: String,

@@ -1,5 +1,5 @@
 use std::env;
-use zed_extension_api::{self as zed, serde_json, Command, LanguageServerId, Result, Worktree};
+use zed_extension_api::{self as zed, Command, LanguageServerId, Result, Worktree, serde_json};
 
 const TS_PLUGIN: &str = "@macroforge/typescript-plugin";
 const TS_PLUGIN_VERSION: &str = "0.1.34";
@@ -37,8 +37,8 @@ impl VtslsMacroforgeExtension {
 
         Self::ensure_package_version(VTSLS_PACKAGE, VTSLS_VERSION)?;
 
-        let ext_dir = env::current_dir()
-            .map_err(|e| format!("Failed to get current directory: {}", e))?;
+        let ext_dir =
+            env::current_dir().map_err(|e| format!("Failed to get current directory: {}", e))?;
 
         let vtsls_binary = ext_dir
             .join("node_modules")
@@ -62,11 +62,17 @@ impl VtslsMacroforgeExtension {
         let (os, arch) = zed::current_platform();
 
         match (os, arch) {
-            (zed::Os::Mac, zed::Architecture::X8664 | zed::Architecture::X86) => "@macroforge/bin-darwin-x64",
+            (zed::Os::Mac, zed::Architecture::X8664 | zed::Architecture::X86) => {
+                "@macroforge/bin-darwin-x64"
+            }
             (zed::Os::Mac, zed::Architecture::Aarch64) => "@macroforge/bin-darwin-arm64",
-            (zed::Os::Linux, zed::Architecture::X8664 | zed::Architecture::X86) => "@macroforge/bin-linux-x64-gnu",
+            (zed::Os::Linux, zed::Architecture::X8664 | zed::Architecture::X86) => {
+                "@macroforge/bin-linux-x64-gnu"
+            }
             (zed::Os::Linux, zed::Architecture::Aarch64) => "@macroforge/bin-linux-arm64-gnu",
-            (zed::Os::Windows, zed::Architecture::X8664 | zed::Architecture::X86) => "@macroforge/bin-win32-x64-msvc",
+            (zed::Os::Windows, zed::Architecture::X8664 | zed::Architecture::X86) => {
+                "@macroforge/bin-win32-x64-msvc"
+            }
             (zed::Os::Windows, zed::Architecture::Aarch64) => "@macroforge/bin-win32-arm64-msvc",
         }
     }
@@ -84,8 +90,8 @@ impl VtslsMacroforgeExtension {
         // Install the typescript plugin (which depends on macroforge)
         Self::ensure_package_version(TS_PLUGIN, TS_PLUGIN_VERSION)?;
 
-        let ext_dir = env::current_dir()
-            .map_err(|e| format!("Failed to get current directory: {}", e))?;
+        let ext_dir =
+            env::current_dir().map_err(|e| format!("Failed to get current directory: {}", e))?;
 
         // Return the node_modules directory - vtsls will resolve the package from here
         let node_modules_dir = ext_dir.join("node_modules");
@@ -114,7 +120,10 @@ impl zed::Extension for VtslsMacroforgeExtension {
         _worktree: &Worktree,
     ) -> Result<Command> {
         if language_server_id.as_ref() != "vtsls-macroforge" {
-            return Err(format!("Unknown language server: {}", language_server_id.as_ref()));
+            return Err(format!(
+                "Unknown language server: {}",
+                language_server_id.as_ref()
+            ));
         }
 
         let vtsls_path = self.ensure_vtsls_installed()?;

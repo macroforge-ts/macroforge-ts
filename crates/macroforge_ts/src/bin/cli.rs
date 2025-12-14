@@ -58,7 +58,7 @@
 //! Use `--builtin-only` for fast expansion with only the built-in Rust macros (Debug, Clone,
 //! PartialEq, Hash, Ord, PartialOrd, Default, Serialize, Deserialize).
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
 use ignore::WalkBuilder;
 use macroforge_ts::host::{MacroExpander, MacroExpansion};
@@ -465,7 +465,11 @@ try {
         serde_json::from_str(&stdout).context("failed to parse expansion result from node")?;
 
     // Check for fallback marker (macroforge npm module not installed)
-    if result.get("fallback").and_then(|v| v.as_bool()).unwrap_or(false) {
+    if result
+        .get("fallback")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false)
+    {
         // Fall back to built-in expansion
         if !is_scanning {
             eprintln!(

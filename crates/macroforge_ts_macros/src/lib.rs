@@ -437,7 +437,8 @@ fn parse_macro_options(tokens: TokenStream2) -> Result<MacroOptions> {
                         let ident: Ident = inner.parse()?;
                         inner.parse::<syn::Token![,]>()?;
                         let docs: LitStr = inner.parse()?;
-                        opts.attributes.push(AttributeWithDoc::with_docs(ident, docs));
+                        opts.attributes
+                            .push(AttributeWithDoc::with_docs(ident, docs));
                     } else {
                         // Parse simple identifier
                         let ident: Ident = content.parse()?;
@@ -594,7 +595,10 @@ impl Default for MacroOptions {
 ///     docs: "Documentation string",
 /// }
 /// ```
-fn generate_decorator_descriptor(attr: &AttributeWithDoc, package_expr: &TokenStream2) -> TokenStream2 {
+fn generate_decorator_descriptor(
+    attr: &AttributeWithDoc,
+    package_expr: &TokenStream2,
+) -> TokenStream2 {
     let attr_str = LitStr::new(&attr.name.to_string(), attr.name.span());
     let kind = quote! { macroforge_ts::host::derived::DecoratorKind::Property };
     let docs = &attr.docs;

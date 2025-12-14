@@ -43,8 +43,7 @@ use crate::abi::{DecoratorIR, SpanIR};
 ///     D = A + B,   // EnumValue::Expr("A + B")
 /// }
 /// ```
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 pub enum EnumValue {
     /// A string literal value.
     ///
@@ -146,8 +145,7 @@ impl EnumValue {
 ///     )
 /// }
 /// ```
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct EnumIR {
     /// The enum name (identifier).
     pub name: String,
@@ -187,8 +185,7 @@ pub struct EnumIR {
 /// - `name`: `"Active"`
 /// - `value`: `EnumValue::String("ACTIVE")`
 /// - `decorators`: Contains the `@default` decorator
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct EnumVariantIR {
     /// The variant name (identifier).
     pub name: String,

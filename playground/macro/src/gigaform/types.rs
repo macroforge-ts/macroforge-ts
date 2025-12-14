@@ -1,51 +1,69 @@
-//! Generates type definitions for Gigaform: Errors, Tainted, and Gigaform<T> types.
+//! Generates type definitions for Gigaform as suffixed exports (ErrorsX, TaintedX, GigaformX, ...).
 
 use macroforge_ts::macros::ts_template;
 use macroforge_ts::ts_syn::TsStream;
 
-use crate::gigaform::parser::{ParsedField, UnionConfig, UnionMode};
 use crate::gigaform::GenericInfo;
+use crate::gigaform::parser::{ParsedField, UnionConfig, UnionMode};
 
-/// Generates the Errors, Tainted, and Gigaform<T> type definitions.
-pub fn generate(interface_name: &str, fields: &[ParsedField]) -> TsStream {
+fn suffixed(base: &str, type_name: &str) -> String {
+    format!("{base}{type_name}")
+}
+
+/// Generates the Errors, Tainted, FieldControllers, and Gigaform type definitions.
+pub fn generate(type_name: &str, fields: &[ParsedField]) -> TsStream {
+    let errors_name = suffixed("Errors", type_name);
+    let tainted_name = suffixed("Tainted", type_name);
+    let field_controllers_name = suffixed("FieldControllers", type_name);
+    let gigaform_name = suffixed("Gigaform", type_name);
+
     let errors_fields = generate_errors_fields(fields);
     let tainted_fields = generate_tainted_fields(fields);
     let field_controller_types = generate_field_controller_types(fields);
 
     ts_template! {
         {>> "Nested error structure matching the data shape" <<}
-        export type Errors = {
+        export type @{errors_name} = {
             _errors: Option<Array<string>>;
             @{errors_fields}
         };
 
         {>> "Nested boolean structure for tracking touched/dirty fields" <<}
-        export type Tainted = {
+        export type @{tainted_name} = {
             @{tainted_fields}
         };
 
         {>> "Type-safe field controllers for this form" <<}
-        export interface FieldControllers {
+        export interface @{field_controllers_name} {
             @{field_controller_types}
         }
 
         {>> "Gigaform instance containing reactive state and field controllers" <<}
-        export interface Gigaform {
-            readonly data: @{interface_name};
-            readonly errors: Errors;
-            readonly tainted: Tainted;
-            readonly fields: FieldControllers;
-            validate(): Result<@{interface_name}, Array<{ field: string; message: string }>>;
-            reset(overrides?: Partial<@{interface_name}>): void;
+        export interface @{gigaform_name} {
+            readonly data: @{type_name};
+            readonly errors: @{errors_name};
+            readonly tainted: @{tainted_name};
+            readonly fields: @{field_controllers_name};
+            validate(): Result<@{type_name}, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<@{type_name}>): void;
         }
     }
 }
 
 /// Generates type definitions with generic support.
-pub fn generate_with_generics(interface_name: &str, fields: &[ParsedField], generics: &GenericInfo) -> TsStream {
+pub fn generate_with_generics(
+    type_name: &str,
+    fields: &[ParsedField],
+    generics: &GenericInfo,
+) -> TsStream {
     if generics.is_empty() {
-        return generate(interface_name, fields);
+        return generate(type_name, fields);
     }
+
+    let errors_name = suffixed("Errors", type_name);
+    let tainted_name = suffixed("Tainted", type_name);
+    let field_controllers_name = suffixed("FieldControllers", type_name);
+    let gigaform_name = suffixed("Gigaform", type_name);
 
     let errors_fields = generate_errors_fields(fields);
     let tainted_fields = generate_tainted_fields(fields);
@@ -55,29 +73,29 @@ pub fn generate_with_generics(interface_name: &str, fields: &[ParsedField], gene
 
     ts_template! {
         {>> "Nested error structure matching the data shape" <<}
-        export type Errors@{generic_decl} = {
+        export type @{errors_name}@{generic_decl} = {
             _errors: Option<Array<string>>;
             @{errors_fields}
         };
 
         {>> "Nested boolean structure for tracking touched/dirty fields" <<}
-        export type Tainted@{generic_decl} = {
+        export type @{tainted_name}@{generic_decl} = {
             @{tainted_fields}
         };
 
         {>> "Type-safe field controllers for this form" <<}
-        export interface FieldControllers@{generic_decl} {
+        export interface @{field_controllers_name}@{generic_decl} {
             @{field_controller_types}
         }
 
         {>> "Gigaform instance containing reactive state and field controllers" <<}
-        export interface Gigaform@{generic_decl} {
-            readonly data: @{interface_name}@{generic_args};
-            readonly errors: Errors@{generic_args};
-            readonly tainted: Tainted@{generic_args};
-            readonly fields: FieldControllers@{generic_args};
-            validate(): Result<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>>;
-            reset(overrides?: Partial<@{interface_name}@{generic_args}>): void;
+        export interface @{gigaform_name}@{generic_decl} {
+            readonly data: @{type_name}@{generic_args};
+            readonly errors: @{errors_name}@{generic_args};
+            readonly tainted: @{tainted_name}@{generic_args};
+            readonly fields: @{field_controllers_name}@{generic_args};
+            validate(): Result<@{type_name}@{generic_args}, Array<{ field: string; message: string }>>;
+            reset(overrides?: Partial<@{type_name}@{generic_args}>): void;
         }
     }
 }
@@ -166,19 +184,28 @@ fn is_nested_type(type_name: &str) -> bool {
 
 /// Generates types for a discriminated union form with generic support.
 /// Note: Unions typically don't have type parameters, so this delegates to generate_union.
-pub fn generate_union_with_generics(type_name: &str, config: &UnionConfig, _generics: &GenericInfo) -> TsStream {
+pub fn generate_union_with_generics(
+    type_name: &str,
+    config: &UnionConfig,
+    _generics: &GenericInfo,
+) -> TsStream {
     // Unions are usually concrete types, generics are passed through but not commonly used
     generate_union(type_name, config)
 }
 
 /// Generates types for a discriminated union form.
 pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
+    let errors_name = suffixed("Errors", type_name);
+    let tainted_name = suffixed("Tainted", type_name);
+    let gigaform_name = suffixed("Gigaform", type_name);
+    let variant_fields_name = suffixed("VariantFields", type_name);
+
     // Generate per-variant error types
-    let variant_errors = generate_variant_errors(config);
-    let variant_tainted = generate_variant_tainted(config);
-    let variant_union_errors = generate_variant_union_type("Errors", config);
-    let variant_union_tainted = generate_variant_union_type("Tainted", config);
-    let variant_field_controllers = generate_variant_field_controllers(config);
+    let variant_errors = generate_variant_errors(type_name, config);
+    let variant_tainted = generate_variant_tainted(type_name, config);
+    let variant_union_errors = generate_variant_union_type("Errors", type_name, config);
+    let variant_union_tainted = generate_variant_union_type("Tainted", type_name, config);
+    let variant_field_controllers = generate_variant_field_controllers(type_name, config);
     let variant_union_literal = generate_variant_literal_union(config);
 
     // Get discriminant field name
@@ -195,90 +222,111 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
         @{variant_tainted}
 
         {>> "Union error type" <<}
-        export type Errors = @{variant_union_errors};
+        export type @{errors_name} = @{variant_union_errors};
 
         {>> "Union tainted type" <<}
-        export type Tainted = @{variant_union_tainted};
+        export type @{tainted_name} = @{variant_union_tainted};
 
         {>> "Per-variant field controller types" <<}
         @{variant_field_controllers}
 
         {>> "Union Gigaform interface with variant switching" <<}
-        export interface Gigaform {
+        export interface @{gigaform_name} {
             readonly currentVariant: @{variant_union_literal};
             readonly data: @{type_name};
-            readonly errors: Errors;
-            readonly tainted: Tainted;
-            readonly variants: VariantFields;
+            readonly errors: @{errors_name};
+            readonly tainted: @{tainted_name};
+            readonly variants: @{variant_fields_name};
             switchVariant(variant: @{variant_union_literal}): void;
             validate(): Result<@{type_name}, Array<{ field: string; message: string }>>;
             reset(overrides?: Partial<@{type_name}>): void;
         }
 
         {>> "Variant fields container" <<}
-        export interface VariantFields {
-            @{generate_variant_fields_interface(config, discriminant_field)}
+        export interface @{variant_fields_name} {
+            @{generate_variant_fields_interface(type_name, config, discriminant_field)}
         }
     }
 }
 
 /// Generates per-variant error type definitions.
-fn generate_variant_errors(config: &UnionConfig) -> String {
+fn generate_variant_errors(type_name: &str, config: &UnionConfig) -> String {
     config.variants.iter().map(|variant| {
         let variant_name = to_pascal_case(&variant.discriminant_value);
         let errors_fields = generate_errors_fields(&variant.fields);
         format!(
-            "export type {variant_name}Errors = {{ _errors: Option<Array<string>>; {errors_fields} }};"
+            "export type {variant_name}Errors{type_name} = {{ _errors: Option<Array<string>>; {errors_fields} }};"
         )
     }).collect::<Vec<_>>().join("\n        ")
 }
 
 /// Generates per-variant tainted type definitions.
-fn generate_variant_tainted(config: &UnionConfig) -> String {
-    config.variants.iter().map(|variant| {
-        let variant_name = to_pascal_case(&variant.discriminant_value);
-        let tainted_fields = generate_tainted_fields(&variant.fields);
-        format!(
-            "export type {variant_name}Tainted = {{ {tainted_fields} }};"
-        )
-    }).collect::<Vec<_>>().join("\n        ")
+fn generate_variant_tainted(type_name: &str, config: &UnionConfig) -> String {
+    config
+        .variants
+        .iter()
+        .map(|variant| {
+            let variant_name = to_pascal_case(&variant.discriminant_value);
+            let tainted_fields = generate_tainted_fields(&variant.fields);
+            format!("export type {variant_name}Tainted{type_name} = {{ {tainted_fields} }};")
+        })
+        .collect::<Vec<_>>()
+        .join("\n        ")
 }
 
 /// Generates the union type for Errors or Tainted.
-fn generate_variant_union_type(type_suffix: &str, config: &UnionConfig) -> String {
+fn generate_variant_union_type(type_suffix: &str, type_name: &str, config: &UnionConfig) -> String {
     let discriminant_field = match &config.mode {
         UnionMode::Tagged { field } => field.as_str(),
         UnionMode::Untagged => "_variant",
     };
 
-    config.variants.iter().map(|variant| {
-        let variant_name = to_pascal_case(&variant.discriminant_value);
-        let value = &variant.discriminant_value;
-        format!("({{ {discriminant_field}: \"{value}\" }} & {variant_name}{type_suffix})")
-    }).collect::<Vec<_>>().join(" | ")
+    config
+        .variants
+        .iter()
+        .map(|variant| {
+            let variant_name = to_pascal_case(&variant.discriminant_value);
+            let value = &variant.discriminant_value;
+            format!(
+                "({{ {discriminant_field}: \"{value}\" }} & {variant_name}{type_suffix}{type_name})"
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(" | ")
 }
 
 /// Generates per-variant field controller interfaces.
-fn generate_variant_field_controllers(config: &UnionConfig) -> String {
-    config.variants.iter().map(|variant| {
-        let variant_name = to_pascal_case(&variant.discriminant_value);
-        let field_types = generate_field_controller_types(&variant.fields);
-        format!(
-            "export interface {variant_name}FieldControllers {{ {field_types} }}"
-        )
-    }).collect::<Vec<_>>().join("\n        ")
+fn generate_variant_field_controllers(type_name: &str, config: &UnionConfig) -> String {
+    config
+        .variants
+        .iter()
+        .map(|variant| {
+            let variant_name = to_pascal_case(&variant.discriminant_value);
+            let field_types = generate_field_controller_types(&variant.fields);
+            format!(
+                "export interface {variant_name}FieldControllers{type_name} {{ {field_types} }}"
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n        ")
 }
 
 /// Generates the literal union of variant discriminant values.
 fn generate_variant_literal_union(config: &UnionConfig) -> String {
-    config.variants.iter()
+    config
+        .variants
+        .iter()
         .map(|v| format!("\"{}\"", v.discriminant_value))
         .collect::<Vec<_>>()
         .join(" | ")
 }
 
 /// Generates the VariantFields interface content.
-fn generate_variant_fields_interface(config: &UnionConfig, _discriminant_field: &str) -> String {
+fn generate_variant_fields_interface(
+    type_name: &str,
+    config: &UnionConfig,
+    _discriminant_field: &str,
+) -> String {
     config.variants.iter().map(|variant| {
         let value = &variant.discriminant_value;
         let variant_name = to_pascal_case(&variant.discriminant_value);
@@ -288,15 +336,15 @@ fn generate_variant_fields_interface(config: &UnionConfig, _discriminant_field: 
         } else {
             value.clone()
         };
-        format!("readonly {prop_key}: {{ readonly fields: {variant_name}FieldControllers }};")
+        format!("readonly {prop_key}: {{ readonly fields: {variant_name}FieldControllers{type_name} }};")
     }).collect::<Vec<_>>().join("\n            ")
 }
 
 /// Returns true if a string needs to be quoted when used as an object property key.
 fn needs_quoting(s: &str) -> bool {
     // Needs quoting if it contains special chars or starts with a digit
-    s.chars().any(|c| !c.is_alphanumeric() && c != '_') ||
-    s.chars().next().map(|c| c.is_numeric()).unwrap_or(true)
+    s.chars().any(|c| !c.is_alphanumeric() && c != '_')
+        || s.chars().next().map(|c| c.is_numeric()).unwrap_or(true)
 }
 
 /// Converts a string to a valid PascalCase TypeScript identifier.
@@ -315,7 +363,15 @@ fn to_pascal_case(s: &str) -> String {
             // Use "And" for intersection types
             result.push_str("And");
             capitalize_next = true;
-        } else if c == '_' || c == '-' || c == ' ' || c == '(' || c == ')' || c == '<' || c == '>' || c == ',' {
+        } else if c == '_'
+            || c == '-'
+            || c == ' '
+            || c == '('
+            || c == ')'
+            || c == '<'
+            || c == '>'
+            || c == ','
+        {
             // Skip these characters but capitalize the next letter
             capitalize_next = true;
         } else if c.is_alphanumeric() {
@@ -330,7 +386,13 @@ fn to_pascal_case(s: &str) -> String {
     }
 
     // Ensure the result is a valid identifier (starts with letter or underscore)
-    if result.is_empty() || result.chars().next().map(|c| c.is_numeric()).unwrap_or(false) {
+    if result.is_empty()
+        || result
+            .chars()
+            .next()
+            .map(|c| c.is_numeric())
+            .unwrap_or(false)
+    {
         format!("Variant{}", result)
     } else {
         result
@@ -346,20 +408,23 @@ use crate::gigaform::parser::EnumFormConfig;
 /// Generates types for an enum step form (wizard-style navigation).
 pub fn generate_enum(enum_name: &str, config: &EnumFormConfig) -> TsStream {
     let variant_entries = generate_variant_entries(config);
+    let variants_name = suffixed("variants", enum_name);
+    let variant_entry_name = suffixed("VariantEntry", enum_name);
+    let gigaform_name = suffixed("Gigaform", enum_name);
 
     ts_template! {
         {>> "Variant metadata for step navigation" <<}
-        export const variants = [
+        export const @{variants_name} = [
             @{variant_entries}
         ] as const;
 
         {>> "Type for a single variant entry" <<}
-        export type VariantEntry = typeof variants[number];
+        export type @{variant_entry_name} = typeof @{variants_name}[number];
 
         {>> "Enum step form interface with navigation" <<}
-        export interface Gigaform {
+        export interface @{gigaform_name} {
             readonly currentStep: @{enum_name};
-            readonly steps: typeof variants;
+            readonly steps: typeof @{variants_name};
             setStep(step: @{enum_name}): void;
             nextStep(): boolean;
             prevStep(): boolean;
@@ -376,9 +441,7 @@ fn generate_variant_entries(config: &EnumFormConfig) -> String {
             let value_expr = &variant.value_expr;
             let label = &variant.label;
             if let Some(desc) = &variant.description {
-                format!(
-                    "{{ value: {value_expr}, label: \"{label}\", description: \"{desc}\" }}"
-                )
+                format!("{{ value: {value_expr}, label: \"{label}\", description: \"{desc}\" }}")
             } else {
                 format!("{{ value: {value_expr}, label: \"{label}\" }}")
             }

@@ -80,10 +80,10 @@
 //! When using `@hash(skip)`, ensure the same fields are skipped in both
 //! `Hash` and `PartialEq` to maintain this contract.
 
-use crate::builtin::derive_common::{is_primitive_type, CompareFieldOptions};
+use crate::builtin::derive_common::{CompareFieldOptions, is_primitive_type};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::abi::FunctionNamingStyle;
-use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 /// Convert a PascalCase name to camelCase (for prefix naming style)
 fn to_camel_case(name: &str) -> String {
@@ -185,9 +185,7 @@ fn generate_field_hash(field: &HashField) -> String {
         )
     } else if ts_type == "Date" {
         // For Date, hash the timestamp
-        format!(
-            "(this.{field_name} instanceof Date ? this.{field_name}.getTime() | 0 : 0)"
-        )
+        format!("(this.{field_name} instanceof Date ? this.{field_name}.getTime() | 0 : 0)")
     } else if ts_type.starts_with("Map<") {
         // For Map, hash entries
         format!(
@@ -280,9 +278,7 @@ fn generate_field_hash_for_interface(field: &HashField, var: &str) -> String {
                 : 0)"
         )
     } else if ts_type == "Date" {
-        format!(
-            "({var}.{field_name} instanceof Date ? {var}.{field_name}.getTime() | 0 : 0)"
-        )
+        format!("({var}.{field_name} instanceof Date ? {var}.{field_name}.getTime() | 0 : 0)")
     } else if ts_type.starts_with("Map<") {
         format!(
             "({var}.{field_name} instanceof Map \
@@ -365,25 +361,9 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
             let naming_style = input.context.function_naming_style;
 
             match naming_style {
-                FunctionNamingStyle::Namespace => {
-                    Ok(ts_template! {
-                        export namespace @{enum_name} {
-                            export function hashCode(value: @{enum_name}): number {
-                                if (typeof value === "string") {
-                                    let hash = 0;
-                                    for (let i = 0; i < value.length; i++) {
-                                        hash = (hash * 31 + value.charCodeAt(i)) | 0;
-                                    }
-                                    return hash;
-                                }
-                                return value as number;
-                            }
-                        }
-                    })
-                }
-                FunctionNamingStyle::Generic => {
-                    Ok(ts_template! {
-                        export function hashCode<T extends @{enum_name}>(value: T): number {
+                FunctionNamingStyle::Namespace => Ok(ts_template! {
+                    export namespace @{enum_name} {
+                        export function hashCode(value: @{enum_name}): number {
                             if (typeof value === "string") {
                                 let hash = 0;
                                 for (let i = 0; i < value.length; i++) {
@@ -391,10 +371,22 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                                 }
                                 return hash;
                             }
-                            return value as unknown as number;
+                            return value as number;
                         }
-                    })
-                }
+                    }
+                }),
+                FunctionNamingStyle::Generic => Ok(ts_template! {
+                    export function hashCode<T extends @{enum_name}>(value: T): number {
+                        if (typeof value === "string") {
+                            let hash = 0;
+                            for (let i = 0; i < value.length; i++) {
+                                hash = (hash * 31 + value.charCodeAt(i)) | 0;
+                            }
+                            return hash;
+                        }
+                        return value as unknown as number;
+                    }
+                }),
                 FunctionNamingStyle::Prefix => {
                     let fn_name = format!("{}HashCode", to_camel_case(enum_name));
                     Ok(ts_template! {
@@ -491,17 +483,15 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                         }
                     })
                 }
-                FunctionNamingStyle::Generic => {
-                    Ok(ts_template! {
-                        export function hashCode<T extends @{interface_name}>(value: T): number {
-                            let hash = 17;
-                            {#if has_fields}
-                                @{hash_body}
-                            {/if}
-                            return hash;
-                        }
-                    })
-                }
+                FunctionNamingStyle::Generic => Ok(ts_template! {
+                    export function hashCode<T extends @{interface_name}>(value: T): number {
+                        let hash = 17;
+                        {#if has_fields}
+                            @{hash_body}
+                        {/if}
+                        return hash;
+                    }
+                }),
                 FunctionNamingStyle::Prefix => {
                     let fn_name = format!("{}HashCode", to_camel_case(interface_name));
                     Ok(ts_template! {
@@ -567,30 +557,26 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                 };
 
                 match naming_style {
-                    FunctionNamingStyle::Namespace => {
-                        Ok(ts_template! {
-                            export namespace @{type_name} {
-                                export function hashCode(value: @{type_name}): number {
-                                    let hash = 17;
-                                    {#if has_fields}
-                                        @{hash_body}
-                                    {/if}
-                                    return hash;
-                                }
-                            }
-                        })
-                    }
-                    FunctionNamingStyle::Generic => {
-                        Ok(ts_template! {
-                            export function hashCode<T extends @{type_name}>(value: T): number {
+                    FunctionNamingStyle::Namespace => Ok(ts_template! {
+                        export namespace @{type_name} {
+                            export function hashCode(value: @{type_name}): number {
                                 let hash = 17;
                                 {#if has_fields}
                                     @{hash_body}
                                 {/if}
                                 return hash;
                             }
-                        })
-                    }
+                        }
+                    }),
+                    FunctionNamingStyle::Generic => Ok(ts_template! {
+                        export function hashCode<T extends @{type_name}>(value: T): number {
+                            let hash = 17;
+                            {#if has_fields}
+                                @{hash_body}
+                            {/if}
+                            return hash;
+                        }
+                    }),
                     FunctionNamingStyle::Prefix => {
                         let fn_name = format!("{}HashCode", to_camel_case(type_name));
                         Ok(ts_template! {
@@ -619,23 +605,9 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
             } else {
                 // Union, tuple, or simple alias: use JSON hash
                 match naming_style {
-                    FunctionNamingStyle::Namespace => {
-                        Ok(ts_template! {
-                            export namespace @{type_name} {
-                                export function hashCode(value: @{type_name}): number {
-                                    const str = JSON.stringify(value);
-                                    let hash = 0;
-                                    for (let i = 0; i < str.length; i++) {
-                                        hash = (hash * 31 + str.charCodeAt(i)) | 0;
-                                    }
-                                    return hash;
-                                }
-                            }
-                        })
-                    }
-                    FunctionNamingStyle::Generic => {
-                        Ok(ts_template! {
-                            export function hashCode<T extends @{type_name}>(value: T): number {
+                    FunctionNamingStyle::Namespace => Ok(ts_template! {
+                        export namespace @{type_name} {
+                            export function hashCode(value: @{type_name}): number {
                                 const str = JSON.stringify(value);
                                 let hash = 0;
                                 for (let i = 0; i < str.length; i++) {
@@ -643,8 +615,18 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
                                 }
                                 return hash;
                             }
-                        })
-                    }
+                        }
+                    }),
+                    FunctionNamingStyle::Generic => Ok(ts_template! {
+                        export function hashCode<T extends @{type_name}>(value: T): number {
+                            const str = JSON.stringify(value);
+                            let hash = 0;
+                            for (let i = 0; i < str.length; i++) {
+                                hash = (hash * 31 + str.charCodeAt(i)) | 0;
+                            }
+                            return hash;
+                        }
+                    }),
                     FunctionNamingStyle::Prefix => {
                         let fn_name = format!("{}HashCode", to_camel_case(type_name));
                         Ok(ts_template! {

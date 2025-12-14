@@ -72,7 +72,10 @@ fn get_validator_params(validator_name: &str, args: &[String]) -> String {
         }
         "pattern" => {
             if let Some(p) = args.first() {
-                format!("pattern: \"{}\"", p.replace('\\', "\\\\").replace('"', "\\\""))
+                format!(
+                    "pattern: \"{}\"",
+                    p.replace('\\', "\\\\").replace('"', "\\\"")
+                )
             } else {
                 String::new()
             }
@@ -251,6 +254,6 @@ fn get_static_validator_message(validator_name: &str, args: &[String]) -> String
         "custom" => "Validation failed".to_string(),
 
         // Unknown
-        _ => format!("Invalid value ({validator_name})")
+        _ => format!("Invalid value ({validator_name})"),
     }
 }

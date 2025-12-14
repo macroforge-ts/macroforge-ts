@@ -592,7 +592,12 @@ fn lower_enum_members(members: &[TsEnumMember], source: &str) -> Vec<EnumVariant
                     EnumValue::Number(val)
                 }
                 // Unary expression: -1, +5
-                Expr::Unary(unary) if matches!(unary.op, swc_core::ecma::ast::UnaryOp::Minus | swc_core::ecma::ast::UnaryOp::Plus) => {
+                Expr::Unary(unary)
+                    if matches!(
+                        unary.op,
+                        swc_core::ecma::ast::UnaryOp::Minus | swc_core::ecma::ast::UnaryOp::Plus
+                    ) =>
+                {
                     if let Expr::Lit(Lit::Num(n)) = &*unary.arg {
                         let val = if matches!(unary.op, swc_core::ecma::ast::UnaryOp::Minus) {
                             -n.value
@@ -646,12 +651,7 @@ fn lower_type_alias(n: &TsTypeAliasDecl, source: &str) -> Option<TypeAliasIR> {
     let type_params = n
         .type_params
         .as_ref()
-        .map(|tp| {
-            tp.params
-                .iter()
-                .map(|p| p.name.sym.to_string())
-                .collect()
-        })
+        .map(|tp| tp.params.iter().map(|p| p.name.sym.to_string()).collect())
         .unwrap_or_default();
 
     // Lower the type body
@@ -1188,7 +1188,6 @@ fn parse_all_macro_directives(comment_body: &str) -> Vec<(String, String)> {
 
     results
 }
-
 
 fn adjust_decorator_span(span: Span, source: &str) -> SpanIR {
     let mut ir = swc_span_to_ir(span);
@@ -1743,7 +1742,11 @@ interface UserProfile {
             assert_eq!(iface.fields.len(), 2, "Should have 2 fields");
 
             // Check email field has @serde decorator
-            let email_field = iface.fields.iter().find(|f| f.name == "email").expect("email field");
+            let email_field = iface
+                .fields
+                .iter()
+                .find(|f| f.name == "email")
+                .expect("email field");
             eprintln!("Email field decorators: {:?}", email_field.decorators);
             assert!(
                 email_field.decorators.iter().any(|d| d.name == "serde"),
@@ -1752,7 +1755,11 @@ interface UserProfile {
             );
 
             // Check username field has @serde decorator
-            let username_field = iface.fields.iter().find(|f| f.name == "username").expect("username field");
+            let username_field = iface
+                .fields
+                .iter()
+                .find(|f| f.name == "username")
+                .expect("username field");
             eprintln!("Username field decorators: {:?}", username_field.decorators);
             assert!(
                 username_field.decorators.iter().any(|d| d.name == "serde"),
@@ -1785,8 +1792,14 @@ type ContactInfo = {
                 assert_eq!(fields.len(), 2, "Should have 2 fields");
 
                 // Check primaryEmail field has @serde decorator
-                let email_field = fields.iter().find(|f| f.name == "primaryEmail").expect("primaryEmail field");
-                eprintln!("primaryEmail field decorators: {:?}", email_field.decorators);
+                let email_field = fields
+                    .iter()
+                    .find(|f| f.name == "primaryEmail")
+                    .expect("primaryEmail field");
+                eprintln!(
+                    "primaryEmail field decorators: {:?}",
+                    email_field.decorators
+                );
                 assert!(
                     email_field.decorators.iter().any(|d| d.name == "serde"),
                     "primaryEmail field should have @serde decorator. Got: {:?}",
@@ -1794,7 +1807,10 @@ type ContactInfo = {
                 );
 
                 // Check address field has @serde decorator
-                let address_field = fields.iter().find(|f| f.name == "address").expect("address field");
+                let address_field = fields
+                    .iter()
+                    .find(|f| f.name == "address")
+                    .expect("address field");
                 eprintln!("address field decorators: {:?}", address_field.decorators);
                 assert!(
                     address_field.decorators.iter().any(|d| d.name == "serde"),

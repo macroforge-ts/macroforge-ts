@@ -4,11 +4,13 @@
     Order,
     Settings,
     PhoneNumber,
+    createFormEmployee,
+    createFormOrder,
     type JobTitle,
   } from "$lib/demo/types.svelte";
 
   // Create Employee form - complex type with nested Settings, arrays, nullable fields
-  const employeeForm = Employee.createForm({
+  const employeeForm = createFormEmployee({
     id: "emp-001",
     name: "John Smith",
     imageUrl: null,
@@ -31,7 +33,7 @@
   });
 
   // Create Order form - deeply nested with multiple arrays
-  const orderForm = Order.createForm({
+  const orderForm = createFormOrder({
     id: "ord-001",
     number: 1001,
     stage: "Active",

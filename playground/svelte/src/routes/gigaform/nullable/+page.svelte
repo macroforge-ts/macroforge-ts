@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { User, Metadata } from "$lib/demo/types.svelte";
+  import { User, Metadata, createFormUser } from "$lib/demo/types.svelte";
 
   // Create User form to test nullable fields
-  const userForm = User.createForm({
+  const userForm = createFormUser({
     id: "user-001",
     firstName: "John",
     lastName: "Doe",

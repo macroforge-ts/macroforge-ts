@@ -31,7 +31,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::abi::{swc_ast, DecoratorIR, SpanIR};
+use crate::abi::{DecoratorIR, SpanIR, swc_ast};
 
 /// Intermediate representation of a TypeScript class declaration.
 ///
@@ -68,8 +68,7 @@ use crate::abi::{swc_ast, DecoratorIR, SpanIR};
 ///     output
 /// }
 /// ```
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct ClassIR {
     /// The class name (identifier).
     pub name: String,
@@ -131,8 +130,7 @@ pub struct ClassIR {
 /// - `readonly`: `true`
 /// - `visibility`: `Visibility::Private`
 /// - `decorators`: Contains the `@serde(skip)` decorator
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct FieldIR {
     /// The field name (identifier).
     pub name: String,
@@ -189,8 +187,7 @@ pub struct FieldIR {
 /// - `return_type_src`: `"Promise<T>"`
 /// - `is_async`: `true`
 /// - `is_static`: `false`
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct MethodSigIR {
     /// The method name (or `"constructor"` for constructors).
     pub name: String,
@@ -255,8 +252,7 @@ pub enum MethodAstIR {
 ///     age: number;              // Visibility::Public (implicit)
 /// }
 /// ```
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub enum Visibility {
     /// Accessible from anywhere.
     Public,

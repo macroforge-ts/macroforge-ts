@@ -1,6 +1,8 @@
 //! Parses Gigaform decorators and field configurations from TypeScript interfaces.
 
-use macroforge_ts::ts_syn::{Attribute, DataClass, DataInterface, DeriveInput, FieldIR, InterfaceFieldIR, Visibility};
+use macroforge_ts::ts_syn::{
+    Attribute, DataClass, DataInterface, DeriveInput, FieldIR, InterfaceFieldIR, Visibility,
+};
 use serde::Deserialize;
 
 /// Container-level options from `@gigaform({ ... })` decorator.
@@ -481,7 +483,10 @@ pub fn parse_fields_from_class(class: &DataClass, _options: &GigaformOptions) ->
 }
 
 /// Parses all fields from a type alias object body.
-pub fn parse_fields_from_type_alias(fields: &[InterfaceFieldIR], _options: &GigaformOptions) -> Vec<ParsedField> {
+pub fn parse_fields_from_type_alias(
+    fields: &[InterfaceFieldIR],
+    _options: &GigaformOptions,
+) -> Vec<ParsedField> {
     fields.iter().map(parse_interface_field).collect()
 }
 
@@ -552,7 +557,9 @@ pub fn parse_union_config(
             // String/number literal union - use literals as variant names
             let variants = parse_literal_union_variants(members)?;
             Ok(UnionConfig {
-                mode: UnionMode::Tagged { field: "_value".to_string() },
+                mode: UnionMode::Tagged {
+                    field: "_value".to_string(),
+                },
                 variants,
             })
         }
@@ -578,7 +585,9 @@ pub fn parse_union_config(
             // Type reference union - use type names as variant discriminants
             let variants = parse_type_ref_union_variants(members)?;
             Ok(UnionConfig {
-                mode: UnionMode::Tagged { field: "_type".to_string() },
+                mode: UnionMode::Tagged {
+                    field: "_type".to_string(),
+                },
                 variants,
             })
         }
@@ -601,9 +610,10 @@ pub fn parse_union_config(
 
             Ok(UnionConfig { mode, variants })
         }
-        UnionKind::Mixed => {
-            Err("Union types with mixed member types (literals, type refs, objects) are not supported".to_string())
-        }
+        UnionKind::Mixed => Err(
+            "Union types with mixed member types (literals, type refs, objects) are not supported"
+                .to_string(),
+        ),
     }
 }
 
@@ -614,9 +624,9 @@ fn parse_literal_union_variants(
     let mut variants = Vec::new();
 
     for member in members {
-        let literal = member.as_literal().ok_or_else(|| {
-            "Expected literal type in union".to_string()
-        })?;
+        let literal = member
+            .as_literal()
+            .ok_or_else(|| "Expected literal type in union".to_string())?;
 
         // Extract the literal value (remove quotes if present)
         let discriminant_value = extract_literal_value(literal);
@@ -637,9 +647,9 @@ fn parse_type_ref_union_variants(
     let mut variants = Vec::new();
 
     for member in members {
-        let type_ref = member.as_type_ref().ok_or_else(|| {
-            "Expected type reference in union".to_string()
-        })?;
+        let type_ref = member
+            .as_type_ref()
+            .ok_or_else(|| "Expected type reference in union".to_string())?;
 
         variants.push(UnionVariantConfig {
             discriminant_value: type_ref.to_string(),
@@ -659,7 +669,7 @@ fn extract_literal_value(literal: &str) -> String {
     if (trimmed.starts_with('"') && trimmed.ends_with('"'))
         || (trimmed.starts_with('\'') && trimmed.ends_with('\''))
     {
-        return trimmed[1..trimmed.len()-1].to_string();
+        return trimmed[1..trimmed.len() - 1].to_string();
     }
 
     trimmed.to_string()
@@ -699,21 +709,28 @@ fn parse_tagged_union_variants(
     let mut variants = Vec::new();
 
     for member in members {
-        let fields = member.as_object().ok_or_else(|| {
-            "Tagged union variants must be object types".to_string()
-        })?;
+        let fields = member
+            .as_object()
+            .ok_or_else(|| "Tagged union variants must be object types".to_string())?;
 
         // Find the discriminant field
-        let discriminant_field = fields.iter()
+        let discriminant_field = fields
+            .iter()
             .find(|f| f.name == tag_field)
             .ok_or_else(|| format!("Variant missing discriminant field '{}'", tag_field))?;
 
         // Extract literal value from the discriminant field type (e.g., `"card"` from `type: "card"`)
         let discriminant_value = extract_literal_from_type(&discriminant_field.ts_type)
-            .ok_or_else(|| format!("Discriminant field '{}' must have a literal type", tag_field))?;
+            .ok_or_else(|| {
+                format!(
+                    "Discriminant field '{}' must have a literal type",
+                    tag_field
+                )
+            })?;
 
         // Parse other fields (excluding the discriminant)
-        let variant_fields: Vec<ParsedField> = fields.iter()
+        let variant_fields: Vec<ParsedField> = fields
+            .iter()
             .filter(|f| f.name != tag_field)
             .map(parse_interface_field)
             .collect();
@@ -737,9 +754,9 @@ fn parse_untagged_union_variants(
 
     // First pass: collect all field names per variant
     for member in members {
-        let fields = member.as_object().ok_or_else(|| {
-            "Untagged union variants must be object types".to_string()
-        })?;
+        let fields = member
+            .as_object()
+            .ok_or_else(|| "Untagged union variants must be object types".to_string())?;
         all_field_names.push(fields.iter().map(|f| f.name.clone()).collect());
     }
 
@@ -750,18 +767,20 @@ fn parse_untagged_union_variants(
 
         // Find a field that's unique to this variant
         let unique_field = my_fields.iter().find(|field_name| {
-            all_field_names.iter().enumerate()
+            all_field_names
+                .iter()
+                .enumerate()
                 .filter(|(j, _)| *j != i)
                 .all(|(_, other_fields)| !other_fields.contains(field_name))
         });
 
         let discriminant_value = unique_field
-            .ok_or_else(|| "Untagged union variants must be distinguishable by unique fields".to_string())?
+            .ok_or_else(|| {
+                "Untagged union variants must be distinguishable by unique fields".to_string()
+            })?
             .clone();
 
-        let variant_fields: Vec<ParsedField> = fields.iter()
-            .map(parse_interface_field)
-            .collect();
+        let variant_fields: Vec<ParsedField> = fields.iter().map(parse_interface_field).collect();
 
         variants.push(UnionVariantConfig {
             discriminant_value,
@@ -781,7 +800,7 @@ fn extract_literal_from_type(ts_type: &str) -> Option<String> {
     if (trimmed.starts_with('"') && trimmed.ends_with('"'))
         || (trimmed.starts_with('\'') && trimmed.ends_with('\''))
     {
-        return Some(trimmed[1..trimmed.len()-1].to_string());
+        return Some(trimmed[1..trimmed.len() - 1].to_string());
     }
 
     None
@@ -793,12 +812,22 @@ fn extract_literal_from_type(ts_type: &str) -> Option<String> {
 
 /// Parses a single interface field.
 fn parse_interface_field(field: &InterfaceFieldIR) -> ParsedField {
-    parse_field_common(&field.name, &field.ts_type, field.optional, &field.decorators)
+    parse_field_common(
+        &field.name,
+        &field.ts_type,
+        field.optional,
+        &field.decorators,
+    )
 }
 
 /// Parses a single class field.
 fn parse_class_field(field: &FieldIR) -> ParsedField {
-    parse_field_common(&field.name, &field.ts_type, field.optional, &field.decorators)
+    parse_field_common(
+        &field.name,
+        &field.ts_type,
+        field.optional,
+        &field.decorators,
+    )
 }
 
 /// Common field parsing logic shared by interface and class fields.
@@ -917,7 +946,9 @@ fn detect_array_type(ts_type: &str) -> (bool, Option<String>) {
 }
 
 /// Parses @serde({ validate: [...] }) validators from decorators.
-fn parse_serde_validators_from_decorators(decorators: &[macroforge_ts::ts_syn::DecoratorIR]) -> Vec<ValidatorSpec> {
+fn parse_serde_validators_from_decorators(
+    decorators: &[macroforge_ts::ts_syn::DecoratorIR],
+) -> Vec<ValidatorSpec> {
     let mut validators = Vec::new();
 
     for decorator in decorators {
@@ -942,7 +973,10 @@ fn parse_validator_item(item: &serde_json::Value) -> Option<ValidatorSpec> {
         serde_json::Value::String(s) => Some(parse_validator_string(s)),
         serde_json::Value::Object(obj) => {
             let validate = obj.get("validate")?.as_str()?;
-            let message = obj.get("message").and_then(|m| m.as_str()).map(String::from);
+            let message = obj
+                .get("message")
+                .and_then(|m| m.as_str())
+                .map(String::from);
             let mut spec = parse_validator_string(validate);
             spec.message = message;
             Some(spec)
@@ -1001,7 +1035,9 @@ fn parse_validator_args(args_str: &str) -> Vec<String> {
 }
 
 /// Parses @gigaform field-level options from decorators.
-fn parse_gigaform_field_options_from_decorators(decorators: &[macroforge_ts::ts_syn::DecoratorIR]) -> GigaformFieldOptions {
+fn parse_gigaform_field_options_from_decorators(
+    decorators: &[macroforge_ts::ts_syn::DecoratorIR],
+) -> GigaformFieldOptions {
     for decorator in decorators {
         if decorator.name == "gigaform" {
             let json_value = parse_decorator_args(&decorator.args_src);
@@ -1135,7 +1171,8 @@ fn parse_decorator_args(args_src: &str) -> serde_json::Value {
 
     // Try to convert JS object literal to JSON
     let json_str = convert_js_object_to_json(trimmed);
-    serde_json::from_str(&json_str).unwrap_or_else(|_| serde_json::Value::Object(serde_json::Map::new()))
+    serde_json::from_str(&json_str)
+        .unwrap_or_else(|_| serde_json::Value::Object(serde_json::Map::new()))
 }
 
 /// Converts a JavaScript object literal to valid JSON.
@@ -1213,9 +1250,8 @@ pub fn parse_enum_config(enum_ir: &EnumIR) -> EnumFormConfig {
         .iter()
         .map(|variant| {
             // Try to get custom label from @gigaform({ label: "..." }) decorator
-            let label = parse_variant_label(&variant.decorators).unwrap_or_else(|| {
-                to_title_case(&variant.name)
-            });
+            let label = parse_variant_label(&variant.decorators)
+                .unwrap_or_else(|| to_title_case(&variant.name));
 
             // Try to get description from @gigaform({ description: "..." }) decorator
             let description = parse_variant_description(&variant.decorators);

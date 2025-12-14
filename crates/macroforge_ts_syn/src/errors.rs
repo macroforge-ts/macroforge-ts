@@ -52,8 +52,8 @@
 //! let result: MacroResult = errors.into();
 //! ```
 
-use thiserror::Error;
 use crate::abi::{Diagnostic, DiagnosticLevel, MacroResult, SpanIR};
+use thiserror::Error;
 
 /// Low-level error type for parsing and syntax issues.
 ///
@@ -259,7 +259,9 @@ impl MacroforgeErrors {
     /// Use this to check if the collection contains actual errors
     /// vs only warnings or info messages.
     pub fn has_errors(&self) -> bool {
-        self.diagnostics.iter().any(|d| d.level == DiagnosticLevel::Error)
+        self.diagnostics
+            .iter()
+            .any(|d| d.level == DiagnosticLevel::Error)
     }
 
     /// Returns `true` if the collection contains no diagnostics.
@@ -279,7 +281,11 @@ impl From<MacroforgeErrors> for MacroResult {
 
 impl std::fmt::Display for MacroforgeErrors {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let error_count = self.diagnostics.iter().filter(|d| d.level == DiagnosticLevel::Error).count();
+        let error_count = self
+            .diagnostics
+            .iter()
+            .filter(|d| d.level == DiagnosticLevel::Error)
+            .count();
         write!(f, "{} error(s)", error_count)
     }
 }
@@ -289,7 +295,9 @@ impl std::error::Error for MacroforgeErrors {}
 impl From<MacroforgeErrors> for MacroforgeError {
     fn from(errors: MacroforgeErrors) -> Self {
         // Take the first error, noting if there are more
-        let first_error = errors.diagnostics.into_iter()
+        let first_error = errors
+            .diagnostics
+            .into_iter()
             .find(|d| d.level == DiagnosticLevel::Error);
 
         if let Some(diag) = first_error {

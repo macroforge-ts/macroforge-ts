@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { TaxRate } from "$lib/demo/types.svelte";
+  import { TaxRate, createFormTaxRate } from "$lib/demo/types.svelte";
 
   // Create TaxRate form to test Record/Map types
-  const taxRateForm = TaxRate.createForm({
+  const taxRateForm = createFormTaxRate({
     id: "tax-001",
     name: "California Sales Tax",
     taxAgency: "CA State",

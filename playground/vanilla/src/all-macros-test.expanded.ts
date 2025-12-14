@@ -260,8 +260,23 @@ export class AllMacrosTestClass {
     return [];
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "id" in o && "name" in o && "email" in o && "secretToken" in o && "isActive" in o && "score" in o;
+}
+
     static is(obj: unknown): obj is AllMacrosTestClass {
-    return obj instanceof AllMacrosTestClass;
+    if (obj instanceof AllMacrosTestClass) {
+        return true;
+    }
+    if (!AllMacrosTestClass.hasShape(obj)) {
+        return false;
+    }
+    const result = AllMacrosTestClass.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 

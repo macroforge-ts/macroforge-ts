@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Account, PhoneNumber, type Sector } from "$lib/demo/types.svelte";
+  import { Account, PhoneNumber, createFormAccount, type Sector } from "$lib/demo/types.svelte";
 
   // Create Account form with arrays
-  const accountForm = Account.createForm({
+  const accountForm = createFormAccount({
     id: "acc-001",
     accountName: { companyName: "Test Company" },
     sector: "Commercial",

@@ -45,11 +45,14 @@
 //! |------|------------------------|
 //! | Primitives | Direct value |
 //! | `Date` | `toISOString()` |
-//! | Arrays | Map with recursive `__serialize` |
-//! | `Map<K,V>` | `Object.fromEntries()` |
-//! | `Set<T>` | Convert to array |
-//! | Nullable | Include `null` explicitly |
-//! | Objects | Call `__serialize(ctx)` if available |
+//! | Arrays | For primitive-like element types, pass through; for `Date`/`Date | null`, map to ISO strings; otherwise map and call `__serialize(ctx)` when available |
+//! | `Map<K,V>` | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date | null`, convert to ISO strings; otherwise call `__serialize(ctx)` per value when available |
+//! | `Set<T>` | Convert to array; element handling matches `Array<T>` |
+//! | Nullable | Include `null` explicitly; for primitive-like and `Date` unions the generator avoids runtime `__serialize` checks |
+//! | Objects | Call `__serialize(ctx)` if available (to support user-defined implementations) |
+//!
+//! Note: the generator specializes some code paths based on the declared TypeScript type to
+//! avoid runtime feature detection on primitives and literal unions.
 //!
 //! ## Field-Level Options
 //!
@@ -92,7 +95,7 @@
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::abi::{DiagnosticCollector, FunctionNamingStyle};
 use crate::ts_syn::{
-    parse_ts_macro_input, Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream,
+    Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, parse_ts_macro_input,
 };
 
 use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory};
@@ -103,6 +106,86 @@ fn to_camel_case(name: &str) -> String {
     match chars.next() {
         Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
         None => String::new(),
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum SerdeValueKind {
+    PrimitiveLike,
+    Date,
+    NullableDate,
+    Other,
+}
+
+fn is_ts_primitive_keyword(s: &str) -> bool {
+    matches!(
+        s.trim(),
+        "string" | "number" | "boolean" | "bigint" | "null" | "undefined"
+    )
+}
+
+fn is_ts_literal(s: &str) -> bool {
+    let s = s.trim();
+    if s.is_empty() {
+        return false;
+    }
+
+    if matches!(s, "true" | "false") {
+        return true;
+    }
+
+    if (s.starts_with('"') && s.ends_with('"')) || (s.starts_with('\'') && s.ends_with('\'')) {
+        return true;
+    }
+
+    // Very small heuristic: numeric / bigint literals
+    if let Some(digits) = s.strip_suffix('n') {
+        return !digits.is_empty()
+            && digits
+                .chars()
+                .all(|c| c.is_ascii_digit() || c == '_' || c == '-' || c == '+');
+    }
+
+    s.chars()
+        .all(|c| c.is_ascii_digit() || c == '_' || c == '-' || c == '+' || c == '.')
+}
+
+fn is_union_of_primitive_like(s: &str) -> bool {
+    if !s.contains('|') {
+        return false;
+    }
+    s.split('|').all(|part| {
+        let part = part.trim();
+        is_ts_primitive_keyword(part) || is_ts_literal(part)
+    })
+}
+
+fn classify_serde_value_kind(ts_type: &str) -> SerdeValueKind {
+    match TypeCategory::from_ts_type(ts_type) {
+        TypeCategory::Primitive => SerdeValueKind::PrimitiveLike,
+        TypeCategory::Date => SerdeValueKind::Date,
+        TypeCategory::Nullable(inner) => match classify_serde_value_kind(&inner) {
+            SerdeValueKind::Date => SerdeValueKind::NullableDate,
+            SerdeValueKind::PrimitiveLike => SerdeValueKind::PrimitiveLike,
+            _ => SerdeValueKind::Other,
+        },
+        TypeCategory::Optional(inner) => classify_serde_value_kind(&inner),
+        _ => {
+            if is_union_of_primitive_like(ts_type) {
+                SerdeValueKind::PrimitiveLike
+            } else {
+                SerdeValueKind::Other
+            }
+        }
+    }
+}
+
+/// If the given type string is a Serializable type, return its name.
+/// Returns None for primitives, Date, and other non-serializable types.
+fn get_serializable_type_name(ts_type: &str) -> Option<String> {
+    match TypeCategory::from_ts_type(ts_type) {
+        TypeCategory::Serializable(name) => Some(name),
+        _ => None,
     }
 }
 
@@ -132,6 +215,29 @@ struct SerializeField {
     /// Flattened fields have their properties merged directly into the parent
     /// rather than being nested under their field name.
     flatten: bool,
+
+    /// For `T | undefined` unions: classification of `T`.
+    optional_inner_kind: Option<SerdeValueKind>,
+    /// For `T | null` unions: classification of `T`.
+    nullable_inner_kind: Option<SerdeValueKind>,
+    /// For `Array<T>` and `T[]`: classification of `T`.
+    array_elem_kind: Option<SerdeValueKind>,
+    /// For `Set<T>`: classification of `T`.
+    set_elem_kind: Option<SerdeValueKind>,
+    /// For `Map<K, V>`: classification of `V`.
+    map_value_kind: Option<SerdeValueKind>,
+
+    // --- Serializable type tracking for direct function calls ---
+    /// For `T | undefined` where T is Serializable: the type name.
+    optional_serializable_type: Option<String>,
+    /// For `T | null` where T is Serializable: the type name.
+    nullable_serializable_type: Option<String>,
+    /// For `Array<T>` where T is Serializable: the type name.
+    array_elem_serializable_type: Option<String>,
+    /// For `Set<T>` where T is Serializable: the type name.
+    set_elem_serializable_type: Option<String>,
+    /// For `Map<K, V>` where V is Serializable: the type name.
+    map_value_serializable_type: Option<String>,
 }
 
 #[ts_macro_derive(
@@ -153,7 +259,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 .fields()
                 .iter()
                 .filter_map(|field| {
-                    let parse_result = SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
+                    let parse_result =
+                        SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
                     all_diagnostics.extend(parse_result.diagnostics);
                     let opts = parse_result.options;
 
@@ -168,12 +275,65 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                     let type_cat = TypeCategory::from_ts_type(&field.ts_type);
 
+                    let optional_inner_kind = match &type_cat {
+                        TypeCategory::Optional(inner) => Some(classify_serde_value_kind(inner)),
+                        _ => None,
+                    };
+                    let nullable_inner_kind = match &type_cat {
+                        TypeCategory::Nullable(inner) => Some(classify_serde_value_kind(inner)),
+                        _ => None,
+                    };
+                    let array_elem_kind = match &type_cat {
+                        TypeCategory::Array(inner) => Some(classify_serde_value_kind(inner)),
+                        _ => None,
+                    };
+                    let set_elem_kind = match &type_cat {
+                        TypeCategory::Set(inner) => Some(classify_serde_value_kind(inner)),
+                        _ => None,
+                    };
+                    let map_value_kind = match &type_cat {
+                        TypeCategory::Map(_, value) => Some(classify_serde_value_kind(value)),
+                        _ => None,
+                    };
+
+                    // Extract serializable type names for direct function calls
+                    let optional_serializable_type = match &type_cat {
+                        TypeCategory::Optional(inner) => get_serializable_type_name(inner),
+                        _ => None,
+                    };
+                    let nullable_serializable_type = match &type_cat {
+                        TypeCategory::Nullable(inner) => get_serializable_type_name(inner),
+                        _ => None,
+                    };
+                    let array_elem_serializable_type = match &type_cat {
+                        TypeCategory::Array(inner) => get_serializable_type_name(inner),
+                        _ => None,
+                    };
+                    let set_elem_serializable_type = match &type_cat {
+                        TypeCategory::Set(inner) => get_serializable_type_name(inner),
+                        _ => None,
+                    };
+                    let map_value_serializable_type = match &type_cat {
+                        TypeCategory::Map(_, value) => get_serializable_type_name(value),
+                        _ => None,
+                    };
+
                     Some(SerializeField {
                         json_key,
                         field_name: field.name.clone(),
                         type_cat,
                         optional: field.optional,
                         flatten: opts.flatten,
+                        optional_inner_kind,
+                        nullable_inner_kind,
+                        array_elem_kind,
+                        set_elem_kind,
+                        map_value_kind,
+                        optional_serializable_type,
+                        nullable_serializable_type,
+                        array_elem_serializable_type,
+                        set_elem_serializable_type,
+                        map_value_serializable_type,
                     })
                 })
                 .collect();
@@ -240,85 +400,183 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                 {:case TypeCategory::Array(_)}
                                     {#if field.optional}
                                         if (this.@{field.field_name} !== undefined) {
-                                            result["@{field.json_key}"] = this.@{field.field_name}.map(
-                                                (item: any) => typeof item?.__serialize === "function"
-                                                    ? item.__serialize(ctx)
-                                                    : item
-                                            );
+                                            {#match field.array_elem_kind.unwrap_or(SerdeValueKind::Other)}
+                                                {:case SerdeValueKind::PrimitiveLike}
+                                                    result["@{field.json_key}"] = this.@{field.field_name};
+                                                {:case SerdeValueKind::Date}
+                                                    result["@{field.json_key}"] = this.@{field.field_name}.map((item: Date) => item.toISOString());
+                                                {:case SerdeValueKind::NullableDate}
+                                                    result["@{field.json_key}"] = this.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
+                                                {:case _}
+                                                    {#if let Some(elem_type) = &field.array_elem_serializable_type}
+                                                        result["@{field.json_key}"] = this.@{field.field_name}.map(
+                                                            (item) => __serialize@{elem_type}(item, ctx)
+                                                        );
+                                                    {:else}
+                                                        result["@{field.json_key}"] = this.@{field.field_name};
+                                                    {/if}
+                                            {/match}
                                         }
                                     {:else}
-                                        result["@{field.json_key}"] = this.@{field.field_name}.map(
-                                            (item: any) => typeof item?.__serialize === "function"
-                                                ? item.__serialize(ctx)
-                                                : item
-                                        );
+                                        {#match field.array_elem_kind.unwrap_or(SerdeValueKind::Other)}
+                                            {:case SerdeValueKind::PrimitiveLike}
+                                                result["@{field.json_key}"] = this.@{field.field_name};
+                                            {:case SerdeValueKind::Date}
+                                                result["@{field.json_key}"] = this.@{field.field_name}.map((item: Date) => item.toISOString());
+                                            {:case SerdeValueKind::NullableDate}
+                                                result["@{field.json_key}"] = this.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
+                                            {:case _}
+                                                {#if let Some(elem_type) = &field.array_elem_serializable_type}
+                                                    result["@{field.json_key}"] = this.@{field.field_name}.map(
+                                                        (item) => __serialize@{elem_type}(item, ctx)
+                                                    );
+                                                {:else}
+                                                    result["@{field.json_key}"] = this.@{field.field_name};
+                                                {/if}
+                                        {/match}
                                     {/if}
 
                                 {:case TypeCategory::Map(_, _)}
                                     {#if field.optional}
                                         if (this.@{field.field_name} !== undefined) {
-                                            result["@{field.json_key}"] = Object.fromEntries(
-                                                Array.from(this.@{field.field_name}.entries()).map(
-                                                    ([k, v]) => [k, typeof (v as any)?.__serialize === "function"
-                                                        ? (v as any).__serialize(ctx)
-                                                        : v]
-                                                )
-                                            );
+                                            {#match field.map_value_kind.unwrap_or(SerdeValueKind::Other)}
+                                                {:case SerdeValueKind::PrimitiveLike}
+                                                    result["@{field.json_key}"] = Object.fromEntries(this.@{field.field_name}.entries());
+                                                {:case SerdeValueKind::Date}
+                                                    result["@{field.json_key}"] = Object.fromEntries(
+                                                        Array.from(this.@{field.field_name}.entries()).map(
+                                                            ([k, v]) => [k, (v as Date).toISOString()]
+                                                        )
+                                                    );
+                                                {:case SerdeValueKind::NullableDate}
+                                                    result["@{field.json_key}"] = Object.fromEntries(
+                                                        Array.from(this.@{field.field_name}.entries()).map(
+                                                            ([k, v]) => [k, v === null ? null : (v as Date).toISOString()]
+                                                        )
+                                                    );
+                                                {:case _}
+                                                    {#if let Some(value_type) = &field.map_value_serializable_type}
+                                                        result["@{field.json_key}"] = Object.fromEntries(
+                                                            Array.from(this.@{field.field_name}.entries()).map(
+                                                                ([k, v]) => [k, __serialize@{value_type}(v, ctx)]
+                                                            )
+                                                        );
+                                                    {:else}
+                                                        result["@{field.json_key}"] = Object.fromEntries(this.@{field.field_name}.entries());
+                                                    {/if}
+                                            {/match}
                                         }
                                     {:else}
-                                        result["@{field.json_key}"] = Object.fromEntries(
-                                            Array.from(this.@{field.field_name}.entries()).map(
-                                                ([k, v]) => [k, typeof (v as any)?.__serialize === "function"
-                                                    ? (v as any).__serialize(ctx)
-                                                    : v]
-                                            )
-                                        );
+                                        {#match field.map_value_kind.unwrap_or(SerdeValueKind::Other)}
+                                            {:case SerdeValueKind::PrimitiveLike}
+                                                result["@{field.json_key}"] = Object.fromEntries(this.@{field.field_name}.entries());
+                                            {:case SerdeValueKind::Date}
+                                                result["@{field.json_key}"] = Object.fromEntries(
+                                                    Array.from(this.@{field.field_name}.entries()).map(
+                                                        ([k, v]) => [k, (v as Date).toISOString()]
+                                                    )
+                                                );
+                                            {:case SerdeValueKind::NullableDate}
+                                                result["@{field.json_key}"] = Object.fromEntries(
+                                                    Array.from(this.@{field.field_name}.entries()).map(
+                                                        ([k, v]) => [k, v === null ? null : (v as Date).toISOString()]
+                                                    )
+                                                );
+                                            {:case _}
+                                                {#if let Some(value_type) = &field.map_value_serializable_type}
+                                                    result["@{field.json_key}"] = Object.fromEntries(
+                                                        Array.from(this.@{field.field_name}.entries()).map(
+                                                            ([k, v]) => [k, __serialize@{value_type}(v, ctx)]
+                                                        )
+                                                    );
+                                                {:else}
+                                                    result["@{field.json_key}"] = Object.fromEntries(this.@{field.field_name}.entries());
+                                                {/if}
+                                        {/match}
                                     {/if}
 
                                 {:case TypeCategory::Set(_)}
                                     {#if field.optional}
                                         if (this.@{field.field_name} !== undefined) {
-                                            result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map(
-                                                (item: any) => typeof item?.__serialize === "function"
-                                                    ? item.__serialize(ctx)
-                                                    : item
-                                            );
+                                            {#match field.set_elem_kind.unwrap_or(SerdeValueKind::Other)}
+                                                {:case SerdeValueKind::PrimitiveLike}
+                                                    result["@{field.json_key}"] = Array.from(this.@{field.field_name});
+                                                {:case SerdeValueKind::Date}
+                                                    result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map((item: Date) => item.toISOString());
+                                                {:case SerdeValueKind::NullableDate}
+                                                    result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
+                                                {:case _}
+                                                    {#if let Some(elem_type) = &field.set_elem_serializable_type}
+                                                        result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map(
+                                                            (item) => __serialize@{elem_type}(item, ctx)
+                                                        );
+                                                    {:else}
+                                                        result["@{field.json_key}"] = Array.from(this.@{field.field_name});
+                                                    {/if}
+                                            {/match}
                                         }
                                     {:else}
-                                        result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map(
-                                            (item: any) => typeof item?.__serialize === "function"
-                                                ? item.__serialize(ctx)
-                                                : item
-                                        );
+                                        {#match field.set_elem_kind.unwrap_or(SerdeValueKind::Other)}
+                                            {:case SerdeValueKind::PrimitiveLike}
+                                                result["@{field.json_key}"] = Array.from(this.@{field.field_name});
+                                            {:case SerdeValueKind::Date}
+                                                result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map((item: Date) => item.toISOString());
+                                            {:case SerdeValueKind::NullableDate}
+                                                result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
+                                            {:case _}
+                                                {#if let Some(elem_type) = &field.set_elem_serializable_type}
+                                                    result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map(
+                                                        (item) => __serialize@{elem_type}(item, ctx)
+                                                    );
+                                                {:else}
+                                                    result["@{field.json_key}"] = Array.from(this.@{field.field_name});
+                                                {/if}
+                                        {/match}
                                     {/if}
 
                                 {:case TypeCategory::Optional(_)}
                                     if (this.@{field.field_name} !== undefined) {
-                                        result["@{field.json_key}"] = typeof (this.@{field.field_name} as any)?.__serialize === "function"
-                                            ? (this.@{field.field_name} as any).__serialize(ctx)
-                                            : this.@{field.field_name};
+                                        {#match field.optional_inner_kind.unwrap_or(SerdeValueKind::Other)}
+                                            {:case SerdeValueKind::PrimitiveLike}
+                                                result["@{field.json_key}"] = this.@{field.field_name};
+                                            {:case SerdeValueKind::Date}
+                                                result["@{field.json_key}"] = (this.@{field.field_name} as Date).toISOString();
+                                            {:case _}
+                                                {#if let Some(inner_type) = &field.optional_serializable_type}
+                                                    result["@{field.json_key}"] = __serialize@{inner_type}(this.@{field.field_name}, ctx);
+                                                {:else}
+                                                    result["@{field.json_key}"] = this.@{field.field_name};
+                                                {/if}
+                                        {/match}
                                     }
 
                                 {:case TypeCategory::Nullable(_)}
-                                    if (this.@{field.field_name} !== null) {
-                                        result["@{field.json_key}"] = typeof (this.@{field.field_name} as any)?.__serialize === "function"
-                                            ? (this.@{field.field_name} as any).__serialize(ctx)
-                                            : this.@{field.field_name};
-                                    } else {
-                                        result["@{field.json_key}"] = null;
-                                    }
+                                    {#match field.nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
+                                        {:case SerdeValueKind::PrimitiveLike}
+                                            result["@{field.json_key}"] = this.@{field.field_name};
+                                        {:case SerdeValueKind::Date}
+                                            result["@{field.json_key}"] = this.@{field.field_name} === null
+                                                ? null
+                                                : (this.@{field.field_name} as Date).toISOString();
+                                        {:case _}
+                                            if (this.@{field.field_name} !== null) {
+                                                {#if let Some(inner_type) = &field.nullable_serializable_type}
+                                                    result["@{field.json_key}"] = __serialize@{inner_type}(this.@{field.field_name}, ctx);
+                                                {:else}
+                                                    result["@{field.json_key}"] = this.@{field.field_name};
+                                                {/if}
+                                            } else {
+                                                result["@{field.json_key}"] = null;
+                                            }
+                                    {/match}
 
-                                {:case TypeCategory::Serializable(_)}
+                                {:case TypeCategory::Serializable(type_name)}
                                     {#if field.optional}
                                         if (this.@{field.field_name} !== undefined) {
-                                            result["@{field.json_key}"] = typeof (this.@{field.field_name} as any)?.__serialize === "function"
-                                                ? (this.@{field.field_name} as any).__serialize(ctx)
-                                                : this.@{field.field_name};
+                                            result["@{field.json_key}"] = __serialize@{type_name}(this.@{field.field_name}, ctx);
                                         }
                                     {:else}
-                                        result["@{field.json_key}"] = typeof (this.@{field.field_name} as any)?.__serialize === "function"
-                                            ? (this.@{field.field_name} as any).__serialize(ctx)
-                                            : this.@{field.field_name};
+                                        result["@{field.json_key}"] = __serialize@{type_name}(this.@{field.field_name}, ctx);
                                     {/if}
 
                                 {:case TypeCategory::Unknown}
@@ -335,25 +593,40 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                     {#if has_flatten}
                         {#for field in flatten_fields}
-                            {#if field.optional}
-                                if (this.@{field.field_name} !== undefined) {
-                                    const __flattened = typeof (this.@{field.field_name} as any)?.__serialize === "function"
-                                        ? (this.@{field.field_name} as any).__serialize(ctx)
-                                        : this.@{field.field_name};
-                                    // Remove __type and __id from flattened object
-                                    const { __type: _, __id: __, ...rest } = __flattened as any;
-                                    Object.assign(result, rest);
-                                }
-                            {:else}
-                                {
-                                    const __flattened = typeof (this.@{field.field_name} as any)?.__serialize === "function"
-                                        ? (this.@{field.field_name} as any).__serialize(ctx)
-                                        : this.@{field.field_name};
-                                    // Remove __type and __id from flattened object
-                                    const { __type: _, __id: __, ...rest } = __flattened as any;
-                                    Object.assign(result, rest);
-                                }
-                            {/if}
+                            {#match &field.type_cat}
+                                {:case TypeCategory::Serializable(type_name)}
+                                    {#if field.optional}
+                                        if (this.@{field.field_name} !== undefined) {
+                                            const __flattened = __serialize@{type_name}(this.@{field.field_name}, ctx);
+                                            // Remove __type and __id from flattened object
+                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                            Object.assign(result, rest);
+                                        }
+                                    {:else}
+                                        {
+                                            const __flattened = __serialize@{type_name}(this.@{field.field_name}, ctx);
+                                            // Remove __type and __id from flattened object
+                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                            Object.assign(result, rest);
+                                        }
+                                    {/if}
+                                {:case _}
+                                    {#if field.optional}
+                                        if (this.@{field.field_name} !== undefined) {
+                                            const __flattened = this.@{field.field_name};
+                                            // Remove __type and __id from flattened object
+                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                            Object.assign(result, rest);
+                                        }
+                                    {:else}
+                                        {
+                                            const __flattened = this.@{field.field_name};
+                                            // Remove __type and __id from flattened object
+                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                            Object.assign(result, rest);
+                                        }
+                                    {/if}
+                            {/match}
                         {/for}
                     {/if}
 
@@ -369,30 +642,26 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let naming_style = input.context.function_naming_style;
 
             match naming_style {
-                FunctionNamingStyle::Namespace => {
-                    Ok(ts_template! {
-                        export namespace @{enum_name} {
-                            export function toStringifiedJSON(value: @{enum_name}): string {
-                                return JSON.stringify(value);
-                            }
-
-                            export function __serialize(_ctx: SerializeContext): string | number {
-                                return value;
-                            }
-                        }
-                    })
-                }
-                FunctionNamingStyle::Generic => {
-                    Ok(ts_template! {
-                        export function toStringifiedJSON<T extends @{enum_name}>(value: T): string {
+                FunctionNamingStyle::Namespace => Ok(ts_template! {
+                    export namespace @{enum_name} {
+                        export function toStringifiedJSON(value: @{enum_name}): string {
                             return JSON.stringify(value);
                         }
 
-                        export function __serialize<T extends @{enum_name}>(_ctx: SerializeContext): T {
+                        export function __serialize(_ctx: SerializeContext): string | number {
                             return value;
                         }
-                    })
-                }
+                    }
+                }),
+                FunctionNamingStyle::Generic => Ok(ts_template! {
+                    export function toStringifiedJSON<T extends @{enum_name}>(value: T): string {
+                        return JSON.stringify(value);
+                    }
+
+                    export function __serialize<T extends @{enum_name}>(_ctx: SerializeContext): T {
+                        return value;
+                    }
+                }),
                 FunctionNamingStyle::Prefix => {
                     let fn_name_json = format!("{}ToStringifiedJSON", to_camel_case(enum_name));
                     let fn_name_serialize = format!("{}__serialize", to_camel_case(enum_name));
@@ -433,7 +702,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 .fields()
                 .iter()
                 .filter_map(|field| {
-                    let parse_result = SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
+                    let parse_result =
+                        SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
                     all_diagnostics.extend(parse_result.diagnostics);
                     let opts = parse_result.options;
 
@@ -448,12 +718,65 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                     let type_cat = TypeCategory::from_ts_type(&field.ts_type);
 
+                    let optional_inner_kind = match &type_cat {
+                        TypeCategory::Optional(inner) => Some(classify_serde_value_kind(inner)),
+                        _ => None,
+                    };
+                    let nullable_inner_kind = match &type_cat {
+                        TypeCategory::Nullable(inner) => Some(classify_serde_value_kind(inner)),
+                        _ => None,
+                    };
+                    let array_elem_kind = match &type_cat {
+                        TypeCategory::Array(inner) => Some(classify_serde_value_kind(inner)),
+                        _ => None,
+                    };
+                    let set_elem_kind = match &type_cat {
+                        TypeCategory::Set(inner) => Some(classify_serde_value_kind(inner)),
+                        _ => None,
+                    };
+                    let map_value_kind = match &type_cat {
+                        TypeCategory::Map(_, value) => Some(classify_serde_value_kind(value)),
+                        _ => None,
+                    };
+
+                    // Extract serializable type names for direct function calls
+                    let optional_serializable_type = match &type_cat {
+                        TypeCategory::Optional(inner) => get_serializable_type_name(inner),
+                        _ => None,
+                    };
+                    let nullable_serializable_type = match &type_cat {
+                        TypeCategory::Nullable(inner) => get_serializable_type_name(inner),
+                        _ => None,
+                    };
+                    let array_elem_serializable_type = match &type_cat {
+                        TypeCategory::Array(inner) => get_serializable_type_name(inner),
+                        _ => None,
+                    };
+                    let set_elem_serializable_type = match &type_cat {
+                        TypeCategory::Set(inner) => get_serializable_type_name(inner),
+                        _ => None,
+                    };
+                    let map_value_serializable_type = match &type_cat {
+                        TypeCategory::Map(_, value) => get_serializable_type_name(value),
+                        _ => None,
+                    };
+
                     Some(SerializeField {
                         json_key,
                         field_name: field.name.clone(),
                         type_cat,
                         optional: field.optional,
                         flatten: opts.flatten,
+                        optional_inner_kind,
+                        nullable_inner_kind,
+                        array_elem_kind,
+                        set_elem_kind,
+                        map_value_kind,
+                        optional_serializable_type,
+                        nullable_serializable_type,
+                        array_elem_serializable_type,
+                        set_elem_serializable_type,
+                        map_value_serializable_type,
                     })
                 })
                 .collect();
@@ -547,85 +870,183 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                             {:case TypeCategory::Array(_)}
                                                 {#if field.optional}
                                                     if (self.@{field.field_name} !== undefined) {
-                                                        result["@{field.json_key}"] = self.@{field.field_name}.map(
-                                                            (item: any) => typeof item?.__serialize === "function"
-                                                                ? item.__serialize(ctx)
-                                                                : item
-                                                        );
+                                                        {#match field.array_elem_kind.unwrap_or(SerdeValueKind::Other)}
+                                                            {:case SerdeValueKind::PrimitiveLike}
+                                                                result["@{field.json_key}"] = self.@{field.field_name};
+                                                            {:case SerdeValueKind::Date}
+                                                                result["@{field.json_key}"] = self.@{field.field_name}.map((item: Date) => item.toISOString());
+                                                            {:case SerdeValueKind::NullableDate}
+                                                                result["@{field.json_key}"] = self.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
+                                                            {:case _}
+                                                                {#if let Some(elem_type) = &field.array_elem_serializable_type}
+                                                                    result["@{field.json_key}"] = self.@{field.field_name}.map(
+                                                                        (item) => __serialize@{elem_type}(item, ctx)
+                                                                    );
+                                                                {:else}
+                                                                    result["@{field.json_key}"] = self.@{field.field_name};
+                                                                {/if}
+                                                        {/match}
                                                     }
                                                 {:else}
-                                                    result["@{field.json_key}"] = self.@{field.field_name}.map(
-                                                        (item: any) => typeof item?.__serialize === "function"
-                                                            ? item.__serialize(ctx)
-                                                            : item
-                                                    );
+                                                    {#match field.array_elem_kind.unwrap_or(SerdeValueKind::Other)}
+                                                        {:case SerdeValueKind::PrimitiveLike}
+                                                            result["@{field.json_key}"] = self.@{field.field_name};
+                                                        {:case SerdeValueKind::Date}
+                                                            result["@{field.json_key}"] = self.@{field.field_name}.map((item: Date) => item.toISOString());
+                                                        {:case SerdeValueKind::NullableDate}
+                                                            result["@{field.json_key}"] = self.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
+                                                        {:case _}
+                                                            {#if let Some(elem_type) = &field.array_elem_serializable_type}
+                                                                result["@{field.json_key}"] = self.@{field.field_name}.map(
+                                                                    (item) => __serialize@{elem_type}(item, ctx)
+                                                                );
+                                                            {:else}
+                                                                result["@{field.json_key}"] = self.@{field.field_name};
+                                                            {/if}
+                                                    {/match}
                                                 {/if}
 
                                             {:case TypeCategory::Map(_, _)}
                                                 {#if field.optional}
                                                     if (self.@{field.field_name} !== undefined) {
-                                                        result["@{field.json_key}"] = Object.fromEntries(
-                                                            Array.from(self.@{field.field_name}.entries()).map(
-                                                                ([k, v]) => [k, typeof (v as any)?.__serialize === "function"
-                                                                    ? (v as any).__serialize(ctx)
-                                                                    : v]
-                                                            )
-                                                        );
+                                                        {#match field.map_value_kind.unwrap_or(SerdeValueKind::Other)}
+                                                            {:case SerdeValueKind::PrimitiveLike}
+                                                                result["@{field.json_key}"] = Object.fromEntries(self.@{field.field_name}.entries());
+                                                            {:case SerdeValueKind::Date}
+                                                                result["@{field.json_key}"] = Object.fromEntries(
+                                                                    Array.from(self.@{field.field_name}.entries()).map(
+                                                                        ([k, v]) => [k, (v as Date).toISOString()]
+                                                                    )
+                                                                );
+                                                            {:case SerdeValueKind::NullableDate}
+                                                                result["@{field.json_key}"] = Object.fromEntries(
+                                                                    Array.from(self.@{field.field_name}.entries()).map(
+                                                                        ([k, v]) => [k, v === null ? null : (v as Date).toISOString()]
+                                                                    )
+                                                                );
+                                                            {:case _}
+                                                                {#if let Some(value_type) = &field.map_value_serializable_type}
+                                                                    result["@{field.json_key}"] = Object.fromEntries(
+                                                                        Array.from(self.@{field.field_name}.entries()).map(
+                                                                            ([k, v]) => [k, __serialize@{value_type}(v, ctx)]
+                                                                        )
+                                                                    );
+                                                                {:else}
+                                                                    result["@{field.json_key}"] = Object.fromEntries(self.@{field.field_name}.entries());
+                                                                {/if}
+                                                        {/match}
                                                     }
                                                 {:else}
-                                                    result["@{field.json_key}"] = Object.fromEntries(
-                                                        Array.from(self.@{field.field_name}.entries()).map(
-                                                            ([k, v]) => [k, typeof (v as any)?.__serialize === "function"
-                                                                ? (v as any).__serialize(ctx)
-                                                                : v]
-                                                        )
-                                                    );
+                                                    {#match field.map_value_kind.unwrap_or(SerdeValueKind::Other)}
+                                                        {:case SerdeValueKind::PrimitiveLike}
+                                                            result["@{field.json_key}"] = Object.fromEntries(self.@{field.field_name}.entries());
+                                                        {:case SerdeValueKind::Date}
+                                                            result["@{field.json_key}"] = Object.fromEntries(
+                                                                Array.from(self.@{field.field_name}.entries()).map(
+                                                                    ([k, v]) => [k, (v as Date).toISOString()]
+                                                                )
+                                                            );
+                                                        {:case SerdeValueKind::NullableDate}
+                                                            result["@{field.json_key}"] = Object.fromEntries(
+                                                                Array.from(self.@{field.field_name}.entries()).map(
+                                                                    ([k, v]) => [k, v === null ? null : (v as Date).toISOString()]
+                                                                )
+                                                            );
+                                                        {:case _}
+                                                            {#if let Some(value_type) = &field.map_value_serializable_type}
+                                                                result["@{field.json_key}"] = Object.fromEntries(
+                                                                    Array.from(self.@{field.field_name}.entries()).map(
+                                                                        ([k, v]) => [k, __serialize@{value_type}(v, ctx)]
+                                                                    )
+                                                                );
+                                                            {:else}
+                                                                result["@{field.json_key}"] = Object.fromEntries(self.@{field.field_name}.entries());
+                                                            {/if}
+                                                    {/match}
                                                 {/if}
 
                                             {:case TypeCategory::Set(_)}
                                                 {#if field.optional}
                                                     if (self.@{field.field_name} !== undefined) {
-                                                        result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map(
-                                                            (item: any) => typeof item?.__serialize === "function"
-                                                                ? item.__serialize(ctx)
-                                                                : item
-                                                        );
+                                                        {#match field.set_elem_kind.unwrap_or(SerdeValueKind::Other)}
+                                                            {:case SerdeValueKind::PrimitiveLike}
+                                                                result["@{field.json_key}"] = Array.from(self.@{field.field_name});
+                                                            {:case SerdeValueKind::Date}
+                                                                result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map((item: Date) => item.toISOString());
+                                                            {:case SerdeValueKind::NullableDate}
+                                                                result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
+                                                            {:case _}
+                                                                {#if let Some(elem_type) = &field.set_elem_serializable_type}
+                                                                    result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map(
+                                                                        (item) => __serialize@{elem_type}(item, ctx)
+                                                                    );
+                                                                {:else}
+                                                                    result["@{field.json_key}"] = Array.from(self.@{field.field_name});
+                                                                {/if}
+                                                        {/match}
                                                     }
                                                 {:else}
-                                                    result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map(
-                                                        (item: any) => typeof item?.__serialize === "function"
-                                                            ? item.__serialize(ctx)
-                                                            : item
-                                                    );
+                                                    {#match field.set_elem_kind.unwrap_or(SerdeValueKind::Other)}
+                                                        {:case SerdeValueKind::PrimitiveLike}
+                                                            result["@{field.json_key}"] = Array.from(self.@{field.field_name});
+                                                        {:case SerdeValueKind::Date}
+                                                            result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map((item: Date) => item.toISOString());
+                                                        {:case SerdeValueKind::NullableDate}
+                                                            result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
+                                                        {:case _}
+                                                            {#if let Some(elem_type) = &field.set_elem_serializable_type}
+                                                                result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map(
+                                                                    (item) => __serialize@{elem_type}(item, ctx)
+                                                                );
+                                                            {:else}
+                                                                result["@{field.json_key}"] = Array.from(self.@{field.field_name});
+                                                            {/if}
+                                                    {/match}
                                                 {/if}
 
                                             {:case TypeCategory::Optional(_)}
                                                 if (self.@{field.field_name} !== undefined) {
-                                                    result["@{field.json_key}"] = typeof (self.@{field.field_name} as any)?.__serialize === "function"
-                                                        ? (self.@{field.field_name} as any).__serialize(ctx)
-                                                        : self.@{field.field_name};
+                                                    {#match field.optional_inner_kind.unwrap_or(SerdeValueKind::Other)}
+                                                        {:case SerdeValueKind::PrimitiveLike}
+                                                            result["@{field.json_key}"] = self.@{field.field_name};
+                                                        {:case SerdeValueKind::Date}
+                                                            result["@{field.json_key}"] = (self.@{field.field_name} as Date).toISOString();
+                                                        {:case _}
+                                                            {#if let Some(inner_type) = &field.optional_serializable_type}
+                                                                result["@{field.json_key}"] = __serialize@{inner_type}(self.@{field.field_name}, ctx);
+                                                            {:else}
+                                                                result["@{field.json_key}"] = self.@{field.field_name};
+                                                            {/if}
+                                                    {/match}
                                                 }
 
                                             {:case TypeCategory::Nullable(_)}
-                                                if (self.@{field.field_name} !== null) {
-                                                    result["@{field.json_key}"] = typeof (self.@{field.field_name} as any)?.__serialize === "function"
-                                                        ? (self.@{field.field_name} as any).__serialize(ctx)
-                                                        : self.@{field.field_name};
-                                                } else {
-                                                    result["@{field.json_key}"] = null;
-                                                }
+                                                {#match field.nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
+                                                    {:case SerdeValueKind::PrimitiveLike}
+                                                        result["@{field.json_key}"] = self.@{field.field_name};
+                                                    {:case SerdeValueKind::Date}
+                                                        result["@{field.json_key}"] = self.@{field.field_name} === null
+                                                            ? null
+                                                            : (self.@{field.field_name} as Date).toISOString();
+                                                    {:case _}
+                                                        if (self.@{field.field_name} !== null) {
+                                                            {#if let Some(inner_type) = &field.nullable_serializable_type}
+                                                                result["@{field.json_key}"] = __serialize@{inner_type}(self.@{field.field_name}, ctx);
+                                                            {:else}
+                                                                result["@{field.json_key}"] = self.@{field.field_name};
+                                                            {/if}
+                                                        } else {
+                                                            result["@{field.json_key}"] = null;
+                                                        }
+                                                {/match}
 
-                                            {:case TypeCategory::Serializable(_)}
+                                            {:case TypeCategory::Serializable(type_name)}
                                                 {#if field.optional}
                                                     if (self.@{field.field_name} !== undefined) {
-                                                        result["@{field.json_key}"] = typeof (self.@{field.field_name} as any)?.__serialize === "function"
-                                                            ? (self.@{field.field_name} as any).__serialize(ctx)
-                                                            : self.@{field.field_name};
+                                                        result["@{field.json_key}"] = __serialize@{type_name}(self.@{field.field_name}, ctx);
                                                     }
                                                 {:else}
-                                                    result["@{field.json_key}"] = typeof (self.@{field.field_name} as any)?.__serialize === "function"
-                                                        ? (self.@{field.field_name} as any).__serialize(ctx)
-                                                        : self.@{field.field_name};
+                                                    result["@{field.json_key}"] = __serialize@{type_name}(self.@{field.field_name}, ctx);
                                                 {/if}
 
                                             {:case TypeCategory::Unknown}
@@ -719,73 +1140,159 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                         {:case TypeCategory::Array(_)}
                                             {#if field.optional}
                                                 if (value.@{field.field_name} !== undefined) {
-                                                    result["@{field.json_key}"] = value.@{field.field_name}.map(
-                                                        (item: any) => typeof item?.__serialize === "function"
-                                                            ? item.__serialize(ctx)
-                                                            : item
-                                                    );
+                                                    {#match field.array_elem_kind.unwrap_or(SerdeValueKind::Other)}
+                                                        {:case SerdeValueKind::PrimitiveLike}
+                                                            result["@{field.json_key}"] = value.@{field.field_name};
+                                                        {:case SerdeValueKind::Date}
+                                                            result["@{field.json_key}"] = value.@{field.field_name}.map((item: Date) => item.toISOString());
+                                                        {:case SerdeValueKind::NullableDate}
+                                                            result["@{field.json_key}"] = value.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
+                                                        {:case _}
+                                                            result["@{field.json_key}"] = value.@{field.field_name}.map(
+                                                                (item: any) => typeof item?.__serialize === "function"
+                                                                    ? item.__serialize(ctx)
+                                                                    : item
+                                                            );
+                                                    {/match}
                                                 }
                                             {:else}
-                                                result["@{field.json_key}"] = value.@{field.field_name}.map(
-                                                    (item: any) => typeof item?.__serialize === "function"
-                                                        ? item.__serialize(ctx)
-                                                        : item
-                                                );
+                                                {#match field.array_elem_kind.unwrap_or(SerdeValueKind::Other)}
+                                                    {:case SerdeValueKind::PrimitiveLike}
+                                                        result["@{field.json_key}"] = value.@{field.field_name};
+                                                    {:case SerdeValueKind::Date}
+                                                        result["@{field.json_key}"] = value.@{field.field_name}.map((item: Date) => item.toISOString());
+                                                    {:case SerdeValueKind::NullableDate}
+                                                        result["@{field.json_key}"] = value.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
+                                                    {:case _}
+                                                        result["@{field.json_key}"] = value.@{field.field_name}.map(
+                                                            (item: any) => typeof item?.__serialize === "function"
+                                                                ? item.__serialize(ctx)
+                                                                : item
+                                                        );
+                                                {/match}
                                             {/if}
 
                                         {:case TypeCategory::Map(_, _)}
                                             {#if field.optional}
                                                 if (value.@{field.field_name} !== undefined) {
-                                                    result["@{field.json_key}"] = Object.fromEntries(
-                                                        Array.from(value.@{field.field_name}.entries()).map(
-                                                            ([k, v]) => [k, typeof (v as any)?.__serialize === "function"
-                                                                ? (v as any).__serialize(ctx)
-                                                                : v]
-                                                        )
-                                                    );
+                                                    {#match field.map_value_kind.unwrap_or(SerdeValueKind::Other)}
+                                                        {:case SerdeValueKind::PrimitiveLike}
+                                                            result["@{field.json_key}"] = Object.fromEntries(value.@{field.field_name}.entries());
+                                                        {:case SerdeValueKind::Date}
+                                                            result["@{field.json_key}"] = Object.fromEntries(
+                                                                Array.from(value.@{field.field_name}.entries()).map(
+                                                                    ([k, v]) => [k, (v as Date).toISOString()]
+                                                                )
+                                                            );
+                                                        {:case SerdeValueKind::NullableDate}
+                                                            result["@{field.json_key}"] = Object.fromEntries(
+                                                                Array.from(value.@{field.field_name}.entries()).map(
+                                                                    ([k, v]) => [k, v === null ? null : (v as Date).toISOString()]
+                                                                )
+                                                            );
+                                                        {:case _}
+                                                            result["@{field.json_key}"] = Object.fromEntries(
+                                                                Array.from(value.@{field.field_name}.entries()).map(
+                                                                    ([k, v]) => [k, typeof (v as any)?.__serialize === "function"
+                                                                        ? (v as any).__serialize(ctx)
+                                                                        : v]
+                                                                )
+                                                            );
+                                                    {/match}
                                                 }
                                             {:else}
-                                                result["@{field.json_key}"] = Object.fromEntries(
-                                                    Array.from(value.@{field.field_name}.entries()).map(
-                                                        ([k, v]) => [k, typeof (v as any)?.__serialize === "function"
-                                                            ? (v as any).__serialize(ctx)
-                                                            : v]
-                                                    )
-                                                );
+                                                {#match field.map_value_kind.unwrap_or(SerdeValueKind::Other)}
+                                                    {:case SerdeValueKind::PrimitiveLike}
+                                                        result["@{field.json_key}"] = Object.fromEntries(value.@{field.field_name}.entries());
+                                                    {:case SerdeValueKind::Date}
+                                                        result["@{field.json_key}"] = Object.fromEntries(
+                                                            Array.from(value.@{field.field_name}.entries()).map(
+                                                                ([k, v]) => [k, (v as Date).toISOString()]
+                                                            )
+                                                        );
+                                                    {:case SerdeValueKind::NullableDate}
+                                                        result["@{field.json_key}"] = Object.fromEntries(
+                                                            Array.from(value.@{field.field_name}.entries()).map(
+                                                                ([k, v]) => [k, v === null ? null : (v as Date).toISOString()]
+                                                            )
+                                                        );
+                                                    {:case _}
+                                                        result["@{field.json_key}"] = Object.fromEntries(
+                                                            Array.from(value.@{field.field_name}.entries()).map(
+                                                                ([k, v]) => [k, typeof (v as any)?.__serialize === "function"
+                                                                    ? (v as any).__serialize(ctx)
+                                                                    : v]
+                                                            )
+                                                        );
+                                                {/match}
                                             {/if}
 
                                         {:case TypeCategory::Set(_)}
                                             {#if field.optional}
                                                 if (value.@{field.field_name} !== undefined) {
-                                                    result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map(
-                                                        (item: any) => typeof item?.__serialize === "function"
-                                                            ? item.__serialize(ctx)
-                                                            : item
-                                                    );
+                                                    {#match field.set_elem_kind.unwrap_or(SerdeValueKind::Other)}
+                                                        {:case SerdeValueKind::PrimitiveLike}
+                                                            result["@{field.json_key}"] = Array.from(value.@{field.field_name});
+                                                        {:case SerdeValueKind::Date}
+                                                            result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map((item: Date) => item.toISOString());
+                                                        {:case SerdeValueKind::NullableDate}
+                                                            result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
+                                                        {:case _}
+                                                            result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map(
+                                                                (item: any) => typeof item?.__serialize === "function"
+                                                                    ? item.__serialize(ctx)
+                                                                    : item
+                                                            );
+                                                    {/match}
                                                 }
                                             {:else}
-                                                result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map(
-                                                    (item: any) => typeof item?.__serialize === "function"
-                                                        ? item.__serialize(ctx)
-                                                        : item
-                                                );
+                                                {#match field.set_elem_kind.unwrap_or(SerdeValueKind::Other)}
+                                                    {:case SerdeValueKind::PrimitiveLike}
+                                                        result["@{field.json_key}"] = Array.from(value.@{field.field_name});
+                                                    {:case SerdeValueKind::Date}
+                                                        result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map((item: Date) => item.toISOString());
+                                                    {:case SerdeValueKind::NullableDate}
+                                                        result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
+                                                    {:case _}
+                                                        result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map(
+                                                            (item: any) => typeof item?.__serialize === "function"
+                                                                ? item.__serialize(ctx)
+                                                                : item
+                                                        );
+                                                {/match}
                                             {/if}
 
                                         {:case TypeCategory::Optional(_)}
                                             if (value.@{field.field_name} !== undefined) {
-                                                result["@{field.json_key}"] = typeof (value.@{field.field_name} as any)?.__serialize === "function"
-                                                    ? (value.@{field.field_name} as any).__serialize(ctx)
-                                                    : value.@{field.field_name};
+                                                {#match field.optional_inner_kind.unwrap_or(SerdeValueKind::Other)}
+                                                    {:case SerdeValueKind::PrimitiveLike}
+                                                        result["@{field.json_key}"] = value.@{field.field_name};
+                                                    {:case SerdeValueKind::Date}
+                                                        result["@{field.json_key}"] = (value.@{field.field_name} as Date).toISOString();
+                                                    {:case _}
+                                                        result["@{field.json_key}"] = typeof (value.@{field.field_name} as any)?.__serialize === "function"
+                                                            ? (value.@{field.field_name} as any).__serialize(ctx)
+                                                            : value.@{field.field_name};
+                                                {/match}
                                             }
 
                                         {:case TypeCategory::Nullable(_)}
-                                            if (value.@{field.field_name} !== null) {
-                                                result["@{field.json_key}"] = typeof (value.@{field.field_name} as any)?.__serialize === "function"
-                                                    ? (value.@{field.field_name} as any).__serialize(ctx)
-                                                    : value.@{field.field_name};
-                                            } else {
-                                                result["@{field.json_key}"] = null;
-                                            }
+                                            {#match field.nullable_inner_kind.unwrap_or(SerdeValueKind::Other)}
+                                                {:case SerdeValueKind::PrimitiveLike}
+                                                    result["@{field.json_key}"] = value.@{field.field_name};
+                                                {:case SerdeValueKind::Date}
+                                                    result["@{field.json_key}"] = value.@{field.field_name} === null
+                                                        ? null
+                                                        : (value.@{field.field_name} as Date).toISOString();
+                                                {:case _}
+                                                    if (value.@{field.field_name} !== null) {
+                                                        result["@{field.json_key}"] = typeof (value.@{field.field_name} as any)?.__serialize === "function"
+                                                            ? (value.@{field.field_name} as any).__serialize(ctx)
+                                                            : value.@{field.field_name};
+                                                    } else {
+                                                        result["@{field.json_key}"] = null;
+                                                    }
+                                            {/match}
 
                                         {:case TypeCategory::Serializable(_)}
                                             {#if field.optional}
@@ -869,7 +1376,11 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     format!("__serialize{}", generic_decl),
                 ),
                 FunctionNamingStyle::Prefix => (
-                    format!("{}ToStringifiedJSON{}", to_camel_case(type_name), generic_decl),
+                    format!(
+                        "{}ToStringifiedJSON{}",
+                        to_camel_case(type_name),
+                        generic_decl
+                    ),
                     format!("{}ToObject{}", to_camel_case(type_name), generic_decl),
                     format!("{}__serialize{}", to_camel_case(type_name), generic_decl),
                 ),
@@ -892,7 +1403,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     .unwrap()
                     .iter()
                     .filter_map(|field| {
-                        let parse_result = SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
+                        let parse_result =
+                            SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
                         all_diagnostics.extend(parse_result.diagnostics);
                         let opts = parse_result.options;
 
@@ -907,12 +1419,65 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                         let type_cat = TypeCategory::from_ts_type(&field.ts_type);
 
+                        let optional_inner_kind = match &type_cat {
+                            TypeCategory::Optional(inner) => Some(classify_serde_value_kind(inner)),
+                            _ => None,
+                        };
+                        let nullable_inner_kind = match &type_cat {
+                            TypeCategory::Nullable(inner) => Some(classify_serde_value_kind(inner)),
+                            _ => None,
+                        };
+                        let array_elem_kind = match &type_cat {
+                            TypeCategory::Array(inner) => Some(classify_serde_value_kind(inner)),
+                            _ => None,
+                        };
+                        let set_elem_kind = match &type_cat {
+                            TypeCategory::Set(inner) => Some(classify_serde_value_kind(inner)),
+                            _ => None,
+                        };
+                        let map_value_kind = match &type_cat {
+                            TypeCategory::Map(_, value) => Some(classify_serde_value_kind(value)),
+                            _ => None,
+                        };
+
+                        // Extract serializable type names for direct function calls
+                        let optional_serializable_type = match &type_cat {
+                            TypeCategory::Optional(inner) => get_serializable_type_name(inner),
+                            _ => None,
+                        };
+                        let nullable_serializable_type = match &type_cat {
+                            TypeCategory::Nullable(inner) => get_serializable_type_name(inner),
+                            _ => None,
+                        };
+                        let array_elem_serializable_type = match &type_cat {
+                            TypeCategory::Array(inner) => get_serializable_type_name(inner),
+                            _ => None,
+                        };
+                        let set_elem_serializable_type = match &type_cat {
+                            TypeCategory::Set(inner) => get_serializable_type_name(inner),
+                            _ => None,
+                        };
+                        let map_value_serializable_type = match &type_cat {
+                            TypeCategory::Map(_, value) => get_serializable_type_name(value),
+                            _ => None,
+                        };
+
                         Some(SerializeField {
                             json_key,
                             field_name: field.name.clone(),
                             type_cat,
                             optional: field.optional,
                             flatten: opts.flatten,
+                            optional_inner_kind,
+                            nullable_inner_kind,
+                            array_elem_kind,
+                            set_elem_kind,
+                            map_value_kind,
+                            optional_serializable_type,
+                            nullable_serializable_type,
+                            array_elem_serializable_type,
+                            set_elem_serializable_type,
+                            map_value_serializable_type,
                         })
                     })
                     .collect();
@@ -922,7 +1487,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     return Err(MacroforgeErrors::new(all_diagnostics.into_vec()).into());
                 }
 
-                let regular_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
+                let regular_fields: Vec<_> =
+                    fields.iter().filter(|f| !f.flatten).cloned().collect();
                 let has_regular = !regular_fields.is_empty();
 
                 let mut result = match naming_style {
@@ -1076,6 +1642,16 @@ mod tests {
             type_cat: TypeCategory::Primitive,
             optional: false,
             flatten: false,
+            optional_inner_kind: None,
+            nullable_inner_kind: None,
+            array_elem_kind: None,
+            set_elem_kind: None,
+            map_value_kind: None,
+            optional_serializable_type: None,
+            nullable_serializable_type: None,
+            array_elem_serializable_type: None,
+            set_elem_serializable_type: None,
+            map_value_serializable_type: None,
         };
         assert_eq!(field.json_key, "name");
         assert!(!field.optional);
