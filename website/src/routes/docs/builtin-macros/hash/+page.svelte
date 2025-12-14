@@ -13,8 +13,13 @@
 
 <h1>Hash</h1>
 
+{#if data.version}
+	<p class="version-badge">macroforge v{data.version}</p>
+{/if}
+
 <p class="lead">
-	The <code>Hash</code> macro generates a <code>hashCode()</code> method that computes a numeric hash value based on field values.
+	{data.macro?.description ||
+		'The Hash macro generates a hashCode() method that computes a numeric hash value based on field values.'}
 </p>
 
 <h2 id="basic-usage">Basic Usage</h2>
@@ -129,3 +134,16 @@ type Result = "success" | "error" | "pending";`} />
 
 <CodeBlock code={`console.log(Result.hashCode("success")); // hash of "success" string
 console.log(Result.hashCode("error"));   // hash of "error" string`} lang="typescript" />
+
+<style>
+	.version-badge {
+		display: inline-block;
+		background: var(--color-primary);
+		color: white;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+		margin-bottom: 1rem;
+	}
+</style>

@@ -1,8 +1,19 @@
 import { expandExample } from '$lib/server/macroforge';
+import { getBuiltinMacro, getVersion } from '$lib/server/api-docs';
 
 export function load() {
+	const macro = getBuiltinMacro('debug');
+
+	// Use example from Rust doc comments if available, otherwise use fallback
+	const docExample = macro?.exampleCode?.[0]?.code;
+
 	return {
+		version: getVersion('rust', 'macroforge_ts'),
+		macro,
 		examples: {
+			// Use the example from Rust doc comments (includes rename and skip)
+			fromDocs: docExample ? expandExample(docExample) : null,
+			// Hand-written examples for specific variations
 			basic: expandExample(`/** @derive(Debug) */
 class User {
   name: string;

@@ -13,8 +13,13 @@
 
 <h1>Default</h1>
 
+{#if data.version}
+	<p class="version-badge">macroforge v{data.version}</p>
+{/if}
+
 <p class="lead">
-	The <code>Default</code> macro generates a static <code>defaultValue()</code> factory method that creates instances with default field values. It works like Rust's <code>#[derive(Default)]</code> trait.
+	{data.macro?.description ||
+		"The Default macro generates a static defaultValue() factory method that creates instances with default field values."}
 </p>
 
 <h2 id="basic-usage">Basic Usage</h2>
@@ -153,3 +158,16 @@ const user2 = user1.clone();
 
 console.log(user1.toString());    // User { name: "Anonymous", age: 0 }
 console.log(user1.equals(user2)); // true`} lang="typescript" />
+
+<style>
+	.version-badge {
+		display: inline-block;
+		background: var(--color-primary);
+		color: white;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+		margin-bottom: 1rem;
+	}
+</style>

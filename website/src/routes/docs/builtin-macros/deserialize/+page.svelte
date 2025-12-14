@@ -14,8 +14,13 @@
 
 <h1>Deserialize</h1>
 
+{#if data.version}
+	<p class="version-badge">macroforge v{data.version}</p>
+{/if}
+
 <p class="lead">
-	The <code>Deserialize</code> macro generates a static <code>fromJSON()</code> method that parses JSON data into your class with runtime validation and automatic type conversion.
+	{data.macro?.description ||
+		'The Deserialize macro generates a static fromJSON() method for JSON deserialization with runtime validation.'}
 </p>
 
 <h2 id="basic-usage">Basic Usage</h2>
@@ -375,3 +380,16 @@ class User {
 const user = parseUser({ name: "Alice" });
 // Logs: Failed to parse user: User.fromJSON: missing required field "email"
 // Returns: null`} lang="typescript" />
+
+<style>
+	.version-badge {
+		display: inline-block;
+		background: var(--color-primary);
+		color: white;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+		margin-bottom: 1rem;
+	}
+</style>

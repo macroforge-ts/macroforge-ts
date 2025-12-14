@@ -1,6 +1,8 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
 	import { base } from '$app/paths';
+
+	let { data } = $props();
 </script>
 
 <svelte:head>
@@ -9,6 +11,13 @@
 </svelte:head>
 
 <h1>API Reference</h1>
+
+{#if data.version}
+	<div class="api-meta">
+		<span class="version-badge">macroforge v{data.version}</span>
+		<span class="stats">{data.stats.total} exported items</span>
+	</div>
+{/if}
 
 <p class="lead">
 	Macroforge provides a programmatic API for expanding macros in TypeScript code.
@@ -108,3 +117,27 @@ if (result.diagnostics.length > 0) {
 	<li><a href="{base}/docs/api/native-plugin"><code>NativePlugin</code></a> - Caching for language servers</li>
 	<li><a href="{base}/docs/api/position-mapper"><code>PositionMapper</code></a> - Position mapping utilities</li>
 </ul>
+
+<style>
+	.api-meta {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	.version-badge {
+		display: inline-block;
+		background: var(--color-primary);
+		color: white;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+	}
+
+	.stats {
+		color: var(--color-text-muted);
+		font-size: 0.875rem;
+	}
+</style>

@@ -13,8 +13,13 @@
 
 <h1>Ord</h1>
 
+{#if data.version}
+	<p class="version-badge">macroforge v{data.version}</p>
+{/if}
+
 <p class="lead">
-	The <code>Ord</code> macro generates a <code>compareTo()</code> method that implements total ordering, always returning <code>-1</code>, <code>0</code>, or <code>1</code>.
+	{data.macro?.description ||
+		'The Ord macro generates a compareTo() method that implements total ordering.'}
 </p>
 
 <h2 id="basic-usage">Basic Usage</h2>
@@ -171,3 +176,16 @@ class Version {
 <CodeBlock code={`const v1 = new Version(1, 0);
 const v2 = new Version(2, 0);
 console.log(v1.compareTo(v2)); // Always -1, 0, or 1`} lang="typescript" />
+
+<style>
+	.version-badge {
+		display: inline-block;
+		background: var(--color-primary);
+		color: white;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+		margin-bottom: 1rem;
+	}
+</style>

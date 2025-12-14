@@ -1,5 +1,9 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
+	import Alert from '$lib/components/ui/Alert.svelte';
+
+	// API data injected from doc comments at build time
+	let { data } = $props();
 </script>
 
 <svelte:head>
@@ -9,8 +13,12 @@
 
 <h1>expandSync()</h1>
 
+{#if data.version}
+	<p class="version-badge">macroforge v{data.version}</p>
+{/if}
+
 <p class="lead">
-	Expands macros in TypeScript code synchronously and returns the transformed output.
+	{data.api.expand_sync?.description || 'Expands macros in TypeScript code synchronously and returns the transformed output.'}
 </p>
 
 <h2 id="signature">Signature</h2>
@@ -133,3 +141,16 @@ for (const diag of result.diagnostics) {
     console.error(\`Error at \${diag.span.start}: \${diag.message}\`);
   }
 }`} lang="typescript" />
+
+<style>
+	.version-badge {
+		display: inline-block;
+		background: var(--color-primary);
+		color: white;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+		margin-bottom: 1rem;
+	}
+</style>

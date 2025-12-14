@@ -1,5 +1,7 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
+
+	let { data } = $props();
 </script>
 
 <svelte:head>
@@ -9,8 +11,13 @@
 
 <h1>NativePlugin</h1>
 
+{#if data.version}
+	<p class="version-badge">macroforge v{data.version}</p>
+{/if}
+
 <p class="lead">
-	A stateful plugin class with version-based caching, designed for integration with language servers and IDEs.
+	{data.api.NativePlugin?.description ||
+		'A stateful plugin class with version-based caching, designed for integration with language servers and IDEs.'}
 </p>
 
 <h2 id="constructor">Constructor</h2>
@@ -104,3 +111,16 @@ class MacroforgeLanguageService {
 	The <code>NativePlugin</code> class is thread-safe and can be used from multiple async contexts.
 	Each file is processed in an isolated thread with its own stack space.
 </p>
+
+<style>
+	.version-badge {
+		display: inline-block;
+		background: var(--color-primary);
+		color: white;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+		margin-bottom: 1rem;
+	}
+</style>

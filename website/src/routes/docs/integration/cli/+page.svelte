@@ -1,6 +1,8 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
+
+	let { data } = $props();
 </script>
 
 <svelte:head>
@@ -10,8 +12,13 @@
 
 <h1>Command Line Interface</h1>
 
+{#if data.version}
+	<p class="version-badge">macroforge v{data.version}</p>
+{/if}
+
 <p class="lead">
-	The <code>macroforge</code> CLI provides commands for expanding macros and running type checks with macro support.
+	{data.cli?.description ||
+		'The macroforge CLI provides commands for expanding macros and running type checks with macro support.'}
 </p>
 
 <h2 id="installation">Installation</h2>
@@ -244,3 +251,16 @@ done`} lang="bash" />
 		</tr>
 	</tbody>
 </table>
+
+<style>
+	.version-badge {
+		display: inline-block;
+		background: var(--color-primary);
+		color: white;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+		margin-bottom: 1rem;
+	}
+</style>
