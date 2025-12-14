@@ -315,7 +315,6 @@ pub enum Validator {
 #[derive(Debug, Clone)]
 pub struct ValidatorParseError {
     pub message: String,
-    pub validator_text: String,
     pub help: Option<String>,
 }
 
@@ -325,7 +324,6 @@ impl ValidatorParseError {
         let similar = find_similar_validator(name);
         Self {
             message: format!("unknown validator '{}'", name),
-            validator_text: name.to_string(),
             help: similar.map(|s| format!("did you mean '{}'?", s)),
         }
     }
@@ -334,17 +332,7 @@ impl ValidatorParseError {
     pub fn invalid_args(name: &str, reason: &str) -> Self {
         Self {
             message: format!("invalid arguments for '{}': {}", name, reason),
-            validator_text: name.to_string(),
             help: None,
-        }
-    }
-
-    /// Create error for missing required arguments
-    pub fn missing_args(name: &str) -> Self {
-        Self {
-            message: format!("'{}' requires arguments", name),
-            validator_text: name.to_string(),
-            help: Some(format!("use '{}(value)' syntax", name)),
         }
     }
 }
@@ -494,14 +482,25 @@ fn find_top_level_comma(s: &str) -> Option<usize> {
 // Validator parsing functions
 // ============================================================================
 
+/// Known options that are NOT validators (to avoid false positives)
+const KNOWN_OPTIONS: &[&str] = &[
+    "skip", "skip_serializing", "skip_deserializing", "flatten", "default", "rename", "validate", "message",
+];
+
 /// Extract validators from decorator arguments with diagnostic collection
-/// Supports: validate: ["email", "maxLength(255)"] or validate: [{ validate: "email", message: "..." }]
+/// Supports:
+/// - Explicit array: validate: ["email", "maxLength(255)"]
+/// - Object array: validate: [{ validate: "email", message: "..." }]
+/// - Shorthand: @serde(email) or @serde(minLength(2), maxLength(50))
 pub fn extract_validators(
     args: &str,
     decorator_span: SpanIR,
     field_name: &str,
     diagnostics: &mut DiagnosticCollector,
 ) -> Vec<ValidatorSpec> {
+    let mut validators = Vec::new();
+
+    // First, check for explicit validate: [...] format
     let lower = args.to_ascii_lowercase();
     if let Some(idx) = lower.find("validate") {
         let remainder = &args[idx + 8..].trim_start();
@@ -514,10 +513,106 @@ pub fn extract_validators(
                     decorator_span,
                     format!("field '{}': validate must be an array, e.g., validate: [\"email\"]", field_name),
                 );
+                return validators;
             }
         }
     }
-    Vec::new()
+
+    // Parse shorthand validators: @serde(email) or @serde(minLength(2), maxLength(50))
+    for item in split_decorator_args(args) {
+        let item = item.trim();
+        if item.is_empty() {
+            continue;
+        }
+
+        // Skip known options
+        let item_lower = item.to_ascii_lowercase();
+        let base_name = item_lower.split('(').next().unwrap_or(&item_lower);
+        let base_name = base_name.split(':').next().unwrap_or(base_name).trim();
+
+        if KNOWN_OPTIONS.contains(&base_name) {
+            continue;
+        }
+
+        // Check if this looks like a validator (either a known name or has function syntax)
+        let is_likely_validator = KNOWN_VALIDATORS.contains(&base_name)
+            || item.contains('('); // Function-like syntax suggests validator
+
+        if is_likely_validator {
+            match parse_validator_string(item) {
+                Ok(v) => validators.push(ValidatorSpec {
+                    validator: v,
+                    custom_message: None,
+                }),
+                Err(err) => {
+                    if let Some(help) = err.help {
+                        diagnostics.error_with_help(
+                            decorator_span,
+                            format!("field '{}': {}", field_name, err.message),
+                            help,
+                        );
+                    } else {
+                        diagnostics.error(
+                            decorator_span,
+                            format!("field '{}': {}", field_name, err.message),
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    validators
+}
+
+/// Split decorator arguments by commas, respecting nested parentheses and strings
+fn split_decorator_args(input: &str) -> Vec<String> {
+    let mut items = Vec::new();
+    let mut current = String::new();
+    let mut depth = 0;
+    let mut in_string = false;
+    let mut string_char = '"';
+
+    for c in input.chars() {
+        if in_string {
+            current.push(c);
+            if c == string_char {
+                in_string = false;
+            }
+            continue;
+        }
+
+        match c {
+            '"' | '\'' => {
+                in_string = true;
+                string_char = c;
+                current.push(c);
+            }
+            '(' | '[' | '{' => {
+                depth += 1;
+                current.push(c);
+            }
+            ')' | ']' | '}' => {
+                depth -= 1;
+                current.push(c);
+            }
+            ',' if depth == 0 => {
+                let trimmed = current.trim().to_string();
+                if !trimmed.is_empty() {
+                    items.push(trimmed);
+                }
+                current.clear();
+            }
+            _ => current.push(c),
+        }
+    }
+
+    let trimmed = current.trim().to_string();
+    if !trimmed.is_empty() {
+        items.push(trimmed);
+    }
+
+    items
 }
 
 /// Parse array content: ["email", "maxLength(255)", { validate: "...", message: "..." }]
