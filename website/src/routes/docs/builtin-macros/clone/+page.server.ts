@@ -1,7 +1,10 @@
 import { expandExample } from '$lib/server/macroforge';
+import { getBuiltinMacro, getVersion } from '$lib/server/api-docs';
 
 export function load() {
 	return {
+		version: getVersion('rust', 'macroforge_ts'),
+		macro: getBuiltinMacro('clone'),
 		examples: {
 			basic: expandExample(`/** @derive(Clone) */
 class Point {

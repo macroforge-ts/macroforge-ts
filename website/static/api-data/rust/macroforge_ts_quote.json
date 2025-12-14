@@ -1,0 +1,72 @@
+{
+  "name": "macroforge_ts_quote",
+  "kind": "rust_crate",
+  "version": "0.1.33",
+  "description": "Quote macro for generating TypeScript code at compile time",
+  "overview": "TypeScript code generation macros for macroforge.\n\nThis crate provides procedural macros for generating TypeScript code from Rust.\nIt offers two primary approaches:\n\n- [`ts_quote!`] - A thin wrapper around SWC's `quote!` macro with enhanced\n  interpolation syntax for compile-time validated TypeScript generation.\n\n- [`ts_template!`] - A Rust-style template syntax with control flow (`{#if}`,\n  `{#for}`, `{#match}`) and expression interpolation (`@{expr}`).\n\nAdditionally, scoped template macros are provided for code injection:\n- [`above!`] - Inject code above a definition\n- [`below!`] - Inject code below a definition\n- [`body!`] - Inject code into method/function bodies\n- [`signature!`] - Inject code into function signatures\n\n# Architecture\n\nThe crate is designed to decouple code generation utilities from the heavier\nparsing utilities in `ts_syn`. Templates compile to string-building Rust code\nat macro expansion time, then produce [`TsStream`] objects at runtime that can\nbe parsed by SWC into typed AST nodes.\n\n# Examples\n\nUsing `ts_quote!` for simple interpolation:\n\n```ignore\nlet name = quote_ident(\"MyClass\");\nlet stmt = ts_quote!(class $name {} as Stmt, name = name);\n```\n\nUsing `ts_template!` for complex code generation:\n\n```ignore\nlet fields = vec![\"name\", \"age\"];\nlet stream = ts_template! {\n    {#for field in &fields}\n        this.@{field} = @{field};\n    {/for}\n};\n```\n\n[`TsStream`]: macroforge_ts::ts_syn::TsStream",
+  "items": [
+    {
+      "name": "Parse",
+      "kind": "impl",
+      "signature": "impl Parse",
+      "description": "Implements [`syn::Parse`] to extract the template tokens and optional type annotation."
+    },
+    {
+      "name": "ts_quote",
+      "kind": "function",
+      "signature": "pub fn ts_quote(input: TokenStream) -> TokenStream",
+      "description": "Generates TypeScript AST nodes using SWC's `quote!` macro with enhanced interpolation.\n\nThis macro provides a thin wrapper around `swc_core::quote!` with additional\nconveniences for TypeScript code generation:\n\n- **Automatic binding extraction**: `$(expr)` patterns are converted to SWC bindings\n- **Type-aware interpolation**: `ident!()`, `stmt!()`, `stmt_vec!()` for typed codegen\n- **Smart object literal handling**: `{ ... } as Expr` is auto-wrapped in parentheses",
+      "examples": [
+        "let name = quote_ident(\"MyClass\");\nlet stmt = ts_quote!(class $name {} as Stmt, name = name);",
+        "let field = \"userName\";\nlet stmt = ts_quote!(\n    this.$(ident!(\"get{}\", field.to_pascal_case()))()\nas Expr);",
+        "let key = \"status\";\nlet value = quote_ident(\"active\");\n// Generates: ({ status: active })\nlet expr = ts_quote!({ $(ident!(key)): $value } as Expr, value = value);"
+      ]
+    },
+    {
+      "name": "ts_template",
+      "kind": "function",
+      "signature": "pub fn ts_template(input: TokenStream) -> TokenStream",
+      "description": "Template-style macro for TypeScript code generation.",
+      "examples": [
+        "let fields = vec![\"name\", \"age\"];\nlet class_name = \"User\";\n\nlet stmt = ts_template! {\n    @{class_name}.prototype.toJSON = function() {\n        const result = {};\n        {#for field in fields}\n            result.@{field} = this.@{field};\n        {/for}\n        return result;\n    };\n};",
+        "let tag = \"div\";\nlet stmt = ts_template! {\n    const html = \"'^<@{tag}>${content}</@{tag}>^'\";\n};\n// Generates: const html = `<div>${content}</div>`;"
+      ]
+    },
+    {
+      "name": "above",
+      "kind": "function",
+      "signature": "pub fn above(input: TokenStream) -> TokenStream",
+      "description": "Generates code to be inserted **above** a class or function definition.\n\nThis macro creates a [`TsStream`] prefixed with a special marker comment\n(`/* @macroforge:above */`) that instructs the macroforge runtime to place\nthe generated code above the decorated definition.",
+      "examples": [
+        "let import_name = \"lodash\";\nlet stream = above! {\n    import * as _ from \"@{import_name}\";\n};\n// Result: /* @macroforge:above */import * as _ from \"lodash\";"
+      ]
+    },
+    {
+      "name": "below",
+      "kind": "function",
+      "signature": "pub fn below(input: TokenStream) -> TokenStream",
+      "description": "Generates code to be inserted **below** a class or function definition.\n\nThis macro creates a [`TsStream`] prefixed with a special marker comment\n(`/* @macroforge:below */`) that instructs the macroforge runtime to place\nthe generated code after the decorated definition.",
+      "examples": [
+        "let class_name = \"User\";\nlet stream = below! {\n    @{class_name}.prototype.toJSON = function() {\n        return { ...this };\n    };\n};\n// Result: /* @macroforge:below */User.prototype.toJSON = function() { ... };"
+      ]
+    },
+    {
+      "name": "body",
+      "kind": "function",
+      "signature": "pub fn body(input: TokenStream) -> TokenStream",
+      "description": "Generates code to be inserted into a method or function **body**.\n\nThis macro creates a [`TsStream`] prefixed with a special marker comment\n(`/* @macroforge:body */`) that instructs the macroforge runtime to inject\nthe generated code into the body of a function or method.",
+      "examples": [
+        "let fields = vec![\"name\", \"age\"];\nlet stream = body! {\n    {#for field in &fields}\n        this.@{field} = @{field};\n    {/for}\n};\n// Result: /* @macroforge:body */this.name = name; this.age = age;"
+      ]
+    },
+    {
+      "name": "signature",
+      "kind": "function",
+      "signature": "pub fn signature(input: TokenStream) -> TokenStream",
+      "description": "Generates code to be inserted into a function **signature**.\n\nThis macro creates a [`TsStream`] prefixed with a special marker comment\n(`/* @macroforge:signature */`) that instructs the macroforge runtime to\nmodify the function signature (parameters, return type, etc.).",
+      "examples": [
+        "let param_name = \"context\";\nlet param_type = \"RequestContext\";\nlet stream = signature! {\n    @{param_name}: @{param_type}\n};\n// Result: /* @macroforge:signature */context: RequestContext"
+      ]
+    }
+  ]
+}

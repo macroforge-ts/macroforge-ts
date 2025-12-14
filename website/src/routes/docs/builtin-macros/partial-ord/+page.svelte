@@ -13,8 +13,13 @@
 
 <h1>PartialOrd</h1>
 
+{#if data.version}
+	<p class="version-badge">macroforge v{data.version}</p>
+{/if}
+
 <p class="lead">
-	The <code>PartialOrd</code> macro generates a <code>compareTo()</code> method that implements partial ordering, returning <code>-1</code>, <code>0</code>, <code>1</code>, or <code>null</code> for incomparable values.
+	{data.macro?.description ||
+		'The PartialOrd macro generates a compareTo() method that implements partial ordering.'}
 </p>
 
 <h2 id="basic-usage">Basic Usage</h2>
@@ -199,3 +204,16 @@ class SafeValue {
 <CodeBlock code={`const safe = new SafeValue(100);
 console.log(safe.isGreaterThan(new SafeValue(50)));  // true
 console.log(safe.isGreaterThan("invalid"));          // false`} lang="typescript" />
+
+<style>
+	.version-badge {
+		display: inline-block;
+		background: var(--color-primary);
+		color: white;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+		margin-bottom: 1rem;
+	}
+</style>
