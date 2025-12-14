@@ -13,8 +13,13 @@
 
 <h1>PartialEq</h1>
 
+{#if data.version}
+	<p class="version-badge">macroforge v{data.version}</p>
+{/if}
+
 <p class="lead">
-	The <code>PartialEq</code> macro generates an <code>equals()</code> method for value-based equality comparison between objects.
+	{data.macro?.description ||
+		'The PartialEq macro generates an equals() method for value-based equality comparison.'}
 </p>
 
 <h2 id="basic-usage">Basic Usage</h2>
@@ -212,3 +217,16 @@ const k2 = new Key(1, "user");
 // Equal objects should have equal hash codes
 console.log(k1.equals(k2));                   // true
 console.log(k1.hashCode() === k2.hashCode()); // true`} lang="typescript" />
+
+<style>
+	.version-badge {
+		display: inline-block;
+		background: var(--color-primary);
+		color: white;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+		margin-bottom: 1rem;
+	}
+</style>

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import CodeBlock from '$lib/components/ui/CodeBlock.svelte';
+
+	let { data } = $props();
 </script>
 
 <svelte:head>
@@ -9,8 +11,13 @@
 
 <h1>PositionMapper</h1>
 
+{#if data.version}
+	<p class="version-badge">macroforge v{data.version}</p>
+{/if}
+
 <p class="lead">
-	Maps positions between original source code and macro-expanded code. Essential for accurate error reporting and debugging.
+	{data.api.NativePositionMapper?.description ||
+		'Maps positions between original source code and macro-expanded code. Essential for accurate error reporting and debugging.'}
 </p>
 
 <h2 id="getting-mapper">Getting a Mapper</h2>
@@ -120,3 +127,16 @@ function mapError(filepath: string, expandedPos: number, message: string) {
 	<li>Minimal memory overhead</li>
 	<li>Thread-safe access</li>
 </ul>
+
+<style>
+	.version-badge {
+		display: inline-block;
+		background: var(--color-primary);
+		color: white;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+		margin-bottom: 1rem;
+	}
+</style>

@@ -13,8 +13,13 @@
 
 <h1>Clone</h1>
 
+{#if data.version}
+	<p class="version-badge">macroforge v{data.version}</p>
+{/if}
+
 <p class="lead">
-	The <code>Clone</code> macro generates a <code>clone()</code> method that creates a copy of the object.
+	{data.macro?.description ||
+		'The Clone macro generates a clone() method that creates a copy of the object.'}
 </p>
 
 <h2 id="basic-usage">Basic Usage</h2>
@@ -137,3 +142,16 @@ type ApiStatus = "loading" | "success" | "error";`} />
 <CodeBlock code={`const status: ApiStatus = "success";
 const copy = ApiStatus.clone(status);
 console.log(copy); // "success"`} lang="typescript" />
+
+<style>
+	.version-badge {
+		display: inline-block;
+		background: var(--color-primary);
+		color: white;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+		margin-bottom: 1rem;
+	}
+</style>

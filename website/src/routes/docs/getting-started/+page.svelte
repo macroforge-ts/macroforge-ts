@@ -42,7 +42,7 @@
 	The simplest way to use Macroforge is with the built-in derive macros. Add a <code>@derive</code> comment decorator to your class:
 </p>
 
-<CodeBlock code={`/** @derive(Debug, Clone, Eq) */
+<CodeBlock code={`/** @derive(Debug, Clone, PartialEq) */
 class User {
   name: string;
   age: number;
@@ -54,9 +54,9 @@ class User {
 }
 
 // After macro expansion, User has:
-// - toString(): string         (from Debug)
-// - clone(): User              (from Clone)
-// - equals(other: User): boolean  (from Eq)`} lang="typescript" filename="user.ts" />
+// - toString(): string              (from Debug)
+// - clone(): User                   (from Clone)
+// - equals(other: unknown): boolean (from PartialEq)`} lang="typescript" filename="user.ts" />
 
 <h2 id="ide-integration">IDE Integration</h2>
 
