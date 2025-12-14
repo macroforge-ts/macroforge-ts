@@ -1027,30 +1027,53 @@ fn collect_leading_macro_directives(source: &str, target_start: usize) -> Vec<De
         }
     }
 
-    let comment_body = &search_area[start_idx + 3 .. end_idx_in_search_area];
+    // Collect all adjacent JSDoc comments by walking backwards
+    let mut all_directives = Vec::new();
+    let mut current_start = start_idx;
+    let mut current_end = end_idx_in_search_area;
 
-    // Parse ALL macro directives from the comment
-    let directives = parse_all_macro_directives(comment_body);
+    loop {
+        let comment_body = &search_area[current_start + 3..current_end];
+        let directives = parse_all_macro_directives(comment_body);
 
-    directives
-        .into_iter()
-        .map(|(name, args_src)| {
+        for (name, args_src) in directives {
             let final_span_ir = adjust_decorator_span(
                 swc_core::common::Span::new(
-                    swc_core::common::BytePos(start_idx as u32 + 1), // Convert to 1-based BytePos
-                    swc_core::common::BytePos(end_of_comment_block as u32 + 1), // Convert to 1-based BytePos
+                    swc_core::common::BytePos(current_start as u32 + 1),
+                    swc_core::common::BytePos((current_end + 2) as u32 + 1),
                 ),
                 source,
             );
 
-            DecoratorIR {
+            all_directives.push(DecoratorIR {
                 name,
                 args_src,
                 span: final_span_ir,
                 node: None,
-            }
-        })
-        .collect()
+            });
+        }
+
+        // Check if there's another adjacent JSDoc comment before this one
+        let before_comment = &search_area[..current_start];
+        let before_trimmed = before_comment.trim_end();
+
+        // Look for "*/" at the end of the trimmed content
+        if !before_trimmed.ends_with("*/") {
+            break;
+        }
+
+        // Find the matching "/**" for this previous comment
+        let prev_end = before_trimmed.len() - 2; // Position before "*/"
+        let Some(prev_start) = before_trimmed[..prev_end].rfind("/**") else {
+            break;
+        };
+
+        // Continue with the previous comment
+        current_start = prev_start;
+        current_end = prev_end;
+    }
+
+    all_directives
 }
 
 /// Parse ALL macro directives from a JSDoc comment body.
