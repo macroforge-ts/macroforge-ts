@@ -65,13 +65,9 @@ class User {
 import { SerializeContext } from 'macroforge/serde';
 
 class User {
-    /** @debug({ rename: "userId" }) */
-
     id: number;
 
     name: string;
-
-    /** @debug({ skip: true }) */
 
     password: string;
 
@@ -79,9 +75,8 @@ class User {
 
     toString(): string {
         const parts: string[] = [];
-        parts.push('id: ' + this.id);
+        parts.push('userId: ' + this.id);
         parts.push('name: ' + this.name);
-        parts.push('password: ' + this.password);
         parts.push('metadata: ' + this.metadata);
         return 'User { ' + parts.join(', ') + ' }';
     }
@@ -91,7 +86,7 @@ class User {
         return JSON.stringify(this.__serialize(ctx));
     }
 
-    toJSON(): Record<string, unknown> {
+    toObject(): Record<string, unknown> {
         const ctx = SerializeContext.create();
         return this.__serialize(ctx);
     }

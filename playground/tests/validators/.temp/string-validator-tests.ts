@@ -107,7 +107,7 @@ export class EmailValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_email = obj["email"];
+        const __raw_email = obj["email"] as string;
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) {
             errors.push({
                 field: "email",
@@ -266,7 +266,7 @@ export class UrlValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_url = obj["url"];
+        const __raw_url = obj["url"] as string;
         if ((()=>{
             try {
                 new URL(__raw_url);
@@ -446,7 +446,7 @@ export class UuidValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_id = obj["id"];
+        const __raw_id = obj["id"] as string;
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(__raw_id)) {
             errors.push({
                 field: "id",
@@ -605,7 +605,7 @@ export class MaxLengthValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_shortText = obj["shortText"];
+        const __raw_shortText = obj["shortText"] as string;
         if (__raw_shortText.length > 10) {
             errors.push({
                 field: "shortText",
@@ -764,7 +764,7 @@ export class MinLengthValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_longText = obj["longText"];
+        const __raw_longText = obj["longText"] as string;
         if (__raw_longText.length < 5) {
             errors.push({
                 field: "longText",
@@ -923,7 +923,7 @@ export class LengthValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_fixedText = obj["fixedText"];
+        const __raw_fixedText = obj["fixedText"] as string;
         if (__raw_fixedText.length !== 8) {
             errors.push({
                 field: "fixedText",
@@ -1082,7 +1082,7 @@ export class LengthRangeValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_rangedText = obj["rangedText"];
+        const __raw_rangedText = obj["rangedText"] as string;
         if (__raw_rangedText.length < 5 || __raw_rangedText.length > 10) {
             errors.push({
                 field: "rangedText",
@@ -1241,7 +1241,7 @@ export class PatternValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_code = obj["code"];
+        const __raw_code = obj["code"] as string;
         if (!/^[A-Z]{3}$/.test(__raw_code)) {
             errors.push({
                 field: "code",
@@ -1400,7 +1400,7 @@ export class NonEmptyValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_required = obj["required"];
+        const __raw_required = obj["required"] as string;
         if (__raw_required.length === 0) {
             errors.push({
                 field: "required",
@@ -1559,7 +1559,7 @@ export class TrimmedValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_trimmed = obj["trimmed"];
+        const __raw_trimmed = obj["trimmed"] as string;
         if (__raw_trimmed !== __raw_trimmed.trim()) {
             errors.push({
                 field: "trimmed",
@@ -1718,7 +1718,7 @@ export class LowercaseValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_lower = obj["lower"];
+        const __raw_lower = obj["lower"] as string;
         if (__raw_lower !== __raw_lower.toLowerCase()) {
             errors.push({
                 field: "lower",
@@ -1877,7 +1877,7 @@ export class UppercaseValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_upper = obj["upper"];
+        const __raw_upper = obj["upper"] as string;
         if (__raw_upper !== __raw_upper.toUpperCase()) {
             errors.push({
                 field: "upper",
@@ -2036,7 +2036,7 @@ export class CapitalizedValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_cap = obj["cap"];
+        const __raw_cap = obj["cap"] as string;
         if (__raw_cap.length > 0 && __raw_cap[0] !== __raw_cap[0].toUpperCase()) {
             errors.push({
                 field: "cap",
@@ -2195,7 +2195,7 @@ export class UncapitalizedValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_uncap = obj["uncap"];
+        const __raw_uncap = obj["uncap"] as string;
         if (__raw_uncap.length > 0 && __raw_uncap[0] !== __raw_uncap[0].toLowerCase()) {
             errors.push({
                 field: "uncap",
@@ -2354,7 +2354,7 @@ export class StartsWithValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_secureUrl = obj["secureUrl"];
+        const __raw_secureUrl = obj["secureUrl"] as string;
         if (!__raw_secureUrl.startsWith("https://")) {
             errors.push({
                 field: "secureUrl",
@@ -2513,7 +2513,7 @@ export class EndsWithValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_filename = obj["filename"];
+        const __raw_filename = obj["filename"] as string;
         if (!__raw_filename.endsWith(".json")) {
             errors.push({
                 field: "filename",
@@ -2672,7 +2672,7 @@ export class IncludesValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_emailLike = obj["emailLike"];
+        const __raw_emailLike = obj["emailLike"] as string;
         if (!__raw_emailLike.includes("@")) {
             errors.push({
                 field: "emailLike",

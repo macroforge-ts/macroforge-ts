@@ -106,7 +106,7 @@ export class MaxItemsValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_items = obj["items"];
+        const __raw_items = obj["items"] as string[];
         if (Array.isArray(__raw_items)) {
             if (__raw_items.length > 5) {
                 errors.push({
@@ -130,9 +130,7 @@ export class MaxItemsValidator {
             instance.items = __arr;
             __arr.forEach((item, idx)=>{
                 if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.deferPatch((item as any).__refId, (v)=>{
-                        instance.items[idx] = v;
-                    });
+                    ctx.addPatch(instance.items, idx, (item as any).__refId);
                 }
             });
         }
@@ -287,7 +285,7 @@ export class MinItemsValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_items = obj["items"];
+        const __raw_items = obj["items"] as string[];
         if (Array.isArray(__raw_items)) {
             if (__raw_items.length < 2) {
                 errors.push({
@@ -311,9 +309,7 @@ export class MinItemsValidator {
             instance.items = __arr;
             __arr.forEach((item, idx)=>{
                 if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.deferPatch((item as any).__refId, (v)=>{
-                        instance.items[idx] = v;
-                    });
+                    ctx.addPatch(instance.items, idx, (item as any).__refId);
                 }
             });
         }
@@ -468,7 +464,7 @@ export class ItemsCountValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_items = obj["items"];
+        const __raw_items = obj["items"] as string[];
         if (Array.isArray(__raw_items)) {
             if (__raw_items.length !== 3) {
                 errors.push({
@@ -492,9 +488,7 @@ export class ItemsCountValidator {
             instance.items = __arr;
             __arr.forEach((item, idx)=>{
                 if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.deferPatch((item as any).__refId, (v)=>{
-                        instance.items[idx] = v;
-                    });
+                    ctx.addPatch(instance.items, idx, (item as any).__refId);
                 }
             });
         }

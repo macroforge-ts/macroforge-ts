@@ -36,7 +36,7 @@ class User {
         return JSON.stringify(this.__serialize(ctx));
     }
 
-    toJSON(): Record<string, unknown> {
+    toObject(): Record<string, unknown> {
         const ctx = SerializeContext.create();
         return this.__serialize(ctx);
     }
@@ -101,7 +101,7 @@ class User {
         return JSON.stringify(this.__serialize(ctx));
     }
 
-    toJSON(): Record<string, unknown> {
+    toObject(): Record<string, unknown> {
         const ctx = SerializeContext.create();
         return this.__serialize(ctx);
     }
@@ -161,7 +161,7 @@ class User {
         return JSON.stringify(this.__serialize(ctx));
     }
 
-    toJSON(): Record<string, unknown> {
+    toObject(): Record<string, unknown> {
         const ctx = SerializeContext.create();
         return this.__serialize(ctx);
     }
@@ -261,6 +261,10 @@ export namespace ApiResponse {
         const ctx = SerializeContext.create();
         return JSON.stringify(__serialize(self, ctx));
     }
+    export function toObject(self: ApiResponse): Record<string, unknown> {
+        const ctx = SerializeContext.create();
+        return __serialize(self, ctx);
+    }
     export function __serialize(self: ApiResponse, ctx: SerializeContext): Record<string, unknown> {
         const existingId = ctx.getId(self);
         if (existingId !== undefined) {
@@ -349,6 +353,10 @@ export namespace UserProfile {
     export function toStringifiedJSON(value: UserProfile): string {
         const ctx = SerializeContext.create();
         return JSON.stringify(__serialize(value, ctx));
+    }
+    export function toObject(value: UserProfile): Record<string, unknown> {
+        const ctx = SerializeContext.create();
+        return __serialize(value, ctx);
     }
     export function __serialize(
         value: UserProfile,

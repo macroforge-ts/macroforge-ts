@@ -106,7 +106,7 @@ export class GreaterThanValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_positive = obj["positive"];
+        const __raw_positive = obj["positive"] as number;
         if (__raw_positive <= 0) {
             errors.push({
                 field: "positive",
@@ -265,7 +265,7 @@ export class GreaterThanOrEqualToValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_nonNegative = obj["nonNegative"];
+        const __raw_nonNegative = obj["nonNegative"] as number;
         if (__raw_nonNegative < 0) {
             errors.push({
                 field: "nonNegative",
@@ -424,7 +424,7 @@ export class LessThanValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_capped = obj["capped"];
+        const __raw_capped = obj["capped"] as number;
         if (__raw_capped >= 100) {
             errors.push({
                 field: "capped",
@@ -583,7 +583,7 @@ export class LessThanOrEqualToValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_maxed = obj["maxed"];
+        const __raw_maxed = obj["maxed"] as number;
         if (__raw_maxed > 100) {
             errors.push({
                 field: "maxed",
@@ -742,7 +742,7 @@ export class BetweenValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_ranged = obj["ranged"];
+        const __raw_ranged = obj["ranged"] as number;
         if (__raw_ranged < 1 || __raw_ranged > 100) {
             errors.push({
                 field: "ranged",
@@ -901,7 +901,7 @@ export class IntValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_integer = obj["integer"];
+        const __raw_integer = obj["integer"] as number;
         if (!Number.isInteger(__raw_integer)) {
             errors.push({
                 field: "integer",
@@ -1060,7 +1060,7 @@ export class NonNaNValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_valid = obj["valid"];
+        const __raw_valid = obj["valid"] as number;
         if (Number.isNaN(__raw_valid)) {
             errors.push({
                 field: "valid",
@@ -1219,7 +1219,7 @@ export class FiniteValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_finite = obj["finite"];
+        const __raw_finite = obj["finite"] as number;
         if (!Number.isFinite(__raw_finite)) {
             errors.push({
                 field: "finite",
@@ -1378,7 +1378,7 @@ export class PositiveValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_positive = obj["positive"];
+        const __raw_positive = obj["positive"] as number;
         if (__raw_positive <= 0) {
             errors.push({
                 field: "positive",
@@ -1537,7 +1537,7 @@ export class NonNegativeValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_nonNegative = obj["nonNegative"];
+        const __raw_nonNegative = obj["nonNegative"] as number;
         if (__raw_nonNegative < 0) {
             errors.push({
                 field: "nonNegative",
@@ -1696,7 +1696,7 @@ export class NegativeValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_negative = obj["negative"];
+        const __raw_negative = obj["negative"] as number;
         if (__raw_negative >= 0) {
             errors.push({
                 field: "negative",
@@ -1855,7 +1855,7 @@ export class NonPositiveValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_nonPositive = obj["nonPositive"];
+        const __raw_nonPositive = obj["nonPositive"] as number;
         if (__raw_nonPositive > 0) {
             errors.push({
                 field: "nonPositive",
@@ -2014,7 +2014,7 @@ export class MultipleOfValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_multiple = obj["multiple"];
+        const __raw_multiple = obj["multiple"] as number;
         if (__raw_multiple % 5 !== 0) {
             errors.push({
                 field: "multiple",
@@ -2173,7 +2173,7 @@ export class Uint8Validator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_byte = obj["byte"];
+        const __raw_byte = obj["byte"] as number;
         if (!Number.isInteger(__raw_byte) || __raw_byte < 0 || __raw_byte > 255) {
             errors.push({
                 field: "byte",

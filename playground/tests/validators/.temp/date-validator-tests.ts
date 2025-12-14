@@ -106,7 +106,7 @@ export class ValidDateValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_date = obj["date"];
+        const __raw_date = obj["date"] as Date;
         {
             const __dateVal = typeof __raw_date === "string" ? new Date(__raw_date) : __raw_date as Date;
             if (__dateVal == null || isNaN(__dateVal.getTime())) {
@@ -268,7 +268,7 @@ export class GreaterThanDateValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_date = obj["date"];
+        const __raw_date = obj["date"] as Date;
         {
             const __dateVal = typeof __raw_date === "string" ? new Date(__raw_date) : __raw_date as Date;
             if (__dateVal == null || __dateVal.getTime() <= new Date("2020-01-01").getTime()) {
@@ -430,7 +430,7 @@ export class GreaterThanOrEqualToDateValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_date = obj["date"];
+        const __raw_date = obj["date"] as Date;
         {
             const __dateVal = typeof __raw_date === "string" ? new Date(__raw_date) : __raw_date as Date;
             if (__dateVal == null || __dateVal.getTime() < new Date("2020-01-01").getTime()) {
@@ -592,7 +592,7 @@ export class LessThanDateValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_date = obj["date"];
+        const __raw_date = obj["date"] as Date;
         {
             const __dateVal = typeof __raw_date === "string" ? new Date(__raw_date) : __raw_date as Date;
             if (__dateVal == null || __dateVal.getTime() >= new Date("2030-01-01").getTime()) {
@@ -754,7 +754,7 @@ export class LessThanOrEqualToDateValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_date = obj["date"];
+        const __raw_date = obj["date"] as Date;
         {
             const __dateVal = typeof __raw_date === "string" ? new Date(__raw_date) : __raw_date as Date;
             if (__dateVal == null || __dateVal.getTime() > new Date("2030-01-01").getTime()) {
@@ -916,7 +916,7 @@ export class BetweenDateValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_date = obj["date"];
+        const __raw_date = obj["date"] as Date;
         {
             const __dateVal = typeof __raw_date === "string" ? new Date(__raw_date) : __raw_date as Date;
             if (__dateVal == null || __dateVal.getTime() < new Date("2020-01-01").getTime() || __dateVal.getTime() > new Date("2030-01-01").getTime()) {

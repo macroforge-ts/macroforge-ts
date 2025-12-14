@@ -106,7 +106,7 @@ export class GreaterThanBigIntValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_value = obj["value"];
+        const __raw_value = obj["value"] as bigint;
         if (__raw_value <= BigInt(0)) {
             errors.push({
                 field: "value",
@@ -265,7 +265,7 @@ export class GreaterThanOrEqualToBigIntValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_value = obj["value"];
+        const __raw_value = obj["value"] as bigint;
         if (__raw_value < BigInt(0)) {
             errors.push({
                 field: "value",
@@ -424,7 +424,7 @@ export class LessThanBigIntValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_value = obj["value"];
+        const __raw_value = obj["value"] as bigint;
         if (__raw_value >= BigInt(1000)) {
             errors.push({
                 field: "value",
@@ -583,7 +583,7 @@ export class LessThanOrEqualToBigIntValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_value = obj["value"];
+        const __raw_value = obj["value"] as bigint;
         if (__raw_value > BigInt(1000)) {
             errors.push({
                 field: "value",
@@ -742,7 +742,7 @@ export class BetweenBigIntValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_value = obj["value"];
+        const __raw_value = obj["value"] as bigint;
         if (__raw_value < BigInt(0) || __raw_value > BigInt(1000)) {
             errors.push({
                 field: "value",
@@ -901,7 +901,7 @@ export class PositiveBigIntValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_value = obj["value"];
+        const __raw_value = obj["value"] as bigint;
         if (__raw_value <= 0n) {
             errors.push({
                 field: "value",
@@ -1060,7 +1060,7 @@ export class NonNegativeBigIntValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_value = obj["value"];
+        const __raw_value = obj["value"] as bigint;
         if (__raw_value < 0n) {
             errors.push({
                 field: "value",
@@ -1219,7 +1219,7 @@ export class NegativeBigIntValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_value = obj["value"];
+        const __raw_value = obj["value"] as bigint;
         if (__raw_value >= 0n) {
             errors.push({
                 field: "value",
@@ -1378,7 +1378,7 @@ export class NonPositiveBigIntValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_value = obj["value"];
+        const __raw_value = obj["value"] as bigint;
         if (__raw_value > 0n) {
             errors.push({
                 field: "value",

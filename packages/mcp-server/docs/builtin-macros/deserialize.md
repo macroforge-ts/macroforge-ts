@@ -12,8 +12,9 @@ class User {
 ```  
 **After:**
 ```
-import { Result } from 'macroforge/result';
+import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
 
@@ -32,13 +33,53 @@ class User {
         this.createdAt = props.createdAt;
     }
 
-    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<User, string[]> {
+    static fromStringifiedJSON(
+        json: string,
+        opts?: DeserializeOptions
+    ): Result<
+        User,
+        Array<{
+            field: string;
+            message: string;
+        }>
+    > {
+        try {
+            const raw = JSON.parse(json);
+            return User.fromObject(raw, opts);
+        } catch (e) {
+            if (e instanceof DeserializeError) {
+                return Result.err(e.errors);
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return Result.err([
+                {
+                    field: '_root',
+                    message
+                }
+            ]);
+        }
+    }
+
+    static fromObject(
+        obj: unknown,
+        opts?: DeserializeOptions
+    ): Result<
+        User,
+        Array<{
+            field: string;
+            message: string;
+        }>
+    > {
         try {
             const ctx = DeserializeContext.create();
-            const raw = JSON.parse(json);
-            const resultOrRef = User.__deserialize(raw, ctx);
+            const resultOrRef = User.__deserialize(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
-                return Result.err(['User.fromStringifiedJSON: root cannot be a forward reference']);
+                return Result.err([
+                    {
+                        field: '_root',
+                        message: 'User.fromObject: root cannot be a forward reference'
+                    }
+                ]);
             }
             ctx.applyPatches();
             if (opts?.freeze) {
@@ -46,8 +87,16 @@ class User {
             }
             return Result.ok(resultOrRef);
         } catch (e) {
+            if (e instanceof DeserializeError) {
+                return Result.err(e.errors);
+            }
             const message = e instanceof Error ? e.message : String(e);
-            return Result.err(message.split('; '));
+            return Result.err([
+                {
+                    field: '_root',
+                    message
+                }
+            ]);
         }
     }
 
@@ -56,21 +105,38 @@ class User {
             return ctx.getOrDefer(value.__ref);
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new Error('User.__deserialize: expected an object');
+            throw new DeserializeError([
+                {
+                    field: '_root',
+                    message: 'User.__deserialize: expected an object'
+                }
+            ]);
         }
         const obj = value as Record<string, unknown>;
-        const errors: string[] = [];
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
         if (!('name' in obj)) {
-            errors.push('User.__deserialize: missing required field "name"');
+            errors.push({
+                field: 'name',
+                message: 'missing required field'
+            });
         }
         if (!('age' in obj)) {
-            errors.push('User.__deserialize: missing required field "age"');
+            errors.push({
+                field: 'age',
+                message: 'missing required field'
+            });
         }
         if (!('createdAt' in obj)) {
-            errors.push('User.__deserialize: missing required field "createdAt"');
+            errors.push({
+                field: 'createdAt',
+                message: 'missing required field'
+            });
         }
         if (errors.length > 0) {
-            throw new Error(errors.join('; '));
+            throw new DeserializeError(errors);
         }
         const instance = Object.create(User.prototype) as User;
         if (obj.__id !== undefined) {
@@ -78,27 +144,44 @@ class User {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_name = obj['name'];
-            (instance as any).name = __raw_name;
+            const __raw_name = obj['name'] as string;
+            instance.name = __raw_name;
         }
         {
-            const __raw_age = obj['age'];
-            (instance as any).age = __raw_age;
+            const __raw_age = obj['age'] as number;
+            instance.age = __raw_age;
         }
         {
-            const __raw_createdAt = obj['createdAt'];
+            const __raw_createdAt = obj['createdAt'] as Date;
             {
                 const __dateVal =
                     typeof __raw_createdAt === 'string'
                         ? new Date(__raw_createdAt)
                         : (__raw_createdAt as Date);
-                (instance as any).createdAt = __dateVal;
+                instance.createdAt = __dateVal;
             }
         }
         if (errors.length > 0) {
-            throw new Error(errors.join('; '));
+            throw new DeserializeError(errors);
         }
         return instance;
+    }
+
+    static validateField<K extends keyof User>(
+        field: K,
+        value: User[K]
+    ): Array<{
+        field: string;
+        message: string;
+    }> {
+        return [];
+    }
+
+    static validateFields(partial: Partial<User>): Array<{
+        field: string;
+        message: string;
+    }> {
+        return [];
     }
 }
 ``` ```
@@ -155,8 +238,9 @@ class User {
 ```  
 **After:**
 ```
-import { Result } from 'macroforge/result';
+import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
 
@@ -173,13 +257,53 @@ class User {
         this.name = props.name;
     }
 
-    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<User, string[]> {
+    static fromStringifiedJSON(
+        json: string,
+        opts?: DeserializeOptions
+    ): Result<
+        User,
+        Array<{
+            field: string;
+            message: string;
+        }>
+    > {
+        try {
+            const raw = JSON.parse(json);
+            return User.fromObject(raw, opts);
+        } catch (e) {
+            if (e instanceof DeserializeError) {
+                return Result.err(e.errors);
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return Result.err([
+                {
+                    field: '_root',
+                    message
+                }
+            ]);
+        }
+    }
+
+    static fromObject(
+        obj: unknown,
+        opts?: DeserializeOptions
+    ): Result<
+        User,
+        Array<{
+            field: string;
+            message: string;
+        }>
+    > {
         try {
             const ctx = DeserializeContext.create();
-            const raw = JSON.parse(json);
-            const resultOrRef = User.__deserialize(raw, ctx);
+            const resultOrRef = User.__deserialize(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
-                return Result.err(['User.fromStringifiedJSON: root cannot be a forward reference']);
+                return Result.err([
+                    {
+                        field: '_root',
+                        message: 'User.fromObject: root cannot be a forward reference'
+                    }
+                ]);
             }
             ctx.applyPatches();
             if (opts?.freeze) {
@@ -187,8 +311,16 @@ class User {
             }
             return Result.ok(resultOrRef);
         } catch (e) {
+            if (e instanceof DeserializeError) {
+                return Result.err(e.errors);
+            }
             const message = e instanceof Error ? e.message : String(e);
-            return Result.err(message.split('; '));
+            return Result.err([
+                {
+                    field: '_root',
+                    message
+                }
+            ]);
         }
     }
 
@@ -197,18 +329,32 @@ class User {
             return ctx.getOrDefer(value.__ref);
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new Error('User.__deserialize: expected an object');
+            throw new DeserializeError([
+                {
+                    field: '_root',
+                    message: 'User.__deserialize: expected an object'
+                }
+            ]);
         }
         const obj = value as Record<string, unknown>;
-        const errors: string[] = [];
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
         if (!('user_id' in obj)) {
-            errors.push('User.__deserialize: missing required field "user_id"');
+            errors.push({
+                field: 'user_id',
+                message: 'missing required field'
+            });
         }
         if (!('full_name' in obj)) {
-            errors.push('User.__deserialize: missing required field "full_name"');
+            errors.push({
+                field: 'full_name',
+                message: 'missing required field'
+            });
         }
         if (errors.length > 0) {
-            throw new Error(errors.join('; '));
+            throw new DeserializeError(errors);
         }
         const instance = Object.create(User.prototype) as User;
         if (obj.__id !== undefined) {
@@ -216,17 +362,34 @@ class User {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['user_id'];
-            (instance as any).id = __raw_id;
+            const __raw_id = obj['user_id'] as string;
+            instance.id = __raw_id;
         }
         {
-            const __raw_name = obj['full_name'];
-            (instance as any).name = __raw_name;
+            const __raw_name = obj['full_name'] as string;
+            instance.name = __raw_name;
         }
         if (errors.length > 0) {
-            throw new Error(errors.join('; '));
+            throw new DeserializeError(errors);
         }
         return instance;
+    }
+
+    static validateField<K extends keyof User>(
+        field: K,
+        value: User[K]
+    ): Array<{
+        field: string;
+        message: string;
+    }> {
+        return [];
+    }
+
+    static validateFields(partial: Partial<User>): Array<{
+        field: string;
+        message: string;
+    }> {
+        return [];
     }
 }
 ``` ```
@@ -249,8 +412,9 @@ class Config {
 ```  
 **After:**
 ```
-import { Result } from 'macroforge/result';
+import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
 
@@ -271,14 +435,52 @@ class Config {
         this.debug = props.debug as boolean;
     }
 
-    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<Config, string[]> {
+    static fromStringifiedJSON(
+        json: string,
+        opts?: DeserializeOptions
+    ): Result<
+        Config,
+        Array<{
+            field: string;
+            message: string;
+        }>
+    > {
+        try {
+            const raw = JSON.parse(json);
+            return Config.fromObject(raw, opts);
+        } catch (e) {
+            if (e instanceof DeserializeError) {
+                return Result.err(e.errors);
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return Result.err([
+                {
+                    field: '_root',
+                    message
+                }
+            ]);
+        }
+    }
+
+    static fromObject(
+        obj: unknown,
+        opts?: DeserializeOptions
+    ): Result<
+        Config,
+        Array<{
+            field: string;
+            message: string;
+        }>
+    > {
         try {
             const ctx = DeserializeContext.create();
-            const raw = JSON.parse(json);
-            const resultOrRef = Config.__deserialize(raw, ctx);
+            const resultOrRef = Config.__deserialize(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
-                    'Config.fromStringifiedJSON: root cannot be a forward reference'
+                    {
+                        field: '_root',
+                        message: 'Config.fromObject: root cannot be a forward reference'
+                    }
                 ]);
             }
             ctx.applyPatches();
@@ -287,8 +489,16 @@ class Config {
             }
             return Result.ok(resultOrRef);
         } catch (e) {
+            if (e instanceof DeserializeError) {
+                return Result.err(e.errors);
+            }
             const message = e instanceof Error ? e.message : String(e);
-            return Result.err(message.split('; '));
+            return Result.err([
+                {
+                    field: '_root',
+                    message
+                }
+            ]);
         }
     }
 
@@ -297,15 +507,26 @@ class Config {
             return ctx.getOrDefer(value.__ref);
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new Error('Config.__deserialize: expected an object');
+            throw new DeserializeError([
+                {
+                    field: '_root',
+                    message: 'Config.__deserialize: expected an object'
+                }
+            ]);
         }
         const obj = value as Record<string, unknown>;
-        const errors: string[] = [];
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
         if (!('host' in obj)) {
-            errors.push('Config.__deserialize: missing required field "host"');
+            errors.push({
+                field: 'host',
+                message: 'missing required field'
+            });
         }
         if (errors.length > 0) {
-            throw new Error(errors.join('; '));
+            throw new DeserializeError(errors);
         }
         const instance = Object.create(Config.prototype) as Config;
         if (obj.__id !== undefined) {
@@ -313,25 +534,42 @@ class Config {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_host = obj['host'];
-            (instance as any).host = __raw_host;
+            const __raw_host = obj['host'] as string;
+            instance.host = __raw_host;
         }
         if ('port' in obj && obj['port'] !== undefined) {
-            const __raw_port = obj['port'];
-            (instance as any).port = __raw_port;
+            const __raw_port = obj['port'] as string;
+            instance.port = __raw_port;
         } else {
-            (instance as any).port = 3000;
+            instance.port = 3000;
         }
         if ('debug' in obj && obj['debug'] !== undefined) {
-            const __raw_debug = obj['debug'];
-            (instance as any).debug = __raw_debug;
+            const __raw_debug = obj['debug'] as boolean;
+            instance.debug = __raw_debug;
         } else {
-            (instance as any).debug = false;
+            instance.debug = false;
         }
         if (errors.length > 0) {
-            throw new Error(errors.join('; '));
+            throw new DeserializeError(errors);
         }
         return instance;
+    }
+
+    static validateField<K extends keyof Config>(
+        field: K,
+        value: Config[K]
+    ): Array<{
+        field: string;
+        message: string;
+    }> {
+        return [];
+    }
+
+    static validateFields(partial: Partial<Config>): Array<{
+        field: string;
+        message: string;
+    }> {
+        return [];
     }
 }
 ``` ```
@@ -417,8 +655,9 @@ interface ApiResponse {
 ```  
 **After:**
 ```
-import { Result } from 'macroforge/result';
+import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
 
@@ -432,14 +671,31 @@ export namespace ApiResponse {
     export function fromStringifiedJSON(
         json: string,
         opts?: DeserializeOptions
-    ): Result<ApiResponse, string[]> {
+    ): Result<ApiResponse, Array<{ field: string; message: string }>> {
+        try {
+            const raw = JSON.parse(json);
+            return fromObject(raw, opts);
+        } catch (e) {
+            if (e instanceof DeserializeError) {
+                return Result.err(e.errors);
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return Result.err([{ field: '_root', message }]);
+        }
+    }
+    export function fromObject(
+        obj: unknown,
+        opts?: DeserializeOptions
+    ): Result<ApiResponse, Array<{ field: string; message: string }>> {
         try {
             const ctx = DeserializeContext.create();
-            const raw = JSON.parse(json);
-            const resultOrRef = __deserialize(raw, ctx);
+            const resultOrRef = __deserialize(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
-                    'ApiResponse.fromStringifiedJSON: root cannot be a forward reference'
+                    {
+                        field: '_root',
+                        message: 'ApiResponse.fromObject: root cannot be a forward reference'
+                    }
                 ]);
             }
             ctx.applyPatches();
@@ -448,8 +704,11 @@ export namespace ApiResponse {
             }
             return Result.ok(resultOrRef);
         } catch (e) {
+            if (e instanceof DeserializeError) {
+                return Result.err(e.errors);
+            }
             const message = e instanceof Error ? e.message : String(e);
-            return Result.err(message.split('; '));
+            return Result.err([{ field: '_root', message }]);
         }
     }
     export function __deserialize(value: any, ctx: DeserializeContext): ApiResponse | PendingRef {
@@ -457,21 +716,23 @@ export namespace ApiResponse {
             return ctx.getOrDefer(value.__ref);
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new Error('ApiResponse.__deserialize: expected an object');
+            throw new DeserializeError([
+                { field: '_root', message: 'ApiResponse.__deserialize: expected an object' }
+            ]);
         }
         const obj = value as Record<string, unknown>;
-        const errors: string[] = [];
+        const errors: Array<{ field: string; message: string }> = [];
         if (!('status' in obj)) {
-            errors.push('ApiResponse.__deserialize: missing required field "status"');
+            errors.push({ field: 'status', message: 'missing required field' });
         }
         if (!('message' in obj)) {
-            errors.push('ApiResponse.__deserialize: missing required field "message"');
+            errors.push({ field: 'message', message: 'missing required field' });
         }
         if (!('timestamp' in obj)) {
-            errors.push('ApiResponse.__deserialize: missing required field "timestamp"');
+            errors.push({ field: 'timestamp', message: 'missing required field' });
         }
         if (errors.length > 0) {
-            throw new Error(errors.join('; '));
+            throw new DeserializeError(errors);
         }
         const instance: any = {};
         if (obj.__id !== undefined) {
@@ -479,22 +740,38 @@ export namespace ApiResponse {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_status = obj['status'];
+            const __raw_status = obj['status'] as number;
             instance.status = __raw_status;
         }
         {
-            const __raw_message = obj['message'];
+            const __raw_message = obj['message'] as string;
             instance.message = __raw_message;
         }
         {
-            const __raw_timestamp = obj['timestamp'];
-            instance.timestamp =
-                typeof __raw_timestamp === 'string' ? new Date(__raw_timestamp) : __raw_timestamp;
+            const __raw_timestamp = obj['timestamp'] as Date;
+            {
+                const __dateVal =
+                    typeof __raw_timestamp === 'string'
+                        ? new Date(__raw_timestamp)
+                        : (__raw_timestamp as Date);
+                instance.timestamp = __dateVal;
+            }
         }
         if (errors.length > 0) {
-            throw new Error(errors.join('; '));
+            throw new DeserializeError(errors);
         }
         return instance as ApiResponse;
+    }
+    export function validateField<K extends keyof ApiResponse>(
+        field: K,
+        value: ApiResponse[K]
+    ): Array<{ field: string; message: string }> {
+        return [];
+    }
+    export function validateFields(
+        partial: Partial<ApiResponse>
+    ): Array<{ field: string; message: string }> {
+        return [];
     }
 }
 ``` ```
@@ -579,8 +856,11 @@ type UserProfile = {
 ```  
 **After:**
 ```
+import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
+import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
+import { PendingRef } from 'macroforge/serde';
 
 type UserProfile = {
     id: string;
@@ -589,28 +869,110 @@ type UserProfile = {
 };
 
 export namespace UserProfile {
-    export function fromStringifiedJSON(json: string, opts?: DeserializeOptions): UserProfile {
-        const ctx = DeserializeContext.create();
-        const raw = JSON.parse(json);
-        const result = __deserialize(raw, ctx);
-        ctx.applyPatches();
-        if (opts?.freeze) {
-            ctx.freezeAll();
+    export function fromStringifiedJSON(
+        json: string,
+        opts?: DeserializeOptions
+    ): Result<UserProfile, Array<{ field: string; message: string }>> {
+        try {
+            const raw = JSON.parse(json);
+            return fromObject(raw, opts);
+        } catch (e) {
+            if (e instanceof DeserializeError) {
+                return Result.err(e.errors);
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return Result.err([{ field: '_root', message }]);
         }
-        return result;
     }
-    export function __deserialize(value: any, ctx: DeserializeContext): UserProfile {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref) as UserProfile;
+    export function fromObject(
+        obj: unknown,
+        opts?: DeserializeOptions
+    ): Result<UserProfile, Array<{ field: string; message: string }>> {
+        try {
+            const ctx = DeserializeContext.create();
+            const resultOrRef = __deserialize(obj, ctx);
+            if (PendingRef.is(resultOrRef)) {
+                return Result.err([
+                    {
+                        field: '_root',
+                        message: 'UserProfile.fromObject: root cannot be a forward reference'
+                    }
+                ]);
+            }
+            ctx.applyPatches();
+            if (opts?.freeze) {
+                ctx.freezeAll();
+            }
+            return Result.ok(resultOrRef);
+        } catch (e) {
+            if (e instanceof DeserializeError) {
+                return Result.err(e.errors);
+            }
+            const message = e instanceof Error ? e.message : String(e);
+            return Result.err([{ field: '_root', message }]);
         }
-        const instance = { ...value };
-        delete instance.__type;
-        delete instance.__id;
-        if (value.__id !== undefined) {
-            ctx.register(value.__id as number, instance);
+    }
+    export function __deserialize(value: any, ctx: DeserializeContext): UserProfile | PendingRef {
+        if (value?.__ref !== undefined) {
+            return ctx.getOrDefer(value.__ref) as UserProfile | PendingRef;
+        }
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new DeserializeError([
+                { field: '_root', message: 'UserProfile.__deserialize: expected an object' }
+            ]);
+        }
+        const obj = value as Record<string, unknown>;
+        const errors: Array<{ field: string; message: string }> = [];
+        if (!('id' in obj)) {
+            errors.push({ field: 'id', message: 'missing required field' });
+        }
+        if (!('name' in obj)) {
+            errors.push({ field: 'name', message: 'missing required field' });
+        }
+        if (!('createdAt' in obj)) {
+            errors.push({ field: 'createdAt', message: 'missing required field' });
+        }
+        if (errors.length > 0) {
+            throw new DeserializeError(errors);
+        }
+        const instance: any = {};
+        if (obj.__id !== undefined) {
+            ctx.register(obj.__id as number, instance);
         }
         ctx.trackForFreeze(instance);
+        {
+            const __raw_id = obj['id'] as string;
+            instance.id = __raw_id;
+        }
+        {
+            const __raw_name = obj['name'] as string;
+            instance.name = __raw_name;
+        }
+        {
+            const __raw_createdAt = obj['createdAt'] as Date;
+            {
+                const __dateVal =
+                    typeof __raw_createdAt === 'string'
+                        ? new Date(__raw_createdAt)
+                        : (__raw_createdAt as Date);
+                instance.createdAt = __dateVal;
+            }
+        }
+        if (errors.length > 0) {
+            throw new DeserializeError(errors);
+        }
         return instance as UserProfile;
+    }
+    export function validateField<K extends keyof UserProfile>(
+        field: K,
+        value: UserProfile[K]
+    ): Array<{ field: string; message: string }> {
+        return [];
+    }
+    export function validateFields(
+        partial: Partial<UserProfile>
+    ): Array<{ field: string; message: string }> {
+        return [];
     }
 }
 ``` ```

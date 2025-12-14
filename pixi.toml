@@ -8,6 +8,7 @@ version = "0.1.0"
 [tasks]
 build = { cmd = "pixi run build:rust && pixi run build:plugin" }
 "build:rust" = { cmd = "cd crates/macroforge_ts && bun x napi build --platform --release" }
+"build:website" = {cmd = "cd website && npm run build"}
 "build:plugin" = { cmd = "bun run --cwd packages/vite-plugin build" }
 "build:@playground/macro" = { cmd = "cd playground/macro && bun x napi build --platform --release -p playground-macros" }
 "test:rust" = { cmd = "cd crates && cargo test --workspace" }

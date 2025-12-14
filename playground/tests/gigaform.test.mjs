@@ -282,7 +282,7 @@ describe("Gigaform field controllers", () => {
 
     assert.ok(result.code.includes("validate: ()"), "Should generate validate method");
     assert.ok(result.code.includes('FilterForm.validateField("username", data.username)'), "Should call per-field validation");
-    assert.ok(result.code.includes(".map(e => e.message)"), "Should extract messages");
+    assert.ok(result.code.includes(".map((e: { field: string; message: string }) => e.message)"), "Should extract messages");
   });
 
   test("generates path array for each field", () => {
