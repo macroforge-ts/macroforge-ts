@@ -1,7 +1,7 @@
 {
   "name": "@macroforge/vite-plugin",
   "kind": "typescript_package",
-  "version": "0.1.33",
+  "version": "0.1.34",
   "description": "",
   "overview": "@macroforge/vite-plugin\n\nVite plugin for Macroforge compile-time TypeScript macro expansion.\n\nThis plugin integrates Macroforge's Rust-based macro expander into the Vite build pipeline,\nenabling compile-time code generation through `@derive` decorators. It processes TypeScript\nfiles during the build, expands macros, generates type definitions, and emits metadata.\n\n@example\n```typescript\nimport { defineConfig } from 'vite';\nimport macroforgePlugin from '@macroforge/vite-plugin';\n\nexport default defineConfig({\nplugins: [\nmacroforgePlugin({\ngenerateTypes: true,\ntypesOutputDir: 'src/types/generated',\nemitMetadata: true,\n}),\n],\n});\n```",
   "items": [
