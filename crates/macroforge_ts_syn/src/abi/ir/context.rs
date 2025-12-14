@@ -125,6 +125,43 @@ pub enum TargetIR {
     Other,
 }
 
+/// Function naming style for generated functions on non-class types.
+///
+/// Controls how standalone functions are named when generated for enums,
+/// interfaces, and type aliases. Classes always use instance methods.
+///
+/// # Example
+///
+/// For a type `MyEnum` with a `clone` function:
+/// - `Suffix` (default): `cloneMyEnum(value: MyEnum): MyEnum`
+/// - `Prefix`: `myEnumClone(value: MyEnum): MyEnum`
+/// - `Generic`: `clone<T extends MyEnum>(value: T): T`
+/// - `Namespace`: `namespace MyEnum { function clone(...) }` (legacy)
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum FunctionNamingStyle {
+    /// Suffix the type name to the function (default).
+    ///
+    /// Example: `cloneMyType(value: MyType): MyType`
+    #[default]
+    Suffix,
+
+    /// Prefix the type name to the function.
+    ///
+    /// Example: `myTypeClone(value: MyType): MyType`
+    Prefix,
+
+    /// Use TypeScript generics with type constraints.
+    ///
+    /// Example: `clone<T extends MyType>(value: T): T`
+    Generic,
+
+    /// Wrap in a namespace (legacy behavior).
+    ///
+    /// Example: `namespace MyType { export function clone(...) }`
+    Namespace,
+}
+
 /// Context provided to macros during execution.
 ///
 /// This is the primary input to all macro functions. It contains:
@@ -200,6 +237,13 @@ pub struct MacroContextIR {
     /// The source code of the target (class, enum, etc.)
     /// This enables macros to parse the source themselves using TsStream
     pub target_source: String,
+
+    /// Function naming style for generated functions on non-class types.
+    ///
+    /// Controls how standalone functions are named when generated for enums,
+    /// interfaces, and type aliases. Classes always use instance methods.
+    #[serde(default)]
+    pub function_naming_style: FunctionNamingStyle,
 }
 
 impl MacroContextIR {
@@ -224,12 +268,19 @@ impl MacroContextIR {
             file_name,
             target: TargetIR::Class(class),
             target_source,
+            function_naming_style: FunctionNamingStyle::default(),
         }
     }
 
     /// Set the macro name span (builder pattern)
     pub fn with_macro_name_span(mut self, span: SpanIR) -> Self {
         self.macro_name_span = Some(span);
+        self
+    }
+
+    /// Set the function naming style (builder pattern)
+    pub fn with_function_naming_style(mut self, style: FunctionNamingStyle) -> Self {
+        self.function_naming_style = style;
         self
     }
 
@@ -291,6 +342,7 @@ impl MacroContextIR {
             file_name,
             target: TargetIR::Interface(interface),
             target_source,
+            function_naming_style: FunctionNamingStyle::default(),
         }
     }
 
@@ -315,6 +367,7 @@ impl MacroContextIR {
             file_name,
             target: TargetIR::TypeAlias(type_alias),
             target_source,
+            function_naming_style: FunctionNamingStyle::default(),
         }
     }
 
@@ -339,6 +392,7 @@ impl MacroContextIR {
             file_name,
             target: TargetIR::Enum(enum_ir),
             target_source,
+            function_naming_style: FunctionNamingStyle::default(),
         }
     }
 }
