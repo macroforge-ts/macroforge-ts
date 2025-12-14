@@ -220,7 +220,7 @@ impl MacroDispatcher {
                             "Macro '{}' is not a Macroforge built-in macro. Ensure you are using the 'import macro' syntax import statement.",
                             ctx.macro_name
                         ),
-                        span: Some(ctx.error_span()),
+                        span: Some(ctx.decorator_span),
                         notes: vec![],
                         help: None,
                     }],
