@@ -239,9 +239,9 @@ export namespace Point {
             return Result.err([{ field: '_root', message }]);
         }
     }
-    export function __deserialize(value: any, ctx: DeserializeContext): Point | PendingRef<Point> {
+    export function __deserialize(value: any, ctx: DeserializeContext): Point | PendingRef {
         if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref) as Point | PendingRef<Point>;
+            return ctx.getOrDefer(value.__ref) as Point | PendingRef;
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
             throw new DeserializeError([
@@ -265,17 +265,28 @@ export namespace Point {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_x = obj['x'];
+            const __raw_x = obj['x'] as number;
             instance.x = __raw_x;
         }
         {
-            const __raw_y = obj['y'];
+            const __raw_y = obj['y'] as number;
             instance.y = __raw_y;
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
         return instance as Point;
+    }
+    export function validateField<K extends keyof Point>(
+        field: K,
+        value: Point[K]
+    ): Array<{ field: string; message: string }> {
+        return [];
+    }
+    export function validateFields(
+        partial: Partial<Point>
+    ): Array<{ field: string; message: string }> {
+        return [];
     }
 }
 
@@ -397,12 +408,9 @@ export namespace UserProfile {
             return Result.err([{ field: '_root', message }]);
         }
     }
-    export function __deserialize(
-        value: any,
-        ctx: DeserializeContext
-    ): UserProfile | PendingRef<UserProfile> {
+    export function __deserialize(value: any, ctx: DeserializeContext): UserProfile | PendingRef {
         if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref) as UserProfile | PendingRef<UserProfile>;
+            return ctx.getOrDefer(value.__ref) as UserProfile | PendingRef;
         }
         if (typeof value !== 'object' || value === null || Array.isArray(value)) {
             throw new DeserializeError([
@@ -435,29 +443,40 @@ export namespace UserProfile {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'];
+            const __raw_id = obj['id'] as string;
             instance.id = __raw_id;
         }
         {
-            const __raw_username = obj['username'];
+            const __raw_username = obj['username'] as string;
             instance.username = __raw_username;
         }
         {
-            const __raw_email = obj['email'];
+            const __raw_email = obj['email'] as string;
             instance.email = __raw_email;
         }
         {
-            const __raw_age = obj['age'];
+            const __raw_age = obj['age'] as number;
             instance.age = __raw_age;
         }
         {
-            const __raw_isVerified = obj['isVerified'];
+            const __raw_isVerified = obj['isVerified'] as boolean;
             instance.isVerified = __raw_isVerified;
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
         return instance as UserProfile;
+    }
+    export function validateField<K extends keyof UserProfile>(
+        field: K,
+        value: UserProfile[K]
+    ): Array<{ field: string; message: string }> {
+        return [];
+    }
+    export function validateFields(
+        partial: Partial<UserProfile>
+    ): Array<{ field: string; message: string }> {
+        return [];
     }
 }
 

@@ -8,6 +8,8 @@ import { PendingRef } from 'macroforge/serde';
  * Tests string, number, array, and date validators with real form validation.
  */
 
+import { Result } from 'macroforge/utils';
+
 /** @derive(Deserialize) */
 export class UserRegistrationForm {
     /** @serde({ validate: ["email"] }) */
@@ -163,17 +165,17 @@ export class UserRegistrationForm {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_email = obj['email'];
+            const __raw_email = obj['email'] as string;
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) {
                 errors.push({
                     field: 'email',
                     message: 'must be a valid email'
                 });
             }
-            (instance as any).email = __raw_email;
+            instance.email = __raw_email;
         }
         {
-            const __raw_password = obj['password'];
+            const __raw_password = obj['password'] as string;
             if (__raw_password.length < 8) {
                 errors.push({
                     field: 'password',
@@ -186,10 +188,10 @@ export class UserRegistrationForm {
                     message: 'must have at most 50 characters'
                 });
             }
-            (instance as any).password = __raw_password;
+            instance.password = __raw_password;
         }
         {
-            const __raw_username = obj['username'];
+            const __raw_username = obj['username'] as string;
             if (__raw_username.length < 3) {
                 errors.push({
                     field: 'username',
@@ -214,10 +216,10 @@ export class UserRegistrationForm {
                     message: 'must match the required pattern'
                 });
             }
-            (instance as any).username = __raw_username;
+            instance.username = __raw_username;
         }
         {
-            const __raw_age = obj['age'];
+            const __raw_age = obj['age'] as number;
             if (!Number.isInteger(__raw_age)) {
                 errors.push({
                     field: 'age',
@@ -230,10 +232,10 @@ export class UserRegistrationForm {
                     message: 'must be between 18 and 120'
                 });
             }
-            (instance as any).age = __raw_age;
+            instance.age = __raw_age;
         }
         {
-            const __raw_website = obj['website'];
+            const __raw_website = obj['website'] as string;
             if (
                 (() => {
                     try {
@@ -249,12 +251,212 @@ export class UserRegistrationForm {
                     message: 'must be a valid URL'
                 });
             }
-            (instance as any).website = __raw_website;
+            instance.website = __raw_website;
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
         return instance;
+    }
+
+    static validateField<K extends keyof UserRegistrationForm>(
+        field: K,
+        value: UserRegistrationForm[K]
+    ): Array<{
+        field: string;
+        message: string;
+    }> {
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        switch (field) {
+            case 'email': {
+                const __val = value as string;
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
+                    errors.push({
+                        field: 'email',
+                        message: 'must be a valid email'
+                    });
+                }
+                break;
+            }
+            case 'password': {
+                const __val = value as string;
+                if (__val.length < 8) {
+                    errors.push({
+                        field: 'password',
+                        message: 'must have at least 8 characters'
+                    });
+                }
+                if (__val.length > 50) {
+                    errors.push({
+                        field: 'password',
+                        message: 'must have at most 50 characters'
+                    });
+                }
+                break;
+            }
+            case 'username': {
+                const __val = value as string;
+                if (__val.length < 3) {
+                    errors.push({
+                        field: 'username',
+                        message: 'must have at least 3 characters'
+                    });
+                }
+                if (__val.length > 20) {
+                    errors.push({
+                        field: 'username',
+                        message: 'must have at most 20 characters'
+                    });
+                }
+                if (__val !== __val.toLowerCase()) {
+                    errors.push({
+                        field: 'username',
+                        message: 'must be lowercase'
+                    });
+                }
+                if (!/^[a-z][a-z0-9_]+$/.test(__val)) {
+                    errors.push({
+                        field: 'username',
+                        message: 'must match the required pattern'
+                    });
+                }
+                break;
+            }
+            case 'age': {
+                const __val = value as number;
+                if (!Number.isInteger(__val)) {
+                    errors.push({
+                        field: 'age',
+                        message: 'must be an integer'
+                    });
+                }
+                if (__val < 18 || __val > 120) {
+                    errors.push({
+                        field: 'age',
+                        message: 'must be between 18 and 120'
+                    });
+                }
+                break;
+            }
+            case 'website': {
+                const __val = value as string;
+                if (
+                    (() => {
+                        try {
+                            new URL(__val);
+                            return false;
+                        } catch {
+                            return true;
+                        }
+                    })()
+                ) {
+                    errors.push({
+                        field: 'website',
+                        message: 'must be a valid URL'
+                    });
+                }
+                break;
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: Partial<UserRegistrationForm>): Array<{
+        field: string;
+        message: string;
+    }> {
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        if ('email' in partial && partial.email !== undefined) {
+            const __val = partial.email as string;
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
+                errors.push({
+                    field: 'email',
+                    message: 'must be a valid email'
+                });
+            }
+        }
+        if ('password' in partial && partial.password !== undefined) {
+            const __val = partial.password as string;
+            if (__val.length < 8) {
+                errors.push({
+                    field: 'password',
+                    message: 'must have at least 8 characters'
+                });
+            }
+            if (__val.length > 50) {
+                errors.push({
+                    field: 'password',
+                    message: 'must have at most 50 characters'
+                });
+            }
+        }
+        if ('username' in partial && partial.username !== undefined) {
+            const __val = partial.username as string;
+            if (__val.length < 3) {
+                errors.push({
+                    field: 'username',
+                    message: 'must have at least 3 characters'
+                });
+            }
+            if (__val.length > 20) {
+                errors.push({
+                    field: 'username',
+                    message: 'must have at most 20 characters'
+                });
+            }
+            if (__val !== __val.toLowerCase()) {
+                errors.push({
+                    field: 'username',
+                    message: 'must be lowercase'
+                });
+            }
+            if (!/^[a-z][a-z0-9_]+$/.test(__val)) {
+                errors.push({
+                    field: 'username',
+                    message: 'must match the required pattern'
+                });
+            }
+        }
+        if ('age' in partial && partial.age !== undefined) {
+            const __val = partial.age as number;
+            if (!Number.isInteger(__val)) {
+                errors.push({
+                    field: 'age',
+                    message: 'must be an integer'
+                });
+            }
+            if (__val < 18 || __val > 120) {
+                errors.push({
+                    field: 'age',
+                    message: 'must be between 18 and 120'
+                });
+            }
+        }
+        if ('website' in partial && partial.website !== undefined) {
+            const __val = partial.website as string;
+            if (
+                (() => {
+                    try {
+                        new URL(__val);
+                        return false;
+                    } catch {
+                        return true;
+                    }
+                })()
+            ) {
+                errors.push({
+                    field: 'website',
+                    message: 'must be a valid URL'
+                });
+            }
+        }
+        return errors;
     }
 }
 
@@ -412,7 +614,7 @@ export class ProductForm {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_name = obj['name'];
+            const __raw_name = obj['name'] as string;
             if (__raw_name.length === 0) {
                 errors.push({
                     field: 'name',
@@ -425,10 +627,10 @@ export class ProductForm {
                     message: 'must have at most 100 characters'
                 });
             }
-            (instance as any).name = __raw_name;
+            instance.name = __raw_name;
         }
         {
-            const __raw_price = obj['price'];
+            const __raw_price = obj['price'] as number;
             if (__raw_price <= 0) {
                 errors.push({
                     field: 'price',
@@ -441,10 +643,10 @@ export class ProductForm {
                     message: 'must be less than 1000000'
                 });
             }
-            (instance as any).price = __raw_price;
+            instance.price = __raw_price;
         }
         {
-            const __raw_quantity = obj['quantity'];
+            const __raw_quantity = obj['quantity'] as number;
             if (!Number.isInteger(__raw_quantity)) {
                 errors.push({
                     field: 'quantity',
@@ -457,10 +659,10 @@ export class ProductForm {
                     message: 'must be non-negative'
                 });
             }
-            (instance as any).quantity = __raw_quantity;
+            instance.quantity = __raw_quantity;
         }
         {
-            const __raw_tags = obj['tags'];
+            const __raw_tags = obj['tags'] as string[];
             if (Array.isArray(__raw_tags)) {
                 if (__raw_tags.length < 1) {
                     errors.push({
@@ -487,16 +689,16 @@ export class ProductForm {
                     }
                     return item as string;
                 });
-                (instance as any).tags = __arr;
+                instance.tags = __arr;
                 __arr.forEach((item, idx) => {
                     if (item && typeof item === 'object' && '__pendingIdx' in item) {
-                        ctx.addPatch((instance as any).tags, idx, (item as any).__refId);
+                        ctx.addPatch(instance.tags, idx, (item as any).__refId);
                     }
                 });
             }
         }
         {
-            const __raw_sku = obj['sku'];
+            const __raw_sku = obj['sku'] as string;
             if (
                 !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
                     __raw_sku
@@ -507,12 +709,190 @@ export class ProductForm {
                     message: 'must be a valid UUID'
                 });
             }
-            (instance as any).sku = __raw_sku;
+            instance.sku = __raw_sku;
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
         return instance;
+    }
+
+    static validateField<K extends keyof ProductForm>(
+        field: K,
+        value: ProductForm[K]
+    ): Array<{
+        field: string;
+        message: string;
+    }> {
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        switch (field) {
+            case 'name': {
+                const __val = value as string;
+                if (__val.length === 0) {
+                    errors.push({
+                        field: 'name',
+                        message: 'must not be empty'
+                    });
+                }
+                if (__val.length > 100) {
+                    errors.push({
+                        field: 'name',
+                        message: 'must have at most 100 characters'
+                    });
+                }
+                break;
+            }
+            case 'price': {
+                const __val = value as number;
+                if (__val <= 0) {
+                    errors.push({
+                        field: 'price',
+                        message: 'must be positive'
+                    });
+                }
+                if (__val >= 1000000) {
+                    errors.push({
+                        field: 'price',
+                        message: 'must be less than 1000000'
+                    });
+                }
+                break;
+            }
+            case 'quantity': {
+                const __val = value as number;
+                if (!Number.isInteger(__val)) {
+                    errors.push({
+                        field: 'quantity',
+                        message: 'must be an integer'
+                    });
+                }
+                if (__val < 0) {
+                    errors.push({
+                        field: 'quantity',
+                        message: 'must be non-negative'
+                    });
+                }
+                break;
+            }
+            case 'tags': {
+                const __val = value as string[];
+                if (__val.length < 1) {
+                    errors.push({
+                        field: 'tags',
+                        message: 'must have at least 1 items'
+                    });
+                }
+                if (__val.length > 5) {
+                    errors.push({
+                        field: 'tags',
+                        message: 'must have at most 5 items'
+                    });
+                }
+                break;
+            }
+            case 'sku': {
+                const __val = value as string;
+                if (
+                    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+                        __val
+                    )
+                ) {
+                    errors.push({
+                        field: 'sku',
+                        message: 'must be a valid UUID'
+                    });
+                }
+                break;
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: Partial<ProductForm>): Array<{
+        field: string;
+        message: string;
+    }> {
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        if ('name' in partial && partial.name !== undefined) {
+            const __val = partial.name as string;
+            if (__val.length === 0) {
+                errors.push({
+                    field: 'name',
+                    message: 'must not be empty'
+                });
+            }
+            if (__val.length > 100) {
+                errors.push({
+                    field: 'name',
+                    message: 'must have at most 100 characters'
+                });
+            }
+        }
+        if ('price' in partial && partial.price !== undefined) {
+            const __val = partial.price as number;
+            if (__val <= 0) {
+                errors.push({
+                    field: 'price',
+                    message: 'must be positive'
+                });
+            }
+            if (__val >= 1000000) {
+                errors.push({
+                    field: 'price',
+                    message: 'must be less than 1000000'
+                });
+            }
+        }
+        if ('quantity' in partial && partial.quantity !== undefined) {
+            const __val = partial.quantity as number;
+            if (!Number.isInteger(__val)) {
+                errors.push({
+                    field: 'quantity',
+                    message: 'must be an integer'
+                });
+            }
+            if (__val < 0) {
+                errors.push({
+                    field: 'quantity',
+                    message: 'must be non-negative'
+                });
+            }
+        }
+        if ('tags' in partial && partial.tags !== undefined) {
+            const __val = partial.tags as string[];
+            if (__val.length < 1) {
+                errors.push({
+                    field: 'tags',
+                    message: 'must have at least 1 items'
+                });
+            }
+            if (__val.length > 5) {
+                errors.push({
+                    field: 'tags',
+                    message: 'must have at most 5 items'
+                });
+            }
+        }
+        if ('sku' in partial && partial.sku !== undefined) {
+            const __val = partial.sku as string;
+            if (
+                !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+                    __val
+                )
+            ) {
+                errors.push({
+                    field: 'sku',
+                    message: 'must be a valid UUID'
+                });
+            }
+        }
+        return errors;
     }
 }
 
@@ -659,7 +1039,7 @@ export class EventForm {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_title = obj['title'];
+            const __raw_title = obj['title'] as string;
             if (__raw_title.length === 0) {
                 errors.push({
                     field: 'title',
@@ -672,10 +1052,10 @@ export class EventForm {
                     message: 'must be trimmed (no leading/trailing whitespace)'
                 });
             }
-            (instance as any).title = __raw_title;
+            instance.title = __raw_title;
         }
         {
-            const __raw_startDate = obj['startDate'];
+            const __raw_startDate = obj['startDate'] as Date;
             {
                 const __dateVal =
                     typeof __raw_startDate === 'string'
@@ -693,11 +1073,11 @@ export class EventForm {
                         message: 'must be after 2020-01-01'
                     });
                 }
-                (instance as any).startDate = __dateVal;
+                instance.startDate = __dateVal;
             }
         }
         {
-            const __raw_endDate = obj['endDate'];
+            const __raw_endDate = obj['endDate'] as Date;
             {
                 const __dateVal =
                     typeof __raw_endDate === 'string'
@@ -709,11 +1089,11 @@ export class EventForm {
                         message: 'must be a valid date'
                     });
                 }
-                (instance as any).endDate = __dateVal;
+                instance.endDate = __dateVal;
             }
         }
         {
-            const __raw_maxAttendees = obj['maxAttendees'];
+            const __raw_maxAttendees = obj['maxAttendees'] as number;
             if (!Number.isInteger(__raw_maxAttendees)) {
                 errors.push({
                     field: 'maxAttendees',
@@ -726,12 +1106,151 @@ export class EventForm {
                     message: 'must be between 1 and 1000'
                 });
             }
-            (instance as any).maxAttendees = __raw_maxAttendees;
+            instance.maxAttendees = __raw_maxAttendees;
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
         return instance;
+    }
+
+    static validateField<K extends keyof EventForm>(
+        field: K,
+        value: EventForm[K]
+    ): Array<{
+        field: string;
+        message: string;
+    }> {
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        switch (field) {
+            case 'title': {
+                const __val = value as string;
+                if (__val.length === 0) {
+                    errors.push({
+                        field: 'title',
+                        message: 'must not be empty'
+                    });
+                }
+                if (__val !== __val.trim()) {
+                    errors.push({
+                        field: 'title',
+                        message: 'must be trimmed (no leading/trailing whitespace)'
+                    });
+                }
+                break;
+            }
+            case 'startDate': {
+                const __val = value as Date;
+                if (__val == null || isNaN(__val.getTime())) {
+                    errors.push({
+                        field: 'startDate',
+                        message: 'must be a valid date'
+                    });
+                }
+                if (__val == null || __val.getTime() <= new Date('2020-01-01').getTime()) {
+                    errors.push({
+                        field: 'startDate',
+                        message: 'must be after 2020-01-01'
+                    });
+                }
+                break;
+            }
+            case 'endDate': {
+                const __val = value as Date;
+                if (__val == null || isNaN(__val.getTime())) {
+                    errors.push({
+                        field: 'endDate',
+                        message: 'must be a valid date'
+                    });
+                }
+                break;
+            }
+            case 'maxAttendees': {
+                const __val = value as number;
+                if (!Number.isInteger(__val)) {
+                    errors.push({
+                        field: 'maxAttendees',
+                        message: 'must be an integer'
+                    });
+                }
+                if (__val < 1 || __val > 1000) {
+                    errors.push({
+                        field: 'maxAttendees',
+                        message: 'must be between 1 and 1000'
+                    });
+                }
+                break;
+            }
+        }
+        return errors;
+    }
+
+    static validateFields(partial: Partial<EventForm>): Array<{
+        field: string;
+        message: string;
+    }> {
+        const errors: Array<{
+            field: string;
+            message: string;
+        }> = [];
+        if ('title' in partial && partial.title !== undefined) {
+            const __val = partial.title as string;
+            if (__val.length === 0) {
+                errors.push({
+                    field: 'title',
+                    message: 'must not be empty'
+                });
+            }
+            if (__val !== __val.trim()) {
+                errors.push({
+                    field: 'title',
+                    message: 'must be trimmed (no leading/trailing whitespace)'
+                });
+            }
+        }
+        if ('startDate' in partial && partial.startDate !== undefined) {
+            const __val = partial.startDate as Date;
+            if (__val == null || isNaN(__val.getTime())) {
+                errors.push({
+                    field: 'startDate',
+                    message: 'must be a valid date'
+                });
+            }
+            if (__val == null || __val.getTime() <= new Date('2020-01-01').getTime()) {
+                errors.push({
+                    field: 'startDate',
+                    message: 'must be after 2020-01-01'
+                });
+            }
+        }
+        if ('endDate' in partial && partial.endDate !== undefined) {
+            const __val = partial.endDate as Date;
+            if (__val == null || isNaN(__val.getTime())) {
+                errors.push({
+                    field: 'endDate',
+                    message: 'must be a valid date'
+                });
+            }
+        }
+        if ('maxAttendees' in partial && partial.maxAttendees !== undefined) {
+            const __val = partial.maxAttendees as number;
+            if (!Number.isInteger(__val)) {
+                errors.push({
+                    field: 'maxAttendees',
+                    message: 'must be an integer'
+                });
+            }
+            if (__val < 1 || __val > 1000) {
+                errors.push({
+                    field: 'maxAttendees',
+                    message: 'must be between 1 and 1000'
+                });
+            }
+        }
+        return errors;
     }
 }
 
@@ -743,12 +1262,17 @@ export type ValidationResult<T> = {
 };
 
 // Helper to convert Result to ValidationResult
-// The Result type is provided by the macro expansion
+// The Result type uses static methods
 export function toValidationResult<T>(result: any): ValidationResult<T> {
-    if (result.isOk()) {
-        return { success: true, data: result.unwrap() };
+    if (Result.isOk(result)) {
+        return { success: true, data: Result.unwrap(result) };
     } else {
-        return { success: false, errors: result.unwrapErr() };
+        // Errors are now structured as {field, message} objects
+        const errors = Result.unwrapErr(result);
+        return {
+            success: false,
+            errors: errors.map((e: any) => (typeof e === 'string' ? e : e.message))
+        };
     }
 }
 

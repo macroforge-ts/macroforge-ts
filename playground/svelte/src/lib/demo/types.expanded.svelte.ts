@@ -269,11 +269,11 @@ export namespace User {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_email = obj["email"];
+      const __raw_email = obj["email"] as string | null;
       if (__raw_email === null) {
         instance.email = null;
       } else if (typeof (__raw_email as any)?.__ref !== "undefined") {
@@ -284,21 +284,21 @@ export namespace User {
       }
     }
     {
-      const __raw_firstName = obj["firstName"];
+      const __raw_firstName = obj["firstName"] as string;
       if (__raw_firstName.length === 0) {
         errors.push({ field: "firstName", message: "must not be empty" });
       }
       instance.firstName = __raw_firstName;
     }
     {
-      const __raw_lastName = obj["lastName"];
+      const __raw_lastName = obj["lastName"] as string;
       if (__raw_lastName.length === 0) {
         errors.push({ field: "lastName", message: "must not be empty" });
       }
       instance.lastName = __raw_lastName;
     }
     {
-      const __raw_password = obj["password"];
+      const __raw_password = obj["password"] as string | null;
       if (__raw_password === null) {
         instance.password = null;
       } else if (typeof (__raw_password as any)?.__ref !== "undefined") {
@@ -309,7 +309,7 @@ export namespace User {
       }
     }
     {
-      const __raw_metadata = obj["metadata"];
+      const __raw_metadata = obj["metadata"] as Metadata | null;
       if (__raw_metadata === null) {
         instance.metadata = null;
       } else if (typeof (__raw_metadata as any)?.__ref !== "undefined") {
@@ -320,7 +320,7 @@ export namespace User {
       }
     }
     {
-      const __raw_settings = obj["settings"];
+      const __raw_settings = obj["settings"] as Settings;
       if (typeof (Settings as any)?.__deserialize === "function") {
         const __result = (Settings as any).__deserialize(__raw_settings, ctx);
         ctx.assignOrDefer(instance, "settings", __result);
@@ -329,7 +329,7 @@ export namespace User {
       }
     }
     {
-      const __raw_role = obj["role"];
+      const __raw_role = obj["role"] as UserRole;
       if (typeof (UserRole as any)?.__deserialize === "function") {
         const __result = (UserRole as any).__deserialize(__raw_role, ctx);
         ctx.assignOrDefer(instance, "role", __result);
@@ -338,11 +338,11 @@ export namespace User {
       }
     }
     {
-      const __raw_emailVerified = obj["emailVerified"];
+      const __raw_emailVerified = obj["emailVerified"] as boolean;
       instance.emailVerified = __raw_emailVerified;
     }
     {
-      const __raw_verificationToken = obj["verificationToken"];
+      const __raw_verificationToken = obj["verificationToken"] as string | null;
       if (__raw_verificationToken === null) {
         instance.verificationToken = null;
       } else if (
@@ -355,7 +355,9 @@ export namespace User {
       }
     }
     {
-      const __raw_verificationExpires = obj["verificationExpires"];
+      const __raw_verificationExpires = obj["verificationExpires"] as
+        | string
+        | null;
       if (__raw_verificationExpires === null) {
         instance.verificationExpires = null;
       } else if (
@@ -370,7 +372,9 @@ export namespace User {
       }
     }
     {
-      const __raw_passwordResetToken = obj["passwordResetToken"];
+      const __raw_passwordResetToken = obj["passwordResetToken"] as
+        | string
+        | null;
       if (__raw_passwordResetToken === null) {
         instance.passwordResetToken = null;
       } else if (
@@ -385,7 +389,9 @@ export namespace User {
       }
     }
     {
-      const __raw_passwordResetExpires = obj["passwordResetExpires"];
+      const __raw_passwordResetExpires = obj["passwordResetExpires"] as
+        | string
+        | null;
       if (__raw_passwordResetExpires === null) {
         instance.passwordResetExpires = null;
       } else if (
@@ -400,7 +406,7 @@ export namespace User {
       }
     }
     {
-      const __raw_permissions = obj["permissions"];
+      const __raw_permissions = obj["permissions"] as AppPermissions;
       if (typeof (AppPermissions as any)?.__deserialize === "function") {
         const __result = (AppPermissions as any).__deserialize(
           __raw_permissions,
@@ -415,6 +421,47 @@ export namespace User {
       throw new DeserializeError(errors);
     }
     return instance as User;
+  }
+  export function validateField<K extends keyof User>(
+    field: K,
+    value: User[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "firstName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "firstName", message: "must not be empty" });
+        }
+        break;
+      }
+      case "lastName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "lastName", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<User>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("firstName" in partial && partial.firstName !== undefined) {
+      const __val = partial.firstName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "firstName", message: "must not be empty" });
+      }
+    }
+    if ("lastName" in partial && partial.lastName !== undefined) {
+      const __val = partial.lastName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "lastName", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -1040,10 +1087,8 @@ export namespace User {
 
 export interface Service {
   id: string;
-  /** @textController({ label: "Name" }) */
 
   name: string;
-  /** @textController({ label: "Quick Code" }) */
 
   quickCode: string;
 
@@ -1249,25 +1294,25 @@ export namespace Service {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_name = obj["name"];
+      const __raw_name = obj["name"] as string;
       if (__raw_name.length === 0) {
         errors.push({ field: "name", message: "must not be empty" });
       }
       instance.name = __raw_name;
     }
     {
-      const __raw_quickCode = obj["quickCode"];
+      const __raw_quickCode = obj["quickCode"] as string;
       if (__raw_quickCode.length === 0) {
         errors.push({ field: "quickCode", message: "must not be empty" });
       }
       instance.quickCode = __raw_quickCode;
     }
     {
-      const __raw_group = obj["group"];
+      const __raw_group = obj["group"] as string | null;
       if (__raw_group === null) {
         instance.group = null;
       } else if (typeof (__raw_group as any)?.__ref !== "undefined") {
@@ -1278,7 +1323,7 @@ export namespace Service {
       }
     }
     {
-      const __raw_subgroup = obj["subgroup"];
+      const __raw_subgroup = obj["subgroup"] as string | null;
       if (__raw_subgroup === null) {
         instance.subgroup = null;
       } else if (typeof (__raw_subgroup as any)?.__ref !== "undefined") {
@@ -1289,7 +1334,7 @@ export namespace Service {
       }
     }
     {
-      const __raw_unit = obj["unit"];
+      const __raw_unit = obj["unit"] as string | null;
       if (__raw_unit === null) {
         instance.unit = null;
       } else if (typeof (__raw_unit as any)?.__ref !== "undefined") {
@@ -1300,19 +1345,19 @@ export namespace Service {
       }
     }
     {
-      const __raw_active = obj["active"];
+      const __raw_active = obj["active"] as boolean;
       instance.active = __raw_active;
     }
     {
-      const __raw_commission = obj["commission"];
+      const __raw_commission = obj["commission"] as boolean;
       instance.commission = __raw_commission;
     }
     {
-      const __raw_favorite = obj["favorite"];
+      const __raw_favorite = obj["favorite"] as boolean;
       instance.favorite = __raw_favorite;
     }
     {
-      const __raw_averageTime = obj["averageTime"];
+      const __raw_averageTime = obj["averageTime"] as string | null;
       if (__raw_averageTime === null) {
         instance.averageTime = null;
       } else if (typeof (__raw_averageTime as any)?.__ref !== "undefined") {
@@ -1323,7 +1368,7 @@ export namespace Service {
       }
     }
     {
-      const __raw_defaults = obj["defaults"];
+      const __raw_defaults = obj["defaults"] as ServiceDefaults;
       if (typeof (ServiceDefaults as any)?.__deserialize === "function") {
         const __result = (ServiceDefaults as any).__deserialize(
           __raw_defaults,
@@ -1338,6 +1383,47 @@ export namespace Service {
       throw new DeserializeError(errors);
     }
     return instance as Service;
+  }
+  export function validateField<K extends keyof Service>(
+    field: K,
+    value: Service[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+      case "quickCode": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "quickCode", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Service>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    if ("quickCode" in partial && partial.quickCode !== undefined) {
+      const __val = partial.quickCode as string;
+      if (__val.length === 0) {
+        errors.push({ field: "quickCode", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -1452,7 +1538,7 @@ export namespace Service {
         path: ["name"] as const,
         name: "name",
         constraints: { required: true },
-
+        label: "Name",
         get: () => data.name,
         set: (value: string) => {
           data.name = value;
@@ -1477,7 +1563,7 @@ export namespace Service {
         path: ["quickCode"] as const,
         name: "quickCode",
         constraints: { required: true },
-
+        label: "Quick Code",
         get: () => data.quickCode,
         set: (value: string) => {
           data.quickCode = value;
@@ -1823,7 +1909,6 @@ export namespace Service {
 
 export interface ServiceDefaults {
   price: number;
-  /** @textAreaController({ label: "Description" }) */
 
   description: string;
 }
@@ -1936,11 +2021,11 @@ export namespace ServiceDefaults {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_price = obj["price"];
+      const __raw_price = obj["price"] as number;
       instance.price = __raw_price;
     }
     {
-      const __raw_description = obj["description"];
+      const __raw_description = obj["description"] as string;
       if (__raw_description.length === 0) {
         errors.push({ field: "description", message: "must not be empty" });
       }
@@ -1950,6 +2035,34 @@ export namespace ServiceDefaults {
       throw new DeserializeError(errors);
     }
     return instance as ServiceDefaults;
+  }
+  export function validateField<K extends keyof ServiceDefaults>(
+    field: K,
+    value: ServiceDefaults[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "description": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "description", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<ServiceDefaults>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("description" in partial && partial.description !== undefined) {
+      const __val = partial.description as string;
+      if (__val.length === 0) {
+        errors.push({ field: "description", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -2022,7 +2135,7 @@ export namespace ServiceDefaults {
         path: ["description"] as const,
         name: "description",
         constraints: { required: true },
-
+        label: "Description",
         get: () => data.description,
         set: (value: string) => {
           data.description = value;
@@ -2247,19 +2360,19 @@ export namespace Did {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_in = obj["in"];
+      const __raw_in = obj["in"] as string | Actor;
       instance.in = __raw_in;
     }
     {
-      const __raw_out = obj["out"];
+      const __raw_out = obj["out"] as string | Target;
       instance.out = __raw_out;
     }
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_activityType = obj["activityType"];
+      const __raw_activityType = obj["activityType"] as ActivityType;
       if (typeof (ActivityType as any)?.__deserialize === "function") {
         const __result = (ActivityType as any).__deserialize(
           __raw_activityType,
@@ -2271,11 +2384,11 @@ export namespace Did {
       }
     }
     {
-      const __raw_createdAt = obj["createdAt"];
+      const __raw_createdAt = obj["createdAt"] as string;
       instance.createdAt = __raw_createdAt;
     }
     {
-      const __raw_metadata = obj["metadata"];
+      const __raw_metadata = obj["metadata"] as string | null;
       if (__raw_metadata === null) {
         instance.metadata = null;
       } else if (typeof (__raw_metadata as any)?.__ref !== "undefined") {
@@ -2289,6 +2402,17 @@ export namespace Did {
       throw new DeserializeError(errors);
     }
     return instance as Did;
+  }
+  export function validateField<K extends keyof Did>(
+    field: K,
+    value: Did[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Did>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -2588,10 +2712,7 @@ export namespace Did {
 }
 
 export interface PersonName {
-  /** @textController({ label: "First Name" }) */
-
   firstName: string;
-  /** @textController({ label: "Last Name" }) */
 
   lastName: string;
 }
@@ -2704,14 +2825,14 @@ export namespace PersonName {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_firstName = obj["firstName"];
+      const __raw_firstName = obj["firstName"] as string;
       if (__raw_firstName.length === 0) {
         errors.push({ field: "firstName", message: "must not be empty" });
       }
       instance.firstName = __raw_firstName;
     }
     {
-      const __raw_lastName = obj["lastName"];
+      const __raw_lastName = obj["lastName"] as string;
       if (__raw_lastName.length === 0) {
         errors.push({ field: "lastName", message: "must not be empty" });
       }
@@ -2721,6 +2842,47 @@ export namespace PersonName {
       throw new DeserializeError(errors);
     }
     return instance as PersonName;
+  }
+  export function validateField<K extends keyof PersonName>(
+    field: K,
+    value: PersonName[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "firstName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "firstName", message: "must not be empty" });
+        }
+        break;
+      }
+      case "lastName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "lastName", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<PersonName>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("firstName" in partial && partial.firstName !== undefined) {
+      const __val = partial.firstName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "firstName", message: "must not be empty" });
+      }
+    }
+    if ("lastName" in partial && partial.lastName !== undefined) {
+      const __val = partial.lastName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "lastName", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -2762,7 +2924,7 @@ export namespace PersonName {
         path: ["firstName"] as const,
         name: "firstName",
         constraints: { required: true },
-
+        label: "First Name",
         get: () => data.firstName,
         set: (value: string) => {
           data.firstName = value;
@@ -2790,7 +2952,7 @@ export namespace PersonName {
         path: ["lastName"] as const,
         name: "lastName",
         constraints: { required: true },
-
+        label: "Last Name",
         get: () => data.lastName,
         set: (value: string) => {
           data.lastName = value;
@@ -2976,17 +3138,28 @@ export namespace Promotion {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_date = obj["date"];
+      const __raw_date = obj["date"] as string;
       instance.date = __raw_date;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as Promotion;
+  }
+  export function validateField<K extends keyof Promotion>(
+    field: K,
+    value: Promotion[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Promotion>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -3353,18 +3526,18 @@ export namespace Site {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_addressLine1 = obj["addressLine1"];
+      const __raw_addressLine1 = obj["addressLine1"] as string;
       if (__raw_addressLine1.length === 0) {
         errors.push({ field: "addressLine1", message: "must not be empty" });
       }
       instance.addressLine1 = __raw_addressLine1;
     }
     {
-      const __raw_addressLine2 = obj["addressLine2"];
+      const __raw_addressLine2 = obj["addressLine2"] as string | null;
       if (__raw_addressLine2 === null) {
         instance.addressLine2 = null;
       } else if (typeof (__raw_addressLine2 as any)?.__ref !== "undefined") {
@@ -3375,7 +3548,7 @@ export namespace Site {
       }
     }
     {
-      const __raw_sublocalityLevel1 = obj["sublocalityLevel1"];
+      const __raw_sublocalityLevel1 = obj["sublocalityLevel1"] as string | null;
       if (__raw_sublocalityLevel1 === null) {
         instance.sublocalityLevel1 = null;
       } else if (
@@ -3388,14 +3561,16 @@ export namespace Site {
       }
     }
     {
-      const __raw_locality = obj["locality"];
+      const __raw_locality = obj["locality"] as string;
       if (__raw_locality.length === 0) {
         errors.push({ field: "locality", message: "must not be empty" });
       }
       instance.locality = __raw_locality;
     }
     {
-      const __raw_administrativeAreaLevel3 = obj["administrativeAreaLevel3"];
+      const __raw_administrativeAreaLevel3 = obj["administrativeAreaLevel3"] as
+        | string
+        | null;
       if (__raw_administrativeAreaLevel3 === null) {
         instance.administrativeAreaLevel3 = null;
       } else if (
@@ -3410,7 +3585,9 @@ export namespace Site {
       }
     }
     {
-      const __raw_administrativeAreaLevel2 = obj["administrativeAreaLevel2"];
+      const __raw_administrativeAreaLevel2 = obj["administrativeAreaLevel2"] as
+        | string
+        | null;
       if (__raw_administrativeAreaLevel2 === null) {
         instance.administrativeAreaLevel2 = null;
       } else if (
@@ -3425,7 +3602,9 @@ export namespace Site {
       }
     }
     {
-      const __raw_administrativeAreaLevel1 = obj["administrativeAreaLevel1"];
+      const __raw_administrativeAreaLevel1 = obj[
+        "administrativeAreaLevel1"
+      ] as string;
       if (__raw_administrativeAreaLevel1.length === 0) {
         errors.push({
           field: "administrativeAreaLevel1",
@@ -3435,21 +3614,21 @@ export namespace Site {
       instance.administrativeAreaLevel1 = __raw_administrativeAreaLevel1;
     }
     {
-      const __raw_country = obj["country"];
+      const __raw_country = obj["country"] as string;
       if (__raw_country.length === 0) {
         errors.push({ field: "country", message: "must not be empty" });
       }
       instance.country = __raw_country;
     }
     {
-      const __raw_postalCode = obj["postalCode"];
+      const __raw_postalCode = obj["postalCode"] as string;
       if (__raw_postalCode.length === 0) {
         errors.push({ field: "postalCode", message: "must not be empty" });
       }
       instance.postalCode = __raw_postalCode;
     }
     {
-      const __raw_postalCodeSuffix = obj["postalCodeSuffix"];
+      const __raw_postalCodeSuffix = obj["postalCodeSuffix"] as string | null;
       if (__raw_postalCodeSuffix === null) {
         instance.postalCodeSuffix = null;
       } else if (
@@ -3462,7 +3641,7 @@ export namespace Site {
       }
     }
     {
-      const __raw_coordinates = obj["coordinates"];
+      const __raw_coordinates = obj["coordinates"] as Coordinates;
       if (typeof (Coordinates as any)?.__deserialize === "function") {
         const __result = (Coordinates as any).__deserialize(
           __raw_coordinates,
@@ -3477,6 +3656,95 @@ export namespace Site {
       throw new DeserializeError(errors);
     }
     return instance as Site;
+  }
+  export function validateField<K extends keyof Site>(
+    field: K,
+    value: Site[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "addressLine1": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "addressLine1", message: "must not be empty" });
+        }
+        break;
+      }
+      case "locality": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "locality", message: "must not be empty" });
+        }
+        break;
+      }
+      case "administrativeAreaLevel1": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "administrativeAreaLevel1",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+      case "country": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "country", message: "must not be empty" });
+        }
+        break;
+      }
+      case "postalCode": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "postalCode", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Site>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("addressLine1" in partial && partial.addressLine1 !== undefined) {
+      const __val = partial.addressLine1 as string;
+      if (__val.length === 0) {
+        errors.push({ field: "addressLine1", message: "must not be empty" });
+      }
+    }
+    if ("locality" in partial && partial.locality !== undefined) {
+      const __val = partial.locality as string;
+      if (__val.length === 0) {
+        errors.push({ field: "locality", message: "must not be empty" });
+      }
+    }
+    if (
+      "administrativeAreaLevel1" in partial &&
+      partial.administrativeAreaLevel1 !== undefined
+    ) {
+      const __val = partial.administrativeAreaLevel1 as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "administrativeAreaLevel1",
+          message: "must not be empty",
+        });
+      }
+    }
+    if ("country" in partial && partial.country !== undefined) {
+      const __val = partial.country as string;
+      if (__val.length === 0) {
+        errors.push({ field: "country", message: "must not be empty" });
+      }
+    }
+    if ("postalCode" in partial && partial.postalCode !== undefined) {
+      const __val = partial.postalCode as string;
+      if (__val.length === 0) {
+        errors.push({ field: "postalCode", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -4133,11 +4401,11 @@ export namespace Metadata {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_createdAt = obj["createdAt"];
+      const __raw_createdAt = obj["createdAt"] as string;
       instance.createdAt = __raw_createdAt;
     }
     {
-      const __raw_lastLogin = obj["lastLogin"];
+      const __raw_lastLogin = obj["lastLogin"] as string | null;
       if (__raw_lastLogin === null) {
         instance.lastLogin = null;
       } else if (typeof (__raw_lastLogin as any)?.__ref !== "undefined") {
@@ -4148,11 +4416,11 @@ export namespace Metadata {
       }
     }
     {
-      const __raw_isActive = obj["isActive"];
+      const __raw_isActive = obj["isActive"] as boolean;
       instance.isActive = __raw_isActive;
     }
     {
-      const __raw_roles = obj["roles"];
+      const __raw_roles = obj["roles"] as string[];
       if (Array.isArray(__raw_roles)) {
         instance.roles = __raw_roles as string[];
       }
@@ -4161,6 +4429,17 @@ export namespace Metadata {
       throw new DeserializeError(errors);
     }
     return instance as Metadata;
+  }
+  export function validateField<K extends keyof Metadata>(
+    field: K,
+    value: Metadata[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Metadata>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -4526,14 +4805,14 @@ export namespace ColumnConfig {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_heading = obj["heading"];
+      const __raw_heading = obj["heading"] as string;
       if (__raw_heading.length === 0) {
         errors.push({ field: "heading", message: "must not be empty" });
       }
       instance.heading = __raw_heading;
     }
     {
-      const __raw_dataPath = obj["dataPath"];
+      const __raw_dataPath = obj["dataPath"] as DataPath;
       if (typeof (DataPath as any)?.__deserialize === "function") {
         const __result = (DataPath as any).__deserialize(__raw_dataPath, ctx);
         ctx.assignOrDefer(instance, "dataPath", __result);
@@ -4545,6 +4824,34 @@ export namespace ColumnConfig {
       throw new DeserializeError(errors);
     }
     return instance as ColumnConfig;
+  }
+  export function validateField<K extends keyof ColumnConfig>(
+    field: K,
+    value: ColumnConfig[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "heading": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "heading", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<ColumnConfig>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("heading" in partial && partial.heading !== undefined) {
+      const __val = partial.heading as string;
+      if (__val.length === 0) {
+        errors.push({ field: "heading", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -4710,10 +5017,8 @@ export namespace ColumnConfig {
 
 export interface PhoneNumber {
   main: boolean;
-  /** @comboboxController({ label: "Phone Type", allowCustom: true }) */
 
   phoneType: string;
-  /** @textController({ label: "Number" }) */
 
   number: string;
 
@@ -4848,35 +5153,76 @@ export namespace PhoneNumber {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_main = obj["main"];
+      const __raw_main = obj["main"] as boolean;
       instance.main = __raw_main;
     }
     {
-      const __raw_phoneType = obj["phoneType"];
+      const __raw_phoneType = obj["phoneType"] as string;
       if (__raw_phoneType.length === 0) {
         errors.push({ field: "phoneType", message: "must not be empty" });
       }
       instance.phoneType = __raw_phoneType;
     }
     {
-      const __raw_number = obj["number"];
+      const __raw_number = obj["number"] as string;
       if (__raw_number.length === 0) {
         errors.push({ field: "number", message: "must not be empty" });
       }
       instance.number = __raw_number;
     }
     {
-      const __raw_canText = obj["canText"];
+      const __raw_canText = obj["canText"] as boolean;
       instance.canText = __raw_canText;
     }
     {
-      const __raw_canCall = obj["canCall"];
+      const __raw_canCall = obj["canCall"] as boolean;
       instance.canCall = __raw_canCall;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as PhoneNumber;
+  }
+  export function validateField<K extends keyof PhoneNumber>(
+    field: K,
+    value: PhoneNumber[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "phoneType": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "phoneType", message: "must not be empty" });
+        }
+        break;
+      }
+      case "number": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "number", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<PhoneNumber>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("phoneType" in partial && partial.phoneType !== undefined) {
+      const __val = partial.phoneType as string;
+      if (__val.length === 0) {
+        errors.push({ field: "phoneType", message: "must not be empty" });
+      }
+    }
+    if ("number" in partial && partial.number !== undefined) {
+      const __val = partial.number as string;
+      if (__val.length === 0) {
+        errors.push({ field: "number", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -4961,7 +5307,7 @@ export namespace PhoneNumber {
         path: ["phoneType"] as const,
         name: "phoneType",
         constraints: { required: true },
-
+        label: "Phone Type",
         get: () => data.phoneType,
         set: (value: string) => {
           data.phoneType = value;
@@ -4989,7 +5335,7 @@ export namespace PhoneNumber {
         path: ["number"] as const,
         name: "number",
         constraints: { required: true },
-
+        label: "Number",
         get: () => data.number,
         set: (value: string) => {
           data.number = value;
@@ -5246,13 +5592,24 @@ export namespace Gradient {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_startHue = obj["startHue"];
+      const __raw_startHue = obj["startHue"] as number;
       instance.startHue = __raw_startHue;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as Gradient;
+  }
+  export function validateField<K extends keyof Gradient>(
+    field: K,
+    value: Gradient[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Gradient>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -5361,10 +5718,8 @@ export namespace Gradient {
 
 export interface Product {
   id: string;
-  /** @textController({ label: "Name" }) */
 
   name: string;
-  /** @textController({ label: "Quick Code" }) */
 
   quickCode: string;
 
@@ -5556,25 +5911,25 @@ export namespace Product {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_name = obj["name"];
+      const __raw_name = obj["name"] as string;
       if (__raw_name.length === 0) {
         errors.push({ field: "name", message: "must not be empty" });
       }
       instance.name = __raw_name;
     }
     {
-      const __raw_quickCode = obj["quickCode"];
+      const __raw_quickCode = obj["quickCode"] as string;
       if (__raw_quickCode.length === 0) {
         errors.push({ field: "quickCode", message: "must not be empty" });
       }
       instance.quickCode = __raw_quickCode;
     }
     {
-      const __raw_group = obj["group"];
+      const __raw_group = obj["group"] as string | null;
       if (__raw_group === null) {
         instance.group = null;
       } else if (typeof (__raw_group as any)?.__ref !== "undefined") {
@@ -5585,7 +5940,7 @@ export namespace Product {
       }
     }
     {
-      const __raw_subgroup = obj["subgroup"];
+      const __raw_subgroup = obj["subgroup"] as string | null;
       if (__raw_subgroup === null) {
         instance.subgroup = null;
       } else if (typeof (__raw_subgroup as any)?.__ref !== "undefined") {
@@ -5596,7 +5951,7 @@ export namespace Product {
       }
     }
     {
-      const __raw_unit = obj["unit"];
+      const __raw_unit = obj["unit"] as string | null;
       if (__raw_unit === null) {
         instance.unit = null;
       } else if (typeof (__raw_unit as any)?.__ref !== "undefined") {
@@ -5607,19 +5962,19 @@ export namespace Product {
       }
     }
     {
-      const __raw_active = obj["active"];
+      const __raw_active = obj["active"] as boolean;
       instance.active = __raw_active;
     }
     {
-      const __raw_commission = obj["commission"];
+      const __raw_commission = obj["commission"] as boolean;
       instance.commission = __raw_commission;
     }
     {
-      const __raw_favorite = obj["favorite"];
+      const __raw_favorite = obj["favorite"] as boolean;
       instance.favorite = __raw_favorite;
     }
     {
-      const __raw_defaults = obj["defaults"];
+      const __raw_defaults = obj["defaults"] as ProductDefaults;
       if (typeof (ProductDefaults as any)?.__deserialize === "function") {
         const __result = (ProductDefaults as any).__deserialize(
           __raw_defaults,
@@ -5634,6 +5989,47 @@ export namespace Product {
       throw new DeserializeError(errors);
     }
     return instance as Product;
+  }
+  export function validateField<K extends keyof Product>(
+    field: K,
+    value: Product[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+      case "quickCode": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "quickCode", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Product>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    if ("quickCode" in partial && partial.quickCode !== undefined) {
+      const __val = partial.quickCode as string;
+      if (__val.length === 0) {
+        errors.push({ field: "quickCode", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -5743,7 +6139,7 @@ export namespace Product {
         path: ["name"] as const,
         name: "name",
         constraints: { required: true },
-
+        label: "Name",
         get: () => data.name,
         set: (value: string) => {
           data.name = value;
@@ -5768,7 +6164,7 @@ export namespace Product {
         path: ["quickCode"] as const,
         name: "quickCode",
         constraints: { required: true },
-
+        label: "Quick Code",
         get: () => data.quickCode,
         set: (value: string) => {
           data.quickCode = value;
@@ -6197,13 +6593,24 @@ export namespace YearlyRecurrenceRule {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_quantityOfYears = obj["quantityOfYears"];
+      const __raw_quantityOfYears = obj["quantityOfYears"] as number;
       instance.quantityOfYears = __raw_quantityOfYears;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as YearlyRecurrenceRule;
+  }
+  export function validateField<K extends keyof YearlyRecurrenceRule>(
+    field: K,
+    value: YearlyRecurrenceRule[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<YearlyRecurrenceRule>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -6457,8 +6864,9 @@ export namespace AppointmentNotifications {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_personalScheduleChangeNotifications =
-        obj["personalScheduleChangeNotifications"];
+      const __raw_personalScheduleChangeNotifications = obj[
+        "personalScheduleChangeNotifications"
+      ] as string;
       if (__raw_personalScheduleChangeNotifications.length === 0) {
         errors.push({
           field: "personalScheduleChangeNotifications",
@@ -6469,8 +6877,9 @@ export namespace AppointmentNotifications {
         __raw_personalScheduleChangeNotifications;
     }
     {
-      const __raw_allScheduleChangeNotifications =
-        obj["allScheduleChangeNotifications"];
+      const __raw_allScheduleChangeNotifications = obj[
+        "allScheduleChangeNotifications"
+      ] as string;
       if (__raw_allScheduleChangeNotifications.length === 0) {
         errors.push({
           field: "allScheduleChangeNotifications",
@@ -6484,6 +6893,65 @@ export namespace AppointmentNotifications {
       throw new DeserializeError(errors);
     }
     return instance as AppointmentNotifications;
+  }
+  export function validateField<K extends keyof AppointmentNotifications>(
+    field: K,
+    value: AppointmentNotifications[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "personalScheduleChangeNotifications": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "personalScheduleChangeNotifications",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+      case "allScheduleChangeNotifications": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "allScheduleChangeNotifications",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<AppointmentNotifications>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if (
+      "personalScheduleChangeNotifications" in partial &&
+      partial.personalScheduleChangeNotifications !== undefined
+    ) {
+      const __val = partial.personalScheduleChangeNotifications as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "personalScheduleChangeNotifications",
+          message: "must not be empty",
+        });
+      }
+    }
+    if (
+      "allScheduleChangeNotifications" in partial &&
+      partial.allScheduleChangeNotifications !== undefined
+    ) {
+      const __val = partial.allScheduleChangeNotifications as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "allScheduleChangeNotifications",
+          message: "must not be empty",
+        });
+      }
+    }
+    return errors;
   }
 }
 
@@ -6757,17 +7225,28 @@ export namespace DirectionHue {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_bearing = obj["bearing"];
+      const __raw_bearing = obj["bearing"] as number;
       instance.bearing = __raw_bearing;
     }
     {
-      const __raw_hue = obj["hue"];
+      const __raw_hue = obj["hue"] as number;
       instance.hue = __raw_hue;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as DirectionHue;
+  }
+  export function validateField<K extends keyof DirectionHue>(
+    field: K,
+    value: DirectionHue[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<DirectionHue>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -7044,15 +7523,15 @@ export namespace MonthlyRecurrenceRule {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_quantityOfMonths = obj["quantityOfMonths"];
+      const __raw_quantityOfMonths = obj["quantityOfMonths"] as number;
       instance.quantityOfMonths = __raw_quantityOfMonths;
     }
     {
-      const __raw_day = obj["day"];
+      const __raw_day = obj["day"] as number;
       instance.day = __raw_day;
     }
     {
-      const __raw_name = obj["name"];
+      const __raw_name = obj["name"] as string;
       if (__raw_name.length === 0) {
         errors.push({ field: "name", message: "must not be empty" });
       }
@@ -7062,6 +7541,34 @@ export namespace MonthlyRecurrenceRule {
       throw new DeserializeError(errors);
     }
     return instance as MonthlyRecurrenceRule;
+  }
+  export function validateField<K extends keyof MonthlyRecurrenceRule>(
+    field: K,
+    value: MonthlyRecurrenceRule[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<MonthlyRecurrenceRule>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -7391,25 +7898,36 @@ export namespace Represents {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_in = obj["in"];
+      const __raw_in = obj["in"] as string | Employee;
       instance.in = __raw_in;
     }
     {
-      const __raw_out = obj["out"];
+      const __raw_out = obj["out"] as string | Account;
       instance.out = __raw_out;
     }
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_dateStarted = obj["dateStarted"];
+      const __raw_dateStarted = obj["dateStarted"] as string;
       instance.dateStarted = __raw_dateStarted;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as Represents;
+  }
+  export function validateField<K extends keyof Represents>(
+    field: K,
+    value: Represents[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Represents>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -7734,17 +8252,28 @@ export namespace Payment {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_date = obj["date"];
+      const __raw_date = obj["date"] as string;
       instance.date = __raw_date;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as Payment;
+  }
+  export function validateField<K extends keyof Payment>(
+    field: K,
+    value: Payment[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Payment>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -8131,7 +8660,9 @@ export namespace Settings {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_appointmentNotifications = obj["appointmentNotifications"];
+      const __raw_appointmentNotifications = obj[
+        "appointmentNotifications"
+      ] as AppointmentNotifications | null;
       if (__raw_appointmentNotifications === null) {
         instance.appointmentNotifications = null;
       } else if (
@@ -8146,7 +8677,7 @@ export namespace Settings {
       }
     }
     {
-      const __raw_commissions = obj["commissions"];
+      const __raw_commissions = obj["commissions"] as Commissions | null;
       if (__raw_commissions === null) {
         instance.commissions = null;
       } else if (typeof (__raw_commissions as any)?.__ref !== "undefined") {
@@ -8157,7 +8688,9 @@ export namespace Settings {
       }
     }
     {
-      const __raw_scheduleSettings = obj["scheduleSettings"];
+      const __raw_scheduleSettings = obj[
+        "scheduleSettings"
+      ] as ScheduleSettings;
       if (typeof (ScheduleSettings as any)?.__deserialize === "function") {
         const __result = (ScheduleSettings as any).__deserialize(
           __raw_scheduleSettings,
@@ -8169,7 +8702,9 @@ export namespace Settings {
       }
     }
     {
-      const __raw_accountOverviewSettings = obj["accountOverviewSettings"];
+      const __raw_accountOverviewSettings = obj[
+        "accountOverviewSettings"
+      ] as OverviewSettings;
       if (typeof (OverviewSettings as any)?.__deserialize === "function") {
         const __result = (OverviewSettings as any).__deserialize(
           __raw_accountOverviewSettings,
@@ -8181,7 +8716,9 @@ export namespace Settings {
       }
     }
     {
-      const __raw_serviceOverviewSettings = obj["serviceOverviewSettings"];
+      const __raw_serviceOverviewSettings = obj[
+        "serviceOverviewSettings"
+      ] as OverviewSettings;
       if (typeof (OverviewSettings as any)?.__deserialize === "function") {
         const __result = (OverviewSettings as any).__deserialize(
           __raw_serviceOverviewSettings,
@@ -8193,8 +8730,9 @@ export namespace Settings {
       }
     }
     {
-      const __raw_appointmentOverviewSettings =
-        obj["appointmentOverviewSettings"];
+      const __raw_appointmentOverviewSettings = obj[
+        "appointmentOverviewSettings"
+      ] as OverviewSettings;
       if (typeof (OverviewSettings as any)?.__deserialize === "function") {
         const __result = (OverviewSettings as any).__deserialize(
           __raw_appointmentOverviewSettings,
@@ -8207,7 +8745,9 @@ export namespace Settings {
       }
     }
     {
-      const __raw_leadOverviewSettings = obj["leadOverviewSettings"];
+      const __raw_leadOverviewSettings = obj[
+        "leadOverviewSettings"
+      ] as OverviewSettings;
       if (typeof (OverviewSettings as any)?.__deserialize === "function") {
         const __result = (OverviewSettings as any).__deserialize(
           __raw_leadOverviewSettings,
@@ -8219,7 +8759,9 @@ export namespace Settings {
       }
     }
     {
-      const __raw_packageOverviewSettings = obj["packageOverviewSettings"];
+      const __raw_packageOverviewSettings = obj[
+        "packageOverviewSettings"
+      ] as OverviewSettings;
       if (typeof (OverviewSettings as any)?.__deserialize === "function") {
         const __result = (OverviewSettings as any).__deserialize(
           __raw_packageOverviewSettings,
@@ -8231,7 +8773,9 @@ export namespace Settings {
       }
     }
     {
-      const __raw_productOverviewSettings = obj["productOverviewSettings"];
+      const __raw_productOverviewSettings = obj[
+        "productOverviewSettings"
+      ] as OverviewSettings;
       if (typeof (OverviewSettings as any)?.__deserialize === "function") {
         const __result = (OverviewSettings as any).__deserialize(
           __raw_productOverviewSettings,
@@ -8243,7 +8787,9 @@ export namespace Settings {
       }
     }
     {
-      const __raw_orderOverviewSettings = obj["orderOverviewSettings"];
+      const __raw_orderOverviewSettings = obj[
+        "orderOverviewSettings"
+      ] as OverviewSettings;
       if (typeof (OverviewSettings as any)?.__deserialize === "function") {
         const __result = (OverviewSettings as any).__deserialize(
           __raw_orderOverviewSettings,
@@ -8255,7 +8801,9 @@ export namespace Settings {
       }
     }
     {
-      const __raw_taxRateOverviewSettings = obj["taxRateOverviewSettings"];
+      const __raw_taxRateOverviewSettings = obj[
+        "taxRateOverviewSettings"
+      ] as OverviewSettings;
       if (typeof (OverviewSettings as any)?.__deserialize === "function") {
         const __result = (OverviewSettings as any).__deserialize(
           __raw_taxRateOverviewSettings,
@@ -8267,7 +8815,7 @@ export namespace Settings {
       }
     }
     {
-      const __raw_homePage = obj["homePage"];
+      const __raw_homePage = obj["homePage"] as Page;
       if (typeof (Page as any)?.__deserialize === "function") {
         const __result = (Page as any).__deserialize(__raw_homePage, ctx);
         ctx.assignOrDefer(instance, "homePage", __result);
@@ -8279,6 +8827,17 @@ export namespace Settings {
       throw new DeserializeError(errors);
     }
     return instance as Settings;
+  }
+  export function validateField<K extends keyof Settings>(
+    field: K,
+    value: Settings[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Settings>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -9102,21 +9661,32 @@ export namespace Color {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_red = obj["red"];
+      const __raw_red = obj["red"] as number;
       instance.red = __raw_red;
     }
     {
-      const __raw_green = obj["green"];
+      const __raw_green = obj["green"] as number;
       instance.green = __raw_green;
     }
     {
-      const __raw_blue = obj["blue"];
+      const __raw_blue = obj["blue"] as number;
       instance.blue = __raw_blue;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as Color;
+  }
+  export function validateField<K extends keyof Color>(
+    field: K,
+    value: Color[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Color>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -9302,8 +9872,6 @@ export namespace Color {
 }
 
 export interface CompanyName {
-  /** @textController({ label: "Company Name" }) */
-
   companyName: string;
 }
 
@@ -9411,7 +9979,7 @@ export namespace CompanyName {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_companyName = obj["companyName"];
+      const __raw_companyName = obj["companyName"] as string;
       if (__raw_companyName.length === 0) {
         errors.push({ field: "companyName", message: "must not be empty" });
       }
@@ -9421,6 +9989,34 @@ export namespace CompanyName {
       throw new DeserializeError(errors);
     }
     return instance as CompanyName;
+  }
+  export function validateField<K extends keyof CompanyName>(
+    field: K,
+    value: CompanyName[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "companyName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "companyName", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<CompanyName>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("companyName" in partial && partial.companyName !== undefined) {
+      const __val = partial.companyName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "companyName", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -9456,7 +10052,7 @@ export namespace CompanyName {
         path: ["companyName"] as const,
         name: "companyName",
         constraints: { required: true },
-
+        label: "Company Name",
         get: () => data.companyName,
         set: (value: string) => {
           data.companyName = value;
@@ -9527,10 +10123,8 @@ export namespace CompanyName {
 
 export interface Appointment {
   id: string;
-  /** @textController({ label: "Title" }) */
 
   title: string;
-  /** @selectController({ label: "Status", options: [{ label: "Scheduled", value: "Scheduled" }, { label: "On Deck", value: "OnDeck" }, { label: "Waiting", value: "Waiting" }] }) */
 
   status: Status;
 
@@ -9547,12 +10141,10 @@ export interface Appointment {
   multiDay: boolean;
 
   employees: (string | Employee)[];
-  /** @siteFieldsetController({ label: "Location" }) */
 
   location: string | Site;
 
   description: string | null;
-  /** @hiddenController({}) */
 
   colors: Colors;
 
@@ -9755,18 +10347,18 @@ export namespace Appointment {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_title = obj["title"];
+      const __raw_title = obj["title"] as string;
       if (__raw_title.length === 0) {
         errors.push({ field: "title", message: "must not be empty" });
       }
       instance.title = __raw_title;
     }
     {
-      const __raw_status = obj["status"];
+      const __raw_status = obj["status"] as Status;
       if (typeof (Status as any)?.__deserialize === "function") {
         const __result = (Status as any).__deserialize(__raw_status, ctx);
         ctx.assignOrDefer(instance, "status", __result);
@@ -9775,41 +10367,41 @@ export namespace Appointment {
       }
     }
     {
-      const __raw_begins = obj["begins"];
+      const __raw_begins = obj["begins"] as string;
       instance.begins = __raw_begins;
     }
     {
-      const __raw_duration = obj["duration"];
+      const __raw_duration = obj["duration"] as number;
       instance.duration = __raw_duration;
     }
     {
-      const __raw_timeZone = obj["timeZone"];
+      const __raw_timeZone = obj["timeZone"] as string;
       instance.timeZone = __raw_timeZone;
     }
     {
-      const __raw_offsetMs = obj["offsetMs"];
+      const __raw_offsetMs = obj["offsetMs"] as number;
       instance.offsetMs = __raw_offsetMs;
     }
     {
-      const __raw_allDay = obj["allDay"];
+      const __raw_allDay = obj["allDay"] as boolean;
       instance.allDay = __raw_allDay;
     }
     {
-      const __raw_multiDay = obj["multiDay"];
+      const __raw_multiDay = obj["multiDay"] as boolean;
       instance.multiDay = __raw_multiDay;
     }
     {
-      const __raw_employees = obj["employees"];
+      const __raw_employees = obj["employees"] as (string | Employee)[];
       if (Array.isArray(__raw_employees)) {
         instance.employees = __raw_employees as (string | Employee)[];
       }
     }
     {
-      const __raw_location = obj["location"];
+      const __raw_location = obj["location"] as string | Site;
       instance.location = __raw_location;
     }
     {
-      const __raw_description = obj["description"];
+      const __raw_description = obj["description"] as string | null;
       if (__raw_description === null) {
         instance.description = null;
       } else if (typeof (__raw_description as any)?.__ref !== "undefined") {
@@ -9820,7 +10412,7 @@ export namespace Appointment {
       }
     }
     {
-      const __raw_colors = obj["colors"];
+      const __raw_colors = obj["colors"] as Colors;
       if (typeof (Colors as any)?.__deserialize === "function") {
         const __result = (Colors as any).__deserialize(__raw_colors, ctx);
         ctx.assignOrDefer(instance, "colors", __result);
@@ -9829,7 +10421,9 @@ export namespace Appointment {
       }
     }
     {
-      const __raw_recurrenceRule = obj["recurrenceRule"];
+      const __raw_recurrenceRule = obj[
+        "recurrenceRule"
+      ] as RecurrenceRule | null;
       if (__raw_recurrenceRule === null) {
         instance.recurrenceRule = null;
       } else if (typeof (__raw_recurrenceRule as any)?.__ref !== "undefined") {
@@ -9843,6 +10437,34 @@ export namespace Appointment {
       throw new DeserializeError(errors);
     }
     return instance as Appointment;
+  }
+  export function validateField<K extends keyof Appointment>(
+    field: K,
+    value: Appointment[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "title": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "title", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Appointment>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("title" in partial && partial.title !== undefined) {
+      const __val = partial.title as string;
+      if (__val.length === 0) {
+        errors.push({ field: "title", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -9972,7 +10594,7 @@ export namespace Appointment {
         path: ["title"] as const,
         name: "title",
         constraints: { required: true },
-
+        label: "Title",
         get: () => data.title,
         set: (value: string) => {
           data.title = value;
@@ -9997,7 +10619,7 @@ export namespace Appointment {
         path: ["status"] as const,
         name: "status",
         constraints: { required: true },
-
+        label: "Status",
         get: () => data.status,
         set: (value: Status) => {
           data.status = value;
@@ -10243,7 +10865,7 @@ export namespace Appointment {
         path: ["location"] as const,
         name: "location",
         constraints: { required: true },
-
+        label: "Location",
         get: () => data.location,
         set: (value: string | Site) => {
           data.location = value;
@@ -10635,17 +11257,28 @@ export namespace Package {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_date = obj["date"];
+      const __raw_date = obj["date"] as string;
       instance.date = __raw_date;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as Package;
+  }
+  export function validateField<K extends keyof Package>(
+    field: K,
+    value: Package[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Package>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -10923,11 +11556,11 @@ export namespace ScheduleSettings {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_daysPerWeek = obj["daysPerWeek"];
+      const __raw_daysPerWeek = obj["daysPerWeek"] as number;
       instance.daysPerWeek = __raw_daysPerWeek;
     }
     {
-      const __raw_rowHeight = obj["rowHeight"];
+      const __raw_rowHeight = obj["rowHeight"] as RowHeight;
       if (typeof (RowHeight as any)?.__deserialize === "function") {
         const __result = (RowHeight as any).__deserialize(__raw_rowHeight, ctx);
         ctx.assignOrDefer(instance, "rowHeight", __result);
@@ -10936,19 +11569,30 @@ export namespace ScheduleSettings {
       }
     }
     {
-      const __raw_visibleRoutes = obj["visibleRoutes"];
+      const __raw_visibleRoutes = obj["visibleRoutes"] as string[];
       if (Array.isArray(__raw_visibleRoutes)) {
         instance.visibleRoutes = __raw_visibleRoutes as string[];
       }
     }
     {
-      const __raw_detailedCards = obj["detailedCards"];
+      const __raw_detailedCards = obj["detailedCards"] as boolean;
       instance.detailedCards = __raw_detailedCards;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as ScheduleSettings;
+  }
+  export function validateField<K extends keyof ScheduleSettings>(
+    field: K,
+    value: ScheduleSettings[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<ScheduleSettings>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -11350,13 +11994,24 @@ export namespace DailyRecurrenceRule {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_quantityOfDays = obj["quantityOfDays"];
+      const __raw_quantityOfDays = obj["quantityOfDays"] as number;
       instance.quantityOfDays = __raw_quantityOfDays;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as DailyRecurrenceRule;
+  }
+  export function validateField<K extends keyof DailyRecurrenceRule>(
+    field: K,
+    value: DailyRecurrenceRule[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<DailyRecurrenceRule>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -11623,7 +12278,7 @@ export namespace SignUpCredentials {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_firstName = obj["firstName"];
+      const __raw_firstName = obj["firstName"] as FirstName;
       if (typeof (FirstName as any)?.__deserialize === "function") {
         const __result = (FirstName as any).__deserialize(__raw_firstName, ctx);
         ctx.assignOrDefer(instance, "firstName", __result);
@@ -11632,7 +12287,7 @@ export namespace SignUpCredentials {
       }
     }
     {
-      const __raw_lastName = obj["lastName"];
+      const __raw_lastName = obj["lastName"] as LastName;
       if (typeof (LastName as any)?.__deserialize === "function") {
         const __result = (LastName as any).__deserialize(__raw_lastName, ctx);
         ctx.assignOrDefer(instance, "lastName", __result);
@@ -11641,7 +12296,7 @@ export namespace SignUpCredentials {
       }
     }
     {
-      const __raw_email = obj["email"];
+      const __raw_email = obj["email"] as EmailParts;
       if (typeof (EmailParts as any)?.__deserialize === "function") {
         const __result = (EmailParts as any).__deserialize(__raw_email, ctx);
         ctx.assignOrDefer(instance, "email", __result);
@@ -11650,7 +12305,7 @@ export namespace SignUpCredentials {
       }
     }
     {
-      const __raw_password = obj["password"];
+      const __raw_password = obj["password"] as Password;
       if (typeof (Password as any)?.__deserialize === "function") {
         const __result = (Password as any).__deserialize(__raw_password, ctx);
         ctx.assignOrDefer(instance, "password", __result);
@@ -11659,13 +12314,24 @@ export namespace SignUpCredentials {
       }
     }
     {
-      const __raw_rememberMe = obj["rememberMe"];
+      const __raw_rememberMe = obj["rememberMe"] as boolean;
       instance.rememberMe = __raw_rememberMe;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as SignUpCredentials;
+  }
+  export function validateField<K extends keyof SignUpCredentials>(
+    field: K,
+    value: SignUpCredentials[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<SignUpCredentials>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -12155,7 +12821,7 @@ export namespace OverviewSettings {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_rowHeight = obj["rowHeight"];
+      const __raw_rowHeight = obj["rowHeight"] as RowHeight;
       if (typeof (RowHeight as any)?.__deserialize === "function") {
         const __result = (RowHeight as any).__deserialize(__raw_rowHeight, ctx);
         ctx.assignOrDefer(instance, "rowHeight", __result);
@@ -12164,7 +12830,7 @@ export namespace OverviewSettings {
       }
     }
     {
-      const __raw_cardOrRow = obj["cardOrRow"];
+      const __raw_cardOrRow = obj["cardOrRow"] as OverviewDisplay;
       if (typeof (OverviewDisplay as any)?.__deserialize === "function") {
         const __result = (OverviewDisplay as any).__deserialize(
           __raw_cardOrRow,
@@ -12176,11 +12842,11 @@ export namespace OverviewSettings {
       }
     }
     {
-      const __raw_perPage = obj["perPage"];
+      const __raw_perPage = obj["perPage"] as number;
       instance.perPage = __raw_perPage;
     }
     {
-      const __raw_columnConfigs = obj["columnConfigs"];
+      const __raw_columnConfigs = obj["columnConfigs"] as ColumnConfig[];
       if (Array.isArray(__raw_columnConfigs)) {
         instance.columnConfigs = __raw_columnConfigs as ColumnConfig[];
       }
@@ -12189,6 +12855,17 @@ export namespace OverviewSettings {
       throw new DeserializeError(errors);
     }
     return instance as OverviewSettings;
+  }
+  export function validateField<K extends keyof OverviewSettings>(
+    field: K,
+    value: OverviewSettings[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<OverviewSettings>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -12621,7 +13298,7 @@ export namespace FirstName {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_name = obj["name"];
+      const __raw_name = obj["name"] as string;
       if (__raw_name.length === 0) {
         errors.push({ field: "name", message: "must not be empty" });
       }
@@ -12631,6 +13308,34 @@ export namespace FirstName {
       throw new DeserializeError(errors);
     }
     return instance as FirstName;
+  }
+  export function validateField<K extends keyof FirstName>(
+    field: K,
+    value: FirstName[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<FirstName>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -12734,10 +13439,8 @@ export namespace FirstName {
 
 export interface Account {
   id: string;
-  /** @comboboxController({ label: "Tax Rate", allowCustom: false, fetchUrls: ["/api/tax-rates"] }) */
 
   taxRate: string | TaxRate;
-  /** @siteFieldsetController({ label: "Site" }) */
 
   site: string | Site;
 
@@ -12750,7 +13453,6 @@ export interface Account {
   customFields: [string, string][];
 
   accountName: AccountName;
-  /** @radioGroupController({ label: "Sector", options: [{ label: "Residential", value: "Residential" }, { label: "Commercial", value: "Commercial" }], orientation: "horizontal" }) */
 
   sector: Sector;
 
@@ -12759,7 +13461,6 @@ export interface Account {
   phones: PhoneNumber[];
 
   email: Email;
-  /** @comboboxController({ label: "Lead Source", allowCustom: true }) */
 
   leadSource: string;
 
@@ -12768,15 +13469,12 @@ export interface Account {
   needsReview: boolean;
 
   hasAlert: boolean;
-  /** @comboboxController({ label: "Account Type", allowCustom: true }) */
 
   accountType: string;
-  /** @comboboxController({ label: "Subtype", allowCustom: true }) */
 
   subtype: string;
 
   isTaxExempt: boolean;
-  /** @comboboxController({ label: "Payment Terms", allowCustom: true }) */
 
   paymentTerms: string;
 
@@ -13031,19 +13729,19 @@ export namespace Account {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_taxRate = obj["taxRate"];
+      const __raw_taxRate = obj["taxRate"] as string | TaxRate;
       instance.taxRate = __raw_taxRate;
     }
     {
-      const __raw_site = obj["site"];
+      const __raw_site = obj["site"] as string | Site;
       instance.site = __raw_site;
     }
     {
-      const __raw_salesRep = obj["salesRep"];
+      const __raw_salesRep = obj["salesRep"] as Represents[] | null;
       if (__raw_salesRep === null) {
         instance.salesRep = null;
       } else if (typeof (__raw_salesRep as any)?.__ref !== "undefined") {
@@ -13054,25 +13752,25 @@ export namespace Account {
       }
     }
     {
-      const __raw_orders = obj["orders"];
+      const __raw_orders = obj["orders"] as Ordered[];
       if (Array.isArray(__raw_orders)) {
         instance.orders = __raw_orders as Ordered[];
       }
     }
     {
-      const __raw_activity = obj["activity"];
+      const __raw_activity = obj["activity"] as Did[];
       if (Array.isArray(__raw_activity)) {
         instance.activity = __raw_activity as Did[];
       }
     }
     {
-      const __raw_customFields = obj["customFields"];
+      const __raw_customFields = obj["customFields"] as [string, string][];
       if (Array.isArray(__raw_customFields)) {
         instance.customFields = __raw_customFields as [string, string][];
       }
     }
     {
-      const __raw_accountName = obj["accountName"];
+      const __raw_accountName = obj["accountName"] as AccountName;
       if (typeof (AccountName as any)?.__deserialize === "function") {
         const __result = (AccountName as any).__deserialize(
           __raw_accountName,
@@ -13084,7 +13782,7 @@ export namespace Account {
       }
     }
     {
-      const __raw_sector = obj["sector"];
+      const __raw_sector = obj["sector"] as Sector;
       if (typeof (Sector as any)?.__deserialize === "function") {
         const __result = (Sector as any).__deserialize(__raw_sector, ctx);
         ctx.assignOrDefer(instance, "sector", __result);
@@ -13093,7 +13791,7 @@ export namespace Account {
       }
     }
     {
-      const __raw_memo = obj["memo"];
+      const __raw_memo = obj["memo"] as string | null;
       if (__raw_memo === null) {
         instance.memo = null;
       } else if (typeof (__raw_memo as any)?.__ref !== "undefined") {
@@ -13104,13 +13802,13 @@ export namespace Account {
       }
     }
     {
-      const __raw_phones = obj["phones"];
+      const __raw_phones = obj["phones"] as PhoneNumber[];
       if (Array.isArray(__raw_phones)) {
         instance.phones = __raw_phones as PhoneNumber[];
       }
     }
     {
-      const __raw_email = obj["email"];
+      const __raw_email = obj["email"] as Email;
       if (typeof (Email as any)?.__deserialize === "function") {
         const __result = (Email as any).__deserialize(__raw_email, ctx);
         ctx.assignOrDefer(instance, "email", __result);
@@ -13119,14 +13817,14 @@ export namespace Account {
       }
     }
     {
-      const __raw_leadSource = obj["leadSource"];
+      const __raw_leadSource = obj["leadSource"] as string;
       if (__raw_leadSource.length === 0) {
         errors.push({ field: "leadSource", message: "must not be empty" });
       }
       instance.leadSource = __raw_leadSource;
     }
     {
-      const __raw_colors = obj["colors"];
+      const __raw_colors = obj["colors"] as Colors;
       if (typeof (Colors as any)?.__deserialize === "function") {
         const __result = (Colors as any).__deserialize(__raw_colors, ctx);
         ctx.assignOrDefer(instance, "colors", __result);
@@ -13135,52 +13833,119 @@ export namespace Account {
       }
     }
     {
-      const __raw_needsReview = obj["needsReview"];
+      const __raw_needsReview = obj["needsReview"] as boolean;
       instance.needsReview = __raw_needsReview;
     }
     {
-      const __raw_hasAlert = obj["hasAlert"];
+      const __raw_hasAlert = obj["hasAlert"] as boolean;
       instance.hasAlert = __raw_hasAlert;
     }
     {
-      const __raw_accountType = obj["accountType"];
+      const __raw_accountType = obj["accountType"] as string;
       if (__raw_accountType.length === 0) {
         errors.push({ field: "accountType", message: "must not be empty" });
       }
       instance.accountType = __raw_accountType;
     }
     {
-      const __raw_subtype = obj["subtype"];
+      const __raw_subtype = obj["subtype"] as string;
       if (__raw_subtype.length === 0) {
         errors.push({ field: "subtype", message: "must not be empty" });
       }
       instance.subtype = __raw_subtype;
     }
     {
-      const __raw_isTaxExempt = obj["isTaxExempt"];
+      const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;
       instance.isTaxExempt = __raw_isTaxExempt;
     }
     {
-      const __raw_paymentTerms = obj["paymentTerms"];
+      const __raw_paymentTerms = obj["paymentTerms"] as string;
       if (__raw_paymentTerms.length === 0) {
         errors.push({ field: "paymentTerms", message: "must not be empty" });
       }
       instance.paymentTerms = __raw_paymentTerms;
     }
     {
-      const __raw_tags = obj["tags"];
+      const __raw_tags = obj["tags"] as string[];
       if (Array.isArray(__raw_tags)) {
         instance.tags = __raw_tags as string[];
       }
     }
     {
-      const __raw_dateAdded = obj["dateAdded"];
+      const __raw_dateAdded = obj["dateAdded"] as string;
       instance.dateAdded = __raw_dateAdded;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as Account;
+  }
+  export function validateField<K extends keyof Account>(
+    field: K,
+    value: Account[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "leadSource": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "leadSource", message: "must not be empty" });
+        }
+        break;
+      }
+      case "accountType": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "accountType", message: "must not be empty" });
+        }
+        break;
+      }
+      case "subtype": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "subtype", message: "must not be empty" });
+        }
+        break;
+      }
+      case "paymentTerms": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "paymentTerms", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Account>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("leadSource" in partial && partial.leadSource !== undefined) {
+      const __val = partial.leadSource as string;
+      if (__val.length === 0) {
+        errors.push({ field: "leadSource", message: "must not be empty" });
+      }
+    }
+    if ("accountType" in partial && partial.accountType !== undefined) {
+      const __val = partial.accountType as string;
+      if (__val.length === 0) {
+        errors.push({ field: "accountType", message: "must not be empty" });
+      }
+    }
+    if ("subtype" in partial && partial.subtype !== undefined) {
+      const __val = partial.subtype as string;
+      if (__val.length === 0) {
+        errors.push({ field: "subtype", message: "must not be empty" });
+      }
+    }
+    if ("paymentTerms" in partial && partial.paymentTerms !== undefined) {
+      const __val = partial.paymentTerms as string;
+      if (__val.length === 0) {
+        errors.push({ field: "paymentTerms", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -13350,7 +14115,7 @@ export namespace Account {
         path: ["taxRate"] as const,
         name: "taxRate",
         constraints: { required: true },
-
+        label: "Tax Rate",
         get: () => data.taxRate,
         set: (value: string | TaxRate) => {
           data.taxRate = value;
@@ -13375,7 +14140,7 @@ export namespace Account {
         path: ["site"] as const,
         name: "site",
         constraints: { required: true },
-
+        label: "Site",
         get: () => data.site,
         set: (value: string | Site) => {
           data.site = value;
@@ -13621,7 +14386,7 @@ export namespace Account {
         path: ["sector"] as const,
         name: "sector",
         constraints: { required: true },
-
+        label: "Sector",
         get: () => data.sector,
         set: (value: Sector) => {
           data.sector = value;
@@ -13751,7 +14516,7 @@ export namespace Account {
         path: ["leadSource"] as const,
         name: "leadSource",
         constraints: { required: true },
-
+        label: "Lead Source",
         get: () => data.leadSource,
         set: (value: string) => {
           data.leadSource = value;
@@ -13857,7 +14622,7 @@ export namespace Account {
         path: ["accountType"] as const,
         name: "accountType",
         constraints: { required: true },
-
+        label: "Account Type",
         get: () => data.accountType,
         set: (value: string) => {
           data.accountType = value;
@@ -13885,7 +14650,7 @@ export namespace Account {
         path: ["subtype"] as const,
         name: "subtype",
         constraints: { required: true },
-
+        label: "Subtype",
         get: () => data.subtype,
         set: (value: string) => {
           data.subtype = value;
@@ -13938,7 +14703,7 @@ export namespace Account {
         path: ["paymentTerms"] as const,
         name: "paymentTerms",
         constraints: { required: true },
-
+        label: "Payment Terms",
         get: () => data.paymentTerms,
         set: (value: string) => {
           data.paymentTerms = value;
@@ -14486,14 +15251,14 @@ export namespace Edited {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_fieldName = obj["fieldName"];
+      const __raw_fieldName = obj["fieldName"] as string;
       if (__raw_fieldName.length === 0) {
         errors.push({ field: "fieldName", message: "must not be empty" });
       }
       instance.fieldName = __raw_fieldName;
     }
     {
-      const __raw_oldValue = obj["oldValue"];
+      const __raw_oldValue = obj["oldValue"] as string | null;
       if (__raw_oldValue === null) {
         instance.oldValue = null;
       } else if (typeof (__raw_oldValue as any)?.__ref !== "undefined") {
@@ -14504,7 +15269,7 @@ export namespace Edited {
       }
     }
     {
-      const __raw_newValue = obj["newValue"];
+      const __raw_newValue = obj["newValue"] as string | null;
       if (__raw_newValue === null) {
         instance.newValue = null;
       } else if (typeof (__raw_newValue as any)?.__ref !== "undefined") {
@@ -14518,6 +15283,34 @@ export namespace Edited {
       throw new DeserializeError(errors);
     }
     return instance as Edited;
+  }
+  export function validateField<K extends keyof Edited>(
+    field: K,
+    value: Edited[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "fieldName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "fieldName", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Edited>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("fieldName" in partial && partial.fieldName !== undefined) {
+      const __val = partial.fieldName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "fieldName", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -14696,46 +15489,36 @@ export namespace Edited {
 
 export interface Order {
   id: string;
-  /** @comboboxController({ label: "Account", allowCustom: false, fetchUrls: ["/api/accounts"] }) */
 
   account: string | Account;
-  /** @selectController({ label: "Stage", options: [{ label: "Estimate", value: "Estimate" }, { label: "Active", value: "Active" }, { label: "Invoice", value: "Invoice" }] }) */
 
   stage: OrderStage;
 
   number: number;
 
   payments: (string | Payment)[];
-  /** @textController({ label: "Opportunity" }) */
 
   opportunity: string;
-  /** @textController({ label: "Reference" }) */
 
   reference: string;
-  /** @comboboxController({ label: "Lead Source", allowCustom: true }) */
 
   leadSource: string;
-  /** @comboboxController({ label: "Sales Rep", allowCustom: false, fetchUrls: ["/api/employees"] }) */
 
   salesRep: string | Employee;
-  /** @comboboxController({ label: "Group", allowCustom: true }) */
 
   group: string;
-  /** @comboboxController({ label: "Subgroup", allowCustom: true }) */
 
   subgroup: string;
 
   isPosted: boolean;
 
   needsReview: boolean;
-  /** @textController({ label: "Action Item" }) */
 
   actionItem: string;
 
   upsale: number;
 
   dateCreated: string;
-  /** @comboboxController({ label: "Appointment", allowCustom: false, fetchUrls: ["/api/appointments"] }) */
 
   appointment: string | Appointment;
 
@@ -14750,12 +15533,10 @@ export interface Order {
   due: string;
 
   total: number;
-  /** @siteFieldsetController({ label: "Site" }) */
 
   site: string | Site;
 
   billedItems: BilledItem[];
-  /** @textAreaController({ label: "Memo" }) */
 
   memo: string;
 
@@ -15033,15 +15814,15 @@ export namespace Order {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_account = obj["account"];
+      const __raw_account = obj["account"] as string | Account;
       instance.account = __raw_account;
     }
     {
-      const __raw_stage = obj["stage"];
+      const __raw_stage = obj["stage"] as OrderStage;
       if (typeof (OrderStage as any)?.__deserialize === "function") {
         const __result = (OrderStage as any).__deserialize(__raw_stage, ctx);
         ctx.assignOrDefer(instance, "stage", __result);
@@ -15050,89 +15831,89 @@ export namespace Order {
       }
     }
     {
-      const __raw_number = obj["number"];
+      const __raw_number = obj["number"] as number;
       instance.number = __raw_number;
     }
     {
-      const __raw_payments = obj["payments"];
+      const __raw_payments = obj["payments"] as (string | Payment)[];
       if (Array.isArray(__raw_payments)) {
         instance.payments = __raw_payments as (string | Payment)[];
       }
     }
     {
-      const __raw_opportunity = obj["opportunity"];
+      const __raw_opportunity = obj["opportunity"] as string;
       if (__raw_opportunity.length === 0) {
         errors.push({ field: "opportunity", message: "must not be empty" });
       }
       instance.opportunity = __raw_opportunity;
     }
     {
-      const __raw_reference = obj["reference"];
+      const __raw_reference = obj["reference"] as string;
       if (__raw_reference.length === 0) {
         errors.push({ field: "reference", message: "must not be empty" });
       }
       instance.reference = __raw_reference;
     }
     {
-      const __raw_leadSource = obj["leadSource"];
+      const __raw_leadSource = obj["leadSource"] as string;
       if (__raw_leadSource.length === 0) {
         errors.push({ field: "leadSource", message: "must not be empty" });
       }
       instance.leadSource = __raw_leadSource;
     }
     {
-      const __raw_salesRep = obj["salesRep"];
+      const __raw_salesRep = obj["salesRep"] as string | Employee;
       instance.salesRep = __raw_salesRep;
     }
     {
-      const __raw_group = obj["group"];
+      const __raw_group = obj["group"] as string;
       if (__raw_group.length === 0) {
         errors.push({ field: "group", message: "must not be empty" });
       }
       instance.group = __raw_group;
     }
     {
-      const __raw_subgroup = obj["subgroup"];
+      const __raw_subgroup = obj["subgroup"] as string;
       if (__raw_subgroup.length === 0) {
         errors.push({ field: "subgroup", message: "must not be empty" });
       }
       instance.subgroup = __raw_subgroup;
     }
     {
-      const __raw_isPosted = obj["isPosted"];
+      const __raw_isPosted = obj["isPosted"] as boolean;
       instance.isPosted = __raw_isPosted;
     }
     {
-      const __raw_needsReview = obj["needsReview"];
+      const __raw_needsReview = obj["needsReview"] as boolean;
       instance.needsReview = __raw_needsReview;
     }
     {
-      const __raw_actionItem = obj["actionItem"];
+      const __raw_actionItem = obj["actionItem"] as string;
       if (__raw_actionItem.length === 0) {
         errors.push({ field: "actionItem", message: "must not be empty" });
       }
       instance.actionItem = __raw_actionItem;
     }
     {
-      const __raw_upsale = obj["upsale"];
+      const __raw_upsale = obj["upsale"] as number;
       instance.upsale = __raw_upsale;
     }
     {
-      const __raw_dateCreated = obj["dateCreated"];
+      const __raw_dateCreated = obj["dateCreated"] as string;
       instance.dateCreated = __raw_dateCreated;
     }
     {
-      const __raw_appointment = obj["appointment"];
+      const __raw_appointment = obj["appointment"] as string | Appointment;
       instance.appointment = __raw_appointment;
     }
     {
-      const __raw_lastTechs = obj["lastTechs"];
+      const __raw_lastTechs = obj["lastTechs"] as (string | Employee)[];
       if (Array.isArray(__raw_lastTechs)) {
         instance.lastTechs = __raw_lastTechs as (string | Employee)[];
       }
     }
     {
-      const __raw_package = obj["package"];
+      const __raw_package = obj["package"] as (string | Package)[] | null;
       if (__raw_package === null) {
         instance.package = null;
       } else if (typeof (__raw_package as any)?.__ref !== "undefined") {
@@ -15143,7 +15924,7 @@ export namespace Order {
       }
     }
     {
-      const __raw_promotion = obj["promotion"];
+      const __raw_promotion = obj["promotion"] as (string | Promotion)[] | null;
       if (__raw_promotion === null) {
         instance.promotion = null;
       } else if (typeof (__raw_promotion as any)?.__ref !== "undefined") {
@@ -15154,44 +15935,44 @@ export namespace Order {
       }
     }
     {
-      const __raw_balance = obj["balance"];
+      const __raw_balance = obj["balance"] as number;
       instance.balance = __raw_balance;
     }
     {
-      const __raw_due = obj["due"];
+      const __raw_due = obj["due"] as string;
       instance.due = __raw_due;
     }
     {
-      const __raw_total = obj["total"];
+      const __raw_total = obj["total"] as number;
       instance.total = __raw_total;
     }
     {
-      const __raw_site = obj["site"];
+      const __raw_site = obj["site"] as string | Site;
       instance.site = __raw_site;
     }
     {
-      const __raw_billedItems = obj["billedItems"];
+      const __raw_billedItems = obj["billedItems"] as BilledItem[];
       if (Array.isArray(__raw_billedItems)) {
         instance.billedItems = __raw_billedItems as BilledItem[];
       }
     }
     {
-      const __raw_memo = obj["memo"];
+      const __raw_memo = obj["memo"] as string;
       if (__raw_memo.length === 0) {
         errors.push({ field: "memo", message: "must not be empty" });
       }
       instance.memo = __raw_memo;
     }
     {
-      const __raw_discount = obj["discount"];
+      const __raw_discount = obj["discount"] as number;
       instance.discount = __raw_discount;
     }
     {
-      const __raw_tip = obj["tip"];
+      const __raw_tip = obj["tip"] as number;
       instance.tip = __raw_tip;
     }
     {
-      const __raw_commissions = obj["commissions"];
+      const __raw_commissions = obj["commissions"] as number[];
       if (Array.isArray(__raw_commissions)) {
         instance.commissions = __raw_commissions as number[];
       }
@@ -15200,6 +15981,112 @@ export namespace Order {
       throw new DeserializeError(errors);
     }
     return instance as Order;
+  }
+  export function validateField<K extends keyof Order>(
+    field: K,
+    value: Order[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "opportunity": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "opportunity", message: "must not be empty" });
+        }
+        break;
+      }
+      case "reference": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "reference", message: "must not be empty" });
+        }
+        break;
+      }
+      case "leadSource": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "leadSource", message: "must not be empty" });
+        }
+        break;
+      }
+      case "group": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "group", message: "must not be empty" });
+        }
+        break;
+      }
+      case "subgroup": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "subgroup", message: "must not be empty" });
+        }
+        break;
+      }
+      case "actionItem": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "actionItem", message: "must not be empty" });
+        }
+        break;
+      }
+      case "memo": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "memo", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Order>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("opportunity" in partial && partial.opportunity !== undefined) {
+      const __val = partial.opportunity as string;
+      if (__val.length === 0) {
+        errors.push({ field: "opportunity", message: "must not be empty" });
+      }
+    }
+    if ("reference" in partial && partial.reference !== undefined) {
+      const __val = partial.reference as string;
+      if (__val.length === 0) {
+        errors.push({ field: "reference", message: "must not be empty" });
+      }
+    }
+    if ("leadSource" in partial && partial.leadSource !== undefined) {
+      const __val = partial.leadSource as string;
+      if (__val.length === 0) {
+        errors.push({ field: "leadSource", message: "must not be empty" });
+      }
+    }
+    if ("group" in partial && partial.group !== undefined) {
+      const __val = partial.group as string;
+      if (__val.length === 0) {
+        errors.push({ field: "group", message: "must not be empty" });
+      }
+    }
+    if ("subgroup" in partial && partial.subgroup !== undefined) {
+      const __val = partial.subgroup as string;
+      if (__val.length === 0) {
+        errors.push({ field: "subgroup", message: "must not be empty" });
+      }
+    }
+    if ("actionItem" in partial && partial.actionItem !== undefined) {
+      const __val = partial.actionItem as string;
+      if (__val.length === 0) {
+        errors.push({ field: "actionItem", message: "must not be empty" });
+      }
+    }
+    if ("memo" in partial && partial.memo !== undefined) {
+      const __val = partial.memo as string;
+      if (__val.length === 0) {
+        errors.push({ field: "memo", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -15404,7 +16291,7 @@ export namespace Order {
         path: ["account"] as const,
         name: "account",
         constraints: { required: true },
-
+        label: "Account",
         get: () => data.account,
         set: (value: string | Account) => {
           data.account = value;
@@ -15429,7 +16316,7 @@ export namespace Order {
         path: ["stage"] as const,
         name: "stage",
         constraints: { required: true },
-
+        label: "Stage",
         get: () => data.stage,
         set: (value: OrderStage) => {
           data.stage = value;
@@ -15534,7 +16421,7 @@ export namespace Order {
         path: ["opportunity"] as const,
         name: "opportunity",
         constraints: { required: true },
-
+        label: "Opportunity",
         get: () => data.opportunity,
         set: (value: string) => {
           data.opportunity = value;
@@ -15562,7 +16449,7 @@ export namespace Order {
         path: ["reference"] as const,
         name: "reference",
         constraints: { required: true },
-
+        label: "Reference",
         get: () => data.reference,
         set: (value: string) => {
           data.reference = value;
@@ -15587,7 +16474,7 @@ export namespace Order {
         path: ["leadSource"] as const,
         name: "leadSource",
         constraints: { required: true },
-
+        label: "Lead Source",
         get: () => data.leadSource,
         set: (value: string) => {
           data.leadSource = value;
@@ -15615,7 +16502,7 @@ export namespace Order {
         path: ["salesRep"] as const,
         name: "salesRep",
         constraints: { required: true },
-
+        label: "Sales Rep",
         get: () => data.salesRep,
         set: (value: string | Employee) => {
           data.salesRep = value;
@@ -15640,7 +16527,7 @@ export namespace Order {
         path: ["group"] as const,
         name: "group",
         constraints: { required: true },
-
+        label: "Group",
         get: () => data.group,
         set: (value: string) => {
           data.group = value;
@@ -15665,7 +16552,7 @@ export namespace Order {
         path: ["subgroup"] as const,
         name: "subgroup",
         constraints: { required: true },
-
+        label: "Subgroup",
         get: () => data.subgroup,
         set: (value: string) => {
           data.subgroup = value;
@@ -15743,7 +16630,7 @@ export namespace Order {
         path: ["actionItem"] as const,
         name: "actionItem",
         constraints: { required: true },
-
+        label: "Action Item",
         get: () => data.actionItem,
         set: (value: string) => {
           data.actionItem = value;
@@ -15824,7 +16711,7 @@ export namespace Order {
         path: ["appointment"] as const,
         name: "appointment",
         constraints: { required: true },
-
+        label: "Appointment",
         get: () => data.appointment,
         set: (value: string | Appointment) => {
           data.appointment = value;
@@ -16037,7 +16924,7 @@ export namespace Order {
         path: ["site"] as const,
         name: "site",
         constraints: { required: true },
-
+        label: "Site",
         get: () => data.site,
         set: (value: string | Site) => {
           data.site = value;
@@ -16120,7 +17007,7 @@ export namespace Order {
         path: ["memo"] as const,
         name: "memo",
         constraints: { required: true },
-
+        label: "Memo",
         get: () => data.memo,
         set: (value: string) => {
           data.memo = value;
@@ -16641,14 +17528,14 @@ export namespace Commented {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_comment = obj["comment"];
+      const __raw_comment = obj["comment"] as string;
       if (__raw_comment.length === 0) {
         errors.push({ field: "comment", message: "must not be empty" });
       }
       instance.comment = __raw_comment;
     }
     {
-      const __raw_replyTo = obj["replyTo"];
+      const __raw_replyTo = obj["replyTo"] as string | null;
       if (__raw_replyTo === null) {
         instance.replyTo = null;
       } else if (typeof (__raw_replyTo as any)?.__ref !== "undefined") {
@@ -16662,6 +17549,34 @@ export namespace Commented {
       throw new DeserializeError(errors);
     }
     return instance as Commented;
+  }
+  export function validateField<K extends keyof Commented>(
+    field: K,
+    value: Commented[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "comment": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "comment", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Commented>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("comment" in partial && partial.comment !== undefined) {
+      const __val = partial.comment as string;
+      if (__val.length === 0) {
+        errors.push({ field: "comment", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -16905,7 +17820,7 @@ export namespace Custom {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_mappings = obj["mappings"];
+      const __raw_mappings = obj["mappings"] as DirectionHue[];
       if (Array.isArray(__raw_mappings)) {
         instance.mappings = __raw_mappings as DirectionHue[];
       }
@@ -16914,6 +17829,17 @@ export namespace Custom {
       throw new DeserializeError(errors);
     }
     return instance as Custom;
+  }
+  export function validateField<K extends keyof Custom>(
+    field: K,
+    value: Custom[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Custom>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -17187,21 +18113,21 @@ export namespace Colors {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_main = obj["main"];
+      const __raw_main = obj["main"] as string;
       if (__raw_main.length === 0) {
         errors.push({ field: "main", message: "must not be empty" });
       }
       instance.main = __raw_main;
     }
     {
-      const __raw_hover = obj["hover"];
+      const __raw_hover = obj["hover"] as string;
       if (__raw_hover.length === 0) {
         errors.push({ field: "hover", message: "must not be empty" });
       }
       instance.hover = __raw_hover;
     }
     {
-      const __raw_active = obj["active"];
+      const __raw_active = obj["active"] as string;
       if (__raw_active.length === 0) {
         errors.push({ field: "active", message: "must not be empty" });
       }
@@ -17211,6 +18137,60 @@ export namespace Colors {
       throw new DeserializeError(errors);
     }
     return instance as Colors;
+  }
+  export function validateField<K extends keyof Colors>(
+    field: K,
+    value: Colors[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "main": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "main", message: "must not be empty" });
+        }
+        break;
+      }
+      case "hover": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "hover", message: "must not be empty" });
+        }
+        break;
+      }
+      case "active": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "active", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Colors>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("main" in partial && partial.main !== undefined) {
+      const __val = partial.main as string;
+      if (__val.length === 0) {
+        errors.push({ field: "main", message: "must not be empty" });
+      }
+    }
+    if ("hover" in partial && partial.hover !== undefined) {
+      const __val = partial.hover as string;
+      if (__val.length === 0) {
+        errors.push({ field: "hover", message: "must not be empty" });
+      }
+    }
+    if ("active" in partial && partial.active !== undefined) {
+      const __val = partial.active as string;
+      if (__val.length === 0) {
+        errors.push({ field: "active", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -17385,7 +18365,6 @@ export namespace Colors {
 
 export interface ProductDefaults {
   price: number;
-  /** @textAreaController({ label: "Description" }) */
 
   description: string;
 }
@@ -17498,11 +18477,11 @@ export namespace ProductDefaults {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_price = obj["price"];
+      const __raw_price = obj["price"] as number;
       instance.price = __raw_price;
     }
     {
-      const __raw_description = obj["description"];
+      const __raw_description = obj["description"] as string;
       if (__raw_description.length === 0) {
         errors.push({ field: "description", message: "must not be empty" });
       }
@@ -17512,6 +18491,34 @@ export namespace ProductDefaults {
       throw new DeserializeError(errors);
     }
     return instance as ProductDefaults;
+  }
+  export function validateField<K extends keyof ProductDefaults>(
+    field: K,
+    value: ProductDefaults[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "description": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "description", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<ProductDefaults>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("description" in partial && partial.description !== undefined) {
+      const __val = partial.description as string;
+      if (__val.length === 0) {
+        errors.push({ field: "description", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -17584,7 +18591,7 @@ export namespace ProductDefaults {
         path: ["description"] as const,
         name: "description",
         constraints: { required: true },
-
+        label: "Description",
         get: () => data.description,
         set: (value: string) => {
           data.description = value;
@@ -17788,7 +18795,7 @@ export namespace Viewed {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_durationSeconds = obj["durationSeconds"];
+      const __raw_durationSeconds = obj["durationSeconds"] as number | null;
       if (__raw_durationSeconds === null) {
         instance.durationSeconds = null;
       } else if (typeof (__raw_durationSeconds as any)?.__ref !== "undefined") {
@@ -17799,7 +18806,7 @@ export namespace Viewed {
       }
     }
     {
-      const __raw_source = obj["source"];
+      const __raw_source = obj["source"] as string | null;
       if (__raw_source === null) {
         instance.source = null;
       } else if (typeof (__raw_source as any)?.__ref !== "undefined") {
@@ -17813,6 +18820,17 @@ export namespace Viewed {
       throw new DeserializeError(errors);
     }
     return instance as Viewed;
+  }
+  export function validateField<K extends keyof Viewed>(
+    field: K,
+    value: Viewed[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Viewed>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -18086,11 +19104,11 @@ export namespace WeeklyRecurrenceRule {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_quantityOfWeeks = obj["quantityOfWeeks"];
+      const __raw_quantityOfWeeks = obj["quantityOfWeeks"] as number;
       instance.quantityOfWeeks = __raw_quantityOfWeeks;
     }
     {
-      const __raw_weekdays = obj["weekdays"];
+      const __raw_weekdays = obj["weekdays"] as Weekday[];
       if (Array.isArray(__raw_weekdays)) {
         instance.weekdays = __raw_weekdays as Weekday[];
       }
@@ -18099,6 +19117,17 @@ export namespace WeeklyRecurrenceRule {
       throw new DeserializeError(errors);
     }
     return instance as WeeklyRecurrenceRule;
+  }
+  export function validateField<K extends keyof WeeklyRecurrenceRule>(
+    field: K,
+    value: WeeklyRecurrenceRule[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<WeeklyRecurrenceRule>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -18449,7 +19478,7 @@ export namespace Paid {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_amount = obj["amount"];
+      const __raw_amount = obj["amount"] as number | null;
       if (__raw_amount === null) {
         instance.amount = null;
       } else if (typeof (__raw_amount as any)?.__ref !== "undefined") {
@@ -18460,7 +19489,7 @@ export namespace Paid {
       }
     }
     {
-      const __raw_currency = obj["currency"];
+      const __raw_currency = obj["currency"] as string | null;
       if (__raw_currency === null) {
         instance.currency = null;
       } else if (typeof (__raw_currency as any)?.__ref !== "undefined") {
@@ -18471,7 +19500,7 @@ export namespace Paid {
       }
     }
     {
-      const __raw_paymentMethod = obj["paymentMethod"];
+      const __raw_paymentMethod = obj["paymentMethod"] as string | null;
       if (__raw_paymentMethod === null) {
         instance.paymentMethod = null;
       } else if (typeof (__raw_paymentMethod as any)?.__ref !== "undefined") {
@@ -18485,6 +19514,17 @@ export namespace Paid {
       throw new DeserializeError(errors);
     }
     return instance as Paid;
+  }
+  export function validateField<K extends keyof Paid>(
+    field: K,
+    value: Paid[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Paid>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -18671,29 +19711,22 @@ export namespace Paid {
 
 export interface TaxRate {
   id: string;
-  /** @textController({ label: "Name" }) */
 
   name: string;
-  /** @textController({ label: "Tax Agency" }) */
 
   taxAgency: string;
 
   zip: number;
-  /** @textController({ label: "City" }) */
 
   city: string;
-  /** @textController({ label: "County" }) */
 
   county: string;
-  /** @textController({ label: "State" }) */
 
   state: string;
 
   isActive: boolean;
-  /** @textAreaController({ label: "Description" }) */
 
   description: string;
-  /** @hiddenController({}) */
 
   taxComponents: { [key: string]: number };
 }
@@ -18851,67 +19884,162 @@ export namespace TaxRate {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_name = obj["name"];
+      const __raw_name = obj["name"] as string;
       if (__raw_name.length === 0) {
         errors.push({ field: "name", message: "must not be empty" });
       }
       instance.name = __raw_name;
     }
     {
-      const __raw_taxAgency = obj["taxAgency"];
+      const __raw_taxAgency = obj["taxAgency"] as string;
       if (__raw_taxAgency.length === 0) {
         errors.push({ field: "taxAgency", message: "must not be empty" });
       }
       instance.taxAgency = __raw_taxAgency;
     }
     {
-      const __raw_zip = obj["zip"];
+      const __raw_zip = obj["zip"] as number;
       instance.zip = __raw_zip;
     }
     {
-      const __raw_city = obj["city"];
+      const __raw_city = obj["city"] as string;
       if (__raw_city.length === 0) {
         errors.push({ field: "city", message: "must not be empty" });
       }
       instance.city = __raw_city;
     }
     {
-      const __raw_county = obj["county"];
+      const __raw_county = obj["county"] as string;
       if (__raw_county.length === 0) {
         errors.push({ field: "county", message: "must not be empty" });
       }
       instance.county = __raw_county;
     }
     {
-      const __raw_state = obj["state"];
+      const __raw_state = obj["state"] as string;
       if (__raw_state.length === 0) {
         errors.push({ field: "state", message: "must not be empty" });
       }
       instance.state = __raw_state;
     }
     {
-      const __raw_isActive = obj["isActive"];
+      const __raw_isActive = obj["isActive"] as boolean;
       instance.isActive = __raw_isActive;
     }
     {
-      const __raw_description = obj["description"];
+      const __raw_description = obj["description"] as string;
       if (__raw_description.length === 0) {
         errors.push({ field: "description", message: "must not be empty" });
       }
       instance.description = __raw_description;
     }
     {
-      const __raw_taxComponents = obj["taxComponents"];
+      const __raw_taxComponents = obj["taxComponents"] as {
+        [key: string]: number;
+      };
       instance.taxComponents = __raw_taxComponents;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as TaxRate;
+  }
+  export function validateField<K extends keyof TaxRate>(
+    field: K,
+    value: TaxRate[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+      case "taxAgency": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "taxAgency", message: "must not be empty" });
+        }
+        break;
+      }
+      case "city": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "city", message: "must not be empty" });
+        }
+        break;
+      }
+      case "county": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "county", message: "must not be empty" });
+        }
+        break;
+      }
+      case "state": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "state", message: "must not be empty" });
+        }
+        break;
+      }
+      case "description": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "description", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<TaxRate>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    if ("taxAgency" in partial && partial.taxAgency !== undefined) {
+      const __val = partial.taxAgency as string;
+      if (__val.length === 0) {
+        errors.push({ field: "taxAgency", message: "must not be empty" });
+      }
+    }
+    if ("city" in partial && partial.city !== undefined) {
+      const __val = partial.city as string;
+      if (__val.length === 0) {
+        errors.push({ field: "city", message: "must not be empty" });
+      }
+    }
+    if ("county" in partial && partial.county !== undefined) {
+      const __val = partial.county as string;
+      if (__val.length === 0) {
+        errors.push({ field: "county", message: "must not be empty" });
+      }
+    }
+    if ("state" in partial && partial.state !== undefined) {
+      const __val = partial.state as string;
+      if (__val.length === 0) {
+        errors.push({ field: "state", message: "must not be empty" });
+      }
+    }
+    if ("description" in partial && partial.description !== undefined) {
+      const __val = partial.description as string;
+      if (__val.length === 0) {
+        errors.push({ field: "description", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -19021,7 +20149,7 @@ export namespace TaxRate {
         path: ["name"] as const,
         name: "name",
         constraints: { required: true },
-
+        label: "Name",
         get: () => data.name,
         set: (value: string) => {
           data.name = value;
@@ -19046,7 +20174,7 @@ export namespace TaxRate {
         path: ["taxAgency"] as const,
         name: "taxAgency",
         constraints: { required: true },
-
+        label: "Tax Agency",
         get: () => data.taxAgency,
         set: (value: string) => {
           data.taxAgency = value;
@@ -19099,7 +20227,7 @@ export namespace TaxRate {
         path: ["city"] as const,
         name: "city",
         constraints: { required: true },
-
+        label: "City",
         get: () => data.city,
         set: (value: string) => {
           data.city = value;
@@ -19124,7 +20252,7 @@ export namespace TaxRate {
         path: ["county"] as const,
         name: "county",
         constraints: { required: true },
-
+        label: "County",
         get: () => data.county,
         set: (value: string) => {
           data.county = value;
@@ -19149,7 +20277,7 @@ export namespace TaxRate {
         path: ["state"] as const,
         name: "state",
         constraints: { required: true },
-
+        label: "State",
         get: () => data.state,
         set: (value: string) => {
           data.state = value;
@@ -19199,7 +20327,7 @@ export namespace TaxRate {
         path: ["description"] as const,
         name: "description",
         constraints: { required: true },
-
+        label: "Description",
         get: () => data.description,
         set: (value: string) => {
           data.description = value;
@@ -19463,28 +20591,28 @@ export namespace Address {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_street = obj["street"];
+      const __raw_street = obj["street"] as string;
       if (__raw_street.length === 0) {
         errors.push({ field: "street", message: "must not be empty" });
       }
       instance.street = __raw_street;
     }
     {
-      const __raw_city = obj["city"];
+      const __raw_city = obj["city"] as string;
       if (__raw_city.length === 0) {
         errors.push({ field: "city", message: "must not be empty" });
       }
       instance.city = __raw_city;
     }
     {
-      const __raw_state = obj["state"];
+      const __raw_state = obj["state"] as string;
       if (__raw_state.length === 0) {
         errors.push({ field: "state", message: "must not be empty" });
       }
       instance.state = __raw_state;
     }
     {
-      const __raw_zipcode = obj["zipcode"];
+      const __raw_zipcode = obj["zipcode"] as string;
       if (__raw_zipcode.length === 0) {
         errors.push({ field: "zipcode", message: "must not be empty" });
       }
@@ -19494,6 +20622,73 @@ export namespace Address {
       throw new DeserializeError(errors);
     }
     return instance as Address;
+  }
+  export function validateField<K extends keyof Address>(
+    field: K,
+    value: Address[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "street": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "street", message: "must not be empty" });
+        }
+        break;
+      }
+      case "city": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "city", message: "must not be empty" });
+        }
+        break;
+      }
+      case "state": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "state", message: "must not be empty" });
+        }
+        break;
+      }
+      case "zipcode": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "zipcode", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Address>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("street" in partial && partial.street !== undefined) {
+      const __val = partial.street as string;
+      if (__val.length === 0) {
+        errors.push({ field: "street", message: "must not be empty" });
+      }
+    }
+    if ("city" in partial && partial.city !== undefined) {
+      const __val = partial.city as string;
+      if (__val.length === 0) {
+        errors.push({ field: "city", message: "must not be empty" });
+      }
+    }
+    if ("state" in partial && partial.state !== undefined) {
+      const __val = partial.state as string;
+      if (__val.length === 0) {
+        errors.push({ field: "state", message: "must not be empty" });
+      }
+    }
+    if ("zipcode" in partial && partial.zipcode !== undefined) {
+      const __val = partial.zipcode as string;
+      if (__val.length === 0) {
+        errors.push({ field: "zipcode", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -19711,7 +20906,6 @@ export interface Lead {
   accepted: boolean;
 
   probability: number;
-  /** @radioGroupController({ label: "Priority", options: [{ label: "High", value: "High" }, { label: "Medium", value: "Medium" }, { label: "Low", value: "Low" }], orientation: "horizontal" }) */
 
   priority: Priority;
 
@@ -19720,15 +20914,12 @@ export interface Lead {
   closeDate: string | null;
 
   value: number;
-  /** @selectController({ label: "Stage", options: [{ label: "Open", value: "Open" }, { label: "Working", value: "Working" }, { label: "Lost", value: "Lost" }, { label: "Qualified", value: "Qualified" }, { label: "Estimate", value: "Estimate" }, { label: "Negotiation", value: "Negotiation" }] }) */
 
   stage: LeadStage;
-  /** @textController({ label: "Status" }) */
 
   status: string;
 
   description: string | null;
-  /** @hiddenController({}) */
 
   nextStep: NextStep;
 
@@ -19737,7 +20928,6 @@ export interface Lead {
   dateAdded: string | null;
 
   taxRate: (string | TaxRate) | null;
-  /** @radioGroupController({ label: "Sector", options: [{ label: "Residential", value: "Residential" }, { label: "Commercial", value: "Commercial" }], orientation: "horizontal" }) */
 
   sector: Sector;
 
@@ -19748,10 +20938,8 @@ export interface Lead {
   email: Email;
 
   leadSource: string | null;
-  /** @siteFieldsetController({ label: "Site" }) */
 
   site: string | Site;
-  /** @textAreaController({ label: "Memo" }) */
 
   memo: string;
 
@@ -19762,15 +20950,12 @@ export interface Lead {
   salesRep: Represents[] | null;
 
   color: string | null;
-  /** @comboboxController({ label: "Account Type", allowCustom: true }) */
 
   accountType: string;
-  /** @comboboxController({ label: "Subtype", allowCustom: true }) */
 
   subtype: string;
 
   isTaxExempt: boolean;
-  /** @comboboxController({ label: "Payment Terms", allowCustom: true }) */
 
   paymentTerms: string;
 
@@ -20123,11 +21308,11 @@ export namespace Lead {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_number = obj["number"];
+      const __raw_number = obj["number"] as number | null;
       if (__raw_number === null) {
         instance.number = null;
       } else if (typeof (__raw_number as any)?.__ref !== "undefined") {
@@ -20138,15 +21323,15 @@ export namespace Lead {
       }
     }
     {
-      const __raw_accepted = obj["accepted"];
+      const __raw_accepted = obj["accepted"] as boolean;
       instance.accepted = __raw_accepted;
     }
     {
-      const __raw_probability = obj["probability"];
+      const __raw_probability = obj["probability"] as number;
       instance.probability = __raw_probability;
     }
     {
-      const __raw_priority = obj["priority"];
+      const __raw_priority = obj["priority"] as Priority;
       if (typeof (Priority as any)?.__deserialize === "function") {
         const __result = (Priority as any).__deserialize(__raw_priority, ctx);
         ctx.assignOrDefer(instance, "priority", __result);
@@ -20155,7 +21340,7 @@ export namespace Lead {
       }
     }
     {
-      const __raw_dueDate = obj["dueDate"];
+      const __raw_dueDate = obj["dueDate"] as string | null;
       if (__raw_dueDate === null) {
         instance.dueDate = null;
       } else if (typeof (__raw_dueDate as any)?.__ref !== "undefined") {
@@ -20166,7 +21351,7 @@ export namespace Lead {
       }
     }
     {
-      const __raw_closeDate = obj["closeDate"];
+      const __raw_closeDate = obj["closeDate"] as string | null;
       if (__raw_closeDate === null) {
         instance.closeDate = null;
       } else if (typeof (__raw_closeDate as any)?.__ref !== "undefined") {
@@ -20177,11 +21362,11 @@ export namespace Lead {
       }
     }
     {
-      const __raw_value = obj["value"];
+      const __raw_value = obj["value"] as number;
       instance.value = __raw_value;
     }
     {
-      const __raw_stage = obj["stage"];
+      const __raw_stage = obj["stage"] as LeadStage;
       if (typeof (LeadStage as any)?.__deserialize === "function") {
         const __result = (LeadStage as any).__deserialize(__raw_stage, ctx);
         ctx.assignOrDefer(instance, "stage", __result);
@@ -20190,14 +21375,14 @@ export namespace Lead {
       }
     }
     {
-      const __raw_status = obj["status"];
+      const __raw_status = obj["status"] as string;
       if (__raw_status.length === 0) {
         errors.push({ field: "status", message: "must not be empty" });
       }
       instance.status = __raw_status;
     }
     {
-      const __raw_description = obj["description"];
+      const __raw_description = obj["description"] as string | null;
       if (__raw_description === null) {
         instance.description = null;
       } else if (typeof (__raw_description as any)?.__ref !== "undefined") {
@@ -20208,7 +21393,7 @@ export namespace Lead {
       }
     }
     {
-      const __raw_nextStep = obj["nextStep"];
+      const __raw_nextStep = obj["nextStep"] as NextStep;
       if (typeof (NextStep as any)?.__deserialize === "function") {
         const __result = (NextStep as any).__deserialize(__raw_nextStep, ctx);
         ctx.assignOrDefer(instance, "nextStep", __result);
@@ -20217,11 +21402,11 @@ export namespace Lead {
       }
     }
     {
-      const __raw_favorite = obj["favorite"];
+      const __raw_favorite = obj["favorite"] as boolean;
       instance.favorite = __raw_favorite;
     }
     {
-      const __raw_dateAdded = obj["dateAdded"];
+      const __raw_dateAdded = obj["dateAdded"] as string | null;
       if (__raw_dateAdded === null) {
         instance.dateAdded = null;
       } else if (typeof (__raw_dateAdded as any)?.__ref !== "undefined") {
@@ -20232,7 +21417,7 @@ export namespace Lead {
       }
     }
     {
-      const __raw_taxRate = obj["taxRate"];
+      const __raw_taxRate = obj["taxRate"] as (string | TaxRate) | null;
       if (__raw_taxRate === null) {
         instance.taxRate = null;
       } else if (typeof (__raw_taxRate as any)?.__ref !== "undefined") {
@@ -20243,7 +21428,7 @@ export namespace Lead {
       }
     }
     {
-      const __raw_sector = obj["sector"];
+      const __raw_sector = obj["sector"] as Sector;
       if (typeof (Sector as any)?.__deserialize === "function") {
         const __result = (Sector as any).__deserialize(__raw_sector, ctx);
         ctx.assignOrDefer(instance, "sector", __result);
@@ -20252,7 +21437,7 @@ export namespace Lead {
       }
     }
     {
-      const __raw_leadName = obj["leadName"];
+      const __raw_leadName = obj["leadName"] as AccountName;
       if (typeof (AccountName as any)?.__deserialize === "function") {
         const __result = (AccountName as any).__deserialize(
           __raw_leadName,
@@ -20264,13 +21449,13 @@ export namespace Lead {
       }
     }
     {
-      const __raw_phones = obj["phones"];
+      const __raw_phones = obj["phones"] as PhoneNumber[];
       if (Array.isArray(__raw_phones)) {
         instance.phones = __raw_phones as PhoneNumber[];
       }
     }
     {
-      const __raw_email = obj["email"];
+      const __raw_email = obj["email"] as Email;
       if (typeof (Email as any)?.__deserialize === "function") {
         const __result = (Email as any).__deserialize(__raw_email, ctx);
         ctx.assignOrDefer(instance, "email", __result);
@@ -20279,7 +21464,7 @@ export namespace Lead {
       }
     }
     {
-      const __raw_leadSource = obj["leadSource"];
+      const __raw_leadSource = obj["leadSource"] as string | null;
       if (__raw_leadSource === null) {
         instance.leadSource = null;
       } else if (typeof (__raw_leadSource as any)?.__ref !== "undefined") {
@@ -20290,26 +21475,26 @@ export namespace Lead {
       }
     }
     {
-      const __raw_site = obj["site"];
+      const __raw_site = obj["site"] as string | Site;
       instance.site = __raw_site;
     }
     {
-      const __raw_memo = obj["memo"];
+      const __raw_memo = obj["memo"] as string;
       if (__raw_memo.length === 0) {
         errors.push({ field: "memo", message: "must not be empty" });
       }
       instance.memo = __raw_memo;
     }
     {
-      const __raw_needsReview = obj["needsReview"];
+      const __raw_needsReview = obj["needsReview"] as boolean;
       instance.needsReview = __raw_needsReview;
     }
     {
-      const __raw_hasAlert = obj["hasAlert"];
+      const __raw_hasAlert = obj["hasAlert"] as boolean;
       instance.hasAlert = __raw_hasAlert;
     }
     {
-      const __raw_salesRep = obj["salesRep"];
+      const __raw_salesRep = obj["salesRep"] as Represents[] | null;
       if (__raw_salesRep === null) {
         instance.salesRep = null;
       } else if (typeof (__raw_salesRep as any)?.__ref !== "undefined") {
@@ -20320,7 +21505,7 @@ export namespace Lead {
       }
     }
     {
-      const __raw_color = obj["color"];
+      const __raw_color = obj["color"] as string | null;
       if (__raw_color === null) {
         instance.color = null;
       } else if (typeof (__raw_color as any)?.__ref !== "undefined") {
@@ -20331,38 +21516,38 @@ export namespace Lead {
       }
     }
     {
-      const __raw_accountType = obj["accountType"];
+      const __raw_accountType = obj["accountType"] as string;
       if (__raw_accountType.length === 0) {
         errors.push({ field: "accountType", message: "must not be empty" });
       }
       instance.accountType = __raw_accountType;
     }
     {
-      const __raw_subtype = obj["subtype"];
+      const __raw_subtype = obj["subtype"] as string;
       if (__raw_subtype.length === 0) {
         errors.push({ field: "subtype", message: "must not be empty" });
       }
       instance.subtype = __raw_subtype;
     }
     {
-      const __raw_isTaxExempt = obj["isTaxExempt"];
+      const __raw_isTaxExempt = obj["isTaxExempt"] as boolean;
       instance.isTaxExempt = __raw_isTaxExempt;
     }
     {
-      const __raw_paymentTerms = obj["paymentTerms"];
+      const __raw_paymentTerms = obj["paymentTerms"] as string;
       if (__raw_paymentTerms.length === 0) {
         errors.push({ field: "paymentTerms", message: "must not be empty" });
       }
       instance.paymentTerms = __raw_paymentTerms;
     }
     {
-      const __raw_tags = obj["tags"];
+      const __raw_tags = obj["tags"] as string[];
       if (Array.isArray(__raw_tags)) {
         instance.tags = __raw_tags as string[];
       }
     }
     {
-      const __raw_customFields = obj["customFields"];
+      const __raw_customFields = obj["customFields"] as [string, string][];
       if (Array.isArray(__raw_customFields)) {
         instance.customFields = __raw_customFields as [string, string][];
       }
@@ -20371,6 +21556,86 @@ export namespace Lead {
       throw new DeserializeError(errors);
     }
     return instance as Lead;
+  }
+  export function validateField<K extends keyof Lead>(
+    field: K,
+    value: Lead[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "status": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "status", message: "must not be empty" });
+        }
+        break;
+      }
+      case "memo": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "memo", message: "must not be empty" });
+        }
+        break;
+      }
+      case "accountType": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "accountType", message: "must not be empty" });
+        }
+        break;
+      }
+      case "subtype": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "subtype", message: "must not be empty" });
+        }
+        break;
+      }
+      case "paymentTerms": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "paymentTerms", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Lead>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("status" in partial && partial.status !== undefined) {
+      const __val = partial.status as string;
+      if (__val.length === 0) {
+        errors.push({ field: "status", message: "must not be empty" });
+      }
+    }
+    if ("memo" in partial && partial.memo !== undefined) {
+      const __val = partial.memo as string;
+      if (__val.length === 0) {
+        errors.push({ field: "memo", message: "must not be empty" });
+      }
+    }
+    if ("accountType" in partial && partial.accountType !== undefined) {
+      const __val = partial.accountType as string;
+      if (__val.length === 0) {
+        errors.push({ field: "accountType", message: "must not be empty" });
+      }
+    }
+    if ("subtype" in partial && partial.subtype !== undefined) {
+      const __val = partial.subtype as string;
+      if (__val.length === 0) {
+        errors.push({ field: "subtype", message: "must not be empty" });
+      }
+    }
+    if ("paymentTerms" in partial && partial.paymentTerms !== undefined) {
+      const __val = partial.paymentTerms as string;
+      if (__val.length === 0) {
+        errors.push({ field: "paymentTerms", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -20668,7 +21933,7 @@ export namespace Lead {
         path: ["priority"] as const,
         name: "priority",
         constraints: { required: true },
-
+        label: "Priority",
         get: () => data.priority,
         set: (value: Priority) => {
           data.priority = value;
@@ -20768,7 +22033,7 @@ export namespace Lead {
         path: ["stage"] as const,
         name: "stage",
         constraints: { required: true },
-
+        label: "Stage",
         get: () => data.stage,
         set: (value: LeadStage) => {
           data.stage = value;
@@ -20793,7 +22058,7 @@ export namespace Lead {
         path: ["status"] as const,
         name: "status",
         constraints: { required: true },
-
+        label: "Status",
         get: () => data.status,
         set: (value: string) => {
           data.status = value;
@@ -20948,7 +22213,7 @@ export namespace Lead {
         path: ["sector"] as const,
         name: "sector",
         constraints: { required: true },
-
+        label: "Sector",
         get: () => data.sector,
         set: (value: Sector) => {
           data.sector = value;
@@ -21103,7 +22368,7 @@ export namespace Lead {
         path: ["site"] as const,
         name: "site",
         constraints: { required: true },
-
+        label: "Site",
         get: () => data.site,
         set: (value: string | Site) => {
           data.site = value;
@@ -21128,7 +22393,7 @@ export namespace Lead {
         path: ["memo"] as const,
         name: "memo",
         constraints: { required: true },
-
+        label: "Memo",
         get: () => data.memo,
         set: (value: string) => {
           data.memo = value;
@@ -21256,7 +22521,7 @@ export namespace Lead {
         path: ["accountType"] as const,
         name: "accountType",
         constraints: { required: true },
-
+        label: "Account Type",
         get: () => data.accountType,
         set: (value: string) => {
           data.accountType = value;
@@ -21284,7 +22549,7 @@ export namespace Lead {
         path: ["subtype"] as const,
         name: "subtype",
         constraints: { required: true },
-
+        label: "Subtype",
         get: () => data.subtype,
         set: (value: string) => {
           data.subtype = value;
@@ -21337,7 +22602,7 @@ export namespace Lead {
         path: ["paymentTerms"] as const,
         name: "paymentTerms",
         constraints: { required: true },
-
+        label: "Payment Terms",
         get: () => data.paymentTerms,
         set: (value: string) => {
           data.paymentTerms = value;
@@ -21953,19 +23218,19 @@ export namespace AppPermissions {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_applications = obj["applications"];
+      const __raw_applications = obj["applications"] as Applications[];
       if (Array.isArray(__raw_applications)) {
         instance.applications = __raw_applications as Applications[];
       }
     }
     {
-      const __raw_pages = obj["pages"];
+      const __raw_pages = obj["pages"] as Page[];
       if (Array.isArray(__raw_pages)) {
         instance.pages = __raw_pages as Page[];
       }
     }
     {
-      const __raw_data = obj["data"];
+      const __raw_data = obj["data"] as Table[];
       if (Array.isArray(__raw_data)) {
         instance.data = __raw_data as Table[];
       }
@@ -21974,6 +23239,17 @@ export namespace AppPermissions {
       throw new DeserializeError(errors);
     }
     return instance as AppPermissions;
+  }
+  export function validateField<K extends keyof AppPermissions>(
+    field: K,
+    value: AppPermissions[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<AppPermissions>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -22682,60 +23958,60 @@ export namespace Company {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_legalName = obj["legalName"];
+      const __raw_legalName = obj["legalName"] as string;
       if (__raw_legalName.length === 0) {
         errors.push({ field: "legalName", message: "must not be empty" });
       }
       instance.legalName = __raw_legalName;
     }
     {
-      const __raw_headquarters = obj["headquarters"];
+      const __raw_headquarters = obj["headquarters"] as string | Site;
       instance.headquarters = __raw_headquarters;
     }
     {
-      const __raw_phones = obj["phones"];
+      const __raw_phones = obj["phones"] as PhoneNumber[];
       if (Array.isArray(__raw_phones)) {
         instance.phones = __raw_phones as PhoneNumber[];
       }
     }
     {
-      const __raw_fax = obj["fax"];
+      const __raw_fax = obj["fax"] as string;
       if (__raw_fax.length === 0) {
         errors.push({ field: "fax", message: "must not be empty" });
       }
       instance.fax = __raw_fax;
     }
     {
-      const __raw_email = obj["email"];
+      const __raw_email = obj["email"] as string;
       if (__raw_email.length === 0) {
         errors.push({ field: "email", message: "must not be empty" });
       }
       instance.email = __raw_email;
     }
     {
-      const __raw_website = obj["website"];
+      const __raw_website = obj["website"] as string;
       if (__raw_website.length === 0) {
         errors.push({ field: "website", message: "must not be empty" });
       }
       instance.website = __raw_website;
     }
     {
-      const __raw_taxId = obj["taxId"];
+      const __raw_taxId = obj["taxId"] as string;
       if (__raw_taxId.length === 0) {
         errors.push({ field: "taxId", message: "must not be empty" });
       }
       instance.taxId = __raw_taxId;
     }
     {
-      const __raw_referenceNumber = obj["referenceNumber"];
+      const __raw_referenceNumber = obj["referenceNumber"] as number;
       instance.referenceNumber = __raw_referenceNumber;
     }
     {
-      const __raw_postalCodeLookup = obj["postalCodeLookup"];
+      const __raw_postalCodeLookup = obj["postalCodeLookup"] as string;
       if (__raw_postalCodeLookup.length === 0) {
         errors.push({
           field: "postalCodeLookup",
@@ -22745,15 +24021,15 @@ export namespace Company {
       instance.postalCodeLookup = __raw_postalCodeLookup;
     }
     {
-      const __raw_timeZone = obj["timeZone"];
+      const __raw_timeZone = obj["timeZone"] as string;
       instance.timeZone = __raw_timeZone;
     }
     {
-      const __raw_defaultTax = obj["defaultTax"];
+      const __raw_defaultTax = obj["defaultTax"] as string | TaxRate;
       instance.defaultTax = __raw_defaultTax;
     }
     {
-      const __raw_defaultTaxLocation = obj["defaultTaxLocation"];
+      const __raw_defaultTaxLocation = obj["defaultTaxLocation"] as string;
       if (__raw_defaultTaxLocation.length === 0) {
         errors.push({
           field: "defaultTaxLocation",
@@ -22763,11 +24039,11 @@ export namespace Company {
       instance.defaultTaxLocation = __raw_defaultTaxLocation;
     }
     {
-      const __raw_defaultAreaCode = obj["defaultAreaCode"];
+      const __raw_defaultAreaCode = obj["defaultAreaCode"] as number;
       instance.defaultAreaCode = __raw_defaultAreaCode;
     }
     {
-      const __raw_defaultAccountType = obj["defaultAccountType"];
+      const __raw_defaultAccountType = obj["defaultAccountType"] as string;
       if (__raw_defaultAccountType.length === 0) {
         errors.push({
           field: "defaultAccountType",
@@ -22777,7 +24053,7 @@ export namespace Company {
       instance.defaultAccountType = __raw_defaultAccountType;
     }
     {
-      const __raw_lookupFormatting = obj["lookupFormatting"];
+      const __raw_lookupFormatting = obj["lookupFormatting"] as string;
       if (__raw_lookupFormatting.length === 0) {
         errors.push({
           field: "lookupFormatting",
@@ -22787,7 +24063,7 @@ export namespace Company {
       instance.lookupFormatting = __raw_lookupFormatting;
     }
     {
-      const __raw_accountNameFormat = obj["accountNameFormat"];
+      const __raw_accountNameFormat = obj["accountNameFormat"] as string;
       if (__raw_accountNameFormat.length === 0) {
         errors.push({
           field: "accountNameFormat",
@@ -22797,7 +24073,9 @@ export namespace Company {
       instance.accountNameFormat = __raw_accountNameFormat;
     }
     {
-      const __raw_merchantServiceProvider = obj["merchantServiceProvider"];
+      const __raw_merchantServiceProvider = obj["merchantServiceProvider"] as
+        | string
+        | null;
       if (__raw_merchantServiceProvider === null) {
         instance.merchantServiceProvider = null;
       } else if (
@@ -22812,7 +24090,7 @@ export namespace Company {
       }
     }
     {
-      const __raw_dateDisplayStyle = obj["dateDisplayStyle"];
+      const __raw_dateDisplayStyle = obj["dateDisplayStyle"] as string;
       if (__raw_dateDisplayStyle.length === 0) {
         errors.push({
           field: "dateDisplayStyle",
@@ -22822,47 +24100,53 @@ export namespace Company {
       instance.dateDisplayStyle = __raw_dateDisplayStyle;
     }
     {
-      const __raw_hasAutoCommission = obj["hasAutoCommission"];
+      const __raw_hasAutoCommission = obj["hasAutoCommission"] as boolean;
       instance.hasAutoCommission = __raw_hasAutoCommission;
     }
     {
-      const __raw_hasAutoDaylightSavings = obj["hasAutoDaylightSavings"];
+      const __raw_hasAutoDaylightSavings = obj[
+        "hasAutoDaylightSavings"
+      ] as boolean;
       instance.hasAutoDaylightSavings = __raw_hasAutoDaylightSavings;
     }
     {
-      const __raw_hasAutoFmsTracking = obj["hasAutoFmsTracking"];
+      const __raw_hasAutoFmsTracking = obj["hasAutoFmsTracking"] as boolean;
       instance.hasAutoFmsTracking = __raw_hasAutoFmsTracking;
     }
     {
-      const __raw_hasNotifications = obj["hasNotifications"];
+      const __raw_hasNotifications = obj["hasNotifications"] as boolean;
       instance.hasNotifications = __raw_hasNotifications;
     }
     {
-      const __raw_hasRequiredLeadSource = obj["hasRequiredLeadSource"];
+      const __raw_hasRequiredLeadSource = obj[
+        "hasRequiredLeadSource"
+      ] as boolean;
       instance.hasRequiredLeadSource = __raw_hasRequiredLeadSource;
     }
     {
-      const __raw_hasRequiredEmail = obj["hasRequiredEmail"];
+      const __raw_hasRequiredEmail = obj["hasRequiredEmail"] as boolean;
       instance.hasRequiredEmail = __raw_hasRequiredEmail;
     }
     {
-      const __raw_hasSortServiceItemsAlphabetically =
-        obj["hasSortServiceItemsAlphabetically"];
+      const __raw_hasSortServiceItemsAlphabetically = obj[
+        "hasSortServiceItemsAlphabetically"
+      ] as boolean;
       instance.hasSortServiceItemsAlphabetically =
         __raw_hasSortServiceItemsAlphabetically;
     }
     {
-      const __raw_hasAttachOrderToAppointmentEmails =
-        obj["hasAttachOrderToAppointmentEmails"];
+      const __raw_hasAttachOrderToAppointmentEmails = obj[
+        "hasAttachOrderToAppointmentEmails"
+      ] as boolean;
       instance.hasAttachOrderToAppointmentEmails =
         __raw_hasAttachOrderToAppointmentEmails;
     }
     {
-      const __raw_scheduleInterval = obj["scheduleInterval"];
+      const __raw_scheduleInterval = obj["scheduleInterval"] as number;
       instance.scheduleInterval = __raw_scheduleInterval;
     }
     {
-      const __raw_colorsConfig = obj["colorsConfig"];
+      const __raw_colorsConfig = obj["colorsConfig"] as ColorsConfig;
       if (typeof (ColorsConfig as any)?.__deserialize === "function") {
         const __result = (ColorsConfig as any).__deserialize(
           __raw_colorsConfig,
@@ -22877,6 +24161,218 @@ export namespace Company {
       throw new DeserializeError(errors);
     }
     return instance as Company;
+  }
+  export function validateField<K extends keyof Company>(
+    field: K,
+    value: Company[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "legalName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "legalName", message: "must not be empty" });
+        }
+        break;
+      }
+      case "fax": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "fax", message: "must not be empty" });
+        }
+        break;
+      }
+      case "email": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "email", message: "must not be empty" });
+        }
+        break;
+      }
+      case "website": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "website", message: "must not be empty" });
+        }
+        break;
+      }
+      case "taxId": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "taxId", message: "must not be empty" });
+        }
+        break;
+      }
+      case "postalCodeLookup": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "postalCodeLookup",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+      case "defaultTaxLocation": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "defaultTaxLocation",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+      case "defaultAccountType": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "defaultAccountType",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+      case "lookupFormatting": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "lookupFormatting",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+      case "accountNameFormat": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "accountNameFormat",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+      case "dateDisplayStyle": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "dateDisplayStyle",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Company>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("legalName" in partial && partial.legalName !== undefined) {
+      const __val = partial.legalName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "legalName", message: "must not be empty" });
+      }
+    }
+    if ("fax" in partial && partial.fax !== undefined) {
+      const __val = partial.fax as string;
+      if (__val.length === 0) {
+        errors.push({ field: "fax", message: "must not be empty" });
+      }
+    }
+    if ("email" in partial && partial.email !== undefined) {
+      const __val = partial.email as string;
+      if (__val.length === 0) {
+        errors.push({ field: "email", message: "must not be empty" });
+      }
+    }
+    if ("website" in partial && partial.website !== undefined) {
+      const __val = partial.website as string;
+      if (__val.length === 0) {
+        errors.push({ field: "website", message: "must not be empty" });
+      }
+    }
+    if ("taxId" in partial && partial.taxId !== undefined) {
+      const __val = partial.taxId as string;
+      if (__val.length === 0) {
+        errors.push({ field: "taxId", message: "must not be empty" });
+      }
+    }
+    if (
+      "postalCodeLookup" in partial &&
+      partial.postalCodeLookup !== undefined
+    ) {
+      const __val = partial.postalCodeLookup as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "postalCodeLookup",
+          message: "must not be empty",
+        });
+      }
+    }
+    if (
+      "defaultTaxLocation" in partial &&
+      partial.defaultTaxLocation !== undefined
+    ) {
+      const __val = partial.defaultTaxLocation as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "defaultTaxLocation",
+          message: "must not be empty",
+        });
+      }
+    }
+    if (
+      "defaultAccountType" in partial &&
+      partial.defaultAccountType !== undefined
+    ) {
+      const __val = partial.defaultAccountType as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "defaultAccountType",
+          message: "must not be empty",
+        });
+      }
+    }
+    if (
+      "lookupFormatting" in partial &&
+      partial.lookupFormatting !== undefined
+    ) {
+      const __val = partial.lookupFormatting as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "lookupFormatting",
+          message: "must not be empty",
+        });
+      }
+    }
+    if (
+      "accountNameFormat" in partial &&
+      partial.accountNameFormat !== undefined
+    ) {
+      const __val = partial.accountNameFormat as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "accountNameFormat",
+          message: "must not be empty",
+        });
+      }
+    }
+    if (
+      "dateDisplayStyle" in partial &&
+      partial.dateDisplayStyle !== undefined
+    ) {
+      const __val = partial.dateDisplayStyle as string;
+      if (__val.length === 0) {
+        errors.push({
+          field: "dateDisplayStyle",
+          message: "must not be empty",
+        });
+      }
+    }
+    return errors;
   }
 }
 
@@ -24286,41 +25782,52 @@ export namespace Ordinal {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_north = obj["north"];
+      const __raw_north = obj["north"] as number;
       instance.north = __raw_north;
     }
     {
-      const __raw_northeast = obj["northeast"];
+      const __raw_northeast = obj["northeast"] as number;
       instance.northeast = __raw_northeast;
     }
     {
-      const __raw_east = obj["east"];
+      const __raw_east = obj["east"] as number;
       instance.east = __raw_east;
     }
     {
-      const __raw_southeast = obj["southeast"];
+      const __raw_southeast = obj["southeast"] as number;
       instance.southeast = __raw_southeast;
     }
     {
-      const __raw_south = obj["south"];
+      const __raw_south = obj["south"] as number;
       instance.south = __raw_south;
     }
     {
-      const __raw_southwest = obj["southwest"];
+      const __raw_southwest = obj["southwest"] as number;
       instance.southwest = __raw_southwest;
     }
     {
-      const __raw_west = obj["west"];
+      const __raw_west = obj["west"] as number;
       instance.west = __raw_west;
     }
     {
-      const __raw_northwest = obj["northwest"];
+      const __raw_northwest = obj["northwest"] as number;
       instance.northwest = __raw_northwest;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as Ordinal;
+  }
+  export function validateField<K extends keyof Ordinal>(
+    field: K,
+    value: Ordinal[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Ordinal>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -24817,7 +26324,7 @@ export namespace Password {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_password = obj["password"];
+      const __raw_password = obj["password"] as string;
       if (__raw_password.length === 0) {
         errors.push({ field: "password", message: "must not be empty" });
       }
@@ -24827,6 +26334,34 @@ export namespace Password {
       throw new DeserializeError(errors);
     }
     return instance as Password;
+  }
+  export function validateField<K extends keyof Password>(
+    field: K,
+    value: Password[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "password": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "password", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Password>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("password" in partial && partial.password !== undefined) {
+      const __val = partial.password as string;
+      if (__val.length === 0) {
+        errors.push({ field: "password", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -25042,7 +26577,7 @@ export namespace Created {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_initialData = obj["initialData"];
+      const __raw_initialData = obj["initialData"] as string | null;
       if (__raw_initialData === null) {
         instance.initialData = null;
       } else if (typeof (__raw_initialData as any)?.__ref !== "undefined") {
@@ -25056,6 +26591,17 @@ export namespace Created {
       throw new DeserializeError(errors);
     }
     return instance as Created;
+  }
+  export function validateField<K extends keyof Created>(
+    field: K,
+    value: Created[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Created>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -25411,11 +26957,11 @@ export namespace Employee {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_imageUrl = obj["imageUrl"];
+      const __raw_imageUrl = obj["imageUrl"] as string | null;
       if (__raw_imageUrl === null) {
         instance.imageUrl = null;
       } else if (typeof (__raw_imageUrl as any)?.__ref !== "undefined") {
@@ -25426,27 +26972,27 @@ export namespace Employee {
       }
     }
     {
-      const __raw_name = obj["name"];
+      const __raw_name = obj["name"] as string;
       if (__raw_name.length === 0) {
         errors.push({ field: "name", message: "must not be empty" });
       }
       instance.name = __raw_name;
     }
     {
-      const __raw_phones = obj["phones"];
+      const __raw_phones = obj["phones"] as PhoneNumber[];
       if (Array.isArray(__raw_phones)) {
         instance.phones = __raw_phones as PhoneNumber[];
       }
     }
     {
-      const __raw_role = obj["role"];
+      const __raw_role = obj["role"] as string;
       if (__raw_role.length === 0) {
         errors.push({ field: "role", message: "must not be empty" });
       }
       instance.role = __raw_role;
     }
     {
-      const __raw_title = obj["title"];
+      const __raw_title = obj["title"] as JobTitle;
       if (typeof (JobTitle as any)?.__deserialize === "function") {
         const __result = (JobTitle as any).__deserialize(__raw_title, ctx);
         ctx.assignOrDefer(instance, "title", __result);
@@ -25455,7 +27001,7 @@ export namespace Employee {
       }
     }
     {
-      const __raw_email = obj["email"];
+      const __raw_email = obj["email"] as Email;
       if (typeof (Email as any)?.__deserialize === "function") {
         const __result = (Email as any).__deserialize(__raw_email, ctx);
         ctx.assignOrDefer(instance, "email", __result);
@@ -25464,41 +27010,41 @@ export namespace Employee {
       }
     }
     {
-      const __raw_address = obj["address"];
+      const __raw_address = obj["address"] as string;
       if (__raw_address.length === 0) {
         errors.push({ field: "address", message: "must not be empty" });
       }
       instance.address = __raw_address;
     }
     {
-      const __raw_username = obj["username"];
+      const __raw_username = obj["username"] as string;
       if (__raw_username.length === 0) {
         errors.push({ field: "username", message: "must not be empty" });
       }
       instance.username = __raw_username;
     }
     {
-      const __raw_route = obj["route"];
+      const __raw_route = obj["route"] as string | Route;
       instance.route = __raw_route;
     }
     {
-      const __raw_ratePerHour = obj["ratePerHour"];
+      const __raw_ratePerHour = obj["ratePerHour"] as number;
       instance.ratePerHour = __raw_ratePerHour;
     }
     {
-      const __raw_active = obj["active"];
+      const __raw_active = obj["active"] as boolean;
       instance.active = __raw_active;
     }
     {
-      const __raw_isTechnician = obj["isTechnician"];
+      const __raw_isTechnician = obj["isTechnician"] as boolean;
       instance.isTechnician = __raw_isTechnician;
     }
     {
-      const __raw_isSalesRep = obj["isSalesRep"];
+      const __raw_isSalesRep = obj["isSalesRep"] as boolean;
       instance.isSalesRep = __raw_isSalesRep;
     }
     {
-      const __raw_description = obj["description"];
+      const __raw_description = obj["description"] as string | null;
       if (__raw_description === null) {
         instance.description = null;
       } else if (typeof (__raw_description as any)?.__ref !== "undefined") {
@@ -25509,7 +27055,7 @@ export namespace Employee {
       }
     }
     {
-      const __raw_linkedinUrl = obj["linkedinUrl"];
+      const __raw_linkedinUrl = obj["linkedinUrl"] as string | null;
       if (__raw_linkedinUrl === null) {
         instance.linkedinUrl = null;
       } else if (typeof (__raw_linkedinUrl as any)?.__ref !== "undefined") {
@@ -25520,13 +27066,13 @@ export namespace Employee {
       }
     }
     {
-      const __raw_attendance = obj["attendance"];
+      const __raw_attendance = obj["attendance"] as string[];
       if (Array.isArray(__raw_attendance)) {
         instance.attendance = __raw_attendance as string[];
       }
     }
     {
-      const __raw_settings = obj["settings"];
+      const __raw_settings = obj["settings"] as Settings;
       if (typeof (Settings as any)?.__deserialize === "function") {
         const __result = (Settings as any).__deserialize(__raw_settings, ctx);
         ctx.assignOrDefer(instance, "settings", __result);
@@ -25538,6 +27084,73 @@ export namespace Employee {
       throw new DeserializeError(errors);
     }
     return instance as Employee;
+  }
+  export function validateField<K extends keyof Employee>(
+    field: K,
+    value: Employee[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+      case "role": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "role", message: "must not be empty" });
+        }
+        break;
+      }
+      case "address": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "address", message: "must not be empty" });
+        }
+        break;
+      }
+      case "username": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "username", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Employee>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    if ("role" in partial && partial.role !== undefined) {
+      const __val = partial.role as string;
+      if (__val.length === 0) {
+        errors.push({ field: "role", message: "must not be empty" });
+      }
+    }
+    if ("address" in partial && partial.address !== undefined) {
+      const __val = partial.address as string;
+      if (__val.length === 0) {
+        errors.push({ field: "address", message: "must not be empty" });
+      }
+    }
+    if ("username" in partial && partial.username !== undefined) {
+      const __val = partial.username as string;
+      if (__val.length === 0) {
+        errors.push({ field: "username", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -26510,14 +28123,14 @@ export namespace Commissions {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_technician = obj["technician"];
+      const __raw_technician = obj["technician"] as string;
       if (__raw_technician.length === 0) {
         errors.push({ field: "technician", message: "must not be empty" });
       }
       instance.technician = __raw_technician;
     }
     {
-      const __raw_salesRep = obj["salesRep"];
+      const __raw_salesRep = obj["salesRep"] as string;
       if (__raw_salesRep.length === 0) {
         errors.push({ field: "salesRep", message: "must not be empty" });
       }
@@ -26527,6 +28140,47 @@ export namespace Commissions {
       throw new DeserializeError(errors);
     }
     return instance as Commissions;
+  }
+  export function validateField<K extends keyof Commissions>(
+    field: K,
+    value: Commissions[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "technician": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "technician", message: "must not be empty" });
+        }
+        break;
+      }
+      case "salesRep": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "salesRep", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Commissions>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("technician" in partial && partial.technician !== undefined) {
+      const __val = partial.technician as string;
+      if (__val.length === 0) {
+        errors.push({ field: "technician", message: "must not be empty" });
+      }
+    }
+    if ("salesRep" in partial && partial.salesRep !== undefined) {
+      const __val = partial.salesRep as string;
+      if (__val.length === 0) {
+        errors.push({ field: "salesRep", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -26786,21 +28440,21 @@ export namespace Number {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_countryCode = obj["countryCode"];
+      const __raw_countryCode = obj["countryCode"] as string;
       if (__raw_countryCode.length === 0) {
         errors.push({ field: "countryCode", message: "must not be empty" });
       }
       instance.countryCode = __raw_countryCode;
     }
     {
-      const __raw_areaCode = obj["areaCode"];
+      const __raw_areaCode = obj["areaCode"] as string;
       if (__raw_areaCode.length === 0) {
         errors.push({ field: "areaCode", message: "must not be empty" });
       }
       instance.areaCode = __raw_areaCode;
     }
     {
-      const __raw_localNumber = obj["localNumber"];
+      const __raw_localNumber = obj["localNumber"] as string;
       if (__raw_localNumber.length === 0) {
         errors.push({ field: "localNumber", message: "must not be empty" });
       }
@@ -26810,6 +28464,60 @@ export namespace Number {
       throw new DeserializeError(errors);
     }
     return instance as Number;
+  }
+  export function validateField<K extends keyof Number>(
+    field: K,
+    value: Number[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "countryCode": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "countryCode", message: "must not be empty" });
+        }
+        break;
+      }
+      case "areaCode": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "areaCode", message: "must not be empty" });
+        }
+        break;
+      }
+      case "localNumber": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "localNumber", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Number>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("countryCode" in partial && partial.countryCode !== undefined) {
+      const __val = partial.countryCode as string;
+      if (__val.length === 0) {
+        errors.push({ field: "countryCode", message: "must not be empty" });
+      }
+    }
+    if ("areaCode" in partial && partial.areaCode !== undefined) {
+      const __val = partial.areaCode as string;
+      if (__val.length === 0) {
+        errors.push({ field: "areaCode", message: "must not be empty" });
+      }
+    }
+    if ("localNumber" in partial && partial.localNumber !== undefined) {
+      const __val = partial.localNumber as string;
+      if (__val.length === 0) {
+        errors.push({ field: "localNumber", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -27113,13 +28821,13 @@ export namespace DataPath {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_path = obj["path"];
+      const __raw_path = obj["path"] as string[];
       if (Array.isArray(__raw_path)) {
         instance.path = __raw_path as string[];
       }
     }
     {
-      const __raw_formatter = obj["formatter"];
+      const __raw_formatter = obj["formatter"] as string | null;
       if (__raw_formatter === null) {
         instance.formatter = null;
       } else if (typeof (__raw_formatter as any)?.__ref !== "undefined") {
@@ -27133,6 +28841,17 @@ export namespace DataPath {
       throw new DeserializeError(errors);
     }
     return instance as DataPath;
+  }
+  export function validateField<K extends keyof DataPath>(
+    field: K,
+    value: DataPath[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<DataPath>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -27498,11 +29217,11 @@ export namespace Route {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_techs = obj["techs"];
+      const __raw_techs = obj["techs"] as (string | Employee)[] | null;
       if (__raw_techs === null) {
         instance.techs = null;
       } else if (typeof (__raw_techs as any)?.__ref !== "undefined") {
@@ -27513,46 +29232,46 @@ export namespace Route {
       }
     }
     {
-      const __raw_active = obj["active"];
+      const __raw_active = obj["active"] as boolean;
       instance.active = __raw_active;
     }
     {
-      const __raw_name = obj["name"];
+      const __raw_name = obj["name"] as string;
       if (__raw_name.length === 0) {
         errors.push({ field: "name", message: "must not be empty" });
       }
       instance.name = __raw_name;
     }
     {
-      const __raw_phone = obj["phone"];
+      const __raw_phone = obj["phone"] as string;
       if (__raw_phone.length === 0) {
         errors.push({ field: "phone", message: "must not be empty" });
       }
       instance.phone = __raw_phone;
     }
     {
-      const __raw_position = obj["position"];
+      const __raw_position = obj["position"] as string;
       if (__raw_position.length === 0) {
         errors.push({ field: "position", message: "must not be empty" });
       }
       instance.position = __raw_position;
     }
     {
-      const __raw_serviceRoute = obj["serviceRoute"];
+      const __raw_serviceRoute = obj["serviceRoute"] as boolean;
       instance.serviceRoute = __raw_serviceRoute;
     }
     {
-      const __raw_defaultDurationHours = obj["defaultDurationHours"];
+      const __raw_defaultDurationHours = obj["defaultDurationHours"] as number;
       instance.defaultDurationHours = __raw_defaultDurationHours;
     }
     {
-      const __raw_tags = obj["tags"];
+      const __raw_tags = obj["tags"] as string[];
       if (Array.isArray(__raw_tags)) {
         instance.tags = __raw_tags as string[];
       }
     }
     {
-      const __raw_icon = obj["icon"];
+      const __raw_icon = obj["icon"] as string | null;
       if (__raw_icon === null) {
         instance.icon = null;
       } else if (typeof (__raw_icon as any)?.__ref !== "undefined") {
@@ -27563,7 +29282,7 @@ export namespace Route {
       }
     }
     {
-      const __raw_color = obj["color"];
+      const __raw_color = obj["color"] as string | null;
       if (__raw_color === null) {
         instance.color = null;
       } else if (typeof (__raw_color as any)?.__ref !== "undefined") {
@@ -27577,6 +29296,60 @@ export namespace Route {
       throw new DeserializeError(errors);
     }
     return instance as Route;
+  }
+  export function validateField<K extends keyof Route>(
+    field: K,
+    value: Route[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+      case "phone": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "phone", message: "must not be empty" });
+        }
+        break;
+      }
+      case "position": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "position", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Route>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    if ("phone" in partial && partial.phone !== undefined) {
+      const __val = partial.phone as string;
+      if (__val.length === 0) {
+        errors.push({ field: "phone", message: "must not be empty" });
+      }
+    }
+    if ("position" in partial && partial.position !== undefined) {
+      const __val = partial.position as string;
+      if (__val.length === 0) {
+        errors.push({ field: "position", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -28198,21 +29971,21 @@ export namespace EmailParts {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_local = obj["local"];
+      const __raw_local = obj["local"] as string;
       if (__raw_local.length === 0) {
         errors.push({ field: "local", message: "must not be empty" });
       }
       instance.local = __raw_local;
     }
     {
-      const __raw_domainName = obj["domainName"];
+      const __raw_domainName = obj["domainName"] as string;
       if (__raw_domainName.length === 0) {
         errors.push({ field: "domainName", message: "must not be empty" });
       }
       instance.domainName = __raw_domainName;
     }
     {
-      const __raw_topLevelDomain = obj["topLevelDomain"];
+      const __raw_topLevelDomain = obj["topLevelDomain"] as string;
       if (__raw_topLevelDomain.length === 0) {
         errors.push({ field: "topLevelDomain", message: "must not be empty" });
       }
@@ -28222,6 +29995,63 @@ export namespace EmailParts {
       throw new DeserializeError(errors);
     }
     return instance as EmailParts;
+  }
+  export function validateField<K extends keyof EmailParts>(
+    field: K,
+    value: EmailParts[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "local": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "local", message: "must not be empty" });
+        }
+        break;
+      }
+      case "domainName": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "domainName", message: "must not be empty" });
+        }
+        break;
+      }
+      case "topLevelDomain": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({
+            field: "topLevelDomain",
+            message: "must not be empty",
+          });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<EmailParts>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("local" in partial && partial.local !== undefined) {
+      const __val = partial.local as string;
+      if (__val.length === 0) {
+        errors.push({ field: "local", message: "must not be empty" });
+      }
+    }
+    if ("domainName" in partial && partial.domainName !== undefined) {
+      const __val = partial.domainName as string;
+      if (__val.length === 0) {
+        errors.push({ field: "domainName", message: "must not be empty" });
+      }
+    }
+    if ("topLevelDomain" in partial && partial.topLevelDomain !== undefined) {
+      const __val = partial.topLevelDomain as string;
+      if (__val.length === 0) {
+        errors.push({ field: "topLevelDomain", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -28527,7 +30357,7 @@ export namespace Sent {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_recipient = obj["recipient"];
+      const __raw_recipient = obj["recipient"] as string | null;
       if (__raw_recipient === null) {
         instance.recipient = null;
       } else if (typeof (__raw_recipient as any)?.__ref !== "undefined") {
@@ -28538,7 +30368,7 @@ export namespace Sent {
       }
     }
     {
-      const __raw_method = obj["method"];
+      const __raw_method = obj["method"] as string | null;
       if (__raw_method === null) {
         instance.method = null;
       } else if (typeof (__raw_method as any)?.__ref !== "undefined") {
@@ -28552,6 +30382,17 @@ export namespace Sent {
       throw new DeserializeError(errors);
     }
     return instance as Sent;
+  }
+  export function validateField<K extends keyof Sent>(
+    field: K,
+    value: Sent[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Sent>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -28690,8 +30531,6 @@ export namespace Sent {
 }
 
 export interface BilledItem {
-  /** @comboboxController({ label: "Item", allowCustom: true, fetchUrls: ["/api/products", "/api/services"] }) */
-
   item: Item;
 
   quantity: number;
@@ -28820,7 +30659,7 @@ export namespace BilledItem {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_item = obj["item"];
+      const __raw_item = obj["item"] as Item;
       if (typeof (Item as any)?.__deserialize === "function") {
         const __result = (Item as any).__deserialize(__raw_item, ctx);
         ctx.assignOrDefer(instance, "item", __result);
@@ -28829,21 +30668,32 @@ export namespace BilledItem {
       }
     }
     {
-      const __raw_quantity = obj["quantity"];
+      const __raw_quantity = obj["quantity"] as number;
       instance.quantity = __raw_quantity;
     }
     {
-      const __raw_taxed = obj["taxed"];
+      const __raw_taxed = obj["taxed"] as boolean;
       instance.taxed = __raw_taxed;
     }
     {
-      const __raw_upsale = obj["upsale"];
+      const __raw_upsale = obj["upsale"] as boolean;
       instance.upsale = __raw_upsale;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as BilledItem;
+  }
+  export function validateField<K extends keyof BilledItem>(
+    field: K,
+    value: BilledItem[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<BilledItem>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -28898,7 +30748,7 @@ export namespace BilledItem {
         path: ["item"] as const,
         name: "item",
         constraints: { required: true },
-
+        label: "Item",
         get: () => data.item,
         set: (value: Item) => {
           data.item = value;
@@ -29201,17 +31051,28 @@ export namespace Coordinates {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_lat = obj["lat"];
+      const __raw_lat = obj["lat"] as number;
       instance.lat = __raw_lat;
     }
     {
-      const __raw_lng = obj["lng"];
+      const __raw_lng = obj["lng"] as number;
       instance.lng = __raw_lng;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as Coordinates;
+  }
+  export function validateField<K extends keyof Coordinates>(
+    field: K,
+    value: Coordinates[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Coordinates>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -29478,25 +31339,36 @@ export namespace Ordered {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_id = obj["id"];
+      const __raw_id = obj["id"] as string;
       instance.id = __raw_id;
     }
     {
-      const __raw_in = obj["in"];
+      const __raw_in = obj["in"] as string | Account;
       instance.in = __raw_in;
     }
     {
-      const __raw_out = obj["out"];
+      const __raw_out = obj["out"] as string | Order;
       instance.out = __raw_out;
     }
     {
-      const __raw_date = obj["date"];
+      const __raw_date = obj["date"] as string;
       instance.date = __raw_date;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as Ordered;
+  }
+  export function validateField<K extends keyof Ordered>(
+    field: K,
+    value: Ordered[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Ordered>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -29708,7 +31580,6 @@ export namespace Ordered {
 
 export interface Email {
   canEmail: boolean;
-  /** @textController({ label: "Email" }) */
 
   emailString: string;
 }
@@ -29817,11 +31688,11 @@ export namespace Email {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_canEmail = obj["canEmail"];
+      const __raw_canEmail = obj["canEmail"] as boolean;
       instance.canEmail = __raw_canEmail;
     }
     {
-      const __raw_emailString = obj["emailString"];
+      const __raw_emailString = obj["emailString"] as string;
       if (__raw_emailString.length === 0) {
         errors.push({ field: "emailString", message: "must not be empty" });
       }
@@ -29835,6 +31706,45 @@ export namespace Email {
       throw new DeserializeError(errors);
     }
     return instance as Email;
+  }
+  export function validateField<K extends keyof Email>(
+    field: K,
+    value: Email[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "emailString": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "emailString", message: "must not be empty" });
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
+          errors.push({
+            field: "emailString",
+            message: "must be a valid email",
+          });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<Email>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("emailString" in partial && partial.emailString !== undefined) {
+      const __val = partial.emailString as string;
+      if (__val.length === 0) {
+        errors.push({ field: "emailString", message: "must not be empty" });
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
+        errors.push({ field: "emailString", message: "must be a valid email" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -29901,7 +31811,7 @@ export namespace Email {
         path: ["emailString"] as const,
         name: "emailString",
         constraints: { required: true, type: "email" },
-
+        label: "Email",
         get: () => data.emailString,
         set: (value: string) => {
           data.emailString = value;
@@ -30149,7 +32059,7 @@ export namespace RecurrenceRule {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_interval = obj["interval"];
+      const __raw_interval = obj["interval"] as Interval;
       if (typeof (Interval as any)?.__deserialize === "function") {
         const __result = (Interval as any).__deserialize(__raw_interval, ctx);
         ctx.assignOrDefer(instance, "interval", __result);
@@ -30158,11 +32068,13 @@ export namespace RecurrenceRule {
       }
     }
     {
-      const __raw_recurrenceBegins = obj["recurrenceBegins"];
+      const __raw_recurrenceBegins = obj["recurrenceBegins"] as string;
       instance.recurrenceBegins = __raw_recurrenceBegins;
     }
     {
-      const __raw_recurrenceEnds = obj["recurrenceEnds"];
+      const __raw_recurrenceEnds = obj[
+        "recurrenceEnds"
+      ] as RecurrenceEnd | null;
       if (__raw_recurrenceEnds === null) {
         instance.recurrenceEnds = null;
       } else if (typeof (__raw_recurrenceEnds as any)?.__ref !== "undefined") {
@@ -30173,7 +32085,9 @@ export namespace RecurrenceRule {
       }
     }
     {
-      const __raw_cancelledInstances = obj["cancelledInstances"];
+      const __raw_cancelledInstances = obj["cancelledInstances"] as
+        | string[]
+        | null;
       if (__raw_cancelledInstances === null) {
         instance.cancelledInstances = null;
       } else if (
@@ -30188,7 +32102,9 @@ export namespace RecurrenceRule {
       }
     }
     {
-      const __raw_additionalInstances = obj["additionalInstances"];
+      const __raw_additionalInstances = obj["additionalInstances"] as
+        | string[]
+        | null;
       if (__raw_additionalInstances === null) {
         instance.additionalInstances = null;
       } else if (
@@ -30206,6 +32122,17 @@ export namespace RecurrenceRule {
       throw new DeserializeError(errors);
     }
     return instance as RecurrenceRule;
+  }
+  export function validateField<K extends keyof RecurrenceRule>(
+    field: K,
+    value: RecurrenceRule[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<RecurrenceRule>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -30593,7 +32520,7 @@ export namespace LastName {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_name = obj["name"];
+      const __raw_name = obj["name"] as string;
       if (__raw_name.length === 0) {
         errors.push({ field: "name", message: "must not be empty" });
       }
@@ -30603,6 +32530,34 @@ export namespace LastName {
       throw new DeserializeError(errors);
     }
     return instance as LastName;
+  }
+  export function validateField<K extends keyof LastName>(
+    field: K,
+    value: LastName[K],
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    switch (field) {
+      case "name": {
+        const __val = value as string;
+        if (__val.length === 0) {
+          errors.push({ field: "name", message: "must not be empty" });
+        }
+        break;
+      }
+    }
+    return errors;
+  }
+  export function validateFields(
+    partial: Partial<LastName>,
+  ): Array<{ field: string; message: string }> {
+    const errors: Array<{ field: string; message: string }> = [];
+    if ("name" in partial && partial.name !== undefined) {
+      const __val = partial.name as string;
+      if (__val.length === 0) {
+        errors.push({ field: "name", message: "must not be empty" });
+      }
+    }
+    return errors;
   }
 }
 
@@ -30826,25 +32781,36 @@ export namespace Cardinal {
     }
     ctx.trackForFreeze(instance);
     {
-      const __raw_north = obj["north"];
+      const __raw_north = obj["north"] as number;
       instance.north = __raw_north;
     }
     {
-      const __raw_east = obj["east"];
+      const __raw_east = obj["east"] as number;
       instance.east = __raw_east;
     }
     {
-      const __raw_south = obj["south"];
+      const __raw_south = obj["south"] as number;
       instance.south = __raw_south;
     }
     {
-      const __raw_west = obj["west"];
+      const __raw_west = obj["west"] as number;
       instance.west = __raw_west;
     }
     if (errors.length > 0) {
       throw new DeserializeError(errors);
     }
     return instance as Cardinal;
+  }
+  export function validateField<K extends keyof Cardinal>(
+    field: K,
+    value: Cardinal[K],
+  ): Array<{ field: string; message: string }> {
+    return [];
+  }
+  export function validateFields(
+    partial: Partial<Cardinal>,
+  ): Array<{ field: string; message: string }> {
+    return [];
   }
 }
 
@@ -31146,9 +33112,9 @@ export namespace Interval {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): Interval | PendingRef<Interval> {
+  ): Interval | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as Interval | PendingRef<Interval>;
+      return ctx.getOrDefer(value.__ref) as Interval | PendingRef;
     }
     if (typeof value !== "object" || value === null) {
       throw new DeserializeError([
@@ -31499,9 +33465,9 @@ export namespace Page {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): Page | PendingRef<Page> {
+  ): Page | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as Page | PendingRef<Page>;
+      return ctx.getOrDefer(value.__ref) as Page | PendingRef;
     }
     const allowedValues = [
       "SalesHomeDashboard",
@@ -32269,9 +34235,9 @@ export namespace UserRole {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): UserRole | PendingRef<UserRole> {
+  ): UserRole | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as UserRole | PendingRef<UserRole>;
+      return ctx.getOrDefer(value.__ref) as UserRole | PendingRef;
     }
     const allowedValues = [
       "Administrator",
@@ -32593,9 +34559,9 @@ export namespace Target {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): Target | PendingRef<Target> {
+  ): Target | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as Target | PendingRef<Target>;
+      return ctx.getOrDefer(value.__ref) as Target | PendingRef;
     }
     if (typeof value !== "object" || value === null) {
       throw new DeserializeError([
@@ -33212,49 +35178,22 @@ export namespace RecurrenceEnd {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): RecurrenceEnd | PendingRef<RecurrenceEnd> {
+  ): RecurrenceEnd | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as
-        | RecurrenceEnd
-        | PendingRef<RecurrenceEnd>;
+      return ctx.getOrDefer(value.__ref) as RecurrenceEnd | PendingRef;
     }
-    if (typeof value !== "object" || value === null) {
-      throw new DeserializeError([
-        {
-          field: "_root",
-          message: "RecurrenceEnd.__deserialize: expected an object",
-        },
-      ]);
-    }
-    const __typeName = (value as any).__type;
-    if (typeof __typeName !== "string") {
-      throw new DeserializeError([
-        {
-          field: "_root",
-          message:
-            "RecurrenceEnd.__deserialize: missing __type field for union dispatch",
-        },
-      ]);
-    }
-    if (__typeName === "number") {
-      if (typeof (number as any)?.__deserialize === "function") {
-        return (number as any).__deserialize(value, ctx) as RecurrenceEnd;
-      }
+    if (typeof value === "number") {
       return value as RecurrenceEnd;
     }
-    if (__typeName === "string") {
-      if (typeof (string as any)?.__deserialize === "function") {
-        return (string as any).__deserialize(value, ctx) as RecurrenceEnd;
-      }
+    if (typeof value === "string") {
       return value as RecurrenceEnd;
     }
     throw new DeserializeError([
       {
         field: "_root",
         message:
-          'RecurrenceEnd.__deserialize: unknown type "' +
-          __typeName +
-          '". Expected one of: number, string',
+          "RecurrenceEnd.__deserialize: expected number, string, got " +
+          typeof value,
       },
     ]);
   }
@@ -33463,11 +35402,9 @@ export namespace OverviewDisplay {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): OverviewDisplay | PendingRef<OverviewDisplay> {
+  ): OverviewDisplay | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as
-        | OverviewDisplay
-        | PendingRef<OverviewDisplay>;
+      return ctx.getOrDefer(value.__ref) as OverviewDisplay | PendingRef;
     }
     const allowedValues = ["Card", "Table"] as const;
     if (!allowedValues.includes(value)) {
@@ -33690,11 +35627,9 @@ export namespace IntervalUnit {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): IntervalUnit | PendingRef<IntervalUnit> {
+  ): IntervalUnit | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as
-        | IntervalUnit
-        | PendingRef<IntervalUnit>;
+      return ctx.getOrDefer(value.__ref) as IntervalUnit | PendingRef;
     }
     const allowedValues = ["Day", "Week", "Month", "Year"] as const;
     if (!allowedValues.includes(value)) {
@@ -33941,9 +35876,9 @@ export namespace Sector {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): Sector | PendingRef<Sector> {
+  ): Sector | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as Sector | PendingRef<Sector>;
+      return ctx.getOrDefer(value.__ref) as Sector | PendingRef;
     }
     const allowedValues = ["Residential", "Commercial"] as const;
     if (!allowedValues.includes(value)) {
@@ -34167,9 +36102,9 @@ export namespace Weekday {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): Weekday | PendingRef<Weekday> {
+  ): Weekday | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as Weekday | PendingRef<Weekday>;
+      return ctx.getOrDefer(value.__ref) as Weekday | PendingRef;
     }
     const allowedValues = [
       "Monday",
@@ -34506,9 +36441,9 @@ export namespace Status {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): Status | PendingRef<Status> {
+  ): Status | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as Status | PendingRef<Status>;
+      return ctx.getOrDefer(value.__ref) as Status | PendingRef;
     }
     const allowedValues = ["Scheduled", "OnDeck", "Waiting"] as const;
     if (!allowedValues.includes(value)) {
@@ -34744,9 +36679,9 @@ export namespace NextStep {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): NextStep | PendingRef<NextStep> {
+  ): NextStep | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as NextStep | PendingRef<NextStep>;
+      return ctx.getOrDefer(value.__ref) as NextStep | PendingRef;
     }
     const allowedValues = [
       "InitialContact",
@@ -35024,9 +36959,9 @@ export namespace LeadStage {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): LeadStage | PendingRef<LeadStage> {
+  ): LeadStage | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as LeadStage | PendingRef<LeadStage>;
+      return ctx.getOrDefer(value.__ref) as LeadStage | PendingRef;
     }
     const allowedValues = [
       "Open",
@@ -35251,9 +37186,254 @@ export namespace LeadStage {
   }
 }
 
-/** @derive(Default, Serialize, Deserialize, Gigaform) */
-/** @enumFieldsetController({ legend: "Name", variants: { CompanyName: { label: "Company" }, PersonName: { label: "Person" } } }) */
 export type AccountName = /** @default */ CompanyName | PersonName;
+
+export namespace AccountName {
+  export function defaultValue(): AccountName {
+    return CompanyName.defaultValue();
+  }
+}
+
+export namespace AccountName {
+  export function toStringifiedJSON(value: AccountName): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(__serialize(value, ctx));
+  }
+  export function toObject(value: AccountName): unknown {
+    const ctx = SerializeContext.create();
+    return __serialize(value, ctx);
+  }
+  export function __serialize(
+    value: AccountName,
+    ctx: SerializeContext,
+  ): unknown {
+    if (typeof (value as any)?.__serialize === "function") {
+      return (value as any).__serialize(ctx);
+    }
+    return value;
+  }
+}
+
+export namespace AccountName {
+  export function fromStringifiedJSON(
+    json: string,
+    opts?: DeserializeOptions,
+  ): Result<AccountName, Array<{ field: string; message: string }>> {
+    try {
+      const raw = JSON.parse(json);
+      return fromObject(raw, opts);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function fromObject(
+    obj: unknown,
+    opts?: DeserializeOptions,
+  ): Result<AccountName, Array<{ field: string; message: string }>> {
+    try {
+      const ctx = DeserializeContext.create();
+      const resultOrRef = __deserialize(obj, ctx);
+      if (PendingRef.is(resultOrRef)) {
+        return Result.err([
+          {
+            field: "_root",
+            message:
+              "AccountName.fromObject: root cannot be a forward reference",
+          },
+        ]);
+      }
+      ctx.applyPatches();
+      if (opts?.freeze) {
+        ctx.freezeAll();
+      }
+      return Result.ok(resultOrRef);
+    } catch (e) {
+      if (e instanceof DeserializeError) {
+        return Result.err(e.errors);
+      }
+      const message = e instanceof Error ? e.message : String(e);
+      return Result.err([{ field: "_root", message }]);
+    }
+  }
+  export function __deserialize(
+    value: any,
+    ctx: DeserializeContext,
+  ): AccountName | PendingRef {
+    if (value?.__ref !== undefined) {
+      return ctx.getOrDefer(value.__ref) as AccountName | PendingRef;
+    }
+    if (typeof value !== "object" || value === null) {
+      throw new DeserializeError([
+        {
+          field: "_root",
+          message: "AccountName.__deserialize: expected an object",
+        },
+      ]);
+    }
+    const __typeName = (value as any).__type;
+    if (typeof __typeName !== "string") {
+      throw new DeserializeError([
+        {
+          field: "_root",
+          message:
+            "AccountName.__deserialize: missing __type field for union dispatch",
+        },
+      ]);
+    }
+    if (__typeName === "CompanyName") {
+      if (typeof (CompanyName as any)?.__deserialize === "function") {
+        return (CompanyName as any).__deserialize(value, ctx) as AccountName;
+      }
+      return value as AccountName;
+    }
+    if (__typeName === "PersonName") {
+      if (typeof (PersonName as any)?.__deserialize === "function") {
+        return (PersonName as any).__deserialize(value, ctx) as AccountName;
+      }
+      return value as AccountName;
+    }
+    throw new DeserializeError([
+      {
+        field: "_root",
+        message:
+          'AccountName.__deserialize: unknown type "' +
+          __typeName +
+          '". Expected one of: CompanyName, PersonName',
+      },
+    ]);
+  }
+}
+
+export namespace AccountName {
+  /** Per-variant error types */ export type CompanyNameErrors = {
+    _errors: Option<Array<string>>;
+  };
+  export type PersonNameErrors = { _errors: Option<Array<string>> };
+  /** Per-variant tainted types */ export type CompanyNameTainted = {};
+  export type PersonNameTainted = {};
+  /** Union error type */ export type Errors =
+    | ({ _type: "CompanyName" } & CompanyNameErrors)
+    | ({ _type: "PersonName" } & PersonNameErrors);
+  /** Union tainted type */ export type Tainted =
+    | ({ _type: "CompanyName" } & CompanyNameTainted)
+    | ({ _type: "PersonName" } & PersonNameTainted);
+  /** Per-variant field controller types */ export interface CompanyNameFieldControllers {}
+  export interface PersonNameFieldControllers {}
+  /** Union Gigaform interface with variant switching */ export interface Gigaform {
+    readonly currentVariant: "CompanyName" | "PersonName";
+    readonly data: AccountName;
+    readonly errors: Errors;
+    readonly tainted: Tainted;
+    readonly variants: VariantFields;
+    switchVariant(variant: "CompanyName" | "PersonName"): void;
+    validate(): Result<AccountName, Array<{ field: string; message: string }>>;
+    reset(overrides?: Partial<AccountName>): void;
+  }
+  /** Variant fields container */ export interface VariantFields {
+    readonly CompanyName: { readonly fields: CompanyNameFieldControllers };
+    readonly PersonName: { readonly fields: PersonNameFieldControllers };
+  }
+  /** Gets default value for a specific variant */ function getDefaultForVariant(
+    variant: string,
+  ): AccountName {
+    switch (variant) {
+      case "CompanyName":
+        return CompanyName.defaultValue() as AccountName;
+      case "PersonName":
+        return PersonName.defaultValue() as AccountName;
+      default:
+        return CompanyName.defaultValue() as AccountName;
+    }
+  }
+  /** Creates a new discriminated union Gigaform with variant switching */ export function createForm(
+    initial?: AccountName,
+  ): Gigaform {
+    const initialVariant: "CompanyName" | "PersonName" = "CompanyName";
+    let currentVariant = $state<"CompanyName" | "PersonName">(initialVariant);
+    let data = $state<AccountName>(
+      initial ?? getDefaultForVariant(initialVariant),
+    );
+    let errors = $state<Errors>({} as Errors);
+    let tainted = $state<Tainted>({} as Tainted);
+    const variants: VariantFields = {
+      CompanyName: {
+        fields: {} as CompanyNameFieldControllers,
+      },
+      PersonName: {
+        fields: {} as PersonNameFieldControllers,
+      },
+    };
+    function switchVariant(variant: "CompanyName" | "PersonName"): void {
+      currentVariant = variant;
+      data = getDefaultForVariant(variant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    function validate(): Result<
+      AccountName,
+      Array<{ field: string; message: string }>
+    > {
+      return AccountName.fromObject(data);
+    }
+    function reset(overrides?: Partial<AccountName>): void {
+      data = overrides
+        ? (overrides as typeof data)
+        : getDefaultForVariant(currentVariant);
+      errors = {} as Errors;
+      tainted = {} as Tainted;
+    }
+    return {
+      get currentVariant() {
+        return currentVariant;
+      },
+      get data() {
+        return data;
+      },
+      set data(v) {
+        data = v;
+      },
+      get errors() {
+        return errors;
+      },
+      set errors(v) {
+        errors = v;
+      },
+      get tainted() {
+        return tainted;
+      },
+      set tainted(v) {
+        tainted = v;
+      },
+      variants,
+      switchVariant,
+      validate,
+      reset,
+    };
+  }
+  /** Parses FormData for union type, determining variant from discriminant field */ export function fromFormData(
+    formData: FormData,
+  ): Result<AccountName, Array<{ field: string; message: string }>> {
+    const discriminant = formData.get("_type") as
+      | "CompanyName"
+      | "PersonName"
+      | null;
+    if (!discriminant) {
+      return Result.err([
+        { field: "_type", message: "Missing discriminant field" },
+      ]);
+    }
+    const obj: Record<string, unknown> = {};
+    obj._type = discriminant;
+    if (discriminant === "CompanyName") {
+    } else if (discriminant === "PersonName") {
+    }
+    return AccountName.fromStringifiedJSON(JSON.stringify(obj));
+  }
+}
 
 export type Priority = /** @default */ "Medium" | "High" | "Low";
 
@@ -35327,9 +37507,9 @@ export namespace Priority {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): Priority | PendingRef<Priority> {
+  ): Priority | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as Priority | PendingRef<Priority>;
+      return ctx.getOrDefer(value.__ref) as Priority | PendingRef;
     }
     const allowedValues = ["Medium", "High", "Low"] as const;
     if (!allowedValues.includes(value)) {
@@ -35572,11 +37752,9 @@ export namespace Applications {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): Applications | PendingRef<Applications> {
+  ): Applications | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as
-        | Applications
-        | PendingRef<Applications>;
+      return ctx.getOrDefer(value.__ref) as Applications | PendingRef;
     }
     const allowedValues = [
       "Sales",
@@ -35921,9 +38099,9 @@ export namespace JobTitle {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): JobTitle | PendingRef<JobTitle> {
+  ): JobTitle | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as JobTitle | PendingRef<JobTitle>;
+      return ctx.getOrDefer(value.__ref) as JobTitle | PendingRef;
     }
     const allowedValues = [
       "Technician",
@@ -36216,11 +38394,9 @@ export namespace ColorsConfig {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): ColorsConfig | PendingRef<ColorsConfig> {
+  ): ColorsConfig | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as
-        | ColorsConfig
-        | PendingRef<ColorsConfig>;
+      return ctx.getOrDefer(value.__ref) as ColorsConfig | PendingRef;
     }
     if (typeof value !== "object" || value === null) {
       throw new DeserializeError([
@@ -36517,11 +38693,9 @@ export namespace WeekOfMonth {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): WeekOfMonth | PendingRef<WeekOfMonth> {
+  ): WeekOfMonth | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as
-        | WeekOfMonth
-        | PendingRef<WeekOfMonth>;
+      return ctx.getOrDefer(value.__ref) as WeekOfMonth | PendingRef;
     }
     const allowedValues = [
       "First",
@@ -36801,11 +38975,9 @@ export namespace ActivityType {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): ActivityType | PendingRef<ActivityType> {
+  ): ActivityType | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as
-        | ActivityType
-        | PendingRef<ActivityType>;
+      return ctx.getOrDefer(value.__ref) as ActivityType | PendingRef;
     }
     if (typeof value !== "object" || value === null) {
       throw new DeserializeError([
@@ -37149,9 +39321,9 @@ export namespace RowHeight {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): RowHeight | PendingRef<RowHeight> {
+  ): RowHeight | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as RowHeight | PendingRef<RowHeight>;
+      return ctx.getOrDefer(value.__ref) as RowHeight | PendingRef;
     }
     const allowedValues = ["ExtraSmall", "Small", "Medium", "Large"] as const;
     if (!allowedValues.includes(value)) {
@@ -37404,9 +39576,9 @@ export namespace OrderStage {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): OrderStage | PendingRef<OrderStage> {
+  ): OrderStage | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as OrderStage | PendingRef<OrderStage>;
+      return ctx.getOrDefer(value.__ref) as OrderStage | PendingRef;
     }
     const allowedValues = ["Estimate", "Active", "Invoice"] as const;
     if (!allowedValues.includes(value)) {
@@ -37658,9 +39830,9 @@ export namespace Table {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): Table | PendingRef<Table> {
+  ): Table | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as Table | PendingRef<Table>;
+      return ctx.getOrDefer(value.__ref) as Table | PendingRef;
     }
     const allowedValues = [
       "Account",
@@ -38217,9 +40389,9 @@ export namespace Item {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): Item | PendingRef<Item> {
+  ): Item | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as Item | PendingRef<Item>;
+      return ctx.getOrDefer(value.__ref) as Item | PendingRef;
     }
     if (typeof value !== "object" || value === null) {
       throw new DeserializeError([
@@ -38237,14 +40409,14 @@ export namespace Item {
       ]);
     }
     if (__typeName === "RecordLink<Product>") {
-      if (typeof (RecordLink<Product> as any)?.__deserialize === "function") {
-        return (RecordLink<Product> as any).__deserialize(value, ctx) as Item;
+      if (typeof (RecordLink as any)?.__deserialize === "function") {
+        return (RecordLink as any).__deserialize(value, ctx) as Item;
       }
       return value as Item;
     }
     if (__typeName === "RecordLink<Service>") {
-      if (typeof (RecordLink<Service> as any)?.__deserialize === "function") {
-        return (RecordLink<Service> as any).__deserialize(value, ctx) as Item;
+      if (typeof (RecordLink as any)?.__deserialize === "function") {
+        return (RecordLink as any).__deserialize(value, ctx) as Item;
       }
       return value as Item;
     }
@@ -38403,16 +40575,16 @@ export namespace RecordLink {
 }
 
 export namespace RecordLink {
-  export function toStringifiedJSON(value: RecordLink): string {
+  export function toStringifiedJSON<T>(value: RecordLink<T>): string {
     const ctx = SerializeContext.create();
     return JSON.stringify(__serialize(value, ctx));
   }
-  export function toObject(value: RecordLink): unknown {
+  export function toObject<T>(value: RecordLink<T>): unknown {
     const ctx = SerializeContext.create();
     return __serialize(value, ctx);
   }
-  export function __serialize(
-    value: RecordLink,
+  export function __serialize<T>(
+    value: RecordLink<T>,
     ctx: SerializeContext,
   ): unknown {
     if (typeof (value as any)?.__serialize === "function") {
@@ -38423,13 +40595,13 @@ export namespace RecordLink {
 }
 
 export namespace RecordLink {
-  export function fromStringifiedJSON(
+  export function fromStringifiedJSON<T>(
     json: string,
     opts?: DeserializeOptions,
-  ): Result<RecordLink, Array<{ field: string; message: string }>> {
+  ): Result<RecordLink<T>, Array<{ field: string; message: string }>> {
     try {
       const raw = JSON.parse(json);
-      return fromObject(raw, opts);
+      return fromObject<T>(raw, opts);
     } catch (e) {
       if (e instanceof DeserializeError) {
         return Result.err(e.errors);
@@ -38438,13 +40610,13 @@ export namespace RecordLink {
       return Result.err([{ field: "_root", message }]);
     }
   }
-  export function fromObject(
+  export function fromObject<T>(
     obj: unknown,
     opts?: DeserializeOptions,
-  ): Result<RecordLink, Array<{ field: string; message: string }>> {
+  ): Result<RecordLink<T>, Array<{ field: string; message: string }>> {
     try {
       const ctx = DeserializeContext.create();
-      const resultOrRef = __deserialize(obj, ctx);
+      const resultOrRef = __deserialize<T>(obj, ctx);
       if (PendingRef.is(resultOrRef)) {
         return Result.err([
           {
@@ -38467,50 +40639,22 @@ export namespace RecordLink {
       return Result.err([{ field: "_root", message }]);
     }
   }
-  export function __deserialize(
+  export function __deserialize<T>(
     value: any,
     ctx: DeserializeContext,
-  ): RecordLink | PendingRef<RecordLink> {
+  ): RecordLink<T> | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as RecordLink | PendingRef<RecordLink>;
+      return ctx.getOrDefer(value.__ref) as RecordLink<T> | PendingRef;
     }
-    if (typeof value !== "object" || value === null) {
-      throw new DeserializeError([
-        {
-          field: "_root",
-          message: "RecordLink.__deserialize: expected an object",
-        },
-      ]);
+    if (typeof value === "string") {
+      return value as RecordLink<T>;
     }
-    const __typeName = (value as any).__type;
-    if (typeof __typeName !== "string") {
-      throw new DeserializeError([
-        {
-          field: "_root",
-          message:
-            "RecordLink.__deserialize: missing __type field for union dispatch",
-        },
-      ]);
-    }
-    if (__typeName === "string") {
-      if (typeof (string as any)?.__deserialize === "function") {
-        return (string as any).__deserialize(value, ctx) as RecordLink;
-      }
-      return value as RecordLink;
-    }
-    if (__typeName === "T") {
-      if (typeof (T as any)?.__deserialize === "function") {
-        return (T as any).__deserialize(value, ctx) as RecordLink;
-      }
-      return value as RecordLink;
-    }
+    return value as RecordLink<T>;
     throw new DeserializeError([
       {
         field: "_root",
         message:
-          'RecordLink.__deserialize: unknown type "' +
-          __typeName +
-          '". Expected one of: string, T',
+          "RecordLink.__deserialize: value does not match any union member",
       },
     ]);
   }
@@ -38588,9 +40732,9 @@ export namespace Actor {
   export function __deserialize(
     value: any,
     ctx: DeserializeContext,
-  ): Actor | PendingRef<Actor> {
+  ): Actor | PendingRef {
     if (value?.__ref !== undefined) {
-      return ctx.getOrDefer(value.__ref) as Actor | PendingRef<Actor>;
+      return ctx.getOrDefer(value.__ref) as Actor | PendingRef;
     }
     if (typeof value !== "object" || value === null) {
       throw new DeserializeError([
