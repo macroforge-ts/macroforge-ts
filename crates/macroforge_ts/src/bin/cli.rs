@@ -231,7 +231,7 @@ fn scan_and_expand(root: PathBuf, builtin_only: bool, include_ignored: bool) -> 
         files_found += 1;
 
         // Try to expand the file
-        match try_expand_file(path.to_path_buf(), None, None, false, builtin_only) {
+        match try_expand_file(path.to_path_buf(), None, None, false, builtin_only, true) {
             Ok(true) => files_expanded += 1,
             Ok(false) => {} // No macros found, that's fine
             Err(e) => {
@@ -277,7 +277,7 @@ fn expand_file(
     builtin_only: bool,
     quiet: bool,
 ) -> Result<()> {
-    match try_expand_file(input.clone(), out, types_out, print, builtin_only)? {
+    match try_expand_file(input.clone(), out, types_out, print, builtin_only, false)? {
         true => Ok(()),
         false => {
             if !quiet {
@@ -301,6 +301,7 @@ fn expand_file(
 /// * `types_out` - Optional output path for type declarations
 /// * `print` - Whether to print output to stdout
 /// * `builtin_only` - Whether to use only built-in macros
+/// * `is_scanning` - Whether this is part of a directory scan (affects error output)
 ///
 /// # Returns
 ///
@@ -313,13 +314,28 @@ fn try_expand_file(
     types_out: Option<PathBuf>,
     print: bool,
     builtin_only: bool,
+    is_scanning: bool,
 ) -> Result<bool> {
     // Default: use Node.js for full macro support (including external macros)
     // With --builtin-only: use fast Rust expander (built-in macros only)
     if !builtin_only {
-        return try_expand_file_via_node(input, out, types_out, print);
+        return try_expand_file_via_node(input, out, types_out, print, is_scanning);
     }
 
+    try_expand_file_builtin(input, out, types_out, print)
+}
+
+/// Expands macros using only the built-in Rust expander.
+///
+/// This is the fast path that doesn't require Node.js. It only supports
+/// the built-in macros (Debug, Clone, PartialEq, Hash, Ord, PartialOrd,
+/// Default, Serialize, Deserialize).
+fn try_expand_file_builtin(
+    input: PathBuf,
+    out: Option<PathBuf>,
+    types_out: Option<PathBuf>,
+    print: bool,
+) -> Result<bool> {
     let expander = MacroExpander::new().context("failed to initialize macro expander")?;
     let source = fs::read_to_string(&input)
         .with_context(|| format!("failed to read {}", input.display()))?;
@@ -366,6 +382,7 @@ fn try_expand_file_via_node(
     out: Option<PathBuf>,
     types_out: Option<PathBuf>,
     print: bool,
+    is_scanning: bool,
 ) -> Result<bool> {
     let script = r#"
 const { createRequire } = require('module');
@@ -374,7 +391,15 @@ const path = require('path');
 
 // Create require from the cwd to resolve modules properly
 const cwdRequire = createRequire(process.cwd() + '/package.json');
-const { expandSync } = cwdRequire('macroforge');
+
+let expandSync;
+try {
+  expandSync = cwdRequire('macroforge').expandSync;
+} catch {
+  // macroforge not installed - output fallback marker for Rust to detect
+  console.log(JSON.stringify({ fallback: true }));
+  process.exit(0);
+}
 
 const inputPath = process.argv[2];
 const code = fs.readFileSync(inputPath, 'utf8');
@@ -438,6 +463,18 @@ try {
     let stdout = String::from_utf8_lossy(&output.stdout);
     let result: serde_json::Value =
         serde_json::from_str(&stdout).context("failed to parse expansion result from node")?;
+
+    // Check for fallback marker (macroforge npm module not installed)
+    if result.get("fallback").and_then(|v| v.as_bool()).unwrap_or(false) {
+        // Fall back to built-in expansion
+        if !is_scanning {
+            eprintln!(
+                "[macroforge] warning: macroforge npm module not found, using built-in expander for {}",
+                input.display()
+            );
+        }
+        return try_expand_file_builtin(input, out, types_out, print);
+    }
 
     let code = result["code"]
         .as_str()
