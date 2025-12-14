@@ -106,7 +106,7 @@ export class MultipleValidatorsTest {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_text = obj["text"];
+        const __raw_text = obj["text"] as string;
         if (__raw_text.length === 0) {
             errors.push({
                 field: "text",
@@ -301,7 +301,7 @@ export class CustomMessageTest {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_email = obj["email"];
+        const __raw_email = obj["email"] as string;
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__raw_email)) {
             errors.push({
                 field: "email",
@@ -460,7 +460,7 @@ export class MixedValidatorsTest {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_email = obj["email"];
+        const __raw_email = obj["email"] as string;
         if (__raw_email.length === 0) {
             errors.push({
                 field: "email",
@@ -637,7 +637,7 @@ export class CombinedStringValidatorsTest {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_username = obj["username"];
+        const __raw_username = obj["username"] as string;
         if (__raw_username.length < 3) {
             errors.push({
                 field: "username",
@@ -832,7 +832,7 @@ export class CombinedNumberValidatorsTest {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_score = obj["score"];
+        const __raw_score = obj["score"] as number;
         if (!Number.isInteger(__raw_score)) {
             errors.push({
                 field: "score",

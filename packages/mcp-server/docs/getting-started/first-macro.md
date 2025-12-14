@@ -19,7 +19,6 @@ export class User {
 ```  
 **After:**
 ```
-/**  */
 export class User {
     name: string;
     age: number;
@@ -98,7 +97,6 @@ export class User {
 ```  
 **After:**
 ```
-/**  */
 export class User {
     id: number;
 

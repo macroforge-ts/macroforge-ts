@@ -116,7 +116,7 @@ export class CustomNumberValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_evenNumber = obj["evenNumber"];
+        const __raw_evenNumber = obj["evenNumber"] as number;
         {
             const __customResult = isEven(__raw_evenNumber);
             if (__customResult === false) {
@@ -284,7 +284,7 @@ export class CustomStringValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_username = obj["username"];
+        const __raw_username = obj["username"] as string;
         {
             const __customResult = isValidUsername(__raw_username);
             if (__customResult === false) {
@@ -452,7 +452,7 @@ export class CustomWithMessageValidator {
     }
     ctx.trackForFreeze(instance);
     {
-        const __raw_evenNumber = obj["evenNumber"];
+        const __raw_evenNumber = obj["evenNumber"] as number;
         {
             const __customResult = isEven(__raw_evenNumber);
             if (__customResult === false) {
