@@ -23,9 +23,19 @@
 //!
 //! Note: A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com`).
 
-use proc_macro2::{Delimiter, Group, TokenStream as TokenStream2, TokenTree};
+use proc_macro2::{Delimiter, Group, Span, TokenStream as TokenStream2, TokenTree};
 use quote::{ToTokens, quote};
 use std::iter::Peekable;
+
+/// Creates a syntax error with contextual information about position in the template
+fn template_error(span: Span, message: &str, context: Option<&str>) -> syn::Error {
+    let full_message = if let Some(ctx) = context {
+        format!("{}\n  --> in: {}", message, ctx)
+    } else {
+        message.to_string()
+    };
+    syn::Error::new(span, full_message)
+}
 
 /// Parse the template stream and generate code to build a TypeScript string
 /// Returns a tuple of (String, Vec<Patch>) to support TsStream injection via {$typescript}
@@ -312,7 +322,7 @@ fn analyze_tag(g: &Group) -> TagType {
 fn parse_if_chain(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     initial_cond: TokenStream2,
-    open_span: proc_macro2::Span,
+    open_span: Span,
 ) -> syn::Result<TokenStream2> {
     // Parse the true block, stopping at {:else}, {:else if}, or {/if}
     let (true_block, terminator) = parse_fragment(
@@ -337,9 +347,10 @@ fn parse_if_chain(
             // if with else - parse else block until {/if}
             let (else_block, terminator) = parse_fragment(iter, Some(&[Terminator::EndIf]))?;
             if !matches!(terminator, Some(Terminator::EndIf)) {
-                return Err(syn::Error::new(
+                return Err(template_error(
                     open_span,
                     "Unclosed {:else} block: Missing {/if}",
+                    Some("{:else}..."),
                 ));
             }
             Ok(quote! {
@@ -363,9 +374,10 @@ fn parse_if_chain(
                 }
             })
         }
-        None => Err(syn::Error::new(
+        None => Err(template_error(
             open_span,
             "Unclosed {#if} block: Missing {/if}",
+            Some("{#if condition}..."),
         )),
         _ => unreachable!(),
     }
@@ -376,7 +388,7 @@ fn parse_if_let_chain(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     pattern: TokenStream2,
     expr: TokenStream2,
-    open_span: proc_macro2::Span,
+    open_span: Span,
 ) -> syn::Result<TokenStream2> {
     // Parse the true block, stopping at {:else} or {/if}
     let (true_block, terminator) =
@@ -395,9 +407,10 @@ fn parse_if_let_chain(
             // if let with else - parse else block until {/if}
             let (else_block, terminator) = parse_fragment(iter, Some(&[Terminator::EndIf]))?;
             if !matches!(terminator, Some(Terminator::EndIf)) {
-                return Err(syn::Error::new(
+                return Err(template_error(
                     open_span,
-                    "Unclosed {:else} block: Missing {/if}",
+                    "Unclosed {:else} block in {#if let}: Missing {/if}",
+                    Some("{#if let pattern = expr}{:else}..."),
                 ));
             }
             Ok(quote! {
@@ -408,9 +421,10 @@ fn parse_if_let_chain(
                 }
             })
         }
-        None => Err(syn::Error::new(
+        None => Err(template_error(
             open_span,
             "Unclosed {#if let} block: Missing {/if}",
+            Some("{#if let pattern = expr}..."),
         )),
         _ => unreachable!(),
     }
@@ -420,14 +434,15 @@ fn parse_if_let_chain(
 fn parse_while_loop(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     cond: TokenStream2,
-    open_span: proc_macro2::Span,
+    open_span: Span,
 ) -> syn::Result<TokenStream2> {
     let (body, terminator) = parse_fragment(iter, Some(&[Terminator::EndWhile]))?;
 
     if !matches!(terminator, Some(Terminator::EndWhile)) {
-        return Err(syn::Error::new(
+        return Err(template_error(
             open_span,
             "Unclosed {#while} block: Missing {/while}",
+            Some("{#while condition}..."),
         ));
     }
 
@@ -443,14 +458,15 @@ fn parse_while_let_loop(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     pattern: TokenStream2,
     expr: TokenStream2,
-    open_span: proc_macro2::Span,
+    open_span: Span,
 ) -> syn::Result<TokenStream2> {
     let (body, terminator) = parse_fragment(iter, Some(&[Terminator::EndWhile]))?;
 
     if !matches!(terminator, Some(Terminator::EndWhile)) {
-        return Err(syn::Error::new(
+        return Err(template_error(
             open_span,
             "Unclosed {#while let} block: Missing {/while}",
+            Some("{#while let pattern = expr}..."),
         ));
     }
 
@@ -466,7 +482,7 @@ fn parse_while_let_loop(
 fn parse_match_arms(
     iter: &mut Peekable<proc_macro2::token_stream::IntoIter>,
     match_expr: TokenStream2,
-    open_span: proc_macro2::Span,
+    open_span: Span,
 ) -> syn::Result<TokenStream2> {
     let mut arms = TokenStream2::new();
     let mut current_pattern: Option<TokenStream2> = None;
@@ -503,9 +519,10 @@ fn parse_match_arms(
                 break;
             }
             None => {
-                return Err(syn::Error::new(
+                return Err(template_error(
                     open_span,
                     "Unclosed {#match} block: Missing {/match}",
+                    Some("{#match expr}{:case pattern}...{/match}"),
                 ));
             }
             _ => unreachable!(),
@@ -662,9 +679,10 @@ fn parse_fragment(
 
                         let (body, terminator) = parse_fragment(iter, Some(&[Terminator::EndFor]))?;
                         if !matches!(terminator, Some(Terminator::EndFor)) {
-                            return Err(syn::Error::new(
+                            return Err(template_error(
                                 span,
                                 "Unclosed {#for} block: Missing {/for}",
+                                Some("{#for item in collection}..."),
                             ));
                         }
 
@@ -693,7 +711,11 @@ fn parse_fragment(
                             iter.next(); // Consume
                             return Ok((output, Some(Terminator::Else)));
                         }
-                        return Err(syn::Error::new(span, "Unexpected {:else}"));
+                        return Err(template_error(
+                            span,
+                            "Unexpected {:else} - not inside an {#if} block",
+                            None,
+                        ));
                     }
                     TagType::ElseIf(cond) => {
                         if let Some(stops) = stop_at
@@ -702,7 +724,11 @@ fn parse_fragment(
                             iter.next(); // Consume
                             return Ok((output, Some(Terminator::ElseIf(cond))));
                         }
-                        return Err(syn::Error::new(span, "Unexpected {:else if}"));
+                        return Err(template_error(
+                            span,
+                            "Unexpected {:else if} - not inside an {#if} block",
+                            None,
+                        ));
                     }
                     TagType::EndIf => {
                         if let Some(stops) = stop_at
@@ -711,7 +737,11 @@ fn parse_fragment(
                             iter.next(); // Consume
                             return Ok((output, Some(Terminator::EndIf)));
                         }
-                        return Err(syn::Error::new(span, "Unexpected {/if}"));
+                        return Err(template_error(
+                            span,
+                            "Unexpected {/if} - no matching {#if} block",
+                            None,
+                        ));
                     }
                     TagType::EndFor => {
                         if let Some(stops) = stop_at
@@ -720,7 +750,11 @@ fn parse_fragment(
                             iter.next(); // Consume
                             return Ok((output, Some(Terminator::EndFor)));
                         }
-                        return Err(syn::Error::new(span, "Unexpected {/for}"));
+                        return Err(template_error(
+                            span,
+                            "Unexpected {/for} - no matching {#for} block",
+                            None,
+                        ));
                     }
                     TagType::EndWhile => {
                         if let Some(stops) = stop_at
@@ -729,7 +763,11 @@ fn parse_fragment(
                             iter.next(); // Consume
                             return Ok((output, Some(Terminator::EndWhile)));
                         }
-                        return Err(syn::Error::new(span, "Unexpected {/while}"));
+                        return Err(template_error(
+                            span,
+                            "Unexpected {/while} - no matching {#while} block",
+                            None,
+                        ));
                     }
                     TagType::Case(pattern) => {
                         if let Some(stops) = stop_at
@@ -738,7 +776,11 @@ fn parse_fragment(
                             iter.next(); // Consume
                             return Ok((output, Some(Terminator::Case(pattern))));
                         }
-                        return Err(syn::Error::new(span, "Unexpected {:case}"));
+                        return Err(template_error(
+                            span,
+                            "Unexpected {:case} - not inside a {#match} block",
+                            None,
+                        ));
                     }
                     TagType::EndMatch => {
                         if let Some(stops) = stop_at
@@ -747,7 +789,11 @@ fn parse_fragment(
                             iter.next(); // Consume
                             return Ok((output, Some(Terminator::EndMatch)));
                         }
-                        return Err(syn::Error::new(span, "Unexpected {/match}"));
+                        return Err(template_error(
+                            span,
+                            "Unexpected {/match} - no matching {#match} block",
+                            None,
+                        ));
                     }
                     TagType::Let(body) => {
                         iter.next(); // Consume {$let ...}
@@ -843,7 +889,7 @@ fn parse_fragment(
             // Case 4a: Backtick template literals "'^...^'" -> `...`
             TokenTree::Literal(lit) if is_backtick_template(lit) => {
                 iter.next(); // Consume
-                let processed = process_backtick_template(lit);
+                let processed = process_backtick_template(lit)?;
                 output.extend(processed);
                 output.extend(quote! { __out.push_str(" "); });
             }
@@ -851,7 +897,7 @@ fn parse_fragment(
             // Case 4b: String literals with interpolation
             TokenTree::Literal(lit) if is_string_literal(lit) => {
                 iter.next(); // Consume
-                let interpolated = interpolate_string_literal(lit);
+                let interpolated = interpolate_string_literal(lit)?;
                 output.extend(interpolated);
                 output.extend(quote! { __out.push_str(" "); });
             }
@@ -1024,8 +1070,9 @@ fn is_backtick_template(lit: &proc_macro2::Literal) -> bool {
 
 /// Process a backtick template literal "'^...^'" -> `...`
 /// Supports @{expr} interpolation for Rust expressions within the template
-fn process_backtick_template(lit: &proc_macro2::Literal) -> TokenStream2 {
+fn process_backtick_template(lit: &proc_macro2::Literal) -> syn::Result<TokenStream2> {
     let raw = lit.to_string();
+    let span = lit.span();
 
     // Extract content between '^...^' markers
     let content = if raw.starts_with("\"'^") && raw.ends_with("^'\"") {
@@ -1035,8 +1082,20 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> TokenStream2 {
     } else if raw.starts_with("r#\"'^") && raw.ends_with("^'\"#") {
         &raw[5..raw.len() - 4]
     } else {
-        return quote! { __out.push_str(#raw); };
+        return Ok(quote! { __out.push_str(#raw); });
     };
+
+    // Check for common mistakes: control flow tags inside template strings
+    if content.contains("{#") || content.contains("{/") || content.contains("{:") {
+        return Err(template_error(
+            span,
+            "Template control flow tags cannot be used inside backtick template literals",
+            Some(&format!(
+                "\"'^{}...^'\"",
+                content.chars().take(40).collect::<String>()
+            )),
+        ));
+    }
 
     // Check if there are any @{} interpolations or @@ escapes
     if !content.contains('@') {
@@ -1046,7 +1105,7 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> TokenStream2 {
         output.extend(quote! { __out.push_str("`"); });
         output.extend(quote! { __out.push_str(#content); });
         output.extend(quote! { __out.push_str("`"); });
-        return output;
+        return Ok(output);
     }
 
     // Handle @{} Rust interpolations and @@ escapes within the backtick template
@@ -1055,13 +1114,16 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> TokenStream2 {
 
     let mut chars = content.chars().peekable();
     let mut current_literal = String::new();
+    let mut char_pos = 0usize;
 
     while let Some(c) = chars.next() {
+        char_pos += 1;
         if c == '@' {
             match chars.peek() {
                 Some(&'@') => {
                     // @@ -> literal @
                     chars.next(); // Consume second @
+                    char_pos += 1;
                     current_literal.push('@');
                 }
                 Some(&'{') => {
@@ -1073,12 +1135,15 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> TokenStream2 {
                     }
 
                     chars.next(); // Consume '{'
+                    char_pos += 1;
+                    let expr_start_pos = char_pos;
 
                     // Collect expression until matching '}'
                     let mut expr_str = String::new();
                     let mut brace_depth = 1;
 
                     for ec in chars.by_ref() {
+                        char_pos += 1;
                         if ec == '{' {
                             brace_depth += 1;
                             expr_str.push(ec);
@@ -1093,15 +1158,32 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> TokenStream2 {
                         }
                     }
 
+                    // Check for unclosed brace
+                    if brace_depth != 0 {
+                        return Err(template_error(
+                            span,
+                            &format!("Unclosed @{{}} interpolation at position {}", expr_start_pos),
+                            Some(&format!("@{{{}", expr_str)),
+                        ));
+                    }
+
                     // Parse the expression and generate interpolation code
-                    if let Ok(expr) = syn::parse_str::<syn::Expr>(&expr_str) {
-                        output.extend(quote! {
-                            __out.push_str(&#expr.to_string());
-                        });
-                    } else {
-                        // Failed to parse, output as literal
-                        let fallback = format!("@{{{}}}", expr_str);
-                        output.extend(quote! { __out.push_str(#fallback); });
+                    match syn::parse_str::<syn::Expr>(&expr_str) {
+                        Ok(expr) => {
+                            output.extend(quote! {
+                                __out.push_str(&#expr.to_string());
+                            });
+                        }
+                        Err(parse_err) => {
+                            return Err(template_error(
+                                span,
+                                &format!(
+                                    "Invalid Rust expression in backtick template interpolation: {}",
+                                    parse_err
+                                ),
+                                Some(&format!("@{{{}}}", expr_str)),
+                            ));
+                        }
                     }
                 }
                 _ => {
@@ -1120,12 +1202,13 @@ fn process_backtick_template(lit: &proc_macro2::Literal) -> TokenStream2 {
     }
 
     output.extend(quote! { __out.push_str("`"); });
-    output
+    Ok(output)
 }
 
 /// Process a string literal and handle @{expr} interpolations inside it
-fn interpolate_string_literal(lit: &proc_macro2::Literal) -> TokenStream2 {
+fn interpolate_string_literal(lit: &proc_macro2::Literal) -> syn::Result<TokenStream2> {
     let raw = lit.to_string();
+    let span = lit.span();
 
     // Determine quote character and extract content
     let (quote_char, content) = if raw.starts_with('"') {
@@ -1143,13 +1226,25 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> TokenStream2 {
         ('"', &raw[start..end])
     } else {
         // Not a string we recognize, just output as-is
-        return quote! { __out.push_str(#raw); };
+        return Ok(quote! { __out.push_str(#raw); });
     };
 
     // Check if there are any interpolations or escapes
     if !content.contains('@') {
         // No @ at all, output the string as-is
-        return quote! { __out.push_str(#raw); };
+        return Ok(quote! { __out.push_str(#raw); });
+    }
+
+    // Check for common mistakes: control flow tags inside strings
+    if content.contains("{#") || content.contains("{/") || content.contains("{:") {
+        return Err(template_error(
+            span,
+            "Template control flow tags cannot be used inside string literals",
+            Some(&format!(
+                "\"{}...\"",
+                content.chars().take(40).collect::<String>()
+            )),
+        ));
     }
 
     // Parse and interpolate
@@ -1159,13 +1254,16 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> TokenStream2 {
 
     let mut chars = content.chars().peekable();
     let mut current_literal = String::new();
+    let mut char_pos = 0usize;
 
     while let Some(c) = chars.next() {
+        char_pos += 1;
         if c == '@' {
             match chars.peek() {
                 Some(&'@') => {
                     // @@ -> literal @
                     chars.next(); // Consume second @
+                    char_pos += 1;
                     current_literal.push('@');
                 }
                 Some(&'{') => {
@@ -1177,12 +1275,15 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> TokenStream2 {
                     }
 
                     chars.next(); // Consume '{'
+                    char_pos += 1;
+                    let expr_start_pos = char_pos;
 
                     // Collect expression until matching '}'
                     let mut expr_str = String::new();
                     let mut brace_depth = 1;
 
                     for ec in chars.by_ref() {
+                        char_pos += 1;
                         if ec == '{' {
                             brace_depth += 1;
                             expr_str.push(ec);
@@ -1197,15 +1298,32 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> TokenStream2 {
                         }
                     }
 
+                    // Check for unclosed brace
+                    if brace_depth != 0 {
+                        return Err(template_error(
+                            span,
+                            &format!("Unclosed @{{}} interpolation at position {}", expr_start_pos),
+                            Some(&format!("@{{{}", expr_str)),
+                        ));
+                    }
+
                     // Parse the expression and generate interpolation code
-                    if let Ok(expr) = syn::parse_str::<syn::Expr>(&expr_str) {
-                        output.extend(quote! {
-                            __out.push_str(&#expr.to_string());
-                        });
-                    } else {
-                        // Failed to parse, output as literal
-                        let fallback = format!("@{{{}}}", expr_str);
-                        output.extend(quote! { __out.push_str(#fallback); });
+                    match syn::parse_str::<syn::Expr>(&expr_str) {
+                        Ok(expr) => {
+                            output.extend(quote! {
+                                __out.push_str(&#expr.to_string());
+                            });
+                        }
+                        Err(parse_err) => {
+                            return Err(template_error(
+                                span,
+                                &format!(
+                                    "Invalid Rust expression in string interpolation: {}",
+                                    parse_err
+                                ),
+                                Some(&format!("@{{{}}}", expr_str)),
+                            ));
+                        }
                     }
                 }
                 _ => {
@@ -1218,6 +1336,7 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> TokenStream2 {
             current_literal.push(c);
             if chars.peek().is_some() {
                 current_literal.push(chars.next().unwrap());
+                char_pos += 1;
             }
         } else {
             current_literal.push(c);
@@ -1231,5 +1350,5 @@ fn interpolate_string_literal(lit: &proc_macro2::Literal) -> TokenStream2 {
 
     output.extend(quote! { __out.push_str(#quote_str); });
 
-    output
+    Ok(output)
 }
