@@ -164,6 +164,10 @@ export class GreaterThanValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is GreaterThanValidator {
+    return obj instanceof GreaterThanValidator;
+}
 }
 
 // GreaterThanOrEqualTo validator
@@ -322,6 +326,10 @@ export class GreaterThanOrEqualToValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is GreaterThanOrEqualToValidator {
+    return obj instanceof GreaterThanOrEqualToValidator;
 }
 }
 
@@ -482,6 +490,10 @@ export class LessThanValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is LessThanValidator {
+    return obj instanceof LessThanValidator;
+}
 }
 
 // LessThanOrEqualTo validator
@@ -640,6 +652,10 @@ export class LessThanOrEqualToValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is LessThanOrEqualToValidator {
+    return obj instanceof LessThanOrEqualToValidator;
 }
 }
 
@@ -800,6 +816,10 @@ export class BetweenValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is BetweenValidator {
+    return obj instanceof BetweenValidator;
+}
 }
 
 // Int validator
@@ -958,6 +978,10 @@ export class IntValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is IntValidator {
+    return obj instanceof IntValidator;
 }
 }
 
@@ -1118,6 +1142,10 @@ export class NonNaNValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is NonNaNValidator {
+    return obj instanceof NonNaNValidator;
+}
 }
 
 // Finite validator
@@ -1276,6 +1304,10 @@ export class FiniteValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is FiniteValidator {
+    return obj instanceof FiniteValidator;
 }
 }
 
@@ -1436,6 +1468,10 @@ export class PositiveValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is PositiveValidator {
+    return obj instanceof PositiveValidator;
+}
 }
 
 // NonNegative validator
@@ -1594,6 +1630,10 @@ export class NonNegativeValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is NonNegativeValidator {
+    return obj instanceof NonNegativeValidator;
 }
 }
 
@@ -1754,6 +1794,10 @@ export class NegativeValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is NegativeValidator {
+    return obj instanceof NegativeValidator;
+}
 }
 
 // NonPositive validator
@@ -1912,6 +1956,10 @@ export class NonPositiveValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is NonPositiveValidator {
+    return obj instanceof NonPositiveValidator;
 }
 }
 
@@ -2072,6 +2120,10 @@ export class MultipleOfValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is MultipleOfValidator {
+    return obj instanceof MultipleOfValidator;
+}
 }
 
 // Uint8 validator
@@ -2230,5 +2282,9 @@ export class Uint8Validator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is Uint8Validator {
+    return obj instanceof Uint8Validator;
 }
 }

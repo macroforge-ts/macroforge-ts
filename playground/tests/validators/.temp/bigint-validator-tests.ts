@@ -164,6 +164,10 @@ export class GreaterThanBigIntValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is GreaterThanBigIntValidator {
+    return obj instanceof GreaterThanBigIntValidator;
+}
 }
 
 // GreaterThanOrEqualToBigInt validator
@@ -322,6 +326,10 @@ export class GreaterThanOrEqualToBigIntValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is GreaterThanOrEqualToBigIntValidator {
+    return obj instanceof GreaterThanOrEqualToBigIntValidator;
 }
 }
 
@@ -482,6 +490,10 @@ export class LessThanBigIntValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is LessThanBigIntValidator {
+    return obj instanceof LessThanBigIntValidator;
+}
 }
 
 // LessThanOrEqualToBigInt validator
@@ -640,6 +652,10 @@ export class LessThanOrEqualToBigIntValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is LessThanOrEqualToBigIntValidator {
+    return obj instanceof LessThanOrEqualToBigIntValidator;
 }
 }
 
@@ -800,6 +816,10 @@ export class BetweenBigIntValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is BetweenBigIntValidator {
+    return obj instanceof BetweenBigIntValidator;
+}
 }
 
 // PositiveBigInt validator
@@ -958,6 +978,10 @@ export class PositiveBigIntValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is PositiveBigIntValidator {
+    return obj instanceof PositiveBigIntValidator;
 }
 }
 
@@ -1118,6 +1142,10 @@ export class NonNegativeBigIntValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is NonNegativeBigIntValidator {
+    return obj instanceof NonNegativeBigIntValidator;
+}
 }
 
 // NegativeBigInt validator
@@ -1277,6 +1305,10 @@ export class NegativeBigIntValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is NegativeBigIntValidator {
+    return obj instanceof NegativeBigIntValidator;
+}
 }
 
 // NonPositiveBigInt validator
@@ -1435,5 +1467,9 @@ export class NonPositiveBigIntValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is NonPositiveBigIntValidator {
+    return obj instanceof NonPositiveBigIntValidator;
 }
 }

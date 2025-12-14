@@ -200,6 +200,10 @@ export class MultipleValidatorsTest {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is MultipleValidatorsTest {
+    return obj instanceof MultipleValidatorsTest;
+}
 }
 
 // Custom error message
@@ -358,6 +362,10 @@ export class CustomMessageTest {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is CustomMessageTest {
+    return obj instanceof CustomMessageTest;
 }
 }
 
@@ -535,6 +543,10 @@ export class MixedValidatorsTest {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is MixedValidatorsTest {
+    return obj instanceof MixedValidatorsTest;
 }
 }
 
@@ -731,6 +743,10 @@ export class CombinedStringValidatorsTest {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is CombinedStringValidatorsTest {
+    return obj instanceof CombinedStringValidatorsTest;
+}
 }
 
 // Combined number validators
@@ -925,5 +941,9 @@ export class CombinedNumberValidatorsTest {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is CombinedNumberValidatorsTest {
+    return obj instanceof CombinedNumberValidatorsTest;
 }
 }

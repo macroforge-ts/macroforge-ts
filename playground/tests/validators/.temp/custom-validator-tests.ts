@@ -183,6 +183,10 @@ export class CustomNumberValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is CustomNumberValidator {
+    return obj instanceof CustomNumberValidator;
+}
 }
 
 // Custom string validator
@@ -351,6 +355,10 @@ export class CustomStringValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is CustomStringValidator {
+    return obj instanceof CustomStringValidator;
+}
 }
 
 // Custom validator with custom message
@@ -518,5 +526,9 @@ export class CustomWithMessageValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is CustomWithMessageValidator {
+    return obj instanceof CustomWithMessageValidator;
 }
 }
