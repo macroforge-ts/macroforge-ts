@@ -8,13 +8,11 @@ import { PendingRef } from 'macroforge/serde';
  * Comprehensive test class for Svelte playground.
  */
 
-/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize, Hash) */
 export interface SvelteAllMacrosTest {
-    /** @debug({ rename: "testId" }) */
     id: string;
     title: string;
     content: string;
-    /** @debug({ skip: true }) */
+
     apiKey: string;
     count: number;
     enabled: boolean;
@@ -203,7 +201,7 @@ export function validateFieldsSvelteAllMacrosTest(
 ): Array<{ field: string; message: string }> {
     return [];
 }
-export function isSvelteAllMacrosTest(obj: unknown): obj is SvelteAllMacrosTest {
+export function hasShapeSvelteAllMacrosTest(obj: unknown): boolean {
     if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -216,6 +214,13 @@ export function isSvelteAllMacrosTest(obj: unknown): obj is SvelteAllMacrosTest 
         'count' in o &&
         'enabled' in o
     );
+}
+export function isSvelteAllMacrosTest(obj: unknown): obj is SvelteAllMacrosTest {
+    if (!hasShapeSvelteAllMacrosTest(obj)) {
+        return false;
+    }
+    const result = fromObjectSvelteAllMacrosTest(obj);
+    return Result.isOk(result);
 }
 
 export function hashCodeSvelteAllMacrosTest(value: SvelteAllMacrosTest): number {

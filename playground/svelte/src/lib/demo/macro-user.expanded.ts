@@ -6,15 +6,13 @@ import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
 /** import macro { JSON } from "@playground/macro"; */
 
-/** @derive(Debug, Serialize, Deserialize) */
 export class MacroUser {
-    /** @debug({ rename: "userId" }) */
     id: string;
     name: string;
     role: string;
     favoriteMacro: 'Derive' | 'JsonNative';
     since: string;
-    /** @debug({ skip: true }) */
+
     apiToken: string;
 
     toString(): string {
@@ -249,8 +247,30 @@ export class MacroUser {
         return [];
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return (
+            'id' in o &&
+            'name' in o &&
+            'role' in o &&
+            'favoriteMacro' in o &&
+            'since' in o &&
+            'apiToken' in o
+        );
+    }
+
     static is(obj: unknown): obj is MacroUser {
-        return obj instanceof MacroUser;
+        if (obj instanceof MacroUser) {
+            return true;
+        }
+        if (!MacroUser.hasShape(obj)) {
+            return false;
+        }
+        const result = MacroUser.fromObject(obj);
+        return Result.isOk(result);
     }
 }
 

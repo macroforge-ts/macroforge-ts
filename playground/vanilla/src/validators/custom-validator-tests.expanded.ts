@@ -18,9 +18,8 @@ export function isValidUsername(value: string): boolean {
 }
 
 // Custom number validator
-/** @derive(Deserialize) */
+
 export class CustomNumberValidator {
-    /** @serde({ validate: ["custom(isEven)"] }) */
     evenNumber: number;
 
     constructor(props: {
@@ -199,15 +198,29 @@ export class CustomNumberValidator {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'evenNumber' in o;
+    }
+
     static is(obj: unknown): obj is CustomNumberValidator {
-        return obj instanceof CustomNumberValidator;
+        if (obj instanceof CustomNumberValidator) {
+            return true;
+        }
+        if (!CustomNumberValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = CustomNumberValidator.fromObject(obj);
+        return Result.isOk(result);
     }
 }
 
 // Custom string validator
-/** @derive(Deserialize) */
+
 export class CustomStringValidator {
-    /** @serde({ validate: ["custom(isValidUsername)"] }) */
     username: string;
 
     constructor(props: {
@@ -386,15 +399,29 @@ export class CustomStringValidator {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'username' in o;
+    }
+
     static is(obj: unknown): obj is CustomStringValidator {
-        return obj instanceof CustomStringValidator;
+        if (obj instanceof CustomStringValidator) {
+            return true;
+        }
+        if (!CustomStringValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = CustomStringValidator.fromObject(obj);
+        return Result.isOk(result);
     }
 }
 
 // Custom validator with custom message
-/** @derive(Deserialize) */
+
 export class CustomWithMessageValidator {
-    /** @serde({ validate: [{ validate: "custom(isEven)", message: "Number must be even" }] }) */
     evenNumber: number;
 
     constructor(props: {
@@ -578,7 +605,22 @@ export class CustomWithMessageValidator {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'evenNumber' in o;
+    }
+
     static is(obj: unknown): obj is CustomWithMessageValidator {
-        return obj instanceof CustomWithMessageValidator;
+        if (obj instanceof CustomWithMessageValidator) {
+            return true;
+        }
+        if (!CustomWithMessageValidator.hasShape(obj)) {
+            return false;
+        }
+        const result = CustomWithMessageValidator.fromObject(obj);
+        return Result.isOk(result);
     }
 }

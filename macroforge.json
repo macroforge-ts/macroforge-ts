@@ -1,12 +1,12 @@
 {
-  "allowNativeMacros": true,
-  "macroPackages": [],
-  "macroRuntimeOverrides": {},
-  "keepDecorators": true,
-  "limits": {
-    "maxExecutionTimeMs": 5000,
-    "maxMemoryBytes": 104857600,
-    "maxOutputSize": 10485760,
-    "maxDiagnostics": 100
-  }
+	"allowNativeMacros": true,
+	"macroPackages": [],
+	"macroRuntimeOverrides": {},
+	"keepDecorators": false,
+	"limits": {
+		"maxExecutionTimeMs": 5000,
+		"maxMemoryBytes": 104857600,
+		"maxOutputSize": 20485760,
+		"maxDiagnostics": 100
+	}
 }

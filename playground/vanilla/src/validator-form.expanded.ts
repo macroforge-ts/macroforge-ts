@@ -10,21 +10,15 @@ import { PendingRef } from 'macroforge/serde';
 
 import { Result } from 'macroforge/utils';
 
-/** @derive(Deserialize) */
 export class UserRegistrationForm {
-    /** @serde({ validate: ["email"] }) */
     email: string;
 
-    /** @serde({ validate: ["minLength(8)", "maxLength(50)"] }) */
     password: string;
 
-    /** @serde({ validate: ["minLength(3)", "maxLength(20)", "lowercase", "pattern(\"^[a-z][a-z0-9_]+$\")"] }) */
     username: string;
 
-    /** @serde({ validate: ["int", "between(18, 120)"] }) */
     age: number;
 
-    /** @serde({ validate: ["url"] }) */
     website: string;
 
     constructor(props: {
@@ -459,26 +453,35 @@ export class UserRegistrationForm {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'email' in o && 'password' in o && 'username' in o && 'age' in o && 'website' in o;
+    }
+
     static is(obj: unknown): obj is UserRegistrationForm {
-        return obj instanceof UserRegistrationForm;
+        if (obj instanceof UserRegistrationForm) {
+            return true;
+        }
+        if (!UserRegistrationForm.hasShape(obj)) {
+            return false;
+        }
+        const result = UserRegistrationForm.fromObject(obj);
+        return Result.isOk(result);
     }
 }
 
-/** @derive(Deserialize) */
 export class ProductForm {
-    /** @serde({ validate: ["nonEmpty", "maxLength(100)"] }) */
     name: string;
 
-    /** @serde({ validate: ["positive", "lessThan(1000000)"] }) */
     price: number;
 
-    /** @serde({ validate: ["int", "nonNegative"] }) */
     quantity: number;
 
-    /** @serde({ validate: ["minItems(1)", "maxItems(5)"] }) */
     tags: string[];
 
-    /** @serde({ validate: ["uuid"] }) */
     sku: string;
 
     constructor(props: {
@@ -680,25 +683,7 @@ export class ProductForm {
                         message: 'must have at most 5 items'
                     });
                 }
-                const __arr = (__raw_tags as any[]).map((item, idx) => {
-                    if (item?.__ref !== undefined) {
-                        const result = ctx.getOrDefer(item.__ref);
-                        if (PendingRef.is(result)) {
-                            return {
-                                __pendingIdx: idx,
-                                __refId: result.id
-                            };
-                        }
-                        return result;
-                    }
-                    return item as string;
-                });
-                instance.tags = __arr;
-                __arr.forEach((item, idx) => {
-                    if (item && typeof item === 'object' && '__pendingIdx' in item) {
-                        ctx.addPatch(instance.tags, idx, (item as any).__refId);
-                    }
-                });
+                instance.tags = __raw_tags as string[];
             }
         }
         {
@@ -899,23 +884,33 @@ export class ProductForm {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'name' in o && 'price' in o && 'quantity' in o && 'tags' in o && 'sku' in o;
+    }
+
     static is(obj: unknown): obj is ProductForm {
-        return obj instanceof ProductForm;
+        if (obj instanceof ProductForm) {
+            return true;
+        }
+        if (!ProductForm.hasShape(obj)) {
+            return false;
+        }
+        const result = ProductForm.fromObject(obj);
+        return Result.isOk(result);
     }
 }
 
-/** @derive(Deserialize) */
 export class EventForm {
-    /** @serde({ validate: ["nonEmpty", "trimmed"] }) */
     title: string;
 
-    /** @serde({ validate: ["validDate", "greaterThanDate(\"2020-01-01\")"] }) */
     startDate: Date;
 
-    /** @serde({ validate: ["validDate"] }) */
     endDate: Date;
 
-    /** @serde({ validate: ["int", "between(1, 1000)"] }) */
     maxAttendees: number;
 
     constructor(props: {
@@ -1261,8 +1256,23 @@ export class EventForm {
         return errors;
     }
 
+    static hasShape(obj: unknown): boolean {
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+            return false;
+        }
+        const o = obj as Record<string, unknown>;
+        return 'title' in o && 'startDate' in o && 'endDate' in o && 'maxAttendees' in o;
+    }
+
     static is(obj: unknown): obj is EventForm {
-        return obj instanceof EventForm;
+        if (obj instanceof EventForm) {
+            return true;
+        }
+        if (!EventForm.hasShape(obj)) {
+            return false;
+        }
+        const result = EventForm.fromObject(obj);
+        return Result.isOk(result);
     }
 }
 

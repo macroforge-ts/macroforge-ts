@@ -15,7 +15,6 @@ import { PendingRef } from 'macroforge/serde';
 
 // ==================== ENUM EXAMPLES ====================
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
 export enum Status {
     Active = 'active',
     Inactive = 'inactive',
@@ -79,7 +78,6 @@ export function isStatus(value: unknown): value is Status {
     return false;
 }
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
 export enum Priority {
     Low = 1,
     Medium = 2,
@@ -144,7 +142,6 @@ export function isPriority(value: unknown): value is Priority {
     return false;
 }
 
-/** @derive(Debug, PartialEq, Hash) */
 export enum Color {
     Red,
     Green,
@@ -176,7 +173,6 @@ export function hashCodeColor(value: Color): number {
 
 // ==================== TYPE ALIAS EXAMPLES ====================
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
 export type Point = {
     x: number;
     y: number;
@@ -338,7 +334,6 @@ export function isPoint(obj: unknown): obj is Point {
     return 'x' in o && 'y' in o;
 }
 
-/** @derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize) */
 export type UserProfile = {
     id: string;
     username: string;
@@ -555,7 +550,6 @@ export function isUserProfile(obj: unknown): obj is UserProfile {
     return 'id' in o && 'username' in o && 'email' in o && 'age' in o && 'isVerified' in o;
 }
 
-/** @derive(Debug, Clone, PartialEq, Hash) */
 export type Coordinate3D = {
     x: number;
     y: number;
@@ -611,7 +605,6 @@ export function hashCodeCoordinate3D(value: Coordinate3D): number {
     return hash;
 }
 
-/** @derive(Debug, PartialEq, Hash) */
 export type ApiStatus = 'loading' | 'success' | 'error';
 
 export function toStringApiStatus(value: ApiStatus): string {

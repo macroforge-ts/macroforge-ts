@@ -143,6 +143,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
+            let naming_style = input.context.function_naming_style;
 
             // Check for required non-primitive fields missing @default (like Rust's derive(Default))
             let missing_defaults: Vec<&str> = class
@@ -188,7 +189,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         name: field.name.clone(),
                         value: opts
                             .value
-                            .unwrap_or_else(|| get_type_default(&field.ts_type)),
+                            .unwrap_or_else(|| get_type_default(&field.ts_type, naming_style)),
                     }
                 })
                 .collect();
@@ -206,7 +207,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 String::new()
             };
 
-            Ok(body! {
+            let mut class_body = body! {
                 static defaultValue(): @{class_name} {
                     const instance = new @{class_name}();
                     {#if has_defaults}
@@ -214,7 +215,28 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     {/if}
                     return instance;
                 }
-            })
+            };
+
+            // Also generate standalone function for consistency if not using namespace style
+            if naming_style != FunctionNamingStyle::Namespace {
+                let fn_name = match naming_style {
+                    FunctionNamingStyle::Suffix => format!("defaultValue{}", class_name),
+                    FunctionNamingStyle::Prefix => format!("{}DefaultValue", to_camel_case(class_name)),
+                    FunctionNamingStyle::Generic => format!("defaultValue"), // Generic style usually means defaultValue<T> but for class it might be ambiguous without type params?
+                    _ => String::new(),
+                };
+
+                if !fn_name.is_empty() {
+                    let sibling = ts_template! {
+                        export function @{fn_name}(): @{class_name} {
+                            return @{class_name}.defaultValue();
+                        }
+                    };
+                    class_body.runtime_patches.extend(sibling.runtime_patches);
+                }
+            }
+
+            Ok(class_body)
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
@@ -319,7 +341,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         name: field.name.clone(),
                         value: opts
                             .value
-                            .unwrap_or_else(|| get_type_default(&field.ts_type)),
+                            .unwrap_or_else(|| get_type_default(&field.ts_type, naming_style)),
                     }
                 })
                 .collect();
@@ -443,7 +465,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                             name: field.name.clone(),
                             value: opts
                                 .value
-                                .unwrap_or_else(|| get_type_default(&field.ts_type)),
+                                .unwrap_or_else(|| get_type_default(&field.ts_type, naming_style)),
                         }
                     })
                     .collect();
@@ -571,7 +593,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         variant // Use as-is
                     } else if is_primitive_type {
                         // Handle primitive type names - use get_type_default to get actual default value
-                        get_type_default(&variant)
+                        get_type_default(&variant, naming_style)
                     } else if is_generic_type(&variant) {
                         // Handle generic type variants like "RecordLink<Service>"
                         // Generate Base.defaultValue<Args>() instead of Base<Args>.defaultValue()
