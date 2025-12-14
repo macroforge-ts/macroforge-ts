@@ -1,10 +1,7 @@
 # ts_macro_derive
-
-*The `#[ts_macro_derive]` attribute is a Rust procedural macro that registers your function as a Macroforge derive macro.*
-
-## Basic Syntax
-
-```rust
+ *The `#[ts_macro_derive]` attribute is a Rust procedural macro that registers your function as a Macroforge derive macro.*
+ ## Basic Syntax
+ ```
 use macroforge_ts::macros::ts_macro_derive;
 use macroforge_ts::ts_syn::{TsStream, MacroforgeError};
 
@@ -12,64 +9,39 @@ use macroforge_ts::ts_syn::{TsStream, MacroforgeError};
 pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     // Macro implementation
 }
-```
-
-## Attribute Options
-
-### Name (Required)
-
-The first argument is the macro name that users will reference in `@derive()`:
-
-```rust
+``` ## Attribute Options
+ ### Name (Required)
+ The first argument is the macro name that users will reference in `@derive()`:
+ ```
 #[ts_macro_derive(JSON)]  // Users write: @derive(JSON)
 pub fn derive_json(...)
-```
-
-### Description
-
-Provides documentation for the macro:
-
-```rust
+``` ### Description
+ Provides documentation for the macro:
+ ```
 #[ts_macro_derive(
     JSON,
     description = "Generates toJSON() returning a plain object"
 )]
 pub fn derive_json(...)
-```
-
-### Attributes
-
-Declare which field-level decorators your macro accepts:
-
-```rust
+``` ### Attributes
+ Declare which field-level decorators your macro accepts:
+ ```
 #[ts_macro_derive(
     Debug,
     description = "Generates toString()",
     attributes(debug)  // Allows @debug({ ... }) on fields
 )]
 pub fn derive_debug(...)
-```
-
->
-> Declared attributes become available as `@attributeName(&#123; options &#125;)` decorators in TypeScript.
-
-## Function Signature
-
-```rust
+``` > **Note:** Declared attributes become available as @attributeName({ options }) decorators in TypeScript. ## Function Signature
+ ```
 pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError>
-```
-
-| `input: TsStream` 
-| Token stream containing the class/interface AST 
-
-| `Result<TsStream, MacroforgeError>` 
-| Returns generated code or an error with source location
-
-## Parsing Input
-
-Use `parse_ts_macro_input!` to convert the token stream:
-
-```rust
+``` | Parameter | Description |
+| --- | --- |
+| `input: TsStream` | Token stream containing the class/interface AST |
+| `Result<TsStream, MacroforgeError>` | Returns generated code or an error with source location |
+ ## Parsing Input
+ Use `parse_ts_macro_input!` to convert the token stream:
+ ```
 use macroforge_ts::ts_syn::{Data, DeriveInput, parse_ts_macro_input};
 
 #[ts_macro_derive(MyMacro)]
@@ -91,11 +63,8 @@ pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
         }
     }
 }
-```
-
-## DeriveInput Structure
-
-```rust
+``` ## DeriveInput Structure
+ ```
 struct DeriveInput {
     pub ident: Ident,           // The type name
     pub span: SpanIR,           // Span of the type definition
@@ -153,13 +122,9 @@ impl DataTypeAlias {
     fn as_union(&self) -> Option<&[TypeMember]>;
     fn as_object(&self) -> Option<&[InterfaceFieldIR]>;
 }
-```
-
-## Accessing Field Data
-
-### Class Fields (FieldIR)
-
-```rust
+``` ## Accessing Field Data
+ ### Class Fields (FieldIR)
+ ```
 struct FieldIR {
     pub name: String,               // Field name
     pub span: SpanIR,               // Field span
@@ -169,11 +134,8 @@ struct FieldIR {
     pub visibility: Visibility,     // Public, Protected, Private
     pub decorators: Vec<DecoratorIR>, // Field decorators
 }
-```
-
-### Interface Fields (InterfaceFieldIR)
-
-```rust
+``` ### Interface Fields (InterfaceFieldIR)
+ ```
 struct InterfaceFieldIR {
     pub name: String,
     pub span: SpanIR,
@@ -183,37 +145,24 @@ struct InterfaceFieldIR {
     pub decorators: Vec<DecoratorIR>,
     // Note: No visibility field (interfaces are always public)
 }
-```
-
-### Enum Variants (EnumVariantIR)
-
-```rust
+``` ### Enum Variants (EnumVariantIR)
+ ```
 struct EnumVariantIR {
     pub name: String,
     pub span: SpanIR,
     pub value: EnumValue,  // Auto, String(String), or Number(f64)
     pub decorators: Vec<DecoratorIR>,
 }
-```
-
-### Decorator Structure
-
-```rust
+``` ### Decorator Structure
+ ```
 struct DecoratorIR {
     pub name: String,      // e.g., "serde"
     pub args_src: String,  // Raw args text, e.g., "skip, rename: 'id'"
     pub span: SpanIR,
 }
-```
-
->
-> To check for decorators, iterate through `field.decorators` and check `decorator.name`. For parsing options, you can write helper functions like the built-in macros do.
-
-## Adding Imports
-
-If your macro generates code that requires imports, use the `add_import` method on `TsStream`:
-
-```rust
+``` > **Note:** To check for decorators, iterate through field.decorators and check decorator.name. For parsing options, you can write helper functions like the built-in macros do. ## Adding Imports
+ If your macro generates code that requires imports, use the `add_import` method on `TsStream`:
+ ```
 // Add an import to be inserted at the top of the file
 let mut output = body! {
     validate(): ValidationResult {
@@ -226,16 +175,9 @@ output.add_import("validateFields", "my-validation-lib");
 output.add_import("ValidationResult", "my-validation-lib");
 
 Ok(output)
-```
-
->
-> Imports are automatically deduplicated. If the same import already exists in the file, it won't be added again.
-
-## Returning Errors
-
-Use `MacroforgeError` to report errors with source locations:
-
-```rust
+``` > **Note:** Imports are automatically deduplicated. If the same import already exists in the file, it won't be added again. ## Returning Errors
+ Use `MacroforgeError` to report errors with source locations:
+ ```
 #[ts_macro_derive(ClassOnly)]
 pub fn class_only(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
     let input = parse_ts_macro_input!(input as DeriveInput);
@@ -251,11 +193,8 @@ pub fn class_only(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
         )),
     }
 }
-```
-
-## Complete Example
-
-```rust
+``` ## Complete Example
+ ```
 use macroforge_ts::macros::{ts_macro_derive, body};
 use macroforge_ts::ts_syn::{
     Data, DeriveInput, FieldIR, MacroforgeError, TsStream, parse_ts_macro_input,
@@ -299,8 +238,5 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError>
         )),
     }
 }
-```
-
-## Next Steps
-
-- [Learn the template syntax]({base}/docs/custom-macros/ts-quote)
+``` ## Next Steps
+ - [Learn the template syntax](../../docs/custom-macros/ts-quote)

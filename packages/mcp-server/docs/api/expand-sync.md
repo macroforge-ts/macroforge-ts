@@ -1,43 +1,26 @@
 # expandSync()
-
-*Expands macros in TypeScript code synchronously and returns the transformed output.*
-
-## Signature
-
-```typescript
+  *Synchronously expands macros in TypeScript code. This is the standalone macro expansion function that doesn't use caching. For cached expansion, use [`NativePlugin::process_file`] instead.*
+ ## Signature
+ ```
 function expandSync(
   code: string,
   filepath: string,
   options?: ExpandOptions
 ): ExpandResult
-```
-
-## Parameters
-
-| `code` 
-| `string` 
-| TypeScript source code to transform 
-
-| `filepath` 
-| `string` 
-| File path (used for error reporting) 
-
-| `options` 
-| `ExpandOptions` 
-| Optional configuration
-
-## ExpandOptions
-
-```typescript
+``` ## Parameters
+ | Parameter | Type | Description |
+| --- | --- | --- |
+| `code` | `string` | TypeScript source code to transform |
+| `filepath` | `string` | File path (used for error reporting) |
+| `options` | `ExpandOptions` | Optional configuration |
+ ## ExpandOptions
+ ```
 interface ExpandOptions {
   // Keep @derive decorators in output (default: false)
   keepDecorators?: boolean;
 }
-```
-
-## ExpandResult
-
-```typescript
+``` ## ExpandResult
+ ```
 interface ExpandResult {
   // Transformed TypeScript code
   code: string;
@@ -54,11 +37,8 @@ interface ExpandResult {
   // Position mapping data for source maps
   sourceMapping?: SourceMappingResult;
 }
-```
-
-## MacroDiagnostic
-
-```typescript
+``` ## MacroDiagnostic
+ ```
 interface MacroDiagnostic {
   message: string;
   severity: "error" | "warning" | "info";
@@ -67,14 +47,11 @@ interface MacroDiagnostic {
     end: number;
   };
 }
-```
-
-## Example
-
-```typescript
+``` ## Example
+ ```
 import { expandSync } from "macroforge";
 
-const sourceCode = \`
+const sourceCode = `
 /** @derive(Debug) */
 class User {
   name: string;
@@ -85,7 +62,7 @@ class User {
     this.age = age;
   }
 }
-\`;
+`;
 
 const result = expandSync(sourceCode, "user.ts");
 
@@ -99,21 +76,17 @@ if (result.types) {
 
 if (result.diagnostics.length > 0) {
   for (const diag of result.diagnostics) {
-    console.log(\`[\${diag.severity}] \${diag.message}\`);
+    console.log(`[${diag.severity}] ${diag.message}`);
   }
 }
-```
-
-## Error Handling
-
-Syntax errors and macro errors are returned in the `diagnostics` array, not thrown as exceptions:
-
-```typescript
+``` ## Error Handling
+ Syntax errors and macro errors are returned in the `diagnostics` array, not thrown as exceptions:
+ ```
 const result = expandSync(invalidCode, "file.ts");
 
 for (const diag of result.diagnostics) {
   if (diag.severity === "error") {
-    console.error(\`Error at \${diag.span.start}: \${diag.message}\`);
+    console.error(`Error at ${diag.span.start}: ${diag.message}`);
   }
 }
 ```
