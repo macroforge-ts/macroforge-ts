@@ -549,4 +549,122 @@ mod tests {
             s
         );
     }
+
+    // ========== Union Type For Loop Tests ==========
+
+    #[test]
+    fn test_union_type_for_loop_basic() {
+        // Test basic for loop with Vec<String> - simulating union type refs
+        let type_refs: Vec<String> = vec!["User".to_string(), "Admin".to_string(), "Guest".to_string()];
+
+        let stream: TsStream = ts_template! {
+            function dispatch(value: any) {
+                {#for type_ref in type_refs}
+                    if (value.__type === "@{type_ref}") {
+                        return @{type_ref}.__deserialize(value);
+                    }
+                {/for}
+            }
+        };
+
+        let s = stream.source();
+        println!("Generated Source:\n{}", s);
+
+        assert!(s.contains("User.__deserialize"), "Expected User.__deserialize, found: {}", s);
+        assert!(s.contains("Admin.__deserialize"), "Expected Admin.__deserialize, found: {}", s);
+        assert!(s.contains("Guest.__deserialize"), "Expected Guest.__deserialize, found: {}", s);
+    }
+
+    #[test]
+    fn test_union_type_for_loop_with_conditionals() {
+        // Test for loop inside conditionals - like the union type pattern
+        let type_refs: Vec<String> = vec!["Success".to_string(), "Failure".to_string()];
+        let literals: Vec<String> = vec!["\"pending\"".to_string(), "\"active\"".to_string()];
+
+        let is_literal_only = false;
+        let is_type_ref_only = true;
+
+        let stream: TsStream = ts_template! {
+            function __deserialize(value: any) {
+                {#if is_literal_only}
+                    const allowedValues = [{#for lit in literals}@{lit}, {/for}] as const;
+                    return value;
+                {:else if is_type_ref_only}
+                    const typeName = value.__type;
+                    {#for type_ref in type_refs}
+                        if (typeName === "@{type_ref}") {
+                            return @{type_ref}.__deserialize(value);
+                        }
+                    {/for}
+                    throw new Error("Unknown type");
+                {:else}
+                    return value;
+                {/if}
+            }
+        };
+
+        let s = stream.source();
+        println!("Generated Source:\n{}", s);
+
+        assert!(s.contains("Success.__deserialize"), "Expected Success.__deserialize, found: {}", s);
+        assert!(s.contains("Failure.__deserialize"), "Expected Failure.__deserialize, found: {}", s);
+    }
+
+    #[test]
+    fn test_union_type_for_loop_reuse() {
+        // Test using the same Vec in multiple for loops - need to clone
+        let type_refs: Vec<String> = vec!["TypeA".to_string(), "TypeB".to_string()];
+
+        let stream: TsStream = ts_template! {
+            function dispatch(value: any) {
+                // First use
+                {#for type_ref in type_refs.clone()}
+                    console.log("@{type_ref}");
+                {/for}
+
+                // Second use
+                {#for type_ref in type_refs}
+                    return @{type_ref};
+                {/for}
+            }
+        };
+
+        let s = stream.source();
+        println!("Generated Source:\n{}", s);
+
+        // Count occurrences - should appear twice each
+        assert!(s.matches("TypeA").count() >= 2, "Expected TypeA to appear at least twice, found: {}", s);
+        assert!(s.matches("TypeB").count() >= 2, "Expected TypeB to appear at least twice, found: {}", s);
+    }
+
+    #[test]
+    fn test_union_type_nested_if_for() {
+        // Test nested if with for loop - matching the actual union type pattern
+        let type_refs: Vec<String> = vec!["Option1".to_string(), "Option2".to_string()];
+        let has_type_refs = !type_refs.is_empty();
+
+        let stream: TsStream = ts_template! {
+            function __deserialize(value: any) {
+                {#if has_type_refs}
+                    if (typeof value === "object" && value !== null) {
+                        const __typeName = value.__type;
+                        if (typeof __typeName === "string") {
+                            {#for type_ref in type_refs}
+                                if (__typeName === "@{type_ref}") {
+                                    return @{type_ref}.__deserialize(value);
+                                }
+                            {/for}
+                        }
+                    }
+                {/if}
+                return value;
+            }
+        };
+
+        let s = stream.source();
+        println!("Generated Source:\n{}", s);
+
+        assert!(s.contains("Option1.__deserialize"), "Expected Option1.__deserialize, found: {}", s);
+        assert!(s.contains("Option2.__deserialize"), "Expected Option2.__deserialize, found: {}", s);
+    }
 }
