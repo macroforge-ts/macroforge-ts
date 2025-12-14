@@ -70,8 +70,7 @@ use crate::abi::{DecoratorIR, InterfaceFieldIR, SpanIR};
 /// - `name`: `"Result"`
 /// - `type_params`: `["T", "E"]`
 /// - `body`: `TypeBody::Union([...])`
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct TypeAliasIR {
     /// The type alias name (identifier).
     pub name: String,
@@ -106,8 +105,7 @@ pub struct TypeAliasIR {
 /// | `[A, B]` | `Tuple` |
 /// | `SomeType` | `Alias` |
 /// | `Partial<T>` | `Other` (complex) |
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub enum TypeBody {
     /// A union type with multiple alternatives.
     ///
@@ -252,8 +250,7 @@ impl TypeBody {
 /// 1. `TypeMemberKind::Literal("active")` with `@default` decorator
 /// 2. `TypeMemberKind::Literal("inactive")` with no decorators
 /// 3. `TypeMemberKind::Object { fields: [...] }` with no decorators
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct TypeMember {
     /// The kind of type member (literal, reference, or object).
     pub kind: TypeMemberKind,
@@ -269,8 +266,7 @@ pub struct TypeMember {
 /// - Literal values (`"active"`, `42`, `true`)
 /// - Type references (`User`, `Array<T>`)
 /// - Inline object types (`{ x: number }`)
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub enum TypeMemberKind {
     /// A literal type value.
     ///

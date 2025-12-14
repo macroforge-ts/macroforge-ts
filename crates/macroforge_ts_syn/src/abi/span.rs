@@ -60,8 +60,7 @@ use serde::{Deserialize, Serialize};
 /// let text = &source[span.start as usize..span.end as usize];
 /// assert_eq!(text, "hello");
 /// ```
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct SpanIR {
     /// Starting byte offset (inclusive).
     pub start: u32,

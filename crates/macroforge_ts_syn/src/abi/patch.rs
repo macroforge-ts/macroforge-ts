@@ -47,9 +47,9 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::abi::{swc_ast, SpanIR};
+use crate::abi::{SpanIR, swc_ast};
 #[cfg(feature = "swc")]
-use swc_core::common::{SyntaxContext, DUMMY_SP};
+use swc_core::common::{DUMMY_SP, SyntaxContext};
 
 /// A code modification operation returned by macros.
 ///
@@ -90,8 +90,7 @@ use swc_core::common::{SyntaxContext, DUMMY_SP};
 ///     span: SpanIR::new(200, 250),
 /// };
 /// ```
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub enum Patch {
     /// Insert code at a specific position.
     ///
@@ -186,13 +185,20 @@ impl Patch {
                 source_macro: Some(macro_name.to_string()),
             },
             Patch::Delete { span } => Patch::Delete { span },
-            Patch::InsertRaw { at, code, context, .. } => Patch::InsertRaw {
+            Patch::InsertRaw {
+                at, code, context, ..
+            } => Patch::InsertRaw {
                 at,
                 code,
                 context,
                 source_macro: Some(macro_name.to_string()),
             },
-            Patch::ReplaceRaw { span, code, context, .. } => Patch::ReplaceRaw {
+            Patch::ReplaceRaw {
+                span,
+                code,
+                context,
+                ..
+            } => Patch::ReplaceRaw {
                 span,
                 code,
                 context,
@@ -381,8 +387,7 @@ impl From<Vec<swc_ast::ModuleItem>> for PatchCode {
 ///     }
 /// }
 /// ```
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, Default)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct MacroResult {
     /// Patches to apply to the runtime JS/TS code.
     pub runtime_patches: Vec<Patch>,
@@ -423,8 +428,7 @@ pub struct MacroResult {
 ///     help: Some("Add @serde(skip) decorator to this field".to_string()),
 /// };
 /// ```
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Diagnostic {
     /// The severity level of the diagnostic.
     pub level: DiagnosticLevel,
@@ -444,8 +448,7 @@ pub struct Diagnostic {
 }
 
 /// The severity level of a diagnostic message.
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub enum DiagnosticLevel {
     /// An error that prevents successful macro expansion.
     /// Any error diagnostic causes the macro result to be considered failed.
@@ -514,7 +517,12 @@ impl DiagnosticCollector {
     }
 
     /// Add an error diagnostic with span and help text
-    pub fn error_with_help(&mut self, span: SpanIR, message: impl Into<String>, help: impl Into<String>) {
+    pub fn error_with_help(
+        &mut self,
+        span: SpanIR,
+        message: impl Into<String>,
+        help: impl Into<String>,
+    ) {
         self.push(Diagnostic {
             level: DiagnosticLevel::Error,
             message: message.into(),
@@ -542,7 +550,9 @@ impl DiagnosticCollector {
 
     /// Check if there are any errors in the collection
     pub fn has_errors(&self) -> bool {
-        self.diagnostics.iter().any(|d| d.level == DiagnosticLevel::Error)
+        self.diagnostics
+            .iter()
+            .any(|d| d.level == DiagnosticLevel::Error)
     }
 
     /// Check if the collection is empty
