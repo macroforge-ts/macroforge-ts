@@ -57,12 +57,12 @@ use crate::ts_syn::abi::{
     ClassIR, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode, SpanIR,
 };
 use crate::{
-    host::MacroExpander, parse_import_sources, GeneratedRegionResult, MappingSegmentResult,
-    NativePositionMapper, SourceMappingResult,
+    GeneratedRegionResult, MappingSegmentResult, NativePositionMapper, SourceMappingResult,
+    host::MacroExpander, parse_import_sources,
 };
 use swc_core::ecma::ast::{ClassMember, Program};
 use swc_core::{
-    common::{sync::Lrc, FileName, SourceMap, GLOBALS},
+    common::{FileName, GLOBALS, SourceMap, sync::Lrc},
     ecma::parser::{Lexer, Parser, StringInput, Syntax, TsSyntax},
 };
 
@@ -496,23 +496,33 @@ fn test_collect_constructor_patch() {
         .unwrap()
         .unwrap();
 
-    let (collector, _) =
-        host.collect_macro_patches(&module, items, "test.ts", source);
+    let (collector, _) = host.collect_macro_patches(&module, items, "test.ts", source);
 
     let type_patches = collector.get_type_patches();
     // Should have at least: decorator removal + constructor body stripping + generated methods
-    assert!(type_patches.len() >= 2, "Expected at least 2 patches, got {}", type_patches.len());
+    assert!(
+        type_patches.len() >= 2,
+        "Expected at least 2 patches, got {}",
+        type_patches.len()
+    );
 
     // Find the constructor patch
     let constructor_patch = type_patches.iter().find(|p| {
-        if let Patch::Replace { code: PatchCode::Text(text), .. } = p {
+        if let Patch::Replace {
+            code: PatchCode::Text(text),
+            ..
+        } = p
+        {
             text.contains("constructor")
         } else {
             false
         }
     });
 
-    assert!(constructor_patch.is_some(), "Should have a constructor patch");
+    assert!(
+        constructor_patch.is_some(),
+        "Should have a constructor patch"
+    );
     if let Some(Patch::Replace { code, .. }) = constructor_patch {
         match code {
             PatchCode::Text(text) => assert_eq!(text, "constructor(id: string);"),
@@ -532,14 +542,20 @@ fn test_no_patches_for_class_without_derive() {
         .unwrap()
         .unwrap();
 
-    let (collector, _) =
-        host.collect_macro_patches(&module, items, "test.ts", source);
+    let (collector, _) = host.collect_macro_patches(&module, items, "test.ts", source);
 
     let type_patches = collector.get_type_patches();
-    assert_eq!(type_patches.len(), 0, "Class without @derive should get no type patches");
+    assert_eq!(
+        type_patches.len(),
+        0,
+        "Class without @derive should get no type patches"
+    );
 
     // Also verify that has_type_patches is false
-    assert!(!collector.has_type_patches(), "Class without @derive should have no type patches");
+    assert!(
+        !collector.has_type_patches(),
+        "Class without @derive should have no type patches"
+    );
 }
 
 #[test]
@@ -551,8 +567,7 @@ fn test_collect_derive_debug_patch() {
         .prepare_expansion_context(&program, source)
         .unwrap()
         .unwrap();
-    let (collector, _) =
-        host.collect_macro_patches(&module, items, "test.ts", source);
+    let (collector, _) = host.collect_macro_patches(&module, items, "test.ts", source);
 
     let type_patches = collector.get_type_patches();
 
@@ -1437,7 +1452,8 @@ interface Status {
         // Output should contain suffix-style toString function (default naming style)
         assert!(
             result.code.contains("toStringStatus"),
-            "Should generate suffix-style toStringStatus function. Got:\n{}", result.code
+            "Should generate suffix-style toStringStatus function. Got:\n{}",
+            result.code
         );
     });
 }
@@ -1532,7 +1548,10 @@ interface Status {
         assert_eq!(error_count, 0, "Should succeed without errors");
 
         // Verify the output contains expected patterns (suffix-style uses value parameter)
-        assert!(result.code.contains("value.active"), "Should reference value.active");
+        assert!(
+            result.code.contains("value.active"),
+            "Should reference value.active"
+        );
     });
 }
 
@@ -1700,9 +1719,18 @@ class User {
         let type_output = result.type_output.expect("should have type output");
 
         // Check for new serde methods
-        assert!(type_output.contains("toStringifiedJSON(): string"), "Should have toStringifiedJSON method");
-        assert!(type_output.contains("toObject(): Record<string, unknown>"), "Should have toObject method");
-        assert!(type_output.contains("__serialize(ctx: SerializeContext)"), "Should have __serialize method");
+        assert!(
+            type_output.contains("toStringifiedJSON(): string"),
+            "Should have toStringifiedJSON method"
+        );
+        assert!(
+            type_output.contains("toObject(): Record<string, unknown>"),
+            "Should have toObject method"
+        );
+        assert!(
+            type_output.contains("__serialize(ctx: SerializeContext)"),
+            "Should have __serialize method"
+        );
     });
 }
 
@@ -1724,10 +1752,22 @@ class Data {
 
         assert!(result.changed, "expand() should report changes");
         // Serialize macro adds toStringifiedJSON(), toObject(), and __serialize() methods
-        assert!(result.code.contains("toStringifiedJSON()"), "Should have toStringifiedJSON method");
-        assert!(result.code.contains("toObject()"), "Should have toObject method");
-        assert!(result.code.contains("__serialize"), "Should have __serialize method");
-        assert!(result.code.contains("SerializeContext"), "Should use SerializeContext");
+        assert!(
+            result.code.contains("toStringifiedJSON()"),
+            "Should have toStringifiedJSON method"
+        );
+        assert!(
+            result.code.contains("toObject()"),
+            "Should have toObject method"
+        );
+        assert!(
+            result.code.contains("__serialize"),
+            "Should have __serialize method"
+        );
+        assert!(
+            result.code.contains("SerializeContext"),
+            "Should use SerializeContext"
+        );
     });
 }
 
@@ -1752,8 +1792,14 @@ class User {
         let type_output = result.type_output.expect("should have type output");
 
         // Check for new serde methods
-        assert!(type_output.contains("static fromStringifiedJSON(json: string"), "Should have fromStringifiedJSON method");
-        assert!(type_output.contains("static __deserialize(value: any, ctx: DeserializeContext)"), "Should have __deserialize method");
+        assert!(
+            type_output.contains("static fromStringifiedJSON(json: string"),
+            "Should have fromStringifiedJSON method"
+        );
+        assert!(
+            type_output.contains("static __deserialize(value: any, ctx: DeserializeContext)"),
+            "Should have __deserialize method"
+        );
     });
 }
 
@@ -1775,10 +1821,19 @@ class Data {
 
         assert!(result.changed, "expand() should report changes");
         // Deserialize macro adds static fromStringifiedJSON() and __deserialize() methods
-        assert!(result.code.contains("fromStringifiedJSON"), "Should have fromStringifiedJSON method");
-        assert!(result.code.contains("__deserialize"), "Should have __deserialize method");
+        assert!(
+            result.code.contains("fromStringifiedJSON"),
+            "Should have fromStringifiedJSON method"
+        );
+        assert!(
+            result.code.contains("__deserialize"),
+            "Should have __deserialize method"
+        );
         assert!(result.code.contains("static"), "Methods should be static");
-        assert!(result.code.contains("DeserializeContext"), "Should use DeserializeContext");
+        assert!(
+            result.code.contains("DeserializeContext"),
+            "Should use DeserializeContext"
+        );
     });
 }
 
@@ -1955,10 +2010,7 @@ enum Priority {
             result.code.contains("clonePriority"),
             "Should generate suffix-style clone function for enum"
         );
-        assert!(
-            result.code.contains("clone"),
-            "Should have clone function"
-        );
+        assert!(result.code.contains("clone"), "Should have clone function");
     });
 }
 
@@ -2375,7 +2427,8 @@ interface UserProfile {
 
         // Should generate validation code for username length
         assert!(
-            result.code.contains("__raw_username.length < 2") || result.code.contains("__raw_username.length > 50"),
+            result.code.contains("__raw_username.length < 2")
+                || result.code.contains("__raw_username.length > 50"),
             "Should generate length validation. Got:\n{}",
             result.code
         );
@@ -2433,7 +2486,8 @@ type ContactInfo = {
 
         // Should generate validation code for address length
         assert!(
-            result.code.contains("__raw_address.length < 1") || result.code.contains("__raw_address.length > 100"),
+            result.code.contains("__raw_address.length < 1")
+                || result.code.contains("__raw_address.length > 100"),
             "Should generate length validation for type alias. Got:\n{}",
             result.code
         );
@@ -2495,7 +2549,11 @@ export type UnionType = VariantA | VariantB;
             .iter()
             .filter(|d| d.level == DiagnosticLevel::Error)
             .count();
-        assert_eq!(error_count, 0, "Should have no errors with @default specified, got {}", error_count);
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors with @default specified, got {}",
+            error_count
+        );
 
         // Should generate standalone defaultValueUnionType function
         assert!(
@@ -2671,7 +2729,8 @@ export type ActivityType = /** @default */ Created | Edited | Sent;
 #[test]
 fn test_inline_jsdoc_with_export_interface() {
     // Test that /** @derive(X) */ export interface works on same line
-    let source = r#"/** @derive(Deserialize) */ export interface User { name: string; age: number; }"#;
+    let source =
+        r#"/** @derive(Deserialize) */ export interface User { name: string; age: number; }"#;
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
@@ -2684,7 +2743,11 @@ fn test_inline_jsdoc_with_export_interface() {
             .iter()
             .filter(|d| d.level == DiagnosticLevel::Error)
             .count();
-        assert_eq!(error_count, 0, "Should have no errors for inline JSDoc, got {}", error_count);
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors for inline JSDoc, got {}",
+            error_count
+        );
 
         // Should generate fromStringifiedJSON method in User namespace
         assert!(
@@ -2711,7 +2774,11 @@ fn test_inline_jsdoc_with_export_class() {
             .iter()
             .filter(|d| d.level == DiagnosticLevel::Error)
             .count();
-        assert_eq!(error_count, 0, "Should have no errors for inline JSDoc on class, got {}", error_count);
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors for inline JSDoc on class, got {}",
+            error_count
+        );
 
         // Should generate toString method in class
         assert!(
@@ -2738,7 +2805,11 @@ fn test_inline_jsdoc_with_export_enum() {
             .iter()
             .filter(|d| d.level == DiagnosticLevel::Error)
             .count();
-        assert_eq!(error_count, 0, "Should have no errors for inline JSDoc on enum, got {}", error_count);
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors for inline JSDoc on enum, got {}",
+            error_count
+        );
 
         // Should generate toString in Status namespace
         assert!(
@@ -2765,7 +2836,11 @@ fn test_inline_jsdoc_with_export_type() {
             .iter()
             .filter(|d| d.level == DiagnosticLevel::Error)
             .count();
-        assert_eq!(error_count, 0, "Should have no errors for inline JSDoc on type, got {}", error_count);
+        assert_eq!(
+            error_count, 0,
+            "Should have no errors for inline JSDoc on type, got {}",
+            error_count
+        );
 
         // Should generate toString in Point namespace
         assert!(
@@ -2795,10 +2870,16 @@ class User {
     let result = expand_inner(source, "test.ts", None).unwrap();
 
     // Code should be returned exactly as-is
-    assert_eq!(result.code, source, "Code without @derive should be returned unchanged");
+    assert_eq!(
+        result.code, source,
+        "Code without @derive should be returned unchanged"
+    );
     assert!(result.types.is_none(), "No type output expected");
     assert!(result.diagnostics.is_empty(), "No diagnostics expected");
-    assert!(result.source_mapping.is_none(), "No source mapping expected");
+    assert!(
+        result.source_mapping.is_none(),
+        "No source mapping expected"
+    );
 }
 
 #[test]
@@ -2818,8 +2899,14 @@ function increment() {
     let result = expand_inner(source, "Counter.svelte.ts", None).unwrap();
 
     // Svelte runes code should be returned exactly as-is
-    assert_eq!(result.code, source, "Svelte runes without @derive should be unchanged");
-    assert!(result.diagnostics.is_empty(), "No diagnostics for Svelte runes");
+    assert_eq!(
+        result.code, source,
+        "Svelte runes without @derive should be unchanged"
+    );
+    assert!(
+        result.diagnostics.is_empty(),
+        "No diagnostics for Svelte runes"
+    );
 }
 
 #[test]
@@ -2838,8 +2925,14 @@ let { name, count = 0 }: Props = $props();
 
     let result = expand_inner(source, "Component.svelte.ts", None).unwrap();
 
-    assert_eq!(result.code, source, "Svelte $props() without @derive should be unchanged");
-    assert!(result.diagnostics.is_empty(), "No diagnostics for Svelte $props");
+    assert_eq!(
+        result.code, source,
+        "Svelte $props() without @derive should be unchanged"
+    );
+    assert!(
+        result.diagnostics.is_empty(),
+        "No diagnostics for Svelte $props"
+    );
 }
 
 #[test]
@@ -2876,7 +2969,10 @@ $effect(() => {
 
     let result = expand_inner(source, "List.svelte.ts", None).unwrap();
 
-    assert_eq!(result.code, source, "Complex Svelte code without @derive should be unchanged");
+    assert_eq!(
+        result.code, source,
+        "Complex Svelte code without @derive should be unchanged"
+    );
     assert!(result.diagnostics.is_empty(), "No diagnostics expected");
 }
 
@@ -2895,7 +2991,10 @@ class User {
     let result = expand_inner(source, "test.ts", None).unwrap();
 
     // Should have processed the macro
-    assert!(result.code.contains("toString"), "Debug macro should generate toString");
+    assert!(
+        result.code.contains("toString"),
+        "Debug macro should generate toString"
+    );
     assert_ne!(result.code, source, "Code with @derive should be modified");
 }
 
@@ -2917,8 +3016,10 @@ class User {
     // The contains("@derive") check will find the string literal
     // This is a conservative approach - we process the file but find no actual decorators
     // The result should have no errors and the code may have minor changes from parsing
-    assert!(result.diagnostics.iter().all(|d| d.level != "error"),
-        "No errors expected even with @derive in string literal");
+    assert!(
+        result.diagnostics.iter().all(|d| d.level != "error"),
+        "No errors expected even with @derive in string literal"
+    );
 }
 
 #[test]
@@ -2929,8 +3030,14 @@ fn test_early_bailout_empty_file() {
     let source = "";
     let result = expand_inner(source, "empty.ts", None).unwrap();
 
-    assert_eq!(result.code, source, "Empty file should be returned unchanged");
-    assert!(result.diagnostics.is_empty(), "No diagnostics for empty file");
+    assert_eq!(
+        result.code, source,
+        "Empty file should be returned unchanged"
+    );
+    assert!(
+        result.diagnostics.is_empty(),
+        "No diagnostics for empty file"
+    );
 }
 
 #[test]
@@ -2948,8 +3055,14 @@ fn test_early_bailout_only_comments() {
 
     let result = expand_inner(source, "comments.ts", None).unwrap();
 
-    assert_eq!(result.code, source, "Comments-only file should be returned unchanged");
-    assert!(result.diagnostics.is_empty(), "No diagnostics for comments-only file");
+    assert_eq!(
+        result.code, source,
+        "Comments-only file should be returned unchanged"
+    );
+    assert!(
+        result.diagnostics.is_empty(),
+        "No diagnostics for comments-only file"
+    );
 }
 
 #[test]
@@ -2987,6 +3100,12 @@ export { User, Role, Status, createUser, users };
 
     let result = expand_inner(source, "types.ts", None).unwrap();
 
-    assert_eq!(result.code, source, "Regular TypeScript should be returned unchanged");
-    assert!(result.diagnostics.is_empty(), "No diagnostics for regular TypeScript");
+    assert_eq!(
+        result.code, source,
+        "Regular TypeScript should be returned unchanged"
+    );
+    assert!(
+        result.diagnostics.is_empty(),
+        "No diagnostics for regular TypeScript"
+    );
 }

@@ -63,7 +63,7 @@
 
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::abi::FunctionNamingStyle;
-use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 /// Convert a PascalCase name to camelCase (for prefix naming style)
 fn to_camel_case(name: &str) -> String {
@@ -129,22 +129,18 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let naming_style = input.context.function_naming_style;
 
             match naming_style {
-                FunctionNamingStyle::Namespace => {
-                    Ok(ts_template! {
-                        export namespace @{enum_name} {
-                            export function clone(value: @{enum_name}): @{enum_name} {
-                                return value;
-                            }
-                        }
-                    })
-                }
-                FunctionNamingStyle::Generic => {
-                    Ok(ts_template! {
-                        export function clone<T extends @{enum_name}>(value: T): T {
+                FunctionNamingStyle::Namespace => Ok(ts_template! {
+                    export namespace @{enum_name} {
+                        export function clone(value: @{enum_name}): @{enum_name} {
                             return value;
                         }
-                    })
-                }
+                    }
+                }),
+                FunctionNamingStyle::Generic => Ok(ts_template! {
+                    export function clone<T extends @{enum_name}>(value: T): T {
+                        return value;
+                    }
+                }),
                 FunctionNamingStyle::Prefix => {
                     let fn_name = format!("{}Clone", to_camel_case(enum_name));
                     Ok(ts_template! {
@@ -170,34 +166,30 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let naming_style = input.context.function_naming_style;
 
             match naming_style {
-                FunctionNamingStyle::Namespace => {
-                    Ok(ts_template! {
-                        export namespace @{interface_name} {
-                            export function clone(self: @{interface_name}): @{interface_name} {
-                                return {
-                                    {#if has_fields}
-                                        {#for field in field_names}
-                                            @{field}: self.@{field},
-                                        {/for}
-                                    {/if}
-                                };
-                            }
-                        }
-                    })
-                }
-                FunctionNamingStyle::Generic => {
-                    Ok(ts_template! {
-                        export function clone<T extends @{interface_name}>(value: T): T {
+                FunctionNamingStyle::Namespace => Ok(ts_template! {
+                    export namespace @{interface_name} {
+                        export function clone(self: @{interface_name}): @{interface_name} {
                             return {
                                 {#if has_fields}
                                     {#for field in field_names}
-                                        @{field}: value.@{field},
+                                        @{field}: self.@{field},
                                     {/for}
                                 {/if}
-                            } as T;
+                            };
                         }
-                    })
-                }
+                    }
+                }),
+                FunctionNamingStyle::Generic => Ok(ts_template! {
+                    export function clone<T extends @{interface_name}>(value: T): T {
+                        return {
+                            {#if has_fields}
+                                {#for field in field_names}
+                                    @{field}: value.@{field},
+                                {/for}
+                            {/if}
+                        } as T;
+                    }
+                }),
                 FunctionNamingStyle::Prefix => {
                     let fn_name = format!("{}Clone", to_camel_case(interface_name));
                     Ok(ts_template! {
@@ -243,34 +235,30 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
                 let has_fields = !field_names.is_empty();
 
                 match naming_style {
-                    FunctionNamingStyle::Namespace => {
-                        Ok(ts_template! {
-                            export namespace @{type_name} {
-                                export function clone(value: @{type_name}): @{type_name} {
-                                    return {
-                                        {#if has_fields}
-                                            {#for field in field_names}
-                                                @{field}: value.@{field},
-                                            {/for}
-                                        {/if}
-                                    };
-                                }
-                            }
-                        })
-                    }
-                    FunctionNamingStyle::Generic => {
-                        Ok(ts_template! {
-                            export function clone<T extends @{type_name}>(value: T): T {
+                    FunctionNamingStyle::Namespace => Ok(ts_template! {
+                        export namespace @{type_name} {
+                            export function clone(value: @{type_name}): @{type_name} {
                                 return {
                                     {#if has_fields}
                                         {#for field in field_names}
                                             @{field}: value.@{field},
                                         {/for}
                                     {/if}
-                                } as T;
+                                };
                             }
-                        })
-                    }
+                        }
+                    }),
+                    FunctionNamingStyle::Generic => Ok(ts_template! {
+                        export function clone<T extends @{type_name}>(value: T): T {
+                            return {
+                                {#if has_fields}
+                                    {#for field in field_names}
+                                        @{field}: value.@{field},
+                                    {/for}
+                                {/if}
+                            } as T;
+                        }
+                    }),
                     FunctionNamingStyle::Prefix => {
                         let fn_name = format!("{}Clone", to_camel_case(type_name));
                         Ok(ts_template! {
@@ -303,28 +291,24 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             } else {
                 // Union, tuple, or simple alias: use spread for objects, or return as-is
                 match naming_style {
-                    FunctionNamingStyle::Namespace => {
-                        Ok(ts_template! {
-                            export namespace @{type_name} {
-                                export function clone(value: @{type_name}): @{type_name} {
-                                    if (typeof value === "object" && value !== null) {
-                                        return { ...value } as @{type_name};
-                                    }
-                                    return value;
-                                }
-                            }
-                        })
-                    }
-                    FunctionNamingStyle::Generic => {
-                        Ok(ts_template! {
-                            export function clone<T extends @{type_name}>(value: T): T {
+                    FunctionNamingStyle::Namespace => Ok(ts_template! {
+                        export namespace @{type_name} {
+                            export function clone(value: @{type_name}): @{type_name} {
                                 if (typeof value === "object" && value !== null) {
-                                    return { ...value } as T;
+                                    return { ...value } as @{type_name};
                                 }
                                 return value;
                             }
-                        })
-                    }
+                        }
+                    }),
+                    FunctionNamingStyle::Generic => Ok(ts_template! {
+                        export function clone<T extends @{type_name}>(value: T): T {
+                            if (typeof value === "object" && value !== null) {
+                                return { ...value } as T;
+                            }
+                            return value;
+                        }
+                    }),
                     FunctionNamingStyle::Prefix => {
                         let fn_name = format!("{}Clone", to_camel_case(type_name));
                         Ok(ts_template! {

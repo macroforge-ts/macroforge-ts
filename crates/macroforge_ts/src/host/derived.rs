@@ -33,9 +33,9 @@
 //! - The `__macroforgeGetManifest()` NAPI export
 
 use super::{MacroRegistry, Macroforge, Result};
+use crate::ts_syn::abi::MacroKind;
 use serde::Serialize;
 use std::{collections::BTreeSet, sync::Arc};
-use crate::ts_syn::abi::MacroKind;
 
 /// Special marker module path that indicates dynamic resolution.
 ///

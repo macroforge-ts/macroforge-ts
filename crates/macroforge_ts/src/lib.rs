@@ -72,13 +72,13 @@ extern crate self as macroforge_ts;
 // Cargo.toml instead of needing to add multiple dependencies.
 
 // Re-export internal crates (needed for generated code)
-pub extern crate macroforge_ts_syn;
-pub extern crate macroforge_ts_quote;
-pub extern crate macroforge_ts_macros;
 pub extern crate inventory;
-pub extern crate serde_json;
+pub extern crate macroforge_ts_macros;
+pub extern crate macroforge_ts_quote;
+pub extern crate macroforge_ts_syn;
 pub extern crate napi;
 pub extern crate napi_derive;
+pub extern crate serde_json;
 
 /// TypeScript syntax types for macro development
 /// Use: `use macroforge_ts::ts_syn::*;`
@@ -91,12 +91,12 @@ pub mod macros {
     pub use macroforge_ts_macros::ts_macro_derive;
 
     // Re-export all quote macros
-    pub use macroforge_ts_quote::{ts_template, body, above, below, signature};
+    pub use macroforge_ts_quote::{above, below, body, signature, ts_template};
 }
 
 // Re-export swc_core and common modules (via ts_syn for version consistency)
-pub use macroforge_ts_syn::swc_core;
 pub use macroforge_ts_syn::swc_common;
+pub use macroforge_ts_syn::swc_core;
 pub use macroforge_ts_syn::swc_ecma_ast;
 
 // ============================================================================
@@ -1524,9 +1524,9 @@ fn parse_program(code: &str, filepath: &str) -> Result<(Program, Lrc<SourceMap>)
     let lexer = Lexer::new(
         Syntax::Typescript(TsSyntax {
             tsx: filepath.ends_with(".tsx"), // Enable TSX for .tsx files
-            decorators: true,                 // Required for @derive decorators
-            dts: false,                       // Not parsing .d.ts files
-            no_early_errors: true,            // Better error recovery during typing
+            decorators: true,                // Required for @derive decorators
+            dts: false,                      // Not parsing .d.ts files
+            no_early_errors: true,           // Better error recovery during typing
             ..Default::default()
         }),
         EsVersion::latest(),

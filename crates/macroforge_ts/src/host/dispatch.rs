@@ -243,8 +243,8 @@ impl MacroDispatcher {
 mod tests {
     use super::*;
     use crate::host::traits::Macroforge;
-    use std::sync::Arc;
     use crate::ts_syn::abi::{ClassIR, MacroKind, SpanIR, TargetIR};
+    use std::sync::Arc;
 
     struct TestMacro {
         name: String,

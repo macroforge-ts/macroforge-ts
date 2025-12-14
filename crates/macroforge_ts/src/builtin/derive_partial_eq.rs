@@ -77,10 +77,10 @@
 //! - **Symmetry**: `a.equals(b)` implies `b.equals(a)`
 //! - **Hash consistency**: Equal objects must have equal hash codes
 
-use crate::builtin::derive_common::{is_primitive_type, CompareFieldOptions};
+use crate::builtin::derive_common::{CompareFieldOptions, is_primitive_type};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::abi::FunctionNamingStyle;
-use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 /// Convert a PascalCase name to camelCase (for prefix naming style)
 fn to_camel_case(name: &str) -> String {
@@ -205,7 +205,11 @@ fn generate_field_equality(field: &EqField) -> String {
 /// let code = generate_field_equality_for_interface(&field, "self", "other");
 /// // Generates: "self.name === other.name"
 /// ```
-fn generate_field_equality_for_interface(field: &EqField, self_var: &str, other_var: &str) -> String {
+fn generate_field_equality_for_interface(
+    field: &EqField,
+    self_var: &str,
+    other_var: &str,
+) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;
 
@@ -305,22 +309,18 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
             let naming_style = input.context.function_naming_style;
 
             match naming_style {
-                FunctionNamingStyle::Namespace => {
-                    Ok(ts_template! {
-                        export namespace @{enum_name} {
-                            export function equals(a: @{enum_name}, b: @{enum_name}): boolean {
-                                return a === b;
-                            }
-                        }
-                    })
-                }
-                FunctionNamingStyle::Generic => {
-                    Ok(ts_template! {
-                        export function equals<T extends @{enum_name}>(a: T, b: T): boolean {
+                FunctionNamingStyle::Namespace => Ok(ts_template! {
+                    export namespace @{enum_name} {
+                        export function equals(a: @{enum_name}, b: @{enum_name}): boolean {
                             return a === b;
                         }
-                    })
-                }
+                    }
+                }),
+                FunctionNamingStyle::Generic => Ok(ts_template! {
+                    export function equals<T extends @{enum_name}>(a: T, b: T): boolean {
+                        return a === b;
+                    }
+                }),
                 FunctionNamingStyle::Prefix => {
                     let fn_name = format!("{}Equals", to_camel_case(enum_name));
                     Ok(ts_template! {
@@ -390,14 +390,12 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                         }
                     })
                 }
-                FunctionNamingStyle::Generic => {
-                    Ok(ts_template! {
-                        export function equals<T extends @{interface_name}>(a: T, b: T): boolean {
-                            if (a === b) return true;
-                            return @{comparison};
-                        }
-                    })
-                }
+                FunctionNamingStyle::Generic => Ok(ts_template! {
+                    export function equals<T extends @{interface_name}>(a: T, b: T): boolean {
+                        if (a === b) return true;
+                        return @{comparison};
+                    }
+                }),
                 FunctionNamingStyle::Prefix => {
                     let fn_name = format!("{}Equals", to_camel_case(interface_name));
                     Ok(ts_template! {
@@ -452,24 +450,20 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 };
 
                 match naming_style {
-                    FunctionNamingStyle::Namespace => {
-                        Ok(ts_template! {
-                            export namespace @{type_name} {
-                                export function equals(a: @{type_name}, b: @{type_name}): boolean {
-                                    if (a === b) return true;
-                                    return @{comparison};
-                                }
-                            }
-                        })
-                    }
-                    FunctionNamingStyle::Generic => {
-                        Ok(ts_template! {
-                            export function equals<T extends @{type_name}>(a: T, b: T): boolean {
+                    FunctionNamingStyle::Namespace => Ok(ts_template! {
+                        export namespace @{type_name} {
+                            export function equals(a: @{type_name}, b: @{type_name}): boolean {
                                 if (a === b) return true;
                                 return @{comparison};
                             }
-                        })
-                    }
+                        }
+                    }),
+                    FunctionNamingStyle::Generic => Ok(ts_template! {
+                        export function equals<T extends @{type_name}>(a: T, b: T): boolean {
+                            if (a === b) return true;
+                            return @{comparison};
+                        }
+                    }),
                     FunctionNamingStyle::Prefix => {
                         let fn_name = format!("{}Equals", to_camel_case(type_name));
                         Ok(ts_template! {
@@ -492,30 +486,26 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
             } else {
                 // Union, tuple, or simple alias: use strict equality and JSON fallback
                 match naming_style {
-                    FunctionNamingStyle::Namespace => {
-                        Ok(ts_template! {
-                            export namespace @{type_name} {
-                                export function equals(a: @{type_name}, b: @{type_name}): boolean {
-                                    if (a === b) return true;
-                                    if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
-                                        return JSON.stringify(a) === JSON.stringify(b);
-                                    }
-                                    return false;
-                                }
-                            }
-                        })
-                    }
-                    FunctionNamingStyle::Generic => {
-                        Ok(ts_template! {
-                            export function equals<T extends @{type_name}>(a: T, b: T): boolean {
+                    FunctionNamingStyle::Namespace => Ok(ts_template! {
+                        export namespace @{type_name} {
+                            export function equals(a: @{type_name}, b: @{type_name}): boolean {
                                 if (a === b) return true;
                                 if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
                                     return JSON.stringify(a) === JSON.stringify(b);
                                 }
                                 return false;
                             }
-                        })
-                    }
+                        }
+                    }),
+                    FunctionNamingStyle::Generic => Ok(ts_template! {
+                        export function equals<T extends @{type_name}>(a: T, b: T): boolean {
+                            if (a === b) return true;
+                            if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
+                                return JSON.stringify(a) === JSON.stringify(b);
+                            }
+                            return false;
+                        }
+                    }),
                     FunctionNamingStyle::Prefix => {
                         let fn_name = format!("{}Equals", to_camel_case(type_name));
                         Ok(ts_template! {

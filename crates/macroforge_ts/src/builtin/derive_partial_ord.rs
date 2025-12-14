@@ -95,10 +95,10 @@
 //!
 //! The generated code automatically adds an import for `Option` from `macroforge/utils`.
 
-use crate::builtin::derive_common::{is_numeric_type, is_primitive_type, CompareFieldOptions};
+use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_primitive_type};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::abi::FunctionNamingStyle;
-use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 /// Convert a PascalCase name to camelCase (for prefix naming style)
 fn to_camel_case(name: &str) -> String {
@@ -177,9 +177,7 @@ fn generate_field_compare(field: &OrdField, allow_null: bool) -> String {
         )
     } else if is_primitive_type(ts_type) {
         // For other primitives (null/undefined), treat as equal if both same
-        format!(
-            "(this.{field_name} === typedOther.{field_name} ? 0 : {null_return})"
-        )
+        format!("(this.{field_name} === typedOther.{field_name} ? 0 : {null_return})")
     } else if ts_type.ends_with("[]") || ts_type.starts_with("Array<") {
         // For arrays, lexicographic comparison
         // Handle nested compareTo calls that return Option<number>
@@ -268,9 +266,7 @@ fn generate_field_compare_for_interface(
              {self_var}.{field_name} ? 1 : -1)"
         )
     } else if is_primitive_type(ts_type) {
-        format!(
-            "({self_var}.{field_name} === {other_var}.{field_name} ? 0 : {null_return})"
-        )
+        format!("({self_var}.{field_name} === {other_var}.{field_name} ? 0 : {null_return})")
     } else if ts_type.ends_with("[]") || ts_type.starts_with("Array<") {
         // Handle nested compareTo calls that return Option<number>
         format!(
