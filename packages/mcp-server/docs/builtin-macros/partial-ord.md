@@ -14,6 +14,8 @@ class Temperature {
 ```  
 **After:**
 ```
+import { Option } from 'macroforge/utils';
+
 class Temperature {
     celsius: number;
 
@@ -21,15 +23,15 @@ class Temperature {
         this.celsius = celsius;
     }
 
-    compareTo(other: unknown): number | null {
-        if (this === other) return 0;
-        if (!(other instanceof Temperature)) return null;
+    compareTo(other: unknown): Option<number> {
+        if (this === other) return Option.some(0);
+        if (!(other instanceof Temperature)) return Option.none();
         const typedOther = other as Temperature;
         const cmp0 =
             this.celsius < typedOther.celsius ? -1 : this.celsius > typedOther.celsius ? 1 : 0;
-        if (cmp0 === null) return null;
-        if (cmp0 !== 0) return cmp0;
-        return 0;
+        if (cmp0 === null) return Option.none();
+        if (cmp0 !== 0) return Option.some(cmp0);
+        return Option.some(0);
     }
 }
 ``` ```
@@ -80,6 +82,8 @@ class Item {
 ```  
 **After:**
 ```
+import { Option } from 'macroforge/utils';
+
 class Item {
     price: number;
     name: string;
@@ -92,17 +96,17 @@ class Item {
         this.description = description;
     }
 
-    compareTo(other: unknown): number | null {
-        if (this === other) return 0;
-        if (!(other instanceof Item)) return null;
+    compareTo(other: unknown): Option<number> {
+        if (this === other) return Option.some(0);
+        if (!(other instanceof Item)) return Option.none();
         const typedOther = other as Item;
         const cmp0 = this.price < typedOther.price ? -1 : this.price > typedOther.price ? 1 : 0;
-        if (cmp0 === null) return null;
-        if (cmp0 !== 0) return cmp0;
+        if (cmp0 === null) return Option.none();
+        if (cmp0 !== 0) return Option.some(cmp0);
         const cmp1 = this.name.localeCompare(typedOther.name);
-        if (cmp1 === null) return null;
-        if (cmp1 !== 0) return cmp1;
-        return 0;
+        if (cmp1 === null) return Option.none();
+        if (cmp1 !== 0) return Option.some(cmp1);
+        return Option.some(0);
     }
 }
 ``` ```
@@ -173,21 +177,23 @@ interface Measurement {
 ```  
 **After:**
 ```
+import { Option } from 'macroforge/utils';
+
 interface Measurement {
     value: number;
     unit: string;
 }
 
 export namespace Measurement {
-    export function compareTo(self: Measurement, other: Measurement): number | null {
-        if (self === other) return 0;
+    export function compareTo(self: Measurement, other: Measurement): Option<number> {
+        if (self === other) return Option.some(0);
         const cmp0 = self.value < other.value ? -1 : self.value > other.value ? 1 : 0;
-        if (cmp0 === null) return null;
-        if (cmp0 !== 0) return cmp0;
+        if (cmp0 === null) return Option.none();
+        if (cmp0 !== 0) return Option.some(cmp0);
         const cmp1 = self.unit.localeCompare(other.unit);
-        if (cmp1 === null) return null;
-        if (cmp1 !== 0) return cmp1;
-        return 0;
+        if (cmp1 === null) return Option.none();
+        if (cmp1 !== 0) return Option.some(cmp1);
+        return Option.some(0);
     }
 }
 ``` ```
@@ -208,6 +214,8 @@ enum Size {
 ```  
 **After:**
 ```
+import { Option } from 'macroforge/utils';
+
 enum Size {
     Small = 1,
     Medium = 2,
@@ -215,14 +223,14 @@ enum Size {
 }
 
 export namespace Size {
-    export function compareTo(a: Size, b: Size): number | null {
+    export function compareTo(a: Size, b: Size): Option<number> {
         if (typeof a === 'number' && typeof b === 'number') {
-            return a < b ? -1 : a > b ? 1 : 0;
+            return Option.some(a < b ? -1 : a > b ? 1 : 0);
         }
         if (typeof a === 'string' && typeof b === 'string') {
-            return a.localeCompare(b);
+            return Option.some(a.localeCompare(b));
         }
-        return a === b ? 0 : null;
+        return a === b ? Option.some(0) : Option.none();
     }
 }
 ``` ```
@@ -240,21 +248,23 @@ type Interval = {
 ```  
 **After:**
 ```
+import { Option } from 'macroforge/utils';
+
 type Interval = {
     start: number;
     end: number;
 };
 
 export namespace Interval {
-    export function compareTo(a: Interval, b: Interval): number | null {
-        if (a === b) return 0;
+    export function compareTo(a: Interval, b: Interval): Option<number> {
+        if (a === b) return Option.some(0);
         const cmp0 = a.start < b.start ? -1 : a.start > b.start ? 1 : 0;
-        if (cmp0 === null) return null;
-        if (cmp0 !== 0) return cmp0;
+        if (cmp0 === null) return Option.none();
+        if (cmp0 !== 0) return Option.some(cmp0);
         const cmp1 = a.end < b.end ? -1 : a.end > b.end ? 1 : 0;
-        if (cmp1 === null) return null;
-        if (cmp1 !== 0) return cmp1;
-        return 0;
+        if (cmp1 === null) return Option.none();
+        if (cmp1 !== 0) return Option.some(cmp1);
+        return Option.some(0);
     }
 }
 ``` ```

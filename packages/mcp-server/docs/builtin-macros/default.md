@@ -228,12 +228,6 @@ enum Status {
     Active = 'active',
     Completed = 'completed'
 }
-
-export namespace Status {
-    export function defaultValue(): Status {
-        return Status.Pending;
-    }
-}
 ``` ```
 const defaultStatus = Status.defaultValue();
 console.log(defaultStatus); // "pending"
