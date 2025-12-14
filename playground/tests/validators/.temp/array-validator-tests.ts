@@ -114,25 +114,7 @@ export class MaxItemsValidator {
                     message: "must have at most 5 items"
                 });
             }
-            const __arr = (__raw_items as any[]).map((item, idx)=>{
-                if (item?.__ref !== undefined) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (PendingRef.is(result)) {
-                        return {
-                            __pendingIdx: idx,
-                            __refId: result.id
-                        };
-                    }
-                    return result;
-                }
-                return item as string;
-            });
-            instance.items = __arr;
-            __arr.forEach((item, idx)=>{
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.items, idx, (item as any).__refId);
-                }
-            });
+            instance.items = __raw_items as string[];
         }
     }
     if (errors.length > 0) {
@@ -183,6 +165,10 @@ export class MaxItemsValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is MaxItemsValidator {
+    return obj instanceof MaxItemsValidator;
 }
 }
 
@@ -293,25 +279,7 @@ export class MinItemsValidator {
                     message: "must have at least 2 items"
                 });
             }
-            const __arr = (__raw_items as any[]).map((item, idx)=>{
-                if (item?.__ref !== undefined) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (PendingRef.is(result)) {
-                        return {
-                            __pendingIdx: idx,
-                            __refId: result.id
-                        };
-                    }
-                    return result;
-                }
-                return item as string;
-            });
-            instance.items = __arr;
-            __arr.forEach((item, idx)=>{
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.items, idx, (item as any).__refId);
-                }
-            });
+            instance.items = __raw_items as string[];
         }
     }
     if (errors.length > 0) {
@@ -362,6 +330,10 @@ export class MinItemsValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is MinItemsValidator {
+    return obj instanceof MinItemsValidator;
 }
 }
 
@@ -472,25 +444,7 @@ export class ItemsCountValidator {
                     message: "must have exactly 3 items"
                 });
             }
-            const __arr = (__raw_items as any[]).map((item, idx)=>{
-                if (item?.__ref !== undefined) {
-                    const result = ctx.getOrDefer(item.__ref);
-                    if (PendingRef.is(result)) {
-                        return {
-                            __pendingIdx: idx,
-                            __refId: result.id
-                        };
-                    }
-                    return result;
-                }
-                return item as string;
-            });
-            instance.items = __arr;
-            __arr.forEach((item, idx)=>{
-                if (item && typeof item === "object" && "__pendingIdx" in item) {
-                    ctx.addPatch(instance.items, idx, (item as any).__refId);
-                }
-            });
+            instance.items = __raw_items as string[];
         }
     }
     if (errors.length > 0) {
@@ -541,5 +495,9 @@ export class ItemsCountValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is ItemsCountValidator {
+    return obj instanceof ItemsCountValidator;
 }
 }

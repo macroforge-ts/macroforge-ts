@@ -165,6 +165,10 @@ export class EmailValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is EmailValidator {
+    return obj instanceof EmailValidator;
+}
 }
 
 // URL validator
@@ -345,6 +349,10 @@ export class UrlValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is UrlValidator {
+    return obj instanceof UrlValidator;
+}
 }
 
 // UUID validator
@@ -503,6 +511,10 @@ export class UuidValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is UuidValidator {
+    return obj instanceof UuidValidator;
 }
 }
 
@@ -663,6 +675,10 @@ export class MaxLengthValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is MaxLengthValidator {
+    return obj instanceof MaxLengthValidator;
+}
 }
 
 // MinLength validator
@@ -821,6 +837,10 @@ export class MinLengthValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is MinLengthValidator {
+    return obj instanceof MinLengthValidator;
 }
 }
 
@@ -981,6 +1001,10 @@ export class LengthValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is LengthValidator {
+    return obj instanceof LengthValidator;
+}
 }
 
 // LengthRange validator (use length with 2 args)
@@ -1139,6 +1163,10 @@ export class LengthRangeValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is LengthRangeValidator {
+    return obj instanceof LengthRangeValidator;
 }
 }
 
@@ -1299,6 +1327,10 @@ export class PatternValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is PatternValidator {
+    return obj instanceof PatternValidator;
+}
 }
 
 // NonEmpty validator
@@ -1457,6 +1489,10 @@ export class NonEmptyValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is NonEmptyValidator {
+    return obj instanceof NonEmptyValidator;
 }
 }
 
@@ -1617,6 +1653,10 @@ export class TrimmedValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is TrimmedValidator {
+    return obj instanceof TrimmedValidator;
+}
 }
 
 // Lowercase validator
@@ -1775,6 +1815,10 @@ export class LowercaseValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is LowercaseValidator {
+    return obj instanceof LowercaseValidator;
 }
 }
 
@@ -1935,6 +1979,10 @@ export class UppercaseValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is UppercaseValidator {
+    return obj instanceof UppercaseValidator;
+}
 }
 
 // Capitalized validator
@@ -2093,6 +2141,10 @@ export class CapitalizedValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is CapitalizedValidator {
+    return obj instanceof CapitalizedValidator;
 }
 }
 
@@ -2253,6 +2305,10 @@ export class UncapitalizedValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is UncapitalizedValidator {
+    return obj instanceof UncapitalizedValidator;
+}
 }
 
 // StartsWith validator
@@ -2411,6 +2467,10 @@ export class StartsWithValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is StartsWithValidator {
+    return obj instanceof StartsWithValidator;
 }
 }
 
@@ -2571,6 +2631,10 @@ export class EndsWithValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is EndsWithValidator {
+    return obj instanceof EndsWithValidator;
+}
 }
 
 // Includes validator
@@ -2729,5 +2793,9 @@ export class IncludesValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is IncludesValidator {
+    return obj instanceof IncludesValidator;
 }
 }

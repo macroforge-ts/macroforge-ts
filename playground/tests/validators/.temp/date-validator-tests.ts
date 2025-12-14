@@ -167,6 +167,10 @@ export class ValidDateValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is ValidDateValidator {
+    return obj instanceof ValidDateValidator;
+}
 }
 
 // GreaterThanDate validator
@@ -328,6 +332,10 @@ export class GreaterThanDateValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is GreaterThanDateValidator {
+    return obj instanceof GreaterThanDateValidator;
 }
 }
 
@@ -491,6 +499,10 @@ export class GreaterThanOrEqualToDateValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is GreaterThanOrEqualToDateValidator {
+    return obj instanceof GreaterThanOrEqualToDateValidator;
+}
 }
 
 // LessThanDate validator
@@ -652,6 +664,10 @@ export class LessThanDateValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is LessThanDateValidator {
+    return obj instanceof LessThanDateValidator;
 }
 }
 
@@ -815,6 +831,10 @@ export class LessThanOrEqualToDateValidator {
     }
     return errors;
 }
+
+    static is(obj: unknown): obj is LessThanOrEqualToDateValidator {
+    return obj instanceof LessThanOrEqualToDateValidator;
+}
 }
 
 // BetweenDate validator
@@ -976,5 +996,9 @@ export class BetweenDateValidator {
         }
     }
     return errors;
+}
+
+    static is(obj: unknown): obj is BetweenDateValidator {
+    return obj instanceof BetweenDateValidator;
 }
 }

@@ -79,7 +79,7 @@ describe("Serialize macro expansion", () => {
     );
   });
 
-  test("generates namespace serialization for interfaces", () => {
+  test("generates suffixed functions for interfaces", () => {
     const code = `
       /** @derive(Serialize) */
       interface IPoint {
@@ -89,9 +89,9 @@ describe("Serialize macro expansion", () => {
     `;
     const result = expandSync(code, "test.ts");
 
-    assert.ok(result.code.includes("namespace IPoint"), "Should generate namespace for interface");
-    assert.ok(result.code.includes("function toStringifiedJSON("), "Should generate toStringifiedJSON function");
-    assert.ok(result.code.includes("function __serialize("), "Should generate __serialize function");
+    assert.ok(result.code.includes("function toStringifiedJSONIPoint("), "Should generate toStringifiedJSONIPoint function");
+    assert.ok(result.code.includes("function toObjectIPoint("), "Should generate toObjectIPoint function");
+    assert.ok(result.code.includes("function __serializeIPoint("), "Should generate __serializeIPoint function");
   });
 
   test("handles @serde(rename) decorator", () => {
@@ -422,7 +422,7 @@ describe("Combined Serialize + Deserialize", () => {
 // ============================================================================
 
 describe("Enum serialization", () => {
-  test("generates namespace for enum serialization", () => {
+  test("generates suffixed functions for enum serialization", () => {
     const code = `
       /** @derive(Serialize) */
       enum Status {
@@ -432,11 +432,11 @@ describe("Enum serialization", () => {
     `;
     const result = expandSync(code, "test.ts");
 
-    assert.ok(result.code.includes("namespace Status"), "Should generate namespace");
-    assert.ok(result.code.includes("function toStringifiedJSON("), "Should have toStringifiedJSON function");
+    assert.ok(result.code.includes("function toStringifiedJSONStatus("), "Should have toStringifiedJSONStatus function");
+    assert.ok(result.code.includes("function __serializeStatus("), "Should have __serializeStatus function");
   });
 
-  test("generates namespace for enum deserialization", () => {
+  test("generates suffixed functions for enum deserialization", () => {
     const code = `
       /** @derive(Deserialize) */
       enum Status {
@@ -446,8 +446,8 @@ describe("Enum serialization", () => {
     `;
     const result = expandSync(code, "test.ts");
 
-    assert.ok(result.code.includes("namespace Status"), "Should generate namespace");
-    assert.ok(result.code.includes("function fromStringifiedJSON("), "Should have fromStringifiedJSON function");
+    assert.ok(result.code.includes("function fromStringifiedJSONStatus("), "Should have fromStringifiedJSONStatus function");
+    assert.ok(result.code.includes("function __deserializeStatus("), "Should have __deserializeStatus function");
     assert.ok(result.code.includes("Invalid"), "Should validate enum values");
   });
 });
@@ -457,7 +457,7 @@ describe("Enum serialization", () => {
 // ============================================================================
 
 describe("Type alias serialization", () => {
-  test("generates namespace for object type alias", () => {
+  test("generates suffixed functions for object type alias", () => {
     const code = `
       /** @derive(Serialize) */
       type Point = {
@@ -467,19 +467,20 @@ describe("Type alias serialization", () => {
     `;
     const result = expandSync(code, "test.ts");
 
-    assert.ok(result.code.includes("namespace Point"), "Should generate namespace");
-    assert.ok(result.code.includes("function toStringifiedJSON("), "Should have toStringifiedJSON");
+    assert.ok(result.code.includes("function toStringifiedJSONPoint("), "Should have toStringifiedJSONPoint");
+    assert.ok(result.code.includes("function toObjectPoint("), "Should have toObjectPoint");
+    assert.ok(result.code.includes("function __serializePoint("), "Should have __serializePoint");
   });
 
-  test("generates namespace for union type alias", () => {
+  test("generates suffixed functions for union type alias", () => {
     const code = `
       /** @derive(Serialize) */
       type Result = Success | Failure;
     `;
     const result = expandSync(code, "test.ts");
 
-    assert.ok(result.code.includes("namespace Result"), "Should generate namespace");
-    assert.ok(result.code.includes("__serialize"), "Should delegate to inner type's serialize");
+    assert.ok(result.code.includes("function toStringifiedJSONResult("), "Should have toStringifiedJSONResult");
+    assert.ok(result.code.includes("function __serializeResult("), "Should have __serializeResult");
   });
 });
 
