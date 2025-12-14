@@ -5,71 +5,144 @@
 ## Available Macros
 
 | `ts_template!` 
-| Any TypeScript code 
-| General code generation 
+            | Any TypeScript code 
+            | General code generation 
+        
 
-| `body!` 
-| Class body members 
-| Methods and properties
+        
+            | `body!` 
+            | Class body members 
+            | Methods and properties
 
 ## Quick Reference
 
 | `@&#123;expr&#125;` 
-| Interpolate a Rust expression (adds space after) 
+            | Interpolate a Rust expression (adds space after) 
+        
 
-| `&#123;| content |&#125;` 
-| Ident block: concatenates without spaces (e.g., `&#123;|get@&#123;name&#125;|&#125;` → `getUser`) 
+        
+            | `&#123;| content |&#125;` 
+            | Ident block: concatenates without spaces (e.g., <code
+                    >&#123;|get@&#123;name&#125;|&#125;</code
+                >
+                → `getUser`)</td
+            >
+        
 
-| `&#123;> "comment" <&#125;`
-| Block comment: outputs `/* comment */` (string preserves whitespace)
+        
+            <td>`&#123;> "comment" <&#125;` 
+            | Block comment: outputs `/* comment */` (string preserves
+                whitespace)</td
+            >
+        
 
-| `&#123;>> "doc" <<&#125;`
-| Doc comment: outputs `/** doc */` (string preserves whitespace) 
+        
+            <td>`&#123;>> "doc" <<&#125;` 
+            | Doc comment: outputs `/** doc */` (string preserves whitespace)</td
+            >
+        
 
-| `@@&#123;` 
-| Escape for literal `@&#123;` (e.g., `"@@&#123;foo&#125;"` → `@&#123;foo&#125;`) 
+        
+            <td>`@@&#123;` 
+            | Escape for literal `@&#123;` (e.g.,
+                `"@@&#123;foo&#125;"`
+                → `@&#123;foo&#125;`)</td
+            >
+        
 
-| `"text @&#123;expr&#125;"` 
-| String interpolation (auto-detected) 
+        
+            <td>`"text @&#123;expr&#125;"` 
+            | String interpolation (auto-detected) 
+        
 
-| `"'^template $&#123;js&#125;^'"` 
-| JS backtick template literal (outputs ``template $&#123;js&#125;``) 
+        
+            | `"'^template $&#123;js&#125;^'"` 
+            | JS backtick template literal (outputs <code
+                    >`template $&#123;js&#125;`</code
+                >)</td
+            >
+        
 
-| `&#123;#if cond&#125;...&#123;/if&#125;` 
-| Conditional block 
+        
+            <td>`&#123;#if cond&#125;...&#123;/if&#125;` 
+            | Conditional block 
+        
 
-| `&#123;#if cond&#125;...&#123;:else&#125;...&#123;/if&#125;` 
-| Conditional with else 
+        
+            | <code
+                    >&#123;#if cond&#125;...&#123;:else&#125;...&#123;/if&#125;</code
+                ></td
+            >
+            <td>Conditional with else 
+        
 
-| `&#123;#if a&#125;...&#123;:else if b&#125;...&#123;:else&#125;...&#123;/if&#125;` 
-| Full if/else-if/else chain 
+        
+            | <code
+                    >&#123;#if a&#125;...&#123;:else if
+                    b&#125;...&#123;:else&#125;...&#123;/if&#125;</code
+                ></td
+            >
+            <td>Full if/else-if/else chain 
+        
 
-| `&#123;#if let pattern = expr&#125;...&#123;/if&#125;` 
-| Pattern matching if-let 
+        
+            | <code
+                    >&#123;#if let pattern = expr&#125;...&#123;/if&#125;</code
+                ></td
+            >
+            <td>Pattern matching if-let 
+        
 
-| `&#123;#match expr&#125;&#123;:case pattern&#125;...&#123;/match&#125;` 
-| Match expression with case arms 
+        
+            | <code
+                    >&#123;#match expr&#125;&#123;:case
+                    pattern&#125;...&#123;/match&#125;</code
+                ></td
+            >
+            <td>Match expression with case arms 
+        
 
-| `&#123;#for item in list&#125;...&#123;/for&#125;` 
-| Iterate over a collection 
+        
+            | <code>&#123;#for item in list&#125;...&#123;/for&#125;</code
+                ></td
+            >
+            <td>Iterate over a collection 
+        
 
-| `&#123;#while cond&#125;...&#123;/while&#125;` 
-| While loop 
+        
+            | `&#123;#while cond&#125;...&#123;/while&#125;` 
+            | While loop 
+        
 
-| `&#123;#while let pattern = expr&#125;...&#123;/while&#125;` 
-| While-let pattern matching loop 
+        
+            | <code
+                    >&#123;#while let pattern = expr&#125;...&#123;/while&#125;</code
+                ></td
+            >
+            <td>While-let pattern matching loop 
+        
 
-| `&#123;$let name = expr&#125;` 
-| Define a local constant 
+        
+            | `&#123;$let name = expr&#125;` 
+            | Define a local constant 
+        
 
-| `&#123;$let mut name = expr&#125;` 
-| Define a mutable local variable 
+        
+            | `&#123;$let mut name = expr&#125;` 
+            | Define a mutable local variable 
+        
 
-| `&#123;$do expr&#125;` 
-| Execute a side-effectful expression 
+        
+            | `&#123;$do expr&#125;` 
+            | Execute a side-effectful expression 
+        
 
-| `&#123;$typescript stream&#125;` 
-| Inject a TsStream, preserving its source and runtime_patches (imports)
+        
+            | `&#123;$typescript stream&#125;` 
+            <td
+                >Inject a TsStream, preserving its source and runtime_patches
+                (imports)</td
+            >
 
 **Note:** A single `@` not followed by `&#123;` passes through unchanged (e.g., `email@domain.com` works as expected).
 
@@ -96,7 +169,9 @@ User.prototype.toString = function () {
 };
 ```
 
-## Identifier Concatenation: `&#123;| content |&#125;`
+<h2 id="ident-blocks">
+    Identifier Concatenation: `&#123;| content |&#125;`
+</h2>
 
 When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block syntax. Everything inside `&#123;| |&#125;` is concatenated without spaces:
 
@@ -139,17 +214,20 @@ let action = "create";
 ts_template! { {|@{entity}_@{action}|} }  // → "user_create"
 ```
 
-## Comments: `&#123;> ... <&#125;` and `&#123;>> ... <<&#125;`
+<h2 id="comments">
+    Comments: `&#123;> "..." <&#125;` and
+    `&#123;>> "..." <<&#125;`
+</h2>
 
-Since Rust's tokenizer strips comments before macros see them, you can't write JSDoc comments directly. Instead, use the comment syntax to output JavaScript comments:
+Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve exact spacing in comments:
 
 ### Block Comments
 
-Use `&#123;> comment <&#125;` for block comments:
+Use `&#123;> "comment" <&#125;` for block comments:
 
 ```rust
 let code = ts_template! {
-    {> This is a block comment <}
+    {> "This is a block comment" <}
     const x = 42;
 };
 ```
@@ -163,12 +241,12 @@ const x = 42;
 
 ### Doc Comments (JSDoc)
 
-Use `&#123;>> doc <<&#125;` for JSDoc comments:
+Use `&#123;>> "doc" <<&#125;` for JSDoc comments:
 
 ```rust
 let code = ts_template! {
-    {>> @param {string} name - The user's name <<}
-    {>> @returns {string} A greeting message <<}
+    {>> "@param {string} name - The user's name" <<}
+    {>> "@returns {string} A greeting message" <<}
     function greet(name: string): string {
         return "Hello, " + name;
     }
@@ -187,14 +265,15 @@ function greet(name: string): string {
 
 ### Comments with Interpolation
 
-Comments support `@&#123;expr&#125;` interpolation for dynamic content:
+Use `format!()` or similar to build dynamic comment strings:
 
 ```rust
 let param_name = "userId";
 let param_type = "number";
+let comment = format!("@param {{{}}} {} - The user ID", param_type, param_name);
 
 let code = ts_template! {
-    {>> @param {@{param_type}} @{param_name} - The user ID <<}
+    {>> @{comment} <<}
     function getUser(userId: number) {}
 };
 ```
@@ -206,9 +285,11 @@ let code = ts_template! {
 function getUser(userId: number) {}
 ```
 
-## String Interpolation: `"text @&#123;expr&#125;"`
+<h2 id="string-interpolation">
+    String Interpolation: `"text @&#123;expr&#125;"`
+</h2>
 
-Interpolation works automatically inside string literals - no `format!()` needed:
+Interpolation works automatically inside string literals - no <code >format!()</code > needed:
 
 ```rust
 let name = "World";
@@ -237,9 +318,11 @@ let code = ts_template! {
 };
 ```
 
-## Backtick Template Literals: `"'^...^'"`
+<h2 id="backtick-templates">
+    Backtick Template Literals: `"'^...^'"`
+</h2>
 
-For JavaScript template literals (backtick strings), use the `'^...^'` syntax. This outputs actual backticks and passes through `${"${}"}` for JS interpolation:
+For JavaScript template literals (backtick strings), use the <code >'^...^'</code > syntax. This outputs actual backticks and passes through `${"${}"}` for JS interpolation:
 
 ```rust
 let tag_name = "div";
@@ -251,7 +334,7 @@ let code = ts_template! {
 
 **Generates:**
 
-<CodeBlock code={'const html = `${content}`;'} lang="typescript" />
+<CodeBlock code={"const html = `${content}`;"} lang="typescript" />
 
 You can mix Rust `@&#123;&#125;` interpolation (evaluated at macro expansion time) with JS `${"${}"}` interpolation (evaluated at runtime):
 
@@ -265,9 +348,11 @@ let code = ts_template! {
 
 **Generates:**
 
-<CodeBlock code={'`Hello ${this.name}, you are a User`'} lang="typescript" />
+<CodeBlock code={"`Hello ${this.name}, you are a User`"} lang="typescript" />
 
-## Conditionals: `&#123;#if&#125;...&#123;/if&#125;`
+<h2 id="conditionals">
+    Conditionals: `&#123;#if&#125;...&#123;/if&#125;`
+</h2>
 
 Basic conditional:
 
@@ -314,7 +399,9 @@ let code = ts_template! {
 };
 ```
 
-## Pattern Matching: `&#123;#if let&#125;`
+<h2 id="pattern-matching">
+    Pattern Matching: `&#123;#if let&#125;`
+</h2>
 
 Use `if let` for pattern matching on `Option`, `Result`, or other Rust enums:
 
@@ -348,7 +435,9 @@ let code = ts_template! {
 };
 ```
 
-## Match Expressions: `&#123;#match&#125;`
+<h2 id="match-expressions">
+    Match Expressions: `&#123;#match&#125;`
+</h2>
 
 Use `match` for exhaustive pattern matching:
 
@@ -535,9 +624,11 @@ let code = ts_template! {
 
 This is useful for computing derived values inside loops without cluttering the Rust code.
 
-## Mutable Variables: `&#123;$let mut&#125;`
+<h2 id="mutable-variables">
+    Mutable Variables: `&#123;$let mut&#125;`
+</h2>
 
-When you need to modify a variable within the template (e.g., in a `while` loop), use `&#123;$let mut&#125;`:
+When you need to modify a variable within the template (e.g., in a <code >while</code > loop), use `&#123;$let mut&#125;`:
 
 ```rust
 let code = ts_template! {
@@ -568,13 +659,15 @@ Common uses for `&#123;$do&#125;`:
 
 - Incrementing counters: `&#123;$do i += 1&#125;`
 
-- Building collections: `&#123;$do vec.push(item)&#125;`
+    - Building collections: `&#123;$do vec.push(item)&#125;`
 
-- Setting flags: `&#123;$do found = true&#125;`
+    - Setting flags: `&#123;$do found = true&#125;`
 
-- Any mutating operation
+    - Any mutating operation
 
-## TsStream Injection: `&#123;$typescript&#125;`
+<h2 id="typescript-injection">
+    TsStream Injection: `&#123;$typescript&#125;`
+</h2>
 
 Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via `add_import()`):
 
@@ -704,11 +797,11 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
 
 1. **Compile-Time:** The template is parsed during macro expansion
 
-2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
+    2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
 
-3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
+    3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
 
-4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
+    4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
 
 ## Return Type
 
@@ -725,11 +818,11 @@ This shows you exactly what was generated, making debugging easy!
 
 ## Nesting and Regular TypeScript
 
-You can mix template syntax with regular TypeScript. Braces `&#123;&#125;` are recognized as either:
+You can mix template syntax with regular TypeScript. Braces <code >&#123;&#125;</code > are recognized as either:
 
 - **Template tags** if they start with `#`, `$`, `:`, or `/`
 
-- **Regular TypeScript blocks** otherwise
+    - **Regular TypeScript blocks** otherwise
 
 ```rust
 ts_template! {
@@ -747,23 +840,27 @@ ts_template! {
 ## Comparison with Alternatives
 
 | `ts_quote!` 
-| Compile-time validation, type-safe 
-| Can't handle Vec<Stmt>, verbose 
+            | Compile-time validation, type-safe 
+            | Can't handle Vec<Stmt>, verbose 
+        
 
-| `parse_ts_str()` 
-| Maximum flexibility 
-| Runtime parsing, less readable 
+        
+            | `parse_ts_str()` 
+            | Maximum flexibility 
+            | Runtime parsing, less readable 
+        
 
-| `ts_template!` 
-| Readable, handles loops/conditions 
-| Small runtime parsing overhead
+        
+            | `ts_template!` 
+            | Readable, handles loops/conditions 
+            | Small runtime parsing overhead
 
 ## Best Practices
 
 1. Use `ts_template!` for complex code generation with loops/conditions
 
-2. Use `ts_quote!` for simple, static statements
+    2. Use `ts_quote!` for simple, static statements
 
-3. Keep templates readable - extract complex logic into variables
+    3. Keep templates readable - extract complex logic into variables
 
-4. Don't nest templates too deeply - split into helper functions
+    4. Don't nest templates too deeply - split into helper functions
