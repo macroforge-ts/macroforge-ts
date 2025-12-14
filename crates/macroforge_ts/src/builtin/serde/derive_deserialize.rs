@@ -7,7 +7,8 @@
 //! Uses deferred patching to handle cycles and forward references.
 
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, MacroforgeErrors, TsStream, parse_ts_macro_input};
+use crate::ts_syn::abi::DiagnosticCollector;
 
 use super::{SerdeContainerOptions, SerdeFieldOptions, TypeCategory, Validator, ValidatorSpec};
 
@@ -262,12 +263,16 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 ));
             }
 
-            // Collect deserializable fields
+            // Collect deserializable fields with diagnostic collection
+            let mut all_diagnostics = DiagnosticCollector::new();
             let fields: Vec<DeserializeField> = class
                 .fields()
                 .iter()
                 .filter_map(|field| {
-                    let opts = SerdeFieldOptions::from_decorators(&field.decorators);
+                    let parse_result = SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
+                    all_diagnostics.extend(parse_result.diagnostics);
+                    let opts = parse_result.options;
+
                     if !opts.should_deserialize() {
                         return None;
                     }
@@ -292,6 +297,11 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     })
                 })
                 .collect();
+
+            // Check for errors in field parsing before continuing
+            if all_diagnostics.has_errors() {
+                return Err(MacroforgeErrors::new(all_diagnostics.into_vec()).into());
+            }
 
             // Separate required vs optional fields
             let required_fields: Vec<_> = fields
@@ -646,11 +656,16 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             let container_opts =
                 SerdeContainerOptions::from_decorators(&interface.inner.decorators);
 
+            // Collect deserializable fields with diagnostic collection
+            let mut all_diagnostics = DiagnosticCollector::new();
             let fields: Vec<DeserializeField> = interface
                 .fields()
                 .iter()
                 .filter_map(|field| {
-                    let opts = SerdeFieldOptions::from_decorators(&field.decorators);
+                    let parse_result = SerdeFieldOptions::from_decorators(&field.decorators, &field.name);
+                    all_diagnostics.extend(parse_result.diagnostics);
+                    let opts = parse_result.options;
+
                     if !opts.should_deserialize() {
                         return None;
                     }
@@ -675,6 +690,11 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     })
                 })
                 .collect();
+
+            // Check for errors in field parsing before continuing
+            if all_diagnostics.has_errors() {
+                return Err(MacroforgeErrors::new(all_diagnostics.into_vec()).into());
+            }
 
             let all_fields: Vec<_> = fields.iter().filter(|f| !f.flatten).cloned().collect();
             let required_fields: Vec<_> = fields

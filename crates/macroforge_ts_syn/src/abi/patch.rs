@@ -213,3 +213,84 @@ pub enum DiagnosticLevel {
     Warning,
     Info,
 }
+
+/// Collects diagnostics during macro expansion with field/decorator context
+#[derive(Default, Clone, Debug)]
+pub struct DiagnosticCollector {
+    diagnostics: Vec<Diagnostic>,
+}
+
+impl DiagnosticCollector {
+    /// Create a new empty collector
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Add a diagnostic to the collection
+    pub fn push(&mut self, diagnostic: Diagnostic) {
+        self.diagnostics.push(diagnostic);
+    }
+
+    /// Add an error diagnostic with span
+    pub fn error(&mut self, span: SpanIR, message: impl Into<String>) {
+        self.push(Diagnostic {
+            level: DiagnosticLevel::Error,
+            message: message.into(),
+            span: Some(span),
+            notes: vec![],
+            help: None,
+        });
+    }
+
+    /// Add an error diagnostic with span and help text
+    pub fn error_with_help(&mut self, span: SpanIR, message: impl Into<String>, help: impl Into<String>) {
+        self.push(Diagnostic {
+            level: DiagnosticLevel::Error,
+            message: message.into(),
+            span: Some(span),
+            notes: vec![],
+            help: Some(help.into()),
+        });
+    }
+
+    /// Add a warning diagnostic with span
+    pub fn warning(&mut self, span: SpanIR, message: impl Into<String>) {
+        self.push(Diagnostic {
+            level: DiagnosticLevel::Warning,
+            message: message.into(),
+            span: Some(span),
+            notes: vec![],
+            help: None,
+        });
+    }
+
+    /// Merge diagnostics from another collector
+    pub fn extend(&mut self, other: DiagnosticCollector) {
+        self.diagnostics.extend(other.diagnostics);
+    }
+
+    /// Check if there are any errors in the collection
+    pub fn has_errors(&self) -> bool {
+        self.diagnostics.iter().any(|d| d.level == DiagnosticLevel::Error)
+    }
+
+    /// Check if the collection is empty
+    pub fn is_empty(&self) -> bool {
+        self.diagnostics.is_empty()
+    }
+
+    /// Get the number of diagnostics
+    pub fn len(&self) -> usize {
+        self.diagnostics.len()
+    }
+
+    /// Convert to a Vec of Diagnostics
+    pub fn into_vec(self) -> Vec<Diagnostic> {
+        self.diagnostics
+    }
+
+    /// Get a reference to the diagnostics
+    pub fn diagnostics(&self) -> &[Diagnostic] {
+        &self.diagnostics
+    }
+}

@@ -3,7 +3,7 @@
 pub mod derive_deserialize;
 pub mod derive_serialize;
 
-use crate::ts_syn::abi::DecoratorIR;
+use crate::ts_syn::abi::{DecoratorIR, DiagnosticCollector, SpanIR};
 
 /// Naming convention for JSON field renaming
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
@@ -84,14 +84,25 @@ pub struct SerdeFieldOptions {
     pub validators: Vec<ValidatorSpec>,
 }
 
+/// Result of parsing field options, containing both options and any diagnostics
+#[derive(Debug, Clone, Default)]
+pub struct SerdeFieldParseResult {
+    pub options: SerdeFieldOptions,
+    pub diagnostics: DiagnosticCollector,
+}
+
 impl SerdeFieldOptions {
-    pub fn from_decorators(decorators: &[DecoratorIR]) -> Self {
+    /// Parse field options from decorators, collecting diagnostics for invalid configurations
+    pub fn from_decorators(decorators: &[DecoratorIR], field_name: &str) -> SerdeFieldParseResult {
         let mut opts = Self::default();
+        let mut diagnostics = DiagnosticCollector::new();
+
         for decorator in decorators {
             if !decorator.name.eq_ignore_ascii_case("serde") {
                 continue;
             }
             let args = decorator.args_src.trim();
+            let decorator_span = decorator.span;
 
             if has_flag(args, "skip") {
                 opts.skip = true;
@@ -118,11 +129,12 @@ impl SerdeFieldOptions {
                 opts.rename = Some(rename);
             }
 
-            // Extract validators
-            let validators = extract_validators(args);
+            // Extract validators with diagnostic collection
+            let validators = extract_validators(args, decorator_span, field_name, &mut diagnostics);
             opts.validators.extend(validators);
         }
-        opts
+
+        SerdeFieldParseResult { options: opts, diagnostics }
     }
 
     pub fn should_serialize(&self) -> bool {
@@ -296,6 +308,107 @@ pub enum Validator {
 }
 
 // ============================================================================
+// Validator parsing errors
+// ============================================================================
+
+/// Error information from parsing a validator string
+#[derive(Debug, Clone)]
+pub struct ValidatorParseError {
+    pub message: String,
+    pub validator_text: String,
+    pub help: Option<String>,
+}
+
+impl ValidatorParseError {
+    /// Create error for an unknown validator name
+    pub fn unknown_validator(name: &str) -> Self {
+        let similar = find_similar_validator(name);
+        Self {
+            message: format!("unknown validator '{}'", name),
+            validator_text: name.to_string(),
+            help: similar.map(|s| format!("did you mean '{}'?", s)),
+        }
+    }
+
+    /// Create error for invalid arguments
+    pub fn invalid_args(name: &str, reason: &str) -> Self {
+        Self {
+            message: format!("invalid arguments for '{}': {}", name, reason),
+            validator_text: name.to_string(),
+            help: None,
+        }
+    }
+
+    /// Create error for missing required arguments
+    pub fn missing_args(name: &str) -> Self {
+        Self {
+            message: format!("'{}' requires arguments", name),
+            validator_text: name.to_string(),
+            help: Some(format!("use '{}(value)' syntax", name)),
+        }
+    }
+}
+
+/// List of all known validator names for typo detection
+const KNOWN_VALIDATORS: &[&str] = &[
+    "email", "url", "uuid", "maxLength", "minLength", "length",
+    "pattern", "nonEmpty", "trimmed", "lowercase", "uppercase",
+    "capitalized", "uncapitalized", "startsWith", "endsWith", "includes",
+    "greaterThan", "greaterThanOrEqualTo", "lessThan", "lessThanOrEqualTo",
+    "between", "int", "nonNaN", "finite", "positive", "nonNegative",
+    "negative", "nonPositive", "multipleOf", "uint8",
+    "maxItems", "minItems", "itemsCount",
+    "validDate", "greaterThanDate", "greaterThanOrEqualToDate",
+    "lessThanDate", "lessThanOrEqualToDate", "betweenDate",
+    "positiveBigInt", "nonNegativeBigInt", "negativeBigInt", "nonPositiveBigInt",
+    "greaterThanBigInt", "greaterThanOrEqualToBigInt", "lessThanBigInt",
+    "lessThanOrEqualToBigInt", "betweenBigInt",
+    "custom",
+];
+
+/// Find a similar validator name for typo suggestions using Levenshtein distance
+fn find_similar_validator(name: &str) -> Option<&'static str> {
+    let name_lower = name.to_lowercase();
+    KNOWN_VALIDATORS.iter()
+        .filter_map(|v| {
+            let dist = levenshtein_distance(&v.to_lowercase(), &name_lower);
+            if dist <= 2 {
+                Some((*v, dist))
+            } else {
+                None
+            }
+        })
+        .min_by_key(|(_, dist)| *dist)
+        .map(|(v, _)| v)
+}
+
+/// Calculate Levenshtein distance between two strings
+fn levenshtein_distance(a: &str, b: &str) -> usize {
+    let a_chars: Vec<char> = a.chars().collect();
+    let b_chars: Vec<char> = b.chars().collect();
+    let len_a = a_chars.len();
+    let len_b = b_chars.len();
+
+    if len_a == 0 { return len_b; }
+    if len_b == 0 { return len_a; }
+
+    let mut prev_row: Vec<usize> = (0..=len_b).collect();
+    let mut curr_row: Vec<usize> = vec![0; len_b + 1];
+
+    for i in 1..=len_a {
+        curr_row[0] = i;
+        for j in 1..=len_b {
+            let cost = if a_chars[i - 1] == b_chars[j - 1] { 0 } else { 1 };
+            curr_row[j] = (prev_row[j] + 1)
+                .min(curr_row[j - 1] + 1)
+                .min(prev_row[j - 1] + cost);
+        }
+        std::mem::swap(&mut prev_row, &mut curr_row);
+    }
+    prev_row[len_b]
+}
+
+// ============================================================================
 // Helper functions (adapted from derive_debug.rs)
 // ============================================================================
 
@@ -381,16 +494,26 @@ fn find_top_level_comma(s: &str) -> Option<usize> {
 // Validator parsing functions
 // ============================================================================
 
-/// Extract validators from decorator arguments
+/// Extract validators from decorator arguments with diagnostic collection
 /// Supports: validate: ["email", "maxLength(255)"] or validate: [{ validate: "email", message: "..." }]
-pub fn extract_validators(args: &str) -> Vec<ValidatorSpec> {
+pub fn extract_validators(
+    args: &str,
+    decorator_span: SpanIR,
+    field_name: &str,
+    diagnostics: &mut DiagnosticCollector,
+) -> Vec<ValidatorSpec> {
     let lower = args.to_ascii_lowercase();
     if let Some(idx) = lower.find("validate") {
         let remainder = &args[idx + 8..].trim_start();
         if remainder.starts_with(':') || remainder.starts_with('=') {
             let value_start = &remainder[1..].trim_start();
             if value_start.starts_with('[') {
-                return parse_validator_array(value_start);
+                return parse_validator_array(value_start, decorator_span, field_name, diagnostics);
+            } else {
+                diagnostics.error(
+                    decorator_span,
+                    format!("field '{}': validate must be an array, e.g., validate: [\"email\"]", field_name),
+                );
             }
         }
     }
@@ -398,28 +521,64 @@ pub fn extract_validators(args: &str) -> Vec<ValidatorSpec> {
 }
 
 /// Parse array content: ["email", "maxLength(255)", { validate: "...", message: "..." }]
-fn parse_validator_array(input: &str) -> Vec<ValidatorSpec> {
+fn parse_validator_array(
+    input: &str,
+    decorator_span: SpanIR,
+    field_name: &str,
+    diagnostics: &mut DiagnosticCollector,
+) -> Vec<ValidatorSpec> {
     let mut validators = Vec::new();
 
     // Find matching ] bracket
-    if let Some(content) = extract_bracket_content(input, '[', ']') {
-        // Split by commas (respecting nested structures)
-        for item in split_array_items(&content) {
-            let item = item.trim();
-            if item.starts_with('{') {
-                // Object form: { validate: "...", message: "..." }
-                if let Some(spec) = parse_validator_object(item) {
-                    validators.push(spec);
+    let Some(content) = extract_bracket_content(input, '[', ']') else {
+        diagnostics.error(decorator_span, format!("field '{}': malformed validator array", field_name));
+        return validators;
+    };
+
+    // Split by commas (respecting nested structures)
+    for item in split_array_items(&content) {
+        let item = item.trim();
+        if item.starts_with('{') {
+            // Object form: { validate: "...", message: "..." }
+            match parse_validator_object(item) {
+                Ok(spec) => validators.push(spec),
+                Err(err) => {
+                    if let Some(help) = err.help {
+                        diagnostics.error_with_help(
+                            decorator_span,
+                            format!("field '{}': {}", field_name, err.message),
+                            help,
+                        );
+                    } else {
+                        diagnostics.error(
+                            decorator_span,
+                            format!("field '{}': {}", field_name, err.message),
+                        );
+                    }
                 }
-            } else if item.starts_with('"') || item.starts_with('\'') {
-                // String form: "email" or "maxLength(255)"
-                if let Some(s) = parse_string_literal(item)
-                    && let Some(v) = parse_validator_string(&s)
-                {
-                    validators.push(ValidatorSpec {
+            }
+        } else if item.starts_with('"') || item.starts_with('\'') {
+            // String form: "email" or "maxLength(255)"
+            if let Some(s) = parse_string_literal(item) {
+                match parse_validator_string(&s) {
+                    Ok(v) => validators.push(ValidatorSpec {
                         validator: v,
                         custom_message: None,
-                    });
+                    }),
+                    Err(err) => {
+                        if let Some(help) = err.help {
+                            diagnostics.error_with_help(
+                                decorator_span,
+                                format!("field '{}': {}", field_name, err.message),
+                                help,
+                            );
+                        } else {
+                            diagnostics.error(
+                                decorator_span,
+                                format!("field '{}': {}", field_name, err.message),
+                            );
+                        }
+                    }
                 }
             }
         }
@@ -501,148 +660,218 @@ fn split_array_items(input: &str) -> Vec<String> {
 }
 
 /// Parse object form: { validate: "email", message: "Invalid email" }
-fn parse_validator_object(input: &str) -> Option<ValidatorSpec> {
-    let content = extract_bracket_content(input, '{', '}')?;
+fn parse_validator_object(input: &str) -> Result<ValidatorSpec, ValidatorParseError> {
+    let content = extract_bracket_content(input, '{', '}')
+        .ok_or_else(|| ValidatorParseError::invalid_args("object", "malformed validator object"))?;
 
-    let validator_str = extract_named_string(&content, "validate")?;
+    let validator_str = extract_named_string(&content, "validate")
+        .ok_or_else(|| ValidatorParseError::invalid_args("object", "missing 'validate' field"))?;
     let validator = parse_validator_string(&validator_str)?;
     let custom_message = extract_named_string(&content, "message");
 
-    Some(ValidatorSpec {
+    Ok(ValidatorSpec {
         validator,
         custom_message,
     })
 }
 
 /// Parse a validator string like "email", "maxLength(255)", "custom(myValidator)"
-fn parse_validator_string(s: &str) -> Option<Validator> {
+fn parse_validator_string(s: &str) -> Result<Validator, ValidatorParseError> {
     let trimmed = s.trim();
 
     // Check for function-call style: name(args)
     if let Some(paren_idx) = trimmed.find('(') {
         let name = &trimmed[..paren_idx];
-        let args_end = trimmed.rfind(')')?;
+        let Some(args_end) = trimmed.rfind(')') else {
+            return Err(ValidatorParseError::invalid_args(name, "missing closing parenthesis"));
+        };
         let args = &trimmed[paren_idx + 1..args_end];
         return parse_validator_with_args(name, args);
     }
 
     // Simple validators without args
     match trimmed.to_lowercase().as_str() {
-        "email" => Some(Validator::Email),
-        "url" => Some(Validator::Url),
-        "uuid" => Some(Validator::Uuid),
-        "nonempty" | "nonemptystring" => Some(Validator::NonEmpty),
-        "trimmed" => Some(Validator::Trimmed),
-        "lowercase" | "lowercased" => Some(Validator::Lowercase),
-        "uppercase" | "uppercased" => Some(Validator::Uppercase),
-        "capitalized" => Some(Validator::Capitalized),
-        "uncapitalized" => Some(Validator::Uncapitalized),
-        "int" => Some(Validator::Int),
-        "nonnan" => Some(Validator::NonNaN),
-        "finite" => Some(Validator::Finite),
-        "positive" => Some(Validator::Positive),
-        "nonnegative" => Some(Validator::NonNegative),
-        "negative" => Some(Validator::Negative),
-        "nonpositive" => Some(Validator::NonPositive),
-        "uint8" => Some(Validator::Uint8),
-        "validdate" | "validdatefromself" => Some(Validator::ValidDate),
-        "positivebigint" | "positivebigintfromself" => Some(Validator::PositiveBigInt),
-        "nonnegativebigint" | "nonnegativebigintfromself" => Some(Validator::NonNegativeBigInt),
-        "negativebigint" | "negativebigintfromself" => Some(Validator::NegativeBigInt),
-        "nonpositivebigint" | "nonpositivebigintfromself" => Some(Validator::NonPositiveBigInt),
-        "nonnegativeint" => Some(Validator::Int), // Int + NonNegative combined
-        _ => None,
+        "email" => Ok(Validator::Email),
+        "url" => Ok(Validator::Url),
+        "uuid" => Ok(Validator::Uuid),
+        "nonempty" | "nonemptystring" => Ok(Validator::NonEmpty),
+        "trimmed" => Ok(Validator::Trimmed),
+        "lowercase" | "lowercased" => Ok(Validator::Lowercase),
+        "uppercase" | "uppercased" => Ok(Validator::Uppercase),
+        "capitalized" => Ok(Validator::Capitalized),
+        "uncapitalized" => Ok(Validator::Uncapitalized),
+        "int" => Ok(Validator::Int),
+        "nonnan" => Ok(Validator::NonNaN),
+        "finite" => Ok(Validator::Finite),
+        "positive" => Ok(Validator::Positive),
+        "nonnegative" => Ok(Validator::NonNegative),
+        "negative" => Ok(Validator::Negative),
+        "nonpositive" => Ok(Validator::NonPositive),
+        "uint8" => Ok(Validator::Uint8),
+        "validdate" | "validdatefromself" => Ok(Validator::ValidDate),
+        "positivebigint" | "positivebigintfromself" => Ok(Validator::PositiveBigInt),
+        "nonnegativebigint" | "nonnegativebigintfromself" => Ok(Validator::NonNegativeBigInt),
+        "negativebigint" | "negativebigintfromself" => Ok(Validator::NegativeBigInt),
+        "nonpositivebigint" | "nonpositivebigintfromself" => Ok(Validator::NonPositiveBigInt),
+        "nonnegativeint" => Ok(Validator::Int), // Int + NonNegative combined
+        _ => Err(ValidatorParseError::unknown_validator(trimmed)),
     }
 }
 
 /// Parse validators with arguments
-fn parse_validator_with_args(name: &str, args: &str) -> Option<Validator> {
+fn parse_validator_with_args(name: &str, args: &str) -> Result<Validator, ValidatorParseError> {
     let name_lower = name.to_lowercase();
     match name_lower.as_str() {
-        "maxlength" => args.trim().parse().ok().map(Validator::MaxLength),
-        "minlength" => args.trim().parse().ok().map(Validator::MinLength),
+        "maxlength" => args
+            .trim()
+            .parse()
+            .map(Validator::MaxLength)
+            .map_err(|_| ValidatorParseError::invalid_args(name, "expected a positive integer")),
+        "minlength" => args
+            .trim()
+            .parse()
+            .map(Validator::MinLength)
+            .map_err(|_| ValidatorParseError::invalid_args(name, "expected a positive integer")),
         "length" => {
             let parts: Vec<&str> = args.split(',').collect();
             match parts.len() {
-                1 => parts[0].trim().parse().ok().map(Validator::Length),
+                1 => parts[0]
+                    .trim()
+                    .parse()
+                    .map(Validator::Length)
+                    .map_err(|_| ValidatorParseError::invalid_args(name, "expected a positive integer")),
                 2 => {
-                    let min = parts[0].trim().parse().ok()?;
-                    let max = parts[1].trim().parse().ok()?;
-                    Some(Validator::LengthRange(min, max))
+                    let min = parts[0]
+                        .trim()
+                        .parse()
+                        .map_err(|_| ValidatorParseError::invalid_args(name, "expected two positive integers"))?;
+                    let max = parts[1]
+                        .trim()
+                        .parse()
+                        .map_err(|_| ValidatorParseError::invalid_args(name, "expected two positive integers"))?;
+                    Ok(Validator::LengthRange(min, max))
                 }
-                _ => None,
+                _ => Err(ValidatorParseError::invalid_args(name, "expected 1 or 2 arguments")),
             }
         }
-        "pattern" => parse_validator_string_arg(args).map(Validator::Pattern),
-        "startswith" => parse_validator_string_arg(args).map(Validator::StartsWith),
-        "endswith" => parse_validator_string_arg(args).map(Validator::EndsWith),
-        "includes" => parse_validator_string_arg(args).map(Validator::Includes),
-        "greaterthan" => args.trim().parse().ok().map(Validator::GreaterThan),
+        "pattern" => parse_validator_string_arg(args)
+            .map(Validator::Pattern)
+            .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected a string pattern")),
+        "startswith" => parse_validator_string_arg(args)
+            .map(Validator::StartsWith)
+            .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected a string")),
+        "endswith" => parse_validator_string_arg(args)
+            .map(Validator::EndsWith)
+            .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected a string")),
+        "includes" => parse_validator_string_arg(args)
+            .map(Validator::Includes)
+            .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected a string")),
+        "greaterthan" => args
+            .trim()
+            .parse()
+            .map(Validator::GreaterThan)
+            .map_err(|_| ValidatorParseError::invalid_args(name, "expected a number")),
         "greaterthanorequalto" => args
             .trim()
             .parse()
-            .ok()
-            .map(Validator::GreaterThanOrEqualTo),
-        "lessthan" => args.trim().parse().ok().map(Validator::LessThan),
-        "lessthanorequalto" => args.trim().parse().ok().map(Validator::LessThanOrEqualTo),
+            .map(Validator::GreaterThanOrEqualTo)
+            .map_err(|_| ValidatorParseError::invalid_args(name, "expected a number")),
+        "lessthan" => args
+            .trim()
+            .parse()
+            .map(Validator::LessThan)
+            .map_err(|_| ValidatorParseError::invalid_args(name, "expected a number")),
+        "lessthanorequalto" => args
+            .trim()
+            .parse()
+            .map(Validator::LessThanOrEqualTo)
+            .map_err(|_| ValidatorParseError::invalid_args(name, "expected a number")),
         "between" => {
             let parts: Vec<&str> = args.split(',').collect();
             if parts.len() == 2 {
-                let min = parts[0].trim().parse().ok()?;
-                let max = parts[1].trim().parse().ok()?;
-                Some(Validator::Between(min, max))
+                let min = parts[0]
+                    .trim()
+                    .parse()
+                    .map_err(|_| ValidatorParseError::invalid_args(name, "expected two numbers"))?;
+                let max = parts[1]
+                    .trim()
+                    .parse()
+                    .map_err(|_| ValidatorParseError::invalid_args(name, "expected two numbers"))?;
+                Ok(Validator::Between(min, max))
             } else {
-                None
+                Err(ValidatorParseError::invalid_args(name, "expected two numbers separated by comma"))
             }
         }
-        "multipleof" => args.trim().parse().ok().map(Validator::MultipleOf),
-        "maxitems" => args.trim().parse().ok().map(Validator::MaxItems),
-        "minitems" => args.trim().parse().ok().map(Validator::MinItems),
-        "itemscount" => args.trim().parse().ok().map(Validator::ItemsCount),
-        "greaterthandate" => parse_validator_string_arg(args).map(Validator::GreaterThanDate),
-        "greaterthanorequaltodate" => {
-            parse_validator_string_arg(args).map(Validator::GreaterThanOrEqualToDate)
-        }
-        "lessthandate" => parse_validator_string_arg(args).map(Validator::LessThanDate),
-        "lessthanorequaltodate" => {
-            parse_validator_string_arg(args).map(Validator::LessThanOrEqualToDate)
-        }
+        "multipleof" => args
+            .trim()
+            .parse()
+            .map(Validator::MultipleOf)
+            .map_err(|_| ValidatorParseError::invalid_args(name, "expected a number")),
+        "maxitems" => args
+            .trim()
+            .parse()
+            .map(Validator::MaxItems)
+            .map_err(|_| ValidatorParseError::invalid_args(name, "expected a positive integer")),
+        "minitems" => args
+            .trim()
+            .parse()
+            .map(Validator::MinItems)
+            .map_err(|_| ValidatorParseError::invalid_args(name, "expected a positive integer")),
+        "itemscount" => args
+            .trim()
+            .parse()
+            .map(Validator::ItemsCount)
+            .map_err(|_| ValidatorParseError::invalid_args(name, "expected a positive integer")),
+        "greaterthandate" => parse_validator_string_arg(args)
+            .map(Validator::GreaterThanDate)
+            .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected a date string")),
+        "greaterthanorequaltodate" => parse_validator_string_arg(args)
+            .map(Validator::GreaterThanOrEqualToDate)
+            .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected a date string")),
+        "lessthandate" => parse_validator_string_arg(args)
+            .map(Validator::LessThanDate)
+            .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected a date string")),
+        "lessthanorequaltodate" => parse_validator_string_arg(args)
+            .map(Validator::LessThanOrEqualToDate)
+            .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected a date string")),
         "betweendate" => {
             let parts: Vec<&str> = args.splitn(2, ',').collect();
             if parts.len() == 2 {
-                let min = parse_validator_string_arg(parts[0].trim())?;
-                let max = parse_validator_string_arg(parts[1].trim())?;
-                Some(Validator::BetweenDate(min, max))
+                let min = parse_validator_string_arg(parts[0].trim())
+                    .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected two date strings"))?;
+                let max = parse_validator_string_arg(parts[1].trim())
+                    .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected two date strings"))?;
+                Ok(Validator::BetweenDate(min, max))
             } else {
-                None
+                Err(ValidatorParseError::invalid_args(name, "expected two date strings separated by comma"))
             }
         }
-        "greaterthanbigint" => Some(Validator::GreaterThanBigInt(args.trim().to_string())),
-        "greaterthanorequaltobigint" => Some(Validator::GreaterThanOrEqualToBigInt(
+        "greaterthanbigint" => Ok(Validator::GreaterThanBigInt(args.trim().to_string())),
+        "greaterthanorequaltobigint" => Ok(Validator::GreaterThanOrEqualToBigInt(
             args.trim().to_string(),
         )),
-        "lessthanbigint" => Some(Validator::LessThanBigInt(args.trim().to_string())),
+        "lessthanbigint" => Ok(Validator::LessThanBigInt(args.trim().to_string())),
         "lessthanorequaltobigint" => {
-            Some(Validator::LessThanOrEqualToBigInt(args.trim().to_string()))
+            Ok(Validator::LessThanOrEqualToBigInt(args.trim().to_string()))
         }
         "betweenbigint" => {
             let parts: Vec<&str> = args.splitn(2, ',').collect();
             if parts.len() == 2 {
-                Some(Validator::BetweenBigInt(
+                Ok(Validator::BetweenBigInt(
                     parts[0].trim().to_string(),
                     parts[1].trim().to_string(),
                 ))
             } else {
-                None
+                Err(ValidatorParseError::invalid_args(name, "expected two bigint values separated by comma"))
             }
         }
         "custom" => {
             // custom(myValidator) - extract function name (can be quoted or unquoted)
             let fn_name =
                 parse_validator_string_arg(args).unwrap_or_else(|| args.trim().to_string());
-            Some(Validator::Custom(fn_name))
+            Ok(Validator::Custom(fn_name))
         }
-        _ => None,
+        _ => Err(ValidatorParseError::unknown_validator(name)),
     }
 }
 
@@ -749,7 +978,8 @@ mod tests {
     #[test]
     fn test_field_skip() {
         let decorator = make_decorator("skip");
-        let opts = SerdeFieldOptions::from_decorators(&[decorator]);
+        let result = SerdeFieldOptions::from_decorators(&[decorator], "test_field");
+        let opts = result.options;
         assert!(opts.skip);
         assert!(!opts.should_serialize());
         assert!(!opts.should_deserialize());
@@ -758,7 +988,8 @@ mod tests {
     #[test]
     fn test_field_skip_serializing() {
         let decorator = make_decorator("skip_serializing");
-        let opts = SerdeFieldOptions::from_decorators(&[decorator]);
+        let result = SerdeFieldOptions::from_decorators(&[decorator], "test_field");
+        let opts = result.options;
         assert!(opts.skip_serializing);
         assert!(!opts.should_serialize());
         assert!(opts.should_deserialize());
@@ -767,14 +998,16 @@ mod tests {
     #[test]
     fn test_field_rename() {
         let decorator = make_decorator(r#"{ rename: "user_id" }"#);
-        let opts = SerdeFieldOptions::from_decorators(&[decorator]);
+        let result = SerdeFieldOptions::from_decorators(&[decorator], "test_field");
+        let opts = result.options;
         assert_eq!(opts.rename.as_deref(), Some("user_id"));
     }
 
     #[test]
     fn test_field_default_flag() {
         let decorator = make_decorator("default");
-        let opts = SerdeFieldOptions::from_decorators(&[decorator]);
+        let result = SerdeFieldOptions::from_decorators(&[decorator], "test_field");
+        let opts = result.options;
         assert!(opts.default);
         assert!(opts.default_expr.is_none());
     }
@@ -782,7 +1015,8 @@ mod tests {
     #[test]
     fn test_field_default_expr() {
         let decorator = make_decorator(r#"{ default: "new Date()" }"#);
-        let opts = SerdeFieldOptions::from_decorators(&[decorator]);
+        let result = SerdeFieldOptions::from_decorators(&[decorator], "test_field");
+        let opts = result.options;
         assert!(opts.default);
         assert_eq!(opts.default_expr.as_deref(), Some("new Date()"));
     }
@@ -790,7 +1024,8 @@ mod tests {
     #[test]
     fn test_field_flatten() {
         let decorator = make_decorator("flatten");
-        let opts = SerdeFieldOptions::from_decorators(&[decorator]);
+        let result = SerdeFieldOptions::from_decorators(&[decorator], "test_field");
+        let opts = result.options;
         assert!(opts.flatten);
     }
 
@@ -916,43 +1151,43 @@ mod tests {
     fn test_parse_simple_validators() {
         assert!(matches!(
             parse_validator_string("email"),
-            Some(Validator::Email)
+            Ok(Validator::Email)
         ));
         assert!(matches!(
             parse_validator_string("url"),
-            Some(Validator::Url)
+            Ok(Validator::Url)
         ));
         assert!(matches!(
             parse_validator_string("uuid"),
-            Some(Validator::Uuid)
+            Ok(Validator::Uuid)
         ));
         assert!(matches!(
             parse_validator_string("nonEmpty"),
-            Some(Validator::NonEmpty)
+            Ok(Validator::NonEmpty)
         ));
         assert!(matches!(
             parse_validator_string("trimmed"),
-            Some(Validator::Trimmed)
+            Ok(Validator::Trimmed)
         ));
         assert!(matches!(
             parse_validator_string("lowercase"),
-            Some(Validator::Lowercase)
+            Ok(Validator::Lowercase)
         ));
         assert!(matches!(
             parse_validator_string("uppercase"),
-            Some(Validator::Uppercase)
+            Ok(Validator::Uppercase)
         ));
         assert!(matches!(
             parse_validator_string("int"),
-            Some(Validator::Int)
+            Ok(Validator::Int)
         ));
         assert!(matches!(
             parse_validator_string("positive"),
-            Some(Validator::Positive)
+            Ok(Validator::Positive)
         ));
         assert!(matches!(
             parse_validator_string("validDate"),
-            Some(Validator::ValidDate)
+            Ok(Validator::ValidDate)
         ));
     }
 
@@ -960,23 +1195,23 @@ mod tests {
     fn test_parse_validators_with_args() {
         assert!(matches!(
             parse_validator_string("maxLength(255)"),
-            Some(Validator::MaxLength(255))
+            Ok(Validator::MaxLength(255))
         ));
         assert!(matches!(
             parse_validator_string("minLength(1)"),
-            Some(Validator::MinLength(1))
+            Ok(Validator::MinLength(1))
         ));
         assert!(matches!(
             parse_validator_string("length(36)"),
-            Some(Validator::Length(36))
+            Ok(Validator::Length(36))
         ));
         assert!(matches!(
             parse_validator_string("between(0, 100)"),
-            Some(Validator::Between(min, max)) if min == 0.0 && max == 100.0
+            Ok(Validator::Between(min, max)) if min == 0.0 && max == 100.0
         ));
         assert!(matches!(
             parse_validator_string("greaterThan(5)"),
-            Some(Validator::GreaterThan(n)) if n == 5.0
+            Ok(Validator::GreaterThan(n)) if n == 5.0
         ));
     }
 
@@ -984,15 +1219,15 @@ mod tests {
     fn test_parse_validators_with_string_args() {
         assert!(matches!(
             parse_validator_string(r#"startsWith("https://")"#),
-            Some(Validator::StartsWith(s)) if s == "https://"
+            Ok(Validator::StartsWith(s)) if s == "https://"
         ));
         assert!(matches!(
             parse_validator_string(r#"endsWith(".com")"#),
-            Some(Validator::EndsWith(s)) if s == ".com"
+            Ok(Validator::EndsWith(s)) if s == ".com"
         ));
         assert!(matches!(
             parse_validator_string(r#"includes("@")"#),
-            Some(Validator::Includes(s)) if s == "@"
+            Ok(Validator::Includes(s)) if s == "@"
         ));
     }
 
@@ -1000,22 +1235,33 @@ mod tests {
     fn test_parse_custom_validator() {
         assert!(matches!(
             parse_validator_string("custom(myValidator)"),
-            Some(Validator::Custom(fn_name)) if fn_name == "myValidator"
+            Ok(Validator::Custom(fn_name)) if fn_name == "myValidator"
         ));
     }
 
     #[test]
     fn test_extract_validators_from_args() {
-        let validators = extract_validators(r#"{ validate: ["email", "maxLength(255)"] }"#);
+        let mut diagnostics = DiagnosticCollector::new();
+        let validators = extract_validators(
+            r#"{ validate: ["email", "maxLength(255)"] }"#,
+            span(),
+            "test_field",
+            &mut diagnostics,
+        );
         assert_eq!(validators.len(), 2);
         assert!(matches!(validators[0].validator, Validator::Email));
         assert!(matches!(validators[1].validator, Validator::MaxLength(255)));
+        assert!(!diagnostics.has_errors());
     }
 
     #[test]
     fn test_extract_validators_with_message() {
+        let mut diagnostics = DiagnosticCollector::new();
         let validators = extract_validators(
             r#"{ validate: [{ validate: "email", message: "Invalid email!" }] }"#,
+            span(),
+            "test_field",
+            &mut diagnostics,
         );
         assert_eq!(validators.len(), 1);
         assert!(matches!(validators[0].validator, Validator::Email));
@@ -1023,24 +1269,31 @@ mod tests {
             validators[0].custom_message.as_deref(),
             Some("Invalid email!")
         );
+        assert!(!diagnostics.has_errors());
     }
 
     #[test]
     fn test_extract_validators_mixed() {
+        let mut diagnostics = DiagnosticCollector::new();
         let validators = extract_validators(
             r#"{ validate: ["nonEmpty", { validate: "email", message: "Bad email" }] }"#,
+            span(),
+            "test_field",
+            &mut diagnostics,
         );
         assert_eq!(validators.len(), 2);
         assert!(matches!(validators[0].validator, Validator::NonEmpty));
         assert!(validators[0].custom_message.is_none());
         assert!(matches!(validators[1].validator, Validator::Email));
         assert_eq!(validators[1].custom_message.as_deref(), Some("Bad email"));
+        assert!(!diagnostics.has_errors());
     }
 
     #[test]
     fn test_field_with_validators() {
         let decorator = make_decorator(r#"{ validate: ["email", "maxLength(255)"] }"#);
-        let opts = SerdeFieldOptions::from_decorators(&[decorator]);
+        let result = SerdeFieldOptions::from_decorators(&[decorator], "test_field");
+        let opts = result.options;
         assert_eq!(opts.validators.len(), 2);
         assert!(matches!(opts.validators[0].validator, Validator::Email));
         assert!(matches!(
@@ -1057,27 +1310,27 @@ mod tests {
     fn test_parse_date_validators() {
         assert!(matches!(
             parse_validator_string("validDate"),
-            Some(Validator::ValidDate)
+            Ok(Validator::ValidDate)
         ));
         assert!(matches!(
             parse_validator_string(r#"greaterThanDate("2020-01-01")"#),
-            Some(Validator::GreaterThanDate(d)) if d == "2020-01-01"
+            Ok(Validator::GreaterThanDate(d)) if d == "2020-01-01"
         ));
         assert!(matches!(
             parse_validator_string(r#"greaterThanOrEqualToDate("2020-01-01")"#),
-            Some(Validator::GreaterThanOrEqualToDate(d)) if d == "2020-01-01"
+            Ok(Validator::GreaterThanOrEqualToDate(d)) if d == "2020-01-01"
         ));
         assert!(matches!(
             parse_validator_string(r#"lessThanDate("2030-01-01")"#),
-            Some(Validator::LessThanDate(d)) if d == "2030-01-01"
+            Ok(Validator::LessThanDate(d)) if d == "2030-01-01"
         ));
         assert!(matches!(
             parse_validator_string(r#"lessThanOrEqualToDate("2030-01-01")"#),
-            Some(Validator::LessThanOrEqualToDate(d)) if d == "2030-01-01"
+            Ok(Validator::LessThanOrEqualToDate(d)) if d == "2030-01-01"
         ));
         assert!(matches!(
             parse_validator_string(r#"betweenDate("2020-01-01", "2030-12-31")"#),
-            Some(Validator::BetweenDate(min, max)) if min == "2020-01-01" && max == "2030-12-31"
+            Ok(Validator::BetweenDate(min, max)) if min == "2020-01-01" && max == "2030-12-31"
         ));
     }
 
@@ -1089,39 +1342,39 @@ mod tests {
     fn test_parse_bigint_validators() {
         assert!(matches!(
             parse_validator_string("positiveBigInt"),
-            Some(Validator::PositiveBigInt)
+            Ok(Validator::PositiveBigInt)
         ));
         assert!(matches!(
             parse_validator_string("nonNegativeBigInt"),
-            Some(Validator::NonNegativeBigInt)
+            Ok(Validator::NonNegativeBigInt)
         ));
         assert!(matches!(
             parse_validator_string("negativeBigInt"),
-            Some(Validator::NegativeBigInt)
+            Ok(Validator::NegativeBigInt)
         ));
         assert!(matches!(
             parse_validator_string("nonPositiveBigInt"),
-            Some(Validator::NonPositiveBigInt)
+            Ok(Validator::NonPositiveBigInt)
         ));
         assert!(matches!(
             parse_validator_string("greaterThanBigInt(100)"),
-            Some(Validator::GreaterThanBigInt(n)) if n == "100"
+            Ok(Validator::GreaterThanBigInt(n)) if n == "100"
         ));
         assert!(matches!(
             parse_validator_string("greaterThanOrEqualToBigInt(0)"),
-            Some(Validator::GreaterThanOrEqualToBigInt(n)) if n == "0"
+            Ok(Validator::GreaterThanOrEqualToBigInt(n)) if n == "0"
         ));
         assert!(matches!(
             parse_validator_string("lessThanBigInt(1000)"),
-            Some(Validator::LessThanBigInt(n)) if n == "1000"
+            Ok(Validator::LessThanBigInt(n)) if n == "1000"
         ));
         assert!(matches!(
             parse_validator_string("lessThanOrEqualToBigInt(999)"),
-            Some(Validator::LessThanOrEqualToBigInt(n)) if n == "999"
+            Ok(Validator::LessThanOrEqualToBigInt(n)) if n == "999"
         ));
         assert!(matches!(
             parse_validator_string("betweenBigInt(0, 100)"),
-            Some(Validator::BetweenBigInt(min, max)) if min == "0" && max == "100"
+            Ok(Validator::BetweenBigInt(min, max)) if min == "0" && max == "100"
         ));
     }
 
@@ -1133,15 +1386,15 @@ mod tests {
     fn test_parse_array_validators() {
         assert!(matches!(
             parse_validator_string("maxItems(10)"),
-            Some(Validator::MaxItems(10))
+            Ok(Validator::MaxItems(10))
         ));
         assert!(matches!(
             parse_validator_string("minItems(1)"),
-            Some(Validator::MinItems(1))
+            Ok(Validator::MinItems(1))
         ));
         assert!(matches!(
             parse_validator_string("itemsCount(5)"),
-            Some(Validator::ItemsCount(5))
+            Ok(Validator::ItemsCount(5))
         ));
     }
 
@@ -1153,31 +1406,31 @@ mod tests {
     fn test_parse_additional_number_validators() {
         assert!(matches!(
             parse_validator_string("nonNaN"),
-            Some(Validator::NonNaN)
+            Ok(Validator::NonNaN)
         ));
         assert!(matches!(
             parse_validator_string("finite"),
-            Some(Validator::Finite)
+            Ok(Validator::Finite)
         ));
         assert!(matches!(
             parse_validator_string("uint8"),
-            Some(Validator::Uint8)
+            Ok(Validator::Uint8)
         ));
         assert!(matches!(
             parse_validator_string("multipleOf(5)"),
-            Some(Validator::MultipleOf(n)) if n == 5.0
+            Ok(Validator::MultipleOf(n)) if n == 5.0
         ));
         assert!(matches!(
             parse_validator_string("negative"),
-            Some(Validator::Negative)
+            Ok(Validator::Negative)
         ));
         assert!(matches!(
             parse_validator_string("nonNegative"),
-            Some(Validator::NonNegative)
+            Ok(Validator::NonNegative)
         ));
         assert!(matches!(
             parse_validator_string("nonPositive"),
-            Some(Validator::NonPositive)
+            Ok(Validator::NonPositive)
         ));
     }
 
@@ -1189,15 +1442,15 @@ mod tests {
     fn test_parse_additional_string_validators() {
         assert!(matches!(
             parse_validator_string("capitalized"),
-            Some(Validator::Capitalized)
+            Ok(Validator::Capitalized)
         ));
         assert!(matches!(
             parse_validator_string("uncapitalized"),
-            Some(Validator::Uncapitalized)
+            Ok(Validator::Uncapitalized)
         ));
         assert!(matches!(
             parse_validator_string("length(5, 10)"),
-            Some(Validator::LengthRange(5, 10))
+            Ok(Validator::LengthRange(5, 10))
         ));
     }
 
@@ -1210,23 +1463,23 @@ mod tests {
         // Validators should be case-insensitive
         assert!(matches!(
             parse_validator_string("EMAIL"),
-            Some(Validator::Email)
+            Ok(Validator::Email)
         ));
         assert!(matches!(
             parse_validator_string("Email"),
-            Some(Validator::Email)
+            Ok(Validator::Email)
         ));
         assert!(matches!(
             parse_validator_string("NONEMPTY"),
-            Some(Validator::NonEmpty)
+            Ok(Validator::NonEmpty)
         ));
         assert!(matches!(
             parse_validator_string("NonEmpty"),
-            Some(Validator::NonEmpty)
+            Ok(Validator::NonEmpty)
         ));
         assert!(matches!(
             parse_validator_string("MAXLENGTH(10)"),
-            Some(Validator::MaxLength(10))
+            Ok(Validator::MaxLength(10))
         ));
     }
 
@@ -1239,15 +1492,15 @@ mod tests {
         // Test pattern with various regex special chars
         assert!(matches!(
             parse_validator_string(r#"pattern("^[A-Z]{3}$")"#),
-            Some(Validator::Pattern(p)) if p == "^[A-Z]{3}$"
+            Ok(Validator::Pattern(p)) if p == "^[A-Z]{3}$"
         ));
         assert!(matches!(
             parse_validator_string(r#"pattern("\\d+")"#),
-            Some(Validator::Pattern(p)) if p == "\\d+"
+            Ok(Validator::Pattern(p)) if p == "\\d+"
         ));
         assert!(matches!(
             parse_validator_string(r#"pattern("^test\\.json$")"#),
-            Some(Validator::Pattern(p)) if p == "^test\\.json$"
+            Ok(Validator::Pattern(p)) if p == "^test\\.json$"
         ));
     }
 
@@ -1259,15 +1512,118 @@ mod tests {
     fn test_parse_validators_with_whitespace() {
         assert!(matches!(
             parse_validator_string("  email  "),
-            Some(Validator::Email)
+            Ok(Validator::Email)
         ));
         assert!(matches!(
             parse_validator_string("between( 1 , 100 )"),
-            Some(Validator::Between(min, max)) if min == 1.0 && max == 100.0
+            Ok(Validator::Between(min, max)) if min == 1.0 && max == 100.0
         ));
         assert!(matches!(
             parse_validator_string("maxLength( 50 )"),
-            Some(Validator::MaxLength(50))
+            Ok(Validator::MaxLength(50))
         ));
+    }
+
+    // ========================================================================
+    // Validator error tests
+    // ========================================================================
+
+    #[test]
+    fn test_unknown_validator_returns_error() {
+        let result = parse_validator_string("unknownValidator");
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(err.message.contains("unknown validator"));
+        assert!(err.message.contains("unknownValidator"));
+    }
+
+    #[test]
+    fn test_unknown_validator_with_typo_suggests_correction() {
+        // "emai" is close to "email"
+        let result = parse_validator_string("emai");
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(err.help.is_some());
+        assert!(err.help.as_ref().unwrap().contains("email"));
+    }
+
+    #[test]
+    fn test_unknown_validator_no_suggestion_for_unrelated() {
+        // "xyz" has no similar validators
+        let result = parse_validator_string("xyz");
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        // For short strings with no matches, help may be None
+        assert!(err.help.is_none() || !err.help.as_ref().unwrap().contains("email"));
+    }
+
+    #[test]
+    fn test_invalid_maxlength_args_returns_error() {
+        let result = parse_validator_string("maxLength(abc)");
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(err.message.contains("maxLength"));
+    }
+
+    #[test]
+    fn test_invalid_between_args_returns_error() {
+        // between requires two numbers
+        let result = parse_validator_string("between(abc, def)");
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(err.message.contains("between"));
+    }
+
+    #[test]
+    fn test_extract_validators_collects_errors() {
+        let mut diagnostics = DiagnosticCollector::new();
+        let validators = extract_validators(
+            r#"{ validate: ["unknownValidator", "email"] }"#,
+            span(),
+            "test_field",
+            &mut diagnostics,
+        );
+        // Should still extract the valid "email" validator
+        assert_eq!(validators.len(), 1);
+        assert!(matches!(validators[0].validator, Validator::Email));
+        // Should have recorded an error for the unknown validator
+        assert!(diagnostics.has_errors());
+        assert_eq!(diagnostics.len(), 1);
+    }
+
+    #[test]
+    fn test_extract_validators_multiple_errors() {
+        let mut diagnostics = DiagnosticCollector::new();
+        let validators = extract_validators(
+            r#"{ validate: ["unknown1", "unknown2", "email"] }"#,
+            span(),
+            "test_field",
+            &mut diagnostics,
+        );
+        // Should still extract the valid "email" validator
+        assert_eq!(validators.len(), 1);
+        // Should have recorded two errors
+        assert!(diagnostics.has_errors());
+        assert_eq!(diagnostics.len(), 2);
+    }
+
+    #[test]
+    fn test_typo_suggestion_url_vs_uuid() {
+        // "rul" is close to "url"
+        let result = parse_validator_string("rul");
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(err.help.is_some());
+        assert!(err.help.as_ref().unwrap().contains("url"));
+    }
+
+    #[test]
+    fn test_typo_suggestion_maxlength() {
+        // "maxLenth" is close to "maxLength"
+        let result = parse_validator_string("maxLenth(10)");
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(err.help.is_some());
+        assert!(err.help.as_ref().unwrap().contains("maxLength"));
     }
 }
