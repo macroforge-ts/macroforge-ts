@@ -1,13 +1,8 @@
 # Configuration
-
-*Macroforge can be configured with a `macroforge.json` file in your project root.*
-
-## Configuration File
-
-Create a `macroforge.json` file:
-
-`macroforge.json`
-```json
+ *Macroforge can be configured with a `macroforge.json` file in your project root.*
+ ## Configuration File
+ Create a `macroforge.json` file:
+ ```
 {
   "allowNativeMacros": true,
   "macroPackages": [],
@@ -19,54 +14,29 @@ Create a `macroforge.json` file:
     "maxDiagnostics": 100
   }
 }
-```
-
-## Options Reference
-
-### allowNativeMacros
-
-| Type 
-| `boolean` 
-
-| Default 
-| `true`
-
-Enable or disable native (Rust) macro packages. Set to `false` to only allow built-in macros.
-
-### macroPackages
-
-| Type 
-| `string[]` 
-
-| Default 
-| `[]`
-
-List of npm packages that provide macros. Macroforge will look for macros in these packages.
-
-```json
+``` ## Options Reference
+ ### allowNativeMacros
+ | Type | `boolean` |
+| Default | `true` |
+ Enable or disable native (Rust) macro packages. Set to `false` to only allow built-in macros.
+ ### macroPackages
+ | Type | `string[]` |
+| Default | `[]` |
+ List of npm packages that provide macros. Macroforge will look for macros in these packages.
+ ```
 {
   "macroPackages": [
     "@my-org/custom-macros",
     "community-macros"
   ]
 }
-```
-
-### keepDecorators
-
-| Type 
-| `boolean` 
-
-| Default 
-| `false`
-
-Keep `@derive` decorators in the output. Useful for debugging.
-
-### limits
-
-Configure resource limits for macro expansion:
-
-```json
+``` ### keepDecorators
+ | Type | `boolean` |
+| Default | `false` |
+ Keep `@derive` decorators in the output. Useful for debugging.
+ ### limits
+ Configure resource limits for macro expansion:
+ ```
 {
   "limits": {
     // Maximum time for a single macro expansion (ms)
@@ -82,13 +52,9 @@ Configure resource limits for macro expansion:
     "maxDiagnostics": 100
   }
 }
-```
-
-## Macro Runtime Overrides
-
-Override settings for specific macros:
-
-```json
+``` ## Macro Runtime Overrides
+ Override settings for specific macros:
+ ```
 {
   "macroRuntimeOverrides": {
     "@my-org/macros": {
@@ -96,21 +62,12 @@ Override settings for specific macros:
     }
   }
 }
-```
-
-> **Warning:**
-> Be careful when increasing limits, as this could allow malicious macros to consume excessive resources.
-
-## Environment Variables
-
-Some settings can be overridden with environment variables:
-
-| `MACROFORGE_DEBUG` 
-| Enable debug logging 
-
-| `MACROFORGE_LOG_FILE` 
-| Write logs to a file
-
-```bash
+```  **Warning Be careful when increasing limits, as this could allow malicious macros to consume excessive resources. ## Environment Variables
+ Some settings can be overridden with environment variables:
+ | Variable | Description |
+| --- | --- |
+| `MACROFORGE_DEBUG` | Enable debug logging |
+| `MACROFORGE_LOG_FILE` | Write logs to a file |
+ ```
 MACROFORGE_DEBUG=1 npm run dev
-```
+```**

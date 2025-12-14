@@ -1,42 +1,20 @@
 # Installation
-
-*Get started with Macroforge in just a few minutes. Install the package and configure your project to start using TypeScript macros.*
-
-## Requirements
-
-- Node.js 24.0 or later
-
-- TypeScript 5.9 or later
-
-## Install the Package
-
-Install Macroforge using your preferred package manager:
-
-`npm`
-```bash
+ *Get started with Macroforge in just a few minutes. Install the package and configure your project to start using TypeScript macros.*
+ ## Requirements
+ - Node.js 24.0 or later
+ - TypeScript 5.9 or later
+ ## Install the Package
+ Install Macroforge using your preferred package manager:
+ ```
 npm install macroforge
-```
-
-`bun`
-```bash
+``` ```
 bun add macroforge
-```
-
-`pnpm`
-```bash
+``` ```
 pnpm add macroforge
-```
-
-> **Note:**
-> Macroforge includes pre-built native binaries for macOS (x64, arm64), Linux (x64, arm64), and Windows (x64, arm64).
-
-## Basic Usage
-
-The simplest way to use Macroforge is with the built-in derive macros. Add a `@derive` comment decorator to your class:
-
-`user.ts`
-```typescript
-/** @derive(Debug, Clone, Eq) */
+```  **Info Macroforge includes pre-built native binaries for macOS (x64, arm64), Linux (x64, arm64), and Windows (x64, arm64). ## Basic Usage
+ The simplest way to use Macroforge is with the built-in derive macros. Add a `@derive` comment decorator to your class:
+ ```
+/** @derive(Debug, Clone, PartialEq) */
 class User {
   name: string;
   age: number;
@@ -48,17 +26,12 @@ class User {
 }
 
 // After macro expansion, User has:
-// - toString(): string         (from Debug)
-// - clone(): User              (from Clone)
-// - equals(other: User): boolean  (from Eq)
-```
-
-## IDE Integration
-
-For the best development experience, add the TypeScript plugin to your `tsconfig.json`:
-
-`tsconfig.json`
-```json
+// - toString(): string              (from Debug)
+// - clone(): User                   (from Clone)
+// - equals(other: unknown): boolean (from PartialEq)
+``` ## IDE Integration
+ For the best development experience, add the TypeScript plugin to your `tsconfig.json`:
+ ```
 {
   "compilerOptions": {
     "plugins": [
@@ -68,22 +41,13 @@ For the best development experience, add the TypeScript plugin to your `tsconfig
     ]
   }
 }
-```
-
-This enables features like:
-
-- Accurate error positions in your source code
-
-- Autocompletion for generated methods
-
-- Type checking for expanded code
-
-## Build Integration (Vite)
-
-If you're using Vite, add the plugin to your config for automatic macro expansion during build:
-
-`vite.config.ts`
-```typescript
+``` This enables features like:
+ - Accurate error positions in your source code
+ - Autocompletion for generated methods
+ - Type checking for expanded code
+ ## Build Integration (Vite)
+ If you're using Vite, add the plugin to your config for automatic macro expansion during build:
+ ```
 import macroforge from "@macroforge/vite-plugin";
 import { defineConfig } from "vite";
 
@@ -95,14 +59,9 @@ export default defineConfig({
     })
   ]
 });
-```
-
-## Next Steps
-
-Now that you have Macroforge installed, learn how to use it:
-
-- [Create your first macro]({base}/docs/getting-started/first-macro)
-
-- [Understand how macros work]({base}/docs/concepts)
-
-- [Explore built-in macros]({base}/docs/builtin-macros)
+``` ## Next Steps
+ Now that you have Macroforge installed, learn how to use it:
+ - [Create your first macro](../docs/getting-started/first-macro)
+ - [Understand how macros work](../docs/concepts)
+ - [Explore built-in macros](../docs/builtin-macros)
+**

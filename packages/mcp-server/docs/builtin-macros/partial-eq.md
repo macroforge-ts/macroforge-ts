@@ -1,12 +1,38 @@
 # PartialEq
+  *The `PartialEq` macro generates an `equals()` method for field-by-field structural equality comparison. This is analogous to Rust's `PartialEq` trait, enabling value-based equality semantics instead of reference equality.*
+ ## Basic Usage
+ **Before:**
+```
+/** @derive(PartialEq) */
+class Point {
+    x: number;
+    y: number;
 
-*The `PartialEq` macro generates an `equals()` method for value-based equality comparison between objects.*
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+}
+```  
+**After:**
+```
+class Point {
+    x: number;
+    y: number;
 
-## Basic Usage
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
-
-```typescript
+    equals(other: unknown): boolean {
+        if (this === other) return true;
+        if (!(other instanceof Point)) return false;
+        const typedOther = other as Point;
+        return this.x === typedOther.x && this.y === typedOther.y;
+    }
+}
+``` ```
 const p1 = new Point(10, 20);
 const p2 = new Point(10, 20);
 const p3 = new Point(5, 5);
@@ -14,63 +40,81 @@ const p3 = new Point(5, 5);
 console.log(p1.equals(p2)); // true (same values)
 console.log(p1.equals(p3)); // false (different values)
 console.log(p1 === p2);     // false (different references)
+``` ## How It Works
+ The PartialEq macro performs field-by-field comparison using these strategies:
+ - **Primitives** (string, number, boolean, null, undefined) → Strict equality (`===`)
+ - **Date** → Compares timestamps via `getTime()`
+ - **Array** → Length check + element-by-element comparison
+ - **Map** → Size check + entry comparison
+ - **Set** → Size check + membership verification
+ - **Objects** → Calls `equals()` if available, otherwise `===`
+ ## Field Options
+ ### @partialEq(skip)
+ Use `@partialEq(skip)` to exclude a field from equality comparison:
+ **Before:**
 ```
+/** @derive(PartialEq) */
+class User {
+    id: number;
+    name: string;
 
-## How It Works
+    /** @partialEq(skip) */
+    createdAt: Date;
 
-The PartialEq macro performs field-by-field comparison using these strategies:
+    constructor(id: number, name: string, createdAt: Date) {
+        this.id = id;
+        this.name = name;
+        this.createdAt = createdAt;
+    }
+}
+```  
+**After:**
+```
+class User {
+    id: number;
+    name: string;
 
-- **Primitives** (string, number, boolean, null, undefined) → Strict equality (`===`)
+    createdAt: Date;
 
-- **Date** → Compares timestamps via `getTime()`
+    constructor(id: number, name: string, createdAt: Date) {
+        this.id = id;
+        this.name = name;
+        this.createdAt = createdAt;
+    }
 
-- **Array** → Length check + element-by-element comparison
-
-- **Map** → Size check + entry comparison
-
-- **Set** → Size check + membership verification
-
-- **Objects** → Calls `equals()` if available, otherwise `===`
-
-## Field Options
-
-### @partialEq(skip)
-
-Use `@partialEq(skip)` to exclude a field from equality comparison:
-
-<MacroExample before={data.examples.skip.before} after={data.examples.skip.after} />
-
-```typescript
+    equals(other: unknown): boolean {
+        if (this === other) return true;
+        if (!(other instanceof User)) return false;
+        const typedOther = other as User;
+        return this.id === typedOther.id && this.name === typedOther.name;
+    }
+}
+``` ```
 const user1 = new User(1, "Alice", new Date("2024-01-01"));
 const user2 = new User(1, "Alice", new Date("2024-12-01"));
 
 console.log(user1.equals(user2)); // true (createdAt is skipped)
+``` ## Type Safety
+ The generated `equals()` method accepts `unknown` and performs runtime type checking:
+ **Source:**
 ```
-
-## Type Safety
-
-The generated `equals()` method accepts `unknown` and performs runtime type checking:
-
-<InteractiveMacro code={`/** @derive(PartialEq) */
+/** @derive(PartialEq) */
 class User {
   name: string;
   constructor(name: string) {
     this.name = name;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const user = new User("Alice");
 
 console.log(user.equals(new User("Alice"))); // true
 console.log(user.equals("Alice")); // false (not a User instance)
+``` ## With Nested Objects
+ For objects with nested fields, PartialEq recursively calls `equals()` if available:
+ **Source:**
 ```
-
-## With Nested Objects
-
-For objects with nested fields, PartialEq recursively calls `equals()` if available:
-
-<InteractiveMacro code={`/** @derive(PartialEq) */
+/** @derive(PartialEq) */
 class Address {
   city: string;
   zip: string;
@@ -90,9 +134,8 @@ class Person {
     this.name = name;
     this.address = address;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const addr1 = new Address("NYC", "10001");
 const addr2 = new Address("NYC", "10001");
 
@@ -100,62 +143,104 @@ const p1 = new Person("Alice", addr1);
 const p2 = new Person("Alice", addr2);
 
 console.log(p1.equals(p2)); // true (deep equality via Address.equals)
+``` ## Interface Support
+ PartialEq works with interfaces. For interfaces, a namespace is generated with an `equals` function:
+ **Before:**
 ```
+/** @derive(PartialEq) */
+interface Point {
+    x: number;
+    y: number;
+}
+```  
+**After:**
+```
+interface Point {
+    x: number;
+    y: number;
+}
 
-## Interface Support
-
-PartialEq works with interfaces. For interfaces, a namespace is generated with an `equals` function:
-
-<MacroExample before={data.examples.interface.before} after={data.examples.interface.after} />
-
-```typescript
+export namespace Point {
+    export function equals(self: Point, other: Point): boolean {
+        if (self === other) return true;
+        return self.x === other.x && self.y === other.y;
+    }
+}
+``` ```
 const p1: Point = { x: 10, y: 20 };
 const p2: Point = { x: 10, y: 20 };
 const p3: Point = { x: 5, y: 5 };
 
 console.log(Point.equals(p1, p2)); // true
 console.log(Point.equals(p1, p3)); // false
+``` ## Enum Support
+ PartialEq works with enums. For enums, strict equality comparison is used:
+ **Before:**
 ```
+/** @derive(PartialEq) */
+enum Status {
+    Active = 'active',
+    Inactive = 'inactive',
+    Pending = 'pending'
+}
+```  
+**After:**
+```
+enum Status {
+    Active = 'active',
+    Inactive = 'inactive',
+    Pending = 'pending'
+}
 
-## Enum Support
-
-PartialEq works with enums. For enums, strict equality comparison is used:
-
-<MacroExample before={data.examples.enum.before} after={data.examples.enum.after} />
-
-```typescript
+export namespace Status {
+    export function equals(a: Status, b: Status): boolean {
+        return a === b;
+    }
+}
+``` ```
 console.log(Status.equals(Status.Active, Status.Active));   // true
 console.log(Status.equals(Status.Active, Status.Inactive)); // false
+``` ## Type Alias Support
+ PartialEq works with type aliases. For object types, field-by-field comparison is used:
+ **Before:**
 ```
+/** @derive(PartialEq) */
+type Point = {
+    x: number;
+    y: number;
+};
+```  
+**After:**
+```
+type Point = {
+    x: number;
+    y: number;
+};
 
-## Type Alias Support
-
-PartialEq works with type aliases. For object types, field-by-field comparison is used:
-
-<MacroExample before={data.examples.typeAlias.before} after={data.examples.typeAlias.after} />
-
-```typescript
+export namespace Point {
+    export function equals(a: Point, b: Point): boolean {
+        if (a === b) return true;
+        return a.x === b.x && a.y === b.y;
+    }
+}
+``` ```
 const p1: Point = { x: 10, y: 20 };
 const p2: Point = { x: 10, y: 20 };
 
 console.log(Point.equals(p1, p2)); // true
+``` For union types, strict equality is used:
+ **Source:**
 ```
-
-For union types, strict equality is used:
-
-<InteractiveMacro code={`/** @derive(PartialEq) */
-type ApiStatus = "loading" | "success" | "error";`} />
-
-```typescript
+/** @derive(PartialEq) */
+type ApiStatus = "loading" | "success" | "error";
+```  ```
 console.log(ApiStatus.equals("success", "success")); // true
 console.log(ApiStatus.equals("success", "error"));   // false
+``` ## Common Patterns
+ ### Finding Items in Arrays
+ **Source:**
 ```
-
-## Common Patterns
-
-### Finding Items in Arrays
-
-<InteractiveMacro code={`/** @derive(PartialEq) */
+/** @derive(PartialEq) */
 class Product {
   sku: string;
   name: string;
@@ -164,9 +249,8 @@ class Product {
     this.sku = sku;
     this.name = name;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const products = [
   new Product("A1", "Widget"),
   new Product("B2", "Gadget"),
@@ -177,13 +261,11 @@ const target = new Product("B2", "Gadget");
 const found = products.find(p => p.equals(target));
 
 console.log(found); // Product { sku: "B2", name: "Gadget" }
+``` ### Use with Hash
+ When using objects as keys in Map-like structures, combine PartialEq with Hash:
+ **Source:**
 ```
-
-### Use with Hash
-
-When using objects as keys in Map-like structures, combine PartialEq with Hash:
-
-<InteractiveMacro code={`/** @derive(PartialEq, Hash) */
+/** @derive(PartialEq, Hash) */
 class Key {
   id: number;
   type: string;
@@ -192,9 +274,8 @@ class Key {
     this.id = id;
     this.type = type;
   }
-}`} />
-
-```typescript
+}
+```  ```
 const k1 = new Key(1, "user");
 const k2 = new Key(1, "user");
 
