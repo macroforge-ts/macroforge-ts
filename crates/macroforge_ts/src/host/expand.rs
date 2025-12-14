@@ -616,6 +616,9 @@ impl MacroExpander {
             for (macro_name, module_path) in target.macro_names {
                 let mut ctx = ctx_factory(macro_name.clone(), module_path.clone());
 
+                // Apply function naming style from config
+                ctx = ctx.with_function_naming_style(self.config.function_naming_style);
+
                 // Calculate macro_name_span
                 if let Some(macro_name_span) =
                     find_macro_name_span(source, target.decorator_span, &macro_name)
