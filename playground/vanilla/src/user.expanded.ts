@@ -20,21 +20,21 @@ export class User {
     }
 
     toString(): string {
-        const parts: string[] = [];
-        parts.push('identifier: ' + this.id);
-        parts.push('name: ' + this.name);
-        parts.push('email: ' + this.email);
-        return 'User { ' + parts.join(', ') + ' }';
-    }
+    const parts: string[] = [];
+    parts.push("identifier: " + this.id);
+    parts.push("name: " + this.name);
+    parts.push("email: " + this.email);
+    return "User { " + parts.join(", ") + " }";
+}
 
     toJSON(): Record<string, unknown> {
-        const result: Record<string, unknown> = {};
-        result.id = this.id;
-        result.name = this.name;
-        result.email = this.email;
-        result.authToken = this.authToken;
-        return result;
-    }
+    const result: Record<string, unknown> = {};
+    result.id = this.id;
+    result.name = this.name;
+    result.email = this.email;
+    result.authToken = this.authToken;
+    return result;
+}
 }
 
 const user = new User(1, 'John Doe', 'john@example.com', 'tok_live_secret');

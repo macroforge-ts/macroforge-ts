@@ -1,7 +1,7 @@
 {
   "name": "@macroforge/mcp-server",
   "kind": "typescript_package",
-  "version": "0.1.34",
+  "version": "0.1.35",
   "description": "MCP server for Macroforge documentation and code analysis",
   "overview": "@macroforge/mcp-server\n\nMacroforge MCP (Model Context Protocol) Server\n\nThis module provides the main entry point for the Macroforge MCP server,\nwhich enables AI assistants and other MCP clients to access Macroforge\ndocumentation, validate code with @derive decorators, and expand macros.\n\nThe server communicates over stdio transport and exposes the following tools:\n- `list-sections` - List available documentation sections\n- `get-documentation` - Retrieve documentation content\n- `macroforge-autofixer` - Validate TypeScript code with @derive decorators\n- `expand-code` - Expand Macroforge macros and show generated code\n- `get-macro-info` - Get documentation for macros and decorators\n\n@example\n```bash\n# Run the server directly\nnpx @macroforge/mcp-server\n\n# Or configure in your MCP client settings\n{\n\"mcpServers\": {\n\"macroforge\": {\n\"command\": \"npx\",\n\"args\": [\"@macroforge/mcp-server\"]\n}\n}\n}\n```",
   "items": [
