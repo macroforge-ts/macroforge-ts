@@ -889,7 +889,7 @@ macro_rules! parse_ts_macro_input {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::abi::{MacroKind, SpanIR};
+    use crate::abi::{FunctionNamingStyle, MacroKind, SpanIR};
 
     fn make_test_class_context() -> MacroContextIR {
         MacroContextIR {
@@ -901,6 +901,7 @@ mod tests {
             macro_name_span: None,
             target_span: SpanIR::new(11, 100),
             file_name: "test.ts".into(),
+            function_naming_style: FunctionNamingStyle::default(),
             target: TargetIR::Class(ClassIR {
                 name: "User".into(),
                 span: SpanIR::new(11, 100),
@@ -971,6 +972,7 @@ mod tests {
             macro_name_span: None,
             target_span: SpanIR::new(11, 100),
             file_name: "test.ts".into(),
+            function_naming_style: FunctionNamingStyle::default(),
             target: TargetIR::Enum(EnumIR {
                 name: "Status".into(),
                 span: SpanIR::new(11, 100),

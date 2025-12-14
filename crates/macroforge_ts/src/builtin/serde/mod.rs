@@ -251,7 +251,10 @@ impl SerdeFieldOptions {
             opts.validators.extend(validators);
         }
 
-        SerdeFieldParseResult { options: opts, diagnostics }
+        SerdeFieldParseResult {
+            options: opts,
+            diagnostics,
+        }
     }
 
     pub fn should_serialize(&self) -> bool {
@@ -456,32 +459,65 @@ impl ValidatorParseError {
 
 /// List of all known validator names for typo detection
 const KNOWN_VALIDATORS: &[&str] = &[
-    "email", "url", "uuid", "maxLength", "minLength", "length",
-    "pattern", "nonEmpty", "trimmed", "lowercase", "uppercase",
-    "capitalized", "uncapitalized", "startsWith", "endsWith", "includes",
-    "greaterThan", "greaterThanOrEqualTo", "lessThan", "lessThanOrEqualTo",
-    "between", "int", "nonNaN", "finite", "positive", "nonNegative",
-    "negative", "nonPositive", "multipleOf", "uint8",
-    "maxItems", "minItems", "itemsCount",
-    "validDate", "greaterThanDate", "greaterThanOrEqualToDate",
-    "lessThanDate", "lessThanOrEqualToDate", "betweenDate",
-    "positiveBigInt", "nonNegativeBigInt", "negativeBigInt", "nonPositiveBigInt",
-    "greaterThanBigInt", "greaterThanOrEqualToBigInt", "lessThanBigInt",
-    "lessThanOrEqualToBigInt", "betweenBigInt",
+    "email",
+    "url",
+    "uuid",
+    "maxLength",
+    "minLength",
+    "length",
+    "pattern",
+    "nonEmpty",
+    "trimmed",
+    "lowercase",
+    "uppercase",
+    "capitalized",
+    "uncapitalized",
+    "startsWith",
+    "endsWith",
+    "includes",
+    "greaterThan",
+    "greaterThanOrEqualTo",
+    "lessThan",
+    "lessThanOrEqualTo",
+    "between",
+    "int",
+    "nonNaN",
+    "finite",
+    "positive",
+    "nonNegative",
+    "negative",
+    "nonPositive",
+    "multipleOf",
+    "uint8",
+    "maxItems",
+    "minItems",
+    "itemsCount",
+    "validDate",
+    "greaterThanDate",
+    "greaterThanOrEqualToDate",
+    "lessThanDate",
+    "lessThanOrEqualToDate",
+    "betweenDate",
+    "positiveBigInt",
+    "nonNegativeBigInt",
+    "negativeBigInt",
+    "nonPositiveBigInt",
+    "greaterThanBigInt",
+    "greaterThanOrEqualToBigInt",
+    "lessThanBigInt",
+    "lessThanOrEqualToBigInt",
+    "betweenBigInt",
     "custom",
 ];
 
 /// Find a similar validator name for typo suggestions using Levenshtein distance
 fn find_similar_validator(name: &str) -> Option<&'static str> {
     let name_lower = name.to_lowercase();
-    KNOWN_VALIDATORS.iter()
+    KNOWN_VALIDATORS
+        .iter()
         .filter_map(|v| {
             let dist = levenshtein_distance(&v.to_lowercase(), &name_lower);
-            if dist <= 2 {
-                Some((*v, dist))
-            } else {
-                None
-            }
+            if dist <= 2 { Some((*v, dist)) } else { None }
         })
         .min_by_key(|(_, dist)| *dist)
         .map(|(v, _)| v)
@@ -494,8 +530,12 @@ fn levenshtein_distance(a: &str, b: &str) -> usize {
     let len_a = a_chars.len();
     let len_b = b_chars.len();
 
-    if len_a == 0 { return len_b; }
-    if len_b == 0 { return len_a; }
+    if len_a == 0 {
+        return len_b;
+    }
+    if len_b == 0 {
+        return len_a;
+    }
 
     let mut prev_row: Vec<usize> = (0..=len_b).collect();
     let mut curr_row: Vec<usize> = vec![0; len_b + 1];
@@ -503,7 +543,11 @@ fn levenshtein_distance(a: &str, b: &str) -> usize {
     for i in 1..=len_a {
         curr_row[0] = i;
         for j in 1..=len_b {
-            let cost = if a_chars[i - 1] == b_chars[j - 1] { 0 } else { 1 };
+            let cost = if a_chars[i - 1] == b_chars[j - 1] {
+                0
+            } else {
+                1
+            };
             curr_row[j] = (prev_row[j] + 1)
                 .min(curr_row[j - 1] + 1)
                 .min(prev_row[j - 1] + cost);
@@ -601,7 +645,14 @@ fn find_top_level_comma(s: &str) -> Option<usize> {
 
 /// Known options that are NOT validators (to avoid false positives)
 const KNOWN_OPTIONS: &[&str] = &[
-    "skip", "skip_serializing", "skip_deserializing", "flatten", "default", "rename", "validate", "message",
+    "skip",
+    "skip_serializing",
+    "skip_deserializing",
+    "flatten",
+    "default",
+    "rename",
+    "validate",
+    "message",
 ];
 
 /// Extract validators from decorator arguments with diagnostic collection
@@ -628,7 +679,10 @@ pub fn extract_validators(
             } else {
                 diagnostics.error(
                     decorator_span,
-                    format!("field '{}': validate must be an array, e.g., validate: [\"email\"]", field_name),
+                    format!(
+                        "field '{}': validate must be an array, e.g., validate: [\"email\"]",
+                        field_name
+                    ),
                 );
                 return validators;
             }
@@ -652,8 +706,7 @@ pub fn extract_validators(
         }
 
         // Check if this looks like a validator (either a known name or has function syntax)
-        let is_likely_validator = KNOWN_VALIDATORS.contains(&base_name)
-            || item.contains('('); // Function-like syntax suggests validator
+        let is_likely_validator = KNOWN_VALIDATORS.contains(&base_name) || item.contains('('); // Function-like syntax suggests validator
 
         if is_likely_validator {
             match parse_validator_string(item) {
@@ -743,7 +796,10 @@ fn parse_validator_array(
 
     // Find matching ] bracket
     let Some(content) = extract_bracket_content(input, '[', ']') else {
-        diagnostics.error(decorator_span, format!("field '{}': malformed validator array", field_name));
+        diagnostics.error(
+            decorator_span,
+            format!("field '{}': malformed validator array", field_name),
+        );
         return validators;
     };
 
@@ -895,7 +951,10 @@ fn parse_validator_string(s: &str) -> Result<Validator, ValidatorParseError> {
     if let Some(paren_idx) = trimmed.find('(') {
         let name = &trimmed[..paren_idx];
         let Some(args_end) = trimmed.rfind(')') else {
-            return Err(ValidatorParseError::invalid_args(name, "missing closing parenthesis"));
+            return Err(ValidatorParseError::invalid_args(
+                name,
+                "missing closing parenthesis",
+            ));
         };
         let args = &trimmed[paren_idx + 1..args_end];
         return parse_validator_with_args(name, args);
@@ -947,23 +1006,22 @@ fn parse_validator_with_args(name: &str, args: &str) -> Result<Validator, Valida
         "length" => {
             let parts: Vec<&str> = args.split(',').collect();
             match parts.len() {
-                1 => parts[0]
-                    .trim()
-                    .parse()
-                    .map(Validator::Length)
-                    .map_err(|_| ValidatorParseError::invalid_args(name, "expected a positive integer")),
+                1 => parts[0].trim().parse().map(Validator::Length).map_err(|_| {
+                    ValidatorParseError::invalid_args(name, "expected a positive integer")
+                }),
                 2 => {
-                    let min = parts[0]
-                        .trim()
-                        .parse()
-                        .map_err(|_| ValidatorParseError::invalid_args(name, "expected two positive integers"))?;
-                    let max = parts[1]
-                        .trim()
-                        .parse()
-                        .map_err(|_| ValidatorParseError::invalid_args(name, "expected two positive integers"))?;
+                    let min = parts[0].trim().parse().map_err(|_| {
+                        ValidatorParseError::invalid_args(name, "expected two positive integers")
+                    })?;
+                    let max = parts[1].trim().parse().map_err(|_| {
+                        ValidatorParseError::invalid_args(name, "expected two positive integers")
+                    })?;
                     Ok(Validator::LengthRange(min, max))
                 }
-                _ => Err(ValidatorParseError::invalid_args(name, "expected 1 or 2 arguments")),
+                _ => Err(ValidatorParseError::invalid_args(
+                    name,
+                    "expected 1 or 2 arguments",
+                )),
             }
         }
         "pattern" => parse_validator_string_arg(args)
@@ -1011,7 +1069,10 @@ fn parse_validator_with_args(name: &str, args: &str) -> Result<Validator, Valida
                     .map_err(|_| ValidatorParseError::invalid_args(name, "expected two numbers"))?;
                 Ok(Validator::Between(min, max))
             } else {
-                Err(ValidatorParseError::invalid_args(name, "expected two numbers separated by comma"))
+                Err(ValidatorParseError::invalid_args(
+                    name,
+                    "expected two numbers separated by comma",
+                ))
             }
         }
         "multipleof" => args
@@ -1049,13 +1110,18 @@ fn parse_validator_with_args(name: &str, args: &str) -> Result<Validator, Valida
         "betweendate" => {
             let parts: Vec<&str> = args.splitn(2, ',').collect();
             if parts.len() == 2 {
-                let min = parse_validator_string_arg(parts[0].trim())
-                    .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected two date strings"))?;
-                let max = parse_validator_string_arg(parts[1].trim())
-                    .ok_or_else(|| ValidatorParseError::invalid_args(name, "expected two date strings"))?;
+                let min = parse_validator_string_arg(parts[0].trim()).ok_or_else(|| {
+                    ValidatorParseError::invalid_args(name, "expected two date strings")
+                })?;
+                let max = parse_validator_string_arg(parts[1].trim()).ok_or_else(|| {
+                    ValidatorParseError::invalid_args(name, "expected two date strings")
+                })?;
                 Ok(Validator::BetweenDate(min, max))
             } else {
-                Err(ValidatorParseError::invalid_args(name, "expected two date strings separated by comma"))
+                Err(ValidatorParseError::invalid_args(
+                    name,
+                    "expected two date strings separated by comma",
+                ))
             }
         }
         "greaterthanbigint" => Ok(Validator::GreaterThanBigInt(args.trim().to_string())),
@@ -1074,7 +1140,10 @@ fn parse_validator_with_args(name: &str, args: &str) -> Result<Validator, Valida
                     parts[1].trim().to_string(),
                 ))
             } else {
-                Err(ValidatorParseError::invalid_args(name, "expected two bigint values separated by comma"))
+                Err(ValidatorParseError::invalid_args(
+                    name,
+                    "expected two bigint values separated by comma",
+                ))
             }
         }
         "custom" => {
@@ -1365,10 +1434,7 @@ mod tests {
             parse_validator_string("email"),
             Ok(Validator::Email)
         ));
-        assert!(matches!(
-            parse_validator_string("url"),
-            Ok(Validator::Url)
-        ));
+        assert!(matches!(parse_validator_string("url"), Ok(Validator::Url)));
         assert!(matches!(
             parse_validator_string("uuid"),
             Ok(Validator::Uuid)
@@ -1389,10 +1455,7 @@ mod tests {
             parse_validator_string("uppercase"),
             Ok(Validator::Uppercase)
         ));
-        assert!(matches!(
-            parse_validator_string("int"),
-            Ok(Validator::Int)
-        ));
+        assert!(matches!(parse_validator_string("int"), Ok(Validator::Int)));
         assert!(matches!(
             parse_validator_string("positive"),
             Ok(Validator::Positive)

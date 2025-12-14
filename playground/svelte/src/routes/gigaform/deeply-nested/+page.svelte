@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { Order, Site, Coordinates, type OrderStage } from "$lib/demo/types.svelte";
+  import { Order, Site, Coordinates, createFormOrder, type OrderStage } from "$lib/demo/types.svelte";
 
   // Create Order form to test deeply nested paths
   // Order -> site (Site) -> coordinates (Coordinates) -> lat/lng
-  const orderForm = Order.createForm({
+  const orderForm = createFormOrder({
     id: "order-001",
     number: 1001,
     stage: "Active",

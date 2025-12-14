@@ -9,12 +9,22 @@ use crate::gigaform::parser::{
     ValidatorSpec,
 };
 
+fn suffixed(base: &str, type_name: &str) -> String {
+    format!("{base}{type_name}")
+}
+
 /// Generates the createForm factory function that returns a Gigaform instance.
 pub fn generate_factory(
     interface_name: &str,
     fields: &[ParsedField],
     options: &GigaformOptions,
 ) -> TsStream {
+    let create_fn_name = suffixed("createForm", interface_name);
+    let errors_name = suffixed("Errors", interface_name);
+    let tainted_name = suffixed("Tainted", interface_name);
+    let field_controllers_name = suffixed("FieldControllers", interface_name);
+    let gigaform_name = suffixed("Gigaform", interface_name);
+
     let field_controllers = generate_field_controllers(fields, options, interface_name);
     let default_init = generate_default_init(interface_name, options);
     let default_errors_init = generate_default_errors_init(fields);
@@ -22,14 +32,14 @@ pub fn generate_factory(
 
     ts_template! {
         {>> "Creates a new Gigaform instance with reactive state and field controllers." <<}
-        export function createForm(overrides?: Partial<@{interface_name}>): Gigaform {
+        export function @{create_fn_name}(overrides?: Partial<@{interface_name}>): @{gigaform_name} {
             // Reactive state using Svelte 5 $state
             let data = $state({ @{default_init}, ...overrides });
-            let errors = $state<Errors>(@{default_errors_init});
-            let tainted = $state<Tainted>(@{default_tainted_init});
+            let errors = $state<@{errors_name}>(@{default_errors_init});
+            let tainted = $state<@{tainted_name}>(@{default_tainted_init});
 
             // Field controllers with closures capturing reactive state
-            const fields: FieldControllers = {
+            const fields: @{field_controllers_name} = {
                 @{field_controllers}
             };
 
@@ -71,6 +81,12 @@ pub fn generate_factory_with_generics(
         return generate_factory(interface_name, fields, options);
     }
 
+    let create_fn_name = suffixed("createForm", interface_name);
+    let errors_name = suffixed("Errors", interface_name);
+    let tainted_name = suffixed("Tainted", interface_name);
+    let field_controllers_name = suffixed("FieldControllers", interface_name);
+    let gigaform_name = suffixed("Gigaform", interface_name);
+
     let field_controllers = generate_field_controllers(fields, options, interface_name);
     let default_init = generate_default_init(interface_name, options);
     let default_errors_init = generate_default_errors_init(fields);
@@ -80,14 +96,14 @@ pub fn generate_factory_with_generics(
 
     ts_template! {
         {>> "Creates a new Gigaform instance with reactive state and field controllers." <<}
-        export function createForm@{generic_decl}(overrides?: Partial<@{interface_name}@{generic_args}>): Gigaform@{generic_args} {
+        export function @{create_fn_name}@{generic_decl}(overrides?: Partial<@{interface_name}@{generic_args}>): @{gigaform_name}@{generic_args} {
             // Reactive state using Svelte 5 $state
             let data = $state({ @{default_init}, ...overrides });
-            let errors = $state<Errors@{generic_args}>(@{default_errors_init});
-            let tainted = $state<Tainted@{generic_args}>(@{default_tainted_init});
+            let errors = $state<@{errors_name}@{generic_args}>(@{default_errors_init});
+            let tainted = $state<@{tainted_name}@{generic_args}>(@{default_tainted_init});
 
             // Field controllers with closures capturing reactive state
-            const fields: FieldControllers@{generic_args} = {
+            const fields: @{field_controllers_name}@{generic_args} = {
                 @{field_controllers}
             };
 
@@ -139,6 +155,13 @@ pub fn generate_union_factory(
     config: &UnionConfig,
     options: &GigaformOptions,
 ) -> TsStream {
+    let create_fn_name = suffixed("createForm", type_name);
+    let errors_name = suffixed("Errors", type_name);
+    let tainted_name = suffixed("Tainted", type_name);
+    let gigaform_name = suffixed("Gigaform", type_name);
+    let variant_fields_name = suffixed("VariantFields", type_name);
+    let default_for_variant_fn = suffixed("getDefaultForVariant", type_name);
+
     let variant_literals = config
         .variants
         .iter()
@@ -163,7 +186,12 @@ pub fn generate_union_factory(
     let variant_controllers = generate_union_variant_controllers(config, options, type_name);
 
     // Generate getDefaultForVariant function
-    let default_for_variant = generate_default_for_variant(type_name, config, discriminant_field);
+    let default_for_variant = generate_default_for_variant(
+        type_name,
+        config,
+        discriminant_field,
+        &default_for_variant_fn,
+    );
 
     // Generate initial variant detection based on union type
     let initial_variant_expr = if discriminant_field == "_value" {
@@ -180,10 +208,12 @@ pub fn generate_union_factory(
     // Generate reset logic based on union type
     let reset_data_expr = if discriminant_field == "_value" || discriminant_field == "_type" {
         // For literal/type ref unions, just use the default (can't spread primitives/objects)
-        "overrides ? overrides as typeof data : getDefaultForVariant(currentVariant)".to_string()
+        format!("overrides ? overrides as typeof data : {default_for_variant_fn}(currentVariant)")
     } else {
         // For object unions, can spread
-        "overrides ? { ...getDefaultForVariant(currentVariant), ...overrides } : getDefaultForVariant(currentVariant)".to_string()
+        format!(
+            "overrides ? {{ ...{default_for_variant_fn}(currentVariant), ...overrides }} : {default_for_variant_fn}(currentVariant)"
+        )
     };
 
     ts_template! {
@@ -191,27 +221,27 @@ pub fn generate_union_factory(
         @{default_for_variant}
 
         {>> "Creates a new discriminated union Gigaform with variant switching" <<}
-        export function createForm(initial?: @{type_name}): Gigaform {
+        export function @{create_fn_name}(initial?: @{type_name}): @{gigaform_name} {
             // Detect initial variant from discriminant
             const initialVariant: @{variant_literals} = @{initial_variant_expr};
 
             // Reactive state using Svelte 5 $state
             let currentVariant = $state<@{variant_literals}>(initialVariant);
-            let data = $state<@{type_name}>(initial ?? getDefaultForVariant(initialVariant));
-            let errors = $state<Errors>({} as Errors);
-            let tainted = $state<Tainted>({} as Tainted);
+            let data = $state<@{type_name}>(initial ?? @{default_for_variant_fn}(initialVariant));
+            let errors = $state<@{errors_name}>({} as @{errors_name});
+            let tainted = $state<@{tainted_name}>({} as @{tainted_name});
 
             // Per-variant field controllers
-            const variants: VariantFields = {
+            const variants: @{variant_fields_name} = {
                 @{variant_controllers}
             };
 
             // Switch to a different variant
             function switchVariant(variant: @{variant_literals}): void {
                 currentVariant = variant;
-                data = getDefaultForVariant(variant);
-                errors = {} as Errors;
-                tainted = {} as Tainted;
+                data = @{default_for_variant_fn}(variant);
+                errors = {} as @{errors_name};
+                tainted = {} as @{tainted_name};
             }
 
             // Validate the entire form using Deserialize's fromObject
@@ -222,8 +252,8 @@ pub fn generate_union_factory(
             // Reset form
             function reset(overrides?: Partial<@{type_name}>): void {
                 data = @{reset_data_expr};
-                errors = {} as Errors;
-                tainted = {} as Tainted;
+                errors = {} as @{errors_name};
+                tainted = {} as @{tainted_name};
             }
 
             return {
@@ -279,6 +309,7 @@ fn generate_default_for_variant(
     type_name: &str,
     config: &UnionConfig,
     discriminant_field: &str,
+    fn_name: &str,
 ) -> String {
     // Determine how to generate the default value based on the discriminant field
     // - "_value": literal union (e.g., "Home" | "About") - return the literal
@@ -315,7 +346,7 @@ fn generate_default_for_variant(
     };
 
     format!(
-        r#"function getDefaultForVariant(variant: string): {type_name} {{
+        r#"function {fn_name}(variant: string): {type_name} {{
         switch (variant) {{
             {cases}
             default: {default_return}
@@ -349,7 +380,7 @@ fn generate_union_variant_controllers(
                 r#"{prop_key}: {{
                     fields: {{
                         {field_controllers}
-                    }} as {variant_name}FieldControllers
+                    }} as {variant_name}FieldControllers{type_name}
                 }}"#
             )
         })
@@ -801,6 +832,10 @@ use crate::gigaform::parser::EnumFormConfig;
 
 /// Generates the createForm factory for an enum step form.
 pub fn generate_enum_factory(enum_name: &str, config: &EnumFormConfig) -> TsStream {
+    let create_fn_name = suffixed("createForm", enum_name);
+    let gigaform_name = suffixed("Gigaform", enum_name);
+    let variants_name = suffixed("variants", enum_name);
+
     let first_variant = config
         .variants
         .first()
@@ -809,27 +844,27 @@ pub fn generate_enum_factory(enum_name: &str, config: &EnumFormConfig) -> TsStre
 
     ts_template! {
         {>> "Creates a new enum step form with navigation controls" <<}
-        export function createForm(initialStep?: @{enum_name}): Gigaform {
+        export function @{create_fn_name}(initialStep?: @{enum_name}): @{gigaform_name} {
             let currentStep = $state<@{enum_name}>(initialStep ?? @{first_variant});
 
             return {
                 get currentStep() { return currentStep; },
-                steps: variants,
+                steps: @{variants_name},
                 setStep(step: @{enum_name}): void {
                     currentStep = step;
                 },
                 nextStep(): boolean {
-                    const idx = variants.findIndex(v => v.value === currentStep);
-                    if (idx < variants.length - 1) {
-                        currentStep = variants[idx + 1].value;
+                    const idx = @{variants_name}.findIndex(v => v.value === currentStep);
+                    if (idx < @{variants_name}.length - 1) {
+                        currentStep = @{variants_name}[idx + 1].value;
                         return true;
                     }
                     return false;
                 },
                 prevStep(): boolean {
-                    const idx = variants.findIndex(v => v.value === currentStep);
+                    const idx = @{variants_name}.findIndex(v => v.value === currentStep);
                     if (idx > 0) {
-                        currentStep = variants[idx - 1].value;
+                        currentStep = @{variants_name}[idx - 1].value;
                         return true;
                     }
                     return false;

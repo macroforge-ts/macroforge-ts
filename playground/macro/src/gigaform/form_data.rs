@@ -3,16 +3,21 @@
 use macroforge_ts::macros::ts_template;
 use macroforge_ts::ts_syn::TsStream;
 
-use crate::gigaform::parser::{ParsedField, UnionConfig, UnionMode};
 use crate::gigaform::GenericInfo;
+use crate::gigaform::parser::{ParsedField, UnionConfig, UnionMode};
+
+fn suffixed(base: &str, type_name: &str) -> String {
+    format!("{base}{type_name}")
+}
 
 /// Generates the fromFormData function.
 pub fn generate(interface_name: &str, fields: &[ParsedField]) -> TsStream {
+    let fn_name = suffixed("fromFormData", interface_name);
     let field_extractions = generate_field_extractions(fields, "");
 
     ts_template! {
         {>> "Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize)." <<}
-        export function fromFormData(formData: FormData): Result<@{interface_name}, Array<{ field: string; message: string }>> {
+        export function @{fn_name}(formData: FormData): Result<@{interface_name}, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
             @{field_extractions}
@@ -24,18 +29,23 @@ pub fn generate(interface_name: &str, fields: &[ParsedField]) -> TsStream {
 }
 
 /// Generates the fromFormData function with generic support.
-pub fn generate_with_generics(interface_name: &str, fields: &[ParsedField], generics: &GenericInfo) -> TsStream {
+pub fn generate_with_generics(
+    interface_name: &str,
+    fields: &[ParsedField],
+    generics: &GenericInfo,
+) -> TsStream {
     if generics.is_empty() {
         return generate(interface_name, fields);
     }
 
+    let fn_name = suffixed("fromFormData", interface_name);
     let field_extractions = generate_field_extractions(fields, "");
     let generic_decl = generics.decl();
     let generic_args = generics.args();
 
     ts_template! {
         {>> "Parses FormData and validates it, returning a Result with the parsed data or errors." <<}
-        export function fromFormData@{generic_decl}(formData: FormData): Result<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
+        export function @{fn_name}@{generic_decl}(formData: FormData): Result<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
             @{field_extractions}
@@ -47,13 +57,18 @@ pub fn generate_with_generics(interface_name: &str, fields: &[ParsedField], gene
 }
 
 /// Generates the fromFormData function for discriminated unions with generic support.
-pub fn generate_union_with_generics(type_name: &str, config: &UnionConfig, _generics: &GenericInfo) -> TsStream {
+pub fn generate_union_with_generics(
+    type_name: &str,
+    config: &UnionConfig,
+    _generics: &GenericInfo,
+) -> TsStream {
     // Unions typically don't have type parameters
     generate_union(type_name, config)
 }
 
 /// Generates the fromFormData function for discriminated unions.
 pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
+    let fn_name = suffixed("fromFormData", type_name);
     let discriminant_field = match &config.mode {
         UnionMode::Tagged { field } => field.as_str(),
         UnionMode::Untagged => "_variant", // synthetic field for untagged
@@ -69,7 +84,7 @@ pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
 
     ts_template! {
         {>> "Parses FormData for union type, determining variant from discriminant field" <<}
-        export function fromFormData(formData: FormData): Result<@{type_name}, Array<{ field: string; message: string }>> {
+        export function @{fn_name}(formData: FormData): Result<@{type_name}, Array<{ field: string; message: string }>> {
             const discriminant = formData.get("@{discriminant_field}") as @{variant_literals} | null;
 
             if (!discriminant) {
@@ -153,13 +168,9 @@ fn generate_primitive_extraction(
     match base_type {
         "string" => {
             if optional {
-                format!(
-                    r#"obj.{name} = formData.get("{form_key}") ?? undefined;"#
-                )
+                format!(r#"obj.{name} = formData.get("{form_key}") ?? undefined;"#)
             } else {
-                format!(
-                    r#"obj.{name} = formData.get("{form_key}") ?? "";"#
-                )
+                format!(r#"obj.{name} = formData.get("{form_key}") ?? "";"#)
             }
         }
         "number" => {
@@ -218,13 +229,9 @@ fn generate_primitive_extraction(
         _ => {
             // Unknown type - treat as string
             if optional {
-                format!(
-                    r#"obj.{name} = formData.get("{form_key}") ?? undefined;"#
-                )
+                format!(r#"obj.{name} = formData.get("{form_key}") ?? undefined;"#)
             } else {
-                format!(
-                    r#"obj.{name} = formData.get("{form_key}") ?? "";"#
-                )
+                format!(r#"obj.{name} = formData.get("{form_key}") ?? "";"#)
             }
         }
     }
@@ -232,17 +239,12 @@ fn generate_primitive_extraction(
 
 /// Generates extraction for array types.
 fn generate_array_extraction(name: &str, form_key: &str, field: &ParsedField) -> String {
-    let element_type = field
-        .array_element_type
-        .as_deref()
-        .unwrap_or("string");
+    let element_type = field.array_element_type.as_deref().unwrap_or("string");
     let base_element = extract_base_type(element_type);
 
     match base_element {
         "string" => {
-            format!(
-                r#"obj.{name} = formData.getAll("{form_key}") as Array<string>;"#
-            )
+            format!(r#"obj.{name} = formData.getAll("{form_key}") as Array<string>;"#)
         }
         "number" => {
             format!(

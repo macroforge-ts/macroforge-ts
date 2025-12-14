@@ -90,10 +90,10 @@
 //! - Use **Ord** when all values are comparable (total ordering)
 //! - Use **PartialOrd** when some values may be incomparable (returns `Option<number>`)
 
-use crate::builtin::derive_common::{is_numeric_type, is_primitive_type, CompareFieldOptions};
+use crate::builtin::derive_common::{CompareFieldOptions, is_numeric_type, is_primitive_type};
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::abi::FunctionNamingStyle;
-use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
+use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 /// Convert a PascalCase name to camelCase (for prefix naming style)
 fn to_camel_case(name: &str) -> String {
@@ -475,17 +475,15 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                         }
                     })
                 }
-                FunctionNamingStyle::Generic => {
-                    Ok(ts_template! {
-                        export function compare<T extends @{interface_name}>(a: T, b: T): number {
-                            if (a === b) return 0;
-                            {#if has_fields}
-                                @{compare_body}
-                            {/if}
-                            return 0;
-                        }
-                    })
-                }
+                FunctionNamingStyle::Generic => Ok(ts_template! {
+                    export function compare<T extends @{interface_name}>(a: T, b: T): number {
+                        if (a === b) return 0;
+                        {#if has_fields}
+                            @{compare_body}
+                        {/if}
+                        return 0;
+                    }
+                }),
                 FunctionNamingStyle::Prefix => {
                     let fn_name = format!("{}Compare", to_camel_case(interface_name));
                     Ok(ts_template! {
@@ -553,30 +551,26 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
                 };
 
                 match naming_style {
-                    FunctionNamingStyle::Namespace => {
-                        Ok(ts_template! {
-                            export namespace @{type_name} {
-                                export function compareTo(a: @{type_name}, b: @{type_name}): number {
-                                    if (a === b) return 0;
-                                    {#if has_fields}
-                                        @{compare_body}
-                                    {/if}
-                                    return 0;
-                                }
-                            }
-                        })
-                    }
-                    FunctionNamingStyle::Generic => {
-                        Ok(ts_template! {
-                            export function compare<T extends @{type_name}>(a: T, b: T): number {
+                    FunctionNamingStyle::Namespace => Ok(ts_template! {
+                        export namespace @{type_name} {
+                            export function compareTo(a: @{type_name}, b: @{type_name}): number {
                                 if (a === b) return 0;
                                 {#if has_fields}
                                     @{compare_body}
                                 {/if}
                                 return 0;
                             }
-                        })
-                    }
+                        }
+                    }),
+                    FunctionNamingStyle::Generic => Ok(ts_template! {
+                        export function compare<T extends @{type_name}>(a: T, b: T): number {
+                            if (a === b) return 0;
+                            {#if has_fields}
+                                @{compare_body}
+                            {/if}
+                            return 0;
+                        }
+                    }),
                     FunctionNamingStyle::Prefix => {
                         let fn_name = format!("{}Compare", to_camel_case(type_name));
                         Ok(ts_template! {

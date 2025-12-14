@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { User, Settings, type UserRole } from "$lib/demo/types.svelte";
+  import { User, Settings, createFormUser, type UserRole } from "$lib/demo/types.svelte";
 
   // Create User form with nested Settings, Metadata, AppPermissions
-  const userForm = User.createForm();
+  const userForm = createFormUser();
 
   // Track validation results
   let userResult: { success: boolean; data?: User; errors?: Array<{ field: string; message: string }> } | null = $state(null);

@@ -20,9 +20,9 @@ pub mod parser;
 pub mod types;
 
 use macroforge_ts::macros::{ts_macro_derive, ts_template};
-use macroforge_ts::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
+use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
-/// Generates the Gigaform namespace with types, fromFormData, and field descriptors.
+/// Generates Gigaform helpers (suffixed exports) with types, fromFormData, and field controllers.
 pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     let type_name = input.name();
     let options = parser::parse_gigaform_options(&input);
@@ -107,13 +107,11 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     let factory_fn =
         field_descriptors::generate_factory_with_generics(type_name, &fields, &options, &generics);
 
-    // Combine into namespace
+    // Combine into plain, suffixed exports (no namespace merging)
     let mut output = ts_template! {
-        export namespace @{type_name} {
-            {$typescript type_defs}
-            {$typescript factory_fn}
-            {$typescript form_data_fn}
-        }
+        {$typescript type_defs}
+        {$typescript factory_fn}
+        {$typescript form_data_fn}
     };
 
     // Add required imports
@@ -219,11 +217,9 @@ fn generate_union_form(
     let form_data_fn = form_data::generate_union_with_generics(type_name, union_config, generics);
 
     let mut output = ts_template! {
-        export namespace @{type_name} {
-            {$typescript type_defs}
-            {$typescript factory_fn}
-            {$typescript form_data_fn}
-        }
+        {$typescript type_defs}
+        {$typescript factory_fn}
+        {$typescript form_data_fn}
     };
 
     output.add_import("Result", "macroforge/utils");
@@ -263,16 +259,14 @@ fn generate_enum_form(
     let factory_fn = field_descriptors::generate_enum_factory(enum_name, enum_config);
 
     let output = ts_template! {
-        export namespace @{enum_name} {
-            {$typescript type_defs}
-            {$typescript factory_fn}
-        }
+        {$typescript type_defs}
+        {$typescript factory_fn}
     };
 
     Ok(output)
 }
 
-/// Generates a form namespace with reactive state, field controllers, and validation.
+/// Generates suffixed form helpers with reactive state, field controllers, and validation.
 ///
 /// This macro **composes with** other Macroforge macros:
 /// - `@derive(Default)` provides `defaultValue()`
@@ -305,23 +299,17 @@ fn generate_enum_form(
 ///   age: number;
 /// }
 ///
-/// // Generates namespace with:
-/// export namespace UserForm {
-///   // Types
-///   export type Errors = { _errors?: string[]; name?: string[]; email?: string[]; age?: string[] };
-///   export type Tainted = { name?: boolean; email?: boolean; age?: boolean };
-///   export interface FieldController<T> { get(), set(), getError(), setError(), ... };
-///   export interface Gigaform { data, errors, tainted, fields, validate(), reset() };
-///
-///   // Factory function - creates reactive form instance
-///   export function createForm(overrides?: Partial<UserForm>): Gigaform;
-///
-///   // FormData parsing
-///   export function fromFormData(fd: FormData): Result<UserForm, Array<{ field: string; message: string }>>;
-/// }
+/// // Generates suffixed exports:
+/// // Generates suffixed exports:
+/// export type ErrorsUserForm = { _errors?: string[]; name?: string[]; email?: string[]; age?: string[] };
+/// export type TaintedUserForm = { name?: boolean; email?: boolean; age?: boolean };
+/// export interface FieldControllersUserForm { name: FieldController<string>; ... }
+/// export interface GigaformUserForm { data, errors, tainted, fields, validate(), reset() };
+/// export function createFormUserForm(overrides?: Partial<UserForm>): GigaformUserForm;
+/// export function fromFormDataUserForm(fd: FormData): Result<UserForm, Array<{ field: string; message: string }>>;
 ///
 /// // Usage in Svelte component:
-/// const form = UserForm.createForm();
+/// const form = createFormUserForm();
 /// <TextField fieldController={form.fields.name} />
 /// <TextField fieldController={form.fields.email} />
 /// <button onclick={() => form.validate()}>Submit</button>
@@ -355,7 +343,7 @@ fn generate_enum_form(
 /// - `placeholderKey`: i18n key for the field placeholder
 #[ts_macro_derive(
     Gigaform,
-    description = "Generates form namespace with types, validation, field descriptors, and controllers",
+    description = "Generates suffixed form helpers (types, validation, controllers, FormData parsing)",
     attributes(
         gigaform,
         textController,

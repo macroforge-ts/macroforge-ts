@@ -30,7 +30,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::abi::{swc_ast, SpanIR};
+use crate::abi::{SpanIR, swc_ast};
 
 /// Intermediate representation of a decorator or JSDoc attribute.
 ///
@@ -61,8 +61,7 @@ use crate::abi::{swc_ast, SpanIR};
 ///     })
 /// }
 /// ```
-#[derive(Serialize, Deserialize)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct DecoratorIR {
     /// The decorator name without the `@` prefix.
     ///
