@@ -308,12 +308,13 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
 
                 if let Some(variant) = default_variant {
                     // Determine the default expression based on variant type
-                    let default_expr = if variant.contains('.') || variant.contains('(') {
-                        variant // Already has .defaultValue() or is an expression
-                    } else if variant.starts_with('"') || variant.starts_with('\'') || variant.starts_with('`') {
-                        variant // String literal - use as-is
-                    } else if variant.parse::<f64>().is_ok() || variant == "true" || variant == "false" || variant == "null" {
-                        variant // Primitive literal - use as-is
+                    // Use as-is if it's already an expression, a literal, or a primitive
+                    let is_expression = variant.contains('.') || variant.contains('(');
+                    let is_string_literal = variant.starts_with('"') || variant.starts_with('\'') || variant.starts_with('`');
+                    let is_primitive = variant.parse::<f64>().is_ok() || variant == "true" || variant == "false" || variant == "null";
+
+                    let default_expr = if is_expression || is_string_literal || is_primitive {
+                        variant // Use as-is
                     } else {
                         format!("{}.defaultValue()", variant) // Type reference - call defaultValue()
                     };

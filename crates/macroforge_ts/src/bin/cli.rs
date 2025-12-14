@@ -123,21 +123,21 @@ fn scan_and_expand(root: PathBuf, builtin_only: bool, include_ignored: bool) -> 
         }
 
         // Print directory change
-        if let Some(parent) = path.parent() {
-            if current_dir.as_ref() != Some(&parent.to_path_buf()) {
-                let display_path = parent
-                    .strip_prefix(&root)
-                    .unwrap_or(parent)
-                    .display()
-                    .to_string();
-                let display_path = if display_path.is_empty() {
-                    ".".to_string()
-                } else {
-                    display_path
-                };
-                eprintln!("[macroforge] entering {}/", display_path);
-                current_dir = Some(parent.to_path_buf());
-            }
+        if let Some(parent) = path.parent()
+            && current_dir.as_ref() != Some(&parent.to_path_buf())
+        {
+            let display_path = parent
+                .strip_prefix(&root)
+                .unwrap_or(parent)
+                .display()
+                .to_string();
+            let display_path = if display_path.is_empty() {
+                ".".to_string()
+            } else {
+                display_path
+            };
+            eprintln!("[macroforge] entering {}/", display_path);
+            current_dir = Some(parent.to_path_buf());
         }
 
         files_found += 1;
