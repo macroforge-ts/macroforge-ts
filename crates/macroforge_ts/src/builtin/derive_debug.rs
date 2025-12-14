@@ -5,14 +5,24 @@
 //!
 //! ## Generated Output
 //!
-//! **Classes and Interfaces**: Generates an instance method returning a string
+//! **Classes**: Generates an instance method returning a string
 //! like `"ClassName { field1: value1, field2: value2 }"`.
 //!
-//! **Enums**: Generates a namespace function `toString(value)` that performs
+//! **Enums**: Generates a standalone function `toStringEnumName(value)` that performs
 //! reverse lookup on numeric enums.
 //!
-//! **Type Aliases**: Generates a namespace function using JSON.stringify for
+//! **Interfaces**: Generates a standalone function `toStringInterfaceName(value)`.
+//!
+//! **Type Aliases**: Generates a standalone function using JSON.stringify for
 //! complex types, or field enumeration for object types.
+//!
+//! ## Configuration
+//!
+//! The `functionNamingStyle` option in `macroforge.json` controls naming:
+//! - `"suffix"` (default): Suffixes with type name (e.g., `toStringMyType`)
+//! - `"prefix"`: Prefixes with type name (e.g., `myTypeToString`)
+//! - `"generic"`: Uses TypeScript generics (e.g., `toString<T extends MyType>`)
+//! - `"namespace"`: Legacy namespace wrapping
 //!
 //! ## Field-Level Options
 //!
@@ -42,7 +52,17 @@
 //! ```
 
 use crate::macros::{ts_macro_derive, body, ts_template};
+use crate::ts_syn::abi::FunctionNamingStyle;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+
+/// Convert a PascalCase name to camelCase (for prefix naming style)
+fn to_camel_case(name: &str) -> String {
+    let mut chars = name.chars();
+    match chars.next() {
+        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
+        None => String::new(),
+    }
+}
 
 /// Options parsed from @Debug decorator on fields
 #[derive(Default)]
@@ -189,26 +209,78 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let enum_name = input.name();
             let variants: Vec<String> = enum_data.variants().iter().map(|v| v.name.clone()).collect();
             let has_variants = !variants.is_empty();
+            let naming_style = input.context.function_naming_style;
 
-            Ok(ts_template! {
-                export namespace @{enum_name} {
-                    export function toString(value: @{enum_name}): string {
-                        {#if has_variants}
-                            // Use reverse lookup for numeric enums
-                            const key = @{enum_name}[value as unknown as keyof typeof @{enum_name}];
-                            if (key !== undefined) {
-                                return "@{enum_name}." + key;
+            match naming_style {
+                FunctionNamingStyle::Namespace => {
+                    Ok(ts_template! {
+                        export namespace @{enum_name} {
+                            export function toString(value: @{enum_name}): string {
+                                {#if has_variants}
+                                    const key = @{enum_name}[value as unknown as keyof typeof @{enum_name}];
+                                    if (key !== undefined) {
+                                        return "@{enum_name}." + key;
+                                    }
+                                    return "@{enum_name}(" + String(value) + ")";
+                                {:else}
+                                    return "@{enum_name}(" + String(value) + ")";
+                                {/if}
                             }
-                            return "@{enum_name}(" + String(value) + ")";
-                        {:else}
-                            return "@{enum_name}(" + String(value) + ")";
-                        {/if}
-                    }
+                        }
+                    })
                 }
-            })
+                FunctionNamingStyle::Generic => {
+                    Ok(ts_template! {
+                        export function toString<T extends @{enum_name}>(value: T): string {
+                            {#if has_variants}
+                                const key = @{enum_name}[value as unknown as keyof typeof @{enum_name}];
+                                if (key !== undefined) {
+                                    return "@{enum_name}." + key;
+                                }
+                                return "@{enum_name}(" + String(value) + ")";
+                            {:else}
+                                return "@{enum_name}(" + String(value) + ")";
+                            {/if}
+                        }
+                    })
+                }
+                FunctionNamingStyle::Prefix => {
+                    let fn_name = format!("{}ToString", to_camel_case(enum_name));
+                    Ok(ts_template! {
+                        export function @{fn_name}(value: @{enum_name}): string {
+                            {#if has_variants}
+                                const key = @{enum_name}[value as unknown as keyof typeof @{enum_name}];
+                                if (key !== undefined) {
+                                    return "@{enum_name}." + key;
+                                }
+                                return "@{enum_name}(" + String(value) + ")";
+                            {:else}
+                                return "@{enum_name}(" + String(value) + ")";
+                            {/if}
+                        }
+                    })
+                }
+                FunctionNamingStyle::Suffix => {
+                    let fn_name = format!("toString{}", enum_name);
+                    Ok(ts_template! {
+                        export function @{fn_name}(value: @{enum_name}): string {
+                            {#if has_variants}
+                                const key = @{enum_name}[value as unknown as keyof typeof @{enum_name}];
+                                if (key !== undefined) {
+                                    return "@{enum_name}." + key;
+                                }
+                                return "@{enum_name}(" + String(value) + ")";
+                            {:else}
+                                return "@{enum_name}(" + String(value) + ")";
+                            {/if}
+                        }
+                    })
+                }
+            }
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
+            let naming_style = input.context.function_naming_style;
 
             // Collect fields that should be included in debug output
             let debug_fields: Vec<DebugField> = interface
@@ -226,24 +298,76 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
             let has_fields = !debug_fields.is_empty();
 
-            Ok(ts_template! {
-                export namespace @{interface_name} {
-                    export function toString(self: @{interface_name}): string {
-                        {#if has_fields}
-                            const parts: string[] = [];
-                            {#for (label, name) in debug_fields}
-                                parts.push("@{label}: " + self.@{name});
-                            {/for}
-                            return "@{interface_name} { " + parts.join(", ") + " }";
-                        {:else}
-                            return "@{interface_name} {}";
-                        {/if}
-                    }
+            match naming_style {
+                FunctionNamingStyle::Namespace => {
+                    Ok(ts_template! {
+                        export namespace @{interface_name} {
+                            export function toString(self: @{interface_name}): string {
+                                {#if has_fields}
+                                    const parts: string[] = [];
+                                    {#for (label, name) in debug_fields}
+                                        parts.push("@{label}: " + self.@{name});
+                                    {/for}
+                                    return "@{interface_name} { " + parts.join(", ") + " }";
+                                {:else}
+                                    return "@{interface_name} {}";
+                                {/if}
+                            }
+                        }
+                    })
                 }
-            })
+                FunctionNamingStyle::Generic => {
+                    Ok(ts_template! {
+                        export function toString<T extends @{interface_name}>(value: T): string {
+                            {#if has_fields}
+                                const parts: string[] = [];
+                                {#for (label, name) in debug_fields}
+                                    parts.push("@{label}: " + value.@{name});
+                                {/for}
+                                return "@{interface_name} { " + parts.join(", ") + " }";
+                            {:else}
+                                return "@{interface_name} {}";
+                            {/if}
+                        }
+                    })
+                }
+                FunctionNamingStyle::Prefix => {
+                    let fn_name = format!("{}ToString", to_camel_case(interface_name));
+                    Ok(ts_template! {
+                        export function @{fn_name}(value: @{interface_name}): string {
+                            {#if has_fields}
+                                const parts: string[] = [];
+                                {#for (label, name) in debug_fields}
+                                    parts.push("@{label}: " + value.@{name});
+                                {/for}
+                                return "@{interface_name} { " + parts.join(", ") + " }";
+                            {:else}
+                                return "@{interface_name} {}";
+                            {/if}
+                        }
+                    })
+                }
+                FunctionNamingStyle::Suffix => {
+                    let fn_name = format!("toString{}", interface_name);
+                    Ok(ts_template! {
+                        export function @{fn_name}(value: @{interface_name}): string {
+                            {#if has_fields}
+                                const parts: string[] = [];
+                                {#for (label, name) in debug_fields}
+                                    parts.push("@{label}: " + value.@{name});
+                                {/for}
+                                return "@{interface_name} { " + parts.join(", ") + " }";
+                            {:else}
+                                return "@{interface_name} {}";
+                            {/if}
+                        }
+                    })
+                }
+            }
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
+            let naming_style = input.context.function_naming_style;
 
             // Generate different output based on type body
             if type_alias.is_object() {
@@ -264,30 +388,108 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
                 let has_fields = !debug_fields.is_empty();
 
-                Ok(ts_template! {
-                    export namespace @{type_name} {
-                        export function toString(value: @{type_name}): string {
-                            {#if has_fields}
-                                const parts: string[] = [];
-                                {#for (label, name) in debug_fields}
-                                    parts.push("@{label}: " + value.@{name});
-                                {/for}
-                                return "@{type_name} { " + parts.join(", ") + " }";
-                            {:else}
-                                return "@{type_name} {}";
-                            {/if}
-                        }
+                match naming_style {
+                    FunctionNamingStyle::Namespace => {
+                        Ok(ts_template! {
+                            export namespace @{type_name} {
+                                export function toString(value: @{type_name}): string {
+                                    {#if has_fields}
+                                        const parts: string[] = [];
+                                        {#for (label, name) in debug_fields}
+                                            parts.push("@{label}: " + value.@{name});
+                                        {/for}
+                                        return "@{type_name} { " + parts.join(", ") + " }";
+                                    {:else}
+                                        return "@{type_name} {}";
+                                    {/if}
+                                }
+                            }
+                        })
                     }
-                })
+                    FunctionNamingStyle::Generic => {
+                        Ok(ts_template! {
+                            export function toString<T extends @{type_name}>(value: T): string {
+                                {#if has_fields}
+                                    const parts: string[] = [];
+                                    {#for (label, name) in debug_fields}
+                                        parts.push("@{label}: " + value.@{name});
+                                    {/for}
+                                    return "@{type_name} { " + parts.join(", ") + " }";
+                                {:else}
+                                    return "@{type_name} {}";
+                                {/if}
+                            }
+                        })
+                    }
+                    FunctionNamingStyle::Prefix => {
+                        let fn_name = format!("{}ToString", to_camel_case(type_name));
+                        Ok(ts_template! {
+                            export function @{fn_name}(value: @{type_name}): string {
+                                {#if has_fields}
+                                    const parts: string[] = [];
+                                    {#for (label, name) in debug_fields}
+                                        parts.push("@{label}: " + value.@{name});
+                                    {/for}
+                                    return "@{type_name} { " + parts.join(", ") + " }";
+                                {:else}
+                                    return "@{type_name} {}";
+                                {/if}
+                            }
+                        })
+                    }
+                    FunctionNamingStyle::Suffix => {
+                        let fn_name = format!("toString{}", type_name);
+                        Ok(ts_template! {
+                            export function @{fn_name}(value: @{type_name}): string {
+                                {#if has_fields}
+                                    const parts: string[] = [];
+                                    {#for (label, name) in debug_fields}
+                                        parts.push("@{label}: " + value.@{name});
+                                    {/for}
+                                    return "@{type_name} { " + parts.join(", ") + " }";
+                                {:else}
+                                    return "@{type_name} {}";
+                                {/if}
+                            }
+                        })
+                    }
+                }
             } else {
                 // Union, intersection, tuple, or simple alias: use JSON.stringify
-                Ok(ts_template! {
-                    export namespace @{type_name} {
-                        export function toString(value: @{type_name}): string {
-                            return "@{type_name}(" + JSON.stringify(value) + ")";
-                        }
+                match naming_style {
+                    FunctionNamingStyle::Namespace => {
+                        Ok(ts_template! {
+                            export namespace @{type_name} {
+                                export function toString(value: @{type_name}): string {
+                                    return "@{type_name}(" + JSON.stringify(value) + ")";
+                                }
+                            }
+                        })
                     }
-                })
+                    FunctionNamingStyle::Generic => {
+                        Ok(ts_template! {
+                            export function toString<T extends @{type_name}>(value: T): string {
+                                return "@{type_name}(" + JSON.stringify(value) + ")";
+                            }
+                        })
+                    }
+                    FunctionNamingStyle::Prefix => {
+                        let fn_name = format!("{}ToString", to_camel_case(type_name));
+                        Ok(ts_template! {
+                            export function @{fn_name}(value: @{type_name}): string {
+                                return "@{type_name}(" + JSON.stringify(value) + ")";
+                            }
+                        })
+                    }
+                    FunctionNamingStyle::Suffix => {
+                        let fn_name = format!("toString{}", type_name);
+                        Ok(ts_template! {
+                            export function @{fn_name}(value: @{type_name}): string {
+                                return "@{type_name}(" + JSON.stringify(value) + ")";
+                            }
+                        })
+                    }
+                }
             }
         }
     }

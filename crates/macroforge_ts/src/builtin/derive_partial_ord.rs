@@ -6,12 +6,20 @@
 //!
 //! ## Generated Output
 //!
-//! | Type | Generated Method | Description |
-//! |------|------------------|-------------|
+//! | Type | Generated Code | Description |
+//! |------|----------------|-------------|
 //! | Class | `compareTo(other): Option<number>` | Instance method with optional result |
-//! | Enum | `EnumName.compareTo(a, b)` | Namespace function returning Option |
-//! | Interface | `InterfaceName.compareTo(self, other)` | Namespace function with Option |
-//! | Type Alias | `TypeName.compareTo(a, b)` | Namespace function with Option |
+//! | Enum | `partialCompareEnumName(a: EnumName, b: EnumName): Option<number>` | Standalone function returning Option |
+//! | Interface | `partialCompareInterfaceName(a: InterfaceName, b: InterfaceName): Option<number>` | Standalone function with Option |
+//! | Type Alias | `partialCompareTypeName(a: TypeName, b: TypeName): Option<number>` | Standalone function with Option |
+//!
+//! ## Configuration
+//!
+//! The `functionNamingStyle` option in `macroforge.json` controls naming:
+//! - `"suffix"` (default): Suffixes with type name (e.g., `partialCompareMyType`)
+//! - `"prefix"`: Prefixes with type name (e.g., `myTypePartialCompare`)
+//! - `"generic"`: Uses TypeScript generics (e.g., `partialCompare<T extends MyType>`)
+//! - `"namespace"`: Legacy namespace wrapping
 //!
 //! ## Return Values
 //!
@@ -89,7 +97,17 @@
 
 use crate::builtin::derive_common::{is_numeric_type, is_primitive_type, CompareFieldOptions};
 use crate::macros::{body, ts_macro_derive, ts_template};
+use crate::ts_syn::abi::FunctionNamingStyle;
 use crate::ts_syn::{parse_ts_macro_input, Data, DeriveInput, MacroforgeError, TsStream};
+
+/// Convert a PascalCase name to camelCase (for prefix naming style)
+fn to_camel_case(name: &str) -> String {
+    let mut chars = name.chars();
+    match chars.next() {
+        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
+        None => String::new(),
+    }
+}
 
 /// Contains field information needed for partial ordering comparison generation.
 ///
@@ -365,17 +383,67 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::Enum(_) => {
             let enum_name = input.name();
-            let mut result = ts_template! {
-                export namespace @{enum_name} {
-                    export function compareTo(a: @{enum_name}, b: @{enum_name}): Option<number> {
-                        // For enums, compare by value (numeric enums) or string
-                        if (typeof a === "number" && typeof b === "number") {
-                            return Option.some(a < b ? -1 : a > b ? 1 : 0);
+            let naming_style = input.context.function_naming_style;
+
+            let mut result = match naming_style {
+                FunctionNamingStyle::Namespace => {
+                    ts_template! {
+                        export namespace @{enum_name} {
+                            export function compareTo(a: @{enum_name}, b: @{enum_name}): Option<number> {
+                                // For enums, compare by value (numeric enums) or string
+                                if (typeof a === "number" && typeof b === "number") {
+                                    return Option.some(a < b ? -1 : a > b ? 1 : 0);
+                                }
+                                if (typeof a === "string" && typeof b === "string") {
+                                    return Option.some(a.localeCompare(b));
+                                }
+                                return a === b ? Option.some(0) : Option.none();
+                            }
                         }
-                        if (typeof a === "string" && typeof b === "string") {
-                            return Option.some(a.localeCompare(b));
+                    }
+                }
+                FunctionNamingStyle::Generic => {
+                    ts_template! {
+                        export function partialCompare<T extends @{enum_name}>(a: T, b: T): Option<number> {
+                            // For enums, compare by value (numeric enums) or string
+                            if (typeof a === "number" && typeof b === "number") {
+                                return Option.some(a < b ? -1 : a > b ? 1 : 0);
+                            }
+                            if (typeof a === "string" && typeof b === "string") {
+                                return Option.some(a.localeCompare(b));
+                            }
+                            return a === b ? Option.some(0) : Option.none();
                         }
-                        return a === b ? Option.some(0) : Option.none();
+                    }
+                }
+                FunctionNamingStyle::Prefix => {
+                    let fn_name = format!("{}PartialCompare", to_camel_case(enum_name));
+                    ts_template! {
+                        export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): Option<number> {
+                            // For enums, compare by value (numeric enums) or string
+                            if (typeof a === "number" && typeof b === "number") {
+                                return Option.some(a < b ? -1 : a > b ? 1 : 0);
+                            }
+                            if (typeof a === "string" && typeof b === "string") {
+                                return Option.some(a.localeCompare(b));
+                            }
+                            return a === b ? Option.some(0) : Option.none();
+                        }
+                    }
+                }
+                FunctionNamingStyle::Suffix => {
+                    let fn_name = format!("partialCompare{}", enum_name);
+                    ts_template! {
+                        export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): Option<number> {
+                            // For enums, compare by value (numeric enums) or string
+                            if (typeof a === "number" && typeof b === "number") {
+                                return Option.some(a < b ? -1 : a > b ? 1 : 0);
+                            }
+                            if (typeof a === "string" && typeof b === "string") {
+                                return Option.some(a.localeCompare(b));
+                            }
+                            return a === b ? Option.some(0) : Option.none();
+                        }
                     }
                 }
             };
@@ -384,6 +452,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
+            let naming_style = input.context.function_naming_style;
 
             let ord_fields: Vec<OrdField> = interface
                 .fields()
@@ -410,7 +479,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         let var_name = format!("cmp{}", i);
                         format!(
                             "const {var_name} = {};\n                        if ({var_name} === null) return Option.none();\n                        if ({var_name} !== 0) return Option.some({var_name});",
-                            generate_field_compare_for_interface(f, "self", "other", true)
+                            generate_field_compare_for_interface(f, "a", "b", true)
                         )
                     })
                     .collect::<Vec<_>>()
@@ -419,14 +488,69 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 String::new()
             };
 
-            let mut result = ts_template! {
-                export namespace @{interface_name} {
-                    export function compareTo(self: @{interface_name}, other: @{interface_name}): Option<number> {
-                        if (self === other) return Option.some(0);
-                        {#if has_fields}
-                            @{compare_body}
-                        {/if}
-                        return Option.some(0);
+            let mut result = match naming_style {
+                FunctionNamingStyle::Namespace => {
+                    let compare_body_self = if has_fields {
+                        ord_fields
+                            .iter()
+                            .enumerate()
+                            .map(|(i, f)| {
+                                let var_name = format!("cmp{}", i);
+                                format!(
+                                    "const {var_name} = {};\n                            if ({var_name} === null) return Option.none();\n                            if ({var_name} !== 0) return Option.some({var_name});",
+                                    generate_field_compare_for_interface(f, "self", "other", true)
+                                )
+                            })
+                            .collect::<Vec<_>>()
+                            .join("\n                            ")
+                    } else {
+                        String::new()
+                    };
+                    ts_template! {
+                        export namespace @{interface_name} {
+                            export function compareTo(self: @{interface_name}, other: @{interface_name}): Option<number> {
+                                if (self === other) return Option.some(0);
+                                {#if has_fields}
+                                    @{compare_body_self}
+                                {/if}
+                                return Option.some(0);
+                            }
+                        }
+                    }
+                }
+                FunctionNamingStyle::Generic => {
+                    ts_template! {
+                        export function partialCompare<T extends @{interface_name}>(a: T, b: T): Option<number> {
+                            if (a === b) return Option.some(0);
+                            {#if has_fields}
+                                @{compare_body}
+                            {/if}
+                            return Option.some(0);
+                        }
+                    }
+                }
+                FunctionNamingStyle::Prefix => {
+                    let fn_name = format!("{}PartialCompare", to_camel_case(interface_name));
+                    ts_template! {
+                        export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): Option<number> {
+                            if (a === b) return Option.some(0);
+                            {#if has_fields}
+                                @{compare_body}
+                            {/if}
+                            return Option.some(0);
+                        }
+                    }
+                }
+                FunctionNamingStyle::Suffix => {
+                    let fn_name = format!("partialCompare{}", interface_name);
+                    ts_template! {
+                        export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): Option<number> {
+                            if (a === b) return Option.some(0);
+                            {#if has_fields}
+                                @{compare_body}
+                            {/if}
+                            return Option.some(0);
+                        }
                     }
                 }
             };
@@ -435,6 +559,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
+            let naming_style = input.context.function_naming_style;
 
             if type_alias.is_object() {
                 let ord_fields: Vec<OrdField> = type_alias
@@ -472,14 +597,53 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                     String::new()
                 };
 
-                let mut result = ts_template! {
-                    export namespace @{type_name} {
-                        export function compareTo(a: @{type_name}, b: @{type_name}): Option<number> {
-                            if (a === b) return Option.some(0);
-                            {#if has_fields}
-                                @{compare_body}
-                            {/if}
-                            return Option.some(0);
+                let mut result = match naming_style {
+                    FunctionNamingStyle::Namespace => {
+                        ts_template! {
+                            export namespace @{type_name} {
+                                export function compareTo(a: @{type_name}, b: @{type_name}): Option<number> {
+                                    if (a === b) return Option.some(0);
+                                    {#if has_fields}
+                                        @{compare_body}
+                                    {/if}
+                                    return Option.some(0);
+                                }
+                            }
+                        }
+                    }
+                    FunctionNamingStyle::Generic => {
+                        ts_template! {
+                            export function partialCompare<T extends @{type_name}>(a: T, b: T): Option<number> {
+                                if (a === b) return Option.some(0);
+                                {#if has_fields}
+                                    @{compare_body}
+                                {/if}
+                                return Option.some(0);
+                            }
+                        }
+                    }
+                    FunctionNamingStyle::Prefix => {
+                        let fn_name = format!("{}PartialCompare", to_camel_case(type_name));
+                        ts_template! {
+                            export function @{fn_name}(a: @{type_name}, b: @{type_name}): Option<number> {
+                                if (a === b) return Option.some(0);
+                                {#if has_fields}
+                                    @{compare_body}
+                                {/if}
+                                return Option.some(0);
+                            }
+                        }
+                    }
+                    FunctionNamingStyle::Suffix => {
+                        let fn_name = format!("partialCompare{}", type_name);
+                        ts_template! {
+                            export function @{fn_name}(a: @{type_name}, b: @{type_name}): Option<number> {
+                                if (a === b) return Option.some(0);
+                                {#if has_fields}
+                                    @{compare_body}
+                                {/if}
+                                return Option.some(0);
+                            }
                         }
                     }
                 };
@@ -487,18 +651,69 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 Ok(result)
             } else {
                 // Union, tuple, or simple alias: limited comparison
-                let mut result = ts_template! {
-                    export namespace @{type_name} {
-                        export function compareTo(a: @{type_name}, b: @{type_name}): Option<number> {
-                            if (a === b) return Option.some(0);
-                            // For unions/tuples, try primitive comparison
-                            if (typeof a === "number" && typeof b === "number") {
-                                return Option.some(a < b ? -1 : a > b ? 1 : 0);
+                let mut result = match naming_style {
+                    FunctionNamingStyle::Namespace => {
+                        ts_template! {
+                            export namespace @{type_name} {
+                                export function compareTo(a: @{type_name}, b: @{type_name}): Option<number> {
+                                    if (a === b) return Option.some(0);
+                                    // For unions/tuples, try primitive comparison
+                                    if (typeof a === "number" && typeof b === "number") {
+                                        return Option.some(a < b ? -1 : a > b ? 1 : 0);
+                                    }
+                                    if (typeof a === "string" && typeof b === "string") {
+                                        return Option.some(a.localeCompare(b));
+                                    }
+                                    return Option.none();
+                                }
                             }
-                            if (typeof a === "string" && typeof b === "string") {
-                                return Option.some(a.localeCompare(b));
+                        }
+                    }
+                    FunctionNamingStyle::Generic => {
+                        ts_template! {
+                            export function partialCompare<T extends @{type_name}>(a: T, b: T): Option<number> {
+                                if (a === b) return Option.some(0);
+                                // For unions/tuples, try primitive comparison
+                                if (typeof a === "number" && typeof b === "number") {
+                                    return Option.some(a < b ? -1 : a > b ? 1 : 0);
+                                }
+                                if (typeof a === "string" && typeof b === "string") {
+                                    return Option.some(a.localeCompare(b));
+                                }
+                                return Option.none();
                             }
-                            return Option.none();
+                        }
+                    }
+                    FunctionNamingStyle::Prefix => {
+                        let fn_name = format!("{}PartialCompare", to_camel_case(type_name));
+                        ts_template! {
+                            export function @{fn_name}(a: @{type_name}, b: @{type_name}): Option<number> {
+                                if (a === b) return Option.some(0);
+                                // For unions/tuples, try primitive comparison
+                                if (typeof a === "number" && typeof b === "number") {
+                                    return Option.some(a < b ? -1 : a > b ? 1 : 0);
+                                }
+                                if (typeof a === "string" && typeof b === "string") {
+                                    return Option.some(a.localeCompare(b));
+                                }
+                                return Option.none();
+                            }
+                        }
+                    }
+                    FunctionNamingStyle::Suffix => {
+                        let fn_name = format!("partialCompare{}", type_name);
+                        ts_template! {
+                            export function @{fn_name}(a: @{type_name}, b: @{type_name}): Option<number> {
+                                if (a === b) return Option.some(0);
+                                // For unions/tuples, try primitive comparison
+                                if (typeof a === "number" && typeof b === "number") {
+                                    return Option.some(a < b ? -1 : a > b ? 1 : 0);
+                                }
+                                if (typeof a === "string" && typeof b === "string") {
+                                    return Option.some(a.localeCompare(b));
+                                }
+                                return Option.none();
+                            }
                         }
                     }
                 };
