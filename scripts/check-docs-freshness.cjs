@@ -19,6 +19,7 @@ const rootDir = path.join(__dirname, '..');
 // Files to check
 const GENERATED_FILES = [
 	'website/static/api-data/rust/index.json',
+	'website/static/api-data/rust/builtin-macros.json',
 	'website/static/api-data/rust/macroforge_ts.json',
 	'website/static/api-data/rust/macroforge_ts_syn.json',
 	'website/static/api-data/rust/macroforge_ts_quote.json',
@@ -28,6 +29,26 @@ const GENERATED_FILES = [
 	'website/static/api-data/typescript/vite-plugin.json',
 	'website/static/api-data/typescript/svelte-preprocessor.json',
 	'website/static/api-data/typescript/mcp-server.json'
+	,
+	// mdsvex pages and MCP docs generated from Rust module docs
+	'website/src/routes/docs/builtin-macros/clone/+page.svx',
+	'website/src/routes/docs/builtin-macros/debug/+page.svx',
+	'website/src/routes/docs/builtin-macros/default/+page.svx',
+	'website/src/routes/docs/builtin-macros/hash/+page.svx',
+	'website/src/routes/docs/builtin-macros/ord/+page.svx',
+	'website/src/routes/docs/builtin-macros/partial-eq/+page.svx',
+	'website/src/routes/docs/builtin-macros/partial-ord/+page.svx',
+	'website/src/routes/docs/builtin-macros/serialize/+page.svx',
+	'website/src/routes/docs/builtin-macros/deserialize/+page.svx',
+	'packages/mcp-server/docs/builtin-macros/clone.md',
+	'packages/mcp-server/docs/builtin-macros/debug.md',
+	'packages/mcp-server/docs/builtin-macros/default.md',
+	'packages/mcp-server/docs/builtin-macros/hash.md',
+	'packages/mcp-server/docs/builtin-macros/ord.md',
+	'packages/mcp-server/docs/builtin-macros/partial-eq.md',
+	'packages/mcp-server/docs/builtin-macros/partial-ord.md',
+	'packages/mcp-server/docs/builtin-macros/serialize.md',
+	'packages/mcp-server/docs/builtin-macros/deserialize.md'
 ];
 
 const README_FILES = [

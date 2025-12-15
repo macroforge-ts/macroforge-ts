@@ -1,7 +1,7 @@
 {
   "name": "@macroforge/svelte-preprocessor",
   "kind": "typescript_package",
-  "version": "0.1.35",
+  "version": "0.1.34",
   "description": "Svelte preprocessor for expanding Macroforge macros in component script blocks",
   "overview": "@macroforge/svelte-preprocessor\n\nSvelte preprocessor for expanding Macroforge macros in component script blocks.\n\nThis module provides integration between Macroforge's macro expansion system and\nSvelte's preprocessing pipeline. It intercepts `<script>` blocks in `.svelte` files,\ndetects `@derive` decorators, and expands them into generated code before TypeScript\ncompilation occurs.\n\n## How It Works\n\n1. The preprocessor is registered in `svelte.config.js` as part of the preprocess array\n2. When Svelte compiles a component, it passes each `<script>` block to this preprocessor\n3. The preprocessor checks if the script contains `@derive` decorators\n4. If found, it calls the native `macroforge` binding to expand the macros\n5. The expanded code replaces the original script content\n\n## Important Notes\n\n- Must be placed BEFORE other preprocessors (like `vitePreprocess()`) in the chain\n- Uses lazy-loading for native bindings to avoid initialization overhead\n- Gracefully degrades if native bindings are unavailable\n- Only processes TypeScript blocks by default (configurable via options)",
   "items": [
