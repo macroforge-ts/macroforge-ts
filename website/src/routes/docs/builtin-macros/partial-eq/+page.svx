@@ -28,8 +28,8 @@ enabling value-based equality semantics instead of reference equality.
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"suffix"` (default): Suffixes with type name (e.g., `equalsMyType`)
-- `"prefix"`: Prefixes with type name (e.g., `myTypeEquals`)
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypeEquals`)
+- `"suffix"`: Suffixes with type name (e.g., `equalsMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `equals<T extends MyType>`)
 - `"namespace"`: Legacy namespace wrapping
 
