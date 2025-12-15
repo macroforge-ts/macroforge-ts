@@ -53,8 +53,10 @@
 //! ```
 
 use crate::host::PatchCollector;
+use crate::host::MacroConfig;
 use crate::ts_syn::abi::{
-    ClassIR, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode, SpanIR,
+    ClassIR, DiagnosticLevel, FunctionNamingStyle, MacroContextIR, MacroResult, Patch, PatchCode,
+    SpanIR,
 };
 use crate::{
     GeneratedRegionResult, MappingSegmentResult, NativePositionMapper, SourceMappingResult,
@@ -1903,6 +1905,123 @@ interface Point {
         assert!(
             result.code.contains("__deserializePoint"),
             "Should generate suffix-style __deserializePoint function"
+        );
+    });
+}
+
+#[test]
+fn test_interface_derive_macros_default_to_suffix_functions() {
+    let source = r#"
+/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Default, Serialize, Deserialize) */
+export interface Point {
+    x: number;
+    y: number;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        assert!(
+            !result.code.contains("export namespace Point"),
+            "Default naming style should not emit namespaces"
+        );
+
+        for expected in [
+            "export function toStringPoint",
+            "export function clonePoint",
+            "export function equalsPoint",
+            "export function hashCodePoint",
+            "export function partialComparePoint",
+            "export function comparePoint",
+            "export function defaultValuePoint",
+            "export function __serializePoint",
+            "export function __deserializePoint",
+        ] {
+            assert!(
+                result.code.contains(expected),
+                "Expected suffix-style function: {expected}"
+            );
+        }
+    });
+}
+
+#[test]
+fn test_interface_derive_macros_can_emit_namespaces_when_configured() {
+    let source = r#"
+/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Default, Serialize, Deserialize) */
+export interface Point {
+    x: number;
+    y: number;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let mut config = MacroConfig::default();
+        config.function_naming_style = FunctionNamingStyle::Namespace;
+        let host = MacroExpander::with_config(config, std::env::current_dir().unwrap()).unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        assert!(
+            result.code.contains("export namespace Point"),
+            "Namespace naming style should emit `export namespace Point`"
+        );
+        assert!(
+            result.code.contains("export function __serialize("),
+            "Namespace naming style should emit `__serialize` inside the namespace"
+        );
+        assert!(
+            !result.code.contains("export function __serializePoint"),
+            "Namespace naming style should not emit suffix-style names"
+        );
+    });
+}
+
+#[test]
+fn test_external_type_function_imports_for_suffix_style() {
+    let source = r#"
+import { Metadata } from "./metadata.svelte";
+
+/** @derive(Default, Serialize, Deserialize) */
+export interface User {
+    metadata: Metadata;
+}
+"#;
+
+    GLOBALS.set(&Default::default(), || {
+        let program = parse_module(source);
+        let host = MacroExpander::new().unwrap();
+        let result = host.expand(source, &program, "test.ts").unwrap();
+
+        // The expansion should call into the imported type's generated functions
+        assert!(
+            result.code.contains("__serializeMetadata"),
+            "Expected User serialization to reference __serializeMetadata"
+        );
+        assert!(
+            result.code.contains("__deserializeMetadata"),
+            "Expected User deserialization to reference __deserializeMetadata"
+        );
+        assert!(
+            result.code.contains("defaultValueMetadata"),
+            "Expected User defaultValue to reference defaultValueMetadata"
+        );
+
+        // ...and it should add corresponding imports from the original module specifier.
+        assert!(
+            result.code.contains("import { __serializeMetadata } from \"./metadata.svelte\";"),
+            "Expected __serializeMetadata import to be added"
+        );
+        assert!(
+            result.code.contains("import { __deserializeMetadata } from \"./metadata.svelte\";"),
+            "Expected __deserializeMetadata import to be added"
+        );
+        assert!(
+            result.code.contains("import { defaultValueMetadata } from \"./metadata.svelte\";"),
+            "Expected defaultValueMetadata import to be added"
         );
     });
 }
