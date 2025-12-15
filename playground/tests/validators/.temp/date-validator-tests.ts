@@ -168,8 +168,23 @@ export class ValidDateValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "date" in o;
+}
+
     static is(obj: unknown): obj is ValidDateValidator {
-    return obj instanceof ValidDateValidator;
+    if (obj instanceof ValidDateValidator) {
+        return true;
+    }
+    if (!ValidDateValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = ValidDateValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -334,8 +349,23 @@ export class GreaterThanDateValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "date" in o;
+}
+
     static is(obj: unknown): obj is GreaterThanDateValidator {
-    return obj instanceof GreaterThanDateValidator;
+    if (obj instanceof GreaterThanDateValidator) {
+        return true;
+    }
+    if (!GreaterThanDateValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = GreaterThanDateValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -500,8 +530,23 @@ export class GreaterThanOrEqualToDateValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "date" in o;
+}
+
     static is(obj: unknown): obj is GreaterThanOrEqualToDateValidator {
-    return obj instanceof GreaterThanOrEqualToDateValidator;
+    if (obj instanceof GreaterThanOrEqualToDateValidator) {
+        return true;
+    }
+    if (!GreaterThanOrEqualToDateValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = GreaterThanOrEqualToDateValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -666,8 +711,23 @@ export class LessThanDateValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "date" in o;
+}
+
     static is(obj: unknown): obj is LessThanDateValidator {
-    return obj instanceof LessThanDateValidator;
+    if (obj instanceof LessThanDateValidator) {
+        return true;
+    }
+    if (!LessThanDateValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = LessThanDateValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -832,8 +892,23 @@ export class LessThanOrEqualToDateValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "date" in o;
+}
+
     static is(obj: unknown): obj is LessThanOrEqualToDateValidator {
-    return obj instanceof LessThanOrEqualToDateValidator;
+    if (obj instanceof LessThanOrEqualToDateValidator) {
+        return true;
+    }
+    if (!LessThanOrEqualToDateValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = LessThanOrEqualToDateValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -998,7 +1073,22 @@ export class BetweenDateValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "date" in o;
+}
+
     static is(obj: unknown): obj is BetweenDateValidator {
-    return obj instanceof BetweenDateValidator;
+    if (obj instanceof BetweenDateValidator) {
+        return true;
+    }
+    if (!BetweenDateValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = BetweenDateValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }

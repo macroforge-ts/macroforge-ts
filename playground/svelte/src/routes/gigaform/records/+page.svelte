@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { TaxRate, createFormTaxRate } from "$lib/demo/types.svelte";
+  import { createFormTaxRate, type TaxRate } from "$lib/demo/types.svelte";
 
   // Create TaxRate form to test Record/Map types
   const taxRateForm = createFormTaxRate({
@@ -427,7 +427,8 @@
     color: #495057;
   }
   .form-group input[type="text"],
-  .form-group input[type="number"] {
+  .form-row input[type="text"],
+  .form-row input[type="number"] {
     width: 100%;
     padding: 0.5rem;
     border: 1px solid #ced4da;

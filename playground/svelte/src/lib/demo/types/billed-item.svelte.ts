@@ -1,6 +1,6 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Item } from './item.svelte';
+import type { Item } from './item.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface BilledItem {

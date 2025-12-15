@@ -1,6 +1,6 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { RowHeight } from './row-height.svelte';
+import type { RowHeight } from './row-height.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface ScheduleSettings {

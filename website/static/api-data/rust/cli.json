@@ -1,6 +1,6 @@
 {
   "name": "CLI",
-  "version": "0.1.34",
+  "version": "0.1.35",
   "title": "Macroforge CLI Binary",
   "description": "This binary provides command-line utilities for working with Macroforge TypeScript macros.\nIt is designed for development workflows, enabling macro expansion and type checking\nwithout requiring Node.js integration.",
   "commands": {

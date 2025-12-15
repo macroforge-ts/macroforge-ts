@@ -1,6 +1,6 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Coordinates } from './coordinates.svelte';
+import type { Coordinates } from './coordinates.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Site {

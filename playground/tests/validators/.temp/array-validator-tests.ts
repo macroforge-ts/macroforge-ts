@@ -167,8 +167,23 @@ export class MaxItemsValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "items" in o;
+}
+
     static is(obj: unknown): obj is MaxItemsValidator {
-    return obj instanceof MaxItemsValidator;
+    if (obj instanceof MaxItemsValidator) {
+        return true;
+    }
+    if (!MaxItemsValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = MaxItemsValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -332,8 +347,23 @@ export class MinItemsValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "items" in o;
+}
+
     static is(obj: unknown): obj is MinItemsValidator {
-    return obj instanceof MinItemsValidator;
+    if (obj instanceof MinItemsValidator) {
+        return true;
+    }
+    if (!MinItemsValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = MinItemsValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -497,7 +527,22 @@ export class ItemsCountValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "items" in o;
+}
+
     static is(obj: unknown): obj is ItemsCountValidator {
-    return obj instanceof ItemsCountValidator;
+    if (obj instanceof ItemsCountValidator) {
+        return true;
+    }
+    if (!ItemsCountValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = ItemsCountValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }

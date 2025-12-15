@@ -1,6 +1,6 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { ProductDefaults } from './product-defaults.svelte';
+import type { ProductDefaults } from './product-defaults.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Product {

@@ -1,7 +1,7 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Account } from './account.svelte';
-import { Order } from './order.svelte';
+import type { Account } from './account.svelte';
+import type { Order } from './order.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Ordered {

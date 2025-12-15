@@ -1,7 +1,7 @@
 <script lang="ts">
   import {
-    Appointment,
     createFormAppointment,
+    type Appointment,
     type Status,
     type UserRole,
     type Sector,

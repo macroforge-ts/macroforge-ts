@@ -1,11 +1,12 @@
 <script lang="ts">
   import {
-    Employee,
-    Order,
-    Settings,
-    PhoneNumber,
     createFormEmployee,
     createFormOrder,
+    defaultValueSettings,
+    type Employee,
+    type Order,
+    type Settings,
+    type PhoneNumber,
     type JobTitle,
   } from "$lib/demo/types.svelte";
 
@@ -315,7 +316,7 @@
       <button
         type="button"
         data-testid="emp-reset-settings"
-        onclick={() => employeeForm.fields.settings.set(Settings.defaultValue())}
+        onclick={() => employeeForm.fields.settings.set(defaultValueSettings())}
       >
         Reset Settings to Default
       </button>

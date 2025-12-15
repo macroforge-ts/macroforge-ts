@@ -201,8 +201,23 @@ export class MultipleValidatorsTest {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "text" in o;
+}
+
     static is(obj: unknown): obj is MultipleValidatorsTest {
-    return obj instanceof MultipleValidatorsTest;
+    if (obj instanceof MultipleValidatorsTest) {
+        return true;
+    }
+    if (!MultipleValidatorsTest.hasShape(obj)) {
+        return false;
+    }
+    const result = MultipleValidatorsTest.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -364,8 +379,23 @@ export class CustomMessageTest {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "email" in o;
+}
+
     static is(obj: unknown): obj is CustomMessageTest {
-    return obj instanceof CustomMessageTest;
+    if (obj instanceof CustomMessageTest) {
+        return true;
+    }
+    if (!CustomMessageTest.hasShape(obj)) {
+        return false;
+    }
+    const result = CustomMessageTest.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -545,8 +575,23 @@ export class MixedValidatorsTest {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "email" in o;
+}
+
     static is(obj: unknown): obj is MixedValidatorsTest {
-    return obj instanceof MixedValidatorsTest;
+    if (obj instanceof MixedValidatorsTest) {
+        return true;
+    }
+    if (!MixedValidatorsTest.hasShape(obj)) {
+        return false;
+    }
+    const result = MixedValidatorsTest.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -744,8 +789,23 @@ export class CombinedStringValidatorsTest {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "username" in o;
+}
+
     static is(obj: unknown): obj is CombinedStringValidatorsTest {
-    return obj instanceof CombinedStringValidatorsTest;
+    if (obj instanceof CombinedStringValidatorsTest) {
+        return true;
+    }
+    if (!CombinedStringValidatorsTest.hasShape(obj)) {
+        return false;
+    }
+    const result = CombinedStringValidatorsTest.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -943,7 +1003,22 @@ export class CombinedNumberValidatorsTest {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "score" in o;
+}
+
     static is(obj: unknown): obj is CombinedNumberValidatorsTest {
-    return obj instanceof CombinedNumberValidatorsTest;
+    if (obj instanceof CombinedNumberValidatorsTest) {
+        return true;
+    }
+    if (!CombinedNumberValidatorsTest.hasShape(obj)) {
+        return false;
+    }
+    const result = CombinedNumberValidatorsTest.fromObject(obj);
+    return Result.isOk(result);
 }
 }

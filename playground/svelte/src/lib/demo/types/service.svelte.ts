@@ -1,6 +1,6 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { ServiceDefaults } from './service-defaults.svelte';
+import type { ServiceDefaults } from './service-defaults.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Service {

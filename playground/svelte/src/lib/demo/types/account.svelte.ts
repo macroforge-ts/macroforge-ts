@@ -1,19 +1,19 @@
-import { Did } from './did.svelte';
-import { PersonName } from './person-name.svelte';
-import { Site } from './site.svelte';
-import { PhoneNumber } from './phone-number.svelte';
-import { Represents } from './represents.svelte';
-import { Payment } from './payment.svelte';
-import { CompanyName } from './company-name.svelte';
-import { Custom } from './custom.svelte';
-import { Colors } from './colors.svelte';
-import { TaxRate } from './tax-rate.svelte';
-import { Lead } from './lead.svelte';
-import { Company } from './company.svelte';
-import { Ordered } from './ordered.svelte';
-import { Email } from './email.svelte';
-import { Sector } from './sector.svelte';
-import { AccountName } from './account-name.svelte';
+import type { Did } from './did.svelte';
+import type { PersonName } from './person-name.svelte';
+import type { Site } from './site.svelte';
+import type { PhoneNumber } from './phone-number.svelte';
+import type { Represents } from './represents.svelte';
+import type { Payment } from './payment.svelte';
+import type { CompanyName } from './company-name.svelte';
+import type { Custom } from './custom.svelte';
+import type { Colors } from './colors.svelte';
+import type { TaxRate } from './tax-rate.svelte';
+import type { Lead } from './lead.svelte';
+import type { Company } from './company.svelte';
+import type { Ordered } from './ordered.svelte';
+import type { Email } from './email.svelte';
+import type { Sector } from './sector.svelte';
+import type { AccountName } from './account-name.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
