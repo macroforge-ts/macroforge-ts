@@ -2795,9 +2795,10 @@ export type UnionWithVariantDefault =
             "Should generate defaultValueUnionWithVariantDefault function. Got:\n{}",
             result.code
         );
+        // With default suffix naming style, should call defaultValueVariantA() not VariantA.defaultValue()
         assert!(
-            result.code.contains("VariantA.defaultValue()"),
-            "Should call VariantA.defaultValue(). Got:\n{}",
+            result.code.contains("defaultValueVariantA()"),
+            "Should call defaultValueVariantA(). Got:\n{}",
             result.code
         );
     });
@@ -2839,9 +2840,10 @@ export type ActivityType = /** @default */ Created | Edited | Sent;
             "Should generate defaultValueActivityType function. Got:\n{}",
             result.code
         );
+        // With default suffix naming style, should call defaultValueCreated() not Created.defaultValue()
         assert!(
-            result.code.contains("Created.defaultValue()"),
-            "Should call Created.defaultValue(). Got:\n{}",
+            result.code.contains("defaultValueCreated()"),
+            "Should call defaultValueCreated(). Got:\n{}",
             result.code
         );
     });
