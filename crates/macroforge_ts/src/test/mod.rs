@@ -1960,8 +1960,10 @@ export interface Point {
 
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
-        let mut config = MacroConfig::default();
-        config.function_naming_style = FunctionNamingStyle::Namespace;
+        let config = MacroConfig {
+            function_naming_style: FunctionNamingStyle::Namespace,
+            ..Default::default()
+        };
         let host = MacroExpander::with_config(config, std::env::current_dir().unwrap()).unwrap();
         let result = host.expand(source, &program, "test.ts").unwrap();
 

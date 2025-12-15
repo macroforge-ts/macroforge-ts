@@ -294,8 +294,6 @@ struct DeserializeField {
     // --- Serializable type tracking for direct function calls ---
     /// For `T | null` where T is Serializable: the type name.
     nullable_serializable_type: Option<String>,
-    /// For `Array<T>` where T is Serializable: the type name.
-    array_elem_serializable_type: Option<String>,
 }
 
 impl DeserializeField {
@@ -671,10 +669,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         TypeCategory::Nullable(inner) => get_serializable_type_name(inner),
                         _ => None,
                     };
-                    let array_elem_serializable_type = match &type_cat {
-                        TypeCategory::Array(inner) => get_serializable_type_name(inner),
-                        _ => None,
-                    };
 
                     Some(DeserializeField {
                         json_key,
@@ -689,7 +683,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         nullable_inner_kind,
                         array_elem_kind,
                         nullable_serializable_type,
-                        array_elem_serializable_type,
                     })
                 })
                 .collect();
@@ -1324,10 +1317,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         TypeCategory::Nullable(inner) => get_serializable_type_name(inner),
                         _ => None,
                     };
-                    let array_elem_serializable_type = match &type_cat {
-                        TypeCategory::Array(inner) => get_serializable_type_name(inner),
-                        _ => None,
-                    };
 
                     Some(DeserializeField {
                         json_key,
@@ -1342,7 +1331,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         nullable_inner_kind,
                         array_elem_kind,
                         nullable_serializable_type,
-                        array_elem_serializable_type,
                     })
                 })
                 .collect();
@@ -2135,10 +2123,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             TypeCategory::Nullable(inner) => get_serializable_type_name(inner),
                             _ => None,
                         };
-                        let array_elem_serializable_type = match &type_cat {
-                            TypeCategory::Array(inner) => get_serializable_type_name(inner),
-                            _ => None,
-                        };
 
                         Some(DeserializeField {
                             json_key,
@@ -2153,7 +2137,6 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             nullable_inner_kind,
                             array_elem_kind,
                             nullable_serializable_type,
-                            array_elem_serializable_type,
                         })
                     })
                     .collect();
@@ -3598,7 +3581,6 @@ mod tests {
             nullable_inner_kind: None,
             array_elem_kind: None,
             nullable_serializable_type: None,
-            array_elem_serializable_type: None,
         };
         assert!(field.has_validators());
 
