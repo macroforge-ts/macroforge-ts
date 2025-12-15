@@ -1,6 +1,6 @@
 {
   "name": "@macroforge/vite-plugin",
-  "version": "0.1.36",
+  "version": "0.1.37",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,7 @@
     "test": "npm run build && node --test tests/**/*.test.js"
   },
   "dependencies": {
-    "macroforge": "^0.1.36"
+    "macroforge": "^0.1.37"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
