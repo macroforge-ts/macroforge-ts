@@ -11,7 +11,7 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { ServiceDefaults } from './service-defaults.svelte';
+import type { ServiceDefaults } from './service-defaults.svelte';
 
 export interface Service {
     id: string;
@@ -499,7 +499,7 @@ export function createFormService(overrides?: Partial<Service>): GigaformService
             path: ['unit'] as const,
             name: 'unit',
             constraints: { required: true },
-            label: 'Unit',
+
             get: () => data.unit,
             set: (value: string | null) => {
                 data.unit = value;

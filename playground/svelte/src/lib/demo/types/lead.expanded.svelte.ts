@@ -24,23 +24,23 @@ import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { PersonName } from './person-name.svelte';
-import { Site } from './site.svelte';
-import { PhoneNumber } from './phone-number.svelte';
-import { Represents } from './represents.svelte';
-import { Payment } from './payment.svelte';
-import { CompanyName } from './company-name.svelte';
-import { Account } from './account.svelte';
-import { Custom } from './custom.svelte';
-import { TaxRate } from './tax-rate.svelte';
-import { Company } from './company.svelte';
-import { Email } from './email.svelte';
-import { Sector } from './sector.svelte';
-import { Status } from './status.svelte';
-import { NextStep } from './next-step.svelte';
-import { LeadStage } from './lead-stage.svelte';
-import { AccountName } from './account-name.svelte';
-import { Priority } from './priority.svelte';
+import type { PersonName } from './person-name.svelte';
+import type { Site } from './site.svelte';
+import type { PhoneNumber } from './phone-number.svelte';
+import type { Represents } from './represents.svelte';
+import type { Payment } from './payment.svelte';
+import type { CompanyName } from './company-name.svelte';
+import type { Account } from './account.svelte';
+import type { Custom } from './custom.svelte';
+import type { TaxRate } from './tax-rate.svelte';
+import type { Company } from './company.svelte';
+import type { Email } from './email.svelte';
+import type { Sector } from './sector.svelte';
+import type { Status } from './status.svelte';
+import type { NextStep } from './next-step.svelte';
+import type { LeadStage } from './lead-stage.svelte';
+import type { AccountName } from './account-name.svelte';
+import type { Priority } from './priority.svelte';
 
 export interface Lead {
     id: string;

@@ -5,13 +5,13 @@
 //! - `@derive(Serialize)` provides `toObject()`
 //! - `@derive(Deserialize)` + `@serde` provides `fromObject()` with validation
 //!
-//! Gigaform adds:
-//! - `Errors` type (nested error structure)
-//! - `Tainted` type (nested boolean structure)
-//! - `FieldController<T>` interface for field controllers
-//! - `Gigaform` interface for form instances
-//! - `createForm()` factory returning reactive form instance with field controllers
-//! - `fromFormData()` (FormData parsing with type coercion)
+//! Gigaform adds (for a type `User`):
+//! - `UserErrors` type (nested error structure)
+//! - `UserTainted` type (nested boolean structure)
+//! - `UserFieldControllers` interface for field controllers
+//! - `UserGigaform` interface for form instances
+//! - `userCreateForm()` factory returning reactive form instance with field controllers
+//! - `userFromFormData()` (FormData parsing with type coercion)
 
 pub mod field_descriptors;
 pub mod form_data;
@@ -24,7 +24,7 @@ use macroforge_ts::macros::{ts_macro_derive, ts_template};
 use macroforge_ts::ts_syn::abi::FunctionNamingStyle;
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
-/// Generates Gigaform helpers (suffixed exports) with types, fromFormData, and field controllers.
+/// Generates Gigaform helpers (prefixed exports) with types, fromFormData, and field controllers.
 pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     let type_name = input.name();
     let options = parser::parse_gigaform_options(&input);
@@ -116,7 +116,7 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
         naming_style,
     );
 
-    // Combine into plain, suffixed exports (no namespace merging)
+    // Combine into plain, prefixed exports (no namespace merging)
     let mut output = ts_template! {
         {$typescript type_defs}
         {$typescript factory_fn}
@@ -278,20 +278,20 @@ fn generate_enum_form(
     Ok(output)
 }
 
-/// Generates suffixed form helpers with reactive state, field controllers, and validation.
+/// Generates prefixed form helpers with reactive state, field controllers, and validation.
 ///
 /// This macro **composes with** other Macroforge macros:
 /// - `@derive(Default)` provides `defaultValue()`
 /// - `@derive(Serialize)` provides `toObject()`
 /// - `@derive(Deserialize)` + `@serde({ validate: [...] })` provides `fromObject()` with validation
 ///
-/// **Gigaform adds:**
-/// - `Errors` type (nested error structure)
-/// - `Tainted` type (nested boolean structure for dirty tracking)
-/// - `FieldController<T>` interface for individual field controllers
-/// - `Gigaform` interface for form instance
-/// - `createForm()` factory returning reactive Gigaform with field controllers
-/// - `fromFormData()` (FormData parsing with type coercion)
+/// **Gigaform adds (for a type `UserForm`):**
+/// - `UserFormErrors` type (nested error structure)
+/// - `UserFormTainted` type (nested boolean structure for dirty tracking)
+/// - `UserFormFieldControllers` interface for individual field controllers
+/// - `UserFormGigaform` interface for form instance
+/// - `userFormCreateForm()` factory returning reactive Gigaform with field controllers
+/// - `userFormFromFormData()` (FormData parsing with type coercion)
 ///
 /// # Example
 ///
@@ -311,17 +311,16 @@ fn generate_enum_form(
 ///   age: number;
 /// }
 ///
-/// // Generates suffixed exports:
-/// // Generates suffixed exports:
-/// export type ErrorsUserForm = { _errors?: string[]; name?: string[]; email?: string[]; age?: string[] };
-/// export type TaintedUserForm = { name?: boolean; email?: boolean; age?: boolean };
-/// export interface FieldControllersUserForm { name: FieldController<string>; ... }
-/// export interface GigaformUserForm { data, errors, tainted, fields, validate(), reset() };
-/// export function createFormUserForm(overrides?: Partial<UserForm>): GigaformUserForm;
-/// export function fromFormDataUserForm(fd: FormData): Result<UserForm, Array<{ field: string; message: string }>>;
+/// // Generates prefixed exports:
+/// export type UserFormErrors = { _errors?: string[]; name?: string[]; email?: string[]; age?: string[] };
+/// export type UserFormTainted = { name?: boolean; email?: boolean; age?: boolean };
+/// export interface UserFormFieldControllers { name: FieldController<string>; ... }
+/// export interface UserFormGigaform { data, errors, tainted, fields, validate(), reset() };
+/// export function userFormCreateForm(overrides?: Partial<UserForm>): UserFormGigaform;
+/// export function userFormFromFormData(fd: FormData): Result<UserForm, Array<{ field: string; message: string }>>;
 ///
 /// // Usage in Svelte component:
-/// const form = createFormUserForm();
+/// const form = userFormCreateForm();
 /// <TextField fieldController={form.fields.name} />
 /// <TextField fieldController={form.fields.email} />
 /// <button onclick={() => form.validate()}>Submit</button>
@@ -355,7 +354,7 @@ fn generate_enum_form(
 /// - `placeholderKey`: i18n key for the field placeholder
 #[ts_macro_derive(
     Gigaform,
-    description = "Generates suffixed form helpers (types, validation, controllers, FormData parsing)",
+    description = "Generates prefixed form helpers (types, validation, controllers, FormData parsing)",
     attributes(
         gigaform,
         textController,

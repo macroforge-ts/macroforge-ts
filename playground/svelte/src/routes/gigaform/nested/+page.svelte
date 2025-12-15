@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { createFormUser, defaultValueSettings, type User, type Settings, type UserRole } from "$lib/demo/types.svelte";
+  import { userCreateForm, settingsDefaultValue, type User, type Settings, type UserRole } from "$lib/demo/types.svelte";
 
   // Create User form with nested Settings, Metadata, AppPermissions
-  const userForm = createFormUser();
+  const userForm = userCreateForm();
 
   // Track validation results
   let userResult: { success: boolean; data?: User; errors?: Array<{ field: string; message: string }> } | null = $state(null);
@@ -246,7 +246,7 @@
       <button type="button" data-testid="reset-user" onclick={resetUser}>Reset</button>
       <button type="button" data-testid="set-nested-wholesale" onclick={() => {
         // Test wholesale replacement of nested object
-        userForm.fields.settings.set(defaultValueSettings());
+        userForm.fields.settings.set(settingsDefaultValue());
       }}>Reset Settings to Default</button>
     </div>
   </form>

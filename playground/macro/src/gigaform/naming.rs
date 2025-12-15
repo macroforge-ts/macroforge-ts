@@ -91,6 +91,41 @@ pub fn call_from_stringified_json(
     }
 }
 
+pub fn fn_name_from_form_data(type_name: &str, generic_decl: &str, naming_style: FunctionNamingStyle) -> String {
+    match naming_style {
+        FunctionNamingStyle::Namespace => format!("fromFormData{generic_decl}"),
+        FunctionNamingStyle::Suffix => format!("fromFormData{type_name}{generic_decl}"),
+        FunctionNamingStyle::Prefix => format!("{}FromFormData{generic_decl}", to_camel_case(type_name)),
+        FunctionNamingStyle::Generic => format!("fromFormData{generic_decl}"),
+    }
+}
+
+/// Generates a function name with the correct style.
+/// For prefix style: `userCreateForm`, `userGetDefaultForVariant`
+/// For suffix style: `createFormUser`, `getDefaultForVariantUser`
+pub fn fn_name(base: &str, type_name: &str, generic_decl: &str, naming_style: FunctionNamingStyle) -> String {
+    match naming_style {
+        FunctionNamingStyle::Namespace => format!("{base}{generic_decl}"),
+        FunctionNamingStyle::Suffix => format!("{base}{type_name}{generic_decl}"),
+        FunctionNamingStyle::Prefix => format!("{}{}{generic_decl}", to_camel_case(type_name), capitalize_first(base)),
+        FunctionNamingStyle::Generic => format!("{base}{generic_decl}"),
+    }
+}
+
+/// Generates a type name with prefix style.
+/// `AccountErrors`, `AccountTainted`, `AccountGigaform`, etc.
+pub fn type_name_prefixed(type_name: &str, suffix: &str) -> String {
+    format!("{type_name}{suffix}")
+}
+
+fn capitalize_first(s: &str) -> String {
+    let mut chars = s.chars();
+    match chars.next() {
+        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+        None => String::new(),
+    }
+}
+
 pub fn call_default_value_for_type_ref(type_ref: &str, naming_style: FunctionNamingStyle) -> String {
     let tr = type_ref.trim();
     if let Some(bracket_pos) = tr.find('<') {

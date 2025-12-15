@@ -9,7 +9,7 @@ import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Employee } from './employee.svelte';
+import type { Employee } from './employee.svelte';
 
 export interface Route {
     id: string;

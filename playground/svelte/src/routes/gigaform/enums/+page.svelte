@@ -1,6 +1,6 @@
 <script lang="ts">
   import {
-    createFormAppointment,
+    appointmentCreateForm,
     type Appointment,
     type Status,
     type UserRole,
@@ -13,7 +13,7 @@
   } from "$lib/demo/types.svelte";
 
   // Create Appointment form to test enum fields
-  const appointmentForm = createFormAppointment({
+  const appointmentForm = appointmentCreateForm({
     id: "appt-001",
     title: "Client Meeting",
     status: "Scheduled",

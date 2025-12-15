@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { createFormOrder, defaultValueSite, type Order, type Site, type Coordinates, type OrderStage } from "$lib/demo/types.svelte";
+  import { orderCreateForm, siteDefaultValue, type Order, type Site, type Coordinates, type OrderStage } from "$lib/demo/types.svelte";
 
   // Create Order form to test deeply nested paths
   // Order -> site (Site) -> coordinates (Coordinates) -> lat/lng
-  const orderForm = createFormOrder({
+  const orderForm = orderCreateForm({
     id: "order-001",
     number: 1001,
     stage: "Active",
@@ -308,7 +308,7 @@
         <button
           type="button"
           data-testid="set-site-object"
-          onclick={() => orderForm.fields.site.set(defaultValueSite())}
+          onclick={() => orderForm.fields.site.set(siteDefaultValue())}
         >
           Set as Site Object
         </button>

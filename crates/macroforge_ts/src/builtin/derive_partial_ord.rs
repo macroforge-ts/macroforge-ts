@@ -16,8 +16,8 @@
 //! ## Configuration
 //!
 //! The `functionNamingStyle` option in `macroforge.json` controls naming:
-//! - `"suffix"` (default): Suffixes with type name (e.g., `partialCompareMyType`)
-//! - `"prefix"`: Prefixes with type name (e.g., `myTypePartialCompare`)
+//! - `"prefix"` (default): Prefixes with type name (e.g., `myTypePartialCompare`)
+//! - `"suffix"`: Suffixes with type name (e.g., `partialCompareMyType`)
 //! - `"generic"`: Uses TypeScript generics (e.g., `partialCompare<T extends MyType>`)
 //! - `"namespace"`: Legacy namespace wrapping
 //!

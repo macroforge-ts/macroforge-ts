@@ -10,9 +10,9 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Service } from './service.svelte';
-import { Product } from './product.svelte';
-import { RecordLink } from './record-link.svelte';
+import type { Service } from './service.svelte';
+import type { Product } from './product.svelte';
+import type { RecordLink } from './record-link.svelte';
 
 export type Item = RecordLink<Product> | /** @default */ RecordLink<Service>;
 

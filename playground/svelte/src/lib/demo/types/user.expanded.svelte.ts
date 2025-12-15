@@ -18,10 +18,10 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Metadata } from './metadata.svelte';
-import { Settings } from './settings.svelte';
-import { AppPermissions } from './app-permissions.svelte';
-import { UserRole } from './user-role.svelte';
+import type { Metadata } from './metadata.svelte';
+import type { Settings } from './settings.svelte';
+import type { AppPermissions } from './app-permissions.svelte';
+import type { UserRole } from './user-role.svelte';
 
 export interface User {
     id: string;

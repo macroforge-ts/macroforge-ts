@@ -1,3 +1,4 @@
+import { defaultValueGradient } from './gradient.svelte';
 import { SerializeContext } from 'macroforge/serde';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
@@ -12,19 +13,18 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 import { defaultValueCardinal } from './cardinal.svelte';
 import { defaultValueCustom } from './custom.svelte';
-import { defaultValueGradient } from './gradient.svelte';
 import { defaultValueOrdinal } from './ordinal.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Gradient } from './gradient.svelte';
-import { Custom } from './custom.svelte';
-import { Ordinal } from './ordinal.svelte';
-import { Cardinal } from './cardinal.svelte';
+import type { Gradient } from './gradient.svelte';
+import type { Custom } from './custom.svelte';
+import type { Ordinal } from './ordinal.svelte';
+import type { Cardinal } from './cardinal.svelte';
 
 export type ColorsConfig = Cardinal | Ordinal | Custom | /** @default */ Gradient;
 
 export function defaultValueColorsConfig(): ColorsConfig {
-    return Gradient.defaultValue();
+    return defaultValueGradient();
 }
 
 export function toStringifiedJSONColorsConfig(value: ColorsConfig): string {

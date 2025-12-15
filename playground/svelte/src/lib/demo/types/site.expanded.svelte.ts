@@ -11,7 +11,7 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Coordinates } from './coordinates.svelte';
+import type { Coordinates } from './coordinates.svelte';
 
 export interface Site {
     id: string;

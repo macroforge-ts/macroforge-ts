@@ -11,7 +11,7 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { ProductDefaults } from './product-defaults.svelte';
+import type { ProductDefaults } from './product-defaults.svelte';
 
 export interface Product {
     id: string;

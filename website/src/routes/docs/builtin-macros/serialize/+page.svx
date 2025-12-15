@@ -28,8 +28,8 @@ including circular references.
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"suffix"` (default): Suffixes with type name (e.g., `toStringifiedJSONMyType`)
-- `"prefix"`: Prefixes with type name (e.g., `myTypeToStringifiedJSON`)
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypeToStringifiedJSON`)
+- `"suffix"`: Suffixes with type name (e.g., `toStringifiedJSONMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `toStringifiedJSON<T extends MyType>`)
 - `"namespace"`: Legacy namespace wrapping
 

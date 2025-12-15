@@ -8,8 +8,8 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Account } from './account.svelte';
-import { Employee } from './employee.svelte';
+import type { Account } from './account.svelte';
+import type { Employee } from './employee.svelte';
 
 export interface Represents {
     in: string | Employee;

@@ -10,7 +10,7 @@ import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { DirectionHue } from './direction-hue.svelte';
+import type { DirectionHue } from './direction-hue.svelte';
 
 export interface Custom {
     mappings: DirectionHue[];

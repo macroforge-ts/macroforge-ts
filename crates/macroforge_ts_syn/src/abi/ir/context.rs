@@ -133,22 +133,22 @@ pub enum TargetIR {
 /// # Example
 ///
 /// For a type `MyEnum` with a `clone` function:
-/// - `Suffix` (default): `cloneMyEnum(value: MyEnum): MyEnum`
-/// - `Prefix`: `myEnumClone(value: MyEnum): MyEnum`
+/// - `Prefix` (default): `myEnumClone(value: MyEnum): MyEnum`
+/// - `Suffix`: `cloneMyEnum(value: MyEnum): MyEnum`
 /// - `Generic`: `clone<T extends MyEnum>(value: T): T`
 /// - `Namespace`: `namespace MyEnum { function clone(...) }` (legacy)
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub enum FunctionNamingStyle {
-    /// Suffix the type name to the function (default).
+    /// Suffix the type name to the function.
     ///
     /// Example: `cloneMyType(value: MyType): MyType`
-    #[default]
     Suffix,
 
-    /// Prefix the type name to the function.
+    /// Prefix the type name to the function (default).
     ///
     /// Example: `myTypeClone(value: MyType): MyType`
+    #[default]
     Prefix,
 
     /// Use TypeScript generics with type constraints.

@@ -1,3 +1,4 @@
+import { defaultValueUser } from './user.svelte';
 import { SerializeContext } from 'macroforge/serde';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
@@ -11,17 +12,16 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 import { defaultValueAccount } from './account.svelte';
 import { defaultValueEmployee } from './employee.svelte';
-import { defaultValueUser } from './user.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { User } from './user.svelte';
-import { Account } from './account.svelte';
-import { Employee } from './employee.svelte';
+import type { User } from './user.svelte';
+import type { Account } from './account.svelte';
+import type { Employee } from './employee.svelte';
 
 export type Actor = /** @default */ User | Employee | Account;
 
 export function defaultValueActor(): Actor {
-    return User.defaultValue();
+    return defaultValueUser();
 }
 
 export function toStringifiedJSONActor(value: Actor): string {

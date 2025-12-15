@@ -11,9 +11,9 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Target } from './target.svelte';
-import { ActivityType } from './activity-type.svelte';
-import { Actor } from './actor.svelte';
+import type { Target } from './target.svelte';
+import type { ActivityType } from './activity-type.svelte';
+import type { Actor } from './actor.svelte';
 
 export interface Did {
     in: string | Actor;

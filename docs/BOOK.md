@@ -386,56 +386,61 @@ class User {
 ```  
 **After:**
 ```
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext } from "macroforge/serde";
 
 class User {
-    id: number;
+  
+  
+  id: number;
 
-    name: string;
+  name: string;
 
-    password: string;
+  
+  
+  password: string;
 
-    metadata: Record<string, unknown>;
+  
+  metadata: Record<string, unknown>;
 
-    toString(): string {
-        const parts: string[] = [];
-        parts.push('userId: ' + this.id);
-        parts.push('name: ' + this.name);
-        parts.push('metadata: ' + this.metadata);
-        return 'User { ' + parts.join(', ') + ' }';
-    }
+  toString(): string {
+    const parts: string[] = [];
+    parts.push("userId: " + this.id);
+    parts.push("name: " + this.name);
+    parts.push("metadata: " + this.metadata);
+    return "User { " + parts.join(", ") + " }";
+}
 
-    toStringifiedJSON(): string {
-        const ctx = SerializeContext.create();
-        return JSON.stringify(this.__serialize(ctx));
-    }
+  toStringifiedJSON(): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(this.__serialize(ctx));
+}
 
-    toObject(): Record<string, unknown> {
-        const ctx = SerializeContext.create();
-        return this.__serialize(ctx);
-    }
+  toObject(): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return this.__serialize(ctx);
+}
 
-    __serialize(ctx: SerializeContext): Record<string, unknown> {
-        const existingId = ctx.getId(this);
-        if (existingId !== undefined) {
-            return {
-                __ref: existingId
-            };
-        }
-        const __id = ctx.register(this);
-        const result: Record<string, unknown> = {
-            __type: 'User',
-            __id
+  __serialize(ctx: SerializeContext): Record<string, unknown> {
+    const existingId = ctx.getId(this);
+    if (existingId !== undefined) {
+        return {
+            __ref: existingId
         };
-        result['user_id'] = this.id;
-        result['name'] = this.name;
-        {
-            const __flattened = __serializeRecord<string, unknown>(this.metadata, ctx);
-            const { __type: _, __id: __, ...rest } = __flattened as any;
-            Object.assign(result, rest);
-        }
-        return result;
     }
+    const __id = ctx.register(this);
+    const result: Record<string, unknown> = {
+        __type: "User",
+        __id
+    };
+    result["user_id"] = this.id;
+    result["name"] = this.name;
+    {
+        const __flattened = record < string, unknown;
+        const { __type: _, __id: __, ...rest } = __flattened as any;
+        Object.assign(result, rest);
+    }
+    return result;
+}
 }
 ``` Syntax rules:
  - Must be inside a JSDoc comment immediately before the field
@@ -684,8 +689,8 @@ complex types, or field enumeration for object types.
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"suffix"` (default): Suffixes with type name (e.g., `toStringMyType`)
-- `"prefix"`: Prefixes with type name (e.g., `myTypeToString`)
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypeToString`)
+- `"suffix"`: Suffixes with type name (e.g., `toStringMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `toString<T extends MyType>`)
 - `"namespace"`: Legacy namespace wrapping
 
@@ -737,8 +742,8 @@ independent copies of values.
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"suffix"` (default): Suffixes with type name (e.g., `cloneMyType`)
-- `"prefix"`: Prefixes with type name (e.g., `myTypeClone`)
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypeClone`)
+- `"suffix"`: Suffixes with type name (e.g., `cloneMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `clone<T extends MyType>`)
 - `"namespace"`: Legacy namespace wrapping
 
@@ -803,8 +808,8 @@ a standard way to create "zero" or "empty" instances of types.
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"suffix"` (default): Suffixes with type name (e.g., `defaultValueMyType`)
-- `"prefix"`: Prefixes with type name (e.g., `myTypeDefaultValue`)
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypeDefaultValue`)
+- `"suffix"`: Suffixes with type name (e.g., `defaultValueMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `defaultValue<T extends MyType>`)
 - `"namespace"`: Legacy namespace wrapping
 
@@ -909,8 +914,8 @@ objects to be used as keys in hash-based collections.
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"suffix"` (default): Suffixes with type name (e.g., `hashCodeMyType`)
-- `"prefix"`: Prefixes with type name (e.g., `myTypeHashCode`)
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypeHashCode`)
+- `"suffix"`: Suffixes with type name (e.g., `hashCodeMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `hashCode<T extends MyType>`)
 - `"namespace"`: Legacy namespace wrapping
 
@@ -994,8 +999,8 @@ compared with a guaranteed ordering relationship.
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"suffix"` (default): Suffixes with type name (e.g., `compareMyType`)
-- `"prefix"`: Prefixes with type name (e.g., `myTypeCompare`)
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypeCompare`)
+- `"suffix"`: Suffixes with type name (e.g., `compareMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `compare<T extends MyType>`)
 - `"namespace"`: Legacy namespace wrapping
 
@@ -1089,8 +1094,8 @@ enabling value-based equality semantics instead of reference equality.
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"suffix"` (default): Suffixes with type name (e.g., `equalsMyType`)
-- `"prefix"`: Prefixes with type name (e.g., `myTypeEquals`)
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypeEquals`)
+- `"suffix"`: Suffixes with type name (e.g., `equalsMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `equals<T extends MyType>`)
 - `"namespace"`: Legacy namespace wrapping
 
@@ -1171,8 +1176,8 @@ between values where some pairs may be incomparable.
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"suffix"` (default): Suffixes with type name (e.g., `partialCompareMyType`)
-- `"prefix"`: Prefixes with type name (e.g., `myTypePartialCompare`)
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypePartialCompare`)
+- `"suffix"`: Suffixes with type name (e.g., `partialCompareMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `partialCompare<T extends MyType>`)
 - `"namespace"`: Legacy namespace wrapping
 
@@ -1271,8 +1276,8 @@ including circular references.
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"suffix"` (default): Suffixes with type name (e.g., `toStringifiedJSONMyType`)
-- `"prefix"`: Prefixes with type name (e.g., `myTypeToStringifiedJSON`)
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypeToStringifiedJSON`)
+- `"suffix"`: Suffixes with type name (e.g., `toStringifiedJSONMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `toStringifiedJSON<T extends MyType>`)
 - `"namespace"`: Legacy namespace wrapping
 
@@ -1368,8 +1373,8 @@ safe parsing of complex JSON structures including circular references.
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"suffix"` (default): Suffixes with type name (e.g., `fromStringifiedJSONMyType`)
-- `"prefix"`: Prefixes with type name (e.g., `myTypeFromStringifiedJSON`)
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypeFromStringifiedJSON`)
+- `"suffix"`: Suffixes with type name (e.g., `fromStringifiedJSONMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `fromStringifiedJSON<T extends MyType>`)
 - `"namespace"`: Legacy namespace wrapping
 

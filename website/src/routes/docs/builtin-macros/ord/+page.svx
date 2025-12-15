@@ -28,8 +28,8 @@ compared with a guaranteed ordering relationship.
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"suffix"` (default): Suffixes with type name (e.g., `compareMyType`)
-- `"prefix"`: Prefixes with type name (e.g., `myTypeCompare`)
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypeCompare`)
+- `"suffix"`: Suffixes with type name (e.g., `compareMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `compare<T extends MyType>`)
 - `"namespace"`: Legacy namespace wrapping
 

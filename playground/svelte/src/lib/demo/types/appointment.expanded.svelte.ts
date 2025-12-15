@@ -15,11 +15,11 @@ import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Site } from './site.svelte';
-import { Colors } from './colors.svelte';
-import { Employee } from './employee.svelte';
-import { RecurrenceRule } from './recurrence-rule.svelte';
-import { Status } from './status.svelte';
+import type { Site } from './site.svelte';
+import type { Colors } from './colors.svelte';
+import type { Employee } from './employee.svelte';
+import type { RecurrenceRule } from './recurrence-rule.svelte';
+import type { Status } from './status.svelte';
 
 export interface Appointment {
     id: string;

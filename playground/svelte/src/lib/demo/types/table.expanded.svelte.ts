@@ -8,24 +8,24 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { User } from './user.svelte';
-import { Service } from './service.svelte';
-import { Did } from './did.svelte';
-import { Promotion } from './promotion.svelte';
-import { Site } from './site.svelte';
-import { Product } from './product.svelte';
-import { Represents } from './represents.svelte';
-import { Payment } from './payment.svelte';
-import { Appointment } from './appointment.svelte';
-import { Package } from './package.svelte';
-import { Account } from './account.svelte';
-import { Order } from './order.svelte';
-import { TaxRate } from './tax-rate.svelte';
-import { Lead } from './lead.svelte';
-import { Company } from './company.svelte';
-import { Employee } from './employee.svelte';
-import { Route } from './route.svelte';
-import { Ordered } from './ordered.svelte';
+import type { User } from './user.svelte';
+import type { Service } from './service.svelte';
+import type { Did } from './did.svelte';
+import type { Promotion } from './promotion.svelte';
+import type { Site } from './site.svelte';
+import type { Product } from './product.svelte';
+import type { Represents } from './represents.svelte';
+import type { Payment } from './payment.svelte';
+import type { Appointment } from './appointment.svelte';
+import type { Package } from './package.svelte';
+import type { Account } from './account.svelte';
+import type { Order } from './order.svelte';
+import type { TaxRate } from './tax-rate.svelte';
+import type { Lead } from './lead.svelte';
+import type { Company } from './company.svelte';
+import type { Employee } from './employee.svelte';
+import type { Route } from './route.svelte';
+import type { Ordered } from './ordered.svelte';
 
 export type Table =
     | /** @default */ 'Account'

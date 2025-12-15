@@ -1,3 +1,4 @@
+import { defaultValueCreated } from './created.svelte';
 import { SerializeContext } from 'macroforge/serde';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
@@ -13,24 +14,23 @@ import { __deserializeViewed } from './viewed.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 import { defaultValueCommented } from './commented.svelte';
-import { defaultValueCreated } from './created.svelte';
 import { defaultValueEdited } from './edited.svelte';
 import { defaultValuePaid } from './paid.svelte';
 import { defaultValueSent } from './sent.svelte';
 import { defaultValueViewed } from './viewed.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Edited } from './edited.svelte';
-import { Commented } from './commented.svelte';
-import { Viewed } from './viewed.svelte';
-import { Paid } from './paid.svelte';
-import { Created } from './created.svelte';
-import { Sent } from './sent.svelte';
+import type { Edited } from './edited.svelte';
+import type { Commented } from './commented.svelte';
+import type { Viewed } from './viewed.svelte';
+import type { Paid } from './paid.svelte';
+import type { Created } from './created.svelte';
+import type { Sent } from './sent.svelte';
 
 export type ActivityType = /** @default */ Created | Edited | Sent | Viewed | Commented | Paid;
 
 export function defaultValueActivityType(): ActivityType {
-    return Created.defaultValue();
+    return defaultValueCreated();
 }
 
 export function toStringifiedJSONActivityType(value: ActivityType): string {
