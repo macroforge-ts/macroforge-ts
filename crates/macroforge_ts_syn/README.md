@@ -113,7 +113,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-macroforge_ts_syn = "0.1.33"
+macroforge_ts_syn = "0.1.34"
 ```
 
 ## Key Exports
