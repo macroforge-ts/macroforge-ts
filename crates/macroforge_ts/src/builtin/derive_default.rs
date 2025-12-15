@@ -102,7 +102,7 @@
 //! - A union type has no `@default` on a variant
 
 use crate::builtin::derive_common::{
-    DefaultFieldOptions, get_type_default, has_known_default, is_generic_type, parse_generic_type,
+    DefaultFieldOptions, get_type_default, has_known_default, is_generic_type,
 };
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::abi::FunctionNamingStyle;
@@ -596,12 +596,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         get_type_default(&variant, naming_style)
                     } else if is_generic_type(&variant) {
                         // Handle generic type variants like "RecordLink<Service>"
-                        // Generate Base.defaultValue<Args>() instead of Base<Args>.defaultValue()
-                        if let Some((base, args)) = parse_generic_type(&variant) {
-                            format!("{}.defaultValue<{}>()", base, args)
-                        } else {
-                            format!("{}.defaultValue()", variant)
-                        }
+                        get_type_default(&variant, naming_style)
                     } else {
                         // Check for primitive types that need special handling
                         match variant.trim() {
