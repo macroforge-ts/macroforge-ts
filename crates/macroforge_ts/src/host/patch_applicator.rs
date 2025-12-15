@@ -448,6 +448,14 @@ impl PatchCollector {
         !self.runtime_patches.is_empty() || !self.type_patches.is_empty()
     }
 
+    pub fn runtime_patches_count(&self) -> usize {
+        self.runtime_patches.len()
+    }
+
+    pub fn runtime_patches_slice(&self, start: usize) -> &[Patch] {
+        &self.runtime_patches[start..]
+    }
+
     pub fn apply_runtime_patches(&self, source: &str) -> Result<String> {
         if self.runtime_patches.is_empty() {
             return Ok(source.to_string());

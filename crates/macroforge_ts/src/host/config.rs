@@ -19,7 +19,7 @@
 //!   "macroPackages": ["@my-org/custom-macros"],
 //!   "allowNativeMacros": false,
 //!   "keepDecorators": false,
-//!   "functionNamingStyle": "suffix",
+//!   "functionNamingStyle": "prefix",
 //!   "limits": {
 //!     "maxExecutionTimeMs": 5000,
 //!     "maxMemoryBytes": 104857600,
@@ -114,7 +114,7 @@ pub struct MacroConfig {
     /// Controls how standalone functions are named when generated for enums,
     /// interfaces, and type aliases. Classes always use instance methods.
     ///
-    /// Default: `Suffix` (e.g., `cloneMyType`)
+    /// Default: `Prefix` (e.g., `myTypeClone`)
     #[serde(default)]
     pub function_naming_style: FunctionNamingStyle,
 }
@@ -383,7 +383,7 @@ mod tests {
     #[test]
     fn test_function_naming_style_default() {
         let config = MacroConfig::default();
-        assert_eq!(config.function_naming_style, FunctionNamingStyle::Suffix);
+        assert_eq!(config.function_naming_style, FunctionNamingStyle::Prefix);
     }
 
     #[test]

@@ -645,6 +645,9 @@ impl MacroExpander {
                     }
                 };
 
+            // Capture patch count before macro processing for convenience const generation
+            let patches_start = collector.runtime_patches_count();
+
             for (macro_name, module_path) in target.macro_names {
                 let mut ctx = ctx_factory(macro_name.clone(), module_path.clone());
 
@@ -728,6 +731,39 @@ impl MacroExpander {
 
                 collector.add_runtime_patches(result.runtime_patches);
                 collector.add_type_patches(result.type_patches);
+            }
+
+            // Generate convenience const for non-class types (Prefix and Suffix styles only)
+            // Skip if there's already a namespace or const with the same name in the source
+            if let Some(type_name) = get_derive_target_name(&target.target_ir) {
+                if matches!(
+                    self.config.function_naming_style,
+                    FunctionNamingStyle::Prefix | FunctionNamingStyle::Suffix
+                ) && !has_existing_namespace_or_const(source, type_name)
+                {
+                    let new_patches = collector.runtime_patches_slice(patches_start);
+                    let functions = extract_function_names_from_patches(
+                        new_patches,
+                        type_name,
+                        self.config.function_naming_style,
+                    );
+
+                    if !functions.is_empty() {
+                        let const_code = generate_convenience_const(type_name, &functions);
+                        let end_pos = get_derive_target_end_span(&target.target_ir);
+
+                        let patch = Patch::Insert {
+                            at: SpanIR {
+                                start: end_pos,
+                                end: end_pos,
+                            },
+                            code: PatchCode::Text(format!("\n\n{}", const_code)),
+                            source_macro: Some("__convenience_const".to_string()),
+                        };
+                        collector.add_runtime_patches(vec![patch.clone()]);
+                        collector.add_type_patches(vec![patch]);
+                    }
+                }
             }
         }
         (collector, diagnostics)
@@ -1396,6 +1432,177 @@ fn to_camel_case(name: &str) -> String {
     match chars.next() {
         Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
         None => String::new(),
+    }
+}
+
+/// Extracts exported function names from patch code.
+/// Returns a vector of (full_fn_name, short_name) pairs.
+fn extract_function_names_from_patches(
+    patches: &[Patch],
+    type_name: &str,
+    naming_style: FunctionNamingStyle,
+) -> Vec<(String, String)> {
+    let mut functions = Vec::new();
+    let camel_type_name = to_camel_case(type_name);
+
+    for patch in patches {
+        let code = match patch {
+            Patch::Insert {
+                code: PatchCode::Text(text),
+                ..
+            } => text,
+            Patch::Replace {
+                code: PatchCode::Text(text),
+                ..
+            } => text,
+            _ => continue,
+        };
+
+        // Find "export function <name>(" patterns
+        let mut search_start = 0;
+        while let Some(pos) = code[search_start..].find("export function ") {
+            let start = search_start + pos + "export function ".len();
+            if let Some(paren_pos) = code[start..].find('(') {
+                let fn_name = code[start..start + paren_pos].trim();
+                if !fn_name.is_empty() && fn_name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+                    if let Some(short_name) = extract_short_name(fn_name, type_name, &camel_type_name, naming_style) {
+                        functions.push((fn_name.to_string(), short_name));
+                    }
+                }
+                search_start = start + paren_pos;
+            } else {
+                break;
+            }
+        }
+    }
+
+    functions
+}
+
+/// Extracts the short function name from the full function name based on naming style.
+fn extract_short_name(
+    full_name: &str,
+    type_name: &str,
+    camel_type_name: &str,
+    naming_style: FunctionNamingStyle,
+) -> Option<String> {
+    match naming_style {
+        FunctionNamingStyle::Prefix => {
+            // userClone -> clone, userDefaultValue -> defaultValue
+            if full_name.starts_with(camel_type_name) {
+                let rest = &full_name[camel_type_name.len()..];
+                if rest.is_empty() {
+                    return None;
+                }
+                // Convert first char to lowercase (UserClone prefix removed, rest is Clone -> clone)
+                Some(to_camel_case(rest))
+            } else {
+                None
+            }
+        }
+        FunctionNamingStyle::Suffix => {
+            // cloneUser -> clone, defaultValueUser -> defaultValue
+            if full_name.ends_with(type_name) {
+                let short = &full_name[..full_name.len() - type_name.len()];
+                if short.is_empty() {
+                    return None;
+                }
+                Some(short.to_string())
+            } else {
+                None
+            }
+        }
+        // Namespace and Generic styles don't need convenience const
+        FunctionNamingStyle::Namespace | FunctionNamingStyle::Generic => None,
+    }
+}
+
+/// Generates a convenience const that groups all generated functions for a type.
+fn generate_convenience_const(type_name: &str, functions: &[(String, String)]) -> String {
+    if functions.is_empty() {
+        return String::new();
+    }
+
+    let entries: Vec<String> = functions
+        .iter()
+        .map(|(full_name, short_name)| format!("  {}: {}", short_name, full_name))
+        .collect();
+
+    format!(
+        "export const {} = {{\n{}\n}} as const;",
+        type_name,
+        entries.join(",\n")
+    )
+}
+
+/// Checks if the source already has a namespace or const declaration with the given name.
+/// This prevents generating a convenience const that would conflict with existing declarations.
+fn has_existing_namespace_or_const(source: &str, type_name: &str) -> bool {
+    // Check for `namespace TypeName` or `const TypeName`
+    // Look for common patterns with various whitespace
+    let namespace_patterns = [
+        format!("namespace {}", type_name),
+        format!("namespace  {}", type_name),
+        format!("namespace\t{}", type_name),
+        format!("namespace\n{}", type_name),
+    ];
+
+    let const_patterns = [
+        format!("const {}", type_name),
+        format!("const  {}", type_name),
+        format!("const\t{}", type_name),
+        format!("const\n{}", type_name),
+    ];
+
+    for pattern in &namespace_patterns {
+        if let Some(pos) = source.find(pattern.as_str()) {
+            // Check that this is followed by whitespace, { or end of string
+            let after_pos = pos + pattern.len();
+            if after_pos >= source.len() {
+                return true;
+            }
+            let next_char = source[after_pos..].chars().next();
+            if matches!(next_char, Some('{') | Some(' ') | Some('\t') | Some('\n') | Some('<')) {
+                return true;
+            }
+        }
+    }
+
+    for pattern in &const_patterns {
+        if let Some(pos) = source.find(pattern.as_str()) {
+            // Check that this is followed by whitespace, = or end of string
+            let after_pos = pos + pattern.len();
+            if after_pos >= source.len() {
+                return true;
+            }
+            let next_char = source[after_pos..].chars().next();
+            if matches!(next_char, Some('=') | Some(' ') | Some('\t') | Some('\n') | Some(':') | Some('<')) {
+                return true;
+            }
+        }
+    }
+
+    false
+}
+
+/// Gets the type name from a DeriveTargetIR.
+/// Returns None for classes (they use instance methods).
+fn get_derive_target_name(target: &DeriveTargetIR) -> Option<&str> {
+    match target {
+        DeriveTargetIR::Class(_) => None,
+        DeriveTargetIR::Interface(i) => Some(&i.name),
+        DeriveTargetIR::Enum(e) => Some(&e.name),
+        DeriveTargetIR::TypeAlias(t) => Some(&t.name),
+    }
+}
+
+/// Gets the end span position for a DeriveTargetIR.
+fn get_derive_target_end_span(target: &DeriveTargetIR) -> u32 {
+    match target {
+        DeriveTargetIR::Class(c) => c.span.end,
+        DeriveTargetIR::Interface(i) => i.span.end,
+        DeriveTargetIR::Enum(e) => e.span.end,
+        DeriveTargetIR::TypeAlias(t) => t.span.end,
     }
 }
 
