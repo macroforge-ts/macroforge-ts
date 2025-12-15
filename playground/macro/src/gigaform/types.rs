@@ -1,4 +1,4 @@
-//! Generates type definitions for Gigaform as suffixed exports (ErrorsX, TaintedX, GigaformX, ...).
+//! Generates type definitions for Gigaform as prefixed exports (e.g., UserErrors, UserTainted, UserGigaform, ...).
 
 use macroforge_ts::macros::ts_template;
 use macroforge_ts::ts_syn::TsStream;
@@ -6,16 +6,16 @@ use macroforge_ts::ts_syn::TsStream;
 use crate::gigaform::GenericInfo;
 use crate::gigaform::parser::{ParsedField, UnionConfig, UnionMode};
 
-fn suffixed(base: &str, type_name: &str) -> String {
-    format!("{base}{type_name}")
+fn prefixed(type_name: &str, suffix: &str) -> String {
+    format!("{type_name}{suffix}")
 }
 
 /// Generates the Errors, Tainted, FieldControllers, and Gigaform type definitions.
 pub fn generate(type_name: &str, fields: &[ParsedField]) -> TsStream {
-    let errors_name = suffixed("Errors", type_name);
-    let tainted_name = suffixed("Tainted", type_name);
-    let field_controllers_name = suffixed("FieldControllers", type_name);
-    let gigaform_name = suffixed("Gigaform", type_name);
+    let errors_name = prefixed(type_name, "Errors");
+    let tainted_name = prefixed(type_name, "Tainted");
+    let field_controllers_name = prefixed(type_name, "FieldControllers");
+    let gigaform_name = prefixed(type_name, "Gigaform");
 
     let errors_fields = generate_errors_fields(fields);
     let tainted_fields = generate_tainted_fields(fields);
@@ -60,10 +60,10 @@ pub fn generate_with_generics(
         return generate(type_name, fields);
     }
 
-    let errors_name = suffixed("Errors", type_name);
-    let tainted_name = suffixed("Tainted", type_name);
-    let field_controllers_name = suffixed("FieldControllers", type_name);
-    let gigaform_name = suffixed("Gigaform", type_name);
+    let errors_name = prefixed(type_name, "Errors");
+    let tainted_name = prefixed(type_name, "Tainted");
+    let field_controllers_name = prefixed(type_name, "FieldControllers");
+    let gigaform_name = prefixed(type_name, "Gigaform");
 
     let errors_fields = generate_errors_fields(fields);
     let tainted_fields = generate_tainted_fields(fields);
@@ -195,10 +195,10 @@ pub fn generate_union_with_generics(
 
 /// Generates types for a discriminated union form.
 pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
-    let errors_name = suffixed("Errors", type_name);
-    let tainted_name = suffixed("Tainted", type_name);
-    let gigaform_name = suffixed("Gigaform", type_name);
-    let variant_fields_name = suffixed("VariantFields", type_name);
+    let errors_name = prefixed(type_name, "Errors");
+    let tainted_name = prefixed(type_name, "Tainted");
+    let gigaform_name = prefixed(type_name, "Gigaform");
+    let variant_fields_name = prefixed(type_name, "VariantFields");
 
     // Generate per-variant error types
     let variant_errors = generate_variant_errors(type_name, config);
@@ -255,7 +255,7 @@ fn generate_variant_errors(type_name: &str, config: &UnionConfig) -> String {
         let variant_name = to_pascal_case(&variant.discriminant_value);
         let errors_fields = generate_errors_fields(&variant.fields);
         format!(
-            "export type {variant_name}Errors{type_name} = {{ _errors: Option<Array<string>>; {errors_fields} }};"
+            "export type {type_name}{variant_name}Errors = {{ _errors: Option<Array<string>>; {errors_fields} }};"
         )
     }).collect::<Vec<_>>().join("\n        ")
 }
@@ -268,7 +268,7 @@ fn generate_variant_tainted(type_name: &str, config: &UnionConfig) -> String {
         .map(|variant| {
             let variant_name = to_pascal_case(&variant.discriminant_value);
             let tainted_fields = generate_tainted_fields(&variant.fields);
-            format!("export type {variant_name}Tainted{type_name} = {{ {tainted_fields} }};")
+            format!("export type {type_name}{variant_name}Tainted = {{ {tainted_fields} }};")
         })
         .collect::<Vec<_>>()
         .join("\n        ")
@@ -288,7 +288,7 @@ fn generate_variant_union_type(type_suffix: &str, type_name: &str, config: &Unio
             let variant_name = to_pascal_case(&variant.discriminant_value);
             let value = &variant.discriminant_value;
             format!(
-                "({{ {discriminant_field}: \"{value}\" }} & {variant_name}{type_suffix}{type_name})"
+                "({{ {discriminant_field}: \"{value}\" }} & {type_name}{variant_name}{type_suffix})"
             )
         })
         .collect::<Vec<_>>()
@@ -304,7 +304,7 @@ fn generate_variant_field_controllers(type_name: &str, config: &UnionConfig) -> 
             let variant_name = to_pascal_case(&variant.discriminant_value);
             let field_types = generate_field_controller_types(&variant.fields);
             format!(
-                "export interface {variant_name}FieldControllers{type_name} {{ {field_types} }}"
+                "export interface {type_name}{variant_name}FieldControllers {{ {field_types} }}"
             )
         })
         .collect::<Vec<_>>()
@@ -336,7 +336,7 @@ fn generate_variant_fields_interface(
         } else {
             value.clone()
         };
-        format!("readonly {prop_key}: {{ readonly fields: {variant_name}FieldControllers{type_name} }};")
+        format!("readonly {prop_key}: {{ readonly fields: {type_name}{variant_name}FieldControllers }};")
     }).collect::<Vec<_>>().join("\n            ")
 }
 
@@ -408,9 +408,9 @@ use crate::gigaform::parser::EnumFormConfig;
 /// Generates types for an enum step form (wizard-style navigation).
 pub fn generate_enum(enum_name: &str, config: &EnumFormConfig) -> TsStream {
     let variant_entries = generate_variant_entries(config);
-    let variants_name = suffixed("variants", enum_name);
-    let variant_entry_name = suffixed("VariantEntry", enum_name);
-    let gigaform_name = suffixed("Gigaform", enum_name);
+    let variants_name = prefixed(enum_name, "Variants");
+    let variant_entry_name = prefixed(enum_name, "VariantEntry");
+    let gigaform_name = prefixed(enum_name, "Gigaform");
 
     ts_template! {
         {>> "Variant metadata for step navigation" <<}

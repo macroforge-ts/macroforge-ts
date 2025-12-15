@@ -1,6 +1,6 @@
 <script lang="ts">
   import {
-    createFormLead,
+    leadCreateForm,
     type Lead,
     type CompanyName,
     type PersonName,
@@ -11,7 +11,7 @@
   } from "$lib/demo/types.svelte";
 
   // Create Lead form with union type AccountName
-  const leadForm = createFormLead({
+  const leadForm = leadCreateForm({
     id: "lead-001",
     leadName: { companyName: "Acme Corp" }, // Default to CompanyName variant
     sector: "Commercial",

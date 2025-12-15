@@ -8,7 +8,7 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Number } from './number.svelte';
+import type { Number } from './number.svelte';
 
 export interface PhoneNumber {
     main: boolean;

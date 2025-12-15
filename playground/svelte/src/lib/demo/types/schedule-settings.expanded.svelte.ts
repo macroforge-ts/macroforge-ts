@@ -11,7 +11,7 @@ import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { RowHeight } from './row-height.svelte';
+import type { RowHeight } from './row-height.svelte';
 
 export interface ScheduleSettings {
     daysPerWeek: number;

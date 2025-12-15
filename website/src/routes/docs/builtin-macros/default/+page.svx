@@ -28,8 +28,8 @@ a standard way to create "zero" or "empty" instances of types.
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"suffix"` (default): Suffixes with type name (e.g., `defaultValueMyType`)
-- `"prefix"`: Prefixes with type name (e.g., `myTypeDefaultValue`)
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypeDefaultValue`)
+- `"suffix"`: Suffixes with type name (e.g., `defaultValueMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `defaultValue<T extends MyType>`)
 - `"namespace"`: Legacy namespace wrapping
 

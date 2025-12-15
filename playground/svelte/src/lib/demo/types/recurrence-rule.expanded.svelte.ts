@@ -13,8 +13,8 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Interval } from './interval.svelte';
-import { RecurrenceEnd } from './recurrence-end.svelte';
+import type { Interval } from './interval.svelte';
+import type { RecurrenceEnd } from './recurrence-end.svelte';
 
 export interface RecurrenceRule {
     interval: Interval;

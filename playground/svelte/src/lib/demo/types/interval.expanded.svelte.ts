@@ -1,3 +1,4 @@
+import { defaultValueDailyRecurrenceRule } from './daily-recurrence-rule.svelte';
 import { SerializeContext } from 'macroforge/serde';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
@@ -10,16 +11,15 @@ import { __deserializeWeeklyRecurrenceRule } from './weekly-recurrence-rule.svel
 import { __deserializeYearlyRecurrenceRule } from './yearly-recurrence-rule.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
-import { defaultValueDailyRecurrenceRule } from './daily-recurrence-rule.svelte';
 import { defaultValueMonthlyRecurrenceRule } from './monthly-recurrence-rule.svelte';
 import { defaultValueWeeklyRecurrenceRule } from './weekly-recurrence-rule.svelte';
 import { defaultValueYearlyRecurrenceRule } from './yearly-recurrence-rule.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { YearlyRecurrenceRule } from './yearly-recurrence-rule.svelte';
-import { MonthlyRecurrenceRule } from './monthly-recurrence-rule.svelte';
-import { DailyRecurrenceRule } from './daily-recurrence-rule.svelte';
-import { WeeklyRecurrenceRule } from './weekly-recurrence-rule.svelte';
+import type { YearlyRecurrenceRule } from './yearly-recurrence-rule.svelte';
+import type { MonthlyRecurrenceRule } from './monthly-recurrence-rule.svelte';
+import type { DailyRecurrenceRule } from './daily-recurrence-rule.svelte';
+import type { WeeklyRecurrenceRule } from './weekly-recurrence-rule.svelte';
 
 export type Interval =
     | /** @default */ DailyRecurrenceRule
@@ -28,7 +28,7 @@ export type Interval =
     | YearlyRecurrenceRule;
 
 export function defaultValueInterval(): Interval {
-    return DailyRecurrenceRule.defaultValue();
+    return defaultValueDailyRecurrenceRule();
 }
 
 export function toStringifiedJSONInterval(value: Interval): string {

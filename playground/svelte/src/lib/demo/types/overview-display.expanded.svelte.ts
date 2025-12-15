@@ -8,7 +8,7 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Table } from './table.svelte';
+import type { Table } from './table.svelte';
 
 export type OverviewDisplay = /** @default */ 'Card' | 'Table';
 

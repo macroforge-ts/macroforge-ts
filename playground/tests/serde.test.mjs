@@ -79,7 +79,7 @@ describe("Serialize macro expansion", () => {
     );
   });
 
-  test("generates suffixed functions for interfaces", () => {
+  test("generates prefixed functions for interfaces", () => {
     const code = `
       /** @derive(Serialize) */
       interface IPoint {
@@ -89,12 +89,12 @@ describe("Serialize macro expansion", () => {
     `;
     const result = expandSync(code, "test.ts");
 
-    assert.ok(result.code.includes("function toStringifiedJSONIPoint("), "Should generate toStringifiedJSONIPoint function");
-    assert.ok(result.code.includes("function toObjectIPoint("), "Should generate toObjectIPoint function");
-    assert.ok(result.code.includes("function __serializeIPoint("), "Should generate __serializeIPoint function");
+    assert.ok(result.code.includes("function iPointToStringifiedJSON("), "Should generate iPointToStringifiedJSON function");
+    assert.ok(result.code.includes("function iPointToObject("), "Should generate iPointToObject function");
+    assert.ok(result.code.includes("function iPoint__serialize("), "Should generate iPoint__serialize function");
   });
 
-  test("interfaces call nested suffixed __serialize functions", () => {
+  test("interfaces call nested prefixed __serialize functions", () => {
     const code = `
       /** @derive(Serialize) */
       interface Metadata {
@@ -108,8 +108,8 @@ describe("Serialize macro expansion", () => {
     `;
     const result = expandSync(code, "test.ts");
 
-    assert.ok(result.code.includes("function __serializeUser("), "Should generate __serializeUser");
-    assert.ok(result.code.includes("__serializeMetadata("), "Should call __serializeMetadata for nested type");
+    assert.ok(result.code.includes("function user__serialize("), "Should generate user__serialize");
+    assert.ok(result.code.includes("metadata__serialize("), "Should call metadata__serialize for nested type");
     assert.ok(!result.code.includes("Metadata.__serialize("), "Should not use namespace-style Metadata.__serialize");
   });
 
@@ -383,7 +383,7 @@ describe("Deserialize macro expansion", () => {
     assert.ok(result.code.includes("freezeAll"), "Should call freezeAll");
   });
 
-  test("interfaces call nested suffixed __deserialize functions", () => {
+  test("interfaces call nested prefixed __deserialize functions", () => {
     const code = `
       /** @derive(Deserialize) */
       interface Metadata {
@@ -397,14 +397,14 @@ describe("Deserialize macro expansion", () => {
     `;
     const result = expandSync(code, "test.ts");
 
-    assert.ok(result.code.includes("function __deserializeUser("), "Should generate __deserializeUser");
-    assert.ok(result.code.includes("__deserializeMetadata("), "Should call __deserializeMetadata for nested type");
+    assert.ok(result.code.includes("function user__deserialize("), "Should generate user__deserialize");
+    assert.ok(result.code.includes("metadata__deserialize("), "Should call metadata__deserialize for nested type");
     assert.ok(!result.code.includes("Metadata.__deserialize("), "Should not use namespace-style Metadata.__deserialize");
   });
 });
 
 describe("External type function imports", () => {
-  test("injects imports for nested type functions (suffix style)", () => {
+  test("injects imports for nested type functions (prefix style)", () => {
     const code = `
       import { Metadata } from "./metadata.svelte";
 
@@ -416,8 +416,8 @@ describe("External type function imports", () => {
     const result = expandSync(code, "test.ts");
 
     assert.ok(
-      result.code.includes("defaultValueMetadata()"),
-      "Should call defaultValueMetadata for nested default values"
+      result.code.includes("metadataDefaultValue()"),
+      "Should call metadataDefaultValue for nested default values"
     );
     assert.ok(
       !result.code.includes("Metadata.defaultValue()"),
@@ -425,16 +425,16 @@ describe("External type function imports", () => {
     );
 
     assert.ok(
-      result.code.includes('import { __serializeMetadata } from "./metadata.svelte";'),
-      "Should import __serializeMetadata from metadata module"
+      result.code.includes('import { metadata__serialize } from "./metadata.svelte";'),
+      "Should import metadata__serialize from metadata module"
     );
     assert.ok(
-      result.code.includes('import { __deserializeMetadata } from "./metadata.svelte";'),
-      "Should import __deserializeMetadata from metadata module"
+      result.code.includes('import { metadata__deserialize } from "./metadata.svelte";'),
+      "Should import metadata__deserialize from metadata module"
     );
     assert.ok(
-      result.code.includes('import { defaultValueMetadata } from "./metadata.svelte";'),
-      "Should import defaultValueMetadata from metadata module"
+      result.code.includes('import { metadataDefaultValue } from "./metadata.svelte";'),
+      "Should import metadataDefaultValue from metadata module"
     );
   });
 });
@@ -496,7 +496,7 @@ describe("Combined Serialize + Deserialize", () => {
 // ============================================================================
 
 describe("Enum serialization", () => {
-  test("generates suffixed functions for enum serialization", () => {
+  test("generates prefixed functions for enum serialization", () => {
     const code = `
       /** @derive(Serialize) */
       enum Status {
@@ -506,11 +506,11 @@ describe("Enum serialization", () => {
     `;
     const result = expandSync(code, "test.ts");
 
-    assert.ok(result.code.includes("function toStringifiedJSONStatus("), "Should have toStringifiedJSONStatus function");
-    assert.ok(result.code.includes("function __serializeStatus("), "Should have __serializeStatus function");
+    assert.ok(result.code.includes("function statusToStringifiedJSON("), "Should have statusToStringifiedJSON function");
+    assert.ok(result.code.includes("function status__serialize("), "Should have status__serialize function");
   });
 
-  test("generates suffixed functions for enum deserialization", () => {
+  test("generates prefixed functions for enum deserialization", () => {
     const code = `
       /** @derive(Deserialize) */
       enum Status {
@@ -520,8 +520,8 @@ describe("Enum serialization", () => {
     `;
     const result = expandSync(code, "test.ts");
 
-    assert.ok(result.code.includes("function fromStringifiedJSONStatus("), "Should have fromStringifiedJSONStatus function");
-    assert.ok(result.code.includes("function __deserializeStatus("), "Should have __deserializeStatus function");
+    assert.ok(result.code.includes("function statusFromStringifiedJSON("), "Should have statusFromStringifiedJSON function");
+    assert.ok(result.code.includes("function status__deserialize("), "Should have status__deserialize function");
     assert.ok(result.code.includes("Invalid"), "Should validate enum values");
   });
 });
@@ -531,7 +531,7 @@ describe("Enum serialization", () => {
 // ============================================================================
 
 describe("Type alias serialization", () => {
-  test("generates suffixed functions for object type alias", () => {
+  test("generates prefixed functions for object type alias", () => {
     const code = `
       /** @derive(Serialize) */
       type Point = {
@@ -541,20 +541,20 @@ describe("Type alias serialization", () => {
     `;
     const result = expandSync(code, "test.ts");
 
-    assert.ok(result.code.includes("function toStringifiedJSONPoint("), "Should have toStringifiedJSONPoint");
-    assert.ok(result.code.includes("function toObjectPoint("), "Should have toObjectPoint");
-    assert.ok(result.code.includes("function __serializePoint("), "Should have __serializePoint");
+    assert.ok(result.code.includes("function pointToStringifiedJSON("), "Should have pointToStringifiedJSON");
+    assert.ok(result.code.includes("function pointToObject("), "Should have pointToObject");
+    assert.ok(result.code.includes("function point__serialize("), "Should have point__serialize");
   });
 
-  test("generates suffixed functions for union type alias", () => {
+  test("generates prefixed functions for union type alias", () => {
     const code = `
       /** @derive(Serialize) */
       type Result = Success | Failure;
     `;
     const result = expandSync(code, "test.ts");
 
-    assert.ok(result.code.includes("function toStringifiedJSONResult("), "Should have toStringifiedJSONResult");
-    assert.ok(result.code.includes("function __serializeResult("), "Should have __serializeResult");
+    assert.ok(result.code.includes("function resultToStringifiedJSON("), "Should have resultToStringifiedJSON");
+    assert.ok(result.code.includes("function result__serialize("), "Should have result__serialize");
   });
 });
 

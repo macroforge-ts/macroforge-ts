@@ -349,7 +349,7 @@ function assertNamingStyle(results, namingStyleLabel) {
 
 describe("functionNamingStyle (built-ins)", () => {
   const styles = [
-    { label: "suffix (default)", config: {} },
+    { label: "prefix (default)", config: {} },
     { label: "suffix", config: { functionNamingStyle: "suffix" } },
     { label: "prefix", config: { functionNamingStyle: "prefix" } },
     { label: "generic", config: { functionNamingStyle: "generic" } },
@@ -367,7 +367,7 @@ describe("functionNamingStyle (built-ins)", () => {
         const results = runExpandCases({ projectDir, cases });
         expectAllNoErrors(results);
 
-        const namingStyleLabel = style.label === "suffix (default)" ? "suffix" : style.label;
+        const namingStyleLabel = style.label === "prefix (default)" ? "prefix" : style.label;
         assertNamingStyle(results, namingStyleLabel);
       } finally {
         fs.rmSync(projectDir, { recursive: true, force: true });

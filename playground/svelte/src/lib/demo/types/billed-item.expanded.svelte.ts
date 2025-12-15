@@ -10,7 +10,7 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Item } from './item.svelte';
+import type { Item } from './item.svelte';
 
 export interface BilledItem {
     item: Item;

@@ -1,17 +1,17 @@
 <script lang="ts">
   import {
-    createFormPhoneNumber,
-    createFormGradient,
-    createFormCoordinates,
+    phoneNumberCreateForm,
+    gradientCreateForm,
+    coordinatesCreateForm,
     type PhoneNumber,
     type Gradient,
     type Coordinates,
   } from "$lib/demo/types.svelte";
 
   // Create form instances
-  const phoneForm = createFormPhoneNumber();
-  const gradientForm = createFormGradient();
-  const coordinatesForm = createFormCoordinates();
+  const phoneForm = phoneNumberCreateForm();
+  const gradientForm = gradientCreateForm();
+  const coordinatesForm = coordinatesCreateForm();
 
   // Track validation results
   let phoneResult: { success: boolean; data?: PhoneNumber; errors?: Array<{ field: string; message: string }> } | null = $state(null);

@@ -12199,7 +12199,7 @@ export type Interval =
     | MonthlyRecurrenceRule
     | YearlyRecurrenceRule;
 
-export function defaultValueInterval(): Interval {return DailyRecurrenceRule.defaultValue();}
+export function defaultValueInterval(): Interval {return defaultValueDailyRecurrenceRule();}
 
 export function toStringifiedJSONInterval(value: Interval): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeInterval(value, ctx));}export function toObjectInterval(value: Interval): unknown {const ctx = SerializeContext.create(); return __serializeInterval(value, ctx);}export function __serializeInterval(value: Interval, ctx: SerializeContext): unknown {if(typeof(value as any)?.__serialize === "function" ){return(value as any).__serialize(ctx);}return value;}
 
@@ -12684,7 +12684,7 @@ export type Target =
     | Represents
     | Ordered;
 
-export function defaultValueTarget(): Target {return Account.defaultValue();}
+export function defaultValueTarget(): Target {return defaultValueAccount();}
 
 export function toStringifiedJSONTarget(value: Target): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeTarget(value, ctx));}export function toObjectTarget(value: Target): unknown {const ctx = SerializeContext.create(); return __serializeTarget(value, ctx);}export function __serializeTarget(value: Target, ctx: SerializeContext): unknown {if(typeof(value as any)?.__serialize === "function" ){return(value as any).__serialize(ctx);}return value;}
 
@@ -13338,7 +13338,7 @@ export function fromStringifiedJSONLeadStage(json: string, opts?: DeserializeOpt
 
 export type AccountName = /** @default */ CompanyName | PersonName;
 
-export function defaultValueAccountName(): AccountName {return CompanyName.defaultValue();}
+export function defaultValueAccountName(): AccountName {return defaultValueCompanyName();}
 
 export function toStringifiedJSONAccountName(value: AccountName): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeAccountName(value, ctx));}export function toObjectAccountName(value: AccountName): unknown {const ctx = SerializeContext.create(); return __serializeAccountName(value, ctx);}export function __serializeAccountName(value: AccountName, ctx: SerializeContext): unknown {if(typeof(value as any)?.__serialize === "function" ){return(value as any).__serialize(ctx);}return value;}
 
@@ -13581,7 +13581,7 @@ export function fromStringifiedJSONJobTitle(json: string, opts?: DeserializeOpti
 
 export type ColorsConfig = Cardinal | Ordinal | Custom | /** @default */ Gradient;
 
-export function defaultValueColorsConfig(): ColorsConfig {return Gradient.defaultValue();}
+export function defaultValueColorsConfig(): ColorsConfig {return defaultValueGradient();}
 
 export function toStringifiedJSONColorsConfig(value: ColorsConfig): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeColorsConfig(value, ctx));}export function toObjectColorsConfig(value: ColorsConfig): unknown {const ctx = SerializeContext.create(); return __serializeColorsConfig(value, ctx);}export function __serializeColorsConfig(value: ColorsConfig, ctx: SerializeContext): unknown {if(typeof(value as any)?.__serialize === "function" ){return(value as any).__serialize(ctx);}return value;}
 
@@ -13709,7 +13709,7 @@ export function fromStringifiedJSONWeekOfMonth(json: string, opts?: DeserializeO
 
 export type ActivityType = /** @default */ Created | Edited | Sent | Viewed | Commented | Paid;
 
-export function defaultValueActivityType(): ActivityType {return Created.defaultValue();}
+export function defaultValueActivityType(): ActivityType {return defaultValueCreated();}
 
 export function toStringifiedJSONActivityType(value: ActivityType): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeActivityType(value, ctx));}export function toObjectActivityType(value: ActivityType): unknown {const ctx = SerializeContext.create(); return __serializeActivityType(value, ctx);}export function __serializeActivityType(value: ActivityType, ctx: SerializeContext): unknown {if(typeof(value as any)?.__serialize === "function" ){return(value as any).__serialize(ctx);}return value;}
 
@@ -14182,7 +14182,7 @@ export function fromStringifiedJSONRecordLink<T>(json: string, opts?: Deserializ
 
 export type Actor = /** @default */ User | Employee | Account;
 
-export function defaultValueActor(): Actor {return User.defaultValue();}
+export function defaultValueActor(): Actor {return defaultValueUser();}
 
 export function toStringifiedJSONActor(value: Actor): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeActor(value, ctx));}export function toObjectActor(value: Actor): unknown {const ctx = SerializeContext.create(); return __serializeActor(value, ctx);}export function __serializeActor(value: Actor, ctx: SerializeContext): unknown {if(typeof(value as any)?.__serialize === "function" ){return(value as any).__serialize(ctx);}return value;}
 

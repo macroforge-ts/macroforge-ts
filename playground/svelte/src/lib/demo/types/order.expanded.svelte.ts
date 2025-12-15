@@ -12,17 +12,17 @@ import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Promotion } from './promotion.svelte';
-import { Site } from './site.svelte';
-import { Payment } from './payment.svelte';
-import { Appointment } from './appointment.svelte';
-import { Package } from './package.svelte';
-import { Account } from './account.svelte';
-import { Lead } from './lead.svelte';
-import { Employee } from './employee.svelte';
-import { BilledItem } from './billed-item.svelte';
-import { OrderStage } from './order-stage.svelte';
-import { Item } from './item.svelte';
+import type { Promotion } from './promotion.svelte';
+import type { Site } from './site.svelte';
+import type { Payment } from './payment.svelte';
+import type { Appointment } from './appointment.svelte';
+import type { Package } from './package.svelte';
+import type { Account } from './account.svelte';
+import type { Lead } from './lead.svelte';
+import type { Employee } from './employee.svelte';
+import type { BilledItem } from './billed-item.svelte';
+import type { OrderStage } from './order-stage.svelte';
+import type { Item } from './item.svelte';
 
 export interface Order {
     id: string;

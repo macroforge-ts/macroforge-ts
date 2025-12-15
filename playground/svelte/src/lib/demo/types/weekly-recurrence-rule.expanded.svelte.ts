@@ -10,7 +10,7 @@ import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Weekday } from './weekday.svelte';
+import type { Weekday } from './weekday.svelte';
 
 export interface WeeklyRecurrenceRule {
     quantityOfWeeks: number;

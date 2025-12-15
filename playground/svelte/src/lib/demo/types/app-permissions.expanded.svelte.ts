@@ -12,9 +12,9 @@ import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Page } from './page.svelte';
-import { Applications } from './applications.svelte';
-import { Table } from './table.svelte';
+import type { Page } from './page.svelte';
+import type { Applications } from './applications.svelte';
+import type { Table } from './table.svelte';
 
 export interface AppPermissions {
     applications: Applications[];

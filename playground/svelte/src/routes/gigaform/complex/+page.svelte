@@ -1,8 +1,8 @@
 <script lang="ts">
   import {
-    createFormEmployee,
-    createFormOrder,
-    defaultValueSettings,
+    employeeCreateForm,
+    orderCreateForm,
+    settingsDefaultValue,
     type Employee,
     type Order,
     type Settings,
@@ -11,7 +11,7 @@
   } from "$lib/demo/types.svelte";
 
   // Create Employee form - complex type with nested Settings, arrays, nullable fields
-  const employeeForm = createFormEmployee({
+  const employeeForm = employeeCreateForm({
     id: "emp-001",
     name: "John Smith",
     imageUrl: null,
@@ -34,7 +34,7 @@
   });
 
   // Create Order form - deeply nested with multiple arrays
-  const orderForm = createFormOrder({
+  const orderForm = orderCreateForm({
     id: "ord-001",
     number: 1001,
     stage: "Active",
@@ -316,7 +316,7 @@
       <button
         type="button"
         data-testid="emp-reset-settings"
-        onclick={() => employeeForm.fields.settings.set(defaultValueSettings())}
+        onclick={() => employeeForm.fields.settings.set(settingsDefaultValue())}
       >
         Reset Settings to Default
       </button>

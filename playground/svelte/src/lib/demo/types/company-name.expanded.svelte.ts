@@ -8,7 +8,7 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Company } from './company.svelte';
+import type { Company } from './company.svelte';
 
 export interface CompanyName {
     companyName: string;

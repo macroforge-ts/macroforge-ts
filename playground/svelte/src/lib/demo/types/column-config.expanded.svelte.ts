@@ -11,7 +11,7 @@ import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { DataPath } from './data-path.svelte';
+import type { DataPath } from './data-path.svelte';
 
 export interface ColumnConfig {
     heading: string;

@@ -1451,17 +1451,17 @@ interface Status {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Output should contain suffix-style toString function (default naming style)
+        // Output should contain prefix-style toString function (default naming style)
         assert!(
-            result.code.contains("toStringStatus"),
-            "Should generate suffix-style toStringStatus function. Got:\n{}",
+            result.code.contains("statusToString"),
+            "Should generate prefix-style statusToString function. Got:\n{}",
             result.code
         );
     });
 }
 
 #[test]
-fn test_derive_clone_on_interface_generates_namespace() {
+fn test_derive_clone_on_interface_generates_functions() {
     let source = r#"
 /** @derive(Clone) */
 interface UserData {
@@ -1483,16 +1483,16 @@ interface UserData {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Output should contain suffix-style clone function (default naming style)
+        // Output should contain prefix-style clone function (default naming style)
         assert!(
-            result.code.contains("cloneUserData"),
-            "Should generate suffix-style cloneUserData function"
+            result.code.contains("userDataClone"),
+            "Should generate prefix-style userDataClone function"
         );
     });
 }
 
 #[test]
-fn test_derive_partial_eq_hash_on_interface_generates_namespace() {
+fn test_derive_partial_eq_hash_on_interface_generates_functions() {
     let source = r#"
 /** @derive(PartialEq, Hash) */
 interface Point {
@@ -1514,14 +1514,14 @@ interface Point {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Output should contain suffix-style equals and hashCode functions (default naming style)
+        // Output should contain prefix-style equals and hashCode functions (default naming style)
         assert!(
-            result.code.contains("equalsPoint"),
-            "Should generate suffix-style equalsPoint function"
+            result.code.contains("pointEquals"),
+            "Should generate prefix-style pointEquals function"
         );
         assert!(
-            result.code.contains("hashCodePoint"),
-            "Should generate suffix-style hashCodePoint function"
+            result.code.contains("pointHashCode"),
+            "Should generate prefix-style pointHashCode function"
         );
     });
 }
@@ -1584,22 +1584,22 @@ interface Status {
             error_count
         );
 
-        // Should have all suffix-style functions generated
+        // Should have all prefix-style functions generated
         assert!(
-            result.code.contains("toStringStatus"),
-            "Should have Debug's toStringStatus"
+            result.code.contains("statusToString"),
+            "Should have Debug's statusToString"
         );
         assert!(
-            result.code.contains("cloneStatus"),
-            "Should have Clone's cloneStatus"
+            result.code.contains("statusClone"),
+            "Should have Clone's statusClone"
         );
         assert!(
-            result.code.contains("equalsStatus"),
-            "Should have PartialEq's equalsStatus"
+            result.code.contains("statusEquals"),
+            "Should have PartialEq's statusEquals"
         );
         assert!(
-            result.code.contains("hashCodeStatus"),
-            "Should have Hash's hashCodeStatus"
+            result.code.contains("statusHashCode"),
+            "Should have Hash's statusHashCode"
         );
     });
 }
@@ -1840,7 +1840,7 @@ class Data {
 }
 
 #[test]
-fn test_derive_serialize_on_interface_generates_namespace() {
+fn test_derive_serialize_on_interface_generates_functions() {
     let source = r#"
 /** @derive(Serialize) */
 interface Point {
@@ -1862,20 +1862,20 @@ interface Point {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Output should contain suffix-style serialize functions (default naming style)
+        // Output should contain prefix-style serialize functions (default naming style)
         assert!(
-            result.code.contains("toStringifiedJSONPoint"),
-            "Should generate suffix-style toStringifiedJSONPoint function"
+            result.code.contains("pointToStringifiedJSON"),
+            "Should generate prefix-style pointToStringifiedJSON function"
         );
         assert!(
-            result.code.contains("__serializePoint"),
-            "Should generate suffix-style __serializePoint function"
+            result.code.contains("point__serialize"),
+            "Should generate prefix-style point__serialize function"
         );
     });
 }
 
 #[test]
-fn test_derive_deserialize_on_interface_generates_namespace() {
+fn test_derive_deserialize_on_interface_generates_functions() {
     let source = r#"
 /** @derive(Deserialize) */
 interface Point {
@@ -1897,20 +1897,20 @@ interface Point {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Output should contain suffix-style deserialize functions (default naming style)
+        // Output should contain prefix-style deserialize functions (default naming style)
         assert!(
-            result.code.contains("fromStringifiedJSONPoint"),
-            "Should generate suffix-style fromStringifiedJSONPoint function"
+            result.code.contains("pointFromStringifiedJSON"),
+            "Should generate prefix-style pointFromStringifiedJSON function"
         );
         assert!(
-            result.code.contains("__deserializePoint"),
-            "Should generate suffix-style __deserializePoint function"
+            result.code.contains("point__deserialize"),
+            "Should generate prefix-style point__deserialize function"
         );
     });
 }
 
 #[test]
-fn test_interface_derive_macros_default_to_suffix_functions() {
+fn test_interface_derive_macros_default_to_prefix_functions() {
     let source = r#"
 /** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Default, Serialize, Deserialize) */
 export interface Point {
@@ -1930,19 +1930,19 @@ export interface Point {
         );
 
         for expected in [
-            "export function toStringPoint",
-            "export function clonePoint",
-            "export function equalsPoint",
-            "export function hashCodePoint",
-            "export function partialComparePoint",
-            "export function comparePoint",
-            "export function defaultValuePoint",
-            "export function __serializePoint",
-            "export function __deserializePoint",
+            "export function pointToString",
+            "export function pointClone",
+            "export function pointEquals",
+            "export function pointHashCode",
+            "export function pointPartialCompare",
+            "export function pointCompare",
+            "export function pointDefaultValue",
+            "export function point__serialize",
+            "export function point__deserialize",
         ] {
             assert!(
                 result.code.contains(expected),
-                "Expected suffix-style function: {expected}"
+                "Expected prefix-style function: {expected}"
             );
         }
     });
@@ -1983,7 +1983,7 @@ export interface Point {
 }
 
 #[test]
-fn test_external_type_function_imports_for_suffix_style() {
+fn test_external_type_function_imports_for_prefix_style() {
     let source = r#"
 import { Metadata } from "./metadata.svelte";
 
@@ -2000,30 +2000,30 @@ export interface User {
 
         // The expansion should call into the imported type's generated functions
         assert!(
-            result.code.contains("__serializeMetadata"),
-            "Expected User serialization to reference __serializeMetadata"
+            result.code.contains("metadata__serialize"),
+            "Expected User serialization to reference metadata__serialize"
         );
         assert!(
-            result.code.contains("__deserializeMetadata"),
-            "Expected User deserialization to reference __deserializeMetadata"
+            result.code.contains("metadata__deserialize"),
+            "Expected User deserialization to reference metadata__deserialize"
         );
         assert!(
-            result.code.contains("defaultValueMetadata"),
-            "Expected User defaultValue to reference defaultValueMetadata"
+            result.code.contains("metadataDefaultValue"),
+            "Expected User defaultValue to reference metadataDefaultValue"
         );
 
         // ...and it should add corresponding imports from the original module specifier.
         assert!(
-            result.code.contains("import { __serializeMetadata } from \"./metadata.svelte\";"),
-            "Expected __serializeMetadata import to be added"
+            result.code.contains("import { metadata__serialize } from \"./metadata.svelte\";"),
+            "Expected metadata__serialize import to be added"
         );
         assert!(
-            result.code.contains("import { __deserializeMetadata } from \"./metadata.svelte\";"),
-            "Expected __deserializeMetadata import to be added"
+            result.code.contains("import { metadata__deserialize } from \"./metadata.svelte\";"),
+            "Expected metadata__deserialize import to be added"
         );
         assert!(
-            result.code.contains("import { defaultValueMetadata } from \"./metadata.svelte\";"),
-            "Expected defaultValueMetadata import to be added"
+            result.code.contains("import { metadataDefaultValue } from \"./metadata.svelte\";"),
+            "Expected metadataDefaultValue import to be added"
         );
     });
 }
@@ -2071,7 +2071,7 @@ class Config {
 // ==================== ENUM TESTS ====================
 
 #[test]
-fn test_derive_debug_on_enum_generates_namespace() {
+fn test_derive_debug_on_enum_generates_functions() {
     let source = r#"
 /** @derive(Debug) */
 enum Status {
@@ -2094,16 +2094,16 @@ enum Status {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Debug macro on enum generates suffix-style toString function
+        // Debug macro on enum generates prefix-style toString function
         assert!(
-            result.code.contains("toStringStatus"),
-            "Should generate suffix-style toStringStatus function"
+            result.code.contains("statusToString"),
+            "Should generate prefix-style statusToString function"
         );
     });
 }
 
 #[test]
-fn test_derive_clone_on_enum_generates_namespace() {
+fn test_derive_clone_on_enum_generates_functions() {
     let source = r#"
 /** @derive(Clone) */
 enum Priority {
@@ -2126,17 +2126,17 @@ enum Priority {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Clone macro on enum generates suffix-style standalone function (default style)
+        // Clone macro on enum generates prefix-style standalone function (default style)
         assert!(
-            result.code.contains("clonePriority"),
-            "Should generate suffix-style clone function for enum"
+            result.code.contains("priorityClone"),
+            "Should generate prefix-style clone function for enum"
         );
-        assert!(result.code.contains("clone"), "Should have clone function");
+        assert!(result.code.contains("Clone"), "Should have Clone function");
     });
 }
 
 #[test]
-fn test_derive_partial_eq_hash_on_enum_generates_namespace() {
+fn test_derive_partial_eq_hash_on_enum_generates_functions() {
     let source = r#"
 /** @derive(PartialEq, Hash) */
 enum Color {
@@ -2159,20 +2159,20 @@ enum Color {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // PartialEq and Hash macros on enum generate suffix-style functions
+        // PartialEq and Hash macros on enum generate prefix-style functions
         assert!(
-            result.code.contains("equalsColor"),
-            "Should generate suffix-style equalsColor function"
+            result.code.contains("colorEquals"),
+            "Should generate prefix-style colorEquals function"
         );
         assert!(
-            result.code.contains("hashCodeColor"),
-            "Should generate suffix-style hashCodeColor function"
+            result.code.contains("colorHashCode"),
+            "Should generate prefix-style colorHashCode function"
         );
     });
 }
 
 #[test]
-fn test_derive_serialize_on_enum_generates_namespace() {
+fn test_derive_serialize_on_enum_generates_functions() {
     let source = r#"
 /** @derive(Serialize) */
 enum Direction {
@@ -2196,16 +2196,16 @@ enum Direction {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Serialize macro on enum generates suffix-style toStringifiedJSON
+        // Serialize macro on enum generates prefix-style toStringifiedJSON
         assert!(
-            result.code.contains("toStringifiedJSONDirection"),
-            "Should generate suffix-style toStringifiedJSONDirection function"
+            result.code.contains("directionToStringifiedJSON"),
+            "Should generate prefix-style directionToStringifiedJSON function"
         );
     });
 }
 
 #[test]
-fn test_derive_deserialize_on_enum_generates_namespace() {
+fn test_derive_deserialize_on_enum_generates_functions() {
     let source = r#"
 /** @derive(Deserialize) */
 enum Role {
@@ -2228,10 +2228,10 @@ enum Role {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Deserialize macro on enum generates suffix-style fromStringifiedJSON
+        // Deserialize macro on enum generates prefix-style fromStringifiedJSON
         assert!(
-            result.code.contains("fromStringifiedJSONRole"),
-            "Should generate suffix-style fromStringifiedJSONRole function"
+            result.code.contains("roleFromStringifiedJSON"),
+            "Should generate prefix-style roleFromStringifiedJSON function"
         );
     });
 }
@@ -2263,30 +2263,30 @@ enum Status {
             error_count
         );
 
-        // All macros should generate suffix-style functions
+        // All macros should generate prefix-style functions
         assert!(
-            result.code.contains("toStringStatus"),
-            "Should have Debug's toStringStatus"
+            result.code.contains("statusToString"),
+            "Should have Debug's statusToString"
         );
         assert!(
-            result.code.contains("cloneStatus"),
-            "Should have Clone's cloneStatus"
+            result.code.contains("statusClone"),
+            "Should have Clone's statusClone"
         );
         assert!(
-            result.code.contains("equalsStatus"),
-            "Should have PartialEq's equalsStatus"
+            result.code.contains("statusEquals"),
+            "Should have PartialEq's statusEquals"
         );
         assert!(
-            result.code.contains("hashCodeStatus"),
-            "Should have Hash's hashCodeStatus"
+            result.code.contains("statusHashCode"),
+            "Should have Hash's statusHashCode"
         );
         assert!(
-            result.code.contains("toStringifiedJSONStatus"),
-            "Should have Serialize's toStringifiedJSONStatus"
+            result.code.contains("statusToStringifiedJSON"),
+            "Should have Serialize's statusToStringifiedJSON"
         );
         assert!(
-            result.code.contains("fromStringifiedJSONStatus"),
-            "Should have Deserialize's fromStringifiedJSONStatus"
+            result.code.contains("statusFromStringifiedJSON"),
+            "Should have Deserialize's statusFromStringifiedJSON"
         );
     });
 }
@@ -2294,7 +2294,7 @@ enum Status {
 // ==================== TYPE ALIAS TESTS ====================
 
 #[test]
-fn test_derive_debug_on_type_alias_generates_namespace() {
+fn test_derive_debug_on_type_alias_generates_functions() {
     let source = r#"
 /** @derive(Debug) */
 type Point = {
@@ -2316,16 +2316,16 @@ type Point = {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Debug macro on type alias generates standalone toStringPoint function
+        // Debug macro on type alias generates standalone pointToString function
         assert!(
-            result.code.contains("toStringPoint"),
-            "Should generate toStringPoint function for type"
+            result.code.contains("pointToString"),
+            "Should generate pointToString function for type"
         );
     });
 }
 
 #[test]
-fn test_derive_clone_on_type_alias_generates_namespace() {
+fn test_derive_clone_on_type_alias_generates_functions() {
     let source = r#"
 /** @derive(Clone) */
 type Config = {
@@ -2347,16 +2347,16 @@ type Config = {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Clone macro on type alias generates standalone cloneConfig function
+        // Clone macro on type alias generates standalone configClone function
         assert!(
-            result.code.contains("cloneConfig"),
-            "Should generate cloneConfig function for type"
+            result.code.contains("configClone"),
+            "Should generate configClone function for type"
         );
     });
 }
 
 #[test]
-fn test_derive_partial_eq_hash_on_type_alias_generates_namespace() {
+fn test_derive_partial_eq_hash_on_type_alias_generates_functions() {
     let source = r#"
 /** @derive(PartialEq, Hash) */
 type Vector = {
@@ -2381,18 +2381,18 @@ type Vector = {
 
         // PartialEq and Hash macros on type alias generate standalone functions
         assert!(
-            result.code.contains("equalsVector"),
-            "Should generate equalsVector function for type"
+            result.code.contains("vectorEquals"),
+            "Should generate vectorEquals function for type"
         );
         assert!(
-            result.code.contains("hashCodeVector"),
-            "Should generate hashCodeVector function for type"
+            result.code.contains("vectorHashCode"),
+            "Should generate vectorHashCode function for type"
         );
     });
 }
 
 #[test]
-fn test_derive_serialize_on_type_alias_generates_namespace() {
+fn test_derive_serialize_on_type_alias_generates_functions() {
     let source = r#"
 /** @derive(Serialize) */
 type User = {
@@ -2414,16 +2414,16 @@ type User = {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Serialize macro on type alias generates standalone toStringifiedJSONUser function
+        // Serialize macro on type alias generates standalone userToStringifiedJSON function
         assert!(
-            result.code.contains("toStringifiedJSONUser"),
-            "Should generate toStringifiedJSONUser function for type"
+            result.code.contains("userToStringifiedJSON"),
+            "Should generate userToStringifiedJSON function for type"
         );
     });
 }
 
 #[test]
-fn test_derive_deserialize_on_type_alias_generates_namespace() {
+fn test_derive_deserialize_on_type_alias_generates_functions() {
     let source = r#"
 /** @derive(Deserialize) */
 type Settings = {
@@ -2445,10 +2445,10 @@ type Settings = {
             .count();
         assert_eq!(error_count, 0, "Should have no errors, got {}", error_count);
 
-        // Deserialize macro on type alias generates standalone fromStringifiedJSONSettings function
+        // Deserialize macro on type alias generates standalone settingsFromStringifiedJSON function
         assert!(
-            result.code.contains("fromStringifiedJSONSettings"),
-            "Should generate fromStringifiedJSONSettings function for type"
+            result.code.contains("settingsFromStringifiedJSON"),
+            "Should generate settingsFromStringifiedJSON function for type"
         );
     });
 }
@@ -2480,30 +2480,30 @@ type Coordinate = {
             error_count
         );
 
-        // All macros should generate standalone functions with suffix naming
+        // All macros should generate standalone functions with prefix naming
         assert!(
-            result.code.contains("toStringCoordinate"),
-            "Should have Debug's toStringCoordinate"
+            result.code.contains("coordinateToString"),
+            "Should have Debug's coordinateToString"
         );
         assert!(
-            result.code.contains("cloneCoordinate"),
-            "Should have Clone's cloneCoordinate"
+            result.code.contains("coordinateClone"),
+            "Should have Clone's coordinateClone"
         );
         assert!(
-            result.code.contains("equalsCoordinate"),
-            "Should have PartialEq's equalsCoordinate"
+            result.code.contains("coordinateEquals"),
+            "Should have PartialEq's coordinateEquals"
         );
         assert!(
-            result.code.contains("hashCodeCoordinate"),
-            "Should have Hash's hashCodeCoordinate"
+            result.code.contains("coordinateHashCode"),
+            "Should have Hash's coordinateHashCode"
         );
         assert!(
-            result.code.contains("toStringifiedJSONCoordinate"),
-            "Should have Serialize's toStringifiedJSONCoordinate"
+            result.code.contains("coordinateToStringifiedJSON"),
+            "Should have Serialize's coordinateToStringifiedJSON"
         );
         assert!(
-            result.code.contains("fromStringifiedJSONCoordinate"),
-            "Should have Deserialize's fromStringifiedJSONCoordinate"
+            result.code.contains("coordinateFromStringifiedJSON"),
+            "Should have Deserialize's coordinateFromStringifiedJSON"
         );
     });
 }
@@ -2637,16 +2637,16 @@ type Status = "active" | "inactive" | "pending";
 
         // Macros should generate standalone functions for union type alias
         assert!(
-            result.code.contains("toStringStatus"),
-            "Should generate toStringStatus function for union type"
+            result.code.contains("statusToString"),
+            "Should generate statusToString function for union type"
         );
         assert!(
-            result.code.contains("equalsStatus"),
-            "Should generate equalsStatus function for union type"
+            result.code.contains("statusEquals"),
+            "Should generate statusEquals function for union type"
         );
         assert!(
-            result.code.contains("hashCodeStatus"),
-            "Should generate hashCodeStatus function for union type"
+            result.code.contains("statusHashCode"),
+            "Should generate statusHashCode function for union type"
         );
     });
 }
@@ -2676,10 +2676,10 @@ export type UnionType = VariantA | VariantB;
             error_count
         );
 
-        // Should generate standalone defaultValueUnionType function
+        // Should generate standalone unionTypeDefaultValue function
         assert!(
-            result.code.contains("defaultValueUnionType"),
-            "Should generate defaultValueUnionType function. Got:\n{}",
+            result.code.contains("unionTypeDefaultValue"),
+            "Should generate unionTypeDefaultValue function. Got:\n{}",
             result.code
         );
         assert!(
@@ -2752,10 +2752,10 @@ export type MultilineUnion = TypeA | TypeB | TypeC;
             result.diagnostics
         );
 
-        // Should generate standalone defaultValueMultilineUnion function
+        // Should generate standalone multilineUnionDefaultValue function
         assert!(
-            result.code.contains("defaultValueMultilineUnion"),
-            "Should generate defaultValueMultilineUnion function. Got:\n{}",
+            result.code.contains("multilineUnionDefaultValue"),
+            "Should generate multilineUnionDefaultValue function. Got:\n{}",
             result.code
         );
     });
@@ -2789,16 +2789,16 @@ export type UnionWithVariantDefault =
             result.diagnostics
         );
 
-        // Should generate standalone defaultValueUnionWithVariantDefault function
+        // Should generate standalone unionWithVariantDefaultDefaultValue function
         assert!(
-            result.code.contains("defaultValueUnionWithVariantDefault"),
-            "Should generate defaultValueUnionWithVariantDefault function. Got:\n{}",
+            result.code.contains("unionWithVariantDefaultDefaultValue"),
+            "Should generate unionWithVariantDefaultDefaultValue function. Got:\n{}",
             result.code
         );
-        // With default suffix naming style, should call defaultValueVariantA() not VariantA.defaultValue()
+        // With default prefix naming style, should call variantADefaultValue() not VariantA.defaultValue()
         assert!(
-            result.code.contains("defaultValueVariantA()"),
-            "Should call defaultValueVariantA(). Got:\n{}",
+            result.code.contains("variantADefaultValue()"),
+            "Should call variantADefaultValue(). Got:\n{}",
             result.code
         );
     });
@@ -2834,16 +2834,16 @@ export type ActivityType = /** @default */ Created | Edited | Sent;
             result.diagnostics
         );
 
-        // Should generate standalone defaultValueActivityType function
+        // Should generate standalone activityTypeDefaultValue function
         assert!(
-            result.code.contains("defaultValueActivityType"),
-            "Should generate defaultValueActivityType function. Got:\n{}",
+            result.code.contains("activityTypeDefaultValue"),
+            "Should generate activityTypeDefaultValue function. Got:\n{}",
             result.code
         );
-        // With default suffix naming style, should call defaultValueCreated() not Created.defaultValue()
+        // With default prefix naming style, should call createdDefaultValue() not Created.defaultValue()
         assert!(
-            result.code.contains("defaultValueCreated()"),
-            "Should call defaultValueCreated(). Got:\n{}",
+            result.code.contains("createdDefaultValue()"),
+            "Should call createdDefaultValue(). Got:\n{}",
             result.code
         );
     });

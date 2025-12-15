@@ -7,15 +7,12 @@ use macroforge_ts::ts_syn::TsStream;
 use crate::gigaform::GenericInfo;
 use crate::gigaform::naming::{
     call_default_value, call_default_value_for_type_ref, call_from_object, call_validate_field,
+    fn_name, type_name_prefixed,
 };
 use crate::gigaform::parser::{
     BaseControllerOptions, ControllerOptions, GigaformOptions, ParsedField, UnionConfig, UnionMode,
     ValidatorSpec,
 };
-
-fn suffixed(base: &str, type_name: &str) -> String {
-    format!("{base}{type_name}")
-}
 
 /// Generates the createForm factory function that returns a Gigaform instance.
 pub fn generate_factory(
@@ -24,11 +21,11 @@ pub fn generate_factory(
     options: &GigaformOptions,
     naming_style: FunctionNamingStyle,
 ) -> TsStream {
-    let create_fn_name = suffixed("createForm", interface_name);
-    let errors_name = suffixed("Errors", interface_name);
-    let tainted_name = suffixed("Tainted", interface_name);
-    let field_controllers_name = suffixed("FieldControllers", interface_name);
-    let gigaform_name = suffixed("Gigaform", interface_name);
+    let create_fn_name = fn_name("createForm", interface_name, "", naming_style);
+    let errors_name = type_name_prefixed(interface_name, "Errors");
+    let tainted_name = type_name_prefixed(interface_name, "Tainted");
+    let field_controllers_name = type_name_prefixed(interface_name, "FieldControllers");
+    let gigaform_name = type_name_prefixed(interface_name, "Gigaform");
 
     let field_controllers = generate_field_controllers(fields, options, interface_name, naming_style);
     let default_init = generate_default_init(interface_name, options, naming_style, "");
@@ -88,23 +85,23 @@ pub fn generate_factory_with_generics(
         return generate_factory(interface_name, fields, options, naming_style);
     }
 
-    let create_fn_name = suffixed("createForm", interface_name);
-    let errors_name = suffixed("Errors", interface_name);
-    let tainted_name = suffixed("Tainted", interface_name);
-    let field_controllers_name = suffixed("FieldControllers", interface_name);
-    let gigaform_name = suffixed("Gigaform", interface_name);
+    let generic_decl = generics.decl();
+    let create_fn_name = fn_name("createForm", interface_name, &generic_decl, naming_style);
+    let errors_name = type_name_prefixed(interface_name, "Errors");
+    let tainted_name = type_name_prefixed(interface_name, "Tainted");
+    let field_controllers_name = type_name_prefixed(interface_name, "FieldControllers");
+    let gigaform_name = type_name_prefixed(interface_name, "Gigaform");
 
     let field_controllers = generate_field_controllers(fields, options, interface_name, naming_style);
     let default_errors_init = generate_default_errors_init(fields);
     let default_tainted_init = generate_default_tainted_init(fields);
-    let generic_decl = generics.decl();
     let generic_args = generics.args();
     let default_init = generate_default_init(interface_name, options, naming_style, &generic_args);
     let validate_call = call_from_object(interface_name, &generic_args, naming_style, "data");
 
     ts_template! {
         {>> "Creates a new Gigaform instance with reactive state and field controllers." <<}
-        export function @{create_fn_name}@{generic_decl}(overrides?: Partial<@{interface_name}@{generic_args}>): @{gigaform_name}@{generic_args} {
+        export function @{create_fn_name}(overrides?: Partial<@{interface_name}@{generic_args}>): @{gigaform_name}@{generic_args} {
             // Reactive state using Svelte 5 $state
             let data = $state({ @{default_init}, ...overrides });
             let errors = $state<@{errors_name}@{generic_args}>(@{default_errors_init});
@@ -165,12 +162,12 @@ pub fn generate_union_factory(
     options: &GigaformOptions,
     naming_style: FunctionNamingStyle,
 ) -> TsStream {
-    let create_fn_name = suffixed("createForm", type_name);
-    let errors_name = suffixed("Errors", type_name);
-    let tainted_name = suffixed("Tainted", type_name);
-    let gigaform_name = suffixed("Gigaform", type_name);
-    let variant_fields_name = suffixed("VariantFields", type_name);
-    let default_for_variant_fn = suffixed("getDefaultForVariant", type_name);
+    let create_fn_name = fn_name("createForm", type_name, "", naming_style);
+    let errors_name = type_name_prefixed(type_name, "Errors");
+    let tainted_name = type_name_prefixed(type_name, "Tainted");
+    let gigaform_name = type_name_prefixed(type_name, "Gigaform");
+    let variant_fields_name = type_name_prefixed(type_name, "VariantFields");
+    let default_for_variant_fn = fn_name("getDefaultForVariant", type_name, "", naming_style);
 
     let variant_literals = config
         .variants
@@ -368,7 +365,7 @@ fn generate_union_variant_controllers(
                 r#"{prop_key}: {{
                     fields: {{
                         {field_controllers}
-                    }} as {variant_name}FieldControllers{type_name}
+                    }} as {type_name}{variant_name}FieldControllers
                 }}"#
             )
         })
@@ -858,10 +855,21 @@ fn build_optional_accessor_path(prefix: &[&str], field_name: &str) -> String {
 use crate::gigaform::parser::EnumFormConfig;
 
 /// Generates the createForm factory for an enum step form.
+/// Note: Uses prefix-style naming since enum forms don't receive naming_style.
 pub fn generate_enum_factory(enum_name: &str, config: &EnumFormConfig) -> TsStream {
-    let create_fn_name = suffixed("createForm", enum_name);
-    let gigaform_name = suffixed("Gigaform", enum_name);
-    let variants_name = suffixed("variants", enum_name);
+    // Helper to convert EnumName to enumName (camelCase)
+    fn to_camel_case(s: &str) -> String {
+        let mut chars = s.chars();
+        match chars.next() {
+            Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
+            None => String::new(),
+        }
+    }
+
+    // Use prefix-style naming (the new default)
+    let create_fn_name = format!("{}CreateForm", to_camel_case(enum_name));
+    let gigaform_name = type_name_prefixed(enum_name, "Gigaform");
+    let variants_name = type_name_prefixed(enum_name, "Variants");
 
     let first_variant = config
         .variants

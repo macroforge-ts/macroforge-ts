@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { createFormUser, defaultValueMetadata, type User, type Metadata } from "$lib/demo/types.svelte";
+  import { userCreateForm, metadataDefaultValue, type User, type Metadata } from "$lib/demo/types.svelte";
 
   // Create User form to test nullable fields
-  const userForm = createFormUser({
+  const userForm = userCreateForm({
     id: "user-001",
     firstName: "John",
     lastName: "Doe",
@@ -258,7 +258,7 @@
           type="button"
           data-testid="set-metadata-default"
           onclick={() => {
-            userForm.fields.metadata.set(defaultValueMetadata());
+            userForm.fields.metadata.set(metadataDefaultValue());
             hasMetadata = true;
           }}
         >

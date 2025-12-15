@@ -5,12 +5,8 @@ use macroforge_ts::ts_syn::abi::FunctionNamingStyle;
 use macroforge_ts::ts_syn::TsStream;
 
 use crate::gigaform::GenericInfo;
-use crate::gigaform::naming::call_from_stringified_json;
+use crate::gigaform::naming::{call_from_stringified_json, fn_name_from_form_data};
 use crate::gigaform::parser::{ParsedField, UnionConfig, UnionMode};
-
-fn suffixed(base: &str, type_name: &str) -> String {
-    format!("{base}{type_name}")
-}
 
 /// Generates the fromFormData function.
 pub fn generate(
@@ -18,7 +14,7 @@ pub fn generate(
     fields: &[ParsedField],
     naming_style: FunctionNamingStyle,
 ) -> TsStream {
-    let fn_name = suffixed("fromFormData", interface_name);
+    let fn_name = fn_name_from_form_data(interface_name, "", naming_style);
     let field_extractions = generate_field_extractions(fields, "");
     let delegate_call =
         call_from_stringified_json(interface_name, "", naming_style, "JSON.stringify(obj)");
@@ -47,9 +43,9 @@ pub fn generate_with_generics(
         return generate(interface_name, fields, naming_style);
     }
 
-    let fn_name = suffixed("fromFormData", interface_name);
-    let field_extractions = generate_field_extractions(fields, "");
     let generic_decl = generics.decl();
+    let fn_name = fn_name_from_form_data(interface_name, &generic_decl, naming_style);
+    let field_extractions = generate_field_extractions(fields, "");
     let generic_args = generics.args();
     let delegate_call = call_from_stringified_json(
         interface_name,
@@ -60,7 +56,7 @@ pub fn generate_with_generics(
 
     ts_template! {
         {>> "Parses FormData and validates it, returning a Result with the parsed data or errors." <<}
-        export function @{fn_name}@{generic_decl}(formData: FormData): Result<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
+        export function @{fn_name}(formData: FormData): Result<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
             const obj: Record<string, unknown> = {};
 
             @{field_extractions}
@@ -84,7 +80,7 @@ pub fn generate_union_with_generics(
 
 /// Generates the fromFormData function for discriminated unions.
 pub fn generate_union(type_name: &str, config: &UnionConfig, naming_style: FunctionNamingStyle) -> TsStream {
-    let fn_name = suffixed("fromFormData", type_name);
+    let fn_name = fn_name_from_form_data(type_name, "", naming_style);
     let discriminant_field = match &config.mode {
         UnionMode::Tagged { field } => field.as_str(),
         UnionMode::Untagged => "_variant", // synthetic field for untagged

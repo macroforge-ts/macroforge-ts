@@ -1,3 +1,4 @@
+import { defaultValueCompanyName } from './company-name.svelte';
 import { SerializeContext } from 'macroforge/serde';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
@@ -8,18 +9,17 @@ import { __deserializeCompanyName } from './company-name.svelte';
 import { __deserializePersonName } from './person-name.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
-import { defaultValueCompanyName } from './company-name.svelte';
 import { defaultValuePersonName } from './person-name.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { PersonName } from './person-name.svelte';
-import { CompanyName } from './company-name.svelte';
-import { Company } from './company.svelte';
+import type { PersonName } from './person-name.svelte';
+import type { CompanyName } from './company-name.svelte';
+import type { Company } from './company.svelte';
 
 export type AccountName = /** @default */ CompanyName | PersonName;
 
 export function defaultValueAccountName(): AccountName {
-    return CompanyName.defaultValue();
+    return defaultValueCompanyName();
 }
 
 export function toStringifiedJSONAccountName(value: AccountName): string {
@@ -89,7 +89,10 @@ export function __deserializeAccountName(
     }
     if (typeof value !== 'object' || value === null) {
         throw new DeserializeError([
-            { field: '_root', message: 'AccountName.__deserialize: expected an object' }
+            {
+                field: '_root',
+                message: 'AccountName.__deserialize: expected an object'
+            }
         ]);
     }
     const __typeName = (value as any).__type;
@@ -128,22 +131,18 @@ export function isAccountName(value: unknown): value is AccountName {
 /** Per-variant error types */ export type CompanyNameErrorsAccountName = {
     _errors: Option<Array<string>>;
 };
-export type PersonNameErrorsAccountName = {
-    _errors: Option<Array<string>>;
-}; /** Per-variant tainted types */
-export type CompanyNameTaintedAccountName = {};
-export type PersonNameTaintedAccountName = {}; /** Union error type */
-export type ErrorsAccountName =
+export type PersonNameErrorsAccountName = { _errors: Option<Array<string>> };
+/** Per-variant tainted types */ export type CompanyNameTaintedAccountName = {};
+export type PersonNameTaintedAccountName = {};
+/** Union error type */ export type ErrorsAccountName =
     | ({ _type: 'CompanyName' } & CompanyNameErrorsAccountName)
-    | ({ _type: 'PersonName' } & PersonNameErrorsAccountName); /** Union tainted type */
-export type TaintedAccountName =
+    | ({ _type: 'PersonName' } & PersonNameErrorsAccountName);
+/** Union tainted type */ export type TaintedAccountName =
     | ({ _type: 'CompanyName' } & CompanyNameTaintedAccountName)
-    | ({
-          _type: 'PersonName';
-      } & PersonNameTaintedAccountName); /** Per-variant field controller types */
-export interface CompanyNameFieldControllersAccountName {}
-export interface PersonNameFieldControllersAccountName {} /** Union Gigaform interface with variant switching */
-export interface GigaformAccountName {
+    | ({ _type: 'PersonName' } & PersonNameTaintedAccountName);
+/** Per-variant field controller types */ export interface CompanyNameFieldControllersAccountName {}
+export interface PersonNameFieldControllersAccountName {}
+/** Union Gigaform interface with variant switching */ export interface GigaformAccountName {
     readonly currentVariant: 'CompanyName' | 'PersonName';
     readonly data: AccountName;
     readonly errors: ErrorsAccountName;
@@ -152,12 +151,18 @@ export interface GigaformAccountName {
     switchVariant(variant: 'CompanyName' | 'PersonName'): void;
     validate(): Result<AccountName, Array<{ field: string; message: string }>>;
     reset(overrides?: Partial<AccountName>): void;
-} /** Variant fields container */
-export interface VariantFieldsAccountName {
-    readonly CompanyName: { readonly fields: CompanyNameFieldControllersAccountName };
-    readonly PersonName: { readonly fields: PersonNameFieldControllersAccountName };
-} /** Gets default value for a specific variant */
-function getDefaultForVariantAccountName(variant: string): AccountName {
+}
+/** Variant fields container */ export interface VariantFieldsAccountName {
+    readonly CompanyName: {
+        readonly fields: CompanyNameFieldControllersAccountName;
+    };
+    readonly PersonName: {
+        readonly fields: PersonNameFieldControllersAccountName;
+    };
+}
+/** Gets default value for a specific variant */ function getDefaultForVariantAccountName(
+    variant: string
+): AccountName {
     switch (variant) {
         case 'CompanyName':
             return defaultValueCompanyName() as AccountName;
@@ -166,8 +171,10 @@ function getDefaultForVariantAccountName(variant: string): AccountName {
         default:
             return defaultValueCompanyName() as AccountName;
     }
-} /** Creates a new discriminated union Gigaform with variant switching */
-export function createFormAccountName(initial?: AccountName): GigaformAccountName {
+}
+/** Creates a new discriminated union Gigaform with variant switching */ export function createFormAccountName(
+    initial?: AccountName
+): GigaformAccountName {
     const initialVariant: 'CompanyName' | 'PersonName' = 'CompanyName';
     let currentVariant = $state<'CompanyName' | 'PersonName'>(initialVariant);
     let data = $state<AccountName>(initial ?? getDefaultForVariantAccountName(initialVariant));
@@ -224,8 +231,8 @@ export function createFormAccountName(initial?: AccountName): GigaformAccountNam
         validate,
         reset
     };
-} /** Parses FormData for union type, determining variant from discriminant field */
-export function fromFormDataAccountName(
+}
+/** Parses FormData for union type, determining variant from discriminant field */ export function fromFormDataAccountName(
     formData: FormData
 ): Result<AccountName, Array<{ field: string; message: string }>> {
     const discriminant = formData.get('_type') as 'CompanyName' | 'PersonName' | null;

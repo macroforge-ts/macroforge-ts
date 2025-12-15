@@ -38,7 +38,7 @@ describe("Gigaform type generation", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("export type ErrorsUserForm"), "Should generate ErrorsUserForm type");
+    assert.ok(result.code.includes("export type UserFormErrors"), "Should generate UserFormErrors type");
     // Implementation uses Option<Array<string>> instead of Array<string> | undefined
     assert.ok(result.code.includes("_errors: Option<Array<string>>"), "Should have root _errors");
     assert.ok(result.code.includes("name: Option<Array<string>>"), "Should have name error array");
@@ -56,7 +56,7 @@ describe("Gigaform type generation", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("export type TaintedUserForm"), "Should generate TaintedUserForm type");
+    assert.ok(result.code.includes("export type UserFormTainted"), "Should generate UserFormTainted type");
     // Implementation uses Option<boolean> instead of boolean | undefined
     assert.ok(result.code.includes("name: Option<boolean>"), "Should have name tainted flag");
     assert.ok(result.code.includes("email: Option<boolean>"), "Should have email tainted flag");
@@ -91,7 +91,7 @@ describe("Gigaform type generation", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("export interface FieldControllersTypedForm"), "Should generate FieldControllersTypedForm");
+    assert.ok(result.code.includes("export interface TypedFormFieldControllers"), "Should generate TypedFormFieldControllers");
     assert.ok(result.code.includes("readonly name: FieldController<string>"), "Should have string field");
     assert.ok(result.code.includes("readonly count: FieldController<number>"), "Should have number field");
     assert.ok(result.code.includes("readonly active: FieldController<boolean>"), "Should have boolean field");
@@ -106,11 +106,11 @@ describe("Gigaform type generation", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("export interface GigaformMyForm"), "Should generate GigaformMyForm interface");
+    assert.ok(result.code.includes("export interface MyFormGigaform"), "Should generate MyFormGigaform interface");
     assert.ok(result.code.includes("readonly data: MyForm"), "Should have data property");
-    assert.ok(result.code.includes("readonly errors: ErrorsMyForm"), "Should have errors property");
-    assert.ok(result.code.includes("readonly tainted: TaintedMyForm"), "Should have tainted property");
-    assert.ok(result.code.includes("readonly fields: FieldControllersMyForm"), "Should have fields property");
+    assert.ok(result.code.includes("readonly errors: MyFormErrors"), "Should have errors property");
+    assert.ok(result.code.includes("readonly tainted: MyFormTainted"), "Should have tainted property");
+    assert.ok(result.code.includes("readonly fields: MyFormFieldControllers"), "Should have fields property");
     assert.ok(result.code.includes("validate():"), "Should have validate method");
     assert.ok(result.code.includes("reset("), "Should have reset method");
   });
@@ -144,9 +144,9 @@ describe("Gigaform createForm factory", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("export function createFormTestForm("), "Should generate createFormTestForm function");
+    assert.ok(result.code.includes("export function testFormCreateForm("), "Should generate testFormCreateForm function");
     assert.ok(result.code.includes("overrides?: Partial<TestForm>"), "Should accept optional overrides");
-    assert.ok(result.code.includes("): GigaformTestForm"), "Should return GigaformTestForm type");
+    assert.ok(result.code.includes("): TestFormGigaform"), "Should return TestFormGigaform type");
   });
 
   test("generates reactive $state for data", () => {
@@ -159,7 +159,7 @@ describe("Gigaform createForm factory", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(result.code.includes("let data = $state("), "Should use $state for data");
-    assert.ok(result.code.includes("defaultValueReactiveForm()"), "Should call defaultValueReactiveForm()");
+    assert.ok(result.code.includes("reactiveFormDefaultValue()"), "Should call reactiveFormDefaultValue()");
     assert.ok(!result.code.includes("ReactiveForm.defaultValue()"), "Should not use namespace-style defaultValue()");
   });
 
@@ -173,9 +173,9 @@ describe("Gigaform createForm factory", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     // Implementation initializes with Option.none() for each field
-    assert.ok(result.code.includes("let errors = $state<ErrorsStateForm>({"), "Should use $state for errors");
+    assert.ok(result.code.includes("let errors = $state<StateFormErrors>({"), "Should use $state for errors");
     assert.ok(result.code.includes("Option.none()"), "Should initialize with Option.none()");
-    assert.ok(result.code.includes("let tainted = $state<TaintedStateForm>({"), "Should use $state for tainted");
+    assert.ok(result.code.includes("let tainted = $state<StateFormTainted>({"), "Should use $state for tainted");
   });
 
   test("generates validate function that delegates to fromObject", () => {
@@ -188,7 +188,7 @@ describe("Gigaform createForm factory", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(result.code.includes("function validate()"), "Should generate validate function");
-    assert.ok(result.code.includes("fromObjectValidatedForm(data)"), "Should call fromObjectValidatedForm for validation");
+    assert.ok(result.code.includes("validatedFormFromObject(data)"), "Should call validatedFormFromObject for validation");
     assert.ok(!result.code.includes("ValidatedForm.fromObject(data)"), "Should not use namespace-style fromObject");
   });
 
@@ -284,8 +284,8 @@ describe("Gigaform field controllers", () => {
 
     assert.ok(result.code.includes("validate: ()"), "Should generate validate method");
     assert.ok(
-      result.code.includes('validateFieldFilterForm("username", data.username)'),
-      "Should call per-field validation via validateFieldFilterForm"
+      result.code.includes('filterFormValidateField("username", data.username)'),
+      "Should call per-field validation via filterFormValidateField"
     );
     assert.ok(
       !result.code.includes('FilterForm.validateField("username", data.username)'),
@@ -492,7 +492,7 @@ describe("Gigaform fromFormData", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("export function fromFormDataFormDataForm("), "Should generate fromFormDataFormDataForm");
+    assert.ok(result.code.includes("export function formDataFormFromFormData("), "Should generate formDataFormFromFormData");
     assert.ok(result.code.includes("formData: FormData"), "Should accept FormData parameter");
   });
 
@@ -520,8 +520,8 @@ describe("Gigaform fromFormData", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(
-      result.code.includes("fromStringifiedJSONDelegateForm(JSON.stringify(obj))"),
-      "Should delegate to fromStringifiedJSONDelegateForm"
+      result.code.includes("delegateFormFromStringifiedJSON(JSON.stringify(obj))"),
+      "Should delegate to delegateFormFromStringifiedJSON"
     );
     assert.ok(
       !result.code.includes("DelegateForm.fromStringifiedJSON(JSON.stringify(obj))"),
@@ -566,7 +566,7 @@ describe("Gigaform integration with other macros", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("defaultValueDefaultForm()"), "Should use defaultValueDefaultForm()");
+    assert.ok(result.code.includes("defaultFormDefaultValue()"), "Should use defaultFormDefaultValue()");
     assert.ok(!result.code.includes("DefaultForm.defaultValue()"), "Should not use namespace-style defaultValue()");
   });
 
@@ -579,7 +579,7 @@ describe("Gigaform integration with other macros", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("fromObjectDeserializeForm("), "Should use fromObjectDeserializeForm()");
+    assert.ok(result.code.includes("deserializeFormFromObject("), "Should use deserializeFormFromObject()");
     assert.ok(!result.code.includes("DeserializeForm.fromObject("), "Should not use namespace-style fromObject()");
   });
 
@@ -606,10 +606,10 @@ describe("Gigaform integration with other macros", () => {
       "Should have Deserialize methods");
 
     // Gigaform macro
-    assert.ok(result.code.includes("createFormFullForm"),
-      "Should have Gigaform's createFormFullForm");
-    assert.ok(result.code.includes("export type ErrorsFullForm"),
-      "Should have Gigaform's ErrorsFullForm type");
+    assert.ok(result.code.includes("fullFormCreateForm"),
+      "Should have Gigaform's fullFormCreateForm");
+    assert.ok(result.code.includes("export type FullFormErrors"),
+      "Should have Gigaform's FullFormErrors type");
 
     // No expansion errors
     const errors = result.diagnostics.filter(d => d.level === "error");
@@ -634,7 +634,7 @@ describe("Gigaform error handling", () => {
 
     const errors = result.diagnostics.filter(d => d.level === "error");
     assert.ok(errors.length === 0, "Classes should be supported without errors");
-    assert.ok(result.code.includes("export function createFormSupportedClass("), "Should generate createFormSupportedClass for class");
+    assert.ok(result.code.includes("export function supportedClassCreateForm("), "Should generate supportedClassCreateForm for class");
   });
 
   test("reports error for empty interface", () => {

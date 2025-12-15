@@ -14,10 +14,10 @@ import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { ColumnConfig } from './column-config.svelte';
-import { OverviewDisplay } from './overview-display.svelte';
-import { RowHeight } from './row-height.svelte';
-import { Table } from './table.svelte';
+import type { ColumnConfig } from './column-config.svelte';
+import type { OverviewDisplay } from './overview-display.svelte';
+import type { RowHeight } from './row-height.svelte';
+import type { Table } from './table.svelte';
 
 export interface OverviewSettings {
     rowHeight: RowHeight;
