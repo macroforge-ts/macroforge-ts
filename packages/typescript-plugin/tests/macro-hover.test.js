@@ -97,33 +97,27 @@ class User {
     debugPos,
   );
 
-  // The hover should provide info about the Debug macro
-  // If manifest is loaded, we get hover info; otherwise we may get undefined
-  if (hover) {
-    assert.ok(hover.displayParts, "hover should have displayParts");
-    assert.ok(hover.textSpan, "hover should have textSpan");
-    assert.strictEqual(
-      hover.kind,
-      ts.ScriptElementKind.functionElement,
-      "hover kind should be functionElement",
-    );
+  assert.ok(hover, "expected hover info for Debug macro");
+  assert.ok(hover.displayParts, "hover should have displayParts");
+  assert.ok(hover.textSpan, "hover should have textSpan");
+  assert.strictEqual(
+    hover.kind,
+    ts.ScriptElementKind.functionElement,
+    "hover kind should be functionElement",
+  );
 
-    // Check that display parts mention @derive
-    const displayText = hover.displayParts.map((p) => p.text).join("");
-    assert.ok(
-      displayText.includes("@derive") || displayText.includes("Debug"),
-      "display should mention @derive or Debug",
-    );
+  const displayText = hover.displayParts.map((p) => p.text).join("");
+  assert.ok(
+    displayText.includes("@derive") || displayText.includes("Debug"),
+    "display should mention @derive or Debug",
+  );
 
-    // Check documentation if available
-    if (hover.documentation && hover.documentation.length > 0) {
-      const docText = hover.documentation.map((d) => d.text).join("");
-      assert.ok(
-        docText.includes("toString") || docText.includes("debug"),
-        "documentation should describe the macro",
-      );
-    }
-  }
+  const docText = (hover.documentation ?? []).map((d) => d.text).join("");
+  assert.ok(
+    docText.toLowerCase().includes("tostring") ||
+      docText.toLowerCase().includes("debug"),
+    `documentation should describe the macro, got: ${docText}`,
+  );
 });
 
 test("macro hover on @derive with multiple macros", async (t) => {
@@ -144,14 +138,13 @@ class User {
       pos,
     );
 
-    if (hover) {
-      assert.ok(hover.displayParts, `hover for ${macro} should have displayParts`);
-      const displayText = hover.displayParts.map((p) => p.text).join("");
-      assert.ok(
-        displayText.includes(macro) || displayText.includes("@derive"),
-        `hover for ${macro} should mention the macro`,
-      );
-    }
+    assert.ok(hover, `expected hover info for ${macro}`);
+    assert.ok(hover.displayParts, `hover for ${macro} should have displayParts`);
+    const displayText = hover.displayParts.map((p) => p.text).join("");
+    assert.ok(
+      displayText.includes(macro) || displayText.includes("@derive"),
+      `hover for ${macro} should mention the macro`,
+    );
   }
 });
 
@@ -171,14 +164,15 @@ class User {
     serdePos,
   );
 
-  if (hover) {
-    assert.ok(hover.displayParts, "hover should have displayParts");
-    const displayText = hover.displayParts.map((p) => p.text).join("");
-    assert.ok(
-      displayText.includes("serde"),
-      "display should mention serde",
-    );
-  }
+  assert.ok(hover, "expected hover info for @serde");
+  assert.ok(hover.displayParts, "hover should have displayParts");
+  const displayText = hover.displayParts.map((p) => p.text).join("");
+  assert.ok(displayText.includes("serde"), "display should mention serde");
+  const docText = (hover.documentation ?? []).map((d) => d.text).join("");
+  assert.ok(
+    docText.toLowerCase().includes("field"),
+    `expected @serde docs, got: ${docText}`,
+  );
 });
 
 test("macro hover on @debug field decorator", async (t) => {
@@ -197,14 +191,18 @@ class User {
     debugPos,
   );
 
-  if (hover) {
-    assert.ok(hover.displayParts, "hover should have displayParts");
-    const displayText = hover.displayParts.map((p) => p.text).join("");
-    assert.ok(
-      displayText.includes("debug"),
-      "display should mention debug",
-    );
-  }
+  assert.ok(hover, "expected hover info for @debug");
+  assert.ok(hover.displayParts, "hover should have displayParts");
+  const displayText = hover.displayParts.map((p) => p.text).join("");
+  assert.ok(
+    displayText.toLowerCase().includes("debug"),
+    `display should mention debug, got: ${displayText}`,
+  );
+  const docText = (hover.documentation ?? []).map((d) => d.text).join("");
+  assert.ok(
+    docText.length > 0,
+    "expected @debug docs to be non-empty",
+  );
 });
 
 test("no macro hover on regular code", async (t) => {
