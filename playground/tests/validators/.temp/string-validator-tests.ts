@@ -166,8 +166,23 @@ export class EmailValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "email" in o;
+}
+
     static is(obj: unknown): obj is EmailValidator {
-    return obj instanceof EmailValidator;
+    if (obj instanceof EmailValidator) {
+        return true;
+    }
+    if (!EmailValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = EmailValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -350,8 +365,23 @@ export class UrlValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "url" in o;
+}
+
     static is(obj: unknown): obj is UrlValidator {
-    return obj instanceof UrlValidator;
+    if (obj instanceof UrlValidator) {
+        return true;
+    }
+    if (!UrlValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = UrlValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -513,8 +543,23 @@ export class UuidValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "id" in o;
+}
+
     static is(obj: unknown): obj is UuidValidator {
-    return obj instanceof UuidValidator;
+    if (obj instanceof UuidValidator) {
+        return true;
+    }
+    if (!UuidValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = UuidValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -676,8 +721,23 @@ export class MaxLengthValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "shortText" in o;
+}
+
     static is(obj: unknown): obj is MaxLengthValidator {
-    return obj instanceof MaxLengthValidator;
+    if (obj instanceof MaxLengthValidator) {
+        return true;
+    }
+    if (!MaxLengthValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = MaxLengthValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -839,8 +899,23 @@ export class MinLengthValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "longText" in o;
+}
+
     static is(obj: unknown): obj is MinLengthValidator {
-    return obj instanceof MinLengthValidator;
+    if (obj instanceof MinLengthValidator) {
+        return true;
+    }
+    if (!MinLengthValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = MinLengthValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -1002,8 +1077,23 @@ export class LengthValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "fixedText" in o;
+}
+
     static is(obj: unknown): obj is LengthValidator {
-    return obj instanceof LengthValidator;
+    if (obj instanceof LengthValidator) {
+        return true;
+    }
+    if (!LengthValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = LengthValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -1165,8 +1255,23 @@ export class LengthRangeValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "rangedText" in o;
+}
+
     static is(obj: unknown): obj is LengthRangeValidator {
-    return obj instanceof LengthRangeValidator;
+    if (obj instanceof LengthRangeValidator) {
+        return true;
+    }
+    if (!LengthRangeValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = LengthRangeValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -1328,8 +1433,23 @@ export class PatternValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "code" in o;
+}
+
     static is(obj: unknown): obj is PatternValidator {
-    return obj instanceof PatternValidator;
+    if (obj instanceof PatternValidator) {
+        return true;
+    }
+    if (!PatternValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = PatternValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -1491,8 +1611,23 @@ export class NonEmptyValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "required" in o;
+}
+
     static is(obj: unknown): obj is NonEmptyValidator {
-    return obj instanceof NonEmptyValidator;
+    if (obj instanceof NonEmptyValidator) {
+        return true;
+    }
+    if (!NonEmptyValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = NonEmptyValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -1654,8 +1789,23 @@ export class TrimmedValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "trimmed" in o;
+}
+
     static is(obj: unknown): obj is TrimmedValidator {
-    return obj instanceof TrimmedValidator;
+    if (obj instanceof TrimmedValidator) {
+        return true;
+    }
+    if (!TrimmedValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = TrimmedValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -1817,8 +1967,23 @@ export class LowercaseValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "lower" in o;
+}
+
     static is(obj: unknown): obj is LowercaseValidator {
-    return obj instanceof LowercaseValidator;
+    if (obj instanceof LowercaseValidator) {
+        return true;
+    }
+    if (!LowercaseValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = LowercaseValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -1980,8 +2145,23 @@ export class UppercaseValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "upper" in o;
+}
+
     static is(obj: unknown): obj is UppercaseValidator {
-    return obj instanceof UppercaseValidator;
+    if (obj instanceof UppercaseValidator) {
+        return true;
+    }
+    if (!UppercaseValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = UppercaseValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -2143,8 +2323,23 @@ export class CapitalizedValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "cap" in o;
+}
+
     static is(obj: unknown): obj is CapitalizedValidator {
-    return obj instanceof CapitalizedValidator;
+    if (obj instanceof CapitalizedValidator) {
+        return true;
+    }
+    if (!CapitalizedValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = CapitalizedValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -2306,8 +2501,23 @@ export class UncapitalizedValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "uncap" in o;
+}
+
     static is(obj: unknown): obj is UncapitalizedValidator {
-    return obj instanceof UncapitalizedValidator;
+    if (obj instanceof UncapitalizedValidator) {
+        return true;
+    }
+    if (!UncapitalizedValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = UncapitalizedValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -2469,8 +2679,23 @@ export class StartsWithValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "secureUrl" in o;
+}
+
     static is(obj: unknown): obj is StartsWithValidator {
-    return obj instanceof StartsWithValidator;
+    if (obj instanceof StartsWithValidator) {
+        return true;
+    }
+    if (!StartsWithValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = StartsWithValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -2632,8 +2857,23 @@ export class EndsWithValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "filename" in o;
+}
+
     static is(obj: unknown): obj is EndsWithValidator {
-    return obj instanceof EndsWithValidator;
+    if (obj instanceof EndsWithValidator) {
+        return true;
+    }
+    if (!EndsWithValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = EndsWithValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -2795,7 +3035,22 @@ export class IncludesValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "emailLike" in o;
+}
+
     static is(obj: unknown): obj is IncludesValidator {
-    return obj instanceof IncludesValidator;
+    if (obj instanceof IncludesValidator) {
+        return true;
+    }
+    if (!IncludesValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = IncludesValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }

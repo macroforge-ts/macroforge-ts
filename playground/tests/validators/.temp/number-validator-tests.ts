@@ -165,8 +165,23 @@ export class GreaterThanValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "positive" in o;
+}
+
     static is(obj: unknown): obj is GreaterThanValidator {
-    return obj instanceof GreaterThanValidator;
+    if (obj instanceof GreaterThanValidator) {
+        return true;
+    }
+    if (!GreaterThanValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = GreaterThanValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -328,8 +343,23 @@ export class GreaterThanOrEqualToValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "nonNegative" in o;
+}
+
     static is(obj: unknown): obj is GreaterThanOrEqualToValidator {
-    return obj instanceof GreaterThanOrEqualToValidator;
+    if (obj instanceof GreaterThanOrEqualToValidator) {
+        return true;
+    }
+    if (!GreaterThanOrEqualToValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = GreaterThanOrEqualToValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -491,8 +521,23 @@ export class LessThanValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "capped" in o;
+}
+
     static is(obj: unknown): obj is LessThanValidator {
-    return obj instanceof LessThanValidator;
+    if (obj instanceof LessThanValidator) {
+        return true;
+    }
+    if (!LessThanValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = LessThanValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -654,8 +699,23 @@ export class LessThanOrEqualToValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "maxed" in o;
+}
+
     static is(obj: unknown): obj is LessThanOrEqualToValidator {
-    return obj instanceof LessThanOrEqualToValidator;
+    if (obj instanceof LessThanOrEqualToValidator) {
+        return true;
+    }
+    if (!LessThanOrEqualToValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = LessThanOrEqualToValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -817,8 +877,23 @@ export class BetweenValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "ranged" in o;
+}
+
     static is(obj: unknown): obj is BetweenValidator {
-    return obj instanceof BetweenValidator;
+    if (obj instanceof BetweenValidator) {
+        return true;
+    }
+    if (!BetweenValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = BetweenValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -980,8 +1055,23 @@ export class IntValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "integer" in o;
+}
+
     static is(obj: unknown): obj is IntValidator {
-    return obj instanceof IntValidator;
+    if (obj instanceof IntValidator) {
+        return true;
+    }
+    if (!IntValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = IntValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -1143,8 +1233,23 @@ export class NonNaNValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "valid" in o;
+}
+
     static is(obj: unknown): obj is NonNaNValidator {
-    return obj instanceof NonNaNValidator;
+    if (obj instanceof NonNaNValidator) {
+        return true;
+    }
+    if (!NonNaNValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = NonNaNValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -1306,8 +1411,23 @@ export class FiniteValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "finite" in o;
+}
+
     static is(obj: unknown): obj is FiniteValidator {
-    return obj instanceof FiniteValidator;
+    if (obj instanceof FiniteValidator) {
+        return true;
+    }
+    if (!FiniteValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = FiniteValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -1469,8 +1589,23 @@ export class PositiveValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "positive" in o;
+}
+
     static is(obj: unknown): obj is PositiveValidator {
-    return obj instanceof PositiveValidator;
+    if (obj instanceof PositiveValidator) {
+        return true;
+    }
+    if (!PositiveValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = PositiveValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -1632,8 +1767,23 @@ export class NonNegativeValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "nonNegative" in o;
+}
+
     static is(obj: unknown): obj is NonNegativeValidator {
-    return obj instanceof NonNegativeValidator;
+    if (obj instanceof NonNegativeValidator) {
+        return true;
+    }
+    if (!NonNegativeValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = NonNegativeValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -1795,8 +1945,23 @@ export class NegativeValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "negative" in o;
+}
+
     static is(obj: unknown): obj is NegativeValidator {
-    return obj instanceof NegativeValidator;
+    if (obj instanceof NegativeValidator) {
+        return true;
+    }
+    if (!NegativeValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = NegativeValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -1958,8 +2123,23 @@ export class NonPositiveValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "nonPositive" in o;
+}
+
     static is(obj: unknown): obj is NonPositiveValidator {
-    return obj instanceof NonPositiveValidator;
+    if (obj instanceof NonPositiveValidator) {
+        return true;
+    }
+    if (!NonPositiveValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = NonPositiveValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -2121,8 +2301,23 @@ export class MultipleOfValidator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "multiple" in o;
+}
+
     static is(obj: unknown): obj is MultipleOfValidator {
-    return obj instanceof MultipleOfValidator;
+    if (obj instanceof MultipleOfValidator) {
+        return true;
+    }
+    if (!MultipleOfValidator.hasShape(obj)) {
+        return false;
+    }
+    const result = MultipleOfValidator.fromObject(obj);
+    return Result.isOk(result);
 }
 }
 
@@ -2284,7 +2479,22 @@ export class Uint8Validator {
     return errors;
 }
 
+    static hasShape(obj: unknown): boolean {
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+        return false;
+    }
+    const o = obj as Record<string, unknown>;
+    return "byte" in o;
+}
+
     static is(obj: unknown): obj is Uint8Validator {
-    return obj instanceof Uint8Validator;
+    if (obj instanceof Uint8Validator) {
+        return true;
+    }
+    if (!Uint8Validator.hasShape(obj)) {
+        return false;
+    }
+    const result = Uint8Validator.fromObject(obj);
+    return Result.isOk(result);
 }
 }

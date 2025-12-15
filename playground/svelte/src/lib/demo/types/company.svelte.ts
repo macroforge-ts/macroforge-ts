@@ -1,9 +1,9 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Site } from './site.svelte';
-import { PhoneNumber } from './phone-number.svelte';
-import { TaxRate } from './tax-rate.svelte';
-import { ColorsConfig } from './colors-config.svelte';
+import type { Site } from './site.svelte';
+import type { PhoneNumber } from './phone-number.svelte';
+import type { TaxRate } from './tax-rate.svelte';
+import type { ColorsConfig } from './colors-config.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Company {

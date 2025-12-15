@@ -1,6 +1,6 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Employee } from './employee.svelte';
+import type { Employee } from './employee.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Route {

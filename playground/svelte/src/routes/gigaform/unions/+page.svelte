@@ -1,9 +1,9 @@
 <script lang="ts">
   import {
-    Lead,
-    CompanyName,
-    PersonName,
     createFormLead,
+    type Lead,
+    type CompanyName,
+    type PersonName,
     type AccountName,
     type Priority,
     type LeadStage,

@@ -430,10 +430,7 @@ class User {
         result['user_id'] = this.id;
         result['name'] = this.name;
         {
-            const __flattened =
-                typeof (this.metadata as any)?.__serialize === 'function'
-                    ? (this.metadata as any).__serialize(ctx)
-                    : this.metadata;
+            const __flattened = __serializeRecord<string, unknown>(this.metadata, ctx);
             const { __type: _, __id: __, ...rest } = __flattened as any;
             Object.assign(result, rest);
         }
@@ -667,3441 +664,830 @@ console.log(user.equals(copy)); // true
 ---
 
 # Debug
-  *The `Debug` macro generates a human-readable `toString()` method for TypeScript classes, interfaces, enums, and type aliases.*
- ## Basic Usage
- 
-**Before:**
-```
-/** @derive(Debug) */
+
+The `Debug` macro generates a human-readable `toString()` method for
+TypeScript classes, interfaces, enums, and type aliases.
+
+## Generated Output
+
+**Classes**: Generates an instance method returning a string
+like `"ClassName { field1: value1, field2: value2 }"`.
+
+**Enums**: Generates a standalone function `toStringEnumName(value)` that performs
+reverse lookup on numeric enums.
+
+**Interfaces**: Generates a standalone function `toStringInterfaceName(value)`.
+
+**Type Aliases**: Generates a standalone function using JSON.stringify for
+complex types, or field enumeration for object types.
+
+## Configuration
+
+The `functionNamingStyle` option in `macroforge.json` controls naming:
+- `"suffix"` (default): Suffixes with type name (e.g., `toStringMyType`)
+- `"prefix"`: Prefixes with type name (e.g., `myTypeToString`)
+- `"generic"`: Uses TypeScript generics (e.g., `toString<T extends MyType>`)
+- `"namespace"`: Legacy namespace wrapping
+
+## Field-Level Options
+
+The `@debug` decorator supports:
+
+- `skip` - Exclude the field from debug output
+- `rename = "label"` - Use a custom label instead of the field name
+
+## Example
+
+```typescript
+@derive(Debug)
 class User {
-    name: string;
-    age: number;
+    @debug(rename = "id")
+    userId: number;
 
-    constructor(name: string, age: number) {
-        this.name = name;
-        this.age = age;
-    }
-}
-```  
-**After:**
-```
-class User {
-    name: string;
-    age: number;
-
-    constructor(name: string, age: number) {
-        this.name = name;
-        this.age = age;
-    }
-
-    toString(): string {
-        const parts: string[] = [];
-        parts.push('name: ' + this.name);
-        parts.push('age: ' + this.age);
-        return 'User { ' + parts.join(', ') + ' }';
-    }
-}
-``` ```
-const user = new User("Alice", 30);
-console.log(user.toString());
-// Output: User { name: Alice, age: 30 }
-``` ## Field Options
- Use the `@debug` field decorator to customize behavior:
- ### Renaming Fields
- 
-**Before:**
-```
-/** @derive(Debug) */
-class User {
-    /** @debug({ rename: "userId" }) */
-    id: number;
-
-    name: string;
-
-    constructor(id: number, name: string) {
-        this.id = id;
-        this.name = name;
-    }
-}
-```  
-**After:**
-```
-class User {
-    id: number;
-
-    name: string;
-
-    constructor(id: number, name: string) {
-        this.id = id;
-        this.name = name;
-    }
-
-    toString(): string {
-        const parts: string[] = [];
-        parts.push('userId: ' + this.id);
-        parts.push('name: ' + this.name);
-        return 'User { ' + parts.join(', ') + ' }';
-    }
-}
-``` ```
-const user = new User(42, "Alice");
-console.log(user.toString());
-// Output: User { userId: 42, name: Alice }
-``` ### Skipping Fields
- Use `skip: true` to exclude sensitive fields from the output:
- 
-**Before:**
-```
-/** @derive(Debug) */
-class User {
-    name: string;
-    email: string;
-
-    /** @debug({ skip: true }) */
+    @debug(skip)
     password: string;
 
-    /** @debug({ skip: true }) */
-    authToken: string;
-
-    constructor(name: string, email: string, password: string, authToken: string) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.authToken = authToken;
-    }
-}
-```  
-**After:**
-```
-class User {
-    name: string;
     email: string;
-
-    password: string;
-
-    authToken: string;
-
-    constructor(name: string, email: string, password: string, authToken: string) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.authToken = authToken;
-    }
-
-    toString(): string {
-        const parts: string[] = [];
-        parts.push('name: ' + this.name);
-        parts.push('email: ' + this.email);
-        return 'User { ' + parts.join(', ') + ' }';
-    }
-}
-``` ```
-const user = new User("Alice", "alice@example.com", "secret", "tok_xxx");
-console.log(user.toString());
-// Output: User { name: Alice, email: alice@example.com }
-// Note: password and authToken are not included
-```  **Security Always skip sensitive fields like passwords, tokens, and API keys to prevent accidental logging. ## Combining Options
- **
-**Source:**
-```
-/** @derive(Debug) */
-class ApiResponse {
-  /** @debug({ rename: "statusCode" }) */
-  status: number;
-
-  data: unknown;
-
-  /** @debug({ skip: true }) */
-  internalMetadata: Record<string, unknown>;
-}
-```  ## All Options
- | Option | Type | Description |
-| --- | --- | --- |
-| `rename` | `string` | Display a different name in the output |
-| `skip` | `boolean` | Exclude this field from the output |
- ## Interface Support
- Debug also works with interfaces. For interfaces, a namespace is generated with a `toString` function:
- 
-**Before:**
-```
-/** @derive(Debug) */
-interface Status {
-    active: boolean;
-    message: string;
-}
-```  
-**After:**
-```
-interface Status {
-    active: boolean;
-    message: string;
 }
 
-export namespace Status {
-    export function toString(self: Status): string {
-        const parts: string[] = [];
-        parts.push('active: ' + self.active);
-        parts.push('message: ' + self.message);
-        return 'Status { ' + parts.join(', ') + ' }';
-    }
-}
-``` ```
-const status: Status = { active: true, message: "OK" };
-console.log(Status.toString(status));
-// Output: Status { active: true, message: OK }
-``` ## Enum Support
- Debug also works with enums. For enums, a namespace is generated with a `toString` function that displays the enum name and variant:
- 
-**Before:**
+// Generated:
+// toString(): string {
+//     return "User { id: " + this.userId + ", email: " + this.email + " }";
+// }
 ```
-/** @derive(Debug) */
-enum Priority {
-    Low = 1,
-    Medium = 2,
-    High = 3
-}
-```  
-**After:**
-```
-enum Priority {
-    Low = 1,
-    Medium = 2,
-    High = 3
-}
 
-export namespace Priority {
-    export function toString(value: Priority): string {
-        const key = Priority[value as unknown as keyof typeof Priority];
-        if (key !== undefined) {
-            return 'Priority.' + key;
-        }
-        return 'Priority(' + String(value) + ')';
-    }
-}
-``` ```
-console.log(Priority.toString(Priority.High));
-// Output: Priority.High
-
-console.log(Priority.toString(Priority.Low));
-// Output: Priority.Low
-``` Works with both numeric and string enums:
- 
-**Source:**
-```
-/** @derive(Debug) */
-enum Status {
-  Active = "active",
-  Inactive = "inactive",
-}
-```  ## Type Alias Support
- Debug works with type aliases. For object types, fields are displayed similar to interfaces:
- 
-**Before:**
-```
-/** @derive(Debug) */
-type Point = {
-    x: number;
-    y: number;
-};
-```  
-**After:**
-```
-type Point = {
-    x: number;
-    y: number;
-};
-
-export namespace Point {
-    export function toString(value: Point): string {
-        const parts: string[] = [];
-        parts.push('x: ' + value.x);
-        parts.push('y: ' + value.y);
-        return 'Point { ' + parts.join(', ') + ' }';
-    }
-}
-``` ```
-const point: Point = { x: 10, y: 20 };
-console.log(Point.toString(point));
-// Output: Point { x: 10, y: 20 }
-``` For union types, the value is displayed using JSON.stringify:
- 
-**Source:**
-```
-/** @derive(Debug) */
-type ApiStatus = "loading" | "success" | "error";
-```  ```
-console.log(ApiStatus.toString("success"));
-// Output: ApiStatus("success")
-```
 
 ---
 
 # Clone
-  *The `Clone` macro generates a `clone()` method for deep copying objects. This is analogous to Rust's `Clone` trait, providing a way to create independent copies of values.*
- ## Basic Usage
- 
-**Before:**
-```
-/** @derive(Clone) */
+
+The `Clone` macro generates a `clone()` method for deep copying objects.
+This is analogous to Rust's `Clone` trait, providing a way to create
+independent copies of values.
+
+## Generated Output
+
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `clone(): ClassName` | Instance method creating a new instance with copied fields |
+| Enum | `cloneEnumName(value: EnumName): EnumName` | Standalone function (enums are primitives, returns value as-is) |
+| Interface | `cloneInterfaceName(value: InterfaceName): InterfaceName` | Standalone function creating a new object literal |
+| Type Alias | `cloneTypeName(value: TypeName): TypeName` | Standalone function with spread copy for objects |
+
+## Configuration
+
+The `functionNamingStyle` option in `macroforge.json` controls naming:
+- `"suffix"` (default): Suffixes with type name (e.g., `cloneMyType`)
+- `"prefix"`: Prefixes with type name (e.g., `myTypeClone`)
+- `"generic"`: Uses TypeScript generics (e.g., `clone<T extends MyType>`)
+- `"namespace"`: Legacy namespace wrapping
+
+## Cloning Strategy
+
+The generated clone performs a **shallow copy** of all fields:
+
+- **Primitives** (`string`, `number`, `boolean`): Copied by value
+- **Objects**: Reference is copied (not deep cloned)
+- **Arrays**: Reference is copied (not deep cloned)
+
+For deep cloning of nested objects, those objects should also derive `Clone`
+and the caller should clone them explicitly.
+
+## Example
+
+```typescript
+@derive(Clone)
 class Point {
     x: number;
     y: number;
-
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
-}
-```  
-**After:**
-```
-class Point {
-    x: number;
-    y: number;
-
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
-
-    clone(): Point {
-        const cloned = Object.create(Object.getPrototypeOf(this));
-        cloned.x = this.x;
-        cloned.y = this.y;
-        return cloned;
-    }
-}
-``` ```
-const original = new Point(10, 20);
-const copy = original.clone();
-
-console.log(copy.x, copy.y); // 10, 20
-console.log(original === copy); // false (different instances)
-``` ## How It Works
- The Clone macro:
- 1. Creates a new instance of the class
- 2. Passes all field values to the constructor
- 3. Returns the new instance
- This creates a **shallow clone** - primitive values are copied, but object references remain the same.
- ## With Nested Objects
- 
-**Before:**
-```
-/** @derive(Clone) */
-class User {
-    name: string;
-    address: { city: string; zip: string };
-
-    constructor(name: string, address: { city: string; zip: string }) {
-        this.name = name;
-        this.address = address;
-    }
-}
-```  
-**After:**
-```
-class User {
-    name: string;
-    address: { city: string; zip: string };
-
-    constructor(name: string, address: { city: string; zip: string }) {
-        this.name = name;
-        this.address = address;
-    }
-
-    clone(): User {
-        const cloned = Object.create(Object.getPrototypeOf(this));
-        cloned.name = this.name;
-        cloned.address = this.address;
-        return cloned;
-    }
-}
-``` ```
-const original = new User("Alice", { city: "NYC", zip: "10001" });
-const copy = original.clone();
-
-// The address object is the same reference
-console.log(original.address === copy.address); // true
-
-// Modifying the copy's address affects the original
-copy.address.city = "LA";
-console.log(original.address.city); // "LA"
-``` For deep cloning of nested objects, you would need to implement custom clone methods or use a deep clone utility.
- ## Combining with PartialEq
- Clone works well with PartialEq for creating independent copies that compare as equal:
- 
-**Source:**
-```
-/** @derive(Clone, PartialEq) */
-class Point {
-  x: number;
-  y: number;
-
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-  }
-}
-```  ```
-const original = new Point(10, 20);
-const copy = original.clone();
-
-console.log(original === copy);       // false (different instances)
-console.log(original.equals(copy));   // true (same values)
-``` ## Interface Support
- Clone also works with interfaces. For interfaces, a namespace is generated with a `clone` function:
- 
-**Before:**
-```
-/** @derive(Clone) */
-interface Point {
-    x: number;
-    y: number;
-}
-```  
-**After:**
-```
-interface Point {
-    x: number;
-    y: number;
 }
 
-export namespace Point {
-    export function clone(self: Point): Point {
-        return { x: self.x, y: self.y };
-    }
-}
-``` ```
-const original: Point = { x: 10, y: 20 };
-const copy = Point.clone(original);
+// Generated:
+// clone(): Point {
+//     const cloned = Object.create(Object.getPrototypeOf(this));
+//     cloned.x = this.x;
+//     cloned.y = this.y;
+//     return cloned;
+// }
 
-console.log(copy.x, copy.y);        // 10, 20
-console.log(original === copy);     // false (different objects)
-``` ## Enum Support
- Clone also works with enums. For enums, the clone function simply returns the value as-is, since enum values are primitives and don't need cloning:
- 
-**Before:**
+const p1 = new Point();
+const p2 = p1.clone(); // Creates a new Point with same values
 ```
-/** @derive(Clone) */
-enum Status {
-    Active = 'active',
-    Inactive = 'inactive'
-}
-```  
-**After:**
-```
-enum Status {
-    Active = 'active',
-    Inactive = 'inactive'
-}
 
-export namespace Status {
-    export function clone(value: Status): Status {
-        return value;
-    }
-}
-``` ```
-const original = Status.Active;
-const copy = Status.clone(original);
+## Implementation Notes
 
-console.log(copy);               // "active"
-console.log(original === copy);  // true (same primitive value)
-``` ## Type Alias Support
- Clone works with type aliases. For object types, a shallow copy is created using spread:
- 
-**Before:**
-```
-/** @derive(Clone) */
-type Point = {
-    x: number;
-    y: number;
-};
-```  
-**After:**
-```
-type Point = {
-    x: number;
-    y: number;
-};
+- **Classes**: Uses `Object.create(Object.getPrototypeOf(this))` to preserve
+  the prototype chain, ensuring `instanceof` checks work correctly
+- **Enums**: Simply returns the value (enums are primitives in TypeScript)
+- **Interfaces/Type Aliases**: Creates new object literals with spread operator
+  for union/tuple types, or field-by-field copy for object types
 
-export namespace Point {
-    export function clone(value: Point): Point {
-        return { x: value.x, y: value.y };
-    }
-}
-``` ```
-const original: Point = { x: 10, y: 20 };
-const copy = Point.clone(original);
-
-console.log(copy.x, copy.y);     // 10, 20
-console.log(original === copy);  // false (different objects)
-``` For union types, the value is returned as-is (unions of primitives don't need cloning):
- 
-**Source:**
-```
-/** @derive(Clone) */
-type ApiStatus = "loading" | "success" | "error";
-```  ```
-const status: ApiStatus = "success";
-const copy = ApiStatus.clone(status);
-console.log(copy); // "success"
-```
 
 ---
 
 # Default
-  *The `Default` macro generates a static `defaultValue()` factory method that creates instances with default values. This is analogous to Rust's `Default` trait, providing a standard way to create "zero" or "empty" instances of types.*
- ## Basic Usage
- 
-**Before:**
+
+The `Default` macro generates a static `defaultValue()` factory method that creates
+instances with default values. This is analogous to Rust's `Default` trait, providing
+a standard way to create "zero" or "empty" instances of types.
+
+## Generated Output
+
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `static defaultValue(): ClassName` | Static factory method |
+| Enum | `defaultValueEnumName(): EnumName` | Standalone function returning marked variant |
+| Interface | `defaultValueInterfaceName(): InterfaceName` | Standalone function returning object literal |
+| Type Alias | `defaultValueTypeName(): TypeName` | Standalone function with type-appropriate default |
+
+## Configuration
+
+The `functionNamingStyle` option in `macroforge.json` controls naming:
+- `"suffix"` (default): Suffixes with type name (e.g., `defaultValueMyType`)
+- `"prefix"`: Prefixes with type name (e.g., `myTypeDefaultValue`)
+- `"generic"`: Uses TypeScript generics (e.g., `defaultValue<T extends MyType>`)
+- `"namespace"`: Legacy namespace wrapping
+
+## Default Values by Type
+
+The macro uses Rust-like default semantics:
+
+| Type | Default Value |
+|------|---------------|
+| `string` | `""` (empty string) |
+| `number` | `0` |
+| `boolean` | `false` |
+| `bigint` | `0n` |
+| `T[]` | `[]` (empty array) |
+| `Array<T>` | `[]` (empty array) |
+| `Map<K,V>` | `new Map()` |
+| `Set<T>` | `new Set()` |
+| `Date` | `new Date()` (current time) |
+| `T \| null` | `null` |
+| `CustomType` | `CustomType.defaultValue()` (recursive) |
+
+## Field-Level Options
+
+The `@default` decorator allows specifying explicit default values:
+
+- `@default(42)` - Use 42 as the default
+- `@default("hello")` - Use "hello" as the default
+- `@default([])` - Use empty array as the default
+- `@default({ value: "test" })` - Named form for complex values
+
+## Example
+
+```typescript
+@derive(Default)
+class UserSettings {
+    @default("light")
+    theme: string;
+
+    @default(10)
+    pageSize: number;
+
+    notifications: boolean;  // Uses type default: false
+}
+
+// Generated:
+// static defaultValue(): UserSettings {
+//     const instance = new UserSettings();
+//     instance.theme = "light";
+//     instance.pageSize = 10;
+//     instance.notifications = false;
+//     return instance;
+// }
 ```
-/** @derive(Default) */
-class Config {
-    host: string;
-    port: number;
-    enabled: boolean;
 
-    constructor(host: string, port: number, enabled: boolean) {
-        this.host = host;
-        this.port = port;
-        this.enabled = enabled;
-    }
-}
-```  
-**After:**
-```
-class Config {
-    host: string;
-    port: number;
-    enabled: boolean;
+## Enum Defaults
 
-    constructor(host: string, port: number, enabled: boolean) {
-        this.host = host;
-        this.port = port;
-        this.enabled = enabled;
-    }
+For enums, mark one variant with `@default`:
 
-    static defaultValue(): Config {
-        const instance = new Config();
-        instance.host = '';
-        instance.port = 0;
-        instance.enabled = false;
-        return instance;
-    }
-}
-``` ```
-const config = Config.defaultValue();
-console.log(config.host);    // ""
-console.log(config.port);    // 0
-console.log(config.enabled); // false
-``` ## Automatic Default Values
- Like Rust's `Default` trait, the macro automatically determines default values for primitive types and common collections:
- | TypeScript Type | Default Value | Rust Equivalent |
-| --- | --- | --- |
-| `string` | `""` | `String::default()` |
-| `number` | `0` | `i32::default()` |
-| `boolean` | `false` | `bool::default()` |
-| `bigint` | `0n` | `i64::default()` |
-| `T[]` / `Array<T>` | `[]` | `Vec::default()` |
-| `Map<K, V>` | `new Map()` | `HashMap::default()` |
-| `Set<T>` | `new Set()` | `HashSet::default()` |
-| `Date` | `new Date()` | — |
-| `T | null` / `T | undefined` | `null` | `Option::default()` |
-| Custom types | **Error** | **Error** (needs `impl Default`) |
- ## Nullable Types (like Rust's Option)
- Just like Rust's `Option<T>` defaults to `None`, nullable TypeScript types automatically default to `null`:
- 
-**Before:**
-```
-/** @derive(Default) */
-interface User {
-    name: string;
-    email: string | null;
-    age: number;
-    metadata: Record<string, unknown> | null;
-}
-```  
-**After:**
-```
-interface User {
-    name: string;
-    email: string | null;
-    age: number;
-    metadata: Record<string, unknown> | null;
-}
-
-export namespace User {
-    export function defaultValue(): User {
-        return { name: '', email: null, age: 0, metadata: null } as User;
-    }
-}
-``` ```
-const user = User.defaultValue();
-console.log(user.name);     // ""
-console.log(user.email);    // null (nullable type)
-console.log(user.age);      // 0
-console.log(user.metadata); // null (nullable type)
-``` ## Custom Types Require @default
- Just like Rust requires `impl Default` for custom types, Macroforge requires the `@default()` decorator on fields with non-primitive types:
- 
-**Before:**
-```
-/** @derive(Default) */
-interface AppConfig {
-    name: string;
-    port: number;
-    /** @default(Settings.defaultValue()) */
-    settings: Settings;
-    /** @default(Permissions.defaultValue()) */
-    permissions: Permissions;
-}
-```  
-**After:**
-```
-interface AppConfig {
-    name: string;
-    port: number;
-
-    settings: Settings;
-
-    permissions: Permissions;
-}
-
-export namespace AppConfig {
-    export function defaultValue(): AppConfig {
-        return {
-            name: '',
-            port: 0,
-            settings: Settings.defaultValue(),
-            permissions: Permissions.defaultValue()
-        } as AppConfig;
-    }
-}
-```  ```
-// Error: @derive(Default) cannot determine default for non-primitive fields.
-// Add @default(value) to: settings, permissions
-``` ## Custom Default Values
- Use the `@default()` decorator to specify custom default values for any field:
- 
-**Before:**
-```
-/** @derive(Default) */
-class ServerConfig {
-    /** @default("localhost") */
-    host: string;
-
-    /** @default(8080) */
-    port: number;
-
-    /** @default(true) */
-    enabled: boolean;
-
-    /** @default(["info", "error"]) */
-    logLevels: string[];
-
-    constructor(host: string, port: number, enabled: boolean, logLevels: string[]) {
-        this.host = host;
-        this.port = port;
-        this.enabled = enabled;
-        this.logLevels = logLevels;
-    }
-}
-```  
-**After:**
-```
-class ServerConfig {
-    host: string;
-
-    port: number;
-
-    enabled: boolean;
-
-    logLevels: string[];
-
-    constructor(host: string, port: number, enabled: boolean, logLevels: string[]) {
-        this.host = host;
-        this.port = port;
-        this.enabled = enabled;
-        this.logLevels = logLevels;
-    }
-
-    static defaultValue(): ServerConfig {
-        const instance = new ServerConfig();
-        instance.host = 'localhost';
-        instance.port = 8080;
-        instance.enabled = true;
-        instance.logLevels = ['info', 'error'];
-        return instance;
-    }
-}
-``` ```
-const config = ServerConfig.defaultValue();
-console.log(config.host);      // "localhost"
-console.log(config.port);      // 8080
-console.log(config.enabled);   // true
-console.log(config.logLevels); // ["info", "error"]
-``` ## Interface Support
- Default also works with interfaces. For interfaces, a namespace is generated with a `defaultValue()` function:
- 
-**Before:**
-```
-/** @derive(Default) */
-interface Point {
-    x: number;
-    y: number;
-}
-```  
-**After:**
-```
-interface Point {
-    x: number;
-    y: number;
-}
-
-export namespace Point {
-    export function defaultValue(): Point {
-        return { x: 0, y: 0 } as Point;
-    }
-}
-``` ```
-const origin = Point.defaultValue();
-console.log(origin); // { x: 0, y: 0 }
-``` ## Enum Support
- Default works with enums. For enums, it returns the first variant as the default value:
- 
-**Before:**
-```
-/** @derive(Default) */
+```typescript
+@derive(Default)
 enum Status {
-    Pending = 'pending',
-    Active = 'active',
-    Completed = 'completed'
+    @default
+    Pending,
+    Active,
+    Completed
 }
-```  
-**After:**
-```
-enum Status {
-    Pending = 'pending',
-    Active = 'active',
-    Completed = 'completed'
-}
-``` ```
-const defaultStatus = Status.defaultValue();
-console.log(defaultStatus); // "pending"
-``` ## Type Alias Support
- Default works with type aliases. For object types, it creates an object with default field values:
- 
-**Before:**
-```
-/** @derive(Default) */
-type Dimensions = {
-    width: number;
-    height: number;
-};
-```  
-**After:**
-```
-type Dimensions = {
-    width: number;
-    height: number;
-};
 
-export namespace Dimensions {
-    export function defaultValue(): Dimensions {
-        return { width: 0, height: 0 } as Dimensions;
-    }
-}
-``` ```
-const dims = Dimensions.defaultValue();
-console.log(dims); // { width: 0, height: 0 }
-``` ## Combining with Other Macros
- 
-**Source:**
+// Generated:
+// export namespace Status {
+//     export function defaultValue(): Status {
+//         return Status.Pending;
+//     }
+// }
 ```
-/** @derive(Default, Debug, Clone, PartialEq) */
-class User {
-  /** @default("Anonymous") */
-  name: string;
 
-  /** @default(0) */
-  age: number;
+## Error Handling
 
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-  }
-}
-```  ```
-const user1 = User.defaultValue();
-const user2 = user1.clone();
+The macro will return an error if:
 
-console.log(user1.toString());    // User { name: "Anonymous", age: 0 }
-console.log(user1.equals(user2)); // true
-```
+- A non-primitive field lacks `@default` and has no known default
+- An enum has no variant marked with `@default`
+- A union type has no `@default` on a variant
+
 
 ---
 
 # Hash
-  *The `Hash` macro generates a `hashCode()` method for computing numeric hash codes. This is analogous to Rust's `Hash` trait and Java's `hashCode()` method, enabling objects to be used as keys in hash-based collections.*
- ## Basic Usage
- 
-**Before:**
+
+The `Hash` macro generates a `hashCode()` method for computing numeric hash codes.
+This is analogous to Rust's `Hash` trait and Java's `hashCode()` method, enabling
+objects to be used as keys in hash-based collections.
+
+## Generated Output
+
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `hashCode(): number` | Instance method computing hash from all fields |
+| Enum | `hashCodeEnumName(value: EnumName): number` | Standalone function hashing by enum value |
+| Interface | `hashCodeInterfaceName(value: InterfaceName): number` | Standalone function computing hash |
+| Type Alias | `hashCodeTypeName(value: TypeName): number` | Standalone function computing hash |
+
+## Configuration
+
+The `functionNamingStyle` option in `macroforge.json` controls naming:
+- `"suffix"` (default): Suffixes with type name (e.g., `hashCodeMyType`)
+- `"prefix"`: Prefixes with type name (e.g., `myTypeHashCode`)
+- `"generic"`: Uses TypeScript generics (e.g., `hashCode<T extends MyType>`)
+- `"namespace"`: Legacy namespace wrapping
+
+## Hash Algorithm
+
+Uses the standard polynomial rolling hash algorithm:
+
+```text
+hash = 17  // Initial seed
+for each field:
+    hash = (hash * 31 + fieldHash) | 0  // Bitwise OR keeps it 32-bit integer
 ```
-/** @derive(Hash) */
-class Point {
-    x: number;
-    y: number;
 
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
-}
-```  
-**After:**
-```
-class Point {
-    x: number;
-    y: number;
+This algorithm is consistent with Java's `Objects.hash()` implementation.
 
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
+## Type-Specific Hashing
 
-    hashCode(): number {
-        let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.x)
-                    ? this.x | 0
-                    : this.x
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-            0;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.y)
-                    ? this.y | 0
-                    : this.y
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-            0;
-        return hash;
-    }
-}
-``` ```
-const p1 = new Point(10, 20);
-const p2 = new Point(10, 20);
-const p3 = new Point(5, 5);
+| Type | Hash Strategy |
+|------|---------------|
+| `number` | Integer: direct value; Float: string hash of decimal |
+| `bigint` | String hash of decimal representation |
+| `string` | Character-by-character polynomial hash |
+| `boolean` | 1231 for true, 1237 for false (Java convention) |
+| `Date` | `getTime()` timestamp |
+| Arrays | Element-by-element hash combination |
+| `Map` | Entry-by-entry key+value hash |
+| `Set` | Element-by-element hash |
+| Objects | Calls `hashCode()` if available, else JSON string hash |
 
-console.log(p1.hashCode()); // Same hash
-console.log(p2.hashCode()); // Same hash (equal values = equal hash)
-console.log(p3.hashCode()); // Different hash
-``` ## Hash Algorithm
- The generated hash function uses the following algorithm for different types:
- - `number` → Integers use bitwise OR (`| 0`), floats are stringified and hashed
- - `string` → Character-by-character hash: `(h * 31 + charCode) | 0`
- - `boolean` → `1231` for true, `1237` for false (Java convention)
- - `bigint` → Converted to string and hashed character-by-character
- - `Date` → Uses `getTime() | 0` for timestamp hash
- - `Array` → Combines element hashes with `h * 31 + elementHash`
- - `Map/Set` → Combines all entry hashes
- - `Object` → Calls `hashCode()` if available, otherwise JSON stringifies and hashes
- - `null` → Returns 0
- - `undefined` → Returns 1
- ## Field Options
- ### @hash(skip)
- Use `@hash(skip)` to exclude a field from hash computation:
- 
-**Before:**
-```
-/** @derive(Hash) */
+## Field-Level Options
+
+The `@hash` decorator supports:
+
+- `skip` - Exclude the field from hash calculation
+
+## Example
+
+```typescript
+@derive(Hash, PartialEq)
 class User {
     id: number;
     name: string;
 
-    /** @hash(skip) */
-    lastLogin: Date;
-
-    constructor(id: number, name: string, lastLogin: Date) {
-        this.id = id;
-        this.name = name;
-        this.lastLogin = lastLogin;
-    }
-}
-```  
-**After:**
-```
-class User {
-    id: number;
-    name: string;
-
-    lastLogin: Date;
-
-    constructor(id: number, name: string, lastLogin: Date) {
-        this.id = id;
-        this.name = name;
-        this.lastLogin = lastLogin;
-    }
-
-    hashCode(): number {
-        let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.id)
-                    ? this.id | 0
-                    : this.id
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-            0;
-        hash =
-            (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
-            0;
-        return hash;
-    }
-}
-``` ```
-const user1 = new User(1, "Alice", new Date("2024-01-01"));
-const user2 = new User(1, "Alice", new Date("2024-12-01"));
-
-console.log(user1.hashCode() === user2.hashCode()); // true (lastLogin is skipped)
-``` ## Use with PartialEq
- Hash is often used together with PartialEq. Objects that are equal should have the same hash code:
- 
-**Source:**
-```
-/** @derive(Hash, PartialEq) */
-class Product {
-  sku: string;
-  name: string;
-
-  constructor(sku: string, name: string) {
-    this.sku = sku;
-    this.name = name;
-  }
-}
-```  ```
-const p1 = new Product("ABC123", "Widget");
-const p2 = new Product("ABC123", "Widget");
-
-// Equal objects have equal hash codes
-console.log(p1.equals(p2));                       // true
-console.log(p1.hashCode() === p2.hashCode());     // true
-``` ## Interface Support
- Hash also works with interfaces. For interfaces, a namespace is generated with a `hashCode` function:
- 
-**Before:**
-```
-/** @derive(Hash) */
-interface Point {
-    x: number;
-    y: number;
-}
-```  
-**After:**
-```
-interface Point {
-    x: number;
-    y: number;
+    @hash(skip)  // Cached value shouldn't affect hash
+    cachedScore: number;
 }
 
-export namespace Point {
-    export function hashCode(self: Point): number {
-        let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(self.x)
-                    ? self.x | 0
-                    : self.x
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-            0;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(self.y)
-                    ? self.y | 0
-                    : self.y
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-            0;
-        return hash;
-    }
-}
-``` ```
-const p: Point = { x: 10, y: 20 };
-console.log(Point.hashCode(p)); // numeric hash value
-``` ## Enum Support
- Hash works with enums. For string enums, it hashes the string value; for numeric enums, it uses the numeric value directly:
- 
-**Before:**
+// Generated:
+// hashCode(): number {
+//     let hash = 17;
+//     hash = (hash * 31 + (Number.isInteger(this.id) ? this.id | 0 : ...)) | 0;
+//     hash = (hash * 31 + (this.name ?? '').split('').reduce(...)) | 0;
+//     return hash;
+// }
 ```
-/** @derive(Hash) */
-enum Status {
-    Active = 'active',
-    Inactive = 'inactive',
-    Pending = 'pending'
-}
-```  
-**After:**
-```
-enum Status {
-    Active = 'active',
-    Inactive = 'inactive',
-    Pending = 'pending'
-}
 
-export namespace Status {
-    export function hashCode(value: Status): number {
-        if (typeof value === 'string') {
-            let hash = 0;
-            for (let i = 0; i < value.length; i++) {
-                hash = (hash * 31 + value.charCodeAt(i)) | 0;
-            }
-            return hash;
-        }
-        return value as number;
-    }
-}
-``` ```
-console.log(Status.hashCode(Status.Active));   // consistent hash
-console.log(Status.hashCode(Status.Inactive)); // different hash
-``` ## Type Alias Support
- Hash works with type aliases. For object types, it hashes each field:
- 
-**Before:**
-```
-/** @derive(Hash) */
-type Coordinates = {
-    lat: number;
-    lng: number;
-};
-```  
-**After:**
-```
-type Coordinates = {
-    lat: number;
-    lng: number;
-};
+## Hash Contract
 
-export namespace Coordinates {
-    export function hashCode(value: Coordinates): number {
-        let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(value.lat)
-                    ? value.lat | 0
-                    : value.lat
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-            0;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(value.lng)
-                    ? value.lng | 0
-                    : value.lng
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-            0;
-        return hash;
-    }
-}
-``` ```
-const loc: Coordinates = { lat: 40.7128, lng: -74.0060 };
-console.log(Coordinates.hashCode(loc));
-``` For union types, it uses JSON stringification as a fallback:
- 
-**Source:**
-```
-/** @derive(Hash) */
-type Result = "success" | "error" | "pending";
-```  ```
-console.log(Result.hashCode("success")); // hash of "success" string
-console.log(Result.hashCode("error"));   // hash of "error" string
-```
+Objects that are equal (`PartialEq`) should produce the same hash code.
+When using `@hash(skip)`, ensure the same fields are skipped in both
+`Hash` and `PartialEq` to maintain this contract.
+
 
 ---
 
 # Ord
-  *The `Ord` macro generates a `compareTo()` method for **total ordering** comparison. This is analogous to Rust's `Ord` trait, enabling objects to be sorted and compared with a guaranteed ordering relationship.*
- ## Basic Usage
- 
-**Before:**
-```
-/** @derive(Ord) */
+
+The `Ord` macro generates a `compareTo()` method for **total ordering** comparison.
+This is analogous to Rust's `Ord` trait, enabling objects to be sorted and
+compared with a guaranteed ordering relationship.
+
+## Generated Output
+
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `compareTo(other): number` | Instance method returning -1, 0, or 1 |
+| Enum | `compareEnumName(a: EnumName, b: EnumName): number` | Standalone function comparing enum values |
+| Interface | `compareInterfaceName(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields |
+| Type Alias | `compareTypeName(a: TypeName, b: TypeName): number` | Standalone function with type-appropriate comparison |
+
+## Configuration
+
+The `functionNamingStyle` option in `macroforge.json` controls naming:
+- `"suffix"` (default): Suffixes with type name (e.g., `compareMyType`)
+- `"prefix"`: Prefixes with type name (e.g., `myTypeCompare`)
+- `"generic"`: Uses TypeScript generics (e.g., `compare<T extends MyType>`)
+- `"namespace"`: Legacy namespace wrapping
+
+## Return Values
+
+Unlike `PartialOrd`, `Ord` provides **total ordering** - every pair of values
+can be compared:
+
+- **-1**: `this` is less than `other`
+- **0**: `this` is equal to `other`
+- **1**: `this` is greater than `other`
+
+The method **never returns null** - all values must be comparable.
+
+## Comparison Strategy
+
+Fields are compared **lexicographically** in declaration order:
+
+1. Compare first field
+2. If not equal, return that result
+3. Otherwise, compare next field
+4. Continue until a difference is found or all fields are equal
+
+## Type-Specific Comparisons
+
+| Type | Comparison Method |
+|------|-------------------|
+| `number`/`bigint` | Direct `<` and `>` comparison |
+| `string` | `localeCompare()` (clamped to -1, 0, 1) |
+| `boolean` | false &lt; true |
+| Arrays | Lexicographic element-by-element |
+| `Date` | `getTime()` timestamp comparison |
+| Objects | Calls `compareTo()` if available, else 0 |
+
+## Field-Level Options
+
+The `@ord` decorator supports:
+
+- `skip` - Exclude the field from ordering comparison
+
+## Example
+
+```typescript
+@derive(Ord)
 class Version {
     major: number;
     minor: number;
     patch: number;
-
-    constructor(major: number, minor: number, patch: number) {
-        this.major = major;
-        this.minor = minor;
-        this.patch = patch;
-    }
 }
-```  
-**After:**
+
+// Generated:
+// compareTo(other: Version): number {
+//     if (this === other) return 0;
+//     const typedOther = other;
+//     const cmp0 = this.major < typedOther.major ? -1 : this.major > typedOther.major ? 1 : 0;
+//     if (cmp0 !== 0) return cmp0;
+//     const cmp1 = this.minor < typedOther.minor ? -1 : ...;
+//     if (cmp1 !== 0) return cmp1;
+//     const cmp2 = this.patch < typedOther.patch ? -1 : ...;
+//     if (cmp2 !== 0) return cmp2;
+//     return 0;
+// }
+
+// Usage:
+versions.sort((a, b) => a.compareTo(b));
 ```
-class Version {
-    major: number;
-    minor: number;
-    patch: number;
 
-    constructor(major: number, minor: number, patch: number) {
-        this.major = major;
-        this.minor = minor;
-        this.patch = patch;
-    }
+## Ord vs PartialOrd
 
-    compareTo(other: Version): number {
-        if (this === other) return 0;
-        const typedOther = other;
-        const cmp0 = this.major < typedOther.major ? -1 : this.major > typedOther.major ? 1 : 0;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = this.minor < typedOther.minor ? -1 : this.minor > typedOther.minor ? 1 : 0;
-        if (cmp1 !== 0) return cmp1;
-        const cmp2 = this.patch < typedOther.patch ? -1 : this.patch > typedOther.patch ? 1 : 0;
-        if (cmp2 !== 0) return cmp2;
-        return 0;
-    }
-}
-``` ```
-const v1 = new Version(1, 0, 0);
-const v2 = new Version(1, 2, 0);
-const v3 = new Version(1, 2, 0);
+- Use **Ord** when all values are comparable (total ordering)
+- Use **PartialOrd** when some values may be incomparable (returns `Option<number>`)
 
-console.log(v1.compareTo(v2)); // -1 (v1 < v2)
-console.log(v2.compareTo(v1)); // 1  (v2 > v1)
-console.log(v2.compareTo(v3)); // 0  (v2 == v3)
-``` ## Comparison Logic
- The Ord macro compares fields in declaration order (lexicographic ordering). For each type:
- - `number` / `bigint` → Direct numeric comparison
- - `string` → Uses `localeCompare()` clamped to -1/0/1
- - `boolean` → `false < true`
- - `Date` → Compares timestamps via `getTime()`
- - `Array` → Lexicographic: compares element-by-element, then length
- - `Map/Set` → Size and content comparison
- - `Object` → Calls `compareTo()` if available, otherwise 0
- - `null/undefined` → Treated as equal (returns 0)
- ## Return Values
- The `compareTo()` method always returns:
- - `-1` → `this` is less than `other`
- - `0` → `this` equals `other`
- - `1` → `this` is greater than `other`
- Unlike `PartialOrd`, the `Ord` macro never returns `null` - it provides total ordering.
- ## Field Options
- ### @ord(skip)
- Use `@ord(skip)` to exclude a field from ordering comparison:
- 
-**Before:**
-```
-/** @derive(Ord) */
-class Task {
-    priority: number;
-    name: string;
-
-    /** @ord(skip) */
-    createdAt: Date;
-
-    constructor(priority: number, name: string, createdAt: Date) {
-        this.priority = priority;
-        this.name = name;
-        this.createdAt = createdAt;
-    }
-}
-```  
-**After:**
-```
-class Task {
-    priority: number;
-    name: string;
-
-    createdAt: Date;
-
-    constructor(priority: number, name: string, createdAt: Date) {
-        this.priority = priority;
-        this.name = name;
-        this.createdAt = createdAt;
-    }
-
-    compareTo(other: Task): number {
-        if (this === other) return 0;
-        const typedOther = other;
-        const cmp0 =
-            this.priority < typedOther.priority ? -1 : this.priority > typedOther.priority ? 1 : 0;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = ((cmp) => (cmp < 0 ? -1 : cmp > 0 ? 1 : 0))(
-            this.name.localeCompare(typedOther.name)
-        );
-        if (cmp1 !== 0) return cmp1;
-        return 0;
-    }
-}
-``` ```
-const t1 = new Task(1, "Bug fix", new Date("2024-01-01"));
-const t2 = new Task(1, "Bug fix", new Date("2024-12-01"));
-
-console.log(t1.compareTo(t2)); // 0 (createdAt is skipped)
-``` ## Sorting Arrays
- The generated `compareTo()` method works directly with `Array.sort()`:
- 
-**Source:**
-```
-/** @derive(Ord) */
-class Score {
-  points: number;
-  name: string;
-
-  constructor(points: number, name: string) {
-    this.points = points;
-    this.name = name;
-  }
-}
-```  ```
-const scores = [
-  new Score(100, "Alice"),
-  new Score(50, "Bob"),
-  new Score(150, "Charlie"),
-  new Score(50, "Alice")  // Same points, different name
-];
-
-// Sort ascending
-scores.sort((a, b) => a.compareTo(b));
-// Result: [Bob(50), Alice(50), Alice(100), Charlie(150)]
-
-// Sort descending
-scores.sort((a, b) => b.compareTo(a));
-// Result: [Charlie(150), Alice(100), Alice(50), Bob(50)]
-``` ## Interface Support
- Ord works with interfaces. For interfaces, a namespace is generated with a `compareTo` function:
- 
-**Before:**
-```
-/** @derive(Ord) */
-interface Point {
-    x: number;
-    y: number;
-}
-```  
-**After:**
-```
-interface Point {
-    x: number;
-    y: number;
-}
-
-export namespace Point {
-    export function compareTo(self: Point, other: Point): number {
-        if (self === other) return 0;
-        const cmp0 = self.x < other.x ? -1 : self.x > other.x ? 1 : 0;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = self.y < other.y ? -1 : self.y > other.y ? 1 : 0;
-        if (cmp1 !== 0) return cmp1;
-        return 0;
-    }
-}
-``` ```
-const points: Point[] = [
-  { x: 5, y: 10 },
-  { x: 1, y: 20 },
-  { x: 5, y: 5 }
-];
-
-points.sort((a, b) => Point.compareTo(a, b));
-// Result: [{ x: 1, y: 20 }, { x: 5, y: 5 }, { x: 5, y: 10 }]
-``` ## Enum Support
- Ord works with enums. For numeric enums, it compares the numeric values; for string enums, it uses string comparison:
- 
-**Before:**
-```
-/** @derive(Ord) */
-enum Priority {
-    Low = 0,
-    Medium = 1,
-    High = 2,
-    Critical = 3
-}
-```  
-**After:**
-```
-enum Priority {
-    Low = 0,
-    Medium = 1,
-    High = 2,
-    Critical = 3
-}
-
-export namespace Priority {
-    export function compareTo(a: Priority, b: Priority): number {
-        if (typeof a === 'number' && typeof b === 'number') {
-            return a < b ? -1 : a > b ? 1 : 0;
-        }
-        if (typeof a === 'string' && typeof b === 'string') {
-            const cmp = a.localeCompare(b);
-            return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
-        }
-        return 0;
-    }
-}
-``` ```
-console.log(Priority.compareTo(Priority.Low, Priority.High));      // -1
-console.log(Priority.compareTo(Priority.Critical, Priority.Low));  // 1
-console.log(Priority.compareTo(Priority.Medium, Priority.Medium)); // 0
-``` ## Type Alias Support
- Ord works with type aliases. For object types, it uses lexicographic field comparison:
- 
-**Before:**
-```
-/** @derive(Ord) */
-type Coordinate = {
-    x: number;
-    y: number;
-};
-```  
-**After:**
-```
-type Coordinate = {
-    x: number;
-    y: number;
-};
-
-export namespace Coordinate {
-    export function compareTo(a: Coordinate, b: Coordinate): number {
-        if (a === b) return 0;
-        const cmp0 = a.x < b.x ? -1 : a.x > b.x ? 1 : 0;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = a.y < b.y ? -1 : a.y > b.y ? 1 : 0;
-        if (cmp1 !== 0) return cmp1;
-        return 0;
-    }
-}
-``` ```
-const c1: Coordinate = { x: 10, y: 20 };
-const c2: Coordinate = { x: 10, y: 30 };
-
-console.log(Coordinate.compareTo(c1, c2)); // -1 (c1 < c2)
-``` ## Ord vs PartialOrd
- Use `Ord` when all values of a type are comparable. Use `PartialOrd` when some values might be incomparable (e.g., different types at runtime).
- 
-**Source:**
-```
-// Ord: Total ordering - never returns null
-/** @derive(Ord) */
-class Version {
-  major: number;
-  minor: number;
-  constructor(major: number, minor: number) {
-    this.major = major;
-    this.minor = minor;
-  }
-}
-```  ```
-const v1 = new Version(1, 0);
-const v2 = new Version(2, 0);
-console.log(v1.compareTo(v2)); // Always -1, 0, or 1
-```
 
 ---
 
 # PartialEq
-  *The `PartialEq` macro generates an `equals()` method for field-by-field structural equality comparison. This is analogous to Rust's `PartialEq` trait, enabling value-based equality semantics instead of reference equality.*
- ## Basic Usage
- 
-**Before:**
-```
-/** @derive(PartialEq) */
-class Point {
-    x: number;
-    y: number;
 
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
-}
-```  
-**After:**
-```
-class Point {
-    x: number;
-    y: number;
+The `PartialEq` macro generates an `equals()` method for field-by-field
+structural equality comparison. This is analogous to Rust's `PartialEq` trait,
+enabling value-based equality semantics instead of reference equality.
 
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
+## Generated Output
 
-    equals(other: unknown): boolean {
-        if (this === other) return true;
-        if (!(other instanceof Point)) return false;
-        const typedOther = other as Point;
-        return this.x === typedOther.x && this.y === typedOther.y;
-    }
-}
-``` ```
-const p1 = new Point(10, 20);
-const p2 = new Point(10, 20);
-const p3 = new Point(5, 5);
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `equals(other: unknown): boolean` | Instance method with instanceof check |
+| Enum | `equalsEnumName(a: EnumName, b: EnumName): boolean` | Standalone function using strict equality |
+| Interface | `equalsInterfaceName(a: InterfaceName, b: InterfaceName): boolean` | Standalone function comparing fields |
+| Type Alias | `equalsTypeName(a: TypeName, b: TypeName): boolean` | Standalone function with type-appropriate comparison |
 
-console.log(p1.equals(p2)); // true (same values)
-console.log(p1.equals(p3)); // false (different values)
-console.log(p1 === p2);     // false (different references)
-``` ## How It Works
- The PartialEq macro performs field-by-field comparison using these strategies:
- - **Primitives** (string, number, boolean, null, undefined) → Strict equality (`===`)
- - **Date** → Compares timestamps via `getTime()`
- - **Array** → Length check + element-by-element comparison
- - **Map** → Size check + entry comparison
- - **Set** → Size check + membership verification
- - **Objects** → Calls `equals()` if available, otherwise `===`
- ## Field Options
- ### @partialEq(skip)
- Use `@partialEq(skip)` to exclude a field from equality comparison:
- 
-**Before:**
-```
-/** @derive(PartialEq) */
+## Configuration
+
+The `functionNamingStyle` option in `macroforge.json` controls naming:
+- `"suffix"` (default): Suffixes with type name (e.g., `equalsMyType`)
+- `"prefix"`: Prefixes with type name (e.g., `myTypeEquals`)
+- `"generic"`: Uses TypeScript generics (e.g., `equals<T extends MyType>`)
+- `"namespace"`: Legacy namespace wrapping
+
+## Comparison Strategy
+
+The generated equality check:
+
+1. **Identity check**: `this === other` returns true immediately
+2. **Type check**: For classes, uses `instanceof`; returns false if wrong type
+3. **Field comparison**: Compares each non-skipped field
+
+## Type-Specific Comparisons
+
+| Type | Comparison Method |
+|------|-------------------|
+| Primitives | Strict equality (`===`) |
+| Arrays | Length + element-by-element (recursive) |
+| `Date` | `getTime()` comparison |
+| `Map` | Size + entry-by-entry comparison |
+| `Set` | Size + membership check |
+| Objects | Calls `equals()` if available, else `===` |
+
+## Field-Level Options
+
+The `@partialEq` decorator supports:
+
+- `skip` - Exclude the field from equality comparison
+
+## Example
+
+```typescript
+@derive(PartialEq, Hash)
 class User {
     id: number;
     name: string;
 
-    /** @partialEq(skip) */
-    createdAt: Date;
-
-    constructor(id: number, name: string, createdAt: Date) {
-        this.id = id;
-        this.name = name;
-        this.createdAt = createdAt;
-    }
+    @partialEq(skip)  // Don't compare cached values
+    @hash(skip)
+    cachedScore: number;
 }
-```  
-**After:**
+
+// Generated:
+// equals(other: unknown): boolean {
+//     if (this === other) return true;
+//     if (!(other instanceof User)) return false;
+//     const typedOther = other as User;
+//     return this.id === typedOther.id &&
+//            this.name === typedOther.name;
+// }
 ```
-class User {
-    id: number;
-    name: string;
 
-    createdAt: Date;
+## Equality Contract
 
-    constructor(id: number, name: string, createdAt: Date) {
-        this.id = id;
-        this.name = name;
-        this.createdAt = createdAt;
-    }
+When implementing `PartialEq`, consider also implementing `Hash`:
 
-    equals(other: unknown): boolean {
-        if (this === other) return true;
-        if (!(other instanceof User)) return false;
-        const typedOther = other as User;
-        return this.id === typedOther.id && this.name === typedOther.name;
-    }
-}
-``` ```
-const user1 = new User(1, "Alice", new Date("2024-01-01"));
-const user2 = new User(1, "Alice", new Date("2024-12-01"));
+- **Reflexivity**: `a.equals(a)` is always true
+- **Symmetry**: `a.equals(b)` implies `b.equals(a)`
+- **Hash consistency**: Equal objects must have equal hash codes
 
-console.log(user1.equals(user2)); // true (createdAt is skipped)
-``` ## Type Safety
- The generated `equals()` method accepts `unknown` and performs runtime type checking:
- 
-**Source:**
-```
-/** @derive(PartialEq) */
-class User {
-  name: string;
-  constructor(name: string) {
-    this.name = name;
-  }
-}
-```  ```
-const user = new User("Alice");
-
-console.log(user.equals(new User("Alice"))); // true
-console.log(user.equals("Alice")); // false (not a User instance)
-``` ## With Nested Objects
- For objects with nested fields, PartialEq recursively calls `equals()` if available:
- 
-**Source:**
-```
-/** @derive(PartialEq) */
-class Address {
-  city: string;
-  zip: string;
-
-  constructor(city: string, zip: string) {
-    this.city = city;
-    this.zip = zip;
-  }
-}
-
-/** @derive(PartialEq) */
-class Person {
-  name: string;
-  address: Address;
-
-  constructor(name: string, address: Address) {
-    this.name = name;
-    this.address = address;
-  }
-}
-```  ```
-const addr1 = new Address("NYC", "10001");
-const addr2 = new Address("NYC", "10001");
-
-const p1 = new Person("Alice", addr1);
-const p2 = new Person("Alice", addr2);
-
-console.log(p1.equals(p2)); // true (deep equality via Address.equals)
-``` ## Interface Support
- PartialEq works with interfaces. For interfaces, a namespace is generated with an `equals` function:
- 
-**Before:**
-```
-/** @derive(PartialEq) */
-interface Point {
-    x: number;
-    y: number;
-}
-```  
-**After:**
-```
-interface Point {
-    x: number;
-    y: number;
-}
-
-export namespace Point {
-    export function equals(self: Point, other: Point): boolean {
-        if (self === other) return true;
-        return self.x === other.x && self.y === other.y;
-    }
-}
-``` ```
-const p1: Point = { x: 10, y: 20 };
-const p2: Point = { x: 10, y: 20 };
-const p3: Point = { x: 5, y: 5 };
-
-console.log(Point.equals(p1, p2)); // true
-console.log(Point.equals(p1, p3)); // false
-``` ## Enum Support
- PartialEq works with enums. For enums, strict equality comparison is used:
- 
-**Before:**
-```
-/** @derive(PartialEq) */
-enum Status {
-    Active = 'active',
-    Inactive = 'inactive',
-    Pending = 'pending'
-}
-```  
-**After:**
-```
-enum Status {
-    Active = 'active',
-    Inactive = 'inactive',
-    Pending = 'pending'
-}
-
-export namespace Status {
-    export function equals(a: Status, b: Status): boolean {
-        return a === b;
-    }
-}
-``` ```
-console.log(Status.equals(Status.Active, Status.Active));   // true
-console.log(Status.equals(Status.Active, Status.Inactive)); // false
-``` ## Type Alias Support
- PartialEq works with type aliases. For object types, field-by-field comparison is used:
- 
-**Before:**
-```
-/** @derive(PartialEq) */
-type Point = {
-    x: number;
-    y: number;
-};
-```  
-**After:**
-```
-type Point = {
-    x: number;
-    y: number;
-};
-
-export namespace Point {
-    export function equals(a: Point, b: Point): boolean {
-        if (a === b) return true;
-        return a.x === b.x && a.y === b.y;
-    }
-}
-``` ```
-const p1: Point = { x: 10, y: 20 };
-const p2: Point = { x: 10, y: 20 };
-
-console.log(Point.equals(p1, p2)); // true
-``` For union types, strict equality is used:
- 
-**Source:**
-```
-/** @derive(PartialEq) */
-type ApiStatus = "loading" | "success" | "error";
-```  ```
-console.log(ApiStatus.equals("success", "success")); // true
-console.log(ApiStatus.equals("success", "error"));   // false
-``` ## Common Patterns
- ### Finding Items in Arrays
- 
-**Source:**
-```
-/** @derive(PartialEq) */
-class Product {
-  sku: string;
-  name: string;
-
-  constructor(sku: string, name: string) {
-    this.sku = sku;
-    this.name = name;
-  }
-}
-```  ```
-const products = [
-  new Product("A1", "Widget"),
-  new Product("B2", "Gadget"),
-  new Product("C3", "Gizmo")
-];
-
-const target = new Product("B2", "Gadget");
-const found = products.find(p => p.equals(target));
-
-console.log(found); // Product { sku: "B2", name: "Gadget" }
-``` ### Use with Hash
- When using objects as keys in Map-like structures, combine PartialEq with Hash:
- 
-**Source:**
-```
-/** @derive(PartialEq, Hash) */
-class Key {
-  id: number;
-  type: string;
-
-  constructor(id: number, type: string) {
-    this.id = id;
-    this.type = type;
-  }
-}
-```  ```
-const k1 = new Key(1, "user");
-const k2 = new Key(1, "user");
-
-// Equal objects should have equal hash codes
-console.log(k1.equals(k2));                   // true
-console.log(k1.hashCode() === k2.hashCode()); // true
-```
 
 ---
 
 # PartialOrd
-  *The `PartialOrd` macro generates a `compareTo()` method for **partial ordering** comparison. This is analogous to Rust's `PartialOrd` trait, enabling comparison between values where some pairs may be incomparable.*
- ## Basic Usage
- 
-**Before:**
-```
-/** @derive(PartialOrd) */
+
+The `PartialOrd` macro generates a `compareTo()` method for **partial ordering**
+comparison. This is analogous to Rust's `PartialOrd` trait, enabling comparison
+between values where some pairs may be incomparable.
+
+## Generated Output
+
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `compareTo(other): Option<number>` | Instance method with optional result |
+| Enum | `partialCompareEnumName(a: EnumName, b: EnumName): Option<number>` | Standalone function returning Option |
+| Interface | `partialCompareInterfaceName(a: InterfaceName, b: InterfaceName): Option<number>` | Standalone function with Option |
+| Type Alias | `partialCompareTypeName(a: TypeName, b: TypeName): Option<number>` | Standalone function with Option |
+
+## Configuration
+
+The `functionNamingStyle` option in `macroforge.json` controls naming:
+- `"suffix"` (default): Suffixes with type name (e.g., `partialCompareMyType`)
+- `"prefix"`: Prefixes with type name (e.g., `myTypePartialCompare`)
+- `"generic"`: Uses TypeScript generics (e.g., `partialCompare<T extends MyType>`)
+- `"namespace"`: Legacy namespace wrapping
+
+## Return Values
+
+Unlike `Ord`, `PartialOrd` returns an `Option<number>` to handle incomparable values:
+
+- **Option.some(-1)**: `this` is less than `other`
+- **Option.some(0)**: `this` is equal to `other`
+- **Option.some(1)**: `this` is greater than `other`
+- **Option.none()**: Values are incomparable
+
+## When to Use PartialOrd vs Ord
+
+- **PartialOrd**: When some values may not be comparable
+  - Example: Floating-point NaN values
+  - Example: Mixed-type unions
+  - Example: Type mismatches between objects
+
+- **Ord**: When all values are guaranteed comparable (total ordering)
+
+## Comparison Strategy
+
+Fields are compared **lexicographically** in declaration order:
+
+1. Compare first field
+2. If incomparable, return `Option.none()`
+3. If not equal, return that result wrapped in `Option.some()`
+4. Otherwise, compare next field
+5. Continue until a difference is found or all fields are equal
+
+## Type-Specific Comparisons
+
+| Type | Comparison Method |
+|------|-------------------|
+| `number`/`bigint` | Direct comparison, returns some() |
+| `string` | `localeCompare()` wrapped in some() |
+| `boolean` | false &lt; true, wrapped in some() |
+| null/undefined | Returns none() for mismatched nullability |
+| Arrays | Lexicographic, propagates none() on incomparable elements |
+| `Date` | Timestamp comparison, none() if invalid |
+| Objects | Unwraps nested Option from compareTo() |
+
+## Field-Level Options
+
+The `@ord` decorator supports:
+
+- `skip` - Exclude the field from ordering comparison
+
+## Example
+
+```typescript
+@derive(PartialOrd)
 class Temperature {
-    celsius: number;
-
-    constructor(celsius: number) {
-        this.celsius = celsius;
-    }
-}
-```  
-**After:**
-```
-import { Option } from 'macroforge/utils';
-
-class Temperature {
-    celsius: number;
-
-    constructor(celsius: number) {
-        this.celsius = celsius;
-    }
-
-    compareTo(other: unknown): Option<number> {
-        if (this === other) return Option.some(0);
-        if (!(other instanceof Temperature)) return Option.none();
-        const typedOther = other as Temperature;
-        const cmp0 =
-            this.celsius < typedOther.celsius ? -1 : this.celsius > typedOther.celsius ? 1 : 0;
-        if (cmp0 === null) return Option.none();
-        if (cmp0 !== 0) return Option.some(cmp0);
-        return Option.some(0);
-    }
-}
-``` ```
-const t1 = new Temperature(20);
-const t2 = new Temperature(30);
-const t3 = new Temperature(20);
-
-console.log(t1.compareTo(t2)); // -1 (t1 < t2)
-console.log(t2.compareTo(t1)); // 1  (t2 > t1)
-console.log(t1.compareTo(t3)); // 0  (t1 == t3)
-
-// Returns null for incomparable types
-console.log(t1.compareTo("not a Temperature")); // null
-``` ## Return Values
- The `compareTo()` method returns:
- - `-1` → `this` is less than `other`
- - `0` → `this` equals `other`
- - `1` → `this` is greater than `other`
- - `null` → Values are incomparable (e.g., different types)
- ## Comparison Logic
- The PartialOrd macro compares fields in declaration order with type checking:
- - `number` / `bigint` → Direct numeric comparison
- - `string` → Uses `localeCompare()`
- - `boolean` → `false < true`
- - `Date` → Compares timestamps; returns `null` if not both Date instances
- - `Array` → Lexicographic comparison; returns `null` if not both arrays
- - `Object` → Calls `compareTo()` if available
- - **Type mismatch** → Returns `null`
- ## Field Options
- ### @ord(skip)
- Use `@ord(skip)` to exclude a field from ordering comparison:
- 
-**Before:**
-```
-/** @derive(PartialOrd) */
-class Item {
-    price: number;
-    name: string;
-
-    /** @ord(skip) */
-    description: string;
-
-    constructor(price: number, name: string, description: string) {
-        this.price = price;
-        this.name = name;
-        this.description = description;
-    }
-}
-```  
-**After:**
-```
-import { Option } from 'macroforge/utils';
-
-class Item {
-    price: number;
-    name: string;
-
-    description: string;
-
-    constructor(price: number, name: string, description: string) {
-        this.price = price;
-        this.name = name;
-        this.description = description;
-    }
-
-    compareTo(other: unknown): Option<number> {
-        if (this === other) return Option.some(0);
-        if (!(other instanceof Item)) return Option.none();
-        const typedOther = other as Item;
-        const cmp0 = this.price < typedOther.price ? -1 : this.price > typedOther.price ? 1 : 0;
-        if (cmp0 === null) return Option.none();
-        if (cmp0 !== 0) return Option.some(cmp0);
-        const cmp1 = this.name.localeCompare(typedOther.name);
-        if (cmp1 === null) return Option.none();
-        if (cmp1 !== 0) return Option.some(cmp1);
-        return Option.some(0);
-    }
-}
-``` ```
-const i1 = new Item(10, "Widget", "A useful widget");
-const i2 = new Item(10, "Widget", "Different description");
-
-console.log(i1.compareTo(i2)); // 0 (description is skipped)
-``` ## Handling Null Results
- When using PartialOrd, always handle the `null` case:
- 
-**Source:**
-```
-/** @derive(PartialOrd) */
-class Value {
-  amount: number;
-
-  constructor(amount: number) {
-    this.amount = amount;
-  }
-}
-```  ```
-function safeCompare(a: Value, b: unknown): string {
-  const result = a.compareTo(b);
-  if (result === null) {
-    return "incomparable";
-  } else if (result < 0) {
-    return "less than";
-  } else if (result > 0) {
-    return "greater than";
-  } else {
-    return "equal";
-  }
-}
-
-const v = new Value(100);
-console.log(safeCompare(v, new Value(50)));  // "greater than"
-console.log(safeCompare(v, "string"));       // "incomparable"
-``` ## Sorting with PartialOrd
- When sorting, handle `null` values appropriately:
- 
-**Source:**
-```
-/** @derive(PartialOrd) */
-class Score {
-  value: number;
-
-  constructor(value: number) {
-    this.value = value;
-  }
-}
-```  ```
-const scores = [
-  new Score(100),
-  new Score(50),
-  new Score(75)
-];
-
-// Safe sort that handles null (treats null as equal)
-scores.sort((a, b) => a.compareTo(b) ?? 0);
-// Result: [Score(50), Score(75), Score(100)]
-``` ## Interface Support
- PartialOrd works with interfaces. For interfaces, a namespace is generated with a `compareTo` function:
- 
-**Before:**
-```
-/** @derive(PartialOrd) */
-interface Measurement {
-    value: number;
-    unit: string;
-}
-```  
-**After:**
-```
-import { Option } from 'macroforge/utils';
-
-interface Measurement {
-    value: number;
+    value: number | null;  // null represents "unknown"
     unit: string;
 }
 
-export namespace Measurement {
-    export function compareTo(self: Measurement, other: Measurement): Option<number> {
-        if (self === other) return Option.some(0);
-        const cmp0 = self.value < other.value ? -1 : self.value > other.value ? 1 : 0;
-        if (cmp0 === null) return Option.none();
-        if (cmp0 !== 0) return Option.some(cmp0);
-        const cmp1 = self.unit.localeCompare(other.unit);
-        if (cmp1 === null) return Option.none();
-        if (cmp1 !== 0) return Option.some(cmp1);
-        return Option.some(0);
-    }
-}
-``` ```
-const m1: Measurement = { value: 10, unit: "kg" };
-const m2: Measurement = { value: 10, unit: "lb" };
-
-console.log(Measurement.compareTo(m1, m2)); // 1 (kg > lb alphabetically)
-``` ## Enum Support
- PartialOrd works with enums:
- 
-**Before:**
+// Generated:
+// compareTo(other: unknown): Option<number> {
+//     if (this === other) return Option.some(0);
+//     if (!(other instanceof Temperature)) return Option.none();
+//     const typedOther = other as Temperature;
+//     const cmp0 = ...;  // Compare value field
+//     if (cmp0 === null) return Option.none();
+//     if (cmp0 !== 0) return Option.some(cmp0);
+//     const cmp1 = ...;  // Compare unit field
+//     if (cmp1 === null) return Option.none();
+//     if (cmp1 !== 0) return Option.some(cmp1);
+//     return Option.some(0);
+// }
 ```
-/** @derive(PartialOrd) */
-enum Size {
-    Small = 1,
-    Medium = 2,
-    Large = 3
-}
-```  
-**After:**
-```
-import { Option } from 'macroforge/utils';
 
-enum Size {
-    Small = 1,
-    Medium = 2,
-    Large = 3
-}
+## Required Import
 
-export namespace Size {
-    export function compareTo(a: Size, b: Size): Option<number> {
-        if (typeof a === 'number' && typeof b === 'number') {
-            return Option.some(a < b ? -1 : a > b ? 1 : 0);
-        }
-        if (typeof a === 'string' && typeof b === 'string') {
-            return Option.some(a.localeCompare(b));
-        }
-        return a === b ? Option.some(0) : Option.none();
-    }
-}
-``` ```
-console.log(Size.compareTo(Size.Small, Size.Large)); // -1
-console.log(Size.compareTo(Size.Large, Size.Small)); // 1
-``` ## Type Alias Support
- PartialOrd works with type aliases:
- 
-**Before:**
-```
-/** @derive(PartialOrd) */
-type Interval = {
-    start: number;
-    end: number;
-};
-```  
-**After:**
-```
-import { Option } from 'macroforge/utils';
+The generated code automatically adds an import for `Option` from `macroforge/utils`.
 
-type Interval = {
-    start: number;
-    end: number;
-};
-
-export namespace Interval {
-    export function compareTo(a: Interval, b: Interval): Option<number> {
-        if (a === b) return Option.some(0);
-        const cmp0 = a.start < b.start ? -1 : a.start > b.start ? 1 : 0;
-        if (cmp0 === null) return Option.none();
-        if (cmp0 !== 0) return Option.some(cmp0);
-        const cmp1 = a.end < b.end ? -1 : a.end > b.end ? 1 : 0;
-        if (cmp1 === null) return Option.none();
-        if (cmp1 !== 0) return Option.some(cmp1);
-        return Option.some(0);
-    }
-}
-``` ```
-const i1: Interval = { start: 0, end: 10 };
-const i2: Interval = { start: 0, end: 20 };
-
-console.log(Interval.compareTo(i1, i2)); // -1
-``` ## PartialOrd vs Ord
- Choose between `Ord` and `PartialOrd` based on your use case:
- - **Ord** → Use when all values are always comparable (never returns null)
- - **PartialOrd** → Use when comparing with `unknown` types or when some values might be incomparable
- 
-**Source:**
-```
-// PartialOrd is safer for public APIs that accept unknown input
-/** @derive(PartialOrd) */
-class SafeValue {
-  data: number;
-  constructor(data: number) {
-    this.data = data;
-  }
-
-  // Can safely compare with any value
-  isGreaterThan(other: unknown): boolean {
-    const result = this.compareTo(other);
-    return result !== null && result > 0;
-  }
-}
-```  ```
-const safe = new SafeValue(100);
-console.log(safe.isGreaterThan(new SafeValue(50)));  // true
-console.log(safe.isGreaterThan("invalid"));          // false
-```
 
 ---
 
 # Serialize
-  *The `Serialize` macro generates JSON serialization methods with **cycle detection** and object identity tracking. This enables serialization of complex object graphs including circular references.*
- ## Basic Usage
- 
-**Before:**
-```
-/** @derive(Serialize) */
-class User {
-    name: string;
-    age: number;
-    createdAt: Date;
 
-    constructor(name: string, age: number) {
-        this.name = name;
-        this.age = age;
-        this.createdAt = new Date();
-    }
+The `Serialize` macro generates JSON serialization methods with **cycle detection**
+and object identity tracking. This enables serialization of complex object graphs
+including circular references.
+
+## Generated Methods
+
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `toStringifiedJSON()`, `toObject()`, `__serialize(ctx)` | Instance methods |
+| Enum | `toStringifiedJSONEnumName(value)`, `__serializeEnumName` | Standalone functions |
+| Interface | `toStringifiedJSONInterfaceName(value)`, etc. | Standalone functions |
+| Type Alias | `toStringifiedJSONTypeName(value)`, etc. | Standalone functions |
+
+## Configuration
+
+The `functionNamingStyle` option in `macroforge.json` controls naming:
+- `"suffix"` (default): Suffixes with type name (e.g., `toStringifiedJSONMyType`)
+- `"prefix"`: Prefixes with type name (e.g., `myTypeToStringifiedJSON`)
+- `"generic"`: Uses TypeScript generics (e.g., `toStringifiedJSON<T extends MyType>`)
+- `"namespace"`: Legacy namespace wrapping
+
+## Cycle Detection Protocol
+
+The generated code handles circular references using `__id` and `__ref` markers:
+
+```json
+{
+    "__type": "User",
+    "__id": 1,
+    "name": "Alice",
+    "friend": { "__ref": 2 }  // Reference to object with __id: 2
 }
-```  
-**After:**
 ```
-import { SerializeContext } from 'macroforge/serde';
 
+When an object is serialized:
+1. Check if it's already been serialized (has an `__id`)
+2. If so, return `{ "__ref": existingId }` instead
+3. Otherwise, register the object and serialize its fields
+
+## Type-Specific Serialization
+
+| Type | Serialization Strategy |
+|------|------------------------|
+| Primitives | Direct value |
+| `Date` | `toISOString()` |
+| Arrays | For primitive-like element types, pass through; for `Date`/`Date | null`, map to ISO strings; otherwise map and call `__serialize(ctx)` when available |
+| `Map<K,V>` | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date | null`, convert to ISO strings; otherwise call `__serialize(ctx)` per value when available |
+| `Set<T>` | Convert to array; element handling matches `Array<T>` |
+| Nullable | Include `null` explicitly; for primitive-like and `Date` unions the generator avoids runtime `__serialize` checks |
+| Objects | Call `__serialize(ctx)` if available (to support user-defined implementations) |
+
+Note: the generator specializes some code paths based on the declared TypeScript type to
+avoid runtime feature detection on primitives and literal unions.
+
+## Field-Level Options
+
+The `@serde` decorator supports:
+
+- `skip` / `skip_serializing` - Exclude field from serialization
+- `rename = "jsonKey"` - Use different JSON property name
+- `flatten` - Merge nested object's fields into parent
+
+## Example
+
+```typescript
+@derive(Serialize)
 class User {
-    name: string;
-    age: number;
-    createdAt: Date;
+    id: number;
 
-    constructor(name: string, age: number) {
-        this.name = name;
-        this.age = age;
-        this.createdAt = new Date();
-    }
-
-    toStringifiedJSON(): string {
-        const ctx = SerializeContext.create();
-        return JSON.stringify(this.__serialize(ctx));
-    }
-
-    toObject(): Record<string, unknown> {
-        const ctx = SerializeContext.create();
-        return this.__serialize(ctx);
-    }
-
-    __serialize(ctx: SerializeContext): Record<string, unknown> {
-        const existingId = ctx.getId(this);
-        if (existingId !== undefined) {
-            return {
-                __ref: existingId
-            };
-        }
-        const __id = ctx.register(this);
-        const result: Record<string, unknown> = {
-            __type: 'User',
-            __id
-        };
-        result['name'] = this.name;
-        result['age'] = this.age;
-        result['createdAt'] = this.createdAt.toISOString();
-        return result;
-    }
-}
-``` ```
-const user = new User("Alice", 30);
-console.log(JSON.stringify(user));
-// {"name":"Alice","age":30,"createdAt":"2024-01-15T10:30:00.000Z"}
-``` ## Automatic Type Handling
- Serialize automatically handles various TypeScript types:
- | Type | Serialization |
-| --- | --- |
-| `string`, `number`, `boolean` | Direct copy |
-| `Date` | `.toISOString()` |
-| `T[]` | Maps items, calling `toJSON()` if available |
-| `Map<K, V>` | `Object.fromEntries()` |
-| `Set<T>` | `Array.from()` |
-| Nested objects | Calls `toJSON()` if available |
- ## Serde Options
- Use the `@serde` decorator for fine-grained control over serialization:
- ### Renaming Fields
- 
-**Before:**
-```
-/** @derive(Serialize) */
-class User {
-    /** @serde({ rename: "user_id" }) */
-    id: string;
-
-    /** @serde({ rename: "full_name" }) */
-    name: string;
-}
-```  
-**After:**
-```
-import { SerializeContext } from 'macroforge/serde';
-
-class User {
-    id: string;
-
+    @serde(rename = "userName")
     name: string;
 
-    toStringifiedJSON(): string {
-        const ctx = SerializeContext.create();
-        return JSON.stringify(this.__serialize(ctx));
-    }
-
-    toObject(): Record<string, unknown> {
-        const ctx = SerializeContext.create();
-        return this.__serialize(ctx);
-    }
-
-    __serialize(ctx: SerializeContext): Record<string, unknown> {
-        const existingId = ctx.getId(this);
-        if (existingId !== undefined) {
-            return {
-                __ref: existingId
-            };
-        }
-        const __id = ctx.register(this);
-        const result: Record<string, unknown> = {
-            __type: 'User',
-            __id
-        };
-        result['user_id'] = this.id;
-        result['full_name'] = this.name;
-        return result;
-    }
-}
-``` ```
-const user = new User();
-user.id = "123";
-user.name = "Alice";
-console.log(JSON.stringify(user));
-// {"user_id":"123","full_name":"Alice"}
-``` ### Skipping Fields
- 
-**Before:**
-```
-/** @derive(Serialize) */
-class User {
-    name: string;
-    email: string;
-
-    /** @serde({ skip: true }) */
+    @serde(skip_serializing)
     password: string;
 
-    /** @serde({ skip_serializing: true }) */
-    internalId: string;
-}
-```  
-**After:**
-```
-import { SerializeContext } from 'macroforge/serde';
-
-class User {
-    name: string;
-    email: string;
-
-    password: string;
-
-    internalId: string;
-
-    toStringifiedJSON(): string {
-        const ctx = SerializeContext.create();
-        return JSON.stringify(this.__serialize(ctx));
-    }
-
-    toObject(): Record<string, unknown> {
-        const ctx = SerializeContext.create();
-        return this.__serialize(ctx);
-    }
-
-    __serialize(ctx: SerializeContext): Record<string, unknown> {
-        const existingId = ctx.getId(this);
-        if (existingId !== undefined) {
-            return {
-                __ref: existingId
-            };
-        }
-        const __id = ctx.register(this);
-        const result: Record<string, unknown> = {
-            __type: 'User',
-            __id
-        };
-        result['name'] = this.name;
-        result['email'] = this.email;
-        return result;
-    }
-}
-```  **skip vs skip_serializing Use `skip: true` to exclude from both serialization and deserialization.
-Use `skip_serializing: true` to only skip during serialization. ### Rename All Fields
- Apply a naming convention to all fields at the container level:
- **
-**Source:**
-```
-/** @derive(Serialize) */
-/** @serde({ rename_all: "camelCase" }) */
-class ApiResponse {
-  user_name: string;
-  created_at: Date;
-  is_active: boolean;
-}
-```  Supported conventions:
- - `camelCase`
- - `snake_case`
- - `PascalCase`
- - `SCREAMING_SNAKE_CASE`
- - `kebab-case`
- ### Flattening Nested Objects
- 
-**Source:**
-```
-/** @derive(Serialize) */
-class Address {
-  city: string;
-  zip: string;
+    @serde(flatten)
+    metadata: UserMetadata;
 }
 
-/** @derive(Serialize) */
-class User {
-  name: string;
-
-  /** @serde({ flatten: true }) */
-  address: Address;
-}
-```  ```
+// Usage:
 const user = new User();
-user.name = "Alice";
-user.address = { city: "NYC", zip: "10001" };
-console.log(JSON.stringify(user));
-// {"name":"Alice","city":"NYC","zip":"10001"}
-``` ## All Options
- ### Container Options (on class/interface)
- | Option | Type | Description |
-| --- | --- | --- |
-| `rename_all` | `string` | Apply naming convention to all fields |
- ### Field Options (on properties)
- | Option | Type | Description |
-| --- | --- | --- |
-| `rename` | `string` | Use a different JSON key |
-| `skip` | `boolean` | Exclude from serialization and deserialization |
-| `skip_serializing` | `boolean` | Exclude from serialization only |
-| `flatten` | `boolean` | Merge nested object fields into parent |
- ## Interface Support
- Serialize also works with interfaces. For interfaces, a namespace is generated with a `toJSON` function:
- 
-**Before:**
-```
-/** @derive(Serialize) */
-interface ApiResponse {
-    status: number;
-    message: string;
-    timestamp: Date;
-}
-```  
-**After:**
-```
-import { SerializeContext } from 'macroforge/serde';
+const json = user.toStringifiedJSON();
+// => '{"__type":"User","__id":1,"id":1,"userName":"Alice",...}'
 
-interface ApiResponse {
-    status: number;
-    message: string;
-    timestamp: Date;
-}
+const obj = user.toObject();
+// => { __type: "User", __id: 1, id: 1, userName: "Alice", ... }
+```
 
-export namespace ApiResponse {
-    export function toStringifiedJSON(self: ApiResponse): string {
-        const ctx = SerializeContext.create();
-        return JSON.stringify(__serialize(self, ctx));
-    }
-    export function toObject(self: ApiResponse): Record<string, unknown> {
-        const ctx = SerializeContext.create();
-        return __serialize(self, ctx);
-    }
-    export function __serialize(self: ApiResponse, ctx: SerializeContext): Record<string, unknown> {
-        const existingId = ctx.getId(self);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        const __id = ctx.register(self);
-        const result: Record<string, unknown> = { __type: 'ApiResponse', __id };
-        result['status'] = self.status;
-        result['message'] = self.message;
-        result['timestamp'] = self.timestamp.toISOString();
-        return result;
-    }
-}
-``` ```
-const response: ApiResponse = {
-  status: 200,
-  message: "OK",
-  timestamp: new Date()
-};
+## Required Import
 
-console.log(JSON.stringify(ApiResponse.toJSON(response)));
-// {"status":200,"message":"OK","timestamp":"2024-01-15T10:30:00.000Z"}
-``` ## Enum Support
- Serialize also works with enums. The `toJSON` function returns the underlying enum value (string or number):
- 
-**Before:**
-```
-/** @derive(Serialize) */
-enum Status {
-    Active = 'active',
-    Inactive = 'inactive',
-    Pending = 'pending'
-}
-```  
-**After:**
-```
-enum Status {
-    Active = 'active',
-    Inactive = 'inactive',
-    Pending = 'pending'
-}
+The generated code automatically imports `SerializeContext` from `macroforge/serde`.
 
-export namespace Status {
-    export function toStringifiedJSON(value: Status): string {
-        return JSON.stringify(value);
-    }
-    export function __serialize(_ctx: SerializeContext): string | number {
-        return value;
-    }
-}
-``` ```
-console.log(Status.toJSON(Status.Active));  // "active"
-console.log(Status.toJSON(Status.Pending)); // "pending"
-``` Works with numeric enums too:
- 
-**Source:**
-```
-/** @derive(Serialize) */
-enum Priority {
-  Low = 1,
-  Medium = 2,
-  High = 3,
-}
-```  ```
-console.log(Priority.toJSON(Priority.High)); // 3
-``` ## Type Alias Support
- Serialize works with type aliases. For object types, fields are serialized with full type handling:
- 
-**Before:**
-```
-/** @derive(Serialize) */
-type UserProfile = {
-    id: string;
-    name: string;
-    createdAt: Date;
-};
-```  
-**After:**
-```
-import { SerializeContext } from 'macroforge/serde';
-
-type UserProfile = {
-    id: string;
-    name: string;
-    createdAt: Date;
-};
-
-export namespace UserProfile {
-    export function toStringifiedJSON(value: UserProfile): string {
-        const ctx = SerializeContext.create();
-        return JSON.stringify(__serialize(value, ctx));
-    }
-    export function toObject(value: UserProfile): Record<string, unknown> {
-        const ctx = SerializeContext.create();
-        return __serialize(value, ctx);
-    }
-    export function __serialize(
-        value: UserProfile,
-        ctx: SerializeContext
-    ): Record<string, unknown> {
-        const existingId = ctx.getId(value);
-        if (existingId !== undefined) {
-            return { __ref: existingId };
-        }
-        const __id = ctx.register(value);
-        const result: Record<string, unknown> = { __type: 'UserProfile', __id };
-        result['id'] = value.id;
-        result['name'] = value.name;
-        result['createdAt'] = value.createdAt;
-        return result;
-    }
-}
-``` ```
-const profile: UserProfile = {
-  id: "123",
-  name: "Alice",
-  createdAt: new Date("2024-01-15")
-};
-
-console.log(JSON.stringify(UserProfile.toJSON(profile)));
-// {"id":"123","name":"Alice","createdAt":"2024-01-15T00:00:00.000Z"}
-``` For union types, the value is returned directly:
- 
-**Source:**
-```
-/** @derive(Serialize) */
-type ApiStatus = "loading" | "success" | "error";
-```  ```
-console.log(ApiStatus.toJSON("success")); // "success"
-``` ## Combining with Deserialize
- Use both Serialize and Deserialize for complete JSON round-trip support:
- 
-**Source:**
-```
-/** @derive(Serialize, Deserialize) */
-class User {
-  name: string;
-  createdAt: Date;
-}
-```  ```
-// Serialize
-const user = new User();
-user.name = "Alice";
-user.createdAt = new Date();
-const json = JSON.stringify(user);
-
-// Deserialize
-const parsed = User.fromJSON(JSON.parse(json));
-console.log(parsed.createdAt instanceof Date); // true
-```
 
 ---
 
 # Deserialize
-  *The `Deserialize` macro generates JSON deserialization methods with **cycle and forward-reference support**, plus comprehensive runtime validation. This enables safe parsing of complex JSON structures including circular references.*
- ## Basic Usage
- 
-**Before:**
-```
-/** @derive(Deserialize) */
+
+The `Deserialize` macro generates JSON deserialization methods with **cycle and
+forward-reference support**, plus comprehensive runtime validation. This enables
+safe parsing of complex JSON structures including circular references.
+
+## Generated Output
+
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `static fromStringifiedJSON()`, `static fromObject()`, `static __deserialize()` | Static factory methods |
+| Enum | `fromStringifiedJSONEnumName(json)`, `__deserializeEnumName(data)`, `isEnumName(value)` | Standalone functions |
+| Interface | `fromStringifiedJSONInterfaceName(json)`, `fromObjectInterfaceName(obj)`, etc. | Standalone functions |
+| Type Alias | `fromStringifiedJSONTypeName(json)`, `fromObjectTypeName(obj)`, etc. | Standalone functions |
+
+## Configuration
+
+The `functionNamingStyle` option in `macroforge.json` controls naming:
+- `"suffix"` (default): Suffixes with type name (e.g., `fromStringifiedJSONMyType`)
+- `"prefix"`: Prefixes with type name (e.g., `myTypeFromStringifiedJSON`)
+- `"generic"`: Uses TypeScript generics (e.g., `fromStringifiedJSON<T extends MyType>`)
+- `"namespace"`: Legacy namespace wrapping
+
+## Return Type
+
+All public deserialization methods return `Result<T, Array<{ field: string; message: string }>>`:
+
+- `Result.ok(value)` - Successfully deserialized value
+- `Result.err(errors)` - Array of validation errors with field names and messages
+
+## Cycle/Forward-Reference Support
+
+Uses deferred patching to handle references:
+
+1. When encountering `{ "__ref": id }`, returns a `PendingRef` marker
+2. Continues deserializing other fields
+3. After all objects are created, `ctx.applyPatches()` resolves all pending references
+
+References only apply to object-shaped, serializable values. The generator avoids probing for
+`__ref` on primitive-like fields (including literal unions and `T | null` where `T` is primitive-like),
+and it parses `Date` / `Date | null` from ISO strings without treating them as references.
+
+## Validation
+
+The macro supports 30+ validators via `@serde(validate(...))`:
+
+### String Validators
+- `email`, `url`, `uuid` - Format validation
+- `minLength(n)`, `maxLength(n)`, `length(n)` - Length constraints
+- `pattern("regex")` - Regular expression matching
+- `nonEmpty`, `trimmed`, `lowercase`, `uppercase` - String properties
+
+### Number Validators
+- `gt(n)`, `gte(n)`, `lt(n)`, `lte(n)`, `between(min, max)` - Range checks
+- `int`, `positive`, `nonNegative`, `finite` - Number properties
+
+### Array Validators
+- `minItems(n)`, `maxItems(n)`, `itemsCount(n)` - Collection size
+
+### Date Validators
+- `validDate`, `afterDate("ISO")`, `beforeDate("ISO")` - Date validation
+
+## Field-Level Options
+
+The `@serde` decorator supports:
+
+- `skip` / `skip_deserializing` - Exclude field from deserialization
+- `rename = "jsonKey"` - Read from different JSON property
+- `default` / `default = expr` - Use default value if missing
+- `flatten` - Read fields from parent object level
+- `validate(...)` - Apply validators
+
+## Container-Level Options
+
+- `deny_unknown_fields` - Error on unrecognized JSON properties
+- `rename_all = "camelCase"` - Apply naming convention to all fields
+
+## Union Type Deserialization
+
+Union types are deserialized based on their member types:
+
+### Literal Unions
+For unions of literal values (`"A" | "B" | 123`), the value is validated against
+the allowed literals directly.
+
+### Primitive Unions
+For unions containing primitive types (`string | number`), the deserializer uses
+`typeof` checks to validate the value type. No `__type` discriminator is needed.
+
+### Class/Interface Unions
+For unions of serializable types (`User | Admin`), the deserializer requires a
+`__type` field in the JSON to dispatch to the correct type's `__deserialize` method.
+
+### Generic Type Parameters
+For generic unions like `type Result<T> = T | Error`, the generic type parameter `T`
+is passed through as-is since its concrete type is only known at the call site.
+
+### Mixed Unions
+Mixed unions (e.g., `string | Date | User`) check in order:
+1. Literal values
+2. Primitives (via `typeof`)
+3. Date (via `instanceof` or ISO string parsing)
+4. Serializable types (via `__type` dispatch)
+5. Generic type parameters (pass-through)
+
+## Example
+
+```typescript
+@derive(Deserialize)
+@serde(deny_unknown_fields)
 class User {
-    name: string;
-    age: number;
-    createdAt: Date;
-}
-```  
-**After:**
-```
-import { Result } from 'macroforge/utils';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+    id: number;
 
-class User {
-    name: string;
-    age: number;
-    createdAt: Date;
+    @serde(validate(email, maxLength(255)))
+    email: string;
 
-    constructor(props: {
-        name: string;
-        age: number;
-        createdAt: Date;
-    }) {
-        this.name = props.name;
-        this.age = props.age;
-        this.createdAt = props.createdAt;
-    }
-
-    static fromStringifiedJSON(
-        json: string,
-        opts?: DeserializeOptions
-    ): Result<
-        User,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            const raw = JSON.parse(json);
-            return User.fromObject(raw, opts);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    static fromObject(
-        obj: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        User,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(obj, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'User.fromObject: root cannot be a forward reference'
-                    }
-                ]);
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            return Result.ok(resultOrRef);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
-                {
-                    field: '_root',
-                    message: 'User.__deserialize: expected an object'
-                }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('name' in obj)) {
-            errors.push({
-                field: 'name',
-                message: 'missing required field'
-            });
-        }
-        if (!('age' in obj)) {
-            errors.push({
-                field: 'age',
-                message: 'missing required field'
-            });
-        }
-        if (!('createdAt' in obj)) {
-            errors.push({
-                field: 'createdAt',
-                message: 'missing required field'
-            });
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        const instance = Object.create(User.prototype) as User;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_name = obj['name'] as string;
-            instance.name = __raw_name;
-        }
-        {
-            const __raw_age = obj['age'] as number;
-            instance.age = __raw_age;
-        }
-        {
-            const __raw_createdAt = obj['createdAt'] as Date;
-            {
-                const __dateVal =
-                    typeof __raw_createdAt === 'string'
-                        ? new Date(__raw_createdAt)
-                        : (__raw_createdAt as Date);
-                instance.createdAt = __dateVal;
-            }
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        return instance;
-    }
-
-    static validateField<K extends keyof User>(
-        field: K,
-        value: User[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static validateFields(partial: Partial<User>): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-}
-``` ```
-const json = '{"name":"Alice","age":30,"createdAt":"2024-01-15T10:30:00.000Z"}';
-const user = User.fromJSON(JSON.parse(json));
-
-console.log(user.name);                    // "Alice"
-console.log(user.age);                     // 30
-console.log(user.createdAt instanceof Date); // true
-``` ## Runtime Validation
- Deserialize validates the input data and throws descriptive errors:
- 
-**Source:**
-```
-/** @derive(Deserialize) */
-class User {
-  name: string;
-  email: string;
-}
-```  ```
-// Missing required field
-User.fromJSON({ name: "Alice" });
-// Error: User.fromJSON: missing required field "email"
-
-// Wrong type
-User.fromJSON("not an object");
-// Error: User.fromJSON: expected an object, got string
-
-// Array instead of object
-User.fromJSON([1, 2, 3]);
-// Error: User.fromJSON: expected an object, got array
-``` ## Automatic Type Conversion
- Deserialize automatically converts JSON types to their TypeScript equivalents:
- | JSON Type | TypeScript Type | Conversion |
-| --- | --- | --- |
-| string/number/boolean | `string`/`number`/`boolean` | Direct assignment |
-| ISO string | `Date` | `new Date(string)` |
-| array | `T[]` | Maps items with auto-detection |
-| object | `Map<K, V>` | `new Map(Object.entries())` |
-| array | `Set<T>` | `new Set(array)` |
-| object | Nested class | Calls `fromJSON()` if available |
- ## Serde Options
- Use the `@serde` decorator to customize deserialization:
- ### Renaming Fields
- 
-**Before:**
-```
-/** @derive(Deserialize) */
-class User {
-    /** @serde({ rename: "user_id" }) */
-    id: string;
-
-    /** @serde({ rename: "full_name" }) */
-    name: string;
-}
-```  
-**After:**
-```
-import { Result } from 'macroforge/utils';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
-
-class User {
-    id: string;
-
+    @serde(default = "guest")
     name: string;
 
-    constructor(props: {
-        id: string;
-        name: string;
-    }) {
-        this.id = props.id;
-        this.name = props.name;
-    }
-
-    static fromStringifiedJSON(
-        json: string,
-        opts?: DeserializeOptions
-    ): Result<
-        User,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            const raw = JSON.parse(json);
-            return User.fromObject(raw, opts);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    static fromObject(
-        obj: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        User,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(obj, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'User.fromObject: root cannot be a forward reference'
-                    }
-                ]);
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            return Result.ok(resultOrRef);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
-                {
-                    field: '_root',
-                    message: 'User.__deserialize: expected an object'
-                }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('user_id' in obj)) {
-            errors.push({
-                field: 'user_id',
-                message: 'missing required field'
-            });
-        }
-        if (!('full_name' in obj)) {
-            errors.push({
-                field: 'full_name',
-                message: 'missing required field'
-            });
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        const instance = Object.create(User.prototype) as User;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_id = obj['user_id'] as string;
-            instance.id = __raw_id;
-        }
-        {
-            const __raw_name = obj['full_name'] as string;
-            instance.name = __raw_name;
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        return instance;
-    }
-
-    static validateField<K extends keyof User>(
-        field: K,
-        value: User[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static validateFields(partial: Partial<User>): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
+    @serde(validate(positive))
+    age?: number;
 }
-``` ```
-const user = User.fromJSON({ user_id: "123", full_name: "Alice" });
-console.log(user.id);   // "123"
-console.log(user.name); // "Alice"
-``` ### Default Values
- 
-**Before:**
+
+// Usage:
+const result = User.fromStringifiedJSON('{"id":1,"email":"test@example.com"}');
+if (Result.isOk(result)) {
+    const user = result.value;
+} else {
+    console.error(result.error);  // [{ field: "email", message: "must be a valid email" }]
+}
 ```
-/** @derive(Deserialize) */
-class Config {
-    host: string;
 
-    /** @serde({ default: "3000" }) */
-    port: string;
+## Required Imports
 
-    /** @serde({ default: "false" }) */
-    debug: boolean;
-}
-```  
-**After:**
-```
-import { Result } from 'macroforge/utils';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+The generated code automatically imports:
+- `Result` from `macroforge/utils`
+- `DeserializeContext`, `DeserializeError`, `PendingRef` from `macroforge/serde`
 
-class Config {
-    host: string;
-
-    port: string;
-
-    debug: boolean;
-
-    constructor(props: {
-        host: string;
-        port?: string;
-        debug?: boolean;
-    }) {
-        this.host = props.host;
-        this.port = props.port as string;
-        this.debug = props.debug as boolean;
-    }
-
-    static fromStringifiedJSON(
-        json: string,
-        opts?: DeserializeOptions
-    ): Result<
-        Config,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            const raw = JSON.parse(json);
-            return Config.fromObject(raw, opts);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    static fromObject(
-        obj: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        Config,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
-            const ctx = DeserializeContext.create();
-            const resultOrRef = Config.__deserialize(obj, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'Config.fromObject: root cannot be a forward reference'
-                    }
-                ]);
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            return Result.ok(resultOrRef);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    static __deserialize(value: any, ctx: DeserializeContext): Config | PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
-                {
-                    field: '_root',
-                    message: 'Config.__deserialize: expected an object'
-                }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if (!('host' in obj)) {
-            errors.push({
-                field: 'host',
-                message: 'missing required field'
-            });
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        const instance = Object.create(Config.prototype) as Config;
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_host = obj['host'] as string;
-            instance.host = __raw_host;
-        }
-        if ('port' in obj && obj['port'] !== undefined) {
-            const __raw_port = obj['port'] as string;
-            instance.port = __raw_port;
-        } else {
-            instance.port = 3000;
-        }
-        if ('debug' in obj && obj['debug'] !== undefined) {
-            const __raw_debug = obj['debug'] as boolean;
-            instance.debug = __raw_debug;
-        } else {
-            instance.debug = false;
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        return instance;
-    }
-
-    static validateField<K extends keyof Config>(
-        field: K,
-        value: Config[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static validateFields(partial: Partial<Config>): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-}
-``` ```
-const config = Config.fromJSON({ host: "localhost" });
-console.log(config.port);  // "3000"
-console.log(config.debug); // false
-``` ### Skipping Fields
- 
-**Source:**
-```
-/** @derive(Deserialize) */
-class User {
-  name: string;
-  email: string;
-
-  /** @serde({ skip: true }) */
-  cachedData: unknown;
-
-  /** @serde({ skip_deserializing: true }) */
-  computedField: string;
-}
-```   **skip vs skip_deserializing Use `skip: true` to exclude from both serialization and deserialization.
-Use `skip_deserializing: true` to only skip during deserialization. ### Deny Unknown Fields
- **
-**Source:**
-```
-/** @derive(Deserialize) */
-/** @serde({ deny_unknown_fields: true }) */
-class StrictUser {
-  name: string;
-  email: string;
-}
-```  ```
-// This will throw an error
-StrictUser.fromJSON({ name: "Alice", email: "a@b.com", extra: "field" });
-// Error: StrictUser.fromJSON: unknown field "extra"
-``` ### Flatten Nested Objects
- 
-**Source:**
-```
-/** @derive(Deserialize) */
-class Address {
-  city: string;
-  zip: string;
-}
-
-/** @derive(Deserialize) */
-class User {
-  name: string;
-
-  /** @serde({ flatten: true }) */
-  address: Address;
-}
-```  ```
-// Flat JSON structure
-const user = User.fromJSON({
-  name: "Alice",
-  city: "NYC",
-  zip: "10001"
-});
-console.log(user.address.city); // "NYC"
-``` ## All Options
- ### Container Options (on class/interface)
- | Option | Type | Description |
-| --- | --- | --- |
-| `rename_all` | `string` | Apply naming convention to all fields |
-| `deny_unknown_fields` | `boolean` | Throw error if JSON has unknown keys |
- ### Field Options (on properties)
- | Option | Type | Description |
-| --- | --- | --- |
-| `rename` | `string` | Use a different JSON key |
-| `skip` | `boolean` | Exclude from serialization and deserialization |
-| `skip_deserializing` | `boolean` | Exclude from deserialization only |
-| `default` | `boolean | string` | Use TypeScript default or custom expression if missing |
-| `flatten` | `boolean` | Merge nested object fields from parent |
- ## Interface Support
- Deserialize also works with interfaces. For interfaces, a namespace is generated with `is` (type guard) and `fromJSON` functions:
- 
-**Before:**
-```
-/** @derive(Deserialize) */
-interface ApiResponse {
-    status: number;
-    message: string;
-    timestamp: Date;
-}
-```  
-**After:**
-```
-import { Result } from 'macroforge/utils';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
-
-interface ApiResponse {
-    status: number;
-    message: string;
-    timestamp: Date;
-}
-
-export namespace ApiResponse {
-    export function fromStringifiedJSON(
-        json: string,
-        opts?: DeserializeOptions
-    ): Result<ApiResponse, Array<{ field: string; message: string }>> {
-        try {
-            const raw = JSON.parse(json);
-            return fromObject(raw, opts);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([{ field: '_root', message }]);
-        }
-    }
-    export function fromObject(
-        obj: unknown,
-        opts?: DeserializeOptions
-    ): Result<ApiResponse, Array<{ field: string; message: string }>> {
-        try {
-            const ctx = DeserializeContext.create();
-            const resultOrRef = __deserialize(obj, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'ApiResponse.fromObject: root cannot be a forward reference'
-                    }
-                ]);
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            return Result.ok(resultOrRef);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([{ field: '_root', message }]);
-        }
-    }
-    export function __deserialize(value: any, ctx: DeserializeContext): ApiResponse | PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref);
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
-                { field: '_root', message: 'ApiResponse.__deserialize: expected an object' }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{ field: string; message: string }> = [];
-        if (!('status' in obj)) {
-            errors.push({ field: 'status', message: 'missing required field' });
-        }
-        if (!('message' in obj)) {
-            errors.push({ field: 'message', message: 'missing required field' });
-        }
-        if (!('timestamp' in obj)) {
-            errors.push({ field: 'timestamp', message: 'missing required field' });
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        const instance: any = {};
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_status = obj['status'] as number;
-            instance.status = __raw_status;
-        }
-        {
-            const __raw_message = obj['message'] as string;
-            instance.message = __raw_message;
-        }
-        {
-            const __raw_timestamp = obj['timestamp'] as Date;
-            {
-                const __dateVal =
-                    typeof __raw_timestamp === 'string'
-                        ? new Date(__raw_timestamp)
-                        : (__raw_timestamp as Date);
-                instance.timestamp = __dateVal;
-            }
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        return instance as ApiResponse;
-    }
-    export function validateField<K extends keyof ApiResponse>(
-        field: K,
-        value: ApiResponse[K]
-    ): Array<{ field: string; message: string }> {
-        return [];
-    }
-    export function validateFields(
-        partial: Partial<ApiResponse>
-    ): Array<{ field: string; message: string }> {
-        return [];
-    }
-}
-``` ```
-const json = { status: 200, message: "OK", timestamp: "2024-01-15T10:30:00.000Z" };
-
-// Type guard
-if (ApiResponse.is(json)) {
-  console.log(json.status); // TypeScript knows this is ApiResponse
-}
-
-// Deserialize with validation
-const response = ApiResponse.fromJSON(json);
-console.log(response.timestamp instanceof Date); // true
-``` ## Enum Support
- Deserialize also works with enums. The `fromJSON` function validates that the input matches one of the enum values:
- 
-**Before:**
-```
-/** @derive(Deserialize) */
-enum Status {
-    Active = 'active',
-    Inactive = 'inactive',
-    Pending = 'pending'
-}
-```  
-**After:**
-```
-import { DeserializeContext } from 'macroforge/serde';
-
-enum Status {
-    Active = 'active',
-    Inactive = 'inactive',
-    Pending = 'pending'
-}
-
-export namespace Status {
-    export function fromStringifiedJSON(json: string): Status {
-        const data = JSON.parse(json);
-        return __deserialize(data);
-    }
-    export function __deserialize(data: unknown): Status {
-        for (const key of Object.keys(Status)) {
-            const enumValue = Status[key as keyof typeof Status];
-            if (enumValue === data) {
-                return data as Status;
-            }
-        }
-        throw new Error('Invalid Status value: ' + JSON.stringify(data));
-    }
-}
-``` ```
-const status = Status.fromJSON("active");
-console.log(status); // Status.Active
-
-// Invalid values throw an error
-try {
-  Status.fromJSON("invalid");
-} catch (e) {
-  console.log(e.message); // "Invalid Status value: invalid"
-}
-``` Works with numeric enums too:
- 
-**Source:**
-```
-/** @derive(Deserialize) */
-enum Priority {
-  Low = 1,
-  Medium = 2,
-  High = 3,
-}
-```  ```
-const priority = Priority.fromJSON(3);
-console.log(priority); // Priority.High
-``` ## Type Alias Support
- Deserialize works with type aliases. For object types, validation and type conversion is applied:
- 
-**Before:**
-```
-/** @derive(Deserialize) */
-type UserProfile = {
-    id: string;
-    name: string;
-    createdAt: Date;
-};
-```  
-**After:**
-```
-import { Result } from 'macroforge/utils';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
-
-type UserProfile = {
-    id: string;
-    name: string;
-    createdAt: Date;
-};
-
-export namespace UserProfile {
-    export function fromStringifiedJSON(
-        json: string,
-        opts?: DeserializeOptions
-    ): Result<UserProfile, Array<{ field: string; message: string }>> {
-        try {
-            const raw = JSON.parse(json);
-            return fromObject(raw, opts);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([{ field: '_root', message }]);
-        }
-    }
-    export function fromObject(
-        obj: unknown,
-        opts?: DeserializeOptions
-    ): Result<UserProfile, Array<{ field: string; message: string }>> {
-        try {
-            const ctx = DeserializeContext.create();
-            const resultOrRef = __deserialize(obj, ctx);
-            if (PendingRef.is(resultOrRef)) {
-                return Result.err([
-                    {
-                        field: '_root',
-                        message: 'UserProfile.fromObject: root cannot be a forward reference'
-                    }
-                ]);
-            }
-            ctx.applyPatches();
-            if (opts?.freeze) {
-                ctx.freezeAll();
-            }
-            return Result.ok(resultOrRef);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([{ field: '_root', message }]);
-        }
-    }
-    export function __deserialize(value: any, ctx: DeserializeContext): UserProfile | PendingRef {
-        if (value?.__ref !== undefined) {
-            return ctx.getOrDefer(value.__ref) as UserProfile | PendingRef;
-        }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-            throw new DeserializeError([
-                { field: '_root', message: 'UserProfile.__deserialize: expected an object' }
-            ]);
-        }
-        const obj = value as Record<string, unknown>;
-        const errors: Array<{ field: string; message: string }> = [];
-        if (!('id' in obj)) {
-            errors.push({ field: 'id', message: 'missing required field' });
-        }
-        if (!('name' in obj)) {
-            errors.push({ field: 'name', message: 'missing required field' });
-        }
-        if (!('createdAt' in obj)) {
-            errors.push({ field: 'createdAt', message: 'missing required field' });
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        const instance: any = {};
-        if (obj.__id !== undefined) {
-            ctx.register(obj.__id as number, instance);
-        }
-        ctx.trackForFreeze(instance);
-        {
-            const __raw_id = obj['id'] as string;
-            instance.id = __raw_id;
-        }
-        {
-            const __raw_name = obj['name'] as string;
-            instance.name = __raw_name;
-        }
-        {
-            const __raw_createdAt = obj['createdAt'] as Date;
-            {
-                const __dateVal =
-                    typeof __raw_createdAt === 'string'
-                        ? new Date(__raw_createdAt)
-                        : (__raw_createdAt as Date);
-                instance.createdAt = __dateVal;
-            }
-        }
-        if (errors.length > 0) {
-            throw new DeserializeError(errors);
-        }
-        return instance as UserProfile;
-    }
-    export function validateField<K extends keyof UserProfile>(
-        field: K,
-        value: UserProfile[K]
-    ): Array<{ field: string; message: string }> {
-        return [];
-    }
-    export function validateFields(
-        partial: Partial<UserProfile>
-    ): Array<{ field: string; message: string }> {
-        return [];
-    }
-}
-``` ```
-const json = {
-  id: "123",
-  name: "Alice",
-  createdAt: "2024-01-15T00:00:00.000Z"
-};
-
-const profile = UserProfile.fromJSON(json);
-console.log(profile.createdAt instanceof Date); // true
-``` For union types, basic validation is applied:
- 
-**Source:**
-```
-/** @derive(Deserialize) */
-type ApiStatus = "loading" | "success" | "error";
-```  ```
-const status = ApiStatus.fromJSON("success");
-console.log(status); // "success"
-``` ## Combining with Serialize
- Use both Serialize and Deserialize for complete JSON round-trip support:
- 
-**Source:**
-```
-/** @derive(Serialize, Deserialize) */
-/** @serde({ rename_all: "camelCase" }) */
-class UserProfile {
-  user_name: string;
-  created_at: Date;
-  is_active: boolean;
-}
-```  ```
-// Create and serialize
-const profile = new UserProfile();
-profile.user_name = "Alice";
-profile.created_at = new Date();
-profile.is_active = true;
-
-const json = JSON.stringify(profile);
-// {"userName":"Alice","createdAt":"2024-...","isActive":true}
-
-// Deserialize back
-const restored = UserProfile.fromJSON(JSON.parse(json));
-console.log(restored.user_name);              // "Alice"
-console.log(restored.created_at instanceof Date); // true
-``` ## Error Handling
- Handle deserialization errors gracefully:
- 
-**Source:**
-```
-/** @derive(Deserialize) */
-class User {
-  name: string;
-  email: string;
-}
-```  ```
-function parseUser(json: unknown): User | null {
-  try {
-    return User.fromJSON(json);
-  } catch (error) {
-    console.error("Failed to parse user:", error.message);
-    return null;
-  }
-}
-
-const user = parseUser({ name: "Alice" });
-// Logs: Failed to parse user: User.fromJSON: missing required field "email"
-// Returns: null
-```
 
 ---
 

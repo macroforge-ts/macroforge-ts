@@ -1,6 +1,6 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Company } from './company.svelte';
+import type { Company } from './company.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface CompanyName {

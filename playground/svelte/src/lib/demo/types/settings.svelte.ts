@@ -1,10 +1,10 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { AppointmentNotifications } from './appointment-notifications.svelte';
-import { ScheduleSettings } from './schedule-settings.svelte';
-import { OverviewSettings } from './overview-settings.svelte';
-import { Commissions } from './commissions.svelte';
-import { Page } from './page.svelte';
+import type { AppointmentNotifications } from './appointment-notifications.svelte';
+import type { ScheduleSettings } from './schedule-settings.svelte';
+import type { OverviewSettings } from './overview-settings.svelte';
+import type { Commissions } from './commissions.svelte';
+import type { Page } from './page.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface Settings {

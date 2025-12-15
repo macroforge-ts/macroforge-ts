@@ -1,11 +1,11 @@
 <script lang="ts">
   import {
-    PhoneNumber,
-    Gradient,
-    Coordinates,
     createFormPhoneNumber,
     createFormGradient,
     createFormCoordinates,
+    type PhoneNumber,
+    type Gradient,
+    type Coordinates,
   } from "$lib/demo/types.svelte";
 
   // Create form instances

@@ -1,6 +1,6 @@
 /** import macro {Gigaform} from "@playground/macro"; */
 
-import { Number } from './number.svelte';
+import type { Number } from './number.svelte';
 
 /** @derive(Default, Serialize, Deserialize, Gigaform) */
 export interface PhoneNumber {
