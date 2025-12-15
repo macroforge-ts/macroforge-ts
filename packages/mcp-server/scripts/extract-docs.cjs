@@ -155,6 +155,30 @@ function hrefToFilePath(href) {
   return path.join(prerenderedDir, href + '.html');
 }
 
+function hrefToSourceMarkdownPath(href) {
+  // /docs/builtin-macros/serialize -> website/src/routes/docs/builtin-macros/serialize/+page.svx
+  const routePath = href.replace('/docs/', 'docs/');
+  return path.join(websiteRoot, 'src', 'routes', routePath, '+page.svx');
+}
+
+function stripMdsvexBoilerplate(markdown) {
+  let md = markdown;
+  // Remove leading HTML comments (generated header)
+  md = md.replace(/^<!--[\s\S]*?-->\s*/m, '');
+  // Remove svelte:head blocks
+  md = md.replace(/<svelte:head>[\s\S]*?<\/svelte:head>\s*/g, '');
+  return md.trim() + '\n';
+}
+
+function readMarkdownForHref(href) {
+  const sourceMdPath = hrefToSourceMarkdownPath(href);
+  if (!fs.existsSync(sourceMdPath)) {
+    return null;
+  }
+  const md = fs.readFileSync(sourceMdPath, 'utf-8');
+  return stripMdsvexBoilerplate(md);
+}
+
 /**
  * Extract content from prerendered HTML
  * Gets the main prose content from <div class="prose">...</div>
@@ -466,11 +490,10 @@ function shouldChunk(content) {
  * Extract documentation from website and generate markdown files
  */
 function extractDocs() {
-  // Check if prerendered directory exists
-  if (!fs.existsSync(prerenderedDir)) {
-    console.error(`Error: Prerendered directory not found: ${prerenderedDir}`);
-    console.error('Run "npm run build" in the website directory first.');
-    process.exit(1);
+  const hasPrerendered = fs.existsSync(prerenderedDir);
+  if (!hasPrerendered) {
+    console.warn(`Warning: Prerendered directory not found: ${prerenderedDir}`);
+    console.warn('Falling back to mdsvex source pages when available.\n');
   }
 
   console.log('Auto-discovering pages from navigation.ts...\n');
@@ -497,19 +520,29 @@ function extractDocs() {
     }
 
     for (const item of section.items) {
-      const filePath = hrefToFilePath(item.href);
       const itemId = hrefToId(item.href);
-
-      if (!fs.existsSync(filePath)) {
-        console.warn(`Warning: File not found: ${filePath}`);
-        continue;
-      }
 
       console.log(`Processing: ${item.title} (${item.href})`);
 
-      const rawHtml = fs.readFileSync(filePath, 'utf-8');
-      const htmlContent = extractContent(rawHtml);
-      const markdownContent = htmlToMarkdown(htmlContent);
+      const markdownFromSource = readMarkdownForHref(item.href);
+      let markdownContent = markdownFromSource;
+
+      if (markdownContent === null) {
+        if (!hasPrerendered) {
+          console.warn(`Warning: No source markdown for ${item.href} and no prerendered HTML available`);
+          continue;
+        }
+
+        const filePath = hrefToFilePath(item.href);
+        if (!fs.existsSync(filePath)) {
+          console.warn(`Warning: File not found: ${filePath}`);
+          continue;
+        }
+
+        const rawHtml = fs.readFileSync(filePath, 'utf-8');
+        const htmlContent = extractContent(rawHtml);
+        markdownContent = htmlToMarkdown(htmlContent);
+      }
 
       // Get use_cases from map or generate default
       const useCases = useCasesMap[item.href] || item.title.toLowerCase();

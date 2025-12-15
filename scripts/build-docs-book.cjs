@@ -97,6 +97,27 @@ function hrefToFilePath(href) {
   return path.join(prerenderedDir, href + '.html');
 }
 
+function hrefToSourceMarkdownPath(href) {
+  const routePath = href.replace('/docs/', 'docs/');
+  return path.join(websiteRoot, 'src', 'routes', routePath, '+page.svx');
+}
+
+function stripMdsvexBoilerplate(markdown) {
+  let md = markdown;
+  md = md.replace(/^<!--[\s\S]*?-->\s*/m, '');
+  md = md.replace(/<svelte:head>[\s\S]*?<\/svelte:head>\s*/g, '');
+  return md.trim() + '\n';
+}
+
+function readMarkdownForHref(href) {
+  const sourceMdPath = hrefToSourceMarkdownPath(href);
+  if (!fs.existsSync(sourceMdPath)) {
+    return null;
+  }
+  const md = fs.readFileSync(sourceMdPath, 'utf-8');
+  return stripMdsvexBoilerplate(md);
+}
+
 /**
  * Extract content from prerendered HTML
  * Gets the main prose content from <div class="prose">...</div>
@@ -413,18 +434,25 @@ function buildBook() {
     book.push('');
 
     for (const item of section.items) {
-      const filePath = hrefToFilePath(item.href);
+      const markdownFromSource = readMarkdownForHref(item.href);
+      let markdownContent = markdownFromSource;
 
-      if (!fs.existsSync(filePath)) {
-        console.warn(`Warning: File not found: ${filePath}`);
-        continue;
+      if (markdownContent === null) {
+        const filePath = hrefToFilePath(item.href);
+
+        if (!fs.existsSync(filePath)) {
+          console.warn(`Warning: File not found: ${filePath}`);
+          continue;
+        }
+
+        console.log(`Processing: ${item.title} (${filePath})`);
+
+        const rawHtml = fs.readFileSync(filePath, 'utf-8');
+        const htmlContent = extractContent(rawHtml);
+        markdownContent = htmlToMarkdown(htmlContent);
+      } else {
+        console.log(`Processing: ${item.title} (${item.href}) [source markdown]`);
       }
-
-      console.log(`Processing: ${item.title} (${filePath})`);
-
-      const rawHtml = fs.readFileSync(filePath, 'utf-8');
-      const htmlContent = extractContent(rawHtml);
-      const markdownContent = htmlToMarkdown(htmlContent);
 
       // The page already has its own h1, so we don't need to add another
       // But we do need to adjust heading levels if needed
