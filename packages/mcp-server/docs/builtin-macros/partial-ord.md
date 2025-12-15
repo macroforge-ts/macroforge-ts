@@ -1,299 +1,96 @@
 # PartialOrd
-  *The `PartialOrd` macro generates a `compareTo()` method for **partial ordering** comparison. This is analogous to Rust's `PartialOrd` trait, enabling comparison between values where some pairs may be incomparable.*
- ## Basic Usage
- **Before:**
-```
-/** @derive(PartialOrd) */
+
+The `PartialOrd` macro generates a `compareTo()` method for **partial ordering**
+comparison. This is analogous to Rust's `PartialOrd` trait, enabling comparison
+between values where some pairs may be incomparable.
+
+## Generated Output
+
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `compareTo(other): Option<number>` | Instance method with optional result |
+| Enum | `partialCompareEnumName(a: EnumName, b: EnumName): Option<number>` | Standalone function returning Option |
+| Interface | `partialCompareInterfaceName(a: InterfaceName, b: InterfaceName): Option<number>` | Standalone function with Option |
+| Type Alias | `partialCompareTypeName(a: TypeName, b: TypeName): Option<number>` | Standalone function with Option |
+
+## Configuration
+
+The `functionNamingStyle` option in `macroforge.json` controls naming:
+- `"suffix"` (default): Suffixes with type name (e.g., `partialCompareMyType`)
+- `"prefix"`: Prefixes with type name (e.g., `myTypePartialCompare`)
+- `"generic"`: Uses TypeScript generics (e.g., `partialCompare<T extends MyType>`)
+- `"namespace"`: Legacy namespace wrapping
+
+## Return Values
+
+Unlike `Ord`, `PartialOrd` returns an `Option<number>` to handle incomparable values:
+
+- **Option.some(-1)**: `this` is less than `other`
+- **Option.some(0)**: `this` is equal to `other`
+- **Option.some(1)**: `this` is greater than `other`
+- **Option.none()**: Values are incomparable
+
+## When to Use PartialOrd vs Ord
+
+- **PartialOrd**: When some values may not be comparable
+  - Example: Floating-point NaN values
+  - Example: Mixed-type unions
+  - Example: Type mismatches between objects
+
+- **Ord**: When all values are guaranteed comparable (total ordering)
+
+## Comparison Strategy
+
+Fields are compared **lexicographically** in declaration order:
+
+1. Compare first field
+2. If incomparable, return `Option.none()`
+3. If not equal, return that result wrapped in `Option.some()`
+4. Otherwise, compare next field
+5. Continue until a difference is found or all fields are equal
+
+## Type-Specific Comparisons
+
+| Type | Comparison Method |
+|------|-------------------|
+| `number`/`bigint` | Direct comparison, returns some() |
+| `string` | `localeCompare()` wrapped in some() |
+| `boolean` | false &lt; true, wrapped in some() |
+| null/undefined | Returns none() for mismatched nullability |
+| Arrays | Lexicographic, propagates none() on incomparable elements |
+| `Date` | Timestamp comparison, none() if invalid |
+| Objects | Unwraps nested Option from compareTo() |
+
+## Field-Level Options
+
+The `@ord` decorator supports:
+
+- `skip` - Exclude the field from ordering comparison
+
+## Example
+
+```typescript
+@derive(PartialOrd)
 class Temperature {
-    celsius: number;
-
-    constructor(celsius: number) {
-        this.celsius = celsius;
-    }
-}
-```  
-**After:**
-```
-import { Option } from 'macroforge/utils';
-
-class Temperature {
-    celsius: number;
-
-    constructor(celsius: number) {
-        this.celsius = celsius;
-    }
-
-    compareTo(other: unknown): Option<number> {
-        if (this === other) return Option.some(0);
-        if (!(other instanceof Temperature)) return Option.none();
-        const typedOther = other as Temperature;
-        const cmp0 =
-            this.celsius < typedOther.celsius ? -1 : this.celsius > typedOther.celsius ? 1 : 0;
-        if (cmp0 === null) return Option.none();
-        if (cmp0 !== 0) return Option.some(cmp0);
-        return Option.some(0);
-    }
-}
-``` ```
-const t1 = new Temperature(20);
-const t2 = new Temperature(30);
-const t3 = new Temperature(20);
-
-console.log(t1.compareTo(t2)); // -1 (t1 < t2)
-console.log(t2.compareTo(t1)); // 1  (t2 > t1)
-console.log(t1.compareTo(t3)); // 0  (t1 == t3)
-
-// Returns null for incomparable types
-console.log(t1.compareTo("not a Temperature")); // null
-``` ## Return Values
- The `compareTo()` method returns:
- - `-1` → `this` is less than `other`
- - `0` → `this` equals `other`
- - `1` → `this` is greater than `other`
- - `null` → Values are incomparable (e.g., different types)
- ## Comparison Logic
- The PartialOrd macro compares fields in declaration order with type checking:
- - `number` / `bigint` → Direct numeric comparison
- - `string` → Uses `localeCompare()`
- - `boolean` → `false < true`
- - `Date` → Compares timestamps; returns `null` if not both Date instances
- - `Array` → Lexicographic comparison; returns `null` if not both arrays
- - `Object` → Calls `compareTo()` if available
- - **Type mismatch** → Returns `null`
- ## Field Options
- ### @ord(skip)
- Use `@ord(skip)` to exclude a field from ordering comparison:
- **Before:**
-```
-/** @derive(PartialOrd) */
-class Item {
-    price: number;
-    name: string;
-
-    /** @ord(skip) */
-    description: string;
-
-    constructor(price: number, name: string, description: string) {
-        this.price = price;
-        this.name = name;
-        this.description = description;
-    }
-}
-```  
-**After:**
-```
-import { Option } from 'macroforge/utils';
-
-class Item {
-    price: number;
-    name: string;
-
-    description: string;
-
-    constructor(price: number, name: string, description: string) {
-        this.price = price;
-        this.name = name;
-        this.description = description;
-    }
-
-    compareTo(other: unknown): Option<number> {
-        if (this === other) return Option.some(0);
-        if (!(other instanceof Item)) return Option.none();
-        const typedOther = other as Item;
-        const cmp0 = this.price < typedOther.price ? -1 : this.price > typedOther.price ? 1 : 0;
-        if (cmp0 === null) return Option.none();
-        if (cmp0 !== 0) return Option.some(cmp0);
-        const cmp1 = this.name.localeCompare(typedOther.name);
-        if (cmp1 === null) return Option.none();
-        if (cmp1 !== 0) return Option.some(cmp1);
-        return Option.some(0);
-    }
-}
-``` ```
-const i1 = new Item(10, "Widget", "A useful widget");
-const i2 = new Item(10, "Widget", "Different description");
-
-console.log(i1.compareTo(i2)); // 0 (description is skipped)
-``` ## Handling Null Results
- When using PartialOrd, always handle the `null` case:
- **Source:**
-```
-/** @derive(PartialOrd) */
-class Value {
-  amount: number;
-
-  constructor(amount: number) {
-    this.amount = amount;
-  }
-}
-```  ```
-function safeCompare(a: Value, b: unknown): string {
-  const result = a.compareTo(b);
-  if (result === null) {
-    return "incomparable";
-  } else if (result < 0) {
-    return "less than";
-  } else if (result > 0) {
-    return "greater than";
-  } else {
-    return "equal";
-  }
-}
-
-const v = new Value(100);
-console.log(safeCompare(v, new Value(50)));  // "greater than"
-console.log(safeCompare(v, "string"));       // "incomparable"
-``` ## Sorting with PartialOrd
- When sorting, handle `null` values appropriately:
- **Source:**
-```
-/** @derive(PartialOrd) */
-class Score {
-  value: number;
-
-  constructor(value: number) {
-    this.value = value;
-  }
-}
-```  ```
-const scores = [
-  new Score(100),
-  new Score(50),
-  new Score(75)
-];
-
-// Safe sort that handles null (treats null as equal)
-scores.sort((a, b) => a.compareTo(b) ?? 0);
-// Result: [Score(50), Score(75), Score(100)]
-``` ## Interface Support
- PartialOrd works with interfaces. For interfaces, a namespace is generated with a `compareTo` function:
- **Before:**
-```
-/** @derive(PartialOrd) */
-interface Measurement {
-    value: number;
-    unit: string;
-}
-```  
-**After:**
-```
-import { Option } from 'macroforge/utils';
-
-interface Measurement {
-    value: number;
+    value: number | null;  // null represents "unknown"
     unit: string;
 }
 
-export namespace Measurement {
-    export function compareTo(self: Measurement, other: Measurement): Option<number> {
-        if (self === other) return Option.some(0);
-        const cmp0 = self.value < other.value ? -1 : self.value > other.value ? 1 : 0;
-        if (cmp0 === null) return Option.none();
-        if (cmp0 !== 0) return Option.some(cmp0);
-        const cmp1 = self.unit.localeCompare(other.unit);
-        if (cmp1 === null) return Option.none();
-        if (cmp1 !== 0) return Option.some(cmp1);
-        return Option.some(0);
-    }
-}
-``` ```
-const m1: Measurement = { value: 10, unit: "kg" };
-const m2: Measurement = { value: 10, unit: "lb" };
-
-console.log(Measurement.compareTo(m1, m2)); // 1 (kg > lb alphabetically)
-``` ## Enum Support
- PartialOrd works with enums:
- **Before:**
+// Generated:
+// compareTo(other: unknown): Option<number> {
+//     if (this === other) return Option.some(0);
+//     if (!(other instanceof Temperature)) return Option.none();
+//     const typedOther = other as Temperature;
+//     const cmp0 = ...;  // Compare value field
+//     if (cmp0 === null) return Option.none();
+//     if (cmp0 !== 0) return Option.some(cmp0);
+//     const cmp1 = ...;  // Compare unit field
+//     if (cmp1 === null) return Option.none();
+//     if (cmp1 !== 0) return Option.some(cmp1);
+//     return Option.some(0);
+// }
 ```
-/** @derive(PartialOrd) */
-enum Size {
-    Small = 1,
-    Medium = 2,
-    Large = 3
-}
-```  
-**After:**
-```
-import { Option } from 'macroforge/utils';
 
-enum Size {
-    Small = 1,
-    Medium = 2,
-    Large = 3
-}
+## Required Import
 
-export namespace Size {
-    export function compareTo(a: Size, b: Size): Option<number> {
-        if (typeof a === 'number' && typeof b === 'number') {
-            return Option.some(a < b ? -1 : a > b ? 1 : 0);
-        }
-        if (typeof a === 'string' && typeof b === 'string') {
-            return Option.some(a.localeCompare(b));
-        }
-        return a === b ? Option.some(0) : Option.none();
-    }
-}
-``` ```
-console.log(Size.compareTo(Size.Small, Size.Large)); // -1
-console.log(Size.compareTo(Size.Large, Size.Small)); // 1
-``` ## Type Alias Support
- PartialOrd works with type aliases:
- **Before:**
-```
-/** @derive(PartialOrd) */
-type Interval = {
-    start: number;
-    end: number;
-};
-```  
-**After:**
-```
-import { Option } from 'macroforge/utils';
-
-type Interval = {
-    start: number;
-    end: number;
-};
-
-export namespace Interval {
-    export function compareTo(a: Interval, b: Interval): Option<number> {
-        if (a === b) return Option.some(0);
-        const cmp0 = a.start < b.start ? -1 : a.start > b.start ? 1 : 0;
-        if (cmp0 === null) return Option.none();
-        if (cmp0 !== 0) return Option.some(cmp0);
-        const cmp1 = a.end < b.end ? -1 : a.end > b.end ? 1 : 0;
-        if (cmp1 === null) return Option.none();
-        if (cmp1 !== 0) return Option.some(cmp1);
-        return Option.some(0);
-    }
-}
-``` ```
-const i1: Interval = { start: 0, end: 10 };
-const i2: Interval = { start: 0, end: 20 };
-
-console.log(Interval.compareTo(i1, i2)); // -1
-``` ## PartialOrd vs Ord
- Choose between `Ord` and `PartialOrd` based on your use case:
- - **Ord** → Use when all values are always comparable (never returns null)
- - **PartialOrd** → Use when comparing with `unknown` types or when some values might be incomparable
- **Source:**
-```
-// PartialOrd is safer for public APIs that accept unknown input
-/** @derive(PartialOrd) */
-class SafeValue {
-  data: number;
-  constructor(data: number) {
-    this.data = data;
-  }
-
-  // Can safely compare with any value
-  isGreaterThan(other: unknown): boolean {
-    const result = this.compareTo(other);
-    return result !== null && result > 0;
-  }
-}
-```  ```
-const safe = new SafeValue(100);
-console.log(safe.isGreaterThan(new SafeValue(50)));  // true
-console.log(safe.isGreaterThan("invalid"));          // false
-```
+The generated code automatically adds an import for `Option` from `macroforge/utils`.

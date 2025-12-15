@@ -1,272 +1,91 @@
 # Ord
-  *The `Ord` macro generates a `compareTo()` method for **total ordering** comparison. This is analogous to Rust's `Ord` trait, enabling objects to be sorted and compared with a guaranteed ordering relationship.*
- ## Basic Usage
- **Before:**
-```
-/** @derive(Ord) */
+
+The `Ord` macro generates a `compareTo()` method for **total ordering** comparison.
+This is analogous to Rust's `Ord` trait, enabling objects to be sorted and
+compared with a guaranteed ordering relationship.
+
+## Generated Output
+
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `compareTo(other): number` | Instance method returning -1, 0, or 1 |
+| Enum | `compareEnumName(a: EnumName, b: EnumName): number` | Standalone function comparing enum values |
+| Interface | `compareInterfaceName(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields |
+| Type Alias | `compareTypeName(a: TypeName, b: TypeName): number` | Standalone function with type-appropriate comparison |
+
+## Configuration
+
+The `functionNamingStyle` option in `macroforge.json` controls naming:
+- `"suffix"` (default): Suffixes with type name (e.g., `compareMyType`)
+- `"prefix"`: Prefixes with type name (e.g., `myTypeCompare`)
+- `"generic"`: Uses TypeScript generics (e.g., `compare<T extends MyType>`)
+- `"namespace"`: Legacy namespace wrapping
+
+## Return Values
+
+Unlike `PartialOrd`, `Ord` provides **total ordering** - every pair of values
+can be compared:
+
+- **-1**: `this` is less than `other`
+- **0**: `this` is equal to `other`
+- **1**: `this` is greater than `other`
+
+The method **never returns null** - all values must be comparable.
+
+## Comparison Strategy
+
+Fields are compared **lexicographically** in declaration order:
+
+1. Compare first field
+2. If not equal, return that result
+3. Otherwise, compare next field
+4. Continue until a difference is found or all fields are equal
+
+## Type-Specific Comparisons
+
+| Type | Comparison Method |
+|------|-------------------|
+| `number`/`bigint` | Direct `<` and `>` comparison |
+| `string` | `localeCompare()` (clamped to -1, 0, 1) |
+| `boolean` | false &lt; true |
+| Arrays | Lexicographic element-by-element |
+| `Date` | `getTime()` timestamp comparison |
+| Objects | Calls `compareTo()` if available, else 0 |
+
+## Field-Level Options
+
+The `@ord` decorator supports:
+
+- `skip` - Exclude the field from ordering comparison
+
+## Example
+
+```typescript
+@derive(Ord)
 class Version {
     major: number;
     minor: number;
     patch: number;
-
-    constructor(major: number, minor: number, patch: number) {
-        this.major = major;
-        this.minor = minor;
-        this.patch = patch;
-    }
 }
-```  
-**After:**
+
+// Generated:
+// compareTo(other: Version): number {
+//     if (this === other) return 0;
+//     const typedOther = other;
+//     const cmp0 = this.major < typedOther.major ? -1 : this.major > typedOther.major ? 1 : 0;
+//     if (cmp0 !== 0) return cmp0;
+//     const cmp1 = this.minor < typedOther.minor ? -1 : ...;
+//     if (cmp1 !== 0) return cmp1;
+//     const cmp2 = this.patch < typedOther.patch ? -1 : ...;
+//     if (cmp2 !== 0) return cmp2;
+//     return 0;
+// }
+
+// Usage:
+versions.sort((a, b) => a.compareTo(b));
 ```
-class Version {
-    major: number;
-    minor: number;
-    patch: number;
 
-    constructor(major: number, minor: number, patch: number) {
-        this.major = major;
-        this.minor = minor;
-        this.patch = patch;
-    }
+## Ord vs PartialOrd
 
-    compareTo(other: Version): number {
-        if (this === other) return 0;
-        const typedOther = other;
-        const cmp0 = this.major < typedOther.major ? -1 : this.major > typedOther.major ? 1 : 0;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = this.minor < typedOther.minor ? -1 : this.minor > typedOther.minor ? 1 : 0;
-        if (cmp1 !== 0) return cmp1;
-        const cmp2 = this.patch < typedOther.patch ? -1 : this.patch > typedOther.patch ? 1 : 0;
-        if (cmp2 !== 0) return cmp2;
-        return 0;
-    }
-}
-``` ```
-const v1 = new Version(1, 0, 0);
-const v2 = new Version(1, 2, 0);
-const v3 = new Version(1, 2, 0);
-
-console.log(v1.compareTo(v2)); // -1 (v1 < v2)
-console.log(v2.compareTo(v1)); // 1  (v2 > v1)
-console.log(v2.compareTo(v3)); // 0  (v2 == v3)
-``` ## Comparison Logic
- The Ord macro compares fields in declaration order (lexicographic ordering). For each type:
- - `number` / `bigint` → Direct numeric comparison
- - `string` → Uses `localeCompare()` clamped to -1/0/1
- - `boolean` → `false < true`
- - `Date` → Compares timestamps via `getTime()`
- - `Array` → Lexicographic: compares element-by-element, then length
- - `Map/Set` → Size and content comparison
- - `Object` → Calls `compareTo()` if available, otherwise 0
- - `null/undefined` → Treated as equal (returns 0)
- ## Return Values
- The `compareTo()` method always returns:
- - `-1` → `this` is less than `other`
- - `0` → `this` equals `other`
- - `1` → `this` is greater than `other`
- Unlike `PartialOrd`, the `Ord` macro never returns `null` - it provides total ordering.
- ## Field Options
- ### @ord(skip)
- Use `@ord(skip)` to exclude a field from ordering comparison:
- **Before:**
-```
-/** @derive(Ord) */
-class Task {
-    priority: number;
-    name: string;
-
-    /** @ord(skip) */
-    createdAt: Date;
-
-    constructor(priority: number, name: string, createdAt: Date) {
-        this.priority = priority;
-        this.name = name;
-        this.createdAt = createdAt;
-    }
-}
-```  
-**After:**
-```
-class Task {
-    priority: number;
-    name: string;
-
-    createdAt: Date;
-
-    constructor(priority: number, name: string, createdAt: Date) {
-        this.priority = priority;
-        this.name = name;
-        this.createdAt = createdAt;
-    }
-
-    compareTo(other: Task): number {
-        if (this === other) return 0;
-        const typedOther = other;
-        const cmp0 =
-            this.priority < typedOther.priority ? -1 : this.priority > typedOther.priority ? 1 : 0;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = ((cmp) => (cmp < 0 ? -1 : cmp > 0 ? 1 : 0))(
-            this.name.localeCompare(typedOther.name)
-        );
-        if (cmp1 !== 0) return cmp1;
-        return 0;
-    }
-}
-``` ```
-const t1 = new Task(1, "Bug fix", new Date("2024-01-01"));
-const t2 = new Task(1, "Bug fix", new Date("2024-12-01"));
-
-console.log(t1.compareTo(t2)); // 0 (createdAt is skipped)
-``` ## Sorting Arrays
- The generated `compareTo()` method works directly with `Array.sort()`:
- **Source:**
-```
-/** @derive(Ord) */
-class Score {
-  points: number;
-  name: string;
-
-  constructor(points: number, name: string) {
-    this.points = points;
-    this.name = name;
-  }
-}
-```  ```
-const scores = [
-  new Score(100, "Alice"),
-  new Score(50, "Bob"),
-  new Score(150, "Charlie"),
-  new Score(50, "Alice")  // Same points, different name
-];
-
-// Sort ascending
-scores.sort((a, b) => a.compareTo(b));
-// Result: [Bob(50), Alice(50), Alice(100), Charlie(150)]
-
-// Sort descending
-scores.sort((a, b) => b.compareTo(a));
-// Result: [Charlie(150), Alice(100), Alice(50), Bob(50)]
-``` ## Interface Support
- Ord works with interfaces. For interfaces, a namespace is generated with a `compareTo` function:
- **Before:**
-```
-/** @derive(Ord) */
-interface Point {
-    x: number;
-    y: number;
-}
-```  
-**After:**
-```
-interface Point {
-    x: number;
-    y: number;
-}
-
-export namespace Point {
-    export function compareTo(self: Point, other: Point): number {
-        if (self === other) return 0;
-        const cmp0 = self.x < other.x ? -1 : self.x > other.x ? 1 : 0;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = self.y < other.y ? -1 : self.y > other.y ? 1 : 0;
-        if (cmp1 !== 0) return cmp1;
-        return 0;
-    }
-}
-``` ```
-const points: Point[] = [
-  { x: 5, y: 10 },
-  { x: 1, y: 20 },
-  { x: 5, y: 5 }
-];
-
-points.sort((a, b) => Point.compareTo(a, b));
-// Result: [{ x: 1, y: 20 }, { x: 5, y: 5 }, { x: 5, y: 10 }]
-``` ## Enum Support
- Ord works with enums. For numeric enums, it compares the numeric values; for string enums, it uses string comparison:
- **Before:**
-```
-/** @derive(Ord) */
-enum Priority {
-    Low = 0,
-    Medium = 1,
-    High = 2,
-    Critical = 3
-}
-```  
-**After:**
-```
-enum Priority {
-    Low = 0,
-    Medium = 1,
-    High = 2,
-    Critical = 3
-}
-
-export namespace Priority {
-    export function compareTo(a: Priority, b: Priority): number {
-        if (typeof a === 'number' && typeof b === 'number') {
-            return a < b ? -1 : a > b ? 1 : 0;
-        }
-        if (typeof a === 'string' && typeof b === 'string') {
-            const cmp = a.localeCompare(b);
-            return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
-        }
-        return 0;
-    }
-}
-``` ```
-console.log(Priority.compareTo(Priority.Low, Priority.High));      // -1
-console.log(Priority.compareTo(Priority.Critical, Priority.Low));  // 1
-console.log(Priority.compareTo(Priority.Medium, Priority.Medium)); // 0
-``` ## Type Alias Support
- Ord works with type aliases. For object types, it uses lexicographic field comparison:
- **Before:**
-```
-/** @derive(Ord) */
-type Coordinate = {
-    x: number;
-    y: number;
-};
-```  
-**After:**
-```
-type Coordinate = {
-    x: number;
-    y: number;
-};
-
-export namespace Coordinate {
-    export function compareTo(a: Coordinate, b: Coordinate): number {
-        if (a === b) return 0;
-        const cmp0 = a.x < b.x ? -1 : a.x > b.x ? 1 : 0;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = a.y < b.y ? -1 : a.y > b.y ? 1 : 0;
-        if (cmp1 !== 0) return cmp1;
-        return 0;
-    }
-}
-``` ```
-const c1: Coordinate = { x: 10, y: 20 };
-const c2: Coordinate = { x: 10, y: 30 };
-
-console.log(Coordinate.compareTo(c1, c2)); // -1 (c1 < c2)
-``` ## Ord vs PartialOrd
- Use `Ord` when all values of a type are comparable. Use `PartialOrd` when some values might be incomparable (e.g., different types at runtime).
- **Source:**
-```
-// Ord: Total ordering - never returns null
-/** @derive(Ord) */
-class Version {
-  major: number;
-  minor: number;
-  constructor(major: number, minor: number) {
-    this.major = major;
-    this.minor = minor;
-  }
-}
-```  ```
-const v1 = new Version(1, 0);
-const v2 = new Version(2, 0);
-console.log(v1.compareTo(v2)); // Always -1, 0, or 1
-```
+- Use **Ord** when all values are comparable (total ordering)
+- Use **PartialOrd** when some values may be incomparable (returns `Option<number>`)

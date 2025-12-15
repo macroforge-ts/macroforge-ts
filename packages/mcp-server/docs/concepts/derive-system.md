@@ -106,10 +106,7 @@ class User {
         result['user_id'] = this.id;
         result['name'] = this.name;
         {
-            const __flattened =
-                typeof (this.metadata as any)?.__serialize === 'function'
-                    ? (this.metadata as any).__serialize(ctx)
-                    : this.metadata;
+            const __flattened = __serializeRecord<string, unknown>(this.metadata, ctx);
             const { __type: _, __id: __, ...rest } = __flattened as any;
             Object.assign(result, rest);
         }
