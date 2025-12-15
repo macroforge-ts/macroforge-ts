@@ -1,9 +1,15 @@
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeColors } from './colors.svelte';
+import { __serializeRecurrenceRule } from './recurrence-rule.svelte';
+import { __serializeStatus } from './status.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeColors } from './colors.svelte';
+import { __deserializeRecurrenceRule } from './recurrence-rule.svelte';
+import { __deserializeStatus } from './status.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -84,30 +90,19 @@ export function __serializeAppointment(
     const result: Record<string, unknown> = { __type: 'Appointment', __id };
     result['id'] = value.id;
     result['title'] = value.title;
-    result['status'] =
-        typeof (value.status as any)?.__serialize === 'function'
-            ? (value.status as any).__serialize(ctx)
-            : value.status;
+    result['status'] = __serializeStatus(value.status, ctx);
     result['begins'] = value.begins;
     result['duration'] = value.duration;
     result['timeZone'] = value.timeZone;
     result['offsetMs'] = value.offsetMs;
     result['allDay'] = value.allDay;
     result['multiDay'] = value.multiDay;
-    result['employees'] = value.employees.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
+    result['employees'] = value.employees;
     result['location'] = value.location;
     result['description'] = value.description;
-    result['colors'] =
-        typeof (value.colors as any)?.__serialize === 'function'
-            ? (value.colors as any).__serialize(ctx)
-            : value.colors;
+    result['colors'] = __serializeColors(value.colors, ctx);
     if (value.recurrenceRule !== null) {
-        result['recurrenceRule'] =
-            typeof (value.recurrenceRule as any)?.__serialize === 'function'
-                ? (value.recurrenceRule as any).__serialize(ctx)
-                : value.recurrenceRule;
+        result['recurrenceRule'] = __serializeRecurrenceRule(value.recurrenceRule, ctx);
     } else {
         result['recurrenceRule'] = null;
     }
@@ -235,7 +230,7 @@ export function __deserializeAppointment(
     {
         const __raw_status = obj['status'] as Status;
         {
-            const __result = Status.__deserialize(__raw_status, ctx);
+            const __result = __deserializeStatus(__raw_status, ctx);
             ctx.assignOrDefer(instance, 'status', __result);
         }
     }
@@ -280,7 +275,7 @@ export function __deserializeAppointment(
     {
         const __raw_colors = obj['colors'] as Colors;
         {
-            const __result = Colors.__deserialize(__raw_colors, ctx);
+            const __result = __deserializeColors(__raw_colors, ctx);
             ctx.assignOrDefer(instance, 'colors', __result);
         }
     }
@@ -289,7 +284,7 @@ export function __deserializeAppointment(
         if (__raw_recurrenceRule === null) {
             instance.recurrenceRule = null;
         } else {
-            const __result = RecurrenceRule.__deserialize(__raw_recurrenceRule, ctx);
+            const __result = __deserializeRecurrenceRule(__raw_recurrenceRule, ctx);
             ctx.assignOrDefer(instance, 'recurrenceRule', __result);
         }
     }
@@ -414,7 +409,7 @@ export interface GigaformAppointment {
     reset(overrides?: Partial<Appointment>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormAppointment(overrides?: Partial<Appointment>): GigaformAppointment {
-    let data = $state({ ...Appointment.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueAppointment(), ...overrides });
     let errors = $state<ErrorsAppointment>({
         _errors: Option.none(),
         id: Option.none(),
@@ -468,7 +463,7 @@ export function createFormAppointment(overrides?: Partial<Appointment>): Gigafor
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Appointment.validateField('id', data.id);
+                const fieldErrors = validateFieldAppointment('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -491,7 +486,7 @@ export function createFormAppointment(overrides?: Partial<Appointment>): Gigafor
                 tainted.title = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Appointment.validateField('title', data.title);
+                const fieldErrors = validateFieldAppointment('title', data.title);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -514,7 +509,7 @@ export function createFormAppointment(overrides?: Partial<Appointment>): Gigafor
                 tainted.status = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Appointment.validateField('status', data.status);
+                const fieldErrors = validateFieldAppointment('status', data.status);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -537,7 +532,7 @@ export function createFormAppointment(overrides?: Partial<Appointment>): Gigafor
                 tainted.begins = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Appointment.validateField('begins', data.begins);
+                const fieldErrors = validateFieldAppointment('begins', data.begins);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -560,7 +555,7 @@ export function createFormAppointment(overrides?: Partial<Appointment>): Gigafor
                 tainted.duration = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Appointment.validateField('duration', data.duration);
+                const fieldErrors = validateFieldAppointment('duration', data.duration);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -583,7 +578,7 @@ export function createFormAppointment(overrides?: Partial<Appointment>): Gigafor
                 tainted.timeZone = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Appointment.validateField('timeZone', data.timeZone);
+                const fieldErrors = validateFieldAppointment('timeZone', data.timeZone);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -606,7 +601,7 @@ export function createFormAppointment(overrides?: Partial<Appointment>): Gigafor
                 tainted.offsetMs = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Appointment.validateField('offsetMs', data.offsetMs);
+                const fieldErrors = validateFieldAppointment('offsetMs', data.offsetMs);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -629,7 +624,7 @@ export function createFormAppointment(overrides?: Partial<Appointment>): Gigafor
                 tainted.allDay = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Appointment.validateField('allDay', data.allDay);
+                const fieldErrors = validateFieldAppointment('allDay', data.allDay);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -652,7 +647,7 @@ export function createFormAppointment(overrides?: Partial<Appointment>): Gigafor
                 tainted.multiDay = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Appointment.validateField('multiDay', data.multiDay);
+                const fieldErrors = validateFieldAppointment('multiDay', data.multiDay);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -675,7 +670,7 @@ export function createFormAppointment(overrides?: Partial<Appointment>): Gigafor
                 tainted.employees = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Appointment.validateField('employees', data.employees);
+                const fieldErrors = validateFieldAppointment('employees', data.employees);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -728,7 +723,7 @@ export function createFormAppointment(overrides?: Partial<Appointment>): Gigafor
                 tainted.location = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Appointment.validateField('location', data.location);
+                const fieldErrors = validateFieldAppointment('location', data.location);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -751,7 +746,7 @@ export function createFormAppointment(overrides?: Partial<Appointment>): Gigafor
                 tainted.description = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Appointment.validateField('description', data.description);
+                const fieldErrors = validateFieldAppointment('description', data.description);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -774,7 +769,7 @@ export function createFormAppointment(overrides?: Partial<Appointment>): Gigafor
                 tainted.colors = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Appointment.validateField('colors', data.colors);
+                const fieldErrors = validateFieldAppointment('colors', data.colors);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -797,19 +792,16 @@ export function createFormAppointment(overrides?: Partial<Appointment>): Gigafor
                 tainted.recurrenceRule = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Appointment.validateField(
-                    'recurrenceRule',
-                    data.recurrenceRule
-                );
+                const fieldErrors = validateFieldAppointment('recurrenceRule', data.recurrenceRule);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Appointment, Array<{ field: string; message: string }>> {
-        return Appointment.fromObject(data);
+        return fromObjectAppointment(data);
     }
     function reset(newOverrides?: Partial<Appointment>): void {
-        data = { ...Appointment.defaultValue(), ...newOverrides };
+        data = { ...defaultValueAppointment(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             id: Option.none(),
@@ -964,5 +956,5 @@ export function fromFormDataAppointment(
         obj.colors = colorsObj;
     }
     obj.recurrenceRule = formData.get('recurrenceRule') ?? '';
-    return Appointment.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONAppointment(JSON.stringify(obj));
 }

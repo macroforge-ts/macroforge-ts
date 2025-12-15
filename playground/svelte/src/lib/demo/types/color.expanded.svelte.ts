@@ -175,7 +175,7 @@ export interface GigaformColor {
     reset(overrides?: Partial<Color>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormColor(overrides?: Partial<Color>): GigaformColor {
-    let data = $state({ ...Color.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueColor(), ...overrides });
     let errors = $state<ErrorsColor>({
         _errors: Option.none(),
         red: Option.none(),
@@ -207,7 +207,7 @@ export function createFormColor(overrides?: Partial<Color>): GigaformColor {
                 tainted.red = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Color.validateField('red', data.red);
+                const fieldErrors = validateFieldColor('red', data.red);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -230,7 +230,7 @@ export function createFormColor(overrides?: Partial<Color>): GigaformColor {
                 tainted.green = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Color.validateField('green', data.green);
+                const fieldErrors = validateFieldColor('green', data.green);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -253,16 +253,16 @@ export function createFormColor(overrides?: Partial<Color>): GigaformColor {
                 tainted.blue = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Color.validateField('blue', data.blue);
+                const fieldErrors = validateFieldColor('blue', data.blue);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Color, Array<{ field: string; message: string }>> {
-        return Color.fromObject(data);
+        return fromObjectColor(data);
     }
     function reset(newOverrides?: Partial<Color>): void {
-        data = { ...Color.defaultValue(), ...newOverrides };
+        data = { ...defaultValueColor(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             red: Option.none(),
@@ -314,5 +314,5 @@ export function fromFormDataColor(
         obj.blue = blueStr ? parseFloat(blueStr as string) : 0;
         if (obj.blue !== undefined && isNaN(obj.blue as number)) obj.blue = 0;
     }
-    return Color.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONColor(JSON.stringify(obj));
 }

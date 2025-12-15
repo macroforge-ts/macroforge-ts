@@ -182,7 +182,7 @@ export interface GigaformCompanyName {
     reset(overrides?: Partial<CompanyName>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormCompanyName(overrides?: Partial<CompanyName>): GigaformCompanyName {
-    let data = $state({ ...CompanyName.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueCompanyName(), ...overrides });
     let errors = $state<ErrorsCompanyName>({ _errors: Option.none(), companyName: Option.none() });
     let tainted = $state<TaintedCompanyName>({ companyName: Option.none() });
     const fields: FieldControllersCompanyName = {
@@ -205,16 +205,16 @@ export function createFormCompanyName(overrides?: Partial<CompanyName>): Gigafor
                 tainted.companyName = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = CompanyName.validateField('companyName', data.companyName);
+                const fieldErrors = validateFieldCompanyName('companyName', data.companyName);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<CompanyName, Array<{ field: string; message: string }>> {
-        return CompanyName.fromObject(data);
+        return fromObjectCompanyName(data);
     }
     function reset(newOverrides?: Partial<CompanyName>): void {
-        data = { ...CompanyName.defaultValue(), ...newOverrides };
+        data = { ...defaultValueCompanyName(), ...newOverrides };
         errors = { _errors: Option.none(), companyName: Option.none() };
         tainted = { companyName: Option.none() };
     }
@@ -247,5 +247,5 @@ export function fromFormDataCompanyName(
 ): Result<CompanyName, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.companyName = formData.get('companyName') ?? '';
-    return CompanyName.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONCompanyName(JSON.stringify(obj));
 }

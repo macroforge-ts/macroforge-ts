@@ -182,7 +182,7 @@ export function createFormRowHeight(initial?: RowHeight): GigaformRowHeight {
         tainted = {} as TaintedRowHeight;
     }
     function validate(): Result<RowHeight, Array<{ field: string; message: string }>> {
-        return RowHeight.fromObject(data);
+        return fromObjectRowHeight(data);
     }
     function reset(overrides?: Partial<RowHeight>): void {
         data = overrides
@@ -238,5 +238,5 @@ export function fromFormDataRowHeight(
     } else if (discriminant === 'Medium') {
     } else if (discriminant === 'Large') {
     }
-    return RowHeight.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONRowHeight(JSON.stringify(obj));
 }

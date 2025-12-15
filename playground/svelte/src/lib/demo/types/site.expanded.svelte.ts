@@ -1,9 +1,12 @@
+import { defaultValueCoordinates } from './coordinates.svelte';
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeCoordinates } from './coordinates.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeCoordinates } from './coordinates.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -43,7 +46,7 @@ export function defaultValueSite(): Site {
         country: '',
         postalCode: '',
         postalCodeSuffix: null,
-        coordinates: Coordinates.defaultValue()
+        coordinates: defaultValueCoordinates()
     } as Site;
 }
 
@@ -73,10 +76,7 @@ export function __serializeSite(value: Site, ctx: SerializeContext): Record<stri
     result['country'] = value.country;
     result['postalCode'] = value.postalCode;
     result['postalCodeSuffix'] = value.postalCodeSuffix;
-    result['coordinates'] =
-        typeof (value.coordinates as any)?.__serialize === 'function'
-            ? (value.coordinates as any).__serialize(ctx)
-            : value.coordinates;
+    result['coordinates'] = __serializeCoordinates(value.coordinates, ctx);
     return result;
 }
 
@@ -237,7 +237,7 @@ export function __deserializeSite(value: any, ctx: DeserializeContext): Site | P
     {
         const __raw_coordinates = obj['coordinates'] as Coordinates;
         {
-            const __result = Coordinates.__deserialize(__raw_coordinates, ctx);
+            const __result = __deserializeCoordinates(__raw_coordinates, ctx);
             ctx.assignOrDefer(instance, 'coordinates', __result);
         }
     }
@@ -406,7 +406,7 @@ export interface GigaformSite {
     reset(overrides?: Partial<Site>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormSite(overrides?: Partial<Site>): GigaformSite {
-    let data = $state({ ...Site.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueSite(), ...overrides });
     let errors = $state<ErrorsSite>({
         _errors: Option.none(),
         id: Option.none(),
@@ -456,7 +456,7 @@ export function createFormSite(overrides?: Partial<Site>): GigaformSite {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Site.validateField('id', data.id);
+                const fieldErrors = validateFieldSite('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -479,7 +479,7 @@ export function createFormSite(overrides?: Partial<Site>): GigaformSite {
                 tainted.addressLine1 = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Site.validateField('addressLine1', data.addressLine1);
+                const fieldErrors = validateFieldSite('addressLine1', data.addressLine1);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -502,7 +502,7 @@ export function createFormSite(overrides?: Partial<Site>): GigaformSite {
                 tainted.addressLine2 = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Site.validateField('addressLine2', data.addressLine2);
+                const fieldErrors = validateFieldSite('addressLine2', data.addressLine2);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -525,7 +525,7 @@ export function createFormSite(overrides?: Partial<Site>): GigaformSite {
                 tainted.sublocalityLevel1 = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Site.validateField('sublocalityLevel1', data.sublocalityLevel1);
+                const fieldErrors = validateFieldSite('sublocalityLevel1', data.sublocalityLevel1);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -548,7 +548,7 @@ export function createFormSite(overrides?: Partial<Site>): GigaformSite {
                 tainted.locality = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Site.validateField('locality', data.locality);
+                const fieldErrors = validateFieldSite('locality', data.locality);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -571,7 +571,7 @@ export function createFormSite(overrides?: Partial<Site>): GigaformSite {
                 tainted.administrativeAreaLevel3 = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Site.validateField(
+                const fieldErrors = validateFieldSite(
                     'administrativeAreaLevel3',
                     data.administrativeAreaLevel3
                 );
@@ -597,7 +597,7 @@ export function createFormSite(overrides?: Partial<Site>): GigaformSite {
                 tainted.administrativeAreaLevel2 = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Site.validateField(
+                const fieldErrors = validateFieldSite(
                     'administrativeAreaLevel2',
                     data.administrativeAreaLevel2
                 );
@@ -623,7 +623,7 @@ export function createFormSite(overrides?: Partial<Site>): GigaformSite {
                 tainted.administrativeAreaLevel1 = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Site.validateField(
+                const fieldErrors = validateFieldSite(
                     'administrativeAreaLevel1',
                     data.administrativeAreaLevel1
                 );
@@ -649,7 +649,7 @@ export function createFormSite(overrides?: Partial<Site>): GigaformSite {
                 tainted.country = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Site.validateField('country', data.country);
+                const fieldErrors = validateFieldSite('country', data.country);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -672,7 +672,7 @@ export function createFormSite(overrides?: Partial<Site>): GigaformSite {
                 tainted.postalCode = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Site.validateField('postalCode', data.postalCode);
+                const fieldErrors = validateFieldSite('postalCode', data.postalCode);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -695,7 +695,7 @@ export function createFormSite(overrides?: Partial<Site>): GigaformSite {
                 tainted.postalCodeSuffix = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Site.validateField('postalCodeSuffix', data.postalCodeSuffix);
+                const fieldErrors = validateFieldSite('postalCodeSuffix', data.postalCodeSuffix);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -718,16 +718,16 @@ export function createFormSite(overrides?: Partial<Site>): GigaformSite {
                 tainted.coordinates = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Site.validateField('coordinates', data.coordinates);
+                const fieldErrors = validateFieldSite('coordinates', data.coordinates);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Site, Array<{ field: string; message: string }>> {
-        return Site.fromObject(data);
+        return fromObjectSite(data);
     }
     function reset(newOverrides?: Partial<Site>): void {
-        data = { ...Site.defaultValue(), ...newOverrides };
+        data = { ...defaultValueSite(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             id: Option.none(),
@@ -818,5 +818,5 @@ export function fromFormDataSite(
         }
         obj.coordinates = coordinatesObj;
     }
-    return Site.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONSite(JSON.stringify(obj));
 }

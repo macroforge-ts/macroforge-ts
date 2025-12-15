@@ -1,9 +1,18 @@
+import { defaultValueEmail } from './email.svelte';
+import { defaultValueSettings } from './settings.svelte';
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeEmail } from './email.svelte';
+import { __serializeJobTitle } from './job-title.svelte';
+import { __serializePhoneNumber } from './phone-number.svelte';
+import { __serializeSettings } from './settings.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeEmail } from './email.svelte';
+import { __deserializeJobTitle } from './job-title.svelte';
+import { __deserializeSettings } from './settings.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -50,7 +59,7 @@ export function defaultValueEmployee(): Employee {
         phones: [],
         role: '',
         title: 'Technician',
-        email: Email.defaultValue(),
+        email: defaultValueEmail(),
         address: '',
         username: '',
         route: '',
@@ -61,7 +70,7 @@ export function defaultValueEmployee(): Employee {
         description: null,
         linkedinUrl: null,
         attendance: [],
-        settings: Settings.defaultValue()
+        settings: defaultValueSettings()
     } as Employee;
 }
 
@@ -86,18 +95,10 @@ export function __serializeEmployee(
     result['id'] = value.id;
     result['imageUrl'] = value.imageUrl;
     result['name'] = value.name;
-    result['phones'] = value.phones.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
+    result['phones'] = value.phones.map((item) => __serializePhoneNumber(item, ctx));
     result['role'] = value.role;
-    result['title'] =
-        typeof (value.title as any)?.__serialize === 'function'
-            ? (value.title as any).__serialize(ctx)
-            : value.title;
-    result['email'] =
-        typeof (value.email as any)?.__serialize === 'function'
-            ? (value.email as any).__serialize(ctx)
-            : value.email;
+    result['title'] = __serializeJobTitle(value.title, ctx);
+    result['email'] = __serializeEmail(value.email, ctx);
     result['address'] = value.address;
     result['username'] = value.username;
     result['route'] = value.route;
@@ -108,10 +109,7 @@ export function __serializeEmployee(
     result['description'] = value.description;
     result['linkedinUrl'] = value.linkedinUrl;
     result['attendance'] = value.attendance;
-    result['settings'] =
-        typeof (value.settings as any)?.__serialize === 'function'
-            ? (value.settings as any).__serialize(ctx)
-            : value.settings;
+    result['settings'] = __serializeSettings(value.settings, ctx);
     return result;
 }
 
@@ -262,14 +260,14 @@ export function __deserializeEmployee(value: any, ctx: DeserializeContext): Empl
     {
         const __raw_title = obj['title'] as JobTitle;
         {
-            const __result = JobTitle.__deserialize(__raw_title, ctx);
+            const __result = __deserializeJobTitle(__raw_title, ctx);
             ctx.assignOrDefer(instance, 'title', __result);
         }
     }
     {
         const __raw_email = obj['email'] as Email;
         {
-            const __result = Email.__deserialize(__raw_email, ctx);
+            const __result = __deserializeEmail(__raw_email, ctx);
             ctx.assignOrDefer(instance, 'email', __result);
         }
     }
@@ -324,7 +322,7 @@ export function __deserializeEmployee(value: any, ctx: DeserializeContext): Empl
     {
         const __raw_settings = obj['settings'] as Settings;
         {
-            const __result = Settings.__deserialize(__raw_settings, ctx);
+            const __result = __deserializeSettings(__raw_settings, ctx);
             ctx.assignOrDefer(instance, 'settings', __result);
         }
     }
@@ -504,7 +502,7 @@ export interface GigaformEmployee {
     reset(overrides?: Partial<Employee>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmployee {
-    let data = $state({ ...Employee.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueEmployee(), ...overrides });
     let errors = $state<ErrorsEmployee>({
         _errors: Option.none(),
         id: Option.none(),
@@ -566,7 +564,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('id', data.id);
+                const fieldErrors = validateFieldEmployee('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -589,7 +587,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.imageUrl = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('imageUrl', data.imageUrl);
+                const fieldErrors = validateFieldEmployee('imageUrl', data.imageUrl);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -612,7 +610,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.name = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('name', data.name);
+                const fieldErrors = validateFieldEmployee('name', data.name);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -635,7 +633,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.phones = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('phones', data.phones);
+                const fieldErrors = validateFieldEmployee('phones', data.phones);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -688,7 +686,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.role = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('role', data.role);
+                const fieldErrors = validateFieldEmployee('role', data.role);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -711,7 +709,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.title = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('title', data.title);
+                const fieldErrors = validateFieldEmployee('title', data.title);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -734,7 +732,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.email = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('email', data.email);
+                const fieldErrors = validateFieldEmployee('email', data.email);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -757,7 +755,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.address = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('address', data.address);
+                const fieldErrors = validateFieldEmployee('address', data.address);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -780,7 +778,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.username = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('username', data.username);
+                const fieldErrors = validateFieldEmployee('username', data.username);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -803,7 +801,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.route = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('route', data.route);
+                const fieldErrors = validateFieldEmployee('route', data.route);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -826,7 +824,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.ratePerHour = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('ratePerHour', data.ratePerHour);
+                const fieldErrors = validateFieldEmployee('ratePerHour', data.ratePerHour);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -849,7 +847,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.active = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('active', data.active);
+                const fieldErrors = validateFieldEmployee('active', data.active);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -872,7 +870,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.isTechnician = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('isTechnician', data.isTechnician);
+                const fieldErrors = validateFieldEmployee('isTechnician', data.isTechnician);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -895,7 +893,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.isSalesRep = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('isSalesRep', data.isSalesRep);
+                const fieldErrors = validateFieldEmployee('isSalesRep', data.isSalesRep);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -918,7 +916,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.description = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('description', data.description);
+                const fieldErrors = validateFieldEmployee('description', data.description);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -941,7 +939,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.linkedinUrl = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('linkedinUrl', data.linkedinUrl);
+                const fieldErrors = validateFieldEmployee('linkedinUrl', data.linkedinUrl);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -964,7 +962,7 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.attendance = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('attendance', data.attendance);
+                const fieldErrors = validateFieldEmployee('attendance', data.attendance);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -1017,16 +1015,16 @@ export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmplo
                 tainted.settings = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Employee.validateField('settings', data.settings);
+                const fieldErrors = validateFieldEmployee('settings', data.settings);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Employee, Array<{ field: string; message: string }>> {
-        return Employee.fromObject(data);
+        return fromObjectEmployee(data);
     }
     function reset(newOverrides?: Partial<Employee>): void {
-        data = { ...Employee.defaultValue(), ...newOverrides };
+        data = { ...defaultValueEmployee(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             id: Option.none(),
@@ -1214,5 +1212,5 @@ export function fromFormDataEmployee(
         }
         obj.settings = settingsObj;
     }
-    return Employee.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONEmployee(JSON.stringify(obj));
 }

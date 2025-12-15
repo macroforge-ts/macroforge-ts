@@ -245,7 +245,7 @@ export interface GigaformAppointmentNotifications {
 export function createFormAppointmentNotifications(
     overrides?: Partial<AppointmentNotifications>
 ): GigaformAppointmentNotifications {
-    let data = $state({ ...AppointmentNotifications.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueAppointmentNotifications(), ...overrides });
     let errors = $state<ErrorsAppointmentNotifications>({
         _errors: Option.none(),
         personalScheduleChangeNotifications: Option.none(),
@@ -275,7 +275,7 @@ export function createFormAppointmentNotifications(
                 tainted.personalScheduleChangeNotifications = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = AppointmentNotifications.validateField(
+                const fieldErrors = validateFieldAppointmentNotifications(
                     'personalScheduleChangeNotifications',
                     data.personalScheduleChangeNotifications
                 );
@@ -301,7 +301,7 @@ export function createFormAppointmentNotifications(
                 tainted.allScheduleChangeNotifications = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = AppointmentNotifications.validateField(
+                const fieldErrors = validateFieldAppointmentNotifications(
                     'allScheduleChangeNotifications',
                     data.allScheduleChangeNotifications
                 );
@@ -313,10 +313,10 @@ export function createFormAppointmentNotifications(
         AppointmentNotifications,
         Array<{ field: string; message: string }>
     > {
-        return AppointmentNotifications.fromObject(data);
+        return fromObjectAppointmentNotifications(data);
     }
     function reset(newOverrides?: Partial<AppointmentNotifications>): void {
-        data = { ...AppointmentNotifications.defaultValue(), ...newOverrides };
+        data = { ...defaultValueAppointmentNotifications(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             personalScheduleChangeNotifications: Option.none(),
@@ -358,5 +358,5 @@ export function fromFormDataAppointmentNotifications(
     obj.personalScheduleChangeNotifications =
         formData.get('personalScheduleChangeNotifications') ?? '';
     obj.allScheduleChangeNotifications = formData.get('allScheduleChangeNotifications') ?? '';
-    return AppointmentNotifications.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONAppointmentNotifications(JSON.stringify(obj));
 }

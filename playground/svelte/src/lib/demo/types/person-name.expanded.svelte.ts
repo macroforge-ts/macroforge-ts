@@ -209,7 +209,7 @@ export interface GigaformPersonName {
     reset(overrides?: Partial<PersonName>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormPersonName(overrides?: Partial<PersonName>): GigaformPersonName {
-    let data = $state({ ...PersonName.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValuePersonName(), ...overrides });
     let errors = $state<ErrorsPersonName>({
         _errors: Option.none(),
         firstName: Option.none(),
@@ -236,7 +236,7 @@ export function createFormPersonName(overrides?: Partial<PersonName>): GigaformP
                 tainted.firstName = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = PersonName.validateField('firstName', data.firstName);
+                const fieldErrors = validateFieldPersonName('firstName', data.firstName);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -259,16 +259,16 @@ export function createFormPersonName(overrides?: Partial<PersonName>): GigaformP
                 tainted.lastName = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = PersonName.validateField('lastName', data.lastName);
+                const fieldErrors = validateFieldPersonName('lastName', data.lastName);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<PersonName, Array<{ field: string; message: string }>> {
-        return PersonName.fromObject(data);
+        return fromObjectPersonName(data);
     }
     function reset(newOverrides?: Partial<PersonName>): void {
-        data = { ...PersonName.defaultValue(), ...newOverrides };
+        data = { ...defaultValuePersonName(), ...newOverrides };
         errors = { _errors: Option.none(), firstName: Option.none(), lastName: Option.none() };
         tainted = { firstName: Option.none(), lastName: Option.none() };
     }
@@ -302,5 +302,5 @@ export function fromFormDataPersonName(
     const obj: Record<string, unknown> = {};
     obj.firstName = formData.get('firstName') ?? '';
     obj.lastName = formData.get('lastName') ?? '';
-    return PersonName.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONPersonName(JSON.stringify(obj));
 }

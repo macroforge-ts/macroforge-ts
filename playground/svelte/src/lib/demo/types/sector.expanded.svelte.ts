@@ -156,7 +156,7 @@ export function createFormSector(initial?: Sector): GigaformSector {
         tainted = {} as TaintedSector;
     }
     function validate(): Result<Sector, Array<{ field: string; message: string }>> {
-        return Sector.fromObject(data);
+        return fromObjectSector(data);
     }
     function reset(overrides?: Partial<Sector>): void {
         data = overrides ? (overrides as typeof data) : getDefaultForVariantSector(currentVariant);
@@ -203,5 +203,5 @@ export function fromFormDataSector(
     if (discriminant === 'Residential') {
     } else if (discriminant === 'Commercial') {
     }
-    return Sector.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONSector(JSON.stringify(obj));
 }

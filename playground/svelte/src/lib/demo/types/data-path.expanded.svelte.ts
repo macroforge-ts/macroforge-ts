@@ -172,7 +172,7 @@ export interface GigaformDataPath {
     reset(overrides?: Partial<DataPath>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormDataPath(overrides?: Partial<DataPath>): GigaformDataPath {
-    let data = $state({ ...DataPath.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueDataPath(), ...overrides });
     let errors = $state<ErrorsDataPath>({
         _errors: Option.none(),
         path: Option.none(),
@@ -199,7 +199,7 @@ export function createFormDataPath(overrides?: Partial<DataPath>): GigaformDataP
                 tainted.path = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = DataPath.validateField('path', data.path);
+                const fieldErrors = validateFieldDataPath('path', data.path);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -252,16 +252,16 @@ export function createFormDataPath(overrides?: Partial<DataPath>): GigaformDataP
                 tainted.formatter = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = DataPath.validateField('formatter', data.formatter);
+                const fieldErrors = validateFieldDataPath('formatter', data.formatter);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<DataPath, Array<{ field: string; message: string }>> {
-        return DataPath.fromObject(data);
+        return fromObjectDataPath(data);
     }
     function reset(newOverrides?: Partial<DataPath>): void {
-        data = { ...DataPath.defaultValue(), ...newOverrides };
+        data = { ...defaultValueDataPath(), ...newOverrides };
         errors = { _errors: Option.none(), path: Option.none(), formatter: Option.none() };
         tainted = { path: Option.none(), formatter: Option.none() };
     }
@@ -295,5 +295,5 @@ export function fromFormDataDataPath(
     const obj: Record<string, unknown> = {};
     obj.path = formData.getAll('path') as Array<string>;
     obj.formatter = formData.get('formatter') ?? '';
-    return DataPath.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONDataPath(JSON.stringify(obj));
 }

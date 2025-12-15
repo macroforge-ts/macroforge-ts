@@ -177,7 +177,7 @@ export interface GigaformPassword {
     reset(overrides?: Partial<Password>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormPassword(overrides?: Partial<Password>): GigaformPassword {
-    let data = $state({ ...Password.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValuePassword(), ...overrides });
     let errors = $state<ErrorsPassword>({ _errors: Option.none(), password: Option.none() });
     let tainted = $state<TaintedPassword>({ password: Option.none() });
     const fields: FieldControllersPassword = {
@@ -200,16 +200,16 @@ export function createFormPassword(overrides?: Partial<Password>): GigaformPassw
                 tainted.password = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Password.validateField('password', data.password);
+                const fieldErrors = validateFieldPassword('password', data.password);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Password, Array<{ field: string; message: string }>> {
-        return Password.fromObject(data);
+        return fromObjectPassword(data);
     }
     function reset(newOverrides?: Partial<Password>): void {
-        data = { ...Password.defaultValue(), ...newOverrides };
+        data = { ...defaultValuePassword(), ...newOverrides };
         errors = { _errors: Option.none(), password: Option.none() };
         tainted = { password: Option.none() };
     }
@@ -242,5 +242,5 @@ export function fromFormDataPassword(
 ): Result<Password, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.password = formData.get('password') ?? '';
-    return Password.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONPassword(JSON.stringify(obj));
 }

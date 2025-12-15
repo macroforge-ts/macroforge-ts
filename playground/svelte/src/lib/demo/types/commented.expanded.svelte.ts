@@ -192,7 +192,7 @@ export interface GigaformCommented {
     reset(overrides?: Partial<Commented>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormCommented(overrides?: Partial<Commented>): GigaformCommented {
-    let data = $state({ ...Commented.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueCommented(), ...overrides });
     let errors = $state<ErrorsCommented>({
         _errors: Option.none(),
         comment: Option.none(),
@@ -219,7 +219,7 @@ export function createFormCommented(overrides?: Partial<Commented>): GigaformCom
                 tainted.comment = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Commented.validateField('comment', data.comment);
+                const fieldErrors = validateFieldCommented('comment', data.comment);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -242,16 +242,16 @@ export function createFormCommented(overrides?: Partial<Commented>): GigaformCom
                 tainted.replyTo = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Commented.validateField('replyTo', data.replyTo);
+                const fieldErrors = validateFieldCommented('replyTo', data.replyTo);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Commented, Array<{ field: string; message: string }>> {
-        return Commented.fromObject(data);
+        return fromObjectCommented(data);
     }
     function reset(newOverrides?: Partial<Commented>): void {
-        data = { ...Commented.defaultValue(), ...newOverrides };
+        data = { ...defaultValueCommented(), ...newOverrides };
         errors = { _errors: Option.none(), comment: Option.none(), replyTo: Option.none() };
         tainted = { comment: Option.none(), replyTo: Option.none() };
     }
@@ -285,5 +285,5 @@ export function fromFormDataCommented(
     const obj: Record<string, unknown> = {};
     obj.comment = formData.get('comment') ?? '';
     obj.replyTo = formData.get('replyTo') ?? '';
-    return Commented.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONCommented(JSON.stringify(obj));
 }

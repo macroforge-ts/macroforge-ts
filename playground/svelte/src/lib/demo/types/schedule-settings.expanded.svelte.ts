@@ -1,9 +1,11 @@
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeRowHeight } from './row-height.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeRowHeight } from './row-height.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -47,10 +49,7 @@ export function __serializeScheduleSettings(
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'ScheduleSettings', __id };
     result['daysPerWeek'] = value.daysPerWeek;
-    result['rowHeight'] =
-        typeof (value.rowHeight as any)?.__serialize === 'function'
-            ? (value.rowHeight as any).__serialize(ctx)
-            : value.rowHeight;
+    result['rowHeight'] = __serializeRowHeight(value.rowHeight, ctx);
     result['visibleRoutes'] = value.visibleRoutes;
     result['detailedCards'] = value.detailedCards;
     return result;
@@ -140,7 +139,7 @@ export function __deserializeScheduleSettings(
     {
         const __raw_rowHeight = obj['rowHeight'] as RowHeight;
         {
-            const __result = RowHeight.__deserialize(__raw_rowHeight, ctx);
+            const __result = __deserializeRowHeight(__raw_rowHeight, ctx);
             ctx.assignOrDefer(instance, 'rowHeight', __result);
         }
     }
@@ -215,7 +214,7 @@ export interface GigaformScheduleSettings {
 export function createFormScheduleSettings(
     overrides?: Partial<ScheduleSettings>
 ): GigaformScheduleSettings {
-    let data = $state({ ...ScheduleSettings.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueScheduleSettings(), ...overrides });
     let errors = $state<ErrorsScheduleSettings>({
         _errors: Option.none(),
         daysPerWeek: Option.none(),
@@ -249,7 +248,7 @@ export function createFormScheduleSettings(
                 tainted.daysPerWeek = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = ScheduleSettings.validateField('daysPerWeek', data.daysPerWeek);
+                const fieldErrors = validateFieldScheduleSettings('daysPerWeek', data.daysPerWeek);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -272,7 +271,7 @@ export function createFormScheduleSettings(
                 tainted.rowHeight = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = ScheduleSettings.validateField('rowHeight', data.rowHeight);
+                const fieldErrors = validateFieldScheduleSettings('rowHeight', data.rowHeight);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -295,7 +294,7 @@ export function createFormScheduleSettings(
                 tainted.visibleRoutes = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = ScheduleSettings.validateField(
+                const fieldErrors = validateFieldScheduleSettings(
                     'visibleRoutes',
                     data.visibleRoutes
                 );
@@ -351,7 +350,7 @@ export function createFormScheduleSettings(
                 tainted.detailedCards = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = ScheduleSettings.validateField(
+                const fieldErrors = validateFieldScheduleSettings(
                     'detailedCards',
                     data.detailedCards
                 );
@@ -360,10 +359,10 @@ export function createFormScheduleSettings(
         }
     };
     function validate(): Result<ScheduleSettings, Array<{ field: string; message: string }>> {
-        return ScheduleSettings.fromObject(data);
+        return fromObjectScheduleSettings(data);
     }
     function reset(newOverrides?: Partial<ScheduleSettings>): void {
-        data = { ...ScheduleSettings.defaultValue(), ...newOverrides };
+        data = { ...defaultValueScheduleSettings(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             daysPerWeek: Option.none(),
@@ -438,5 +437,5 @@ export function fromFormDataScheduleSettings(
         obj.detailedCards =
             detailedCardsVal === 'true' || detailedCardsVal === 'on' || detailedCardsVal === '1';
     }
-    return ScheduleSettings.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONScheduleSettings(JSON.stringify(obj));
 }

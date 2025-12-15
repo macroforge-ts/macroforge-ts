@@ -162,7 +162,7 @@ export interface GigaformDailyRecurrenceRule {
 export function createFormDailyRecurrenceRule(
     overrides?: Partial<DailyRecurrenceRule>
 ): GigaformDailyRecurrenceRule {
-    let data = $state({ ...DailyRecurrenceRule.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueDailyRecurrenceRule(), ...overrides });
     let errors = $state<ErrorsDailyRecurrenceRule>({
         _errors: Option.none(),
         quantityOfDays: Option.none()
@@ -188,7 +188,7 @@ export function createFormDailyRecurrenceRule(
                 tainted.quantityOfDays = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = DailyRecurrenceRule.validateField(
+                const fieldErrors = validateFieldDailyRecurrenceRule(
                     'quantityOfDays',
                     data.quantityOfDays
                 );
@@ -197,10 +197,10 @@ export function createFormDailyRecurrenceRule(
         }
     };
     function validate(): Result<DailyRecurrenceRule, Array<{ field: string; message: string }>> {
-        return DailyRecurrenceRule.fromObject(data);
+        return fromObjectDailyRecurrenceRule(data);
     }
     function reset(newOverrides?: Partial<DailyRecurrenceRule>): void {
-        data = { ...DailyRecurrenceRule.defaultValue(), ...newOverrides };
+        data = { ...defaultValueDailyRecurrenceRule(), ...newOverrides };
         errors = { _errors: Option.none(), quantityOfDays: Option.none() };
         tainted = { quantityOfDays: Option.none() };
     }
@@ -238,5 +238,5 @@ export function fromFormDataDailyRecurrenceRule(
         if (obj.quantityOfDays !== undefined && isNaN(obj.quantityOfDays as number))
             obj.quantityOfDays = 0;
     }
-    return DailyRecurrenceRule.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONDailyRecurrenceRule(JSON.stringify(obj));
 }

@@ -36,16 +36,16 @@ export function defaultValueUser(): User {return {id: "",
                             lastName: "",
                             password: null,
                             metadata: null,
-                            settings: Settings.defaultValue(),
+                            settings: defaultValueSettings(),
                             role: "Administrator",
                             emailVerified: false,
                             verificationToken: null,
                             verificationExpires: null,
                             passwordResetToken: null,
                             passwordResetExpires: null,
-                            permissions: AppPermissions.defaultValue(), }as User;}
+                            permissions: defaultValueAppPermissions(), }as User;}
 
-export function toStringifiedJSONUser(value: User): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeUser(value, ctx));}export function toObjectUser(value: User): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeUser(value, ctx);}export function __serializeUser(value: User, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "User" , __id,}; result["id" ]= value.id; result["email" ]= value.email; result["firstName" ]= value.firstName; result["lastName" ]= value.lastName; result["password" ]= value.password; if(value.metadata!== null){result["metadata" ]= typeof(value.metadata as any)?.__serialize === "function" ? (value.metadata as any).__serialize(ctx): value.metadata;}else {result["metadata" ]= null;}result["settings" ]= typeof(value.settings as any)?.__serialize === "function" ? (value.settings as any).__serialize(ctx): value.settings; result["role" ]= typeof(value.role as any)?.__serialize === "function" ? (value.role as any).__serialize(ctx): value.role; result["emailVerified" ]= value.emailVerified; result["verificationToken" ]= value.verificationToken; result["verificationExpires" ]= value.verificationExpires; result["passwordResetToken" ]= value.passwordResetToken; result["passwordResetExpires" ]= value.passwordResetExpires; result["permissions" ]= typeof(value.permissions as any)?.__serialize === "function" ? (value.permissions as any).__serialize(ctx): value.permissions; return result;}
+export function toStringifiedJSONUser(value: User): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeUser(value, ctx));}export function toObjectUser(value: User): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeUser(value, ctx);}export function __serializeUser(value: User, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "User" , __id,}; result["id" ]= value.id; result["email" ]= value.email; result["firstName" ]= value.firstName; result["lastName" ]= value.lastName; result["password" ]= value.password; if(value.metadata!== null){result["metadata" ]= __serializeMetadata(value.metadata, ctx); }else {result["metadata" ]= null;}result["settings" ]= __serializeSettings(value.settings, ctx); result["role" ]= __serializeUserRole(value.role, ctx); result["emailVerified" ]= value.emailVerified; result["verificationToken" ]= value.verificationToken; result["verificationExpires" ]= value.verificationExpires; result["passwordResetToken" ]= value.passwordResetToken; result["passwordResetExpires" ]= value.passwordResetExpires; result["permissions" ]= __serializeAppPermissions(value.permissions, ctx); return result;}
 
 export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions): Result<User, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectUser(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectUser(obj: unknown, opts?: DeserializeOptions): Result<User, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeUser(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "User.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeUser(value: any, ctx: DeserializeContext): User | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "User.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("email" in obj)){errors.push({field: "email" , message: "missing required field" });}if(!("firstName" in obj)){errors.push({field: "firstName" , message: "missing required field" });}if(!("lastName" in obj)){errors.push({field: "lastName" , message: "missing required field" });}if(!("password" in obj)){errors.push({field: "password" , message: "missing required field" });}if(!("metadata" in obj)){errors.push({field: "metadata" , message: "missing required field" });}if(!("settings" in obj)){errors.push({field: "settings" , message: "missing required field" });}if(!("role" in obj)){errors.push({field: "role" , message: "missing required field" });}if(!("emailVerified" in obj)){errors.push({field: "emailVerified" , message: "missing required field" });}if(!("verificationToken" in obj)){errors.push({field: "verificationToken" , message: "missing required field" });}if(!("verificationExpires" in obj)){errors.push({field: "verificationExpires" , message: "missing required field" });}if(!("passwordResetToken" in obj)){errors.push({field: "passwordResetToken" , message: "missing required field" });}if(!("passwordResetExpires" in obj)){errors.push({field: "passwordResetExpires" , message: "missing required field" });}if(!("permissions" in obj)){errors.push({field: "permissions" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_email = obj["email" ]as string | null; instance.email = __raw_email; }{const __raw_firstName = obj["firstName" ]as string; 
                 if (__raw_firstName.length === 0) {
@@ -55,7 +55,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                 if (__raw_lastName.length === 0) {
                     errors.push({ field: "lastName", message: "must not be empty" });
                 }
- instance.lastName = __raw_lastName; }{const __raw_password = obj["password" ]as string | null; instance.password = __raw_password; }{const __raw_metadata = obj["metadata" ]as Metadata | null; if(__raw_metadata === null){instance.metadata = null;}else {const __result = Metadata.__deserialize(__raw_metadata, ctx); ctx.assignOrDefer(instance, "metadata" , __result); }}{const __raw_settings = obj["settings" ]as Settings; {const __result = Settings.__deserialize(__raw_settings, ctx); ctx.assignOrDefer(instance, "settings" , __result);}}{const __raw_role = obj["role" ]as UserRole; {const __result = UserRole.__deserialize(__raw_role, ctx); ctx.assignOrDefer(instance, "role" , __result);}}{const __raw_emailVerified = obj["emailVerified" ]as boolean; instance.emailVerified = __raw_emailVerified; }{const __raw_verificationToken = obj["verificationToken" ]as string | null; instance.verificationToken = __raw_verificationToken; }{const __raw_verificationExpires = obj["verificationExpires" ]as string | null; instance.verificationExpires = __raw_verificationExpires; }{const __raw_passwordResetToken = obj["passwordResetToken" ]as string | null; instance.passwordResetToken = __raw_passwordResetToken; }{const __raw_passwordResetExpires = obj["passwordResetExpires" ]as string | null; instance.passwordResetExpires = __raw_passwordResetExpires; }{const __raw_permissions = obj["permissions" ]as AppPermissions; {const __result = AppPermissions.__deserialize(__raw_permissions, ctx); ctx.assignOrDefer(instance, "permissions" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as User;}export function validateFieldUser<K extends keyof User>(field: K, value: User[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "firstName" : {const __val = value as string; 
+ instance.lastName = __raw_lastName; }{const __raw_password = obj["password" ]as string | null; instance.password = __raw_password; }{const __raw_metadata = obj["metadata" ]as Metadata | null; if(__raw_metadata === null){instance.metadata = null;}else {const __result = __deserializeMetadata(__raw_metadata, ctx); ctx.assignOrDefer(instance, "metadata" , __result); }}{const __raw_settings = obj["settings" ]as Settings; {const __result = __deserializeSettings(__raw_settings, ctx); ctx.assignOrDefer(instance, "settings" , __result);}}{const __raw_role = obj["role" ]as UserRole; {const __result = __deserializeUserRole(__raw_role, ctx); ctx.assignOrDefer(instance, "role" , __result);}}{const __raw_emailVerified = obj["emailVerified" ]as boolean; instance.emailVerified = __raw_emailVerified; }{const __raw_verificationToken = obj["verificationToken" ]as string | null; instance.verificationToken = __raw_verificationToken; }{const __raw_verificationExpires = obj["verificationExpires" ]as string | null; instance.verificationExpires = __raw_verificationExpires; }{const __raw_passwordResetToken = obj["passwordResetToken" ]as string | null; instance.passwordResetToken = __raw_passwordResetToken; }{const __raw_passwordResetExpires = obj["passwordResetExpires" ]as string | null; instance.passwordResetExpires = __raw_passwordResetExpires; }{const __raw_permissions = obj["permissions" ]as AppPermissions; {const __result = __deserializeAppPermissions(__raw_permissions, ctx); ctx.assignOrDefer(instance, "permissions" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as User;}export function validateFieldUser<K extends keyof User>(field: K, value: User[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "firstName" : {const __val = value as string; 
                 if (__val.length === 0) {
                     errors.push({ field: "firstName", message: "must not be empty" });
                 }
@@ -112,7 +112,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
             readonly verificationExpires: FieldController<string | null>;
             readonly passwordResetToken: FieldController<string | null>;
             readonly passwordResetExpires: FieldController<string | null>;
-            readonly permissions: FieldController<AppPermissions>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformUser {readonly data: User; readonly errors: ErrorsUser; readonly tainted: TaintedUser; readonly fields: FieldControllersUser; validate(): Result<User, Array<{field: string; message: string}>>; reset(overrides?: Partial<User>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormUser(overrides?: Partial<User>): GigaformUser {let data = $state({...User.defaultValue(),...overrides}); let errors = $state<ErrorsUser>({ _errors: Option.none(), id: Option.none(), email: Option.none(), firstName: Option.none(), lastName: Option.none(), password: Option.none(), metadata: Option.none(), settings: Option.none(), role: Option.none(), emailVerified: Option.none(), verificationToken: Option.none(), verificationExpires: Option.none(), passwordResetToken: Option.none(), passwordResetExpires: Option.none(), permissions: Option.none() }); let tainted = $state<TaintedUser>({ id: Option.none(), email: Option.none(), firstName: Option.none(), lastName: Option.none(), password: Option.none(), metadata: Option.none(), settings: Option.none(), role: Option.none(), emailVerified: Option.none(), verificationToken: Option.none(), verificationExpires: Option.none(), passwordResetToken: Option.none(), passwordResetExpires: Option.none(), permissions: Option.none() }); const fields: FieldControllersUser = {id: {
+            readonly permissions: FieldController<AppPermissions>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformUser {readonly data: User; readonly errors: ErrorsUser; readonly tainted: TaintedUser; readonly fields: FieldControllersUser; validate(): Result<User, Array<{field: string; message: string}>>; reset(overrides?: Partial<User>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormUser(overrides?: Partial<User>): GigaformUser {let data = $state({...defaultValueUser(),...overrides}); let errors = $state<ErrorsUser>({ _errors: Option.none(), id: Option.none(), email: Option.none(), firstName: Option.none(), lastName: Option.none(), password: Option.none(), metadata: Option.none(), settings: Option.none(), role: Option.none(), emailVerified: Option.none(), verificationToken: Option.none(), verificationExpires: Option.none(), passwordResetToken: Option.none(), passwordResetExpires: Option.none(), permissions: Option.none() }); let tainted = $state<TaintedUser>({ id: Option.none(), email: Option.none(), firstName: Option.none(), lastName: Option.none(), password: Option.none(), metadata: Option.none(), settings: Option.none(), role: Option.none(), emailVerified: Option.none(), verificationToken: Option.none(), verificationExpires: Option.none(), passwordResetToken: Option.none(), passwordResetExpires: Option.none(), permissions: Option.none() }); const fields: FieldControllersUser = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -125,7 +125,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = User.validateField("id", data.id);
+                        const fieldErrors = validateFieldUser("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -143,7 +143,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.email,
                     setTainted: (value: Option<boolean>) => { tainted.email = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = User.validateField("email", data.email);
+                        const fieldErrors = validateFieldUser("email", data.email);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -161,7 +161,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.firstName,
                     setTainted: (value: Option<boolean>) => { tainted.firstName = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = User.validateField("firstName", data.firstName);
+                        const fieldErrors = validateFieldUser("firstName", data.firstName);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -179,7 +179,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.lastName,
                     setTainted: (value: Option<boolean>) => { tainted.lastName = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = User.validateField("lastName", data.lastName);
+                        const fieldErrors = validateFieldUser("lastName", data.lastName);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -197,7 +197,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.password,
                     setTainted: (value: Option<boolean>) => { tainted.password = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = User.validateField("password", data.password);
+                        const fieldErrors = validateFieldUser("password", data.password);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -215,7 +215,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.metadata,
                     setTainted: (value: Option<boolean>) => { tainted.metadata = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = User.validateField("metadata", data.metadata);
+                        const fieldErrors = validateFieldUser("metadata", data.metadata);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -233,7 +233,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.settings,
                     setTainted: (value: Option<boolean>) => { tainted.settings = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = User.validateField("settings", data.settings);
+                        const fieldErrors = validateFieldUser("settings", data.settings);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -251,7 +251,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.role,
                     setTainted: (value: Option<boolean>) => { tainted.role = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = User.validateField("role", data.role);
+                        const fieldErrors = validateFieldUser("role", data.role);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -269,7 +269,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.emailVerified,
                     setTainted: (value: Option<boolean>) => { tainted.emailVerified = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = User.validateField("emailVerified", data.emailVerified);
+                        const fieldErrors = validateFieldUser("emailVerified", data.emailVerified);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -287,7 +287,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.verificationToken,
                     setTainted: (value: Option<boolean>) => { tainted.verificationToken = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = User.validateField("verificationToken", data.verificationToken);
+                        const fieldErrors = validateFieldUser("verificationToken", data.verificationToken);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -305,7 +305,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.verificationExpires,
                     setTainted: (value: Option<boolean>) => { tainted.verificationExpires = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = User.validateField("verificationExpires", data.verificationExpires);
+                        const fieldErrors = validateFieldUser("verificationExpires", data.verificationExpires);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -323,7 +323,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.passwordResetToken,
                     setTainted: (value: Option<boolean>) => { tainted.passwordResetToken = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = User.validateField("passwordResetToken", data.passwordResetToken);
+                        const fieldErrors = validateFieldUser("passwordResetToken", data.passwordResetToken);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -341,7 +341,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.passwordResetExpires,
                     setTainted: (value: Option<boolean>) => { tainted.passwordResetExpires = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = User.validateField("passwordResetExpires", data.passwordResetExpires);
+                        const fieldErrors = validateFieldUser("passwordResetExpires", data.passwordResetExpires);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -359,11 +359,11 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.permissions,
                     setTainted: (value: Option<boolean>) => { tainted.permissions = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = User.validateField("permissions", data.permissions);
+                        const fieldErrors = validateFieldUser("permissions", data.permissions);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<User, Array<{field: string; message: string}>>{return User.fromObject(data);}function reset(newOverrides?: Partial<User>): void {data = {...User.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), email: Option.none(), firstName: Option.none(), lastName: Option.none(), password: Option.none(), metadata: Option.none(), settings: Option.none(), role: Option.none(), emailVerified: Option.none(), verificationToken: Option.none(), verificationExpires: Option.none(), passwordResetToken: Option.none(), passwordResetExpires: Option.none(), permissions: Option.none() }; tainted = { id: Option.none(), email: Option.none(), firstName: Option.none(), lastName: Option.none(), password: Option.none(), metadata: Option.none(), settings: Option.none(), role: Option.none(), emailVerified: Option.none(), verificationToken: Option.none(), verificationExpires: Option.none(), passwordResetToken: Option.none(), passwordResetExpires: Option.none(), permissions: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataUser(formData: FormData): Result<User, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+                }}; function validate(): Result<User, Array<{field: string; message: string}>>{return fromObjectUser(data);}function reset(newOverrides?: Partial<User>): void {data = {...defaultValueUser(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), email: Option.none(), firstName: Option.none(), lastName: Option.none(), password: Option.none(), metadata: Option.none(), settings: Option.none(), role: Option.none(), emailVerified: Option.none(), verificationToken: Option.none(), verificationExpires: Option.none(), passwordResetToken: Option.none(), passwordResetExpires: Option.none(), permissions: Option.none() }; tainted = { id: Option.none(), email: Option.none(), firstName: Option.none(), lastName: Option.none(), password: Option.none(), metadata: Option.none(), settings: Option.none(), role: Option.none(), emailVerified: Option.none(), verificationToken: Option.none(), verificationExpires: Option.none(), passwordResetToken: Option.none(), passwordResetExpires: Option.none(), permissions: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataUser(formData: FormData): Result<User, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
             obj.email = formData.get("email") ?? "";
             obj.firstName = formData.get("firstName") ?? "";
             obj.lastName = formData.get("lastName") ?? "";
@@ -439,7 +439,7 @@ export function fromStringifiedJSONUser(json: string, opts?: DeserializeOptions)
                 }
             }
             obj.permissions = permissionsObj;
-        } return User.fromStringifiedJSON(JSON.stringify(obj));}
+        } return fromStringifiedJSONUser(JSON.stringify(obj));}
 
 
 export interface Service {
@@ -478,9 +478,9 @@ export function defaultValueService(): Service {return {id: "",
                             commission: false,
                             favorite: false,
                             averageTime: null,
-                            defaults: ServiceDefaults.defaultValue(), }as Service;}
+                            defaults: defaultValueServiceDefaults(), }as Service;}
 
-export function toStringifiedJSONService(value: Service): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeService(value, ctx));}export function toObjectService(value: Service): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeService(value, ctx);}export function __serializeService(value: Service, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Service" , __id,}; result["id" ]= value.id; result["name" ]= value.name; result["quickCode" ]= value.quickCode; result["group" ]= value.group; result["subgroup" ]= value.subgroup; result["unit" ]= value.unit; result["active" ]= value.active; result["commission" ]= value.commission; result["favorite" ]= value.favorite; result["averageTime" ]= value.averageTime; result["defaults" ]= typeof(value.defaults as any)?.__serialize === "function" ? (value.defaults as any).__serialize(ctx): value.defaults; return result;}
+export function toStringifiedJSONService(value: Service): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeService(value, ctx));}export function toObjectService(value: Service): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeService(value, ctx);}export function __serializeService(value: Service, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Service" , __id,}; result["id" ]= value.id; result["name" ]= value.name; result["quickCode" ]= value.quickCode; result["group" ]= value.group; result["subgroup" ]= value.subgroup; result["unit" ]= value.unit; result["active" ]= value.active; result["commission" ]= value.commission; result["favorite" ]= value.favorite; result["averageTime" ]= value.averageTime; result["defaults" ]= __serializeServiceDefaults(value.defaults, ctx); return result;}
 
 export function fromStringifiedJSONService(json: string, opts?: DeserializeOptions): Result<Service, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectService(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectService(obj: unknown, opts?: DeserializeOptions): Result<Service, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeService(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Service.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeService(value: any, ctx: DeserializeContext): Service | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Service.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("name" in obj)){errors.push({field: "name" , message: "missing required field" });}if(!("quickCode" in obj)){errors.push({field: "quickCode" , message: "missing required field" });}if(!("group" in obj)){errors.push({field: "group" , message: "missing required field" });}if(!("subgroup" in obj)){errors.push({field: "subgroup" , message: "missing required field" });}if(!("unit" in obj)){errors.push({field: "unit" , message: "missing required field" });}if(!("active" in obj)){errors.push({field: "active" , message: "missing required field" });}if(!("commission" in obj)){errors.push({field: "commission" , message: "missing required field" });}if(!("favorite" in obj)){errors.push({field: "favorite" , message: "missing required field" });}if(!("averageTime" in obj)){errors.push({field: "averageTime" , message: "missing required field" });}if(!("defaults" in obj)){errors.push({field: "defaults" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_name = obj["name" ]as string; 
                 if (__raw_name.length === 0) {
@@ -490,7 +490,7 @@ export function fromStringifiedJSONService(json: string, opts?: DeserializeOptio
                 if (__raw_quickCode.length === 0) {
                     errors.push({ field: "quickCode", message: "must not be empty" });
                 }
- instance.quickCode = __raw_quickCode; }{const __raw_group = obj["group" ]as string | null; instance.group = __raw_group; }{const __raw_subgroup = obj["subgroup" ]as string | null; instance.subgroup = __raw_subgroup; }{const __raw_unit = obj["unit" ]as string | null; instance.unit = __raw_unit; }{const __raw_active = obj["active" ]as boolean; instance.active = __raw_active; }{const __raw_commission = obj["commission" ]as boolean; instance.commission = __raw_commission; }{const __raw_favorite = obj["favorite" ]as boolean; instance.favorite = __raw_favorite; }{const __raw_averageTime = obj["averageTime" ]as string | null; instance.averageTime = __raw_averageTime; }{const __raw_defaults = obj["defaults" ]as ServiceDefaults; {const __result = ServiceDefaults.__deserialize(__raw_defaults, ctx); ctx.assignOrDefer(instance, "defaults" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as Service;}export function validateFieldService<K extends keyof Service>(field: K, value: Service[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "name" : {const __val = value as string; 
+ instance.quickCode = __raw_quickCode; }{const __raw_group = obj["group" ]as string | null; instance.group = __raw_group; }{const __raw_subgroup = obj["subgroup" ]as string | null; instance.subgroup = __raw_subgroup; }{const __raw_unit = obj["unit" ]as string | null; instance.unit = __raw_unit; }{const __raw_active = obj["active" ]as boolean; instance.active = __raw_active; }{const __raw_commission = obj["commission" ]as boolean; instance.commission = __raw_commission; }{const __raw_favorite = obj["favorite" ]as boolean; instance.favorite = __raw_favorite; }{const __raw_averageTime = obj["averageTime" ]as string | null; instance.averageTime = __raw_averageTime; }{const __raw_defaults = obj["defaults" ]as ServiceDefaults; {const __result = __deserializeServiceDefaults(__raw_defaults, ctx); ctx.assignOrDefer(instance, "defaults" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as Service;}export function validateFieldService<K extends keyof Service>(field: K, value: Service[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "name" : {const __val = value as string; 
                 if (__val.length === 0) {
                     errors.push({ field: "name", message: "must not be empty" });
                 }
@@ -538,7 +538,7 @@ export function fromStringifiedJSONService(json: string, opts?: DeserializeOptio
             readonly commission: FieldController<boolean>;
             readonly favorite: FieldController<boolean>;
             readonly averageTime: FieldController<string | null>;
-            readonly defaults: FieldController<ServiceDefaults>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformService {readonly data: Service; readonly errors: ErrorsService; readonly tainted: TaintedService; readonly fields: FieldControllersService; validate(): Result<Service, Array<{field: string; message: string}>>; reset(overrides?: Partial<Service>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormService(overrides?: Partial<Service>): GigaformService {let data = $state({...Service.defaultValue(),...overrides}); let errors = $state<ErrorsService>({ _errors: Option.none(), id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), averageTime: Option.none(), defaults: Option.none() }); let tainted = $state<TaintedService>({ id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), averageTime: Option.none(), defaults: Option.none() }); const fields: FieldControllersService = {id: {
+            readonly defaults: FieldController<ServiceDefaults>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformService {readonly data: Service; readonly errors: ErrorsService; readonly tainted: TaintedService; readonly fields: FieldControllersService; validate(): Result<Service, Array<{field: string; message: string}>>; reset(overrides?: Partial<Service>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormService(overrides?: Partial<Service>): GigaformService {let data = $state({...defaultValueService(),...overrides}); let errors = $state<ErrorsService>({ _errors: Option.none(), id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), averageTime: Option.none(), defaults: Option.none() }); let tainted = $state<TaintedService>({ id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), averageTime: Option.none(), defaults: Option.none() }); const fields: FieldControllersService = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -551,7 +551,7 @@ export function fromStringifiedJSONService(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Service.validateField("id", data.id);
+                        const fieldErrors = validateFieldService("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -569,7 +569,7 @@ export function fromStringifiedJSONService(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.name,
                     setTainted: (value: Option<boolean>) => { tainted.name = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Service.validateField("name", data.name);
+                        const fieldErrors = validateFieldService("name", data.name);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -587,7 +587,7 @@ export function fromStringifiedJSONService(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.quickCode,
                     setTainted: (value: Option<boolean>) => { tainted.quickCode = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Service.validateField("quickCode", data.quickCode);
+                        const fieldErrors = validateFieldService("quickCode", data.quickCode);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -605,7 +605,7 @@ export function fromStringifiedJSONService(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.group,
                     setTainted: (value: Option<boolean>) => { tainted.group = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Service.validateField("group", data.group);
+                        const fieldErrors = validateFieldService("group", data.group);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -623,7 +623,7 @@ export function fromStringifiedJSONService(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.subgroup,
                     setTainted: (value: Option<boolean>) => { tainted.subgroup = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Service.validateField("subgroup", data.subgroup);
+                        const fieldErrors = validateFieldService("subgroup", data.subgroup);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -641,7 +641,7 @@ export function fromStringifiedJSONService(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.unit,
                     setTainted: (value: Option<boolean>) => { tainted.unit = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Service.validateField("unit", data.unit);
+                        const fieldErrors = validateFieldService("unit", data.unit);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -659,7 +659,7 @@ export function fromStringifiedJSONService(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.active,
                     setTainted: (value: Option<boolean>) => { tainted.active = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Service.validateField("active", data.active);
+                        const fieldErrors = validateFieldService("active", data.active);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -677,7 +677,7 @@ export function fromStringifiedJSONService(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.commission,
                     setTainted: (value: Option<boolean>) => { tainted.commission = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Service.validateField("commission", data.commission);
+                        const fieldErrors = validateFieldService("commission", data.commission);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -695,7 +695,7 @@ export function fromStringifiedJSONService(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.favorite,
                     setTainted: (value: Option<boolean>) => { tainted.favorite = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Service.validateField("favorite", data.favorite);
+                        const fieldErrors = validateFieldService("favorite", data.favorite);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -713,7 +713,7 @@ export function fromStringifiedJSONService(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.averageTime,
                     setTainted: (value: Option<boolean>) => { tainted.averageTime = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Service.validateField("averageTime", data.averageTime);
+                        const fieldErrors = validateFieldService("averageTime", data.averageTime);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -731,11 +731,11 @@ export function fromStringifiedJSONService(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.defaults,
                     setTainted: (value: Option<boolean>) => { tainted.defaults = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Service.validateField("defaults", data.defaults);
+                        const fieldErrors = validateFieldService("defaults", data.defaults);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Service, Array<{field: string; message: string}>>{return Service.fromObject(data);}function reset(newOverrides?: Partial<Service>): void {data = {...Service.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), averageTime: Option.none(), defaults: Option.none() }; tainted = { id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), averageTime: Option.none(), defaults: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataService(formData: FormData): Result<Service, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+                }}; function validate(): Result<Service, Array<{field: string; message: string}>>{return fromObjectService(data);}function reset(newOverrides?: Partial<Service>): void {data = {...defaultValueService(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), averageTime: Option.none(), defaults: Option.none() }; tainted = { id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), averageTime: Option.none(), defaults: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataService(formData: FormData): Result<Service, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
             obj.name = formData.get("name") ?? "";
             obj.quickCode = formData.get("quickCode") ?? "";
             obj.group = formData.get("group") ?? "";
@@ -774,7 +774,7 @@ export function fromStringifiedJSONService(json: string, opts?: DeserializeOptio
                 }
             }
             obj.defaults = defaultsObj;
-        } return Service.fromStringifiedJSON(JSON.stringify(obj));}
+        } return fromStringifiedJSONService(JSON.stringify(obj));}
 
 
 export interface ServiceDefaults {
@@ -807,7 +807,7 @@ export function fromStringifiedJSONServiceDefaults(json: string, opts?: Deserial
 /** Nested error structure matching the data shape */export type ErrorsServiceDefaults = {_errors: Option<Array<string>>; price: Option<Array<string>>;
             description: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedServiceDefaults = {price: Option<boolean>;
             description: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersServiceDefaults {readonly price: FieldController<number>;
-            readonly description: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformServiceDefaults {readonly data: ServiceDefaults; readonly errors: ErrorsServiceDefaults; readonly tainted: TaintedServiceDefaults; readonly fields: FieldControllersServiceDefaults; validate(): Result<ServiceDefaults, Array<{field: string; message: string}>>; reset(overrides?: Partial<ServiceDefaults>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormServiceDefaults(overrides?: Partial<ServiceDefaults>): GigaformServiceDefaults {let data = $state({...ServiceDefaults.defaultValue(),...overrides}); let errors = $state<ErrorsServiceDefaults>({ _errors: Option.none(), price: Option.none(), description: Option.none() }); let tainted = $state<TaintedServiceDefaults>({ price: Option.none(), description: Option.none() }); const fields: FieldControllersServiceDefaults = {price: {
+            readonly description: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformServiceDefaults {readonly data: ServiceDefaults; readonly errors: ErrorsServiceDefaults; readonly tainted: TaintedServiceDefaults; readonly fields: FieldControllersServiceDefaults; validate(): Result<ServiceDefaults, Array<{field: string; message: string}>>; reset(overrides?: Partial<ServiceDefaults>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormServiceDefaults(overrides?: Partial<ServiceDefaults>): GigaformServiceDefaults {let data = $state({...defaultValueServiceDefaults(),...overrides}); let errors = $state<ErrorsServiceDefaults>({ _errors: Option.none(), price: Option.none(), description: Option.none() }); let tainted = $state<TaintedServiceDefaults>({ price: Option.none(), description: Option.none() }); const fields: FieldControllersServiceDefaults = {price: {
                     path: ["price"] as const,
                     name: "price",
                     constraints: { required: true },
@@ -820,7 +820,7 @@ export function fromStringifiedJSONServiceDefaults(json: string, opts?: Deserial
                     getTainted: () => tainted.price,
                     setTainted: (value: Option<boolean>) => { tainted.price = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = ServiceDefaults.validateField("price", data.price);
+                        const fieldErrors = validateFieldServiceDefaults("price", data.price);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -838,16 +838,16 @@ export function fromStringifiedJSONServiceDefaults(json: string, opts?: Deserial
                     getTainted: () => tainted.description,
                     setTainted: (value: Option<boolean>) => { tainted.description = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = ServiceDefaults.validateField("description", data.description);
+                        const fieldErrors = validateFieldServiceDefaults("description", data.description);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<ServiceDefaults, Array<{field: string; message: string}>>{return ServiceDefaults.fromObject(data);}function reset(newOverrides?: Partial<ServiceDefaults>): void {data = {...ServiceDefaults.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), price: Option.none(), description: Option.none() }; tainted = { price: Option.none(), description: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataServiceDefaults(formData: FormData): Result<ServiceDefaults, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<ServiceDefaults, Array<{field: string; message: string}>>{return fromObjectServiceDefaults(data);}function reset(newOverrides?: Partial<ServiceDefaults>): void {data = {...defaultValueServiceDefaults(),...newOverrides}; errors = { _errors: Option.none(), price: Option.none(), description: Option.none() }; tainted = { price: Option.none(), description: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataServiceDefaults(formData: FormData): Result<ServiceDefaults, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const priceStr = formData.get("price");
                 obj.price = priceStr ? parseFloat(priceStr as string) : 0;
                 if (obj.price !== undefined && isNaN(obj.price as number)) obj.price = 0;
             }
-            obj.description = formData.get("description") ?? ""; return ServiceDefaults.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.description = formData.get("description") ?? ""; return fromStringifiedJSONServiceDefaults(JSON.stringify(obj));}
 
 
 export interface Did {
@@ -864,13 +864,13 @@ export interface Did {
 export function defaultValueDid(): Did {return {in: "",
                             out: "",
                             id: "",
-                            activityType: ActivityType.defaultValue(),
+                            activityType: defaultValueActivityType(),
                             createdAt: "",
                             metadata: null, }as Did;}
 
-export function toStringifiedJSONDid(value: Did): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeDid(value, ctx));}export function toObjectDid(value: Did): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeDid(value, ctx);}export function __serializeDid(value: Did, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Did" , __id,}; result["in" ]= value.in; result["out" ]= value.out; result["id" ]= value.id; result["activityType" ]= typeof(value.activityType as any)?.__serialize === "function" ? (value.activityType as any).__serialize(ctx): value.activityType; result["createdAt" ]= value.createdAt; result["metadata" ]= value.metadata; return result;}
+export function toStringifiedJSONDid(value: Did): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeDid(value, ctx));}export function toObjectDid(value: Did): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeDid(value, ctx);}export function __serializeDid(value: Did, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Did" , __id,}; result["in" ]= value.in; result["out" ]= value.out; result["id" ]= value.id; result["activityType" ]= __serializeActivityType(value.activityType, ctx); result["createdAt" ]= value.createdAt; result["metadata" ]= value.metadata; return result;}
 
-export function fromStringifiedJSONDid(json: string, opts?: DeserializeOptions): Result<Did, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectDid(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectDid(obj: unknown, opts?: DeserializeOptions): Result<Did, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeDid(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Did.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeDid(value: any, ctx: DeserializeContext): Did | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Did.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("in" in obj)){errors.push({field: "in" , message: "missing required field" });}if(!("out" in obj)){errors.push({field: "out" , message: "missing required field" });}if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("activityType" in obj)){errors.push({field: "activityType" , message: "missing required field" });}if(!("createdAt" in obj)){errors.push({field: "createdAt" , message: "missing required field" });}if(!("metadata" in obj)){errors.push({field: "metadata" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_in = obj["in" ]as string | Actor; instance.in = __raw_in; }{const __raw_out = obj["out" ]as string | Target; instance.out = __raw_out; }{const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_activityType = obj["activityType" ]as ActivityType; {const __result = ActivityType.__deserialize(__raw_activityType, ctx); ctx.assignOrDefer(instance, "activityType" , __result);}}{const __raw_createdAt = obj["createdAt" ]as string; instance.createdAt = __raw_createdAt; }{const __raw_metadata = obj["metadata" ]as string | null; instance.metadata = __raw_metadata; }if(errors.length>0){throw new DeserializeError(errors);}return instance as Did;}export function validateFieldDid<K extends keyof Did>(field: K, value: Did[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsDid(partial: Partial<Did>): Array<{field: string; message: string}>{return[]; }export function hasShapeDid(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "in" in o && "out" in o && "id" in o && "activityType" in o && "createdAt" in o && "metadata" in o;}export function isDid(obj: unknown): obj is Did {if(!hasShapeDid(obj)){return false;}const result = fromObjectDid(obj); return Result.isOk(result);}
+export function fromStringifiedJSONDid(json: string, opts?: DeserializeOptions): Result<Did, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectDid(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectDid(obj: unknown, opts?: DeserializeOptions): Result<Did, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeDid(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Did.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeDid(value: any, ctx: DeserializeContext): Did | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Did.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("in" in obj)){errors.push({field: "in" , message: "missing required field" });}if(!("out" in obj)){errors.push({field: "out" , message: "missing required field" });}if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("activityType" in obj)){errors.push({field: "activityType" , message: "missing required field" });}if(!("createdAt" in obj)){errors.push({field: "createdAt" , message: "missing required field" });}if(!("metadata" in obj)){errors.push({field: "metadata" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_in = obj["in" ]as string | Actor; instance.in = __raw_in; }{const __raw_out = obj["out" ]as string | Target; instance.out = __raw_out; }{const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_activityType = obj["activityType" ]as ActivityType; {const __result = __deserializeActivityType(__raw_activityType, ctx); ctx.assignOrDefer(instance, "activityType" , __result);}}{const __raw_createdAt = obj["createdAt" ]as string; instance.createdAt = __raw_createdAt; }{const __raw_metadata = obj["metadata" ]as string | null; instance.metadata = __raw_metadata; }if(errors.length>0){throw new DeserializeError(errors);}return instance as Did;}export function validateFieldDid<K extends keyof Did>(field: K, value: Did[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsDid(partial: Partial<Did>): Array<{field: string; message: string}>{return[]; }export function hasShapeDid(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "in" in o && "out" in o && "id" in o && "activityType" in o && "createdAt" in o && "metadata" in o;}export function isDid(obj: unknown): obj is Did {if(!hasShapeDid(obj)){return false;}const result = fromObjectDid(obj); return Result.isOk(result);}
 
 /** Nested error structure matching the data shape */export type ErrorsDid = {_errors: Option<Array<string>>; in: Option<Array<string>>;
             out: Option<Array<string>>;
@@ -887,7 +887,7 @@ export function fromStringifiedJSONDid(json: string, opts?: DeserializeOptions):
             readonly id: FieldController<string>;
             readonly activityType: FieldController<ActivityType>;
             readonly createdAt: FieldController<string>;
-            readonly metadata: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformDid {readonly data: Did; readonly errors: ErrorsDid; readonly tainted: TaintedDid; readonly fields: FieldControllersDid; validate(): Result<Did, Array<{field: string; message: string}>>; reset(overrides?: Partial<Did>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormDid(overrides?: Partial<Did>): GigaformDid {let data = $state({...Did.defaultValue(),...overrides}); let errors = $state<ErrorsDid>({ _errors: Option.none(), in: Option.none(), out: Option.none(), id: Option.none(), activityType: Option.none(), createdAt: Option.none(), metadata: Option.none() }); let tainted = $state<TaintedDid>({ in: Option.none(), out: Option.none(), id: Option.none(), activityType: Option.none(), createdAt: Option.none(), metadata: Option.none() }); const fields: FieldControllersDid = {in: {
+            readonly metadata: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformDid {readonly data: Did; readonly errors: ErrorsDid; readonly tainted: TaintedDid; readonly fields: FieldControllersDid; validate(): Result<Did, Array<{field: string; message: string}>>; reset(overrides?: Partial<Did>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormDid(overrides?: Partial<Did>): GigaformDid {let data = $state({...defaultValueDid(),...overrides}); let errors = $state<ErrorsDid>({ _errors: Option.none(), in: Option.none(), out: Option.none(), id: Option.none(), activityType: Option.none(), createdAt: Option.none(), metadata: Option.none() }); let tainted = $state<TaintedDid>({ in: Option.none(), out: Option.none(), id: Option.none(), activityType: Option.none(), createdAt: Option.none(), metadata: Option.none() }); const fields: FieldControllersDid = {in: {
                     path: ["in"] as const,
                     name: "in",
                     constraints: { required: true },
@@ -900,7 +900,7 @@ export function fromStringifiedJSONDid(json: string, opts?: DeserializeOptions):
                     getTainted: () => tainted.in,
                     setTainted: (value: Option<boolean>) => { tainted.in = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Did.validateField("in", data.in);
+                        const fieldErrors = validateFieldDid("in", data.in);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -918,7 +918,7 @@ export function fromStringifiedJSONDid(json: string, opts?: DeserializeOptions):
                     getTainted: () => tainted.out,
                     setTainted: (value: Option<boolean>) => { tainted.out = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Did.validateField("out", data.out);
+                        const fieldErrors = validateFieldDid("out", data.out);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -936,7 +936,7 @@ export function fromStringifiedJSONDid(json: string, opts?: DeserializeOptions):
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Did.validateField("id", data.id);
+                        const fieldErrors = validateFieldDid("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -954,7 +954,7 @@ export function fromStringifiedJSONDid(json: string, opts?: DeserializeOptions):
                     getTainted: () => tainted.activityType,
                     setTainted: (value: Option<boolean>) => { tainted.activityType = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Did.validateField("activityType", data.activityType);
+                        const fieldErrors = validateFieldDid("activityType", data.activityType);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -972,7 +972,7 @@ export function fromStringifiedJSONDid(json: string, opts?: DeserializeOptions):
                     getTainted: () => tainted.createdAt,
                     setTainted: (value: Option<boolean>) => { tainted.createdAt = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Did.validateField("createdAt", data.createdAt);
+                        const fieldErrors = validateFieldDid("createdAt", data.createdAt);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -990,11 +990,11 @@ export function fromStringifiedJSONDid(json: string, opts?: DeserializeOptions):
                     getTainted: () => tainted.metadata,
                     setTainted: (value: Option<boolean>) => { tainted.metadata = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Did.validateField("metadata", data.metadata);
+                        const fieldErrors = validateFieldDid("metadata", data.metadata);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Did, Array<{field: string; message: string}>>{return Did.fromObject(data);}function reset(newOverrides?: Partial<Did>): void {data = {...Did.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), in: Option.none(), out: Option.none(), id: Option.none(), activityType: Option.none(), createdAt: Option.none(), metadata: Option.none() }; tainted = { in: Option.none(), out: Option.none(), id: Option.none(), activityType: Option.none(), createdAt: Option.none(), metadata: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataDid(formData: FormData): Result<Did, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.in = formData.get("in") ?? "";
+                }}; function validate(): Result<Did, Array<{field: string; message: string}>>{return fromObjectDid(data);}function reset(newOverrides?: Partial<Did>): void {data = {...defaultValueDid(),...newOverrides}; errors = { _errors: Option.none(), in: Option.none(), out: Option.none(), id: Option.none(), activityType: Option.none(), createdAt: Option.none(), metadata: Option.none() }; tainted = { in: Option.none(), out: Option.none(), id: Option.none(), activityType: Option.none(), createdAt: Option.none(), metadata: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataDid(formData: FormData): Result<Did, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.in = formData.get("in") ?? "";
             obj.out = formData.get("out") ?? "";
             obj.id = formData.get("id") ?? "";
             {
@@ -1019,7 +1019,7 @@ export function fromStringifiedJSONDid(json: string, opts?: DeserializeOptions):
             obj.activityType = activityTypeObj;
         }
             obj.createdAt = formData.get("createdAt") ?? "";
-            obj.metadata = formData.get("metadata") ?? ""; return Did.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.metadata = formData.get("metadata") ?? ""; return fromStringifiedJSONDid(JSON.stringify(obj));}
 
 
 export interface PersonName {
@@ -1065,7 +1065,7 @@ export function fromStringifiedJSONPersonName(json: string, opts?: DeserializeOp
 /** Nested error structure matching the data shape */export type ErrorsPersonName = {_errors: Option<Array<string>>; firstName: Option<Array<string>>;
             lastName: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedPersonName = {firstName: Option<boolean>;
             lastName: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersPersonName {readonly firstName: FieldController<string>;
-            readonly lastName: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformPersonName {readonly data: PersonName; readonly errors: ErrorsPersonName; readonly tainted: TaintedPersonName; readonly fields: FieldControllersPersonName; validate(): Result<PersonName, Array<{field: string; message: string}>>; reset(overrides?: Partial<PersonName>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormPersonName(overrides?: Partial<PersonName>): GigaformPersonName {let data = $state({...PersonName.defaultValue(),...overrides}); let errors = $state<ErrorsPersonName>({ _errors: Option.none(), firstName: Option.none(), lastName: Option.none() }); let tainted = $state<TaintedPersonName>({ firstName: Option.none(), lastName: Option.none() }); const fields: FieldControllersPersonName = {firstName: {
+            readonly lastName: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformPersonName {readonly data: PersonName; readonly errors: ErrorsPersonName; readonly tainted: TaintedPersonName; readonly fields: FieldControllersPersonName; validate(): Result<PersonName, Array<{field: string; message: string}>>; reset(overrides?: Partial<PersonName>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormPersonName(overrides?: Partial<PersonName>): GigaformPersonName {let data = $state({...defaultValuePersonName(),...overrides}); let errors = $state<ErrorsPersonName>({ _errors: Option.none(), firstName: Option.none(), lastName: Option.none() }); let tainted = $state<TaintedPersonName>({ firstName: Option.none(), lastName: Option.none() }); const fields: FieldControllersPersonName = {firstName: {
                     path: ["firstName"] as const,
                     name: "firstName",
                     constraints: { required: true },
@@ -1078,7 +1078,7 @@ export function fromStringifiedJSONPersonName(json: string, opts?: DeserializeOp
                     getTainted: () => tainted.firstName,
                     setTainted: (value: Option<boolean>) => { tainted.firstName = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = PersonName.validateField("firstName", data.firstName);
+                        const fieldErrors = validateFieldPersonName("firstName", data.firstName);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1096,12 +1096,12 @@ export function fromStringifiedJSONPersonName(json: string, opts?: DeserializeOp
                     getTainted: () => tainted.lastName,
                     setTainted: (value: Option<boolean>) => { tainted.lastName = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = PersonName.validateField("lastName", data.lastName);
+                        const fieldErrors = validateFieldPersonName("lastName", data.lastName);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<PersonName, Array<{field: string; message: string}>>{return PersonName.fromObject(data);}function reset(newOverrides?: Partial<PersonName>): void {data = {...PersonName.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), firstName: Option.none(), lastName: Option.none() }; tainted = { firstName: Option.none(), lastName: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataPersonName(formData: FormData): Result<PersonName, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.firstName = formData.get("firstName") ?? "";
-            obj.lastName = formData.get("lastName") ?? ""; return PersonName.fromStringifiedJSON(JSON.stringify(obj));}
+                }}; function validate(): Result<PersonName, Array<{field: string; message: string}>>{return fromObjectPersonName(data);}function reset(newOverrides?: Partial<PersonName>): void {data = {...defaultValuePersonName(),...newOverrides}; errors = { _errors: Option.none(), firstName: Option.none(), lastName: Option.none() }; tainted = { firstName: Option.none(), lastName: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataPersonName(formData: FormData): Result<PersonName, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.firstName = formData.get("firstName") ?? "";
+            obj.lastName = formData.get("lastName") ?? ""; return fromStringifiedJSONPersonName(JSON.stringify(obj));}
 
 
 export interface Promotion {
@@ -1119,7 +1119,7 @@ export function fromStringifiedJSONPromotion(json: string, opts?: DeserializeOpt
 /** Nested error structure matching the data shape */export type ErrorsPromotion = {_errors: Option<Array<string>>; id: Option<Array<string>>;
             date: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedPromotion = {id: Option<boolean>;
             date: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersPromotion {readonly id: FieldController<string>;
-            readonly date: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformPromotion {readonly data: Promotion; readonly errors: ErrorsPromotion; readonly tainted: TaintedPromotion; readonly fields: FieldControllersPromotion; validate(): Result<Promotion, Array<{field: string; message: string}>>; reset(overrides?: Partial<Promotion>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormPromotion(overrides?: Partial<Promotion>): GigaformPromotion {let data = $state({...Promotion.defaultValue(),...overrides}); let errors = $state<ErrorsPromotion>({ _errors: Option.none(), id: Option.none(), date: Option.none() }); let tainted = $state<TaintedPromotion>({ id: Option.none(), date: Option.none() }); const fields: FieldControllersPromotion = {id: {
+            readonly date: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformPromotion {readonly data: Promotion; readonly errors: ErrorsPromotion; readonly tainted: TaintedPromotion; readonly fields: FieldControllersPromotion; validate(): Result<Promotion, Array<{field: string; message: string}>>; reset(overrides?: Partial<Promotion>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormPromotion(overrides?: Partial<Promotion>): GigaformPromotion {let data = $state({...defaultValuePromotion(),...overrides}); let errors = $state<ErrorsPromotion>({ _errors: Option.none(), id: Option.none(), date: Option.none() }); let tainted = $state<TaintedPromotion>({ id: Option.none(), date: Option.none() }); const fields: FieldControllersPromotion = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -1132,7 +1132,7 @@ export function fromStringifiedJSONPromotion(json: string, opts?: DeserializeOpt
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Promotion.validateField("id", data.id);
+                        const fieldErrors = validateFieldPromotion("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1150,12 +1150,12 @@ export function fromStringifiedJSONPromotion(json: string, opts?: DeserializeOpt
                     getTainted: () => tainted.date,
                     setTainted: (value: Option<boolean>) => { tainted.date = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Promotion.validateField("date", data.date);
+                        const fieldErrors = validateFieldPromotion("date", data.date);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Promotion, Array<{field: string; message: string}>>{return Promotion.fromObject(data);}function reset(newOverrides?: Partial<Promotion>): void {data = {...Promotion.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), date: Option.none() }; tainted = { id: Option.none(), date: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataPromotion(formData: FormData): Result<Promotion, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
-            obj.date = formData.get("date") ?? ""; return Promotion.fromStringifiedJSON(JSON.stringify(obj));}
+                }}; function validate(): Result<Promotion, Array<{field: string; message: string}>>{return fromObjectPromotion(data);}function reset(newOverrides?: Partial<Promotion>): void {data = {...defaultValuePromotion(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), date: Option.none() }; tainted = { id: Option.none(), date: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataPromotion(formData: FormData): Result<Promotion, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+            obj.date = formData.get("date") ?? ""; return fromStringifiedJSONPromotion(JSON.stringify(obj));}
 
 
 export interface Site {
@@ -1189,9 +1189,9 @@ export function defaultValueSite(): Site {return {id: "",
                             country: "",
                             postalCode: "",
                             postalCodeSuffix: null,
-                            coordinates: Coordinates.defaultValue(), }as Site;}
+                            coordinates: defaultValueCoordinates(), }as Site;}
 
-export function toStringifiedJSONSite(value: Site): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeSite(value, ctx));}export function toObjectSite(value: Site): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeSite(value, ctx);}export function __serializeSite(value: Site, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Site" , __id,}; result["id" ]= value.id; result["addressLine1" ]= value.addressLine1; result["addressLine2" ]= value.addressLine2; result["sublocalityLevel1" ]= value.sublocalityLevel1; result["locality" ]= value.locality; result["administrativeAreaLevel3" ]= value.administrativeAreaLevel3; result["administrativeAreaLevel2" ]= value.administrativeAreaLevel2; result["administrativeAreaLevel1" ]= value.administrativeAreaLevel1; result["country" ]= value.country; result["postalCode" ]= value.postalCode; result["postalCodeSuffix" ]= value.postalCodeSuffix; result["coordinates" ]= typeof(value.coordinates as any)?.__serialize === "function" ? (value.coordinates as any).__serialize(ctx): value.coordinates; return result;}
+export function toStringifiedJSONSite(value: Site): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeSite(value, ctx));}export function toObjectSite(value: Site): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeSite(value, ctx);}export function __serializeSite(value: Site, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Site" , __id,}; result["id" ]= value.id; result["addressLine1" ]= value.addressLine1; result["addressLine2" ]= value.addressLine2; result["sublocalityLevel1" ]= value.sublocalityLevel1; result["locality" ]= value.locality; result["administrativeAreaLevel3" ]= value.administrativeAreaLevel3; result["administrativeAreaLevel2" ]= value.administrativeAreaLevel2; result["administrativeAreaLevel1" ]= value.administrativeAreaLevel1; result["country" ]= value.country; result["postalCode" ]= value.postalCode; result["postalCodeSuffix" ]= value.postalCodeSuffix; result["coordinates" ]= __serializeCoordinates(value.coordinates, ctx); return result;}
 
 export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions): Result<Site, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectSite(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectSite(obj: unknown, opts?: DeserializeOptions): Result<Site, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeSite(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Site.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeSite(value: any, ctx: DeserializeContext): Site | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Site.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("addressLine1" in obj)){errors.push({field: "addressLine1" , message: "missing required field" });}if(!("addressLine2" in obj)){errors.push({field: "addressLine2" , message: "missing required field" });}if(!("sublocalityLevel1" in obj)){errors.push({field: "sublocalityLevel1" , message: "missing required field" });}if(!("locality" in obj)){errors.push({field: "locality" , message: "missing required field" });}if(!("administrativeAreaLevel3" in obj)){errors.push({field: "administrativeAreaLevel3" , message: "missing required field" });}if(!("administrativeAreaLevel2" in obj)){errors.push({field: "administrativeAreaLevel2" , message: "missing required field" });}if(!("administrativeAreaLevel1" in obj)){errors.push({field: "administrativeAreaLevel1" , message: "missing required field" });}if(!("country" in obj)){errors.push({field: "country" , message: "missing required field" });}if(!("postalCode" in obj)){errors.push({field: "postalCode" , message: "missing required field" });}if(!("postalCodeSuffix" in obj)){errors.push({field: "postalCodeSuffix" , message: "missing required field" });}if(!("coordinates" in obj)){errors.push({field: "coordinates" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_addressLine1 = obj["addressLine1" ]as string; 
                 if (__raw_addressLine1.length === 0) {
@@ -1213,7 +1213,7 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
                 if (__raw_postalCode.length === 0) {
                     errors.push({ field: "postalCode", message: "must not be empty" });
                 }
- instance.postalCode = __raw_postalCode; }{const __raw_postalCodeSuffix = obj["postalCodeSuffix" ]as string | null; instance.postalCodeSuffix = __raw_postalCodeSuffix; }{const __raw_coordinates = obj["coordinates" ]as Coordinates; {const __result = Coordinates.__deserialize(__raw_coordinates, ctx); ctx.assignOrDefer(instance, "coordinates" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as Site;}export function validateFieldSite<K extends keyof Site>(field: K, value: Site[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "addressLine1" : {const __val = value as string; 
+ instance.postalCode = __raw_postalCode; }{const __raw_postalCodeSuffix = obj["postalCodeSuffix" ]as string | null; instance.postalCodeSuffix = __raw_postalCodeSuffix; }{const __raw_coordinates = obj["coordinates" ]as Coordinates; {const __result = __deserializeCoordinates(__raw_coordinates, ctx); ctx.assignOrDefer(instance, "coordinates" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as Site;}export function validateFieldSite<K extends keyof Site>(field: K, value: Site[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "addressLine1" : {const __val = value as string; 
                 if (__val.length === 0) {
                     errors.push({ field: "addressLine1", message: "must not be empty" });
                 }
@@ -1288,7 +1288,7 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
             readonly country: FieldController<string>;
             readonly postalCode: FieldController<string>;
             readonly postalCodeSuffix: FieldController<string | null>;
-            readonly coordinates: FieldController<Coordinates>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformSite {readonly data: Site; readonly errors: ErrorsSite; readonly tainted: TaintedSite; readonly fields: FieldControllersSite; validate(): Result<Site, Array<{field: string; message: string}>>; reset(overrides?: Partial<Site>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormSite(overrides?: Partial<Site>): GigaformSite {let data = $state({...Site.defaultValue(),...overrides}); let errors = $state<ErrorsSite>({ _errors: Option.none(), id: Option.none(), addressLine1: Option.none(), addressLine2: Option.none(), sublocalityLevel1: Option.none(), locality: Option.none(), administrativeAreaLevel3: Option.none(), administrativeAreaLevel2: Option.none(), administrativeAreaLevel1: Option.none(), country: Option.none(), postalCode: Option.none(), postalCodeSuffix: Option.none(), coordinates: Option.none() }); let tainted = $state<TaintedSite>({ id: Option.none(), addressLine1: Option.none(), addressLine2: Option.none(), sublocalityLevel1: Option.none(), locality: Option.none(), administrativeAreaLevel3: Option.none(), administrativeAreaLevel2: Option.none(), administrativeAreaLevel1: Option.none(), country: Option.none(), postalCode: Option.none(), postalCodeSuffix: Option.none(), coordinates: Option.none() }); const fields: FieldControllersSite = {id: {
+            readonly coordinates: FieldController<Coordinates>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformSite {readonly data: Site; readonly errors: ErrorsSite; readonly tainted: TaintedSite; readonly fields: FieldControllersSite; validate(): Result<Site, Array<{field: string; message: string}>>; reset(overrides?: Partial<Site>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormSite(overrides?: Partial<Site>): GigaformSite {let data = $state({...defaultValueSite(),...overrides}); let errors = $state<ErrorsSite>({ _errors: Option.none(), id: Option.none(), addressLine1: Option.none(), addressLine2: Option.none(), sublocalityLevel1: Option.none(), locality: Option.none(), administrativeAreaLevel3: Option.none(), administrativeAreaLevel2: Option.none(), administrativeAreaLevel1: Option.none(), country: Option.none(), postalCode: Option.none(), postalCodeSuffix: Option.none(), coordinates: Option.none() }); let tainted = $state<TaintedSite>({ id: Option.none(), addressLine1: Option.none(), addressLine2: Option.none(), sublocalityLevel1: Option.none(), locality: Option.none(), administrativeAreaLevel3: Option.none(), administrativeAreaLevel2: Option.none(), administrativeAreaLevel1: Option.none(), country: Option.none(), postalCode: Option.none(), postalCodeSuffix: Option.none(), coordinates: Option.none() }); const fields: FieldControllersSite = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -1301,7 +1301,7 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Site.validateField("id", data.id);
+                        const fieldErrors = validateFieldSite("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1319,7 +1319,7 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.addressLine1,
                     setTainted: (value: Option<boolean>) => { tainted.addressLine1 = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Site.validateField("addressLine1", data.addressLine1);
+                        const fieldErrors = validateFieldSite("addressLine1", data.addressLine1);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1337,7 +1337,7 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.addressLine2,
                     setTainted: (value: Option<boolean>) => { tainted.addressLine2 = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Site.validateField("addressLine2", data.addressLine2);
+                        const fieldErrors = validateFieldSite("addressLine2", data.addressLine2);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1355,7 +1355,7 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.sublocalityLevel1,
                     setTainted: (value: Option<boolean>) => { tainted.sublocalityLevel1 = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Site.validateField("sublocalityLevel1", data.sublocalityLevel1);
+                        const fieldErrors = validateFieldSite("sublocalityLevel1", data.sublocalityLevel1);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1373,7 +1373,7 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.locality,
                     setTainted: (value: Option<boolean>) => { tainted.locality = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Site.validateField("locality", data.locality);
+                        const fieldErrors = validateFieldSite("locality", data.locality);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1391,7 +1391,7 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.administrativeAreaLevel3,
                     setTainted: (value: Option<boolean>) => { tainted.administrativeAreaLevel3 = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Site.validateField("administrativeAreaLevel3", data.administrativeAreaLevel3);
+                        const fieldErrors = validateFieldSite("administrativeAreaLevel3", data.administrativeAreaLevel3);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1409,7 +1409,7 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.administrativeAreaLevel2,
                     setTainted: (value: Option<boolean>) => { tainted.administrativeAreaLevel2 = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Site.validateField("administrativeAreaLevel2", data.administrativeAreaLevel2);
+                        const fieldErrors = validateFieldSite("administrativeAreaLevel2", data.administrativeAreaLevel2);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1427,7 +1427,7 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.administrativeAreaLevel1,
                     setTainted: (value: Option<boolean>) => { tainted.administrativeAreaLevel1 = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Site.validateField("administrativeAreaLevel1", data.administrativeAreaLevel1);
+                        const fieldErrors = validateFieldSite("administrativeAreaLevel1", data.administrativeAreaLevel1);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1445,7 +1445,7 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.country,
                     setTainted: (value: Option<boolean>) => { tainted.country = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Site.validateField("country", data.country);
+                        const fieldErrors = validateFieldSite("country", data.country);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1463,7 +1463,7 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.postalCode,
                     setTainted: (value: Option<boolean>) => { tainted.postalCode = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Site.validateField("postalCode", data.postalCode);
+                        const fieldErrors = validateFieldSite("postalCode", data.postalCode);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1481,7 +1481,7 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.postalCodeSuffix,
                     setTainted: (value: Option<boolean>) => { tainted.postalCodeSuffix = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Site.validateField("postalCodeSuffix", data.postalCodeSuffix);
+                        const fieldErrors = validateFieldSite("postalCodeSuffix", data.postalCodeSuffix);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1499,11 +1499,11 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.coordinates,
                     setTainted: (value: Option<boolean>) => { tainted.coordinates = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Site.validateField("coordinates", data.coordinates);
+                        const fieldErrors = validateFieldSite("coordinates", data.coordinates);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Site, Array<{field: string; message: string}>>{return Site.fromObject(data);}function reset(newOverrides?: Partial<Site>): void {data = {...Site.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), addressLine1: Option.none(), addressLine2: Option.none(), sublocalityLevel1: Option.none(), locality: Option.none(), administrativeAreaLevel3: Option.none(), administrativeAreaLevel2: Option.none(), administrativeAreaLevel1: Option.none(), country: Option.none(), postalCode: Option.none(), postalCodeSuffix: Option.none(), coordinates: Option.none() }; tainted = { id: Option.none(), addressLine1: Option.none(), addressLine2: Option.none(), sublocalityLevel1: Option.none(), locality: Option.none(), administrativeAreaLevel3: Option.none(), administrativeAreaLevel2: Option.none(), administrativeAreaLevel1: Option.none(), country: Option.none(), postalCode: Option.none(), postalCodeSuffix: Option.none(), coordinates: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataSite(formData: FormData): Result<Site, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+                }}; function validate(): Result<Site, Array<{field: string; message: string}>>{return fromObjectSite(data);}function reset(newOverrides?: Partial<Site>): void {data = {...defaultValueSite(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), addressLine1: Option.none(), addressLine2: Option.none(), sublocalityLevel1: Option.none(), locality: Option.none(), administrativeAreaLevel3: Option.none(), administrativeAreaLevel2: Option.none(), administrativeAreaLevel1: Option.none(), country: Option.none(), postalCode: Option.none(), postalCodeSuffix: Option.none(), coordinates: Option.none() }; tainted = { id: Option.none(), addressLine1: Option.none(), addressLine2: Option.none(), sublocalityLevel1: Option.none(), locality: Option.none(), administrativeAreaLevel3: Option.none(), administrativeAreaLevel2: Option.none(), administrativeAreaLevel1: Option.none(), country: Option.none(), postalCode: Option.none(), postalCodeSuffix: Option.none(), coordinates: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataSite(formData: FormData): Result<Site, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
             obj.addressLine1 = formData.get("addressLine1") ?? "";
             obj.addressLine2 = formData.get("addressLine2") ?? "";
             obj.sublocalityLevel1 = formData.get("sublocalityLevel1") ?? "";
@@ -1534,7 +1534,7 @@ export function fromStringifiedJSONSite(json: string, opts?: DeserializeOptions)
                 }
             }
             obj.coordinates = coordinatesObj;
-        } return Site.fromStringifiedJSON(JSON.stringify(obj));}
+        } return fromStringifiedJSONSite(JSON.stringify(obj));}
 
 
 export interface Metadata {
@@ -1562,7 +1562,7 @@ export function fromStringifiedJSONMetadata(json: string, opts?: DeserializeOpti
             roles: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersMetadata {readonly createdAt: FieldController<string>;
             readonly lastLogin: FieldController<string | null>;
             readonly isActive: FieldController<boolean>;
-            readonly roles: ArrayFieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformMetadata {readonly data: Metadata; readonly errors: ErrorsMetadata; readonly tainted: TaintedMetadata; readonly fields: FieldControllersMetadata; validate(): Result<Metadata, Array<{field: string; message: string}>>; reset(overrides?: Partial<Metadata>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormMetadata(overrides?: Partial<Metadata>): GigaformMetadata {let data = $state({...Metadata.defaultValue(),...overrides}); let errors = $state<ErrorsMetadata>({ _errors: Option.none(), createdAt: Option.none(), lastLogin: Option.none(), isActive: Option.none(), roles: Option.none() }); let tainted = $state<TaintedMetadata>({ createdAt: Option.none(), lastLogin: Option.none(), isActive: Option.none(), roles: Option.none() }); const fields: FieldControllersMetadata = {createdAt: {
+            readonly roles: ArrayFieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformMetadata {readonly data: Metadata; readonly errors: ErrorsMetadata; readonly tainted: TaintedMetadata; readonly fields: FieldControllersMetadata; validate(): Result<Metadata, Array<{field: string; message: string}>>; reset(overrides?: Partial<Metadata>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormMetadata(overrides?: Partial<Metadata>): GigaformMetadata {let data = $state({...defaultValueMetadata(),...overrides}); let errors = $state<ErrorsMetadata>({ _errors: Option.none(), createdAt: Option.none(), lastLogin: Option.none(), isActive: Option.none(), roles: Option.none() }); let tainted = $state<TaintedMetadata>({ createdAt: Option.none(), lastLogin: Option.none(), isActive: Option.none(), roles: Option.none() }); const fields: FieldControllersMetadata = {createdAt: {
                     path: ["createdAt"] as const,
                     name: "createdAt",
                     constraints: { required: true },
@@ -1575,7 +1575,7 @@ export function fromStringifiedJSONMetadata(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.createdAt,
                     setTainted: (value: Option<boolean>) => { tainted.createdAt = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Metadata.validateField("createdAt", data.createdAt);
+                        const fieldErrors = validateFieldMetadata("createdAt", data.createdAt);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1593,7 +1593,7 @@ export function fromStringifiedJSONMetadata(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.lastLogin,
                     setTainted: (value: Option<boolean>) => { tainted.lastLogin = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Metadata.validateField("lastLogin", data.lastLogin);
+                        const fieldErrors = validateFieldMetadata("lastLogin", data.lastLogin);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1611,7 +1611,7 @@ export function fromStringifiedJSONMetadata(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.isActive,
                     setTainted: (value: Option<boolean>) => { tainted.isActive = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Metadata.validateField("isActive", data.isActive);
+                        const fieldErrors = validateFieldMetadata("isActive", data.isActive);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1629,7 +1629,7 @@ export function fromStringifiedJSONMetadata(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.roles,
                     setTainted: (value: Option<boolean>) => { tainted.roles = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Metadata.validateField("roles", data.roles);
+                        const fieldErrors = validateFieldMetadata("roles", data.roles);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -1652,13 +1652,13 @@ export function fromStringifiedJSONMetadata(json: string, opts?: DeserializeOpti
                         data.roles[a] = data.roles[b]!;
                         data.roles[b] = tmp;
                     },
-                }}; function validate(): Result<Metadata, Array<{field: string; message: string}>>{return Metadata.fromObject(data);}function reset(newOverrides?: Partial<Metadata>): void {data = {...Metadata.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), createdAt: Option.none(), lastLogin: Option.none(), isActive: Option.none(), roles: Option.none() }; tainted = { createdAt: Option.none(), lastLogin: Option.none(), isActive: Option.none(), roles: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataMetadata(formData: FormData): Result<Metadata, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.createdAt = formData.get("createdAt") ?? "";
+                }}; function validate(): Result<Metadata, Array<{field: string; message: string}>>{return fromObjectMetadata(data);}function reset(newOverrides?: Partial<Metadata>): void {data = {...defaultValueMetadata(),...newOverrides}; errors = { _errors: Option.none(), createdAt: Option.none(), lastLogin: Option.none(), isActive: Option.none(), roles: Option.none() }; tainted = { createdAt: Option.none(), lastLogin: Option.none(), isActive: Option.none(), roles: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataMetadata(formData: FormData): Result<Metadata, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.createdAt = formData.get("createdAt") ?? "";
             obj.lastLogin = formData.get("lastLogin") ?? "";
             {
                 const isActiveVal = formData.get("isActive");
                 obj.isActive = isActiveVal === "true" || isActiveVal === "on" || isActiveVal === "1";
             }
-            obj.roles = formData.getAll("roles") as Array<string>; return Metadata.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.roles = formData.getAll("roles") as Array<string>; return fromStringifiedJSONMetadata(JSON.stringify(obj));}
 
 
 export interface ColumnConfig {
@@ -1668,15 +1668,15 @@ export interface ColumnConfig {
 }
 
 export function defaultValueColumnConfig(): ColumnConfig {return {heading: "",
-                            dataPath: DataPath.defaultValue(), }as ColumnConfig;}
+                            dataPath: defaultValueDataPath(), }as ColumnConfig;}
 
-export function toStringifiedJSONColumnConfig(value: ColumnConfig): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeColumnConfig(value, ctx));}export function toObjectColumnConfig(value: ColumnConfig): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeColumnConfig(value, ctx);}export function __serializeColumnConfig(value: ColumnConfig, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "ColumnConfig" , __id,}; result["heading" ]= value.heading; result["dataPath" ]= typeof(value.dataPath as any)?.__serialize === "function" ? (value.dataPath as any).__serialize(ctx): value.dataPath; return result;}
+export function toStringifiedJSONColumnConfig(value: ColumnConfig): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeColumnConfig(value, ctx));}export function toObjectColumnConfig(value: ColumnConfig): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeColumnConfig(value, ctx);}export function __serializeColumnConfig(value: ColumnConfig, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "ColumnConfig" , __id,}; result["heading" ]= value.heading; result["dataPath" ]= __serializeDataPath(value.dataPath, ctx); return result;}
 
 export function fromStringifiedJSONColumnConfig(json: string, opts?: DeserializeOptions): Result<ColumnConfig, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectColumnConfig(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectColumnConfig(obj: unknown, opts?: DeserializeOptions): Result<ColumnConfig, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeColumnConfig(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "ColumnConfig.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeColumnConfig(value: any, ctx: DeserializeContext): ColumnConfig | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "ColumnConfig.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("heading" in obj)){errors.push({field: "heading" , message: "missing required field" });}if(!("dataPath" in obj)){errors.push({field: "dataPath" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_heading = obj["heading" ]as string; 
                 if (__raw_heading.length === 0) {
                     errors.push({ field: "heading", message: "must not be empty" });
                 }
- instance.heading = __raw_heading; }{const __raw_dataPath = obj["dataPath" ]as DataPath; {const __result = DataPath.__deserialize(__raw_dataPath, ctx); ctx.assignOrDefer(instance, "dataPath" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as ColumnConfig;}export function validateFieldColumnConfig<K extends keyof ColumnConfig>(field: K, value: ColumnConfig[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "heading" : {const __val = value as string; 
+ instance.heading = __raw_heading; }{const __raw_dataPath = obj["dataPath" ]as DataPath; {const __result = __deserializeDataPath(__raw_dataPath, ctx); ctx.assignOrDefer(instance, "dataPath" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as ColumnConfig;}export function validateFieldColumnConfig<K extends keyof ColumnConfig>(field: K, value: ColumnConfig[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "heading" : {const __val = value as string; 
                 if (__val.length === 0) {
                     errors.push({ field: "heading", message: "must not be empty" });
                 }
@@ -1689,7 +1689,7 @@ export function fromStringifiedJSONColumnConfig(json: string, opts?: Deserialize
 /** Nested error structure matching the data shape */export type ErrorsColumnConfig = {_errors: Option<Array<string>>; heading: Option<Array<string>>;
             dataPath: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedColumnConfig = {heading: Option<boolean>;
             dataPath: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersColumnConfig {readonly heading: FieldController<string>;
-            readonly dataPath: FieldController<DataPath>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformColumnConfig {readonly data: ColumnConfig; readonly errors: ErrorsColumnConfig; readonly tainted: TaintedColumnConfig; readonly fields: FieldControllersColumnConfig; validate(): Result<ColumnConfig, Array<{field: string; message: string}>>; reset(overrides?: Partial<ColumnConfig>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormColumnConfig(overrides?: Partial<ColumnConfig>): GigaformColumnConfig {let data = $state({...ColumnConfig.defaultValue(),...overrides}); let errors = $state<ErrorsColumnConfig>({ _errors: Option.none(), heading: Option.none(), dataPath: Option.none() }); let tainted = $state<TaintedColumnConfig>({ heading: Option.none(), dataPath: Option.none() }); const fields: FieldControllersColumnConfig = {heading: {
+            readonly dataPath: FieldController<DataPath>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformColumnConfig {readonly data: ColumnConfig; readonly errors: ErrorsColumnConfig; readonly tainted: TaintedColumnConfig; readonly fields: FieldControllersColumnConfig; validate(): Result<ColumnConfig, Array<{field: string; message: string}>>; reset(overrides?: Partial<ColumnConfig>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormColumnConfig(overrides?: Partial<ColumnConfig>): GigaformColumnConfig {let data = $state({...defaultValueColumnConfig(),...overrides}); let errors = $state<ErrorsColumnConfig>({ _errors: Option.none(), heading: Option.none(), dataPath: Option.none() }); let tainted = $state<TaintedColumnConfig>({ heading: Option.none(), dataPath: Option.none() }); const fields: FieldControllersColumnConfig = {heading: {
                     path: ["heading"] as const,
                     name: "heading",
                     constraints: { required: true },
@@ -1702,7 +1702,7 @@ export function fromStringifiedJSONColumnConfig(json: string, opts?: Deserialize
                     getTainted: () => tainted.heading,
                     setTainted: (value: Option<boolean>) => { tainted.heading = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = ColumnConfig.validateField("heading", data.heading);
+                        const fieldErrors = validateFieldColumnConfig("heading", data.heading);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1720,11 +1720,11 @@ export function fromStringifiedJSONColumnConfig(json: string, opts?: Deserialize
                     getTainted: () => tainted.dataPath,
                     setTainted: (value: Option<boolean>) => { tainted.dataPath = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = ColumnConfig.validateField("dataPath", data.dataPath);
+                        const fieldErrors = validateFieldColumnConfig("dataPath", data.dataPath);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<ColumnConfig, Array<{field: string; message: string}>>{return ColumnConfig.fromObject(data);}function reset(newOverrides?: Partial<ColumnConfig>): void {data = {...ColumnConfig.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), heading: Option.none(), dataPath: Option.none() }; tainted = { heading: Option.none(), dataPath: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataColumnConfig(formData: FormData): Result<ColumnConfig, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.heading = formData.get("heading") ?? "";
+                }}; function validate(): Result<ColumnConfig, Array<{field: string; message: string}>>{return fromObjectColumnConfig(data);}function reset(newOverrides?: Partial<ColumnConfig>): void {data = {...defaultValueColumnConfig(),...newOverrides}; errors = { _errors: Option.none(), heading: Option.none(), dataPath: Option.none() }; tainted = { heading: Option.none(), dataPath: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataColumnConfig(formData: FormData): Result<ColumnConfig, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.heading = formData.get("heading") ?? "";
             {
             // Collect nested object fields with prefix "dataPath."
             const dataPathObj: Record<string, unknown> = {};
@@ -1745,7 +1745,7 @@ export function fromStringifiedJSONColumnConfig(json: string, opts?: Deserialize
                 }
             }
             obj.dataPath = dataPathObj;
-        } return ColumnConfig.fromStringifiedJSON(JSON.stringify(obj));}
+        } return fromStringifiedJSONColumnConfig(JSON.stringify(obj));}
 
 
 export interface PhoneNumber {
@@ -1809,7 +1809,7 @@ export function fromStringifiedJSONPhoneNumber(json: string, opts?: DeserializeO
             readonly phoneType: FieldController<string>;
             readonly number: FieldController<string>;
             readonly canText: FieldController<boolean>;
-            readonly canCall: FieldController<boolean>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformPhoneNumber {readonly data: PhoneNumber; readonly errors: ErrorsPhoneNumber; readonly tainted: TaintedPhoneNumber; readonly fields: FieldControllersPhoneNumber; validate(): Result<PhoneNumber, Array<{field: string; message: string}>>; reset(overrides?: Partial<PhoneNumber>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormPhoneNumber(overrides?: Partial<PhoneNumber>): GigaformPhoneNumber {let data = $state({...PhoneNumber.defaultValue(),...overrides}); let errors = $state<ErrorsPhoneNumber>({ _errors: Option.none(), main: Option.none(), phoneType: Option.none(), number: Option.none(), canText: Option.none(), canCall: Option.none() }); let tainted = $state<TaintedPhoneNumber>({ main: Option.none(), phoneType: Option.none(), number: Option.none(), canText: Option.none(), canCall: Option.none() }); const fields: FieldControllersPhoneNumber = {main: {
+            readonly canCall: FieldController<boolean>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformPhoneNumber {readonly data: PhoneNumber; readonly errors: ErrorsPhoneNumber; readonly tainted: TaintedPhoneNumber; readonly fields: FieldControllersPhoneNumber; validate(): Result<PhoneNumber, Array<{field: string; message: string}>>; reset(overrides?: Partial<PhoneNumber>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormPhoneNumber(overrides?: Partial<PhoneNumber>): GigaformPhoneNumber {let data = $state({...defaultValuePhoneNumber(),...overrides}); let errors = $state<ErrorsPhoneNumber>({ _errors: Option.none(), main: Option.none(), phoneType: Option.none(), number: Option.none(), canText: Option.none(), canCall: Option.none() }); let tainted = $state<TaintedPhoneNumber>({ main: Option.none(), phoneType: Option.none(), number: Option.none(), canText: Option.none(), canCall: Option.none() }); const fields: FieldControllersPhoneNumber = {main: {
                     path: ["main"] as const,
                     name: "main",
                     constraints: { required: true },
@@ -1822,7 +1822,7 @@ export function fromStringifiedJSONPhoneNumber(json: string, opts?: DeserializeO
                     getTainted: () => tainted.main,
                     setTainted: (value: Option<boolean>) => { tainted.main = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = PhoneNumber.validateField("main", data.main);
+                        const fieldErrors = validateFieldPhoneNumber("main", data.main);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1840,7 +1840,7 @@ export function fromStringifiedJSONPhoneNumber(json: string, opts?: DeserializeO
                     getTainted: () => tainted.phoneType,
                     setTainted: (value: Option<boolean>) => { tainted.phoneType = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = PhoneNumber.validateField("phoneType", data.phoneType);
+                        const fieldErrors = validateFieldPhoneNumber("phoneType", data.phoneType);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1858,7 +1858,7 @@ export function fromStringifiedJSONPhoneNumber(json: string, opts?: DeserializeO
                     getTainted: () => tainted.number,
                     setTainted: (value: Option<boolean>) => { tainted.number = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = PhoneNumber.validateField("number", data.number);
+                        const fieldErrors = validateFieldPhoneNumber("number", data.number);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1876,7 +1876,7 @@ export function fromStringifiedJSONPhoneNumber(json: string, opts?: DeserializeO
                     getTainted: () => tainted.canText,
                     setTainted: (value: Option<boolean>) => { tainted.canText = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = PhoneNumber.validateField("canText", data.canText);
+                        const fieldErrors = validateFieldPhoneNumber("canText", data.canText);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -1894,11 +1894,11 @@ export function fromStringifiedJSONPhoneNumber(json: string, opts?: DeserializeO
                     getTainted: () => tainted.canCall,
                     setTainted: (value: Option<boolean>) => { tainted.canCall = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = PhoneNumber.validateField("canCall", data.canCall);
+                        const fieldErrors = validateFieldPhoneNumber("canCall", data.canCall);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<PhoneNumber, Array<{field: string; message: string}>>{return PhoneNumber.fromObject(data);}function reset(newOverrides?: Partial<PhoneNumber>): void {data = {...PhoneNumber.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), main: Option.none(), phoneType: Option.none(), number: Option.none(), canText: Option.none(), canCall: Option.none() }; tainted = { main: Option.none(), phoneType: Option.none(), number: Option.none(), canText: Option.none(), canCall: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataPhoneNumber(formData: FormData): Result<PhoneNumber, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<PhoneNumber, Array<{field: string; message: string}>>{return fromObjectPhoneNumber(data);}function reset(newOverrides?: Partial<PhoneNumber>): void {data = {...defaultValuePhoneNumber(),...newOverrides}; errors = { _errors: Option.none(), main: Option.none(), phoneType: Option.none(), number: Option.none(), canText: Option.none(), canCall: Option.none() }; tainted = { main: Option.none(), phoneType: Option.none(), number: Option.none(), canText: Option.none(), canCall: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataPhoneNumber(formData: FormData): Result<PhoneNumber, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const mainVal = formData.get("main");
                 obj.main = mainVal === "true" || mainVal === "on" || mainVal === "1";
             }
@@ -1911,7 +1911,7 @@ export function fromStringifiedJSONPhoneNumber(json: string, opts?: DeserializeO
             {
                 const canCallVal = formData.get("canCall");
                 obj.canCall = canCallVal === "true" || canCallVal === "on" || canCallVal === "1";
-            } return PhoneNumber.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONPhoneNumber(JSON.stringify(obj));}
 
 
 export interface Gradient {
@@ -1924,7 +1924,7 @@ export function toStringifiedJSONGradient(value: Gradient): string {const ctx = 
 
 export function fromStringifiedJSONGradient(json: string, opts?: DeserializeOptions): Result<Gradient, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectGradient(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectGradient(obj: unknown, opts?: DeserializeOptions): Result<Gradient, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeGradient(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Gradient.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeGradient(value: any, ctx: DeserializeContext): Gradient | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Gradient.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("startHue" in obj)){errors.push({field: "startHue" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_startHue = obj["startHue" ]as number; instance.startHue = __raw_startHue; }if(errors.length>0){throw new DeserializeError(errors);}return instance as Gradient;}export function validateFieldGradient<K extends keyof Gradient>(field: K, value: Gradient[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsGradient(partial: Partial<Gradient>): Array<{field: string; message: string}>{return[]; }export function hasShapeGradient(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "startHue" in o;}export function isGradient(obj: unknown): obj is Gradient {if(!hasShapeGradient(obj)){return false;}const result = fromObjectGradient(obj); return Result.isOk(result);}
 
-/** Nested error structure matching the data shape */export type ErrorsGradient = {_errors: Option<Array<string>>; startHue: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedGradient = {startHue: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersGradient {readonly startHue: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformGradient {readonly data: Gradient; readonly errors: ErrorsGradient; readonly tainted: TaintedGradient; readonly fields: FieldControllersGradient; validate(): Result<Gradient, Array<{field: string; message: string}>>; reset(overrides?: Partial<Gradient>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormGradient(overrides?: Partial<Gradient>): GigaformGradient {let data = $state({...Gradient.defaultValue(),...overrides}); let errors = $state<ErrorsGradient>({ _errors: Option.none(), startHue: Option.none() }); let tainted = $state<TaintedGradient>({ startHue: Option.none() }); const fields: FieldControllersGradient = {startHue: {
+/** Nested error structure matching the data shape */export type ErrorsGradient = {_errors: Option<Array<string>>; startHue: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedGradient = {startHue: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersGradient {readonly startHue: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformGradient {readonly data: Gradient; readonly errors: ErrorsGradient; readonly tainted: TaintedGradient; readonly fields: FieldControllersGradient; validate(): Result<Gradient, Array<{field: string; message: string}>>; reset(overrides?: Partial<Gradient>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormGradient(overrides?: Partial<Gradient>): GigaformGradient {let data = $state({...defaultValueGradient(),...overrides}); let errors = $state<ErrorsGradient>({ _errors: Option.none(), startHue: Option.none() }); let tainted = $state<TaintedGradient>({ startHue: Option.none() }); const fields: FieldControllersGradient = {startHue: {
                     path: ["startHue"] as const,
                     name: "startHue",
                     constraints: { required: true },
@@ -1937,15 +1937,15 @@ export function fromStringifiedJSONGradient(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.startHue,
                     setTainted: (value: Option<boolean>) => { tainted.startHue = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Gradient.validateField("startHue", data.startHue);
+                        const fieldErrors = validateFieldGradient("startHue", data.startHue);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Gradient, Array<{field: string; message: string}>>{return Gradient.fromObject(data);}function reset(newOverrides?: Partial<Gradient>): void {data = {...Gradient.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), startHue: Option.none() }; tainted = { startHue: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataGradient(formData: FormData): Result<Gradient, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<Gradient, Array<{field: string; message: string}>>{return fromObjectGradient(data);}function reset(newOverrides?: Partial<Gradient>): void {data = {...defaultValueGradient(),...newOverrides}; errors = { _errors: Option.none(), startHue: Option.none() }; tainted = { startHue: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataGradient(formData: FormData): Result<Gradient, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const startHueStr = formData.get("startHue");
                 obj.startHue = startHueStr ? parseFloat(startHueStr as string) : 0;
                 if (obj.startHue !== undefined && isNaN(obj.startHue as number)) obj.startHue = 0;
-            } return Gradient.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONGradient(JSON.stringify(obj));}
 
 
 export interface Product {
@@ -1981,9 +1981,9 @@ export function defaultValueProduct(): Product {return {id: "",
                             active: false,
                             commission: false,
                             favorite: false,
-                            defaults: ProductDefaults.defaultValue(), }as Product;}
+                            defaults: defaultValueProductDefaults(), }as Product;}
 
-export function toStringifiedJSONProduct(value: Product): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeProduct(value, ctx));}export function toObjectProduct(value: Product): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeProduct(value, ctx);}export function __serializeProduct(value: Product, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Product" , __id,}; result["id" ]= value.id; result["name" ]= value.name; result["quickCode" ]= value.quickCode; result["group" ]= value.group; result["subgroup" ]= value.subgroup; result["unit" ]= value.unit; result["active" ]= value.active; result["commission" ]= value.commission; result["favorite" ]= value.favorite; result["defaults" ]= typeof(value.defaults as any)?.__serialize === "function" ? (value.defaults as any).__serialize(ctx): value.defaults; return result;}
+export function toStringifiedJSONProduct(value: Product): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeProduct(value, ctx));}export function toObjectProduct(value: Product): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeProduct(value, ctx);}export function __serializeProduct(value: Product, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Product" , __id,}; result["id" ]= value.id; result["name" ]= value.name; result["quickCode" ]= value.quickCode; result["group" ]= value.group; result["subgroup" ]= value.subgroup; result["unit" ]= value.unit; result["active" ]= value.active; result["commission" ]= value.commission; result["favorite" ]= value.favorite; result["defaults" ]= __serializeProductDefaults(value.defaults, ctx); return result;}
 
 export function fromStringifiedJSONProduct(json: string, opts?: DeserializeOptions): Result<Product, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectProduct(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectProduct(obj: unknown, opts?: DeserializeOptions): Result<Product, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeProduct(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Product.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeProduct(value: any, ctx: DeserializeContext): Product | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Product.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("name" in obj)){errors.push({field: "name" , message: "missing required field" });}if(!("quickCode" in obj)){errors.push({field: "quickCode" , message: "missing required field" });}if(!("group" in obj)){errors.push({field: "group" , message: "missing required field" });}if(!("subgroup" in obj)){errors.push({field: "subgroup" , message: "missing required field" });}if(!("unit" in obj)){errors.push({field: "unit" , message: "missing required field" });}if(!("active" in obj)){errors.push({field: "active" , message: "missing required field" });}if(!("commission" in obj)){errors.push({field: "commission" , message: "missing required field" });}if(!("favorite" in obj)){errors.push({field: "favorite" , message: "missing required field" });}if(!("defaults" in obj)){errors.push({field: "defaults" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_name = obj["name" ]as string; 
                 if (__raw_name.length === 0) {
@@ -1993,7 +1993,7 @@ export function fromStringifiedJSONProduct(json: string, opts?: DeserializeOptio
                 if (__raw_quickCode.length === 0) {
                     errors.push({ field: "quickCode", message: "must not be empty" });
                 }
- instance.quickCode = __raw_quickCode; }{const __raw_group = obj["group" ]as string | null; instance.group = __raw_group; }{const __raw_subgroup = obj["subgroup" ]as string | null; instance.subgroup = __raw_subgroup; }{const __raw_unit = obj["unit" ]as string | null; instance.unit = __raw_unit; }{const __raw_active = obj["active" ]as boolean; instance.active = __raw_active; }{const __raw_commission = obj["commission" ]as boolean; instance.commission = __raw_commission; }{const __raw_favorite = obj["favorite" ]as boolean; instance.favorite = __raw_favorite; }{const __raw_defaults = obj["defaults" ]as ProductDefaults; {const __result = ProductDefaults.__deserialize(__raw_defaults, ctx); ctx.assignOrDefer(instance, "defaults" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as Product;}export function validateFieldProduct<K extends keyof Product>(field: K, value: Product[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "name" : {const __val = value as string; 
+ instance.quickCode = __raw_quickCode; }{const __raw_group = obj["group" ]as string | null; instance.group = __raw_group; }{const __raw_subgroup = obj["subgroup" ]as string | null; instance.subgroup = __raw_subgroup; }{const __raw_unit = obj["unit" ]as string | null; instance.unit = __raw_unit; }{const __raw_active = obj["active" ]as boolean; instance.active = __raw_active; }{const __raw_commission = obj["commission" ]as boolean; instance.commission = __raw_commission; }{const __raw_favorite = obj["favorite" ]as boolean; instance.favorite = __raw_favorite; }{const __raw_defaults = obj["defaults" ]as ProductDefaults; {const __result = __deserializeProductDefaults(__raw_defaults, ctx); ctx.assignOrDefer(instance, "defaults" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as Product;}export function validateFieldProduct<K extends keyof Product>(field: K, value: Product[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "name" : {const __val = value as string; 
                 if (__val.length === 0) {
                     errors.push({ field: "name", message: "must not be empty" });
                 }
@@ -2038,7 +2038,7 @@ export function fromStringifiedJSONProduct(json: string, opts?: DeserializeOptio
             readonly active: FieldController<boolean>;
             readonly commission: FieldController<boolean>;
             readonly favorite: FieldController<boolean>;
-            readonly defaults: FieldController<ProductDefaults>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformProduct {readonly data: Product; readonly errors: ErrorsProduct; readonly tainted: TaintedProduct; readonly fields: FieldControllersProduct; validate(): Result<Product, Array<{field: string; message: string}>>; reset(overrides?: Partial<Product>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormProduct(overrides?: Partial<Product>): GigaformProduct {let data = $state({...Product.defaultValue(),...overrides}); let errors = $state<ErrorsProduct>({ _errors: Option.none(), id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), defaults: Option.none() }); let tainted = $state<TaintedProduct>({ id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), defaults: Option.none() }); const fields: FieldControllersProduct = {id: {
+            readonly defaults: FieldController<ProductDefaults>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformProduct {readonly data: Product; readonly errors: ErrorsProduct; readonly tainted: TaintedProduct; readonly fields: FieldControllersProduct; validate(): Result<Product, Array<{field: string; message: string}>>; reset(overrides?: Partial<Product>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormProduct(overrides?: Partial<Product>): GigaformProduct {let data = $state({...defaultValueProduct(),...overrides}); let errors = $state<ErrorsProduct>({ _errors: Option.none(), id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), defaults: Option.none() }); let tainted = $state<TaintedProduct>({ id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), defaults: Option.none() }); const fields: FieldControllersProduct = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -2051,7 +2051,7 @@ export function fromStringifiedJSONProduct(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Product.validateField("id", data.id);
+                        const fieldErrors = validateFieldProduct("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2069,7 +2069,7 @@ export function fromStringifiedJSONProduct(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.name,
                     setTainted: (value: Option<boolean>) => { tainted.name = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Product.validateField("name", data.name);
+                        const fieldErrors = validateFieldProduct("name", data.name);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2087,7 +2087,7 @@ export function fromStringifiedJSONProduct(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.quickCode,
                     setTainted: (value: Option<boolean>) => { tainted.quickCode = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Product.validateField("quickCode", data.quickCode);
+                        const fieldErrors = validateFieldProduct("quickCode", data.quickCode);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2105,7 +2105,7 @@ export function fromStringifiedJSONProduct(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.group,
                     setTainted: (value: Option<boolean>) => { tainted.group = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Product.validateField("group", data.group);
+                        const fieldErrors = validateFieldProduct("group", data.group);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2123,7 +2123,7 @@ export function fromStringifiedJSONProduct(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.subgroup,
                     setTainted: (value: Option<boolean>) => { tainted.subgroup = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Product.validateField("subgroup", data.subgroup);
+                        const fieldErrors = validateFieldProduct("subgroup", data.subgroup);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2141,7 +2141,7 @@ export function fromStringifiedJSONProduct(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.unit,
                     setTainted: (value: Option<boolean>) => { tainted.unit = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Product.validateField("unit", data.unit);
+                        const fieldErrors = validateFieldProduct("unit", data.unit);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2159,7 +2159,7 @@ export function fromStringifiedJSONProduct(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.active,
                     setTainted: (value: Option<boolean>) => { tainted.active = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Product.validateField("active", data.active);
+                        const fieldErrors = validateFieldProduct("active", data.active);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2177,7 +2177,7 @@ export function fromStringifiedJSONProduct(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.commission,
                     setTainted: (value: Option<boolean>) => { tainted.commission = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Product.validateField("commission", data.commission);
+                        const fieldErrors = validateFieldProduct("commission", data.commission);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2195,7 +2195,7 @@ export function fromStringifiedJSONProduct(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.favorite,
                     setTainted: (value: Option<boolean>) => { tainted.favorite = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Product.validateField("favorite", data.favorite);
+                        const fieldErrors = validateFieldProduct("favorite", data.favorite);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2213,11 +2213,11 @@ export function fromStringifiedJSONProduct(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.defaults,
                     setTainted: (value: Option<boolean>) => { tainted.defaults = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Product.validateField("defaults", data.defaults);
+                        const fieldErrors = validateFieldProduct("defaults", data.defaults);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Product, Array<{field: string; message: string}>>{return Product.fromObject(data);}function reset(newOverrides?: Partial<Product>): void {data = {...Product.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), defaults: Option.none() }; tainted = { id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), defaults: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataProduct(formData: FormData): Result<Product, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+                }}; function validate(): Result<Product, Array<{field: string; message: string}>>{return fromObjectProduct(data);}function reset(newOverrides?: Partial<Product>): void {data = {...defaultValueProduct(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), defaults: Option.none() }; tainted = { id: Option.none(), name: Option.none(), quickCode: Option.none(), group: Option.none(), subgroup: Option.none(), unit: Option.none(), active: Option.none(), commission: Option.none(), favorite: Option.none(), defaults: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataProduct(formData: FormData): Result<Product, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
             obj.name = formData.get("name") ?? "";
             obj.quickCode = formData.get("quickCode") ?? "";
             obj.group = formData.get("group") ?? "";
@@ -2255,7 +2255,7 @@ export function fromStringifiedJSONProduct(json: string, opts?: DeserializeOptio
                 }
             }
             obj.defaults = defaultsObj;
-        } return Product.fromStringifiedJSON(JSON.stringify(obj));}
+        } return fromStringifiedJSONProduct(JSON.stringify(obj));}
 
 
 export interface YearlyRecurrenceRule {
@@ -2268,7 +2268,7 @@ export function toStringifiedJSONYearlyRecurrenceRule(value: YearlyRecurrenceRul
 
 export function fromStringifiedJSONYearlyRecurrenceRule(json: string, opts?: DeserializeOptions): Result<YearlyRecurrenceRule, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectYearlyRecurrenceRule(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectYearlyRecurrenceRule(obj: unknown, opts?: DeserializeOptions): Result<YearlyRecurrenceRule, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeYearlyRecurrenceRule(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "YearlyRecurrenceRule.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeYearlyRecurrenceRule(value: any, ctx: DeserializeContext): YearlyRecurrenceRule | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "YearlyRecurrenceRule.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("quantityOfYears" in obj)){errors.push({field: "quantityOfYears" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_quantityOfYears = obj["quantityOfYears" ]as number; instance.quantityOfYears = __raw_quantityOfYears; }if(errors.length>0){throw new DeserializeError(errors);}return instance as YearlyRecurrenceRule;}export function validateFieldYearlyRecurrenceRule<K extends keyof YearlyRecurrenceRule>(field: K, value: YearlyRecurrenceRule[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsYearlyRecurrenceRule(partial: Partial<YearlyRecurrenceRule>): Array<{field: string; message: string}>{return[]; }export function hasShapeYearlyRecurrenceRule(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "quantityOfYears" in o;}export function isYearlyRecurrenceRule(obj: unknown): obj is YearlyRecurrenceRule {if(!hasShapeYearlyRecurrenceRule(obj)){return false;}const result = fromObjectYearlyRecurrenceRule(obj); return Result.isOk(result);}
 
-/** Nested error structure matching the data shape */export type ErrorsYearlyRecurrenceRule = {_errors: Option<Array<string>>; quantityOfYears: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedYearlyRecurrenceRule = {quantityOfYears: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersYearlyRecurrenceRule {readonly quantityOfYears: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformYearlyRecurrenceRule {readonly data: YearlyRecurrenceRule; readonly errors: ErrorsYearlyRecurrenceRule; readonly tainted: TaintedYearlyRecurrenceRule; readonly fields: FieldControllersYearlyRecurrenceRule; validate(): Result<YearlyRecurrenceRule, Array<{field: string; message: string}>>; reset(overrides?: Partial<YearlyRecurrenceRule>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormYearlyRecurrenceRule(overrides?: Partial<YearlyRecurrenceRule>): GigaformYearlyRecurrenceRule {let data = $state({...YearlyRecurrenceRule.defaultValue(),...overrides}); let errors = $state<ErrorsYearlyRecurrenceRule>({ _errors: Option.none(), quantityOfYears: Option.none() }); let tainted = $state<TaintedYearlyRecurrenceRule>({ quantityOfYears: Option.none() }); const fields: FieldControllersYearlyRecurrenceRule = {quantityOfYears: {
+/** Nested error structure matching the data shape */export type ErrorsYearlyRecurrenceRule = {_errors: Option<Array<string>>; quantityOfYears: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedYearlyRecurrenceRule = {quantityOfYears: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersYearlyRecurrenceRule {readonly quantityOfYears: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformYearlyRecurrenceRule {readonly data: YearlyRecurrenceRule; readonly errors: ErrorsYearlyRecurrenceRule; readonly tainted: TaintedYearlyRecurrenceRule; readonly fields: FieldControllersYearlyRecurrenceRule; validate(): Result<YearlyRecurrenceRule, Array<{field: string; message: string}>>; reset(overrides?: Partial<YearlyRecurrenceRule>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormYearlyRecurrenceRule(overrides?: Partial<YearlyRecurrenceRule>): GigaformYearlyRecurrenceRule {let data = $state({...defaultValueYearlyRecurrenceRule(),...overrides}); let errors = $state<ErrorsYearlyRecurrenceRule>({ _errors: Option.none(), quantityOfYears: Option.none() }); let tainted = $state<TaintedYearlyRecurrenceRule>({ quantityOfYears: Option.none() }); const fields: FieldControllersYearlyRecurrenceRule = {quantityOfYears: {
                     path: ["quantityOfYears"] as const,
                     name: "quantityOfYears",
                     constraints: { required: true },
@@ -2281,15 +2281,15 @@ export function fromStringifiedJSONYearlyRecurrenceRule(json: string, opts?: Des
                     getTainted: () => tainted.quantityOfYears,
                     setTainted: (value: Option<boolean>) => { tainted.quantityOfYears = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = YearlyRecurrenceRule.validateField("quantityOfYears", data.quantityOfYears);
+                        const fieldErrors = validateFieldYearlyRecurrenceRule("quantityOfYears", data.quantityOfYears);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<YearlyRecurrenceRule, Array<{field: string; message: string}>>{return YearlyRecurrenceRule.fromObject(data);}function reset(newOverrides?: Partial<YearlyRecurrenceRule>): void {data = {...YearlyRecurrenceRule.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), quantityOfYears: Option.none() }; tainted = { quantityOfYears: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataYearlyRecurrenceRule(formData: FormData): Result<YearlyRecurrenceRule, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<YearlyRecurrenceRule, Array<{field: string; message: string}>>{return fromObjectYearlyRecurrenceRule(data);}function reset(newOverrides?: Partial<YearlyRecurrenceRule>): void {data = {...defaultValueYearlyRecurrenceRule(),...newOverrides}; errors = { _errors: Option.none(), quantityOfYears: Option.none() }; tainted = { quantityOfYears: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataYearlyRecurrenceRule(formData: FormData): Result<YearlyRecurrenceRule, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const quantityOfYearsStr = formData.get("quantityOfYears");
                 obj.quantityOfYears = quantityOfYearsStr ? parseFloat(quantityOfYearsStr as string) : 0;
                 if (obj.quantityOfYears !== undefined && isNaN(obj.quantityOfYears as number)) obj.quantityOfYears = 0;
-            } return YearlyRecurrenceRule.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONYearlyRecurrenceRule(JSON.stringify(obj));}
 
 
 export interface AppointmentNotifications {
@@ -2333,7 +2333,7 @@ export function fromStringifiedJSONAppointmentNotifications(json: string, opts?:
 /** Nested error structure matching the data shape */export type ErrorsAppointmentNotifications = {_errors: Option<Array<string>>; personalScheduleChangeNotifications: Option<Array<string>>;
             allScheduleChangeNotifications: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedAppointmentNotifications = {personalScheduleChangeNotifications: Option<boolean>;
             allScheduleChangeNotifications: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersAppointmentNotifications {readonly personalScheduleChangeNotifications: FieldController<string>;
-            readonly allScheduleChangeNotifications: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformAppointmentNotifications {readonly data: AppointmentNotifications; readonly errors: ErrorsAppointmentNotifications; readonly tainted: TaintedAppointmentNotifications; readonly fields: FieldControllersAppointmentNotifications; validate(): Result<AppointmentNotifications, Array<{field: string; message: string}>>; reset(overrides?: Partial<AppointmentNotifications>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormAppointmentNotifications(overrides?: Partial<AppointmentNotifications>): GigaformAppointmentNotifications {let data = $state({...AppointmentNotifications.defaultValue(),...overrides}); let errors = $state<ErrorsAppointmentNotifications>({ _errors: Option.none(), personalScheduleChangeNotifications: Option.none(), allScheduleChangeNotifications: Option.none() }); let tainted = $state<TaintedAppointmentNotifications>({ personalScheduleChangeNotifications: Option.none(), allScheduleChangeNotifications: Option.none() }); const fields: FieldControllersAppointmentNotifications = {personalScheduleChangeNotifications: {
+            readonly allScheduleChangeNotifications: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformAppointmentNotifications {readonly data: AppointmentNotifications; readonly errors: ErrorsAppointmentNotifications; readonly tainted: TaintedAppointmentNotifications; readonly fields: FieldControllersAppointmentNotifications; validate(): Result<AppointmentNotifications, Array<{field: string; message: string}>>; reset(overrides?: Partial<AppointmentNotifications>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormAppointmentNotifications(overrides?: Partial<AppointmentNotifications>): GigaformAppointmentNotifications {let data = $state({...defaultValueAppointmentNotifications(),...overrides}); let errors = $state<ErrorsAppointmentNotifications>({ _errors: Option.none(), personalScheduleChangeNotifications: Option.none(), allScheduleChangeNotifications: Option.none() }); let tainted = $state<TaintedAppointmentNotifications>({ personalScheduleChangeNotifications: Option.none(), allScheduleChangeNotifications: Option.none() }); const fields: FieldControllersAppointmentNotifications = {personalScheduleChangeNotifications: {
                     path: ["personalScheduleChangeNotifications"] as const,
                     name: "personalScheduleChangeNotifications",
                     constraints: { required: true },
@@ -2346,7 +2346,7 @@ export function fromStringifiedJSONAppointmentNotifications(json: string, opts?:
                     getTainted: () => tainted.personalScheduleChangeNotifications,
                     setTainted: (value: Option<boolean>) => { tainted.personalScheduleChangeNotifications = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = AppointmentNotifications.validateField("personalScheduleChangeNotifications", data.personalScheduleChangeNotifications);
+                        const fieldErrors = validateFieldAppointmentNotifications("personalScheduleChangeNotifications", data.personalScheduleChangeNotifications);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2364,12 +2364,12 @@ export function fromStringifiedJSONAppointmentNotifications(json: string, opts?:
                     getTainted: () => tainted.allScheduleChangeNotifications,
                     setTainted: (value: Option<boolean>) => { tainted.allScheduleChangeNotifications = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = AppointmentNotifications.validateField("allScheduleChangeNotifications", data.allScheduleChangeNotifications);
+                        const fieldErrors = validateFieldAppointmentNotifications("allScheduleChangeNotifications", data.allScheduleChangeNotifications);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<AppointmentNotifications, Array<{field: string; message: string}>>{return AppointmentNotifications.fromObject(data);}function reset(newOverrides?: Partial<AppointmentNotifications>): void {data = {...AppointmentNotifications.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), personalScheduleChangeNotifications: Option.none(), allScheduleChangeNotifications: Option.none() }; tainted = { personalScheduleChangeNotifications: Option.none(), allScheduleChangeNotifications: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataAppointmentNotifications(formData: FormData): Result<AppointmentNotifications, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.personalScheduleChangeNotifications = formData.get("personalScheduleChangeNotifications") ?? "";
-            obj.allScheduleChangeNotifications = formData.get("allScheduleChangeNotifications") ?? ""; return AppointmentNotifications.fromStringifiedJSON(JSON.stringify(obj));}
+                }}; function validate(): Result<AppointmentNotifications, Array<{field: string; message: string}>>{return fromObjectAppointmentNotifications(data);}function reset(newOverrides?: Partial<AppointmentNotifications>): void {data = {...defaultValueAppointmentNotifications(),...newOverrides}; errors = { _errors: Option.none(), personalScheduleChangeNotifications: Option.none(), allScheduleChangeNotifications: Option.none() }; tainted = { personalScheduleChangeNotifications: Option.none(), allScheduleChangeNotifications: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataAppointmentNotifications(formData: FormData): Result<AppointmentNotifications, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.personalScheduleChangeNotifications = formData.get("personalScheduleChangeNotifications") ?? "";
+            obj.allScheduleChangeNotifications = formData.get("allScheduleChangeNotifications") ?? ""; return fromStringifiedJSONAppointmentNotifications(JSON.stringify(obj));}
 
 
 export interface DirectionHue {
@@ -2387,7 +2387,7 @@ export function fromStringifiedJSONDirectionHue(json: string, opts?: Deserialize
 /** Nested error structure matching the data shape */export type ErrorsDirectionHue = {_errors: Option<Array<string>>; bearing: Option<Array<string>>;
             hue: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedDirectionHue = {bearing: Option<boolean>;
             hue: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersDirectionHue {readonly bearing: FieldController<number>;
-            readonly hue: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformDirectionHue {readonly data: DirectionHue; readonly errors: ErrorsDirectionHue; readonly tainted: TaintedDirectionHue; readonly fields: FieldControllersDirectionHue; validate(): Result<DirectionHue, Array<{field: string; message: string}>>; reset(overrides?: Partial<DirectionHue>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormDirectionHue(overrides?: Partial<DirectionHue>): GigaformDirectionHue {let data = $state({...DirectionHue.defaultValue(),...overrides}); let errors = $state<ErrorsDirectionHue>({ _errors: Option.none(), bearing: Option.none(), hue: Option.none() }); let tainted = $state<TaintedDirectionHue>({ bearing: Option.none(), hue: Option.none() }); const fields: FieldControllersDirectionHue = {bearing: {
+            readonly hue: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformDirectionHue {readonly data: DirectionHue; readonly errors: ErrorsDirectionHue; readonly tainted: TaintedDirectionHue; readonly fields: FieldControllersDirectionHue; validate(): Result<DirectionHue, Array<{field: string; message: string}>>; reset(overrides?: Partial<DirectionHue>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormDirectionHue(overrides?: Partial<DirectionHue>): GigaformDirectionHue {let data = $state({...defaultValueDirectionHue(),...overrides}); let errors = $state<ErrorsDirectionHue>({ _errors: Option.none(), bearing: Option.none(), hue: Option.none() }); let tainted = $state<TaintedDirectionHue>({ bearing: Option.none(), hue: Option.none() }); const fields: FieldControllersDirectionHue = {bearing: {
                     path: ["bearing"] as const,
                     name: "bearing",
                     constraints: { required: true },
@@ -2400,7 +2400,7 @@ export function fromStringifiedJSONDirectionHue(json: string, opts?: Deserialize
                     getTainted: () => tainted.bearing,
                     setTainted: (value: Option<boolean>) => { tainted.bearing = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = DirectionHue.validateField("bearing", data.bearing);
+                        const fieldErrors = validateFieldDirectionHue("bearing", data.bearing);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2418,11 +2418,11 @@ export function fromStringifiedJSONDirectionHue(json: string, opts?: Deserialize
                     getTainted: () => tainted.hue,
                     setTainted: (value: Option<boolean>) => { tainted.hue = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = DirectionHue.validateField("hue", data.hue);
+                        const fieldErrors = validateFieldDirectionHue("hue", data.hue);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<DirectionHue, Array<{field: string; message: string}>>{return DirectionHue.fromObject(data);}function reset(newOverrides?: Partial<DirectionHue>): void {data = {...DirectionHue.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), bearing: Option.none(), hue: Option.none() }; tainted = { bearing: Option.none(), hue: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataDirectionHue(formData: FormData): Result<DirectionHue, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<DirectionHue, Array<{field: string; message: string}>>{return fromObjectDirectionHue(data);}function reset(newOverrides?: Partial<DirectionHue>): void {data = {...defaultValueDirectionHue(),...newOverrides}; errors = { _errors: Option.none(), bearing: Option.none(), hue: Option.none() }; tainted = { bearing: Option.none(), hue: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataDirectionHue(formData: FormData): Result<DirectionHue, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const bearingStr = formData.get("bearing");
                 obj.bearing = bearingStr ? parseFloat(bearingStr as string) : 0;
                 if (obj.bearing !== undefined && isNaN(obj.bearing as number)) obj.bearing = 0;
@@ -2431,7 +2431,7 @@ export function fromStringifiedJSONDirectionHue(json: string, opts?: Deserialize
                 const hueStr = formData.get("hue");
                 obj.hue = hueStr ? parseFloat(hueStr as string) : 0;
                 if (obj.hue !== undefined && isNaN(obj.hue as number)) obj.hue = 0;
-            } return DirectionHue.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONDirectionHue(JSON.stringify(obj));}
 
 
 export interface MonthlyRecurrenceRule {
@@ -2467,7 +2467,7 @@ export function fromStringifiedJSONMonthlyRecurrenceRule(json: string, opts?: De
             day: Option<boolean>;
             name: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersMonthlyRecurrenceRule {readonly quantityOfMonths: FieldController<number>;
             readonly day: FieldController<number>;
-            readonly name: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformMonthlyRecurrenceRule {readonly data: MonthlyRecurrenceRule; readonly errors: ErrorsMonthlyRecurrenceRule; readonly tainted: TaintedMonthlyRecurrenceRule; readonly fields: FieldControllersMonthlyRecurrenceRule; validate(): Result<MonthlyRecurrenceRule, Array<{field: string; message: string}>>; reset(overrides?: Partial<MonthlyRecurrenceRule>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormMonthlyRecurrenceRule(overrides?: Partial<MonthlyRecurrenceRule>): GigaformMonthlyRecurrenceRule {let data = $state({...MonthlyRecurrenceRule.defaultValue(),...overrides}); let errors = $state<ErrorsMonthlyRecurrenceRule>({ _errors: Option.none(), quantityOfMonths: Option.none(), day: Option.none(), name: Option.none() }); let tainted = $state<TaintedMonthlyRecurrenceRule>({ quantityOfMonths: Option.none(), day: Option.none(), name: Option.none() }); const fields: FieldControllersMonthlyRecurrenceRule = {quantityOfMonths: {
+            readonly name: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformMonthlyRecurrenceRule {readonly data: MonthlyRecurrenceRule; readonly errors: ErrorsMonthlyRecurrenceRule; readonly tainted: TaintedMonthlyRecurrenceRule; readonly fields: FieldControllersMonthlyRecurrenceRule; validate(): Result<MonthlyRecurrenceRule, Array<{field: string; message: string}>>; reset(overrides?: Partial<MonthlyRecurrenceRule>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormMonthlyRecurrenceRule(overrides?: Partial<MonthlyRecurrenceRule>): GigaformMonthlyRecurrenceRule {let data = $state({...defaultValueMonthlyRecurrenceRule(),...overrides}); let errors = $state<ErrorsMonthlyRecurrenceRule>({ _errors: Option.none(), quantityOfMonths: Option.none(), day: Option.none(), name: Option.none() }); let tainted = $state<TaintedMonthlyRecurrenceRule>({ quantityOfMonths: Option.none(), day: Option.none(), name: Option.none() }); const fields: FieldControllersMonthlyRecurrenceRule = {quantityOfMonths: {
                     path: ["quantityOfMonths"] as const,
                     name: "quantityOfMonths",
                     constraints: { required: true },
@@ -2480,7 +2480,7 @@ export function fromStringifiedJSONMonthlyRecurrenceRule(json: string, opts?: De
                     getTainted: () => tainted.quantityOfMonths,
                     setTainted: (value: Option<boolean>) => { tainted.quantityOfMonths = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = MonthlyRecurrenceRule.validateField("quantityOfMonths", data.quantityOfMonths);
+                        const fieldErrors = validateFieldMonthlyRecurrenceRule("quantityOfMonths", data.quantityOfMonths);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2498,7 +2498,7 @@ export function fromStringifiedJSONMonthlyRecurrenceRule(json: string, opts?: De
                     getTainted: () => tainted.day,
                     setTainted: (value: Option<boolean>) => { tainted.day = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = MonthlyRecurrenceRule.validateField("day", data.day);
+                        const fieldErrors = validateFieldMonthlyRecurrenceRule("day", data.day);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2516,11 +2516,11 @@ export function fromStringifiedJSONMonthlyRecurrenceRule(json: string, opts?: De
                     getTainted: () => tainted.name,
                     setTainted: (value: Option<boolean>) => { tainted.name = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = MonthlyRecurrenceRule.validateField("name", data.name);
+                        const fieldErrors = validateFieldMonthlyRecurrenceRule("name", data.name);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<MonthlyRecurrenceRule, Array<{field: string; message: string}>>{return MonthlyRecurrenceRule.fromObject(data);}function reset(newOverrides?: Partial<MonthlyRecurrenceRule>): void {data = {...MonthlyRecurrenceRule.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), quantityOfMonths: Option.none(), day: Option.none(), name: Option.none() }; tainted = { quantityOfMonths: Option.none(), day: Option.none(), name: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataMonthlyRecurrenceRule(formData: FormData): Result<MonthlyRecurrenceRule, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<MonthlyRecurrenceRule, Array<{field: string; message: string}>>{return fromObjectMonthlyRecurrenceRule(data);}function reset(newOverrides?: Partial<MonthlyRecurrenceRule>): void {data = {...defaultValueMonthlyRecurrenceRule(),...newOverrides}; errors = { _errors: Option.none(), quantityOfMonths: Option.none(), day: Option.none(), name: Option.none() }; tainted = { quantityOfMonths: Option.none(), day: Option.none(), name: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataMonthlyRecurrenceRule(formData: FormData): Result<MonthlyRecurrenceRule, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const quantityOfMonthsStr = formData.get("quantityOfMonths");
                 obj.quantityOfMonths = quantityOfMonthsStr ? parseFloat(quantityOfMonthsStr as string) : 0;
                 if (obj.quantityOfMonths !== undefined && isNaN(obj.quantityOfMonths as number)) obj.quantityOfMonths = 0;
@@ -2530,7 +2530,7 @@ export function fromStringifiedJSONMonthlyRecurrenceRule(json: string, opts?: De
                 obj.day = dayStr ? parseFloat(dayStr as string) : 0;
                 if (obj.day !== undefined && isNaN(obj.day as number)) obj.day = 0;
             }
-            obj.name = formData.get("name") ?? ""; return MonthlyRecurrenceRule.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.name = formData.get("name") ?? ""; return fromStringifiedJSONMonthlyRecurrenceRule(JSON.stringify(obj));}
 
 
 export interface Represents {
@@ -2560,7 +2560,7 @@ export function fromStringifiedJSONRepresents(json: string, opts?: DeserializeOp
             dateStarted: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersRepresents {readonly in: FieldController<string | Employee>;
             readonly out: FieldController<string | Account>;
             readonly id: FieldController<string>;
-            readonly dateStarted: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformRepresents {readonly data: Represents; readonly errors: ErrorsRepresents; readonly tainted: TaintedRepresents; readonly fields: FieldControllersRepresents; validate(): Result<Represents, Array<{field: string; message: string}>>; reset(overrides?: Partial<Represents>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormRepresents(overrides?: Partial<Represents>): GigaformRepresents {let data = $state({...Represents.defaultValue(),...overrides}); let errors = $state<ErrorsRepresents>({ _errors: Option.none(), in: Option.none(), out: Option.none(), id: Option.none(), dateStarted: Option.none() }); let tainted = $state<TaintedRepresents>({ in: Option.none(), out: Option.none(), id: Option.none(), dateStarted: Option.none() }); const fields: FieldControllersRepresents = {in: {
+            readonly dateStarted: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformRepresents {readonly data: Represents; readonly errors: ErrorsRepresents; readonly tainted: TaintedRepresents; readonly fields: FieldControllersRepresents; validate(): Result<Represents, Array<{field: string; message: string}>>; reset(overrides?: Partial<Represents>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormRepresents(overrides?: Partial<Represents>): GigaformRepresents {let data = $state({...defaultValueRepresents(),...overrides}); let errors = $state<ErrorsRepresents>({ _errors: Option.none(), in: Option.none(), out: Option.none(), id: Option.none(), dateStarted: Option.none() }); let tainted = $state<TaintedRepresents>({ in: Option.none(), out: Option.none(), id: Option.none(), dateStarted: Option.none() }); const fields: FieldControllersRepresents = {in: {
                     path: ["in"] as const,
                     name: "in",
                     constraints: { required: true },
@@ -2573,7 +2573,7 @@ export function fromStringifiedJSONRepresents(json: string, opts?: DeserializeOp
                     getTainted: () => tainted.in,
                     setTainted: (value: Option<boolean>) => { tainted.in = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Represents.validateField("in", data.in);
+                        const fieldErrors = validateFieldRepresents("in", data.in);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2591,7 +2591,7 @@ export function fromStringifiedJSONRepresents(json: string, opts?: DeserializeOp
                     getTainted: () => tainted.out,
                     setTainted: (value: Option<boolean>) => { tainted.out = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Represents.validateField("out", data.out);
+                        const fieldErrors = validateFieldRepresents("out", data.out);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2609,7 +2609,7 @@ export function fromStringifiedJSONRepresents(json: string, opts?: DeserializeOp
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Represents.validateField("id", data.id);
+                        const fieldErrors = validateFieldRepresents("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2627,14 +2627,14 @@ export function fromStringifiedJSONRepresents(json: string, opts?: DeserializeOp
                     getTainted: () => tainted.dateStarted,
                     setTainted: (value: Option<boolean>) => { tainted.dateStarted = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Represents.validateField("dateStarted", data.dateStarted);
+                        const fieldErrors = validateFieldRepresents("dateStarted", data.dateStarted);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Represents, Array<{field: string; message: string}>>{return Represents.fromObject(data);}function reset(newOverrides?: Partial<Represents>): void {data = {...Represents.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), in: Option.none(), out: Option.none(), id: Option.none(), dateStarted: Option.none() }; tainted = { in: Option.none(), out: Option.none(), id: Option.none(), dateStarted: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataRepresents(formData: FormData): Result<Represents, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.in = formData.get("in") ?? "";
+                }}; function validate(): Result<Represents, Array<{field: string; message: string}>>{return fromObjectRepresents(data);}function reset(newOverrides?: Partial<Represents>): void {data = {...defaultValueRepresents(),...newOverrides}; errors = { _errors: Option.none(), in: Option.none(), out: Option.none(), id: Option.none(), dateStarted: Option.none() }; tainted = { in: Option.none(), out: Option.none(), id: Option.none(), dateStarted: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataRepresents(formData: FormData): Result<Represents, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.in = formData.get("in") ?? "";
             obj.out = formData.get("out") ?? "";
             obj.id = formData.get("id") ?? "";
-            obj.dateStarted = formData.get("dateStarted") ?? ""; return Represents.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.dateStarted = formData.get("dateStarted") ?? ""; return fromStringifiedJSONRepresents(JSON.stringify(obj));}
 
 
 export interface Payment {
@@ -2652,7 +2652,7 @@ export function fromStringifiedJSONPayment(json: string, opts?: DeserializeOptio
 /** Nested error structure matching the data shape */export type ErrorsPayment = {_errors: Option<Array<string>>; id: Option<Array<string>>;
             date: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedPayment = {id: Option<boolean>;
             date: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersPayment {readonly id: FieldController<string>;
-            readonly date: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformPayment {readonly data: Payment; readonly errors: ErrorsPayment; readonly tainted: TaintedPayment; readonly fields: FieldControllersPayment; validate(): Result<Payment, Array<{field: string; message: string}>>; reset(overrides?: Partial<Payment>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormPayment(overrides?: Partial<Payment>): GigaformPayment {let data = $state({...Payment.defaultValue(),...overrides}); let errors = $state<ErrorsPayment>({ _errors: Option.none(), id: Option.none(), date: Option.none() }); let tainted = $state<TaintedPayment>({ id: Option.none(), date: Option.none() }); const fields: FieldControllersPayment = {id: {
+            readonly date: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformPayment {readonly data: Payment; readonly errors: ErrorsPayment; readonly tainted: TaintedPayment; readonly fields: FieldControllersPayment; validate(): Result<Payment, Array<{field: string; message: string}>>; reset(overrides?: Partial<Payment>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormPayment(overrides?: Partial<Payment>): GigaformPayment {let data = $state({...defaultValuePayment(),...overrides}); let errors = $state<ErrorsPayment>({ _errors: Option.none(), id: Option.none(), date: Option.none() }); let tainted = $state<TaintedPayment>({ id: Option.none(), date: Option.none() }); const fields: FieldControllersPayment = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -2665,7 +2665,7 @@ export function fromStringifiedJSONPayment(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Payment.validateField("id", data.id);
+                        const fieldErrors = validateFieldPayment("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2683,12 +2683,12 @@ export function fromStringifiedJSONPayment(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.date,
                     setTainted: (value: Option<boolean>) => { tainted.date = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Payment.validateField("date", data.date);
+                        const fieldErrors = validateFieldPayment("date", data.date);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Payment, Array<{field: string; message: string}>>{return Payment.fromObject(data);}function reset(newOverrides?: Partial<Payment>): void {data = {...Payment.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), date: Option.none() }; tainted = { id: Option.none(), date: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataPayment(formData: FormData): Result<Payment, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
-            obj.date = formData.get("date") ?? ""; return Payment.fromStringifiedJSON(JSON.stringify(obj));}
+                }}; function validate(): Result<Payment, Array<{field: string; message: string}>>{return fromObjectPayment(data);}function reset(newOverrides?: Partial<Payment>): void {data = {...defaultValuePayment(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), date: Option.none() }; tainted = { id: Option.none(), date: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataPayment(formData: FormData): Result<Payment, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+            obj.date = formData.get("date") ?? ""; return fromStringifiedJSONPayment(JSON.stringify(obj));}
 
 
 export interface Settings {
@@ -2709,20 +2709,20 @@ export interface Settings {
 
 export function defaultValueSettings(): Settings {return {appointmentNotifications: null,
                             commissions: null,
-                            scheduleSettings: ScheduleSettings.defaultValue(),
-                            accountOverviewSettings: OverviewSettings.defaultValue(),
-                            serviceOverviewSettings: OverviewSettings.defaultValue(),
-                            appointmentOverviewSettings: OverviewSettings.defaultValue(),
-                            leadOverviewSettings: OverviewSettings.defaultValue(),
-                            packageOverviewSettings: OverviewSettings.defaultValue(),
-                            productOverviewSettings: OverviewSettings.defaultValue(),
-                            orderOverviewSettings: OverviewSettings.defaultValue(),
-                            taxRateOverviewSettings: OverviewSettings.defaultValue(),
+                            scheduleSettings: defaultValueScheduleSettings(),
+                            accountOverviewSettings: defaultValueOverviewSettings(),
+                            serviceOverviewSettings: defaultValueOverviewSettings(),
+                            appointmentOverviewSettings: defaultValueOverviewSettings(),
+                            leadOverviewSettings: defaultValueOverviewSettings(),
+                            packageOverviewSettings: defaultValueOverviewSettings(),
+                            productOverviewSettings: defaultValueOverviewSettings(),
+                            orderOverviewSettings: defaultValueOverviewSettings(),
+                            taxRateOverviewSettings: defaultValueOverviewSettings(),
                             homePage: "UserHome", }as Settings;}
 
-export function toStringifiedJSONSettings(value: Settings): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeSettings(value, ctx));}export function toObjectSettings(value: Settings): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeSettings(value, ctx);}export function __serializeSettings(value: Settings, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Settings" , __id,}; if(value.appointmentNotifications!== null){result["appointmentNotifications" ]= typeof(value.appointmentNotifications as any)?.__serialize === "function" ? (value.appointmentNotifications as any).__serialize(ctx): value.appointmentNotifications;}else {result["appointmentNotifications" ]= null;}if(value.commissions!== null){result["commissions" ]= typeof(value.commissions as any)?.__serialize === "function" ? (value.commissions as any).__serialize(ctx): value.commissions;}else {result["commissions" ]= null;}result["scheduleSettings" ]= typeof(value.scheduleSettings as any)?.__serialize === "function" ? (value.scheduleSettings as any).__serialize(ctx): value.scheduleSettings; result["accountOverviewSettings" ]= typeof(value.accountOverviewSettings as any)?.__serialize === "function" ? (value.accountOverviewSettings as any).__serialize(ctx): value.accountOverviewSettings; result["serviceOverviewSettings" ]= typeof(value.serviceOverviewSettings as any)?.__serialize === "function" ? (value.serviceOverviewSettings as any).__serialize(ctx): value.serviceOverviewSettings; result["appointmentOverviewSettings" ]= typeof(value.appointmentOverviewSettings as any)?.__serialize === "function" ? (value.appointmentOverviewSettings as any).__serialize(ctx): value.appointmentOverviewSettings; result["leadOverviewSettings" ]= typeof(value.leadOverviewSettings as any)?.__serialize === "function" ? (value.leadOverviewSettings as any).__serialize(ctx): value.leadOverviewSettings; result["packageOverviewSettings" ]= typeof(value.packageOverviewSettings as any)?.__serialize === "function" ? (value.packageOverviewSettings as any).__serialize(ctx): value.packageOverviewSettings; result["productOverviewSettings" ]= typeof(value.productOverviewSettings as any)?.__serialize === "function" ? (value.productOverviewSettings as any).__serialize(ctx): value.productOverviewSettings; result["orderOverviewSettings" ]= typeof(value.orderOverviewSettings as any)?.__serialize === "function" ? (value.orderOverviewSettings as any).__serialize(ctx): value.orderOverviewSettings; result["taxRateOverviewSettings" ]= typeof(value.taxRateOverviewSettings as any)?.__serialize === "function" ? (value.taxRateOverviewSettings as any).__serialize(ctx): value.taxRateOverviewSettings; result["homePage" ]= typeof(value.homePage as any)?.__serialize === "function" ? (value.homePage as any).__serialize(ctx): value.homePage; return result;}
+export function toStringifiedJSONSettings(value: Settings): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeSettings(value, ctx));}export function toObjectSettings(value: Settings): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeSettings(value, ctx);}export function __serializeSettings(value: Settings, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Settings" , __id,}; if(value.appointmentNotifications!== null){result["appointmentNotifications" ]= __serializeAppointmentNotifications(value.appointmentNotifications, ctx); }else {result["appointmentNotifications" ]= null;}if(value.commissions!== null){result["commissions" ]= __serializeCommissions(value.commissions, ctx); }else {result["commissions" ]= null;}result["scheduleSettings" ]= __serializeScheduleSettings(value.scheduleSettings, ctx); result["accountOverviewSettings" ]= __serializeOverviewSettings(value.accountOverviewSettings, ctx); result["serviceOverviewSettings" ]= __serializeOverviewSettings(value.serviceOverviewSettings, ctx); result["appointmentOverviewSettings" ]= __serializeOverviewSettings(value.appointmentOverviewSettings, ctx); result["leadOverviewSettings" ]= __serializeOverviewSettings(value.leadOverviewSettings, ctx); result["packageOverviewSettings" ]= __serializeOverviewSettings(value.packageOverviewSettings, ctx); result["productOverviewSettings" ]= __serializeOverviewSettings(value.productOverviewSettings, ctx); result["orderOverviewSettings" ]= __serializeOverviewSettings(value.orderOverviewSettings, ctx); result["taxRateOverviewSettings" ]= __serializeOverviewSettings(value.taxRateOverviewSettings, ctx); result["homePage" ]= __serializePage(value.homePage, ctx); return result;}
 
-export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOptions): Result<Settings, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectSettings(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectSettings(obj: unknown, opts?: DeserializeOptions): Result<Settings, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeSettings(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Settings.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeSettings(value: any, ctx: DeserializeContext): Settings | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Settings.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("appointmentNotifications" in obj)){errors.push({field: "appointmentNotifications" , message: "missing required field" });}if(!("commissions" in obj)){errors.push({field: "commissions" , message: "missing required field" });}if(!("scheduleSettings" in obj)){errors.push({field: "scheduleSettings" , message: "missing required field" });}if(!("accountOverviewSettings" in obj)){errors.push({field: "accountOverviewSettings" , message: "missing required field" });}if(!("serviceOverviewSettings" in obj)){errors.push({field: "serviceOverviewSettings" , message: "missing required field" });}if(!("appointmentOverviewSettings" in obj)){errors.push({field: "appointmentOverviewSettings" , message: "missing required field" });}if(!("leadOverviewSettings" in obj)){errors.push({field: "leadOverviewSettings" , message: "missing required field" });}if(!("packageOverviewSettings" in obj)){errors.push({field: "packageOverviewSettings" , message: "missing required field" });}if(!("productOverviewSettings" in obj)){errors.push({field: "productOverviewSettings" , message: "missing required field" });}if(!("orderOverviewSettings" in obj)){errors.push({field: "orderOverviewSettings" , message: "missing required field" });}if(!("taxRateOverviewSettings" in obj)){errors.push({field: "taxRateOverviewSettings" , message: "missing required field" });}if(!("homePage" in obj)){errors.push({field: "homePage" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_appointmentNotifications = obj["appointmentNotifications" ]as AppointmentNotifications | null; if(__raw_appointmentNotifications === null){instance.appointmentNotifications = null;}else {const __result = AppointmentNotifications.__deserialize(__raw_appointmentNotifications, ctx); ctx.assignOrDefer(instance, "appointmentNotifications" , __result); }}{const __raw_commissions = obj["commissions" ]as Commissions | null; if(__raw_commissions === null){instance.commissions = null;}else {const __result = Commissions.__deserialize(__raw_commissions, ctx); ctx.assignOrDefer(instance, "commissions" , __result); }}{const __raw_scheduleSettings = obj["scheduleSettings" ]as ScheduleSettings; {const __result = ScheduleSettings.__deserialize(__raw_scheduleSettings, ctx); ctx.assignOrDefer(instance, "scheduleSettings" , __result);}}{const __raw_accountOverviewSettings = obj["accountOverviewSettings" ]as OverviewSettings; {const __result = OverviewSettings.__deserialize(__raw_accountOverviewSettings, ctx); ctx.assignOrDefer(instance, "accountOverviewSettings" , __result);}}{const __raw_serviceOverviewSettings = obj["serviceOverviewSettings" ]as OverviewSettings; {const __result = OverviewSettings.__deserialize(__raw_serviceOverviewSettings, ctx); ctx.assignOrDefer(instance, "serviceOverviewSettings" , __result);}}{const __raw_appointmentOverviewSettings = obj["appointmentOverviewSettings" ]as OverviewSettings; {const __result = OverviewSettings.__deserialize(__raw_appointmentOverviewSettings, ctx); ctx.assignOrDefer(instance, "appointmentOverviewSettings" , __result);}}{const __raw_leadOverviewSettings = obj["leadOverviewSettings" ]as OverviewSettings; {const __result = OverviewSettings.__deserialize(__raw_leadOverviewSettings, ctx); ctx.assignOrDefer(instance, "leadOverviewSettings" , __result);}}{const __raw_packageOverviewSettings = obj["packageOverviewSettings" ]as OverviewSettings; {const __result = OverviewSettings.__deserialize(__raw_packageOverviewSettings, ctx); ctx.assignOrDefer(instance, "packageOverviewSettings" , __result);}}{const __raw_productOverviewSettings = obj["productOverviewSettings" ]as OverviewSettings; {const __result = OverviewSettings.__deserialize(__raw_productOverviewSettings, ctx); ctx.assignOrDefer(instance, "productOverviewSettings" , __result);}}{const __raw_orderOverviewSettings = obj["orderOverviewSettings" ]as OverviewSettings; {const __result = OverviewSettings.__deserialize(__raw_orderOverviewSettings, ctx); ctx.assignOrDefer(instance, "orderOverviewSettings" , __result);}}{const __raw_taxRateOverviewSettings = obj["taxRateOverviewSettings" ]as OverviewSettings; {const __result = OverviewSettings.__deserialize(__raw_taxRateOverviewSettings, ctx); ctx.assignOrDefer(instance, "taxRateOverviewSettings" , __result);}}{const __raw_homePage = obj["homePage" ]as Page; {const __result = Page.__deserialize(__raw_homePage, ctx); ctx.assignOrDefer(instance, "homePage" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as Settings;}export function validateFieldSettings<K extends keyof Settings>(field: K, value: Settings[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsSettings(partial: Partial<Settings>): Array<{field: string; message: string}>{return[]; }export function hasShapeSettings(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "appointmentNotifications" in o && "commissions" in o && "scheduleSettings" in o && "accountOverviewSettings" in o && "serviceOverviewSettings" in o && "appointmentOverviewSettings" in o && "leadOverviewSettings" in o && "packageOverviewSettings" in o && "productOverviewSettings" in o && "orderOverviewSettings" in o && "taxRateOverviewSettings" in o && "homePage" in o;}export function isSettings(obj: unknown): obj is Settings {if(!hasShapeSettings(obj)){return false;}const result = fromObjectSettings(obj); return Result.isOk(result);}
+export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOptions): Result<Settings, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectSettings(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectSettings(obj: unknown, opts?: DeserializeOptions): Result<Settings, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeSettings(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Settings.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeSettings(value: any, ctx: DeserializeContext): Settings | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Settings.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("appointmentNotifications" in obj)){errors.push({field: "appointmentNotifications" , message: "missing required field" });}if(!("commissions" in obj)){errors.push({field: "commissions" , message: "missing required field" });}if(!("scheduleSettings" in obj)){errors.push({field: "scheduleSettings" , message: "missing required field" });}if(!("accountOverviewSettings" in obj)){errors.push({field: "accountOverviewSettings" , message: "missing required field" });}if(!("serviceOverviewSettings" in obj)){errors.push({field: "serviceOverviewSettings" , message: "missing required field" });}if(!("appointmentOverviewSettings" in obj)){errors.push({field: "appointmentOverviewSettings" , message: "missing required field" });}if(!("leadOverviewSettings" in obj)){errors.push({field: "leadOverviewSettings" , message: "missing required field" });}if(!("packageOverviewSettings" in obj)){errors.push({field: "packageOverviewSettings" , message: "missing required field" });}if(!("productOverviewSettings" in obj)){errors.push({field: "productOverviewSettings" , message: "missing required field" });}if(!("orderOverviewSettings" in obj)){errors.push({field: "orderOverviewSettings" , message: "missing required field" });}if(!("taxRateOverviewSettings" in obj)){errors.push({field: "taxRateOverviewSettings" , message: "missing required field" });}if(!("homePage" in obj)){errors.push({field: "homePage" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_appointmentNotifications = obj["appointmentNotifications" ]as AppointmentNotifications | null; if(__raw_appointmentNotifications === null){instance.appointmentNotifications = null;}else {const __result = __deserializeAppointmentNotifications(__raw_appointmentNotifications, ctx); ctx.assignOrDefer(instance, "appointmentNotifications" , __result); }}{const __raw_commissions = obj["commissions" ]as Commissions | null; if(__raw_commissions === null){instance.commissions = null;}else {const __result = __deserializeCommissions(__raw_commissions, ctx); ctx.assignOrDefer(instance, "commissions" , __result); }}{const __raw_scheduleSettings = obj["scheduleSettings" ]as ScheduleSettings; {const __result = __deserializeScheduleSettings(__raw_scheduleSettings, ctx); ctx.assignOrDefer(instance, "scheduleSettings" , __result);}}{const __raw_accountOverviewSettings = obj["accountOverviewSettings" ]as OverviewSettings; {const __result = __deserializeOverviewSettings(__raw_accountOverviewSettings, ctx); ctx.assignOrDefer(instance, "accountOverviewSettings" , __result);}}{const __raw_serviceOverviewSettings = obj["serviceOverviewSettings" ]as OverviewSettings; {const __result = __deserializeOverviewSettings(__raw_serviceOverviewSettings, ctx); ctx.assignOrDefer(instance, "serviceOverviewSettings" , __result);}}{const __raw_appointmentOverviewSettings = obj["appointmentOverviewSettings" ]as OverviewSettings; {const __result = __deserializeOverviewSettings(__raw_appointmentOverviewSettings, ctx); ctx.assignOrDefer(instance, "appointmentOverviewSettings" , __result);}}{const __raw_leadOverviewSettings = obj["leadOverviewSettings" ]as OverviewSettings; {const __result = __deserializeOverviewSettings(__raw_leadOverviewSettings, ctx); ctx.assignOrDefer(instance, "leadOverviewSettings" , __result);}}{const __raw_packageOverviewSettings = obj["packageOverviewSettings" ]as OverviewSettings; {const __result = __deserializeOverviewSettings(__raw_packageOverviewSettings, ctx); ctx.assignOrDefer(instance, "packageOverviewSettings" , __result);}}{const __raw_productOverviewSettings = obj["productOverviewSettings" ]as OverviewSettings; {const __result = __deserializeOverviewSettings(__raw_productOverviewSettings, ctx); ctx.assignOrDefer(instance, "productOverviewSettings" , __result);}}{const __raw_orderOverviewSettings = obj["orderOverviewSettings" ]as OverviewSettings; {const __result = __deserializeOverviewSettings(__raw_orderOverviewSettings, ctx); ctx.assignOrDefer(instance, "orderOverviewSettings" , __result);}}{const __raw_taxRateOverviewSettings = obj["taxRateOverviewSettings" ]as OverviewSettings; {const __result = __deserializeOverviewSettings(__raw_taxRateOverviewSettings, ctx); ctx.assignOrDefer(instance, "taxRateOverviewSettings" , __result);}}{const __raw_homePage = obj["homePage" ]as Page; {const __result = __deserializePage(__raw_homePage, ctx); ctx.assignOrDefer(instance, "homePage" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as Settings;}export function validateFieldSettings<K extends keyof Settings>(field: K, value: Settings[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsSettings(partial: Partial<Settings>): Array<{field: string; message: string}>{return[]; }export function hasShapeSettings(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "appointmentNotifications" in o && "commissions" in o && "scheduleSettings" in o && "accountOverviewSettings" in o && "serviceOverviewSettings" in o && "appointmentOverviewSettings" in o && "leadOverviewSettings" in o && "packageOverviewSettings" in o && "productOverviewSettings" in o && "orderOverviewSettings" in o && "taxRateOverviewSettings" in o && "homePage" in o;}export function isSettings(obj: unknown): obj is Settings {if(!hasShapeSettings(obj)){return false;}const result = fromObjectSettings(obj); return Result.isOk(result);}
 
 /** Nested error structure matching the data shape */export type ErrorsSettings = {_errors: Option<Array<string>>; appointmentNotifications: Option<Array<string>>;
             commissions: Option<Array<string>>;
@@ -2757,7 +2757,7 @@ export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOpti
             readonly productOverviewSettings: FieldController<OverviewSettings>;
             readonly orderOverviewSettings: FieldController<OverviewSettings>;
             readonly taxRateOverviewSettings: FieldController<OverviewSettings>;
-            readonly homePage: FieldController<Page>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformSettings {readonly data: Settings; readonly errors: ErrorsSettings; readonly tainted: TaintedSettings; readonly fields: FieldControllersSettings; validate(): Result<Settings, Array<{field: string; message: string}>>; reset(overrides?: Partial<Settings>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormSettings(overrides?: Partial<Settings>): GigaformSettings {let data = $state({...Settings.defaultValue(),...overrides}); let errors = $state<ErrorsSettings>({ _errors: Option.none(), appointmentNotifications: Option.none(), commissions: Option.none(), scheduleSettings: Option.none(), accountOverviewSettings: Option.none(), serviceOverviewSettings: Option.none(), appointmentOverviewSettings: Option.none(), leadOverviewSettings: Option.none(), packageOverviewSettings: Option.none(), productOverviewSettings: Option.none(), orderOverviewSettings: Option.none(), taxRateOverviewSettings: Option.none(), homePage: Option.none() }); let tainted = $state<TaintedSettings>({ appointmentNotifications: Option.none(), commissions: Option.none(), scheduleSettings: Option.none(), accountOverviewSettings: Option.none(), serviceOverviewSettings: Option.none(), appointmentOverviewSettings: Option.none(), leadOverviewSettings: Option.none(), packageOverviewSettings: Option.none(), productOverviewSettings: Option.none(), orderOverviewSettings: Option.none(), taxRateOverviewSettings: Option.none(), homePage: Option.none() }); const fields: FieldControllersSettings = {appointmentNotifications: {
+            readonly homePage: FieldController<Page>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformSettings {readonly data: Settings; readonly errors: ErrorsSettings; readonly tainted: TaintedSettings; readonly fields: FieldControllersSettings; validate(): Result<Settings, Array<{field: string; message: string}>>; reset(overrides?: Partial<Settings>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormSettings(overrides?: Partial<Settings>): GigaformSettings {let data = $state({...defaultValueSettings(),...overrides}); let errors = $state<ErrorsSettings>({ _errors: Option.none(), appointmentNotifications: Option.none(), commissions: Option.none(), scheduleSettings: Option.none(), accountOverviewSettings: Option.none(), serviceOverviewSettings: Option.none(), appointmentOverviewSettings: Option.none(), leadOverviewSettings: Option.none(), packageOverviewSettings: Option.none(), productOverviewSettings: Option.none(), orderOverviewSettings: Option.none(), taxRateOverviewSettings: Option.none(), homePage: Option.none() }); let tainted = $state<TaintedSettings>({ appointmentNotifications: Option.none(), commissions: Option.none(), scheduleSettings: Option.none(), accountOverviewSettings: Option.none(), serviceOverviewSettings: Option.none(), appointmentOverviewSettings: Option.none(), leadOverviewSettings: Option.none(), packageOverviewSettings: Option.none(), productOverviewSettings: Option.none(), orderOverviewSettings: Option.none(), taxRateOverviewSettings: Option.none(), homePage: Option.none() }); const fields: FieldControllersSettings = {appointmentNotifications: {
                     path: ["appointmentNotifications"] as const,
                     name: "appointmentNotifications",
                     constraints: { required: true },
@@ -2770,7 +2770,7 @@ export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.appointmentNotifications,
                     setTainted: (value: Option<boolean>) => { tainted.appointmentNotifications = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Settings.validateField("appointmentNotifications", data.appointmentNotifications);
+                        const fieldErrors = validateFieldSettings("appointmentNotifications", data.appointmentNotifications);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2788,7 +2788,7 @@ export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.commissions,
                     setTainted: (value: Option<boolean>) => { tainted.commissions = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Settings.validateField("commissions", data.commissions);
+                        const fieldErrors = validateFieldSettings("commissions", data.commissions);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2806,7 +2806,7 @@ export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.scheduleSettings,
                     setTainted: (value: Option<boolean>) => { tainted.scheduleSettings = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Settings.validateField("scheduleSettings", data.scheduleSettings);
+                        const fieldErrors = validateFieldSettings("scheduleSettings", data.scheduleSettings);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2824,7 +2824,7 @@ export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.accountOverviewSettings,
                     setTainted: (value: Option<boolean>) => { tainted.accountOverviewSettings = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Settings.validateField("accountOverviewSettings", data.accountOverviewSettings);
+                        const fieldErrors = validateFieldSettings("accountOverviewSettings", data.accountOverviewSettings);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2842,7 +2842,7 @@ export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.serviceOverviewSettings,
                     setTainted: (value: Option<boolean>) => { tainted.serviceOverviewSettings = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Settings.validateField("serviceOverviewSettings", data.serviceOverviewSettings);
+                        const fieldErrors = validateFieldSettings("serviceOverviewSettings", data.serviceOverviewSettings);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2860,7 +2860,7 @@ export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.appointmentOverviewSettings,
                     setTainted: (value: Option<boolean>) => { tainted.appointmentOverviewSettings = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Settings.validateField("appointmentOverviewSettings", data.appointmentOverviewSettings);
+                        const fieldErrors = validateFieldSettings("appointmentOverviewSettings", data.appointmentOverviewSettings);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2878,7 +2878,7 @@ export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.leadOverviewSettings,
                     setTainted: (value: Option<boolean>) => { tainted.leadOverviewSettings = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Settings.validateField("leadOverviewSettings", data.leadOverviewSettings);
+                        const fieldErrors = validateFieldSettings("leadOverviewSettings", data.leadOverviewSettings);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2896,7 +2896,7 @@ export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.packageOverviewSettings,
                     setTainted: (value: Option<boolean>) => { tainted.packageOverviewSettings = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Settings.validateField("packageOverviewSettings", data.packageOverviewSettings);
+                        const fieldErrors = validateFieldSettings("packageOverviewSettings", data.packageOverviewSettings);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2914,7 +2914,7 @@ export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.productOverviewSettings,
                     setTainted: (value: Option<boolean>) => { tainted.productOverviewSettings = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Settings.validateField("productOverviewSettings", data.productOverviewSettings);
+                        const fieldErrors = validateFieldSettings("productOverviewSettings", data.productOverviewSettings);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2932,7 +2932,7 @@ export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.orderOverviewSettings,
                     setTainted: (value: Option<boolean>) => { tainted.orderOverviewSettings = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Settings.validateField("orderOverviewSettings", data.orderOverviewSettings);
+                        const fieldErrors = validateFieldSettings("orderOverviewSettings", data.orderOverviewSettings);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2950,7 +2950,7 @@ export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.taxRateOverviewSettings,
                     setTainted: (value: Option<boolean>) => { tainted.taxRateOverviewSettings = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Settings.validateField("taxRateOverviewSettings", data.taxRateOverviewSettings);
+                        const fieldErrors = validateFieldSettings("taxRateOverviewSettings", data.taxRateOverviewSettings);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -2968,11 +2968,11 @@ export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.homePage,
                     setTainted: (value: Option<boolean>) => { tainted.homePage = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Settings.validateField("homePage", data.homePage);
+                        const fieldErrors = validateFieldSettings("homePage", data.homePage);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Settings, Array<{field: string; message: string}>>{return Settings.fromObject(data);}function reset(newOverrides?: Partial<Settings>): void {data = {...Settings.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), appointmentNotifications: Option.none(), commissions: Option.none(), scheduleSettings: Option.none(), accountOverviewSettings: Option.none(), serviceOverviewSettings: Option.none(), appointmentOverviewSettings: Option.none(), leadOverviewSettings: Option.none(), packageOverviewSettings: Option.none(), productOverviewSettings: Option.none(), orderOverviewSettings: Option.none(), taxRateOverviewSettings: Option.none(), homePage: Option.none() }; tainted = { appointmentNotifications: Option.none(), commissions: Option.none(), scheduleSettings: Option.none(), accountOverviewSettings: Option.none(), serviceOverviewSettings: Option.none(), appointmentOverviewSettings: Option.none(), leadOverviewSettings: Option.none(), packageOverviewSettings: Option.none(), productOverviewSettings: Option.none(), orderOverviewSettings: Option.none(), taxRateOverviewSettings: Option.none(), homePage: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataSettings(formData: FormData): Result<Settings, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.appointmentNotifications = formData.get("appointmentNotifications") ?? "";
+                }}; function validate(): Result<Settings, Array<{field: string; message: string}>>{return fromObjectSettings(data);}function reset(newOverrides?: Partial<Settings>): void {data = {...defaultValueSettings(),...newOverrides}; errors = { _errors: Option.none(), appointmentNotifications: Option.none(), commissions: Option.none(), scheduleSettings: Option.none(), accountOverviewSettings: Option.none(), serviceOverviewSettings: Option.none(), appointmentOverviewSettings: Option.none(), leadOverviewSettings: Option.none(), packageOverviewSettings: Option.none(), productOverviewSettings: Option.none(), orderOverviewSettings: Option.none(), taxRateOverviewSettings: Option.none(), homePage: Option.none() }; tainted = { appointmentNotifications: Option.none(), commissions: Option.none(), scheduleSettings: Option.none(), accountOverviewSettings: Option.none(), serviceOverviewSettings: Option.none(), appointmentOverviewSettings: Option.none(), leadOverviewSettings: Option.none(), packageOverviewSettings: Option.none(), productOverviewSettings: Option.none(), orderOverviewSettings: Option.none(), taxRateOverviewSettings: Option.none(), homePage: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataSettings(formData: FormData): Result<Settings, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.appointmentNotifications = formData.get("appointmentNotifications") ?? "";
             obj.commissions = formData.get("commissions") ?? "";
             {
             // Collect nested object fields with prefix "scheduleSettings."
@@ -3183,7 +3183,7 @@ export function fromStringifiedJSONSettings(json: string, opts?: DeserializeOpti
                 }
             }
             obj.homePage = homePageObj;
-        } return Settings.fromStringifiedJSON(JSON.stringify(obj));}
+        } return fromStringifiedJSONSettings(JSON.stringify(obj));}
 
 
 export interface Color {
@@ -3206,7 +3206,7 @@ export function fromStringifiedJSONColor(json: string, opts?: DeserializeOptions
             green: Option<boolean>;
             blue: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersColor {readonly red: FieldController<number>;
             readonly green: FieldController<number>;
-            readonly blue: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformColor {readonly data: Color; readonly errors: ErrorsColor; readonly tainted: TaintedColor; readonly fields: FieldControllersColor; validate(): Result<Color, Array<{field: string; message: string}>>; reset(overrides?: Partial<Color>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormColor(overrides?: Partial<Color>): GigaformColor {let data = $state({...Color.defaultValue(),...overrides}); let errors = $state<ErrorsColor>({ _errors: Option.none(), red: Option.none(), green: Option.none(), blue: Option.none() }); let tainted = $state<TaintedColor>({ red: Option.none(), green: Option.none(), blue: Option.none() }); const fields: FieldControllersColor = {red: {
+            readonly blue: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformColor {readonly data: Color; readonly errors: ErrorsColor; readonly tainted: TaintedColor; readonly fields: FieldControllersColor; validate(): Result<Color, Array<{field: string; message: string}>>; reset(overrides?: Partial<Color>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormColor(overrides?: Partial<Color>): GigaformColor {let data = $state({...defaultValueColor(),...overrides}); let errors = $state<ErrorsColor>({ _errors: Option.none(), red: Option.none(), green: Option.none(), blue: Option.none() }); let tainted = $state<TaintedColor>({ red: Option.none(), green: Option.none(), blue: Option.none() }); const fields: FieldControllersColor = {red: {
                     path: ["red"] as const,
                     name: "red",
                     constraints: { required: true },
@@ -3219,7 +3219,7 @@ export function fromStringifiedJSONColor(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.red,
                     setTainted: (value: Option<boolean>) => { tainted.red = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Color.validateField("red", data.red);
+                        const fieldErrors = validateFieldColor("red", data.red);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3237,7 +3237,7 @@ export function fromStringifiedJSONColor(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.green,
                     setTainted: (value: Option<boolean>) => { tainted.green = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Color.validateField("green", data.green);
+                        const fieldErrors = validateFieldColor("green", data.green);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3255,11 +3255,11 @@ export function fromStringifiedJSONColor(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.blue,
                     setTainted: (value: Option<boolean>) => { tainted.blue = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Color.validateField("blue", data.blue);
+                        const fieldErrors = validateFieldColor("blue", data.blue);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Color, Array<{field: string; message: string}>>{return Color.fromObject(data);}function reset(newOverrides?: Partial<Color>): void {data = {...Color.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), red: Option.none(), green: Option.none(), blue: Option.none() }; tainted = { red: Option.none(), green: Option.none(), blue: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataColor(formData: FormData): Result<Color, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<Color, Array<{field: string; message: string}>>{return fromObjectColor(data);}function reset(newOverrides?: Partial<Color>): void {data = {...defaultValueColor(),...newOverrides}; errors = { _errors: Option.none(), red: Option.none(), green: Option.none(), blue: Option.none() }; tainted = { red: Option.none(), green: Option.none(), blue: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataColor(formData: FormData): Result<Color, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const redStr = formData.get("red");
                 obj.red = redStr ? parseFloat(redStr as string) : 0;
                 if (obj.red !== undefined && isNaN(obj.red as number)) obj.red = 0;
@@ -3273,7 +3273,7 @@ export function fromStringifiedJSONColor(json: string, opts?: DeserializeOptions
                 const blueStr = formData.get("blue");
                 obj.blue = blueStr ? parseFloat(blueStr as string) : 0;
                 if (obj.blue !== undefined && isNaN(obj.blue as number)) obj.blue = 0;
-            } return Color.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONColor(JSON.stringify(obj));}
 
 
 export interface CompanyName {
@@ -3300,7 +3300,7 @@ export function fromStringifiedJSONCompanyName(json: string, opts?: DeserializeO
                 }
 }return errors; }export function hasShapeCompanyName(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "companyName" in o;}export function isCompanyName(obj: unknown): obj is CompanyName {if(!hasShapeCompanyName(obj)){return false;}const result = fromObjectCompanyName(obj); return Result.isOk(result);}
 
-/** Nested error structure matching the data shape */export type ErrorsCompanyName = {_errors: Option<Array<string>>; companyName: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedCompanyName = {companyName: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersCompanyName {readonly companyName: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCompanyName {readonly data: CompanyName; readonly errors: ErrorsCompanyName; readonly tainted: TaintedCompanyName; readonly fields: FieldControllersCompanyName; validate(): Result<CompanyName, Array<{field: string; message: string}>>; reset(overrides?: Partial<CompanyName>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCompanyName(overrides?: Partial<CompanyName>): GigaformCompanyName {let data = $state({...CompanyName.defaultValue(),...overrides}); let errors = $state<ErrorsCompanyName>({ _errors: Option.none(), companyName: Option.none() }); let tainted = $state<TaintedCompanyName>({ companyName: Option.none() }); const fields: FieldControllersCompanyName = {companyName: {
+/** Nested error structure matching the data shape */export type ErrorsCompanyName = {_errors: Option<Array<string>>; companyName: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedCompanyName = {companyName: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersCompanyName {readonly companyName: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCompanyName {readonly data: CompanyName; readonly errors: ErrorsCompanyName; readonly tainted: TaintedCompanyName; readonly fields: FieldControllersCompanyName; validate(): Result<CompanyName, Array<{field: string; message: string}>>; reset(overrides?: Partial<CompanyName>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCompanyName(overrides?: Partial<CompanyName>): GigaformCompanyName {let data = $state({...defaultValueCompanyName(),...overrides}); let errors = $state<ErrorsCompanyName>({ _errors: Option.none(), companyName: Option.none() }); let tainted = $state<TaintedCompanyName>({ companyName: Option.none() }); const fields: FieldControllersCompanyName = {companyName: {
                     path: ["companyName"] as const,
                     name: "companyName",
                     constraints: { required: true },
@@ -3313,11 +3313,11 @@ export function fromStringifiedJSONCompanyName(json: string, opts?: DeserializeO
                     getTainted: () => tainted.companyName,
                     setTainted: (value: Option<boolean>) => { tainted.companyName = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = CompanyName.validateField("companyName", data.companyName);
+                        const fieldErrors = validateFieldCompanyName("companyName", data.companyName);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<CompanyName, Array<{field: string; message: string}>>{return CompanyName.fromObject(data);}function reset(newOverrides?: Partial<CompanyName>): void {data = {...CompanyName.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), companyName: Option.none() }; tainted = { companyName: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCompanyName(formData: FormData): Result<CompanyName, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.companyName = formData.get("companyName") ?? ""; return CompanyName.fromStringifiedJSON(JSON.stringify(obj));}
+                }}; function validate(): Result<CompanyName, Array<{field: string; message: string}>>{return fromObjectCompanyName(data);}function reset(newOverrides?: Partial<CompanyName>): void {data = {...defaultValueCompanyName(),...newOverrides}; errors = { _errors: Option.none(), companyName: Option.none() }; tainted = { companyName: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCompanyName(formData: FormData): Result<CompanyName, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.companyName = formData.get("companyName") ?? ""; return fromStringifiedJSONCompanyName(JSON.stringify(obj));}
 
 
 export interface Appointment {
@@ -3370,13 +3370,13 @@ export function defaultValueAppointment(): Appointment {return {id: "",
                             colors: { main: "#000000", hover: "#333333", active: "#666666" },
                             recurrenceRule: null, }as Appointment;}
 
-export function toStringifiedJSONAppointment(value: Appointment): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeAppointment(value, ctx));}export function toObjectAppointment(value: Appointment): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeAppointment(value, ctx);}export function __serializeAppointment(value: Appointment, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Appointment" , __id,}; result["id" ]= value.id; result["title" ]= value.title; result["status" ]= typeof(value.status as any)?.__serialize === "function" ? (value.status as any).__serialize(ctx): value.status; result["begins" ]= value.begins; result["duration" ]= value.duration; result["timeZone" ]= value.timeZone; result["offsetMs" ]= value.offsetMs; result["allDay" ]= value.allDay; result["multiDay" ]= value.multiDay; result["employees" ]= value.employees.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); result["location" ]= value.location; result["description" ]= value.description; result["colors" ]= typeof(value.colors as any)?.__serialize === "function" ? (value.colors as any).__serialize(ctx): value.colors; if(value.recurrenceRule!== null){result["recurrenceRule" ]= typeof(value.recurrenceRule as any)?.__serialize === "function" ? (value.recurrenceRule as any).__serialize(ctx): value.recurrenceRule;}else {result["recurrenceRule" ]= null;}return result;}
+export function toStringifiedJSONAppointment(value: Appointment): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeAppointment(value, ctx));}export function toObjectAppointment(value: Appointment): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeAppointment(value, ctx);}export function __serializeAppointment(value: Appointment, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Appointment" , __id,}; result["id" ]= value.id; result["title" ]= value.title; result["status" ]= __serializeStatus(value.status, ctx); result["begins" ]= value.begins; result["duration" ]= value.duration; result["timeZone" ]= value.timeZone; result["offsetMs" ]= value.offsetMs; result["allDay" ]= value.allDay; result["multiDay" ]= value.multiDay; result["employees" ]= value.employees; result["location" ]= value.location; result["description" ]= value.description; result["colors" ]= __serializeColors(value.colors, ctx); if(value.recurrenceRule!== null){result["recurrenceRule" ]= __serializeRecurrenceRule(value.recurrenceRule, ctx); }else {result["recurrenceRule" ]= null;}return result;}
 
 export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeOptions): Result<Appointment, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectAppointment(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectAppointment(obj: unknown, opts?: DeserializeOptions): Result<Appointment, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeAppointment(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Appointment.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeAppointment(value: any, ctx: DeserializeContext): Appointment | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Appointment.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("title" in obj)){errors.push({field: "title" , message: "missing required field" });}if(!("status" in obj)){errors.push({field: "status" , message: "missing required field" });}if(!("begins" in obj)){errors.push({field: "begins" , message: "missing required field" });}if(!("duration" in obj)){errors.push({field: "duration" , message: "missing required field" });}if(!("timeZone" in obj)){errors.push({field: "timeZone" , message: "missing required field" });}if(!("offsetMs" in obj)){errors.push({field: "offsetMs" , message: "missing required field" });}if(!("allDay" in obj)){errors.push({field: "allDay" , message: "missing required field" });}if(!("multiDay" in obj)){errors.push({field: "multiDay" , message: "missing required field" });}if(!("employees" in obj)){errors.push({field: "employees" , message: "missing required field" });}if(!("location" in obj)){errors.push({field: "location" , message: "missing required field" });}if(!("description" in obj)){errors.push({field: "description" , message: "missing required field" });}if(!("colors" in obj)){errors.push({field: "colors" , message: "missing required field" });}if(!("recurrenceRule" in obj)){errors.push({field: "recurrenceRule" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_title = obj["title" ]as string; 
                 if (__raw_title.length === 0) {
                     errors.push({ field: "title", message: "must not be empty" });
                 }
- instance.title = __raw_title; }{const __raw_status = obj["status" ]as Status; {const __result = Status.__deserialize(__raw_status, ctx); ctx.assignOrDefer(instance, "status" , __result);}}{const __raw_begins = obj["begins" ]as string; instance.begins = __raw_begins; }{const __raw_duration = obj["duration" ]as number; instance.duration = __raw_duration; }{const __raw_timeZone = obj["timeZone" ]as string; instance.timeZone = __raw_timeZone; }{const __raw_offsetMs = obj["offsetMs" ]as number; instance.offsetMs = __raw_offsetMs; }{const __raw_allDay = obj["allDay" ]as boolean; instance.allDay = __raw_allDay; }{const __raw_multiDay = obj["multiDay" ]as boolean; instance.multiDay = __raw_multiDay; }{const __raw_employees = obj["employees" ]as (string | Employee)[]; if(Array.isArray(__raw_employees)){instance.employees = __raw_employees as (string | Employee)[];}}{const __raw_location = obj["location" ]as string | Site; instance.location = __raw_location; }{const __raw_description = obj["description" ]as string | null; instance.description = __raw_description; }{const __raw_colors = obj["colors" ]as Colors; {const __result = Colors.__deserialize(__raw_colors, ctx); ctx.assignOrDefer(instance, "colors" , __result);}}{const __raw_recurrenceRule = obj["recurrenceRule" ]as RecurrenceRule | null; if(__raw_recurrenceRule === null){instance.recurrenceRule = null;}else {const __result = RecurrenceRule.__deserialize(__raw_recurrenceRule, ctx); ctx.assignOrDefer(instance, "recurrenceRule" , __result); }}if(errors.length>0){throw new DeserializeError(errors);}return instance as Appointment;}export function validateFieldAppointment<K extends keyof Appointment>(field: K, value: Appointment[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "title" : {const __val = value as string; 
+ instance.title = __raw_title; }{const __raw_status = obj["status" ]as Status; {const __result = __deserializeStatus(__raw_status, ctx); ctx.assignOrDefer(instance, "status" , __result);}}{const __raw_begins = obj["begins" ]as string; instance.begins = __raw_begins; }{const __raw_duration = obj["duration" ]as number; instance.duration = __raw_duration; }{const __raw_timeZone = obj["timeZone" ]as string; instance.timeZone = __raw_timeZone; }{const __raw_offsetMs = obj["offsetMs" ]as number; instance.offsetMs = __raw_offsetMs; }{const __raw_allDay = obj["allDay" ]as boolean; instance.allDay = __raw_allDay; }{const __raw_multiDay = obj["multiDay" ]as boolean; instance.multiDay = __raw_multiDay; }{const __raw_employees = obj["employees" ]as (string | Employee)[]; if(Array.isArray(__raw_employees)){instance.employees = __raw_employees as (string | Employee)[];}}{const __raw_location = obj["location" ]as string | Site; instance.location = __raw_location; }{const __raw_description = obj["description" ]as string | null; instance.description = __raw_description; }{const __raw_colors = obj["colors" ]as Colors; {const __result = __deserializeColors(__raw_colors, ctx); ctx.assignOrDefer(instance, "colors" , __result);}}{const __raw_recurrenceRule = obj["recurrenceRule" ]as RecurrenceRule | null; if(__raw_recurrenceRule === null){instance.recurrenceRule = null;}else {const __result = __deserializeRecurrenceRule(__raw_recurrenceRule, ctx); ctx.assignOrDefer(instance, "recurrenceRule" , __result); }}if(errors.length>0){throw new DeserializeError(errors);}return instance as Appointment;}export function validateFieldAppointment<K extends keyof Appointment>(field: K, value: Appointment[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "title" : {const __val = value as string; 
                 if (__val.length === 0) {
                     errors.push({ field: "title", message: "must not be empty" });
                 }
@@ -3425,7 +3425,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
             readonly location: FieldController<string | Site>;
             readonly description: FieldController<string | null>;
             readonly colors: FieldController<Colors>;
-            readonly recurrenceRule: FieldController<RecurrenceRule | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformAppointment {readonly data: Appointment; readonly errors: ErrorsAppointment; readonly tainted: TaintedAppointment; readonly fields: FieldControllersAppointment; validate(): Result<Appointment, Array<{field: string; message: string}>>; reset(overrides?: Partial<Appointment>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormAppointment(overrides?: Partial<Appointment>): GigaformAppointment {let data = $state({...Appointment.defaultValue(),...overrides}); let errors = $state<ErrorsAppointment>({ _errors: Option.none(), id: Option.none(), title: Option.none(), status: Option.none(), begins: Option.none(), duration: Option.none(), timeZone: Option.none(), offsetMs: Option.none(), allDay: Option.none(), multiDay: Option.none(), employees: Option.none(), location: Option.none(), description: Option.none(), colors: Option.none(), recurrenceRule: Option.none() }); let tainted = $state<TaintedAppointment>({ id: Option.none(), title: Option.none(), status: Option.none(), begins: Option.none(), duration: Option.none(), timeZone: Option.none(), offsetMs: Option.none(), allDay: Option.none(), multiDay: Option.none(), employees: Option.none(), location: Option.none(), description: Option.none(), colors: Option.none(), recurrenceRule: Option.none() }); const fields: FieldControllersAppointment = {id: {
+            readonly recurrenceRule: FieldController<RecurrenceRule | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformAppointment {readonly data: Appointment; readonly errors: ErrorsAppointment; readonly tainted: TaintedAppointment; readonly fields: FieldControllersAppointment; validate(): Result<Appointment, Array<{field: string; message: string}>>; reset(overrides?: Partial<Appointment>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormAppointment(overrides?: Partial<Appointment>): GigaformAppointment {let data = $state({...defaultValueAppointment(),...overrides}); let errors = $state<ErrorsAppointment>({ _errors: Option.none(), id: Option.none(), title: Option.none(), status: Option.none(), begins: Option.none(), duration: Option.none(), timeZone: Option.none(), offsetMs: Option.none(), allDay: Option.none(), multiDay: Option.none(), employees: Option.none(), location: Option.none(), description: Option.none(), colors: Option.none(), recurrenceRule: Option.none() }); let tainted = $state<TaintedAppointment>({ id: Option.none(), title: Option.none(), status: Option.none(), begins: Option.none(), duration: Option.none(), timeZone: Option.none(), offsetMs: Option.none(), allDay: Option.none(), multiDay: Option.none(), employees: Option.none(), location: Option.none(), description: Option.none(), colors: Option.none(), recurrenceRule: Option.none() }); const fields: FieldControllersAppointment = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -3438,7 +3438,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Appointment.validateField("id", data.id);
+                        const fieldErrors = validateFieldAppointment("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3456,7 +3456,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
                     getTainted: () => tainted.title,
                     setTainted: (value: Option<boolean>) => { tainted.title = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Appointment.validateField("title", data.title);
+                        const fieldErrors = validateFieldAppointment("title", data.title);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3474,7 +3474,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
                     getTainted: () => tainted.status,
                     setTainted: (value: Option<boolean>) => { tainted.status = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Appointment.validateField("status", data.status);
+                        const fieldErrors = validateFieldAppointment("status", data.status);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3492,7 +3492,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
                     getTainted: () => tainted.begins,
                     setTainted: (value: Option<boolean>) => { tainted.begins = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Appointment.validateField("begins", data.begins);
+                        const fieldErrors = validateFieldAppointment("begins", data.begins);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3510,7 +3510,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
                     getTainted: () => tainted.duration,
                     setTainted: (value: Option<boolean>) => { tainted.duration = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Appointment.validateField("duration", data.duration);
+                        const fieldErrors = validateFieldAppointment("duration", data.duration);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3528,7 +3528,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
                     getTainted: () => tainted.timeZone,
                     setTainted: (value: Option<boolean>) => { tainted.timeZone = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Appointment.validateField("timeZone", data.timeZone);
+                        const fieldErrors = validateFieldAppointment("timeZone", data.timeZone);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3546,7 +3546,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
                     getTainted: () => tainted.offsetMs,
                     setTainted: (value: Option<boolean>) => { tainted.offsetMs = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Appointment.validateField("offsetMs", data.offsetMs);
+                        const fieldErrors = validateFieldAppointment("offsetMs", data.offsetMs);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3564,7 +3564,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
                     getTainted: () => tainted.allDay,
                     setTainted: (value: Option<boolean>) => { tainted.allDay = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Appointment.validateField("allDay", data.allDay);
+                        const fieldErrors = validateFieldAppointment("allDay", data.allDay);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3582,7 +3582,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
                     getTainted: () => tainted.multiDay,
                     setTainted: (value: Option<boolean>) => { tainted.multiDay = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Appointment.validateField("multiDay", data.multiDay);
+                        const fieldErrors = validateFieldAppointment("multiDay", data.multiDay);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3600,7 +3600,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
                     getTainted: () => tainted.employees,
                     setTainted: (value: Option<boolean>) => { tainted.employees = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Appointment.validateField("employees", data.employees);
+                        const fieldErrors = validateFieldAppointment("employees", data.employees);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -3637,7 +3637,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
                     getTainted: () => tainted.location,
                     setTainted: (value: Option<boolean>) => { tainted.location = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Appointment.validateField("location", data.location);
+                        const fieldErrors = validateFieldAppointment("location", data.location);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3655,7 +3655,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
                     getTainted: () => tainted.description,
                     setTainted: (value: Option<boolean>) => { tainted.description = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Appointment.validateField("description", data.description);
+                        const fieldErrors = validateFieldAppointment("description", data.description);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3673,7 +3673,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
                     getTainted: () => tainted.colors,
                     setTainted: (value: Option<boolean>) => { tainted.colors = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Appointment.validateField("colors", data.colors);
+                        const fieldErrors = validateFieldAppointment("colors", data.colors);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3691,11 +3691,11 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
                     getTainted: () => tainted.recurrenceRule,
                     setTainted: (value: Option<boolean>) => { tainted.recurrenceRule = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Appointment.validateField("recurrenceRule", data.recurrenceRule);
+                        const fieldErrors = validateFieldAppointment("recurrenceRule", data.recurrenceRule);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Appointment, Array<{field: string; message: string}>>{return Appointment.fromObject(data);}function reset(newOverrides?: Partial<Appointment>): void {data = {...Appointment.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), title: Option.none(), status: Option.none(), begins: Option.none(), duration: Option.none(), timeZone: Option.none(), offsetMs: Option.none(), allDay: Option.none(), multiDay: Option.none(), employees: Option.none(), location: Option.none(), description: Option.none(), colors: Option.none(), recurrenceRule: Option.none() }; tainted = { id: Option.none(), title: Option.none(), status: Option.none(), begins: Option.none(), duration: Option.none(), timeZone: Option.none(), offsetMs: Option.none(), allDay: Option.none(), multiDay: Option.none(), employees: Option.none(), location: Option.none(), description: Option.none(), colors: Option.none(), recurrenceRule: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataAppointment(formData: FormData): Result<Appointment, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+                }}; function validate(): Result<Appointment, Array<{field: string; message: string}>>{return fromObjectAppointment(data);}function reset(newOverrides?: Partial<Appointment>): void {data = {...defaultValueAppointment(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), title: Option.none(), status: Option.none(), begins: Option.none(), duration: Option.none(), timeZone: Option.none(), offsetMs: Option.none(), allDay: Option.none(), multiDay: Option.none(), employees: Option.none(), location: Option.none(), description: Option.none(), colors: Option.none(), recurrenceRule: Option.none() }; tainted = { id: Option.none(), title: Option.none(), status: Option.none(), begins: Option.none(), duration: Option.none(), timeZone: Option.none(), offsetMs: Option.none(), allDay: Option.none(), multiDay: Option.none(), employees: Option.none(), location: Option.none(), description: Option.none(), colors: Option.none(), recurrenceRule: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataAppointment(formData: FormData): Result<Appointment, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
             obj.title = formData.get("title") ?? "";
             {
             // Collect nested object fields with prefix "status."
@@ -3784,7 +3784,7 @@ export function fromStringifiedJSONAppointment(json: string, opts?: DeserializeO
             }
             obj.colors = colorsObj;
         }
-            obj.recurrenceRule = formData.get("recurrenceRule") ?? ""; return Appointment.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.recurrenceRule = formData.get("recurrenceRule") ?? ""; return fromStringifiedJSONAppointment(JSON.stringify(obj));}
 
 
 export interface Package {
@@ -3804,7 +3804,7 @@ export function fromStringifiedJSONPackage(json: string, opts?: DeserializeOptio
 /** Nested error structure matching the data shape */export type ErrorsPackage = {_errors: Option<Array<string>>; id: Option<Array<string>>;
             date: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedPackage = {id: Option<boolean>;
             date: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersPackage {readonly id: FieldController<string>;
-            readonly date: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformPackage {readonly data: Package; readonly errors: ErrorsPackage; readonly tainted: TaintedPackage; readonly fields: FieldControllersPackage; validate(): Result<Package, Array<{field: string; message: string}>>; reset(overrides?: Partial<Package>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormPackage(overrides?: Partial<Package>): GigaformPackage {let data = $state({...Package.defaultValue(),...overrides}); let errors = $state<ErrorsPackage>({ _errors: Option.none(), id: Option.none(), date: Option.none() }); let tainted = $state<TaintedPackage>({ id: Option.none(), date: Option.none() }); const fields: FieldControllersPackage = {id: {
+            readonly date: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformPackage {readonly data: Package; readonly errors: ErrorsPackage; readonly tainted: TaintedPackage; readonly fields: FieldControllersPackage; validate(): Result<Package, Array<{field: string; message: string}>>; reset(overrides?: Partial<Package>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormPackage(overrides?: Partial<Package>): GigaformPackage {let data = $state({...defaultValuePackage(),...overrides}); let errors = $state<ErrorsPackage>({ _errors: Option.none(), id: Option.none(), date: Option.none() }); let tainted = $state<TaintedPackage>({ id: Option.none(), date: Option.none() }); const fields: FieldControllersPackage = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -3817,7 +3817,7 @@ export function fromStringifiedJSONPackage(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Package.validateField("id", data.id);
+                        const fieldErrors = validateFieldPackage("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3835,12 +3835,12 @@ export function fromStringifiedJSONPackage(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.date,
                     setTainted: (value: Option<boolean>) => { tainted.date = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Package.validateField("date", data.date);
+                        const fieldErrors = validateFieldPackage("date", data.date);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Package, Array<{field: string; message: string}>>{return Package.fromObject(data);}function reset(newOverrides?: Partial<Package>): void {data = {...Package.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), date: Option.none() }; tainted = { id: Option.none(), date: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataPackage(formData: FormData): Result<Package, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
-            obj.date = formData.get("date") ?? ""; return Package.fromStringifiedJSON(JSON.stringify(obj));}
+                }}; function validate(): Result<Package, Array<{field: string; message: string}>>{return fromObjectPackage(data);}function reset(newOverrides?: Partial<Package>): void {data = {...defaultValuePackage(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), date: Option.none() }; tainted = { id: Option.none(), date: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataPackage(formData: FormData): Result<Package, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+            obj.date = formData.get("date") ?? ""; return fromStringifiedJSONPackage(JSON.stringify(obj));}
 
 
 export interface ScheduleSettings {
@@ -3856,9 +3856,9 @@ export function defaultValueScheduleSettings(): ScheduleSettings {return {daysPe
                             visibleRoutes: [],
                             detailedCards: false, }as ScheduleSettings;}
 
-export function toStringifiedJSONScheduleSettings(value: ScheduleSettings): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeScheduleSettings(value, ctx));}export function toObjectScheduleSettings(value: ScheduleSettings): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeScheduleSettings(value, ctx);}export function __serializeScheduleSettings(value: ScheduleSettings, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "ScheduleSettings" , __id,}; result["daysPerWeek" ]= value.daysPerWeek; result["rowHeight" ]= typeof(value.rowHeight as any)?.__serialize === "function" ? (value.rowHeight as any).__serialize(ctx): value.rowHeight; result["visibleRoutes" ]= value.visibleRoutes; result["detailedCards" ]= value.detailedCards; return result;}
+export function toStringifiedJSONScheduleSettings(value: ScheduleSettings): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeScheduleSettings(value, ctx));}export function toObjectScheduleSettings(value: ScheduleSettings): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeScheduleSettings(value, ctx);}export function __serializeScheduleSettings(value: ScheduleSettings, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "ScheduleSettings" , __id,}; result["daysPerWeek" ]= value.daysPerWeek; result["rowHeight" ]= __serializeRowHeight(value.rowHeight, ctx); result["visibleRoutes" ]= value.visibleRoutes; result["detailedCards" ]= value.detailedCards; return result;}
 
-export function fromStringifiedJSONScheduleSettings(json: string, opts?: DeserializeOptions): Result<ScheduleSettings, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectScheduleSettings(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectScheduleSettings(obj: unknown, opts?: DeserializeOptions): Result<ScheduleSettings, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeScheduleSettings(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "ScheduleSettings.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeScheduleSettings(value: any, ctx: DeserializeContext): ScheduleSettings | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "ScheduleSettings.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("daysPerWeek" in obj)){errors.push({field: "daysPerWeek" , message: "missing required field" });}if(!("rowHeight" in obj)){errors.push({field: "rowHeight" , message: "missing required field" });}if(!("visibleRoutes" in obj)){errors.push({field: "visibleRoutes" , message: "missing required field" });}if(!("detailedCards" in obj)){errors.push({field: "detailedCards" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_daysPerWeek = obj["daysPerWeek" ]as number; instance.daysPerWeek = __raw_daysPerWeek; }{const __raw_rowHeight = obj["rowHeight" ]as RowHeight; {const __result = RowHeight.__deserialize(__raw_rowHeight, ctx); ctx.assignOrDefer(instance, "rowHeight" , __result);}}{const __raw_visibleRoutes = obj["visibleRoutes" ]as string[]; if(Array.isArray(__raw_visibleRoutes)){instance.visibleRoutes = __raw_visibleRoutes as string[];}}{const __raw_detailedCards = obj["detailedCards" ]as boolean; instance.detailedCards = __raw_detailedCards; }if(errors.length>0){throw new DeserializeError(errors);}return instance as ScheduleSettings;}export function validateFieldScheduleSettings<K extends keyof ScheduleSettings>(field: K, value: ScheduleSettings[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsScheduleSettings(partial: Partial<ScheduleSettings>): Array<{field: string; message: string}>{return[]; }export function hasShapeScheduleSettings(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "daysPerWeek" in o && "rowHeight" in o && "visibleRoutes" in o && "detailedCards" in o;}export function isScheduleSettings(obj: unknown): obj is ScheduleSettings {if(!hasShapeScheduleSettings(obj)){return false;}const result = fromObjectScheduleSettings(obj); return Result.isOk(result);}
+export function fromStringifiedJSONScheduleSettings(json: string, opts?: DeserializeOptions): Result<ScheduleSettings, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectScheduleSettings(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectScheduleSettings(obj: unknown, opts?: DeserializeOptions): Result<ScheduleSettings, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeScheduleSettings(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "ScheduleSettings.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeScheduleSettings(value: any, ctx: DeserializeContext): ScheduleSettings | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "ScheduleSettings.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("daysPerWeek" in obj)){errors.push({field: "daysPerWeek" , message: "missing required field" });}if(!("rowHeight" in obj)){errors.push({field: "rowHeight" , message: "missing required field" });}if(!("visibleRoutes" in obj)){errors.push({field: "visibleRoutes" , message: "missing required field" });}if(!("detailedCards" in obj)){errors.push({field: "detailedCards" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_daysPerWeek = obj["daysPerWeek" ]as number; instance.daysPerWeek = __raw_daysPerWeek; }{const __raw_rowHeight = obj["rowHeight" ]as RowHeight; {const __result = __deserializeRowHeight(__raw_rowHeight, ctx); ctx.assignOrDefer(instance, "rowHeight" , __result);}}{const __raw_visibleRoutes = obj["visibleRoutes" ]as string[]; if(Array.isArray(__raw_visibleRoutes)){instance.visibleRoutes = __raw_visibleRoutes as string[];}}{const __raw_detailedCards = obj["detailedCards" ]as boolean; instance.detailedCards = __raw_detailedCards; }if(errors.length>0){throw new DeserializeError(errors);}return instance as ScheduleSettings;}export function validateFieldScheduleSettings<K extends keyof ScheduleSettings>(field: K, value: ScheduleSettings[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsScheduleSettings(partial: Partial<ScheduleSettings>): Array<{field: string; message: string}>{return[]; }export function hasShapeScheduleSettings(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "daysPerWeek" in o && "rowHeight" in o && "visibleRoutes" in o && "detailedCards" in o;}export function isScheduleSettings(obj: unknown): obj is ScheduleSettings {if(!hasShapeScheduleSettings(obj)){return false;}const result = fromObjectScheduleSettings(obj); return Result.isOk(result);}
 
 /** Nested error structure matching the data shape */export type ErrorsScheduleSettings = {_errors: Option<Array<string>>; daysPerWeek: Option<Array<string>>;
             rowHeight: Option<Array<string>>;
@@ -3869,7 +3869,7 @@ export function fromStringifiedJSONScheduleSettings(json: string, opts?: Deseria
             detailedCards: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersScheduleSettings {readonly daysPerWeek: FieldController<number>;
             readonly rowHeight: FieldController<RowHeight>;
             readonly visibleRoutes: ArrayFieldController<string>;
-            readonly detailedCards: FieldController<boolean>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformScheduleSettings {readonly data: ScheduleSettings; readonly errors: ErrorsScheduleSettings; readonly tainted: TaintedScheduleSettings; readonly fields: FieldControllersScheduleSettings; validate(): Result<ScheduleSettings, Array<{field: string; message: string}>>; reset(overrides?: Partial<ScheduleSettings>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormScheduleSettings(overrides?: Partial<ScheduleSettings>): GigaformScheduleSettings {let data = $state({...ScheduleSettings.defaultValue(),...overrides}); let errors = $state<ErrorsScheduleSettings>({ _errors: Option.none(), daysPerWeek: Option.none(), rowHeight: Option.none(), visibleRoutes: Option.none(), detailedCards: Option.none() }); let tainted = $state<TaintedScheduleSettings>({ daysPerWeek: Option.none(), rowHeight: Option.none(), visibleRoutes: Option.none(), detailedCards: Option.none() }); const fields: FieldControllersScheduleSettings = {daysPerWeek: {
+            readonly detailedCards: FieldController<boolean>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformScheduleSettings {readonly data: ScheduleSettings; readonly errors: ErrorsScheduleSettings; readonly tainted: TaintedScheduleSettings; readonly fields: FieldControllersScheduleSettings; validate(): Result<ScheduleSettings, Array<{field: string; message: string}>>; reset(overrides?: Partial<ScheduleSettings>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormScheduleSettings(overrides?: Partial<ScheduleSettings>): GigaformScheduleSettings {let data = $state({...defaultValueScheduleSettings(),...overrides}); let errors = $state<ErrorsScheduleSettings>({ _errors: Option.none(), daysPerWeek: Option.none(), rowHeight: Option.none(), visibleRoutes: Option.none(), detailedCards: Option.none() }); let tainted = $state<TaintedScheduleSettings>({ daysPerWeek: Option.none(), rowHeight: Option.none(), visibleRoutes: Option.none(), detailedCards: Option.none() }); const fields: FieldControllersScheduleSettings = {daysPerWeek: {
                     path: ["daysPerWeek"] as const,
                     name: "daysPerWeek",
                     constraints: { required: true },
@@ -3882,7 +3882,7 @@ export function fromStringifiedJSONScheduleSettings(json: string, opts?: Deseria
                     getTainted: () => tainted.daysPerWeek,
                     setTainted: (value: Option<boolean>) => { tainted.daysPerWeek = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = ScheduleSettings.validateField("daysPerWeek", data.daysPerWeek);
+                        const fieldErrors = validateFieldScheduleSettings("daysPerWeek", data.daysPerWeek);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3900,7 +3900,7 @@ export function fromStringifiedJSONScheduleSettings(json: string, opts?: Deseria
                     getTainted: () => tainted.rowHeight,
                     setTainted: (value: Option<boolean>) => { tainted.rowHeight = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = ScheduleSettings.validateField("rowHeight", data.rowHeight);
+                        const fieldErrors = validateFieldScheduleSettings("rowHeight", data.rowHeight);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -3918,7 +3918,7 @@ export function fromStringifiedJSONScheduleSettings(json: string, opts?: Deseria
                     getTainted: () => tainted.visibleRoutes,
                     setTainted: (value: Option<boolean>) => { tainted.visibleRoutes = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = ScheduleSettings.validateField("visibleRoutes", data.visibleRoutes);
+                        const fieldErrors = validateFieldScheduleSettings("visibleRoutes", data.visibleRoutes);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -3955,11 +3955,11 @@ export function fromStringifiedJSONScheduleSettings(json: string, opts?: Deseria
                     getTainted: () => tainted.detailedCards,
                     setTainted: (value: Option<boolean>) => { tainted.detailedCards = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = ScheduleSettings.validateField("detailedCards", data.detailedCards);
+                        const fieldErrors = validateFieldScheduleSettings("detailedCards", data.detailedCards);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<ScheduleSettings, Array<{field: string; message: string}>>{return ScheduleSettings.fromObject(data);}function reset(newOverrides?: Partial<ScheduleSettings>): void {data = {...ScheduleSettings.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), daysPerWeek: Option.none(), rowHeight: Option.none(), visibleRoutes: Option.none(), detailedCards: Option.none() }; tainted = { daysPerWeek: Option.none(), rowHeight: Option.none(), visibleRoutes: Option.none(), detailedCards: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataScheduleSettings(formData: FormData): Result<ScheduleSettings, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<ScheduleSettings, Array<{field: string; message: string}>>{return fromObjectScheduleSettings(data);}function reset(newOverrides?: Partial<ScheduleSettings>): void {data = {...defaultValueScheduleSettings(),...newOverrides}; errors = { _errors: Option.none(), daysPerWeek: Option.none(), rowHeight: Option.none(), visibleRoutes: Option.none(), detailedCards: Option.none() }; tainted = { daysPerWeek: Option.none(), rowHeight: Option.none(), visibleRoutes: Option.none(), detailedCards: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataScheduleSettings(formData: FormData): Result<ScheduleSettings, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const daysPerWeekStr = formData.get("daysPerWeek");
                 obj.daysPerWeek = daysPerWeekStr ? parseFloat(daysPerWeekStr as string) : 0;
                 if (obj.daysPerWeek !== undefined && isNaN(obj.daysPerWeek as number)) obj.daysPerWeek = 0;
@@ -3989,7 +3989,7 @@ export function fromStringifiedJSONScheduleSettings(json: string, opts?: Deseria
             {
                 const detailedCardsVal = formData.get("detailedCards");
                 obj.detailedCards = detailedCardsVal === "true" || detailedCardsVal === "on" || detailedCardsVal === "1";
-            } return ScheduleSettings.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONScheduleSettings(JSON.stringify(obj));}
 
 
 export interface DailyRecurrenceRule {
@@ -4002,7 +4002,7 @@ export function toStringifiedJSONDailyRecurrenceRule(value: DailyRecurrenceRule)
 
 export function fromStringifiedJSONDailyRecurrenceRule(json: string, opts?: DeserializeOptions): Result<DailyRecurrenceRule, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectDailyRecurrenceRule(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectDailyRecurrenceRule(obj: unknown, opts?: DeserializeOptions): Result<DailyRecurrenceRule, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeDailyRecurrenceRule(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "DailyRecurrenceRule.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeDailyRecurrenceRule(value: any, ctx: DeserializeContext): DailyRecurrenceRule | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "DailyRecurrenceRule.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("quantityOfDays" in obj)){errors.push({field: "quantityOfDays" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_quantityOfDays = obj["quantityOfDays" ]as number; instance.quantityOfDays = __raw_quantityOfDays; }if(errors.length>0){throw new DeserializeError(errors);}return instance as DailyRecurrenceRule;}export function validateFieldDailyRecurrenceRule<K extends keyof DailyRecurrenceRule>(field: K, value: DailyRecurrenceRule[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsDailyRecurrenceRule(partial: Partial<DailyRecurrenceRule>): Array<{field: string; message: string}>{return[]; }export function hasShapeDailyRecurrenceRule(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "quantityOfDays" in o;}export function isDailyRecurrenceRule(obj: unknown): obj is DailyRecurrenceRule {if(!hasShapeDailyRecurrenceRule(obj)){return false;}const result = fromObjectDailyRecurrenceRule(obj); return Result.isOk(result);}
 
-/** Nested error structure matching the data shape */export type ErrorsDailyRecurrenceRule = {_errors: Option<Array<string>>; quantityOfDays: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedDailyRecurrenceRule = {quantityOfDays: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersDailyRecurrenceRule {readonly quantityOfDays: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformDailyRecurrenceRule {readonly data: DailyRecurrenceRule; readonly errors: ErrorsDailyRecurrenceRule; readonly tainted: TaintedDailyRecurrenceRule; readonly fields: FieldControllersDailyRecurrenceRule; validate(): Result<DailyRecurrenceRule, Array<{field: string; message: string}>>; reset(overrides?: Partial<DailyRecurrenceRule>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormDailyRecurrenceRule(overrides?: Partial<DailyRecurrenceRule>): GigaformDailyRecurrenceRule {let data = $state({...DailyRecurrenceRule.defaultValue(),...overrides}); let errors = $state<ErrorsDailyRecurrenceRule>({ _errors: Option.none(), quantityOfDays: Option.none() }); let tainted = $state<TaintedDailyRecurrenceRule>({ quantityOfDays: Option.none() }); const fields: FieldControllersDailyRecurrenceRule = {quantityOfDays: {
+/** Nested error structure matching the data shape */export type ErrorsDailyRecurrenceRule = {_errors: Option<Array<string>>; quantityOfDays: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedDailyRecurrenceRule = {quantityOfDays: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersDailyRecurrenceRule {readonly quantityOfDays: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformDailyRecurrenceRule {readonly data: DailyRecurrenceRule; readonly errors: ErrorsDailyRecurrenceRule; readonly tainted: TaintedDailyRecurrenceRule; readonly fields: FieldControllersDailyRecurrenceRule; validate(): Result<DailyRecurrenceRule, Array<{field: string; message: string}>>; reset(overrides?: Partial<DailyRecurrenceRule>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormDailyRecurrenceRule(overrides?: Partial<DailyRecurrenceRule>): GigaformDailyRecurrenceRule {let data = $state({...defaultValueDailyRecurrenceRule(),...overrides}); let errors = $state<ErrorsDailyRecurrenceRule>({ _errors: Option.none(), quantityOfDays: Option.none() }); let tainted = $state<TaintedDailyRecurrenceRule>({ quantityOfDays: Option.none() }); const fields: FieldControllersDailyRecurrenceRule = {quantityOfDays: {
                     path: ["quantityOfDays"] as const,
                     name: "quantityOfDays",
                     constraints: { required: true },
@@ -4015,15 +4015,15 @@ export function fromStringifiedJSONDailyRecurrenceRule(json: string, opts?: Dese
                     getTainted: () => tainted.quantityOfDays,
                     setTainted: (value: Option<boolean>) => { tainted.quantityOfDays = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = DailyRecurrenceRule.validateField("quantityOfDays", data.quantityOfDays);
+                        const fieldErrors = validateFieldDailyRecurrenceRule("quantityOfDays", data.quantityOfDays);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<DailyRecurrenceRule, Array<{field: string; message: string}>>{return DailyRecurrenceRule.fromObject(data);}function reset(newOverrides?: Partial<DailyRecurrenceRule>): void {data = {...DailyRecurrenceRule.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), quantityOfDays: Option.none() }; tainted = { quantityOfDays: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataDailyRecurrenceRule(formData: FormData): Result<DailyRecurrenceRule, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<DailyRecurrenceRule, Array<{field: string; message: string}>>{return fromObjectDailyRecurrenceRule(data);}function reset(newOverrides?: Partial<DailyRecurrenceRule>): void {data = {...defaultValueDailyRecurrenceRule(),...newOverrides}; errors = { _errors: Option.none(), quantityOfDays: Option.none() }; tainted = { quantityOfDays: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataDailyRecurrenceRule(formData: FormData): Result<DailyRecurrenceRule, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const quantityOfDaysStr = formData.get("quantityOfDays");
                 obj.quantityOfDays = quantityOfDaysStr ? parseFloat(quantityOfDaysStr as string) : 0;
                 if (obj.quantityOfDays !== undefined && isNaN(obj.quantityOfDays as number)) obj.quantityOfDays = 0;
-            } return DailyRecurrenceRule.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONDailyRecurrenceRule(JSON.stringify(obj));}
 
 
 export interface SignUpCredentials {
@@ -4034,15 +4034,15 @@ export interface SignUpCredentials {
     rememberMe: boolean;
 }
 
-export function defaultValueSignUpCredentials(): SignUpCredentials {return {firstName: FirstName.defaultValue(),
-                            lastName: LastName.defaultValue(),
-                            email: EmailParts.defaultValue(),
-                            password: Password.defaultValue(),
+export function defaultValueSignUpCredentials(): SignUpCredentials {return {firstName: defaultValueFirstName(),
+                            lastName: defaultValueLastName(),
+                            email: defaultValueEmailParts(),
+                            password: defaultValuePassword(),
                             rememberMe: false, }as SignUpCredentials;}
 
-export function toStringifiedJSONSignUpCredentials(value: SignUpCredentials): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeSignUpCredentials(value, ctx));}export function toObjectSignUpCredentials(value: SignUpCredentials): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeSignUpCredentials(value, ctx);}export function __serializeSignUpCredentials(value: SignUpCredentials, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "SignUpCredentials" , __id,}; result["firstName" ]= typeof(value.firstName as any)?.__serialize === "function" ? (value.firstName as any).__serialize(ctx): value.firstName; result["lastName" ]= typeof(value.lastName as any)?.__serialize === "function" ? (value.lastName as any).__serialize(ctx): value.lastName; result["email" ]= typeof(value.email as any)?.__serialize === "function" ? (value.email as any).__serialize(ctx): value.email; result["password" ]= typeof(value.password as any)?.__serialize === "function" ? (value.password as any).__serialize(ctx): value.password; result["rememberMe" ]= value.rememberMe; return result;}
+export function toStringifiedJSONSignUpCredentials(value: SignUpCredentials): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeSignUpCredentials(value, ctx));}export function toObjectSignUpCredentials(value: SignUpCredentials): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeSignUpCredentials(value, ctx);}export function __serializeSignUpCredentials(value: SignUpCredentials, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "SignUpCredentials" , __id,}; result["firstName" ]= __serializeFirstName(value.firstName, ctx); result["lastName" ]= __serializeLastName(value.lastName, ctx); result["email" ]= __serializeEmailParts(value.email, ctx); result["password" ]= __serializePassword(value.password, ctx); result["rememberMe" ]= value.rememberMe; return result;}
 
-export function fromStringifiedJSONSignUpCredentials(json: string, opts?: DeserializeOptions): Result<SignUpCredentials, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectSignUpCredentials(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectSignUpCredentials(obj: unknown, opts?: DeserializeOptions): Result<SignUpCredentials, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeSignUpCredentials(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "SignUpCredentials.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeSignUpCredentials(value: any, ctx: DeserializeContext): SignUpCredentials | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "SignUpCredentials.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("firstName" in obj)){errors.push({field: "firstName" , message: "missing required field" });}if(!("lastName" in obj)){errors.push({field: "lastName" , message: "missing required field" });}if(!("email" in obj)){errors.push({field: "email" , message: "missing required field" });}if(!("password" in obj)){errors.push({field: "password" , message: "missing required field" });}if(!("rememberMe" in obj)){errors.push({field: "rememberMe" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_firstName = obj["firstName" ]as FirstName; {const __result = FirstName.__deserialize(__raw_firstName, ctx); ctx.assignOrDefer(instance, "firstName" , __result);}}{const __raw_lastName = obj["lastName" ]as LastName; {const __result = LastName.__deserialize(__raw_lastName, ctx); ctx.assignOrDefer(instance, "lastName" , __result);}}{const __raw_email = obj["email" ]as EmailParts; {const __result = EmailParts.__deserialize(__raw_email, ctx); ctx.assignOrDefer(instance, "email" , __result);}}{const __raw_password = obj["password" ]as Password; {const __result = Password.__deserialize(__raw_password, ctx); ctx.assignOrDefer(instance, "password" , __result);}}{const __raw_rememberMe = obj["rememberMe" ]as boolean; instance.rememberMe = __raw_rememberMe; }if(errors.length>0){throw new DeserializeError(errors);}return instance as SignUpCredentials;}export function validateFieldSignUpCredentials<K extends keyof SignUpCredentials>(field: K, value: SignUpCredentials[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsSignUpCredentials(partial: Partial<SignUpCredentials>): Array<{field: string; message: string}>{return[]; }export function hasShapeSignUpCredentials(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "firstName" in o && "lastName" in o && "email" in o && "password" in o && "rememberMe" in o;}export function isSignUpCredentials(obj: unknown): obj is SignUpCredentials {if(!hasShapeSignUpCredentials(obj)){return false;}const result = fromObjectSignUpCredentials(obj); return Result.isOk(result);}
+export function fromStringifiedJSONSignUpCredentials(json: string, opts?: DeserializeOptions): Result<SignUpCredentials, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectSignUpCredentials(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectSignUpCredentials(obj: unknown, opts?: DeserializeOptions): Result<SignUpCredentials, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeSignUpCredentials(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "SignUpCredentials.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeSignUpCredentials(value: any, ctx: DeserializeContext): SignUpCredentials | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "SignUpCredentials.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("firstName" in obj)){errors.push({field: "firstName" , message: "missing required field" });}if(!("lastName" in obj)){errors.push({field: "lastName" , message: "missing required field" });}if(!("email" in obj)){errors.push({field: "email" , message: "missing required field" });}if(!("password" in obj)){errors.push({field: "password" , message: "missing required field" });}if(!("rememberMe" in obj)){errors.push({field: "rememberMe" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_firstName = obj["firstName" ]as FirstName; {const __result = __deserializeFirstName(__raw_firstName, ctx); ctx.assignOrDefer(instance, "firstName" , __result);}}{const __raw_lastName = obj["lastName" ]as LastName; {const __result = __deserializeLastName(__raw_lastName, ctx); ctx.assignOrDefer(instance, "lastName" , __result);}}{const __raw_email = obj["email" ]as EmailParts; {const __result = __deserializeEmailParts(__raw_email, ctx); ctx.assignOrDefer(instance, "email" , __result);}}{const __raw_password = obj["password" ]as Password; {const __result = __deserializePassword(__raw_password, ctx); ctx.assignOrDefer(instance, "password" , __result);}}{const __raw_rememberMe = obj["rememberMe" ]as boolean; instance.rememberMe = __raw_rememberMe; }if(errors.length>0){throw new DeserializeError(errors);}return instance as SignUpCredentials;}export function validateFieldSignUpCredentials<K extends keyof SignUpCredentials>(field: K, value: SignUpCredentials[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsSignUpCredentials(partial: Partial<SignUpCredentials>): Array<{field: string; message: string}>{return[]; }export function hasShapeSignUpCredentials(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "firstName" in o && "lastName" in o && "email" in o && "password" in o && "rememberMe" in o;}export function isSignUpCredentials(obj: unknown): obj is SignUpCredentials {if(!hasShapeSignUpCredentials(obj)){return false;}const result = fromObjectSignUpCredentials(obj); return Result.isOk(result);}
 
 /** Nested error structure matching the data shape */export type ErrorsSignUpCredentials = {_errors: Option<Array<string>>; firstName: Option<Array<string>>;
             lastName: Option<Array<string>>;
@@ -4056,7 +4056,7 @@ export function fromStringifiedJSONSignUpCredentials(json: string, opts?: Deseri
             readonly lastName: FieldController<LastName>;
             readonly email: FieldController<EmailParts>;
             readonly password: FieldController<Password>;
-            readonly rememberMe: FieldController<boolean>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformSignUpCredentials {readonly data: SignUpCredentials; readonly errors: ErrorsSignUpCredentials; readonly tainted: TaintedSignUpCredentials; readonly fields: FieldControllersSignUpCredentials; validate(): Result<SignUpCredentials, Array<{field: string; message: string}>>; reset(overrides?: Partial<SignUpCredentials>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormSignUpCredentials(overrides?: Partial<SignUpCredentials>): GigaformSignUpCredentials {let data = $state({...SignUpCredentials.defaultValue(),...overrides}); let errors = $state<ErrorsSignUpCredentials>({ _errors: Option.none(), firstName: Option.none(), lastName: Option.none(), email: Option.none(), password: Option.none(), rememberMe: Option.none() }); let tainted = $state<TaintedSignUpCredentials>({ firstName: Option.none(), lastName: Option.none(), email: Option.none(), password: Option.none(), rememberMe: Option.none() }); const fields: FieldControllersSignUpCredentials = {firstName: {
+            readonly rememberMe: FieldController<boolean>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformSignUpCredentials {readonly data: SignUpCredentials; readonly errors: ErrorsSignUpCredentials; readonly tainted: TaintedSignUpCredentials; readonly fields: FieldControllersSignUpCredentials; validate(): Result<SignUpCredentials, Array<{field: string; message: string}>>; reset(overrides?: Partial<SignUpCredentials>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormSignUpCredentials(overrides?: Partial<SignUpCredentials>): GigaformSignUpCredentials {let data = $state({...defaultValueSignUpCredentials(),...overrides}); let errors = $state<ErrorsSignUpCredentials>({ _errors: Option.none(), firstName: Option.none(), lastName: Option.none(), email: Option.none(), password: Option.none(), rememberMe: Option.none() }); let tainted = $state<TaintedSignUpCredentials>({ firstName: Option.none(), lastName: Option.none(), email: Option.none(), password: Option.none(), rememberMe: Option.none() }); const fields: FieldControllersSignUpCredentials = {firstName: {
                     path: ["firstName"] as const,
                     name: "firstName",
                     constraints: { required: true },
@@ -4069,7 +4069,7 @@ export function fromStringifiedJSONSignUpCredentials(json: string, opts?: Deseri
                     getTainted: () => tainted.firstName,
                     setTainted: (value: Option<boolean>) => { tainted.firstName = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = SignUpCredentials.validateField("firstName", data.firstName);
+                        const fieldErrors = validateFieldSignUpCredentials("firstName", data.firstName);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4087,7 +4087,7 @@ export function fromStringifiedJSONSignUpCredentials(json: string, opts?: Deseri
                     getTainted: () => tainted.lastName,
                     setTainted: (value: Option<boolean>) => { tainted.lastName = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = SignUpCredentials.validateField("lastName", data.lastName);
+                        const fieldErrors = validateFieldSignUpCredentials("lastName", data.lastName);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4105,7 +4105,7 @@ export function fromStringifiedJSONSignUpCredentials(json: string, opts?: Deseri
                     getTainted: () => tainted.email,
                     setTainted: (value: Option<boolean>) => { tainted.email = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = SignUpCredentials.validateField("email", data.email);
+                        const fieldErrors = validateFieldSignUpCredentials("email", data.email);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4123,7 +4123,7 @@ export function fromStringifiedJSONSignUpCredentials(json: string, opts?: Deseri
                     getTainted: () => tainted.password,
                     setTainted: (value: Option<boolean>) => { tainted.password = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = SignUpCredentials.validateField("password", data.password);
+                        const fieldErrors = validateFieldSignUpCredentials("password", data.password);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4141,11 +4141,11 @@ export function fromStringifiedJSONSignUpCredentials(json: string, opts?: Deseri
                     getTainted: () => tainted.rememberMe,
                     setTainted: (value: Option<boolean>) => { tainted.rememberMe = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = SignUpCredentials.validateField("rememberMe", data.rememberMe);
+                        const fieldErrors = validateFieldSignUpCredentials("rememberMe", data.rememberMe);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<SignUpCredentials, Array<{field: string; message: string}>>{return SignUpCredentials.fromObject(data);}function reset(newOverrides?: Partial<SignUpCredentials>): void {data = {...SignUpCredentials.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), firstName: Option.none(), lastName: Option.none(), email: Option.none(), password: Option.none(), rememberMe: Option.none() }; tainted = { firstName: Option.none(), lastName: Option.none(), email: Option.none(), password: Option.none(), rememberMe: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataSignUpCredentials(formData: FormData): Result<SignUpCredentials, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<SignUpCredentials, Array<{field: string; message: string}>>{return fromObjectSignUpCredentials(data);}function reset(newOverrides?: Partial<SignUpCredentials>): void {data = {...defaultValueSignUpCredentials(),...newOverrides}; errors = { _errors: Option.none(), firstName: Option.none(), lastName: Option.none(), email: Option.none(), password: Option.none(), rememberMe: Option.none() }; tainted = { firstName: Option.none(), lastName: Option.none(), email: Option.none(), password: Option.none(), rememberMe: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataSignUpCredentials(formData: FormData): Result<SignUpCredentials, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
             // Collect nested object fields with prefix "firstName."
             const firstNameObj: Record<string, unknown> = {};
             for (const [key, value] of Array.from(formData.entries())) {
@@ -4232,7 +4232,7 @@ export function fromStringifiedJSONSignUpCredentials(json: string, opts?: Deseri
             {
                 const rememberMeVal = formData.get("rememberMe");
                 obj.rememberMe = rememberMeVal === "true" || rememberMeVal === "on" || rememberMeVal === "1";
-            } return SignUpCredentials.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONSignUpCredentials(JSON.stringify(obj));}
 
 
 export interface OverviewSettings {
@@ -4249,9 +4249,9 @@ export function defaultValueOverviewSettings(): OverviewSettings {return {rowHei
                             perPage: 0,
                             columnConfigs: [], }as OverviewSettings;}
 
-export function toStringifiedJSONOverviewSettings(value: OverviewSettings): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeOverviewSettings(value, ctx));}export function toObjectOverviewSettings(value: OverviewSettings): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeOverviewSettings(value, ctx);}export function __serializeOverviewSettings(value: OverviewSettings, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "OverviewSettings" , __id,}; result["rowHeight" ]= typeof(value.rowHeight as any)?.__serialize === "function" ? (value.rowHeight as any).__serialize(ctx): value.rowHeight; result["cardOrRow" ]= typeof(value.cardOrRow as any)?.__serialize === "function" ? (value.cardOrRow as any).__serialize(ctx): value.cardOrRow; result["perPage" ]= value.perPage; result["columnConfigs" ]= value.columnConfigs.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); return result;}
+export function toStringifiedJSONOverviewSettings(value: OverviewSettings): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeOverviewSettings(value, ctx));}export function toObjectOverviewSettings(value: OverviewSettings): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeOverviewSettings(value, ctx);}export function __serializeOverviewSettings(value: OverviewSettings, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "OverviewSettings" , __id,}; result["rowHeight" ]= __serializeRowHeight(value.rowHeight, ctx); result["cardOrRow" ]= __serializeOverviewDisplay(value.cardOrRow, ctx); result["perPage" ]= value.perPage; result["columnConfigs" ]= value.columnConfigs.map((item)=>__serializeColumnConfig(item, ctx)); return result;}
 
-export function fromStringifiedJSONOverviewSettings(json: string, opts?: DeserializeOptions): Result<OverviewSettings, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectOverviewSettings(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectOverviewSettings(obj: unknown, opts?: DeserializeOptions): Result<OverviewSettings, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeOverviewSettings(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "OverviewSettings.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeOverviewSettings(value: any, ctx: DeserializeContext): OverviewSettings | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "OverviewSettings.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("rowHeight" in obj)){errors.push({field: "rowHeight" , message: "missing required field" });}if(!("cardOrRow" in obj)){errors.push({field: "cardOrRow" , message: "missing required field" });}if(!("perPage" in obj)){errors.push({field: "perPage" , message: "missing required field" });}if(!("columnConfigs" in obj)){errors.push({field: "columnConfigs" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_rowHeight = obj["rowHeight" ]as RowHeight; {const __result = RowHeight.__deserialize(__raw_rowHeight, ctx); ctx.assignOrDefer(instance, "rowHeight" , __result);}}{const __raw_cardOrRow = obj["cardOrRow" ]as OverviewDisplay; {const __result = OverviewDisplay.__deserialize(__raw_cardOrRow, ctx); ctx.assignOrDefer(instance, "cardOrRow" , __result);}}{const __raw_perPage = obj["perPage" ]as number; instance.perPage = __raw_perPage; }{const __raw_columnConfigs = obj["columnConfigs" ]as ColumnConfig[]; if(Array.isArray(__raw_columnConfigs)){instance.columnConfigs = __raw_columnConfigs as ColumnConfig[];}}if(errors.length>0){throw new DeserializeError(errors);}return instance as OverviewSettings;}export function validateFieldOverviewSettings<K extends keyof OverviewSettings>(field: K, value: OverviewSettings[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsOverviewSettings(partial: Partial<OverviewSettings>): Array<{field: string; message: string}>{return[]; }export function hasShapeOverviewSettings(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "rowHeight" in o && "cardOrRow" in o && "perPage" in o && "columnConfigs" in o;}export function isOverviewSettings(obj: unknown): obj is OverviewSettings {if(!hasShapeOverviewSettings(obj)){return false;}const result = fromObjectOverviewSettings(obj); return Result.isOk(result);}
+export function fromStringifiedJSONOverviewSettings(json: string, opts?: DeserializeOptions): Result<OverviewSettings, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectOverviewSettings(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectOverviewSettings(obj: unknown, opts?: DeserializeOptions): Result<OverviewSettings, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeOverviewSettings(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "OverviewSettings.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeOverviewSettings(value: any, ctx: DeserializeContext): OverviewSettings | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "OverviewSettings.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("rowHeight" in obj)){errors.push({field: "rowHeight" , message: "missing required field" });}if(!("cardOrRow" in obj)){errors.push({field: "cardOrRow" , message: "missing required field" });}if(!("perPage" in obj)){errors.push({field: "perPage" , message: "missing required field" });}if(!("columnConfigs" in obj)){errors.push({field: "columnConfigs" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_rowHeight = obj["rowHeight" ]as RowHeight; {const __result = __deserializeRowHeight(__raw_rowHeight, ctx); ctx.assignOrDefer(instance, "rowHeight" , __result);}}{const __raw_cardOrRow = obj["cardOrRow" ]as OverviewDisplay; {const __result = __deserializeOverviewDisplay(__raw_cardOrRow, ctx); ctx.assignOrDefer(instance, "cardOrRow" , __result);}}{const __raw_perPage = obj["perPage" ]as number; instance.perPage = __raw_perPage; }{const __raw_columnConfigs = obj["columnConfigs" ]as ColumnConfig[]; if(Array.isArray(__raw_columnConfigs)){instance.columnConfigs = __raw_columnConfigs as ColumnConfig[];}}if(errors.length>0){throw new DeserializeError(errors);}return instance as OverviewSettings;}export function validateFieldOverviewSettings<K extends keyof OverviewSettings>(field: K, value: OverviewSettings[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsOverviewSettings(partial: Partial<OverviewSettings>): Array<{field: string; message: string}>{return[]; }export function hasShapeOverviewSettings(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "rowHeight" in o && "cardOrRow" in o && "perPage" in o && "columnConfigs" in o;}export function isOverviewSettings(obj: unknown): obj is OverviewSettings {if(!hasShapeOverviewSettings(obj)){return false;}const result = fromObjectOverviewSettings(obj); return Result.isOk(result);}
 
 /** Nested error structure matching the data shape */export type ErrorsOverviewSettings = {_errors: Option<Array<string>>; rowHeight: Option<Array<string>>;
             cardOrRow: Option<Array<string>>;
@@ -4262,7 +4262,7 @@ export function fromStringifiedJSONOverviewSettings(json: string, opts?: Deseria
             columnConfigs: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersOverviewSettings {readonly rowHeight: FieldController<RowHeight>;
             readonly cardOrRow: FieldController<OverviewDisplay>;
             readonly perPage: FieldController<number>;
-            readonly columnConfigs: ArrayFieldController<ColumnConfig>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformOverviewSettings {readonly data: OverviewSettings; readonly errors: ErrorsOverviewSettings; readonly tainted: TaintedOverviewSettings; readonly fields: FieldControllersOverviewSettings; validate(): Result<OverviewSettings, Array<{field: string; message: string}>>; reset(overrides?: Partial<OverviewSettings>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormOverviewSettings(overrides?: Partial<OverviewSettings>): GigaformOverviewSettings {let data = $state({...OverviewSettings.defaultValue(),...overrides}); let errors = $state<ErrorsOverviewSettings>({ _errors: Option.none(), rowHeight: Option.none(), cardOrRow: Option.none(), perPage: Option.none(), columnConfigs: Option.none() }); let tainted = $state<TaintedOverviewSettings>({ rowHeight: Option.none(), cardOrRow: Option.none(), perPage: Option.none(), columnConfigs: Option.none() }); const fields: FieldControllersOverviewSettings = {rowHeight: {
+            readonly columnConfigs: ArrayFieldController<ColumnConfig>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformOverviewSettings {readonly data: OverviewSettings; readonly errors: ErrorsOverviewSettings; readonly tainted: TaintedOverviewSettings; readonly fields: FieldControllersOverviewSettings; validate(): Result<OverviewSettings, Array<{field: string; message: string}>>; reset(overrides?: Partial<OverviewSettings>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormOverviewSettings(overrides?: Partial<OverviewSettings>): GigaformOverviewSettings {let data = $state({...defaultValueOverviewSettings(),...overrides}); let errors = $state<ErrorsOverviewSettings>({ _errors: Option.none(), rowHeight: Option.none(), cardOrRow: Option.none(), perPage: Option.none(), columnConfigs: Option.none() }); let tainted = $state<TaintedOverviewSettings>({ rowHeight: Option.none(), cardOrRow: Option.none(), perPage: Option.none(), columnConfigs: Option.none() }); const fields: FieldControllersOverviewSettings = {rowHeight: {
                     path: ["rowHeight"] as const,
                     name: "rowHeight",
                     constraints: { required: true },
@@ -4275,7 +4275,7 @@ export function fromStringifiedJSONOverviewSettings(json: string, opts?: Deseria
                     getTainted: () => tainted.rowHeight,
                     setTainted: (value: Option<boolean>) => { tainted.rowHeight = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = OverviewSettings.validateField("rowHeight", data.rowHeight);
+                        const fieldErrors = validateFieldOverviewSettings("rowHeight", data.rowHeight);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4293,7 +4293,7 @@ export function fromStringifiedJSONOverviewSettings(json: string, opts?: Deseria
                     getTainted: () => tainted.cardOrRow,
                     setTainted: (value: Option<boolean>) => { tainted.cardOrRow = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = OverviewSettings.validateField("cardOrRow", data.cardOrRow);
+                        const fieldErrors = validateFieldOverviewSettings("cardOrRow", data.cardOrRow);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4311,7 +4311,7 @@ export function fromStringifiedJSONOverviewSettings(json: string, opts?: Deseria
                     getTainted: () => tainted.perPage,
                     setTainted: (value: Option<boolean>) => { tainted.perPage = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = OverviewSettings.validateField("perPage", data.perPage);
+                        const fieldErrors = validateFieldOverviewSettings("perPage", data.perPage);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4329,7 +4329,7 @@ export function fromStringifiedJSONOverviewSettings(json: string, opts?: Deseria
                     getTainted: () => tainted.columnConfigs,
                     setTainted: (value: Option<boolean>) => { tainted.columnConfigs = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = OverviewSettings.validateField("columnConfigs", data.columnConfigs);
+                        const fieldErrors = validateFieldOverviewSettings("columnConfigs", data.columnConfigs);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -4352,7 +4352,7 @@ export function fromStringifiedJSONOverviewSettings(json: string, opts?: Deseria
                         data.columnConfigs[a] = data.columnConfigs[b]!;
                         data.columnConfigs[b] = tmp;
                     },
-                }}; function validate(): Result<OverviewSettings, Array<{field: string; message: string}>>{return OverviewSettings.fromObject(data);}function reset(newOverrides?: Partial<OverviewSettings>): void {data = {...OverviewSettings.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), rowHeight: Option.none(), cardOrRow: Option.none(), perPage: Option.none(), columnConfigs: Option.none() }; tainted = { rowHeight: Option.none(), cardOrRow: Option.none(), perPage: Option.none(), columnConfigs: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataOverviewSettings(formData: FormData): Result<OverviewSettings, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<OverviewSettings, Array<{field: string; message: string}>>{return fromObjectOverviewSettings(data);}function reset(newOverrides?: Partial<OverviewSettings>): void {data = {...defaultValueOverviewSettings(),...newOverrides}; errors = { _errors: Option.none(), rowHeight: Option.none(), cardOrRow: Option.none(), perPage: Option.none(), columnConfigs: Option.none() }; tainted = { rowHeight: Option.none(), cardOrRow: Option.none(), perPage: Option.none(), columnConfigs: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataOverviewSettings(formData: FormData): Result<OverviewSettings, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
             // Collect nested object fields with prefix "rowHeight."
             const rowHeightObj: Record<string, unknown> = {};
             for (const [key, value] of Array.from(formData.entries())) {
@@ -4421,7 +4421,7 @@ export function fromStringifiedJSONOverviewSettings(json: string, opts?: Deseria
                     if (idx > 1000) break; // Safety limit
                 }
                 obj.columnConfigs = columnConfigsItems;
-            } return OverviewSettings.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONOverviewSettings(JSON.stringify(obj));}
 
 
 export interface FirstName {
@@ -4447,7 +4447,7 @@ export function fromStringifiedJSONFirstName(json: string, opts?: DeserializeOpt
                 }
 }return errors; }export function hasShapeFirstName(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "name" in o;}export function isFirstName(obj: unknown): obj is FirstName {if(!hasShapeFirstName(obj)){return false;}const result = fromObjectFirstName(obj); return Result.isOk(result);}
 
-/** Nested error structure matching the data shape */export type ErrorsFirstName = {_errors: Option<Array<string>>; name: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedFirstName = {name: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersFirstName {readonly name: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformFirstName {readonly data: FirstName; readonly errors: ErrorsFirstName; readonly tainted: TaintedFirstName; readonly fields: FieldControllersFirstName; validate(): Result<FirstName, Array<{field: string; message: string}>>; reset(overrides?: Partial<FirstName>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormFirstName(overrides?: Partial<FirstName>): GigaformFirstName {let data = $state({...FirstName.defaultValue(),...overrides}); let errors = $state<ErrorsFirstName>({ _errors: Option.none(), name: Option.none() }); let tainted = $state<TaintedFirstName>({ name: Option.none() }); const fields: FieldControllersFirstName = {name: {
+/** Nested error structure matching the data shape */export type ErrorsFirstName = {_errors: Option<Array<string>>; name: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedFirstName = {name: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersFirstName {readonly name: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformFirstName {readonly data: FirstName; readonly errors: ErrorsFirstName; readonly tainted: TaintedFirstName; readonly fields: FieldControllersFirstName; validate(): Result<FirstName, Array<{field: string; message: string}>>; reset(overrides?: Partial<FirstName>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormFirstName(overrides?: Partial<FirstName>): GigaformFirstName {let data = $state({...defaultValueFirstName(),...overrides}); let errors = $state<ErrorsFirstName>({ _errors: Option.none(), name: Option.none() }); let tainted = $state<TaintedFirstName>({ name: Option.none() }); const fields: FieldControllersFirstName = {name: {
                     path: ["name"] as const,
                     name: "name",
                     constraints: { required: true },
@@ -4460,11 +4460,11 @@ export function fromStringifiedJSONFirstName(json: string, opts?: DeserializeOpt
                     getTainted: () => tainted.name,
                     setTainted: (value: Option<boolean>) => { tainted.name = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = FirstName.validateField("name", data.name);
+                        const fieldErrors = validateFieldFirstName("name", data.name);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<FirstName, Array<{field: string; message: string}>>{return FirstName.fromObject(data);}function reset(newOverrides?: Partial<FirstName>): void {data = {...FirstName.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), name: Option.none() }; tainted = { name: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataFirstName(formData: FormData): Result<FirstName, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.name = formData.get("name") ?? ""; return FirstName.fromStringifiedJSON(JSON.stringify(obj));}
+                }}; function validate(): Result<FirstName, Array<{field: string; message: string}>>{return fromObjectFirstName(data);}function reset(newOverrides?: Partial<FirstName>): void {data = {...defaultValueFirstName(),...newOverrides}; errors = { _errors: Option.none(), name: Option.none() }; tainted = { name: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataFirstName(formData: FormData): Result<FirstName, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.name = formData.get("name") ?? ""; return fromStringifiedJSONFirstName(JSON.stringify(obj));}
 
 
 export interface Account {
@@ -4528,13 +4528,13 @@ export function defaultValueAccount(): Account {return {id: "",
                             orders: [],
                             activity: [],
                             customFields: [],
-                            accountName: AccountName.defaultValue(),
+                            accountName: defaultValueAccountName(),
                             sector: "Residential",
                             memo: null,
                             phones: [],
-                            email: Email.defaultValue(),
+                            email: defaultValueEmail(),
                             leadSource: "",
-                            colors: Colors.defaultValue(),
+                            colors: defaultValueColors(),
                             needsReview: false,
                             hasAlert: false,
                             accountType: "",
@@ -4544,13 +4544,13 @@ export function defaultValueAccount(): Account {return {id: "",
                             tags: [],
                             dateAdded: "", }as Account;}
 
-export function toStringifiedJSONAccount(value: Account): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeAccount(value, ctx));}export function toObjectAccount(value: Account): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeAccount(value, ctx);}export function __serializeAccount(value: Account, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Account" , __id,}; result["id" ]= value.id; result["taxRate" ]= value.taxRate; result["site" ]= value.site; if(value.salesRep!== null){result["salesRep" ]= typeof(value.salesRep as any)?.__serialize === "function" ? (value.salesRep as any).__serialize(ctx): value.salesRep;}else {result["salesRep" ]= null;}result["orders" ]= value.orders.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); result["activity" ]= value.activity.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); result["customFields" ]= value.customFields.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); result["accountName" ]= typeof(value.accountName as any)?.__serialize === "function" ? (value.accountName as any).__serialize(ctx): value.accountName; result["sector" ]= typeof(value.sector as any)?.__serialize === "function" ? (value.sector as any).__serialize(ctx): value.sector; result["memo" ]= value.memo; result["phones" ]= value.phones.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); result["email" ]= typeof(value.email as any)?.__serialize === "function" ? (value.email as any).__serialize(ctx): value.email; result["leadSource" ]= value.leadSource; result["colors" ]= typeof(value.colors as any)?.__serialize === "function" ? (value.colors as any).__serialize(ctx): value.colors; result["needsReview" ]= value.needsReview; result["hasAlert" ]= value.hasAlert; result["accountType" ]= value.accountType; result["subtype" ]= value.subtype; result["isTaxExempt" ]= value.isTaxExempt; result["paymentTerms" ]= value.paymentTerms; result["tags" ]= value.tags; result["dateAdded" ]= value.dateAdded; return result;}
+export function toStringifiedJSONAccount(value: Account): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeAccount(value, ctx));}export function toObjectAccount(value: Account): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeAccount(value, ctx);}export function __serializeAccount(value: Account, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Account" , __id,}; result["id" ]= value.id; result["taxRate" ]= value.taxRate; result["site" ]= value.site; if(value.salesRep!== null){result["salesRep" ]= value.salesRep; }else {result["salesRep" ]= null;}result["orders" ]= value.orders.map((item)=>__serializeOrdered(item, ctx)); result["activity" ]= value.activity.map((item)=>__serializeDid(item, ctx)); result["customFields" ]= value.customFields; result["accountName" ]= __serializeAccountName(value.accountName, ctx); result["sector" ]= __serializeSector(value.sector, ctx); result["memo" ]= value.memo; result["phones" ]= value.phones.map((item)=>__serializePhoneNumber(item, ctx)); result["email" ]= __serializeEmail(value.email, ctx); result["leadSource" ]= value.leadSource; result["colors" ]= __serializeColors(value.colors, ctx); result["needsReview" ]= value.needsReview; result["hasAlert" ]= value.hasAlert; result["accountType" ]= value.accountType; result["subtype" ]= value.subtype; result["isTaxExempt" ]= value.isTaxExempt; result["paymentTerms" ]= value.paymentTerms; result["tags" ]= value.tags; result["dateAdded" ]= value.dateAdded; return result;}
 
-export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptions): Result<Account, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectAccount(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectAccount(obj: unknown, opts?: DeserializeOptions): Result<Account, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeAccount(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Account.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeAccount(value: any, ctx: DeserializeContext): Account | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Account.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("taxRate" in obj)){errors.push({field: "taxRate" , message: "missing required field" });}if(!("site" in obj)){errors.push({field: "site" , message: "missing required field" });}if(!("salesRep" in obj)){errors.push({field: "salesRep" , message: "missing required field" });}if(!("orders" in obj)){errors.push({field: "orders" , message: "missing required field" });}if(!("activity" in obj)){errors.push({field: "activity" , message: "missing required field" });}if(!("customFields" in obj)){errors.push({field: "customFields" , message: "missing required field" });}if(!("accountName" in obj)){errors.push({field: "accountName" , message: "missing required field" });}if(!("sector" in obj)){errors.push({field: "sector" , message: "missing required field" });}if(!("memo" in obj)){errors.push({field: "memo" , message: "missing required field" });}if(!("phones" in obj)){errors.push({field: "phones" , message: "missing required field" });}if(!("email" in obj)){errors.push({field: "email" , message: "missing required field" });}if(!("leadSource" in obj)){errors.push({field: "leadSource" , message: "missing required field" });}if(!("colors" in obj)){errors.push({field: "colors" , message: "missing required field" });}if(!("needsReview" in obj)){errors.push({field: "needsReview" , message: "missing required field" });}if(!("hasAlert" in obj)){errors.push({field: "hasAlert" , message: "missing required field" });}if(!("accountType" in obj)){errors.push({field: "accountType" , message: "missing required field" });}if(!("subtype" in obj)){errors.push({field: "subtype" , message: "missing required field" });}if(!("isTaxExempt" in obj)){errors.push({field: "isTaxExempt" , message: "missing required field" });}if(!("paymentTerms" in obj)){errors.push({field: "paymentTerms" , message: "missing required field" });}if(!("tags" in obj)){errors.push({field: "tags" , message: "missing required field" });}if(!("dateAdded" in obj)){errors.push({field: "dateAdded" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_taxRate = obj["taxRate" ]as string | TaxRate; instance.taxRate = __raw_taxRate; }{const __raw_site = obj["site" ]as string | Site; instance.site = __raw_site; }{const __raw_salesRep = obj["salesRep" ]as Represents[] | null; if(__raw_salesRep === null){instance.salesRep = null;}else {instance.salesRep = __raw_salesRep; }}{const __raw_orders = obj["orders" ]as Ordered[]; if(Array.isArray(__raw_orders)){instance.orders = __raw_orders as Ordered[];}}{const __raw_activity = obj["activity" ]as Did[]; if(Array.isArray(__raw_activity)){instance.activity = __raw_activity as Did[];}}{const __raw_customFields = obj["customFields" ]as [string, string][]; if(Array.isArray(__raw_customFields)){instance.customFields = __raw_customFields as [string, string][];}}{const __raw_accountName = obj["accountName" ]as AccountName; {const __result = AccountName.__deserialize(__raw_accountName, ctx); ctx.assignOrDefer(instance, "accountName" , __result);}}{const __raw_sector = obj["sector" ]as Sector; {const __result = Sector.__deserialize(__raw_sector, ctx); ctx.assignOrDefer(instance, "sector" , __result);}}{const __raw_memo = obj["memo" ]as string | null; instance.memo = __raw_memo; }{const __raw_phones = obj["phones" ]as PhoneNumber[]; if(Array.isArray(__raw_phones)){instance.phones = __raw_phones as PhoneNumber[];}}{const __raw_email = obj["email" ]as Email; {const __result = Email.__deserialize(__raw_email, ctx); ctx.assignOrDefer(instance, "email" , __result);}}{const __raw_leadSource = obj["leadSource" ]as string; 
+export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptions): Result<Account, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectAccount(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectAccount(obj: unknown, opts?: DeserializeOptions): Result<Account, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeAccount(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Account.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeAccount(value: any, ctx: DeserializeContext): Account | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Account.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("taxRate" in obj)){errors.push({field: "taxRate" , message: "missing required field" });}if(!("site" in obj)){errors.push({field: "site" , message: "missing required field" });}if(!("salesRep" in obj)){errors.push({field: "salesRep" , message: "missing required field" });}if(!("orders" in obj)){errors.push({field: "orders" , message: "missing required field" });}if(!("activity" in obj)){errors.push({field: "activity" , message: "missing required field" });}if(!("customFields" in obj)){errors.push({field: "customFields" , message: "missing required field" });}if(!("accountName" in obj)){errors.push({field: "accountName" , message: "missing required field" });}if(!("sector" in obj)){errors.push({field: "sector" , message: "missing required field" });}if(!("memo" in obj)){errors.push({field: "memo" , message: "missing required field" });}if(!("phones" in obj)){errors.push({field: "phones" , message: "missing required field" });}if(!("email" in obj)){errors.push({field: "email" , message: "missing required field" });}if(!("leadSource" in obj)){errors.push({field: "leadSource" , message: "missing required field" });}if(!("colors" in obj)){errors.push({field: "colors" , message: "missing required field" });}if(!("needsReview" in obj)){errors.push({field: "needsReview" , message: "missing required field" });}if(!("hasAlert" in obj)){errors.push({field: "hasAlert" , message: "missing required field" });}if(!("accountType" in obj)){errors.push({field: "accountType" , message: "missing required field" });}if(!("subtype" in obj)){errors.push({field: "subtype" , message: "missing required field" });}if(!("isTaxExempt" in obj)){errors.push({field: "isTaxExempt" , message: "missing required field" });}if(!("paymentTerms" in obj)){errors.push({field: "paymentTerms" , message: "missing required field" });}if(!("tags" in obj)){errors.push({field: "tags" , message: "missing required field" });}if(!("dateAdded" in obj)){errors.push({field: "dateAdded" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_taxRate = obj["taxRate" ]as string | TaxRate; instance.taxRate = __raw_taxRate; }{const __raw_site = obj["site" ]as string | Site; instance.site = __raw_site; }{const __raw_salesRep = obj["salesRep" ]as Represents[] | null; if(__raw_salesRep === null){instance.salesRep = null;}else {instance.salesRep = __raw_salesRep; }}{const __raw_orders = obj["orders" ]as Ordered[]; if(Array.isArray(__raw_orders)){instance.orders = __raw_orders as Ordered[];}}{const __raw_activity = obj["activity" ]as Did[]; if(Array.isArray(__raw_activity)){instance.activity = __raw_activity as Did[];}}{const __raw_customFields = obj["customFields" ]as [string, string][]; if(Array.isArray(__raw_customFields)){instance.customFields = __raw_customFields as [string, string][];}}{const __raw_accountName = obj["accountName" ]as AccountName; {const __result = __deserializeAccountName(__raw_accountName, ctx); ctx.assignOrDefer(instance, "accountName" , __result);}}{const __raw_sector = obj["sector" ]as Sector; {const __result = __deserializeSector(__raw_sector, ctx); ctx.assignOrDefer(instance, "sector" , __result);}}{const __raw_memo = obj["memo" ]as string | null; instance.memo = __raw_memo; }{const __raw_phones = obj["phones" ]as PhoneNumber[]; if(Array.isArray(__raw_phones)){instance.phones = __raw_phones as PhoneNumber[];}}{const __raw_email = obj["email" ]as Email; {const __result = __deserializeEmail(__raw_email, ctx); ctx.assignOrDefer(instance, "email" , __result);}}{const __raw_leadSource = obj["leadSource" ]as string; 
                 if (__raw_leadSource.length === 0) {
                     errors.push({ field: "leadSource", message: "must not be empty" });
                 }
- instance.leadSource = __raw_leadSource; }{const __raw_colors = obj["colors" ]as Colors; {const __result = Colors.__deserialize(__raw_colors, ctx); ctx.assignOrDefer(instance, "colors" , __result);}}{const __raw_needsReview = obj["needsReview" ]as boolean; instance.needsReview = __raw_needsReview; }{const __raw_hasAlert = obj["hasAlert" ]as boolean; instance.hasAlert = __raw_hasAlert; }{const __raw_accountType = obj["accountType" ]as string; 
+ instance.leadSource = __raw_leadSource; }{const __raw_colors = obj["colors" ]as Colors; {const __result = __deserializeColors(__raw_colors, ctx); ctx.assignOrDefer(instance, "colors" , __result);}}{const __raw_needsReview = obj["needsReview" ]as boolean; instance.needsReview = __raw_needsReview; }{const __raw_hasAlert = obj["hasAlert" ]as boolean; instance.hasAlert = __raw_hasAlert; }{const __raw_accountType = obj["accountType" ]as string; 
                 if (__raw_accountType.length === 0) {
                     errors.push({ field: "accountType", message: "must not be empty" });
                 }
@@ -4659,7 +4659,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
             readonly isTaxExempt: FieldController<boolean>;
             readonly paymentTerms: FieldController<string>;
             readonly tags: ArrayFieldController<string>;
-            readonly dateAdded: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformAccount {readonly data: Account; readonly errors: ErrorsAccount; readonly tainted: TaintedAccount; readonly fields: FieldControllersAccount; validate(): Result<Account, Array<{field: string; message: string}>>; reset(overrides?: Partial<Account>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormAccount(overrides?: Partial<Account>): GigaformAccount {let data = $state({...Account.defaultValue(),...overrides}); let errors = $state<ErrorsAccount>({ _errors: Option.none(), id: Option.none(), taxRate: Option.none(), site: Option.none(), salesRep: Option.none(), orders: Option.none(), activity: Option.none(), customFields: Option.none(), accountName: Option.none(), sector: Option.none(), memo: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), colors: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), dateAdded: Option.none() }); let tainted = $state<TaintedAccount>({ id: Option.none(), taxRate: Option.none(), site: Option.none(), salesRep: Option.none(), orders: Option.none(), activity: Option.none(), customFields: Option.none(), accountName: Option.none(), sector: Option.none(), memo: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), colors: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), dateAdded: Option.none() }); const fields: FieldControllersAccount = {id: {
+            readonly dateAdded: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformAccount {readonly data: Account; readonly errors: ErrorsAccount; readonly tainted: TaintedAccount; readonly fields: FieldControllersAccount; validate(): Result<Account, Array<{field: string; message: string}>>; reset(overrides?: Partial<Account>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormAccount(overrides?: Partial<Account>): GigaformAccount {let data = $state({...defaultValueAccount(),...overrides}); let errors = $state<ErrorsAccount>({ _errors: Option.none(), id: Option.none(), taxRate: Option.none(), site: Option.none(), salesRep: Option.none(), orders: Option.none(), activity: Option.none(), customFields: Option.none(), accountName: Option.none(), sector: Option.none(), memo: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), colors: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), dateAdded: Option.none() }); let tainted = $state<TaintedAccount>({ id: Option.none(), taxRate: Option.none(), site: Option.none(), salesRep: Option.none(), orders: Option.none(), activity: Option.none(), customFields: Option.none(), accountName: Option.none(), sector: Option.none(), memo: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), colors: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), dateAdded: Option.none() }); const fields: FieldControllersAccount = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -4672,7 +4672,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("id", data.id);
+                        const fieldErrors = validateFieldAccount("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4690,7 +4690,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.taxRate,
                     setTainted: (value: Option<boolean>) => { tainted.taxRate = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("taxRate", data.taxRate);
+                        const fieldErrors = validateFieldAccount("taxRate", data.taxRate);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4708,7 +4708,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.site,
                     setTainted: (value: Option<boolean>) => { tainted.site = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("site", data.site);
+                        const fieldErrors = validateFieldAccount("site", data.site);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4726,7 +4726,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.salesRep,
                     setTainted: (value: Option<boolean>) => { tainted.salesRep = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("salesRep", data.salesRep);
+                        const fieldErrors = validateFieldAccount("salesRep", data.salesRep);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4744,7 +4744,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.orders,
                     setTainted: (value: Option<boolean>) => { tainted.orders = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("orders", data.orders);
+                        const fieldErrors = validateFieldAccount("orders", data.orders);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -4781,7 +4781,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.activity,
                     setTainted: (value: Option<boolean>) => { tainted.activity = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("activity", data.activity);
+                        const fieldErrors = validateFieldAccount("activity", data.activity);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -4818,7 +4818,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.customFields,
                     setTainted: (value: Option<boolean>) => { tainted.customFields = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("customFields", data.customFields);
+                        const fieldErrors = validateFieldAccount("customFields", data.customFields);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -4855,7 +4855,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.accountName,
                     setTainted: (value: Option<boolean>) => { tainted.accountName = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("accountName", data.accountName);
+                        const fieldErrors = validateFieldAccount("accountName", data.accountName);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4873,7 +4873,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.sector,
                     setTainted: (value: Option<boolean>) => { tainted.sector = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("sector", data.sector);
+                        const fieldErrors = validateFieldAccount("sector", data.sector);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4891,7 +4891,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.memo,
                     setTainted: (value: Option<boolean>) => { tainted.memo = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("memo", data.memo);
+                        const fieldErrors = validateFieldAccount("memo", data.memo);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4909,7 +4909,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.phones,
                     setTainted: (value: Option<boolean>) => { tainted.phones = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("phones", data.phones);
+                        const fieldErrors = validateFieldAccount("phones", data.phones);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -4946,7 +4946,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.email,
                     setTainted: (value: Option<boolean>) => { tainted.email = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("email", data.email);
+                        const fieldErrors = validateFieldAccount("email", data.email);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4964,7 +4964,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.leadSource,
                     setTainted: (value: Option<boolean>) => { tainted.leadSource = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("leadSource", data.leadSource);
+                        const fieldErrors = validateFieldAccount("leadSource", data.leadSource);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -4982,7 +4982,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.colors,
                     setTainted: (value: Option<boolean>) => { tainted.colors = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("colors", data.colors);
+                        const fieldErrors = validateFieldAccount("colors", data.colors);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5000,7 +5000,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.needsReview,
                     setTainted: (value: Option<boolean>) => { tainted.needsReview = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("needsReview", data.needsReview);
+                        const fieldErrors = validateFieldAccount("needsReview", data.needsReview);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5018,7 +5018,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.hasAlert,
                     setTainted: (value: Option<boolean>) => { tainted.hasAlert = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("hasAlert", data.hasAlert);
+                        const fieldErrors = validateFieldAccount("hasAlert", data.hasAlert);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5036,7 +5036,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.accountType,
                     setTainted: (value: Option<boolean>) => { tainted.accountType = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("accountType", data.accountType);
+                        const fieldErrors = validateFieldAccount("accountType", data.accountType);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5054,7 +5054,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.subtype,
                     setTainted: (value: Option<boolean>) => { tainted.subtype = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("subtype", data.subtype);
+                        const fieldErrors = validateFieldAccount("subtype", data.subtype);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5072,7 +5072,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.isTaxExempt,
                     setTainted: (value: Option<boolean>) => { tainted.isTaxExempt = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("isTaxExempt", data.isTaxExempt);
+                        const fieldErrors = validateFieldAccount("isTaxExempt", data.isTaxExempt);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5090,7 +5090,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.paymentTerms,
                     setTainted: (value: Option<boolean>) => { tainted.paymentTerms = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("paymentTerms", data.paymentTerms);
+                        const fieldErrors = validateFieldAccount("paymentTerms", data.paymentTerms);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5108,7 +5108,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.tags,
                     setTainted: (value: Option<boolean>) => { tainted.tags = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("tags", data.tags);
+                        const fieldErrors = validateFieldAccount("tags", data.tags);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -5145,11 +5145,11 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.dateAdded,
                     setTainted: (value: Option<boolean>) => { tainted.dateAdded = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Account.validateField("dateAdded", data.dateAdded);
+                        const fieldErrors = validateFieldAccount("dateAdded", data.dateAdded);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Account, Array<{field: string; message: string}>>{return Account.fromObject(data);}function reset(newOverrides?: Partial<Account>): void {data = {...Account.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), taxRate: Option.none(), site: Option.none(), salesRep: Option.none(), orders: Option.none(), activity: Option.none(), customFields: Option.none(), accountName: Option.none(), sector: Option.none(), memo: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), colors: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), dateAdded: Option.none() }; tainted = { id: Option.none(), taxRate: Option.none(), site: Option.none(), salesRep: Option.none(), orders: Option.none(), activity: Option.none(), customFields: Option.none(), accountName: Option.none(), sector: Option.none(), memo: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), colors: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), dateAdded: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataAccount(formData: FormData): Result<Account, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+                }}; function validate(): Result<Account, Array<{field: string; message: string}>>{return fromObjectAccount(data);}function reset(newOverrides?: Partial<Account>): void {data = {...defaultValueAccount(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), taxRate: Option.none(), site: Option.none(), salesRep: Option.none(), orders: Option.none(), activity: Option.none(), customFields: Option.none(), accountName: Option.none(), sector: Option.none(), memo: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), colors: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), dateAdded: Option.none() }; tainted = { id: Option.none(), taxRate: Option.none(), site: Option.none(), salesRep: Option.none(), orders: Option.none(), activity: Option.none(), customFields: Option.none(), accountName: Option.none(), sector: Option.none(), memo: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), colors: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), dateAdded: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataAccount(formData: FormData): Result<Account, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
             obj.taxRate = formData.get("taxRate") ?? "";
             obj.site = formData.get("site") ?? "";
             obj.salesRep = formData.get("salesRep") ?? "";
@@ -5347,7 +5347,7 @@ export function fromStringifiedJSONAccount(json: string, opts?: DeserializeOptio
             }
             obj.paymentTerms = formData.get("paymentTerms") ?? "";
             obj.tags = formData.getAll("tags") as Array<string>;
-            obj.dateAdded = formData.get("dateAdded") ?? ""; return Account.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.dateAdded = formData.get("dateAdded") ?? ""; return fromStringifiedJSONAccount(JSON.stringify(obj));}
 
 
 export interface Edited {
@@ -5383,7 +5383,7 @@ export function fromStringifiedJSONEdited(json: string, opts?: DeserializeOption
             oldValue: Option<boolean>;
             newValue: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersEdited {readonly fieldName: FieldController<string>;
             readonly oldValue: FieldController<string | null>;
-            readonly newValue: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformEdited {readonly data: Edited; readonly errors: ErrorsEdited; readonly tainted: TaintedEdited; readonly fields: FieldControllersEdited; validate(): Result<Edited, Array<{field: string; message: string}>>; reset(overrides?: Partial<Edited>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormEdited(overrides?: Partial<Edited>): GigaformEdited {let data = $state({...Edited.defaultValue(),...overrides}); let errors = $state<ErrorsEdited>({ _errors: Option.none(), fieldName: Option.none(), oldValue: Option.none(), newValue: Option.none() }); let tainted = $state<TaintedEdited>({ fieldName: Option.none(), oldValue: Option.none(), newValue: Option.none() }); const fields: FieldControllersEdited = {fieldName: {
+            readonly newValue: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformEdited {readonly data: Edited; readonly errors: ErrorsEdited; readonly tainted: TaintedEdited; readonly fields: FieldControllersEdited; validate(): Result<Edited, Array<{field: string; message: string}>>; reset(overrides?: Partial<Edited>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormEdited(overrides?: Partial<Edited>): GigaformEdited {let data = $state({...defaultValueEdited(),...overrides}); let errors = $state<ErrorsEdited>({ _errors: Option.none(), fieldName: Option.none(), oldValue: Option.none(), newValue: Option.none() }); let tainted = $state<TaintedEdited>({ fieldName: Option.none(), oldValue: Option.none(), newValue: Option.none() }); const fields: FieldControllersEdited = {fieldName: {
                     path: ["fieldName"] as const,
                     name: "fieldName",
                     constraints: { required: true },
@@ -5396,7 +5396,7 @@ export function fromStringifiedJSONEdited(json: string, opts?: DeserializeOption
                     getTainted: () => tainted.fieldName,
                     setTainted: (value: Option<boolean>) => { tainted.fieldName = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Edited.validateField("fieldName", data.fieldName);
+                        const fieldErrors = validateFieldEdited("fieldName", data.fieldName);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5414,7 +5414,7 @@ export function fromStringifiedJSONEdited(json: string, opts?: DeserializeOption
                     getTainted: () => tainted.oldValue,
                     setTainted: (value: Option<boolean>) => { tainted.oldValue = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Edited.validateField("oldValue", data.oldValue);
+                        const fieldErrors = validateFieldEdited("oldValue", data.oldValue);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5432,13 +5432,13 @@ export function fromStringifiedJSONEdited(json: string, opts?: DeserializeOption
                     getTainted: () => tainted.newValue,
                     setTainted: (value: Option<boolean>) => { tainted.newValue = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Edited.validateField("newValue", data.newValue);
+                        const fieldErrors = validateFieldEdited("newValue", data.newValue);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Edited, Array<{field: string; message: string}>>{return Edited.fromObject(data);}function reset(newOverrides?: Partial<Edited>): void {data = {...Edited.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), fieldName: Option.none(), oldValue: Option.none(), newValue: Option.none() }; tainted = { fieldName: Option.none(), oldValue: Option.none(), newValue: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataEdited(formData: FormData): Result<Edited, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.fieldName = formData.get("fieldName") ?? "";
+                }}; function validate(): Result<Edited, Array<{field: string; message: string}>>{return fromObjectEdited(data);}function reset(newOverrides?: Partial<Edited>): void {data = {...defaultValueEdited(),...newOverrides}; errors = { _errors: Option.none(), fieldName: Option.none(), oldValue: Option.none(), newValue: Option.none() }; tainted = { fieldName: Option.none(), oldValue: Option.none(), newValue: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataEdited(formData: FormData): Result<Edited, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.fieldName = formData.get("fieldName") ?? "";
             obj.oldValue = formData.get("oldValue") ?? "";
-            obj.newValue = formData.get("newValue") ?? ""; return Edited.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.newValue = formData.get("newValue") ?? ""; return fromStringifiedJSONEdited(JSON.stringify(obj));}
 
 
 export interface Order {
@@ -5544,9 +5544,9 @@ export function defaultValueOrder(): Order {return {id: "",
                             tip: 0,
                             commissions: [], }as Order;}
 
-export function toStringifiedJSONOrder(value: Order): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeOrder(value, ctx));}export function toObjectOrder(value: Order): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeOrder(value, ctx);}export function __serializeOrder(value: Order, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Order" , __id,}; result["id" ]= value.id; result["account" ]= value.account; result["stage" ]= typeof(value.stage as any)?.__serialize === "function" ? (value.stage as any).__serialize(ctx): value.stage; result["number" ]= value.number; result["payments" ]= value.payments.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); result["opportunity" ]= value.opportunity; result["reference" ]= value.reference; result["leadSource" ]= value.leadSource; result["salesRep" ]= value.salesRep; result["group" ]= value.group; result["subgroup" ]= value.subgroup; result["isPosted" ]= value.isPosted; result["needsReview" ]= value.needsReview; result["actionItem" ]= value.actionItem; result["upsale" ]= value.upsale; result["dateCreated" ]= value.dateCreated; result["appointment" ]= value.appointment; result["lastTechs" ]= value.lastTechs.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); if(value.package!== null){result["package" ]= typeof(value.package as any)?.__serialize === "function" ? (value.package as any).__serialize(ctx): value.package;}else {result["package" ]= null;}if(value.promotion!== null){result["promotion" ]= typeof(value.promotion as any)?.__serialize === "function" ? (value.promotion as any).__serialize(ctx): value.promotion;}else {result["promotion" ]= null;}result["balance" ]= value.balance; result["due" ]= value.due; result["total" ]= value.total; result["site" ]= value.site; result["billedItems" ]= value.billedItems.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); result["memo" ]= value.memo; result["discount" ]= value.discount; result["tip" ]= value.tip; result["commissions" ]= value.commissions; return result;}
+export function toStringifiedJSONOrder(value: Order): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeOrder(value, ctx));}export function toObjectOrder(value: Order): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeOrder(value, ctx);}export function __serializeOrder(value: Order, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Order" , __id,}; result["id" ]= value.id; result["account" ]= value.account; result["stage" ]= __serializeOrderStage(value.stage, ctx); result["number" ]= value.number; result["payments" ]= value.payments; result["opportunity" ]= value.opportunity; result["reference" ]= value.reference; result["leadSource" ]= value.leadSource; result["salesRep" ]= value.salesRep; result["group" ]= value.group; result["subgroup" ]= value.subgroup; result["isPosted" ]= value.isPosted; result["needsReview" ]= value.needsReview; result["actionItem" ]= value.actionItem; result["upsale" ]= value.upsale; result["dateCreated" ]= value.dateCreated; result["appointment" ]= value.appointment; result["lastTechs" ]= value.lastTechs; if(value.package!== null){result["package" ]= value.package; }else {result["package" ]= null;}if(value.promotion!== null){result["promotion" ]= value.promotion; }else {result["promotion" ]= null;}result["balance" ]= value.balance; result["due" ]= value.due; result["total" ]= value.total; result["site" ]= value.site; result["billedItems" ]= value.billedItems.map((item)=>__serializeBilledItem(item, ctx)); result["memo" ]= value.memo; result["discount" ]= value.discount; result["tip" ]= value.tip; result["commissions" ]= value.commissions; return result;}
 
-export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions): Result<Order, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectOrder(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectOrder(obj: unknown, opts?: DeserializeOptions): Result<Order, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeOrder(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Order.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeOrder(value: any, ctx: DeserializeContext): Order | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Order.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("account" in obj)){errors.push({field: "account" , message: "missing required field" });}if(!("stage" in obj)){errors.push({field: "stage" , message: "missing required field" });}if(!("number" in obj)){errors.push({field: "number" , message: "missing required field" });}if(!("payments" in obj)){errors.push({field: "payments" , message: "missing required field" });}if(!("opportunity" in obj)){errors.push({field: "opportunity" , message: "missing required field" });}if(!("reference" in obj)){errors.push({field: "reference" , message: "missing required field" });}if(!("leadSource" in obj)){errors.push({field: "leadSource" , message: "missing required field" });}if(!("salesRep" in obj)){errors.push({field: "salesRep" , message: "missing required field" });}if(!("group" in obj)){errors.push({field: "group" , message: "missing required field" });}if(!("subgroup" in obj)){errors.push({field: "subgroup" , message: "missing required field" });}if(!("isPosted" in obj)){errors.push({field: "isPosted" , message: "missing required field" });}if(!("needsReview" in obj)){errors.push({field: "needsReview" , message: "missing required field" });}if(!("actionItem" in obj)){errors.push({field: "actionItem" , message: "missing required field" });}if(!("upsale" in obj)){errors.push({field: "upsale" , message: "missing required field" });}if(!("dateCreated" in obj)){errors.push({field: "dateCreated" , message: "missing required field" });}if(!("appointment" in obj)){errors.push({field: "appointment" , message: "missing required field" });}if(!("lastTechs" in obj)){errors.push({field: "lastTechs" , message: "missing required field" });}if(!("package" in obj)){errors.push({field: "package" , message: "missing required field" });}if(!("promotion" in obj)){errors.push({field: "promotion" , message: "missing required field" });}if(!("balance" in obj)){errors.push({field: "balance" , message: "missing required field" });}if(!("due" in obj)){errors.push({field: "due" , message: "missing required field" });}if(!("total" in obj)){errors.push({field: "total" , message: "missing required field" });}if(!("site" in obj)){errors.push({field: "site" , message: "missing required field" });}if(!("billedItems" in obj)){errors.push({field: "billedItems" , message: "missing required field" });}if(!("memo" in obj)){errors.push({field: "memo" , message: "missing required field" });}if(!("discount" in obj)){errors.push({field: "discount" , message: "missing required field" });}if(!("tip" in obj)){errors.push({field: "tip" , message: "missing required field" });}if(!("commissions" in obj)){errors.push({field: "commissions" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_account = obj["account" ]as string | Account; instance.account = __raw_account; }{const __raw_stage = obj["stage" ]as OrderStage; {const __result = OrderStage.__deserialize(__raw_stage, ctx); ctx.assignOrDefer(instance, "stage" , __result);}}{const __raw_number = obj["number" ]as number; instance.number = __raw_number; }{const __raw_payments = obj["payments" ]as (string | Payment)[]; if(Array.isArray(__raw_payments)){instance.payments = __raw_payments as (string | Payment)[];}}{const __raw_opportunity = obj["opportunity" ]as string; 
+export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions): Result<Order, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectOrder(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectOrder(obj: unknown, opts?: DeserializeOptions): Result<Order, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeOrder(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Order.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeOrder(value: any, ctx: DeserializeContext): Order | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Order.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("account" in obj)){errors.push({field: "account" , message: "missing required field" });}if(!("stage" in obj)){errors.push({field: "stage" , message: "missing required field" });}if(!("number" in obj)){errors.push({field: "number" , message: "missing required field" });}if(!("payments" in obj)){errors.push({field: "payments" , message: "missing required field" });}if(!("opportunity" in obj)){errors.push({field: "opportunity" , message: "missing required field" });}if(!("reference" in obj)){errors.push({field: "reference" , message: "missing required field" });}if(!("leadSource" in obj)){errors.push({field: "leadSource" , message: "missing required field" });}if(!("salesRep" in obj)){errors.push({field: "salesRep" , message: "missing required field" });}if(!("group" in obj)){errors.push({field: "group" , message: "missing required field" });}if(!("subgroup" in obj)){errors.push({field: "subgroup" , message: "missing required field" });}if(!("isPosted" in obj)){errors.push({field: "isPosted" , message: "missing required field" });}if(!("needsReview" in obj)){errors.push({field: "needsReview" , message: "missing required field" });}if(!("actionItem" in obj)){errors.push({field: "actionItem" , message: "missing required field" });}if(!("upsale" in obj)){errors.push({field: "upsale" , message: "missing required field" });}if(!("dateCreated" in obj)){errors.push({field: "dateCreated" , message: "missing required field" });}if(!("appointment" in obj)){errors.push({field: "appointment" , message: "missing required field" });}if(!("lastTechs" in obj)){errors.push({field: "lastTechs" , message: "missing required field" });}if(!("package" in obj)){errors.push({field: "package" , message: "missing required field" });}if(!("promotion" in obj)){errors.push({field: "promotion" , message: "missing required field" });}if(!("balance" in obj)){errors.push({field: "balance" , message: "missing required field" });}if(!("due" in obj)){errors.push({field: "due" , message: "missing required field" });}if(!("total" in obj)){errors.push({field: "total" , message: "missing required field" });}if(!("site" in obj)){errors.push({field: "site" , message: "missing required field" });}if(!("billedItems" in obj)){errors.push({field: "billedItems" , message: "missing required field" });}if(!("memo" in obj)){errors.push({field: "memo" , message: "missing required field" });}if(!("discount" in obj)){errors.push({field: "discount" , message: "missing required field" });}if(!("tip" in obj)){errors.push({field: "tip" , message: "missing required field" });}if(!("commissions" in obj)){errors.push({field: "commissions" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_account = obj["account" ]as string | Account; instance.account = __raw_account; }{const __raw_stage = obj["stage" ]as OrderStage; {const __result = __deserializeOrderStage(__raw_stage, ctx); ctx.assignOrDefer(instance, "stage" , __result);}}{const __raw_number = obj["number" ]as number; instance.number = __raw_number; }{const __raw_payments = obj["payments" ]as (string | Payment)[]; if(Array.isArray(__raw_payments)){instance.payments = __raw_payments as (string | Payment)[];}}{const __raw_opportunity = obj["opportunity" ]as string; 
                 if (__raw_opportunity.length === 0) {
                     errors.push({ field: "opportunity", message: "must not be empty" });
                 }
@@ -5716,7 +5716,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
             readonly memo: FieldController<string>;
             readonly discount: FieldController<number>;
             readonly tip: FieldController<number>;
-            readonly commissions: ArrayFieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformOrder {readonly data: Order; readonly errors: ErrorsOrder; readonly tainted: TaintedOrder; readonly fields: FieldControllersOrder; validate(): Result<Order, Array<{field: string; message: string}>>; reset(overrides?: Partial<Order>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {let data = $state({...Order.defaultValue(),...overrides}); let errors = $state<ErrorsOrder>({ _errors: Option.none(), id: Option.none(), account: Option.none(), stage: Option.none(), number: Option.none(), payments: Option.none(), opportunity: Option.none(), reference: Option.none(), leadSource: Option.none(), salesRep: Option.none(), group: Option.none(), subgroup: Option.none(), isPosted: Option.none(), needsReview: Option.none(), actionItem: Option.none(), upsale: Option.none(), dateCreated: Option.none(), appointment: Option.none(), lastTechs: Option.none(), package: Option.none(), promotion: Option.none(), balance: Option.none(), due: Option.none(), total: Option.none(), site: Option.none(), billedItems: Option.none(), memo: Option.none(), discount: Option.none(), tip: Option.none(), commissions: Option.none() }); let tainted = $state<TaintedOrder>({ id: Option.none(), account: Option.none(), stage: Option.none(), number: Option.none(), payments: Option.none(), opportunity: Option.none(), reference: Option.none(), leadSource: Option.none(), salesRep: Option.none(), group: Option.none(), subgroup: Option.none(), isPosted: Option.none(), needsReview: Option.none(), actionItem: Option.none(), upsale: Option.none(), dateCreated: Option.none(), appointment: Option.none(), lastTechs: Option.none(), package: Option.none(), promotion: Option.none(), balance: Option.none(), due: Option.none(), total: Option.none(), site: Option.none(), billedItems: Option.none(), memo: Option.none(), discount: Option.none(), tip: Option.none(), commissions: Option.none() }); const fields: FieldControllersOrder = {id: {
+            readonly commissions: ArrayFieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformOrder {readonly data: Order; readonly errors: ErrorsOrder; readonly tainted: TaintedOrder; readonly fields: FieldControllersOrder; validate(): Result<Order, Array<{field: string; message: string}>>; reset(overrides?: Partial<Order>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {let data = $state({...defaultValueOrder(),...overrides}); let errors = $state<ErrorsOrder>({ _errors: Option.none(), id: Option.none(), account: Option.none(), stage: Option.none(), number: Option.none(), payments: Option.none(), opportunity: Option.none(), reference: Option.none(), leadSource: Option.none(), salesRep: Option.none(), group: Option.none(), subgroup: Option.none(), isPosted: Option.none(), needsReview: Option.none(), actionItem: Option.none(), upsale: Option.none(), dateCreated: Option.none(), appointment: Option.none(), lastTechs: Option.none(), package: Option.none(), promotion: Option.none(), balance: Option.none(), due: Option.none(), total: Option.none(), site: Option.none(), billedItems: Option.none(), memo: Option.none(), discount: Option.none(), tip: Option.none(), commissions: Option.none() }); let tainted = $state<TaintedOrder>({ id: Option.none(), account: Option.none(), stage: Option.none(), number: Option.none(), payments: Option.none(), opportunity: Option.none(), reference: Option.none(), leadSource: Option.none(), salesRep: Option.none(), group: Option.none(), subgroup: Option.none(), isPosted: Option.none(), needsReview: Option.none(), actionItem: Option.none(), upsale: Option.none(), dateCreated: Option.none(), appointment: Option.none(), lastTechs: Option.none(), package: Option.none(), promotion: Option.none(), balance: Option.none(), due: Option.none(), total: Option.none(), site: Option.none(), billedItems: Option.none(), memo: Option.none(), discount: Option.none(), tip: Option.none(), commissions: Option.none() }); const fields: FieldControllersOrder = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -5729,7 +5729,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("id", data.id);
+                        const fieldErrors = validateFieldOrder("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5747,7 +5747,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.account,
                     setTainted: (value: Option<boolean>) => { tainted.account = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("account", data.account);
+                        const fieldErrors = validateFieldOrder("account", data.account);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5765,7 +5765,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.stage,
                     setTainted: (value: Option<boolean>) => { tainted.stage = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("stage", data.stage);
+                        const fieldErrors = validateFieldOrder("stage", data.stage);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5783,7 +5783,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.number,
                     setTainted: (value: Option<boolean>) => { tainted.number = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("number", data.number);
+                        const fieldErrors = validateFieldOrder("number", data.number);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5801,7 +5801,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.payments,
                     setTainted: (value: Option<boolean>) => { tainted.payments = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("payments", data.payments);
+                        const fieldErrors = validateFieldOrder("payments", data.payments);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -5838,7 +5838,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.opportunity,
                     setTainted: (value: Option<boolean>) => { tainted.opportunity = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("opportunity", data.opportunity);
+                        const fieldErrors = validateFieldOrder("opportunity", data.opportunity);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5856,7 +5856,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.reference,
                     setTainted: (value: Option<boolean>) => { tainted.reference = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("reference", data.reference);
+                        const fieldErrors = validateFieldOrder("reference", data.reference);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5874,7 +5874,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.leadSource,
                     setTainted: (value: Option<boolean>) => { tainted.leadSource = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("leadSource", data.leadSource);
+                        const fieldErrors = validateFieldOrder("leadSource", data.leadSource);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5892,7 +5892,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.salesRep,
                     setTainted: (value: Option<boolean>) => { tainted.salesRep = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("salesRep", data.salesRep);
+                        const fieldErrors = validateFieldOrder("salesRep", data.salesRep);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5910,7 +5910,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.group,
                     setTainted: (value: Option<boolean>) => { tainted.group = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("group", data.group);
+                        const fieldErrors = validateFieldOrder("group", data.group);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5928,7 +5928,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.subgroup,
                     setTainted: (value: Option<boolean>) => { tainted.subgroup = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("subgroup", data.subgroup);
+                        const fieldErrors = validateFieldOrder("subgroup", data.subgroup);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5946,7 +5946,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.isPosted,
                     setTainted: (value: Option<boolean>) => { tainted.isPosted = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("isPosted", data.isPosted);
+                        const fieldErrors = validateFieldOrder("isPosted", data.isPosted);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5964,7 +5964,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.needsReview,
                     setTainted: (value: Option<boolean>) => { tainted.needsReview = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("needsReview", data.needsReview);
+                        const fieldErrors = validateFieldOrder("needsReview", data.needsReview);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -5982,7 +5982,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.actionItem,
                     setTainted: (value: Option<boolean>) => { tainted.actionItem = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("actionItem", data.actionItem);
+                        const fieldErrors = validateFieldOrder("actionItem", data.actionItem);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6000,7 +6000,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.upsale,
                     setTainted: (value: Option<boolean>) => { tainted.upsale = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("upsale", data.upsale);
+                        const fieldErrors = validateFieldOrder("upsale", data.upsale);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6018,7 +6018,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.dateCreated,
                     setTainted: (value: Option<boolean>) => { tainted.dateCreated = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("dateCreated", data.dateCreated);
+                        const fieldErrors = validateFieldOrder("dateCreated", data.dateCreated);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6036,7 +6036,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.appointment,
                     setTainted: (value: Option<boolean>) => { tainted.appointment = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("appointment", data.appointment);
+                        const fieldErrors = validateFieldOrder("appointment", data.appointment);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6054,7 +6054,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.lastTechs,
                     setTainted: (value: Option<boolean>) => { tainted.lastTechs = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("lastTechs", data.lastTechs);
+                        const fieldErrors = validateFieldOrder("lastTechs", data.lastTechs);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -6091,7 +6091,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.package,
                     setTainted: (value: Option<boolean>) => { tainted.package = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("package", data.package);
+                        const fieldErrors = validateFieldOrder("package", data.package);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6109,7 +6109,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.promotion,
                     setTainted: (value: Option<boolean>) => { tainted.promotion = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("promotion", data.promotion);
+                        const fieldErrors = validateFieldOrder("promotion", data.promotion);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6127,7 +6127,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.balance,
                     setTainted: (value: Option<boolean>) => { tainted.balance = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("balance", data.balance);
+                        const fieldErrors = validateFieldOrder("balance", data.balance);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6145,7 +6145,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.due,
                     setTainted: (value: Option<boolean>) => { tainted.due = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("due", data.due);
+                        const fieldErrors = validateFieldOrder("due", data.due);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6163,7 +6163,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.total,
                     setTainted: (value: Option<boolean>) => { tainted.total = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("total", data.total);
+                        const fieldErrors = validateFieldOrder("total", data.total);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6181,7 +6181,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.site,
                     setTainted: (value: Option<boolean>) => { tainted.site = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("site", data.site);
+                        const fieldErrors = validateFieldOrder("site", data.site);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6199,7 +6199,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.billedItems,
                     setTainted: (value: Option<boolean>) => { tainted.billedItems = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("billedItems", data.billedItems);
+                        const fieldErrors = validateFieldOrder("billedItems", data.billedItems);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -6236,7 +6236,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.memo,
                     setTainted: (value: Option<boolean>) => { tainted.memo = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("memo", data.memo);
+                        const fieldErrors = validateFieldOrder("memo", data.memo);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6254,7 +6254,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.discount,
                     setTainted: (value: Option<boolean>) => { tainted.discount = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("discount", data.discount);
+                        const fieldErrors = validateFieldOrder("discount", data.discount);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6272,7 +6272,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.tip,
                     setTainted: (value: Option<boolean>) => { tainted.tip = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("tip", data.tip);
+                        const fieldErrors = validateFieldOrder("tip", data.tip);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6290,7 +6290,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.commissions,
                     setTainted: (value: Option<boolean>) => { tainted.commissions = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Order.validateField("commissions", data.commissions);
+                        const fieldErrors = validateFieldOrder("commissions", data.commissions);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -6313,7 +6313,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                         data.commissions[a] = data.commissions[b]!;
                         data.commissions[b] = tmp;
                     },
-                }}; function validate(): Result<Order, Array<{field: string; message: string}>>{return Order.fromObject(data);}function reset(newOverrides?: Partial<Order>): void {data = {...Order.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), account: Option.none(), stage: Option.none(), number: Option.none(), payments: Option.none(), opportunity: Option.none(), reference: Option.none(), leadSource: Option.none(), salesRep: Option.none(), group: Option.none(), subgroup: Option.none(), isPosted: Option.none(), needsReview: Option.none(), actionItem: Option.none(), upsale: Option.none(), dateCreated: Option.none(), appointment: Option.none(), lastTechs: Option.none(), package: Option.none(), promotion: Option.none(), balance: Option.none(), due: Option.none(), total: Option.none(), site: Option.none(), billedItems: Option.none(), memo: Option.none(), discount: Option.none(), tip: Option.none(), commissions: Option.none() }; tainted = { id: Option.none(), account: Option.none(), stage: Option.none(), number: Option.none(), payments: Option.none(), opportunity: Option.none(), reference: Option.none(), leadSource: Option.none(), salesRep: Option.none(), group: Option.none(), subgroup: Option.none(), isPosted: Option.none(), needsReview: Option.none(), actionItem: Option.none(), upsale: Option.none(), dateCreated: Option.none(), appointment: Option.none(), lastTechs: Option.none(), package: Option.none(), promotion: Option.none(), balance: Option.none(), due: Option.none(), total: Option.none(), site: Option.none(), billedItems: Option.none(), memo: Option.none(), discount: Option.none(), tip: Option.none(), commissions: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataOrder(formData: FormData): Result<Order, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+                }}; function validate(): Result<Order, Array<{field: string; message: string}>>{return fromObjectOrder(data);}function reset(newOverrides?: Partial<Order>): void {data = {...defaultValueOrder(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), account: Option.none(), stage: Option.none(), number: Option.none(), payments: Option.none(), opportunity: Option.none(), reference: Option.none(), leadSource: Option.none(), salesRep: Option.none(), group: Option.none(), subgroup: Option.none(), isPosted: Option.none(), needsReview: Option.none(), actionItem: Option.none(), upsale: Option.none(), dateCreated: Option.none(), appointment: Option.none(), lastTechs: Option.none(), package: Option.none(), promotion: Option.none(), balance: Option.none(), due: Option.none(), total: Option.none(), site: Option.none(), billedItems: Option.none(), memo: Option.none(), discount: Option.none(), tip: Option.none(), commissions: Option.none() }; tainted = { id: Option.none(), account: Option.none(), stage: Option.none(), number: Option.none(), payments: Option.none(), opportunity: Option.none(), reference: Option.none(), leadSource: Option.none(), salesRep: Option.none(), group: Option.none(), subgroup: Option.none(), isPosted: Option.none(), needsReview: Option.none(), actionItem: Option.none(), upsale: Option.none(), dateCreated: Option.none(), appointment: Option.none(), lastTechs: Option.none(), package: Option.none(), promotion: Option.none(), balance: Option.none(), due: Option.none(), total: Option.none(), site: Option.none(), billedItems: Option.none(), memo: Option.none(), discount: Option.none(), tip: Option.none(), commissions: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataOrder(formData: FormData): Result<Order, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
             obj.account = formData.get("account") ?? "";
             {
             // Collect nested object fields with prefix "stage."
@@ -6457,7 +6457,7 @@ export function fromStringifiedJSONOrder(json: string, opts?: DeserializeOptions
                 obj.tip = tipStr ? parseFloat(tipStr as string) : 0;
                 if (obj.tip !== undefined && isNaN(obj.tip as number)) obj.tip = 0;
             }
-            obj.commissions = formData.getAll("commissions").map(v => parseFloat(v as string)).filter(n => !isNaN(n)); return Order.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.commissions = formData.getAll("commissions").map(v => parseFloat(v as string)).filter(n => !isNaN(n)); return fromStringifiedJSONOrder(JSON.stringify(obj));}
 
 
 export interface Commented {
@@ -6488,7 +6488,7 @@ export function fromStringifiedJSONCommented(json: string, opts?: DeserializeOpt
 /** Nested error structure matching the data shape */export type ErrorsCommented = {_errors: Option<Array<string>>; comment: Option<Array<string>>;
             replyTo: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedCommented = {comment: Option<boolean>;
             replyTo: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersCommented {readonly comment: FieldController<string>;
-            readonly replyTo: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCommented {readonly data: Commented; readonly errors: ErrorsCommented; readonly tainted: TaintedCommented; readonly fields: FieldControllersCommented; validate(): Result<Commented, Array<{field: string; message: string}>>; reset(overrides?: Partial<Commented>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCommented(overrides?: Partial<Commented>): GigaformCommented {let data = $state({...Commented.defaultValue(),...overrides}); let errors = $state<ErrorsCommented>({ _errors: Option.none(), comment: Option.none(), replyTo: Option.none() }); let tainted = $state<TaintedCommented>({ comment: Option.none(), replyTo: Option.none() }); const fields: FieldControllersCommented = {comment: {
+            readonly replyTo: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCommented {readonly data: Commented; readonly errors: ErrorsCommented; readonly tainted: TaintedCommented; readonly fields: FieldControllersCommented; validate(): Result<Commented, Array<{field: string; message: string}>>; reset(overrides?: Partial<Commented>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCommented(overrides?: Partial<Commented>): GigaformCommented {let data = $state({...defaultValueCommented(),...overrides}); let errors = $state<ErrorsCommented>({ _errors: Option.none(), comment: Option.none(), replyTo: Option.none() }); let tainted = $state<TaintedCommented>({ comment: Option.none(), replyTo: Option.none() }); const fields: FieldControllersCommented = {comment: {
                     path: ["comment"] as const,
                     name: "comment",
                     constraints: { required: true },
@@ -6501,7 +6501,7 @@ export function fromStringifiedJSONCommented(json: string, opts?: DeserializeOpt
                     getTainted: () => tainted.comment,
                     setTainted: (value: Option<boolean>) => { tainted.comment = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Commented.validateField("comment", data.comment);
+                        const fieldErrors = validateFieldCommented("comment", data.comment);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6519,12 +6519,12 @@ export function fromStringifiedJSONCommented(json: string, opts?: DeserializeOpt
                     getTainted: () => tainted.replyTo,
                     setTainted: (value: Option<boolean>) => { tainted.replyTo = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Commented.validateField("replyTo", data.replyTo);
+                        const fieldErrors = validateFieldCommented("replyTo", data.replyTo);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Commented, Array<{field: string; message: string}>>{return Commented.fromObject(data);}function reset(newOverrides?: Partial<Commented>): void {data = {...Commented.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), comment: Option.none(), replyTo: Option.none() }; tainted = { comment: Option.none(), replyTo: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCommented(formData: FormData): Result<Commented, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.comment = formData.get("comment") ?? "";
-            obj.replyTo = formData.get("replyTo") ?? ""; return Commented.fromStringifiedJSON(JSON.stringify(obj));}
+                }}; function validate(): Result<Commented, Array<{field: string; message: string}>>{return fromObjectCommented(data);}function reset(newOverrides?: Partial<Commented>): void {data = {...defaultValueCommented(),...newOverrides}; errors = { _errors: Option.none(), comment: Option.none(), replyTo: Option.none() }; tainted = { comment: Option.none(), replyTo: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCommented(formData: FormData): Result<Commented, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.comment = formData.get("comment") ?? "";
+            obj.replyTo = formData.get("replyTo") ?? ""; return fromStringifiedJSONCommented(JSON.stringify(obj));}
 
 
 export interface Custom {
@@ -6533,11 +6533,11 @@ export interface Custom {
 
 export function defaultValueCustom(): Custom {return {mappings: [], }as Custom;}
 
-export function toStringifiedJSONCustom(value: Custom): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeCustom(value, ctx));}export function toObjectCustom(value: Custom): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeCustom(value, ctx);}export function __serializeCustom(value: Custom, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Custom" , __id,}; result["mappings" ]= value.mappings.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); return result;}
+export function toStringifiedJSONCustom(value: Custom): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeCustom(value, ctx));}export function toObjectCustom(value: Custom): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeCustom(value, ctx);}export function __serializeCustom(value: Custom, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Custom" , __id,}; result["mappings" ]= value.mappings.map((item)=>__serializeDirectionHue(item, ctx)); return result;}
 
 export function fromStringifiedJSONCustom(json: string, opts?: DeserializeOptions): Result<Custom, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectCustom(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectCustom(obj: unknown, opts?: DeserializeOptions): Result<Custom, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeCustom(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Custom.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeCustom(value: any, ctx: DeserializeContext): Custom | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Custom.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("mappings" in obj)){errors.push({field: "mappings" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_mappings = obj["mappings" ]as DirectionHue[]; if(Array.isArray(__raw_mappings)){instance.mappings = __raw_mappings as DirectionHue[];}}if(errors.length>0){throw new DeserializeError(errors);}return instance as Custom;}export function validateFieldCustom<K extends keyof Custom>(field: K, value: Custom[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsCustom(partial: Partial<Custom>): Array<{field: string; message: string}>{return[]; }export function hasShapeCustom(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "mappings" in o;}export function isCustom(obj: unknown): obj is Custom {if(!hasShapeCustom(obj)){return false;}const result = fromObjectCustom(obj); return Result.isOk(result);}
 
-/** Nested error structure matching the data shape */export type ErrorsCustom = {_errors: Option<Array<string>>; mappings: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedCustom = {mappings: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersCustom {readonly mappings: ArrayFieldController<DirectionHue>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCustom {readonly data: Custom; readonly errors: ErrorsCustom; readonly tainted: TaintedCustom; readonly fields: FieldControllersCustom; validate(): Result<Custom, Array<{field: string; message: string}>>; reset(overrides?: Partial<Custom>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCustom(overrides?: Partial<Custom>): GigaformCustom {let data = $state({...Custom.defaultValue(),...overrides}); let errors = $state<ErrorsCustom>({ _errors: Option.none(), mappings: Option.none() }); let tainted = $state<TaintedCustom>({ mappings: Option.none() }); const fields: FieldControllersCustom = {mappings: {
+/** Nested error structure matching the data shape */export type ErrorsCustom = {_errors: Option<Array<string>>; mappings: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedCustom = {mappings: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersCustom {readonly mappings: ArrayFieldController<DirectionHue>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCustom {readonly data: Custom; readonly errors: ErrorsCustom; readonly tainted: TaintedCustom; readonly fields: FieldControllersCustom; validate(): Result<Custom, Array<{field: string; message: string}>>; reset(overrides?: Partial<Custom>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCustom(overrides?: Partial<Custom>): GigaformCustom {let data = $state({...defaultValueCustom(),...overrides}); let errors = $state<ErrorsCustom>({ _errors: Option.none(), mappings: Option.none() }); let tainted = $state<TaintedCustom>({ mappings: Option.none() }); const fields: FieldControllersCustom = {mappings: {
                     path: ["mappings"] as const,
                     name: "mappings",
                     constraints: { required: true },
@@ -6550,7 +6550,7 @@ export function fromStringifiedJSONCustom(json: string, opts?: DeserializeOption
                     getTainted: () => tainted.mappings,
                     setTainted: (value: Option<boolean>) => { tainted.mappings = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Custom.validateField("mappings", data.mappings);
+                        const fieldErrors = validateFieldCustom("mappings", data.mappings);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -6573,7 +6573,7 @@ export function fromStringifiedJSONCustom(json: string, opts?: DeserializeOption
                         data.mappings[a] = data.mappings[b]!;
                         data.mappings[b] = tmp;
                     },
-                }}; function validate(): Result<Custom, Array<{field: string; message: string}>>{return Custom.fromObject(data);}function reset(newOverrides?: Partial<Custom>): void {data = {...Custom.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), mappings: Option.none() }; tainted = { mappings: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCustom(formData: FormData): Result<Custom, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<Custom, Array<{field: string; message: string}>>{return fromObjectCustom(data);}function reset(newOverrides?: Partial<Custom>): void {data = {...defaultValueCustom(),...newOverrides}; errors = { _errors: Option.none(), mappings: Option.none() }; tainted = { mappings: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCustom(formData: FormData): Result<Custom, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 // Collect array items from indexed form fields
                 const mappingsItems: Array<Record<string, unknown>> = [];
                 let idx = 0;
@@ -6595,7 +6595,7 @@ export function fromStringifiedJSONCustom(json: string, opts?: DeserializeOption
                     if (idx > 1000) break; // Safety limit
                 }
                 obj.mappings = mappingsItems;
-            } return Custom.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONCustom(JSON.stringify(obj));}
 
 
 export interface Colors {
@@ -6657,7 +6657,7 @@ export function fromStringifiedJSONColors(json: string, opts?: DeserializeOption
             hover: Option<boolean>;
             active: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersColors {readonly main: FieldController<string>;
             readonly hover: FieldController<string>;
-            readonly active: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformColors {readonly data: Colors; readonly errors: ErrorsColors; readonly tainted: TaintedColors; readonly fields: FieldControllersColors; validate(): Result<Colors, Array<{field: string; message: string}>>; reset(overrides?: Partial<Colors>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormColors(overrides?: Partial<Colors>): GigaformColors {let data = $state({...Colors.defaultValue(),...overrides}); let errors = $state<ErrorsColors>({ _errors: Option.none(), main: Option.none(), hover: Option.none(), active: Option.none() }); let tainted = $state<TaintedColors>({ main: Option.none(), hover: Option.none(), active: Option.none() }); const fields: FieldControllersColors = {main: {
+            readonly active: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformColors {readonly data: Colors; readonly errors: ErrorsColors; readonly tainted: TaintedColors; readonly fields: FieldControllersColors; validate(): Result<Colors, Array<{field: string; message: string}>>; reset(overrides?: Partial<Colors>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormColors(overrides?: Partial<Colors>): GigaformColors {let data = $state({...defaultValueColors(),...overrides}); let errors = $state<ErrorsColors>({ _errors: Option.none(), main: Option.none(), hover: Option.none(), active: Option.none() }); let tainted = $state<TaintedColors>({ main: Option.none(), hover: Option.none(), active: Option.none() }); const fields: FieldControllersColors = {main: {
                     path: ["main"] as const,
                     name: "main",
                     constraints: { required: true },
@@ -6670,7 +6670,7 @@ export function fromStringifiedJSONColors(json: string, opts?: DeserializeOption
                     getTainted: () => tainted.main,
                     setTainted: (value: Option<boolean>) => { tainted.main = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Colors.validateField("main", data.main);
+                        const fieldErrors = validateFieldColors("main", data.main);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6688,7 +6688,7 @@ export function fromStringifiedJSONColors(json: string, opts?: DeserializeOption
                     getTainted: () => tainted.hover,
                     setTainted: (value: Option<boolean>) => { tainted.hover = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Colors.validateField("hover", data.hover);
+                        const fieldErrors = validateFieldColors("hover", data.hover);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6706,13 +6706,13 @@ export function fromStringifiedJSONColors(json: string, opts?: DeserializeOption
                     getTainted: () => tainted.active,
                     setTainted: (value: Option<boolean>) => { tainted.active = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Colors.validateField("active", data.active);
+                        const fieldErrors = validateFieldColors("active", data.active);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Colors, Array<{field: string; message: string}>>{return Colors.fromObject(data);}function reset(newOverrides?: Partial<Colors>): void {data = {...Colors.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), main: Option.none(), hover: Option.none(), active: Option.none() }; tainted = { main: Option.none(), hover: Option.none(), active: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataColors(formData: FormData): Result<Colors, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.main = formData.get("main") ?? "";
+                }}; function validate(): Result<Colors, Array<{field: string; message: string}>>{return fromObjectColors(data);}function reset(newOverrides?: Partial<Colors>): void {data = {...defaultValueColors(),...newOverrides}; errors = { _errors: Option.none(), main: Option.none(), hover: Option.none(), active: Option.none() }; tainted = { main: Option.none(), hover: Option.none(), active: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataColors(formData: FormData): Result<Colors, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.main = formData.get("main") ?? "";
             obj.hover = formData.get("hover") ?? "";
-            obj.active = formData.get("active") ?? ""; return Colors.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.active = formData.get("active") ?? ""; return fromStringifiedJSONColors(JSON.stringify(obj));}
 
 
 export interface ProductDefaults {
@@ -6745,7 +6745,7 @@ export function fromStringifiedJSONProductDefaults(json: string, opts?: Deserial
 /** Nested error structure matching the data shape */export type ErrorsProductDefaults = {_errors: Option<Array<string>>; price: Option<Array<string>>;
             description: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedProductDefaults = {price: Option<boolean>;
             description: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersProductDefaults {readonly price: FieldController<number>;
-            readonly description: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformProductDefaults {readonly data: ProductDefaults; readonly errors: ErrorsProductDefaults; readonly tainted: TaintedProductDefaults; readonly fields: FieldControllersProductDefaults; validate(): Result<ProductDefaults, Array<{field: string; message: string}>>; reset(overrides?: Partial<ProductDefaults>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormProductDefaults(overrides?: Partial<ProductDefaults>): GigaformProductDefaults {let data = $state({...ProductDefaults.defaultValue(),...overrides}); let errors = $state<ErrorsProductDefaults>({ _errors: Option.none(), price: Option.none(), description: Option.none() }); let tainted = $state<TaintedProductDefaults>({ price: Option.none(), description: Option.none() }); const fields: FieldControllersProductDefaults = {price: {
+            readonly description: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformProductDefaults {readonly data: ProductDefaults; readonly errors: ErrorsProductDefaults; readonly tainted: TaintedProductDefaults; readonly fields: FieldControllersProductDefaults; validate(): Result<ProductDefaults, Array<{field: string; message: string}>>; reset(overrides?: Partial<ProductDefaults>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormProductDefaults(overrides?: Partial<ProductDefaults>): GigaformProductDefaults {let data = $state({...defaultValueProductDefaults(),...overrides}); let errors = $state<ErrorsProductDefaults>({ _errors: Option.none(), price: Option.none(), description: Option.none() }); let tainted = $state<TaintedProductDefaults>({ price: Option.none(), description: Option.none() }); const fields: FieldControllersProductDefaults = {price: {
                     path: ["price"] as const,
                     name: "price",
                     constraints: { required: true },
@@ -6758,7 +6758,7 @@ export function fromStringifiedJSONProductDefaults(json: string, opts?: Deserial
                     getTainted: () => tainted.price,
                     setTainted: (value: Option<boolean>) => { tainted.price = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = ProductDefaults.validateField("price", data.price);
+                        const fieldErrors = validateFieldProductDefaults("price", data.price);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6776,16 +6776,16 @@ export function fromStringifiedJSONProductDefaults(json: string, opts?: Deserial
                     getTainted: () => tainted.description,
                     setTainted: (value: Option<boolean>) => { tainted.description = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = ProductDefaults.validateField("description", data.description);
+                        const fieldErrors = validateFieldProductDefaults("description", data.description);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<ProductDefaults, Array<{field: string; message: string}>>{return ProductDefaults.fromObject(data);}function reset(newOverrides?: Partial<ProductDefaults>): void {data = {...ProductDefaults.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), price: Option.none(), description: Option.none() }; tainted = { price: Option.none(), description: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataProductDefaults(formData: FormData): Result<ProductDefaults, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<ProductDefaults, Array<{field: string; message: string}>>{return fromObjectProductDefaults(data);}function reset(newOverrides?: Partial<ProductDefaults>): void {data = {...defaultValueProductDefaults(),...newOverrides}; errors = { _errors: Option.none(), price: Option.none(), description: Option.none() }; tainted = { price: Option.none(), description: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataProductDefaults(formData: FormData): Result<ProductDefaults, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const priceStr = formData.get("price");
                 obj.price = priceStr ? parseFloat(priceStr as string) : 0;
                 if (obj.price !== undefined && isNaN(obj.price as number)) obj.price = 0;
             }
-            obj.description = formData.get("description") ?? ""; return ProductDefaults.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.description = formData.get("description") ?? ""; return fromStringifiedJSONProductDefaults(JSON.stringify(obj));}
 
 
 export interface Viewed {
@@ -6803,7 +6803,7 @@ export function fromStringifiedJSONViewed(json: string, opts?: DeserializeOption
 /** Nested error structure matching the data shape */export type ErrorsViewed = {_errors: Option<Array<string>>; durationSeconds: Option<Array<string>>;
             source: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedViewed = {durationSeconds: Option<boolean>;
             source: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersViewed {readonly durationSeconds: FieldController<number | null>;
-            readonly source: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformViewed {readonly data: Viewed; readonly errors: ErrorsViewed; readonly tainted: TaintedViewed; readonly fields: FieldControllersViewed; validate(): Result<Viewed, Array<{field: string; message: string}>>; reset(overrides?: Partial<Viewed>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormViewed(overrides?: Partial<Viewed>): GigaformViewed {let data = $state({...Viewed.defaultValue(),...overrides}); let errors = $state<ErrorsViewed>({ _errors: Option.none(), durationSeconds: Option.none(), source: Option.none() }); let tainted = $state<TaintedViewed>({ durationSeconds: Option.none(), source: Option.none() }); const fields: FieldControllersViewed = {durationSeconds: {
+            readonly source: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformViewed {readonly data: Viewed; readonly errors: ErrorsViewed; readonly tainted: TaintedViewed; readonly fields: FieldControllersViewed; validate(): Result<Viewed, Array<{field: string; message: string}>>; reset(overrides?: Partial<Viewed>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormViewed(overrides?: Partial<Viewed>): GigaformViewed {let data = $state({...defaultValueViewed(),...overrides}); let errors = $state<ErrorsViewed>({ _errors: Option.none(), durationSeconds: Option.none(), source: Option.none() }); let tainted = $state<TaintedViewed>({ durationSeconds: Option.none(), source: Option.none() }); const fields: FieldControllersViewed = {durationSeconds: {
                     path: ["durationSeconds"] as const,
                     name: "durationSeconds",
                     constraints: { required: true },
@@ -6816,7 +6816,7 @@ export function fromStringifiedJSONViewed(json: string, opts?: DeserializeOption
                     getTainted: () => tainted.durationSeconds,
                     setTainted: (value: Option<boolean>) => { tainted.durationSeconds = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Viewed.validateField("durationSeconds", data.durationSeconds);
+                        const fieldErrors = validateFieldViewed("durationSeconds", data.durationSeconds);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6834,16 +6834,16 @@ export function fromStringifiedJSONViewed(json: string, opts?: DeserializeOption
                     getTainted: () => tainted.source,
                     setTainted: (value: Option<boolean>) => { tainted.source = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Viewed.validateField("source", data.source);
+                        const fieldErrors = validateFieldViewed("source", data.source);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Viewed, Array<{field: string; message: string}>>{return Viewed.fromObject(data);}function reset(newOverrides?: Partial<Viewed>): void {data = {...Viewed.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), durationSeconds: Option.none(), source: Option.none() }; tainted = { durationSeconds: Option.none(), source: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataViewed(formData: FormData): Result<Viewed, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<Viewed, Array<{field: string; message: string}>>{return fromObjectViewed(data);}function reset(newOverrides?: Partial<Viewed>): void {data = {...defaultValueViewed(),...newOverrides}; errors = { _errors: Option.none(), durationSeconds: Option.none(), source: Option.none() }; tainted = { durationSeconds: Option.none(), source: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataViewed(formData: FormData): Result<Viewed, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const durationSecondsStr = formData.get("durationSeconds");
                 obj.durationSeconds = durationSecondsStr ? parseFloat(durationSecondsStr as string) : 0;
                 if (obj.durationSeconds !== undefined && isNaN(obj.durationSeconds as number)) obj.durationSeconds = 0;
             }
-            obj.source = formData.get("source") ?? ""; return Viewed.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.source = formData.get("source") ?? ""; return fromStringifiedJSONViewed(JSON.stringify(obj));}
 
 
 export interface WeeklyRecurrenceRule {
@@ -6854,14 +6854,14 @@ export interface WeeklyRecurrenceRule {
 export function defaultValueWeeklyRecurrenceRule(): WeeklyRecurrenceRule {return {quantityOfWeeks: 0,
                             weekdays: [], }as WeeklyRecurrenceRule;}
 
-export function toStringifiedJSONWeeklyRecurrenceRule(value: WeeklyRecurrenceRule): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeWeeklyRecurrenceRule(value, ctx));}export function toObjectWeeklyRecurrenceRule(value: WeeklyRecurrenceRule): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeWeeklyRecurrenceRule(value, ctx);}export function __serializeWeeklyRecurrenceRule(value: WeeklyRecurrenceRule, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "WeeklyRecurrenceRule" , __id,}; result["quantityOfWeeks" ]= value.quantityOfWeeks; result["weekdays" ]= value.weekdays.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); return result;}
+export function toStringifiedJSONWeeklyRecurrenceRule(value: WeeklyRecurrenceRule): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeWeeklyRecurrenceRule(value, ctx));}export function toObjectWeeklyRecurrenceRule(value: WeeklyRecurrenceRule): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeWeeklyRecurrenceRule(value, ctx);}export function __serializeWeeklyRecurrenceRule(value: WeeklyRecurrenceRule, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "WeeklyRecurrenceRule" , __id,}; result["quantityOfWeeks" ]= value.quantityOfWeeks; result["weekdays" ]= value.weekdays.map((item)=>__serializeWeekday(item, ctx)); return result;}
 
 export function fromStringifiedJSONWeeklyRecurrenceRule(json: string, opts?: DeserializeOptions): Result<WeeklyRecurrenceRule, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectWeeklyRecurrenceRule(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectWeeklyRecurrenceRule(obj: unknown, opts?: DeserializeOptions): Result<WeeklyRecurrenceRule, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeWeeklyRecurrenceRule(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "WeeklyRecurrenceRule.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeWeeklyRecurrenceRule(value: any, ctx: DeserializeContext): WeeklyRecurrenceRule | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "WeeklyRecurrenceRule.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("quantityOfWeeks" in obj)){errors.push({field: "quantityOfWeeks" , message: "missing required field" });}if(!("weekdays" in obj)){errors.push({field: "weekdays" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_quantityOfWeeks = obj["quantityOfWeeks" ]as number; instance.quantityOfWeeks = __raw_quantityOfWeeks; }{const __raw_weekdays = obj["weekdays" ]as Weekday[]; if(Array.isArray(__raw_weekdays)){instance.weekdays = __raw_weekdays as Weekday[];}}if(errors.length>0){throw new DeserializeError(errors);}return instance as WeeklyRecurrenceRule;}export function validateFieldWeeklyRecurrenceRule<K extends keyof WeeklyRecurrenceRule>(field: K, value: WeeklyRecurrenceRule[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsWeeklyRecurrenceRule(partial: Partial<WeeklyRecurrenceRule>): Array<{field: string; message: string}>{return[]; }export function hasShapeWeeklyRecurrenceRule(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "quantityOfWeeks" in o && "weekdays" in o;}export function isWeeklyRecurrenceRule(obj: unknown): obj is WeeklyRecurrenceRule {if(!hasShapeWeeklyRecurrenceRule(obj)){return false;}const result = fromObjectWeeklyRecurrenceRule(obj); return Result.isOk(result);}
 
 /** Nested error structure matching the data shape */export type ErrorsWeeklyRecurrenceRule = {_errors: Option<Array<string>>; quantityOfWeeks: Option<Array<string>>;
             weekdays: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedWeeklyRecurrenceRule = {quantityOfWeeks: Option<boolean>;
             weekdays: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersWeeklyRecurrenceRule {readonly quantityOfWeeks: FieldController<number>;
-            readonly weekdays: ArrayFieldController<Weekday>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformWeeklyRecurrenceRule {readonly data: WeeklyRecurrenceRule; readonly errors: ErrorsWeeklyRecurrenceRule; readonly tainted: TaintedWeeklyRecurrenceRule; readonly fields: FieldControllersWeeklyRecurrenceRule; validate(): Result<WeeklyRecurrenceRule, Array<{field: string; message: string}>>; reset(overrides?: Partial<WeeklyRecurrenceRule>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormWeeklyRecurrenceRule(overrides?: Partial<WeeklyRecurrenceRule>): GigaformWeeklyRecurrenceRule {let data = $state({...WeeklyRecurrenceRule.defaultValue(),...overrides}); let errors = $state<ErrorsWeeklyRecurrenceRule>({ _errors: Option.none(), quantityOfWeeks: Option.none(), weekdays: Option.none() }); let tainted = $state<TaintedWeeklyRecurrenceRule>({ quantityOfWeeks: Option.none(), weekdays: Option.none() }); const fields: FieldControllersWeeklyRecurrenceRule = {quantityOfWeeks: {
+            readonly weekdays: ArrayFieldController<Weekday>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformWeeklyRecurrenceRule {readonly data: WeeklyRecurrenceRule; readonly errors: ErrorsWeeklyRecurrenceRule; readonly tainted: TaintedWeeklyRecurrenceRule; readonly fields: FieldControllersWeeklyRecurrenceRule; validate(): Result<WeeklyRecurrenceRule, Array<{field: string; message: string}>>; reset(overrides?: Partial<WeeklyRecurrenceRule>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormWeeklyRecurrenceRule(overrides?: Partial<WeeklyRecurrenceRule>): GigaformWeeklyRecurrenceRule {let data = $state({...defaultValueWeeklyRecurrenceRule(),...overrides}); let errors = $state<ErrorsWeeklyRecurrenceRule>({ _errors: Option.none(), quantityOfWeeks: Option.none(), weekdays: Option.none() }); let tainted = $state<TaintedWeeklyRecurrenceRule>({ quantityOfWeeks: Option.none(), weekdays: Option.none() }); const fields: FieldControllersWeeklyRecurrenceRule = {quantityOfWeeks: {
                     path: ["quantityOfWeeks"] as const,
                     name: "quantityOfWeeks",
                     constraints: { required: true },
@@ -6874,7 +6874,7 @@ export function fromStringifiedJSONWeeklyRecurrenceRule(json: string, opts?: Des
                     getTainted: () => tainted.quantityOfWeeks,
                     setTainted: (value: Option<boolean>) => { tainted.quantityOfWeeks = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = WeeklyRecurrenceRule.validateField("quantityOfWeeks", data.quantityOfWeeks);
+                        const fieldErrors = validateFieldWeeklyRecurrenceRule("quantityOfWeeks", data.quantityOfWeeks);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6892,7 +6892,7 @@ export function fromStringifiedJSONWeeklyRecurrenceRule(json: string, opts?: Des
                     getTainted: () => tainted.weekdays,
                     setTainted: (value: Option<boolean>) => { tainted.weekdays = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = WeeklyRecurrenceRule.validateField("weekdays", data.weekdays);
+                        const fieldErrors = validateFieldWeeklyRecurrenceRule("weekdays", data.weekdays);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -6915,7 +6915,7 @@ export function fromStringifiedJSONWeeklyRecurrenceRule(json: string, opts?: Des
                         data.weekdays[a] = data.weekdays[b]!;
                         data.weekdays[b] = tmp;
                     },
-                }}; function validate(): Result<WeeklyRecurrenceRule, Array<{field: string; message: string}>>{return WeeklyRecurrenceRule.fromObject(data);}function reset(newOverrides?: Partial<WeeklyRecurrenceRule>): void {data = {...WeeklyRecurrenceRule.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), quantityOfWeeks: Option.none(), weekdays: Option.none() }; tainted = { quantityOfWeeks: Option.none(), weekdays: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataWeeklyRecurrenceRule(formData: FormData): Result<WeeklyRecurrenceRule, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<WeeklyRecurrenceRule, Array<{field: string; message: string}>>{return fromObjectWeeklyRecurrenceRule(data);}function reset(newOverrides?: Partial<WeeklyRecurrenceRule>): void {data = {...defaultValueWeeklyRecurrenceRule(),...newOverrides}; errors = { _errors: Option.none(), quantityOfWeeks: Option.none(), weekdays: Option.none() }; tainted = { quantityOfWeeks: Option.none(), weekdays: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataWeeklyRecurrenceRule(formData: FormData): Result<WeeklyRecurrenceRule, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const quantityOfWeeksStr = formData.get("quantityOfWeeks");
                 obj.quantityOfWeeks = quantityOfWeeksStr ? parseFloat(quantityOfWeeksStr as string) : 0;
                 if (obj.quantityOfWeeks !== undefined && isNaN(obj.quantityOfWeeks as number)) obj.quantityOfWeeks = 0;
@@ -6942,7 +6942,7 @@ export function fromStringifiedJSONWeeklyRecurrenceRule(json: string, opts?: Des
                     if (idx > 1000) break; // Safety limit
                 }
                 obj.weekdays = weekdaysItems;
-            } return WeeklyRecurrenceRule.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONWeeklyRecurrenceRule(JSON.stringify(obj));}
 
 
 export interface Paid {
@@ -6965,7 +6965,7 @@ export function fromStringifiedJSONPaid(json: string, opts?: DeserializeOptions)
             currency: Option<boolean>;
             paymentMethod: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersPaid {readonly amount: FieldController<number | null>;
             readonly currency: FieldController<string | null>;
-            readonly paymentMethod: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformPaid {readonly data: Paid; readonly errors: ErrorsPaid; readonly tainted: TaintedPaid; readonly fields: FieldControllersPaid; validate(): Result<Paid, Array<{field: string; message: string}>>; reset(overrides?: Partial<Paid>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormPaid(overrides?: Partial<Paid>): GigaformPaid {let data = $state({...Paid.defaultValue(),...overrides}); let errors = $state<ErrorsPaid>({ _errors: Option.none(), amount: Option.none(), currency: Option.none(), paymentMethod: Option.none() }); let tainted = $state<TaintedPaid>({ amount: Option.none(), currency: Option.none(), paymentMethod: Option.none() }); const fields: FieldControllersPaid = {amount: {
+            readonly paymentMethod: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformPaid {readonly data: Paid; readonly errors: ErrorsPaid; readonly tainted: TaintedPaid; readonly fields: FieldControllersPaid; validate(): Result<Paid, Array<{field: string; message: string}>>; reset(overrides?: Partial<Paid>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormPaid(overrides?: Partial<Paid>): GigaformPaid {let data = $state({...defaultValuePaid(),...overrides}); let errors = $state<ErrorsPaid>({ _errors: Option.none(), amount: Option.none(), currency: Option.none(), paymentMethod: Option.none() }); let tainted = $state<TaintedPaid>({ amount: Option.none(), currency: Option.none(), paymentMethod: Option.none() }); const fields: FieldControllersPaid = {amount: {
                     path: ["amount"] as const,
                     name: "amount",
                     constraints: { required: true },
@@ -6978,7 +6978,7 @@ export function fromStringifiedJSONPaid(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.amount,
                     setTainted: (value: Option<boolean>) => { tainted.amount = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Paid.validateField("amount", data.amount);
+                        const fieldErrors = validateFieldPaid("amount", data.amount);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -6996,7 +6996,7 @@ export function fromStringifiedJSONPaid(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.currency,
                     setTainted: (value: Option<boolean>) => { tainted.currency = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Paid.validateField("currency", data.currency);
+                        const fieldErrors = validateFieldPaid("currency", data.currency);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7014,17 +7014,17 @@ export function fromStringifiedJSONPaid(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.paymentMethod,
                     setTainted: (value: Option<boolean>) => { tainted.paymentMethod = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Paid.validateField("paymentMethod", data.paymentMethod);
+                        const fieldErrors = validateFieldPaid("paymentMethod", data.paymentMethod);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Paid, Array<{field: string; message: string}>>{return Paid.fromObject(data);}function reset(newOverrides?: Partial<Paid>): void {data = {...Paid.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), amount: Option.none(), currency: Option.none(), paymentMethod: Option.none() }; tainted = { amount: Option.none(), currency: Option.none(), paymentMethod: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataPaid(formData: FormData): Result<Paid, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<Paid, Array<{field: string; message: string}>>{return fromObjectPaid(data);}function reset(newOverrides?: Partial<Paid>): void {data = {...defaultValuePaid(),...newOverrides}; errors = { _errors: Option.none(), amount: Option.none(), currency: Option.none(), paymentMethod: Option.none() }; tainted = { amount: Option.none(), currency: Option.none(), paymentMethod: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataPaid(formData: FormData): Result<Paid, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const amountStr = formData.get("amount");
                 obj.amount = amountStr ? parseFloat(amountStr as string) : 0;
                 if (obj.amount !== undefined && isNaN(obj.amount as number)) obj.amount = 0;
             }
             obj.currency = formData.get("currency") ?? "";
-            obj.paymentMethod = formData.get("paymentMethod") ?? ""; return Paid.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.paymentMethod = formData.get("paymentMethod") ?? ""; return fromStringifiedJSONPaid(JSON.stringify(obj));}
 
 
 export interface TaxRate {
@@ -7171,7 +7171,7 @@ export function fromStringifiedJSONTaxRate(json: string, opts?: DeserializeOptio
             readonly state: FieldController<string>;
             readonly isActive: FieldController<boolean>;
             readonly description: FieldController<string>;
-            readonly taxComponents: FieldController<{ [key: string]: number }>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformTaxRate {readonly data: TaxRate; readonly errors: ErrorsTaxRate; readonly tainted: TaintedTaxRate; readonly fields: FieldControllersTaxRate; validate(): Result<TaxRate, Array<{field: string; message: string}>>; reset(overrides?: Partial<TaxRate>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormTaxRate(overrides?: Partial<TaxRate>): GigaformTaxRate {let data = $state({...TaxRate.defaultValue(),...overrides}); let errors = $state<ErrorsTaxRate>({ _errors: Option.none(), id: Option.none(), name: Option.none(), taxAgency: Option.none(), zip: Option.none(), city: Option.none(), county: Option.none(), state: Option.none(), isActive: Option.none(), description: Option.none(), taxComponents: Option.none() }); let tainted = $state<TaintedTaxRate>({ id: Option.none(), name: Option.none(), taxAgency: Option.none(), zip: Option.none(), city: Option.none(), county: Option.none(), state: Option.none(), isActive: Option.none(), description: Option.none(), taxComponents: Option.none() }); const fields: FieldControllersTaxRate = {id: {
+            readonly taxComponents: FieldController<{ [key: string]: number }>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformTaxRate {readonly data: TaxRate; readonly errors: ErrorsTaxRate; readonly tainted: TaintedTaxRate; readonly fields: FieldControllersTaxRate; validate(): Result<TaxRate, Array<{field: string; message: string}>>; reset(overrides?: Partial<TaxRate>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormTaxRate(overrides?: Partial<TaxRate>): GigaformTaxRate {let data = $state({...defaultValueTaxRate(),...overrides}); let errors = $state<ErrorsTaxRate>({ _errors: Option.none(), id: Option.none(), name: Option.none(), taxAgency: Option.none(), zip: Option.none(), city: Option.none(), county: Option.none(), state: Option.none(), isActive: Option.none(), description: Option.none(), taxComponents: Option.none() }); let tainted = $state<TaintedTaxRate>({ id: Option.none(), name: Option.none(), taxAgency: Option.none(), zip: Option.none(), city: Option.none(), county: Option.none(), state: Option.none(), isActive: Option.none(), description: Option.none(), taxComponents: Option.none() }); const fields: FieldControllersTaxRate = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -7184,7 +7184,7 @@ export function fromStringifiedJSONTaxRate(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = TaxRate.validateField("id", data.id);
+                        const fieldErrors = validateFieldTaxRate("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7202,7 +7202,7 @@ export function fromStringifiedJSONTaxRate(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.name,
                     setTainted: (value: Option<boolean>) => { tainted.name = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = TaxRate.validateField("name", data.name);
+                        const fieldErrors = validateFieldTaxRate("name", data.name);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7220,7 +7220,7 @@ export function fromStringifiedJSONTaxRate(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.taxAgency,
                     setTainted: (value: Option<boolean>) => { tainted.taxAgency = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = TaxRate.validateField("taxAgency", data.taxAgency);
+                        const fieldErrors = validateFieldTaxRate("taxAgency", data.taxAgency);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7238,7 +7238,7 @@ export function fromStringifiedJSONTaxRate(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.zip,
                     setTainted: (value: Option<boolean>) => { tainted.zip = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = TaxRate.validateField("zip", data.zip);
+                        const fieldErrors = validateFieldTaxRate("zip", data.zip);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7256,7 +7256,7 @@ export function fromStringifiedJSONTaxRate(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.city,
                     setTainted: (value: Option<boolean>) => { tainted.city = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = TaxRate.validateField("city", data.city);
+                        const fieldErrors = validateFieldTaxRate("city", data.city);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7274,7 +7274,7 @@ export function fromStringifiedJSONTaxRate(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.county,
                     setTainted: (value: Option<boolean>) => { tainted.county = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = TaxRate.validateField("county", data.county);
+                        const fieldErrors = validateFieldTaxRate("county", data.county);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7292,7 +7292,7 @@ export function fromStringifiedJSONTaxRate(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.state,
                     setTainted: (value: Option<boolean>) => { tainted.state = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = TaxRate.validateField("state", data.state);
+                        const fieldErrors = validateFieldTaxRate("state", data.state);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7310,7 +7310,7 @@ export function fromStringifiedJSONTaxRate(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.isActive,
                     setTainted: (value: Option<boolean>) => { tainted.isActive = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = TaxRate.validateField("isActive", data.isActive);
+                        const fieldErrors = validateFieldTaxRate("isActive", data.isActive);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7328,7 +7328,7 @@ export function fromStringifiedJSONTaxRate(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.description,
                     setTainted: (value: Option<boolean>) => { tainted.description = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = TaxRate.validateField("description", data.description);
+                        const fieldErrors = validateFieldTaxRate("description", data.description);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7346,11 +7346,11 @@ export function fromStringifiedJSONTaxRate(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.taxComponents,
                     setTainted: (value: Option<boolean>) => { tainted.taxComponents = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = TaxRate.validateField("taxComponents", data.taxComponents);
+                        const fieldErrors = validateFieldTaxRate("taxComponents", data.taxComponents);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<TaxRate, Array<{field: string; message: string}>>{return TaxRate.fromObject(data);}function reset(newOverrides?: Partial<TaxRate>): void {data = {...TaxRate.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), name: Option.none(), taxAgency: Option.none(), zip: Option.none(), city: Option.none(), county: Option.none(), state: Option.none(), isActive: Option.none(), description: Option.none(), taxComponents: Option.none() }; tainted = { id: Option.none(), name: Option.none(), taxAgency: Option.none(), zip: Option.none(), city: Option.none(), county: Option.none(), state: Option.none(), isActive: Option.none(), description: Option.none(), taxComponents: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataTaxRate(formData: FormData): Result<TaxRate, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+                }}; function validate(): Result<TaxRate, Array<{field: string; message: string}>>{return fromObjectTaxRate(data);}function reset(newOverrides?: Partial<TaxRate>): void {data = {...defaultValueTaxRate(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), name: Option.none(), taxAgency: Option.none(), zip: Option.none(), city: Option.none(), county: Option.none(), state: Option.none(), isActive: Option.none(), description: Option.none(), taxComponents: Option.none() }; tainted = { id: Option.none(), name: Option.none(), taxAgency: Option.none(), zip: Option.none(), city: Option.none(), county: Option.none(), state: Option.none(), isActive: Option.none(), description: Option.none(), taxComponents: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataTaxRate(formData: FormData): Result<TaxRate, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
             obj.name = formData.get("name") ?? "";
             obj.taxAgency = formData.get("taxAgency") ?? "";
             {
@@ -7366,7 +7366,7 @@ export function fromStringifiedJSONTaxRate(json: string, opts?: DeserializeOptio
                 obj.isActive = isActiveVal === "true" || isActiveVal === "on" || isActiveVal === "1";
             }
             obj.description = formData.get("description") ?? "";
-            obj.taxComponents = formData.get("taxComponents") ?? ""; return TaxRate.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.taxComponents = formData.get("taxComponents") ?? ""; return fromStringifiedJSONTaxRate(JSON.stringify(obj));}
 
 
 export interface Address {
@@ -7446,7 +7446,7 @@ export function fromStringifiedJSONAddress(json: string, opts?: DeserializeOptio
             zipcode: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersAddress {readonly street: FieldController<string>;
             readonly city: FieldController<string>;
             readonly state: FieldController<string>;
-            readonly zipcode: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformAddress {readonly data: Address; readonly errors: ErrorsAddress; readonly tainted: TaintedAddress; readonly fields: FieldControllersAddress; validate(): Result<Address, Array<{field: string; message: string}>>; reset(overrides?: Partial<Address>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormAddress(overrides?: Partial<Address>): GigaformAddress {let data = $state({...Address.defaultValue(),...overrides}); let errors = $state<ErrorsAddress>({ _errors: Option.none(), street: Option.none(), city: Option.none(), state: Option.none(), zipcode: Option.none() }); let tainted = $state<TaintedAddress>({ street: Option.none(), city: Option.none(), state: Option.none(), zipcode: Option.none() }); const fields: FieldControllersAddress = {street: {
+            readonly zipcode: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformAddress {readonly data: Address; readonly errors: ErrorsAddress; readonly tainted: TaintedAddress; readonly fields: FieldControllersAddress; validate(): Result<Address, Array<{field: string; message: string}>>; reset(overrides?: Partial<Address>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormAddress(overrides?: Partial<Address>): GigaformAddress {let data = $state({...defaultValueAddress(),...overrides}); let errors = $state<ErrorsAddress>({ _errors: Option.none(), street: Option.none(), city: Option.none(), state: Option.none(), zipcode: Option.none() }); let tainted = $state<TaintedAddress>({ street: Option.none(), city: Option.none(), state: Option.none(), zipcode: Option.none() }); const fields: FieldControllersAddress = {street: {
                     path: ["street"] as const,
                     name: "street",
                     constraints: { required: true },
@@ -7459,7 +7459,7 @@ export function fromStringifiedJSONAddress(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.street,
                     setTainted: (value: Option<boolean>) => { tainted.street = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Address.validateField("street", data.street);
+                        const fieldErrors = validateFieldAddress("street", data.street);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7477,7 +7477,7 @@ export function fromStringifiedJSONAddress(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.city,
                     setTainted: (value: Option<boolean>) => { tainted.city = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Address.validateField("city", data.city);
+                        const fieldErrors = validateFieldAddress("city", data.city);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7495,7 +7495,7 @@ export function fromStringifiedJSONAddress(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.state,
                     setTainted: (value: Option<boolean>) => { tainted.state = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Address.validateField("state", data.state);
+                        const fieldErrors = validateFieldAddress("state", data.state);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7513,14 +7513,14 @@ export function fromStringifiedJSONAddress(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.zipcode,
                     setTainted: (value: Option<boolean>) => { tainted.zipcode = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Address.validateField("zipcode", data.zipcode);
+                        const fieldErrors = validateFieldAddress("zipcode", data.zipcode);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Address, Array<{field: string; message: string}>>{return Address.fromObject(data);}function reset(newOverrides?: Partial<Address>): void {data = {...Address.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), street: Option.none(), city: Option.none(), state: Option.none(), zipcode: Option.none() }; tainted = { street: Option.none(), city: Option.none(), state: Option.none(), zipcode: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataAddress(formData: FormData): Result<Address, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.street = formData.get("street") ?? "";
+                }}; function validate(): Result<Address, Array<{field: string; message: string}>>{return fromObjectAddress(data);}function reset(newOverrides?: Partial<Address>): void {data = {...defaultValueAddress(),...newOverrides}; errors = { _errors: Option.none(), street: Option.none(), city: Option.none(), state: Option.none(), zipcode: Option.none() }; tainted = { street: Option.none(), city: Option.none(), state: Option.none(), zipcode: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataAddress(formData: FormData): Result<Address, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.street = formData.get("street") ?? "";
             obj.city = formData.get("city") ?? "";
             obj.state = formData.get("state") ?? "";
-            obj.zipcode = formData.get("zipcode") ?? ""; return Address.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.zipcode = formData.get("zipcode") ?? ""; return fromStringifiedJSONAddress(JSON.stringify(obj));}
 
 
 export interface Lead {
@@ -7616,9 +7616,9 @@ export function defaultValueLead(): Lead {return {id: "",
                             dateAdded: null,
                             taxRate: null,
                             sector: "Residential",
-                            leadName: AccountName.defaultValue(),
+                            leadName: defaultValueAccountName(),
                             phones: [],
-                            email: Email.defaultValue(),
+                            email: defaultValueEmail(),
                             leadSource: null,
                             site: "",
                             memo: "",
@@ -7633,13 +7633,13 @@ export function defaultValueLead(): Lead {return {id: "",
                             tags: [],
                             customFields: [], }as Lead;}
 
-export function toStringifiedJSONLead(value: Lead): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeLead(value, ctx));}export function toObjectLead(value: Lead): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeLead(value, ctx);}export function __serializeLead(value: Lead, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Lead" , __id,}; result["id" ]= value.id; result["number" ]= value.number; result["accepted" ]= value.accepted; result["probability" ]= value.probability; result["priority" ]= typeof(value.priority as any)?.__serialize === "function" ? (value.priority as any).__serialize(ctx): value.priority; result["dueDate" ]= value.dueDate; result["closeDate" ]= value.closeDate; result["value" ]= value.value; result["stage" ]= typeof(value.stage as any)?.__serialize === "function" ? (value.stage as any).__serialize(ctx): value.stage; result["status" ]= value.status; result["description" ]= value.description; result["nextStep" ]= typeof(value.nextStep as any)?.__serialize === "function" ? (value.nextStep as any).__serialize(ctx): value.nextStep; result["favorite" ]= value.favorite; result["dateAdded" ]= value.dateAdded; if(value.taxRate!== null){result["taxRate" ]= typeof(value.taxRate as any)?.__serialize === "function" ? (value.taxRate as any).__serialize(ctx): value.taxRate;}else {result["taxRate" ]= null;}result["sector" ]= typeof(value.sector as any)?.__serialize === "function" ? (value.sector as any).__serialize(ctx): value.sector; result["leadName" ]= typeof(value.leadName as any)?.__serialize === "function" ? (value.leadName as any).__serialize(ctx): value.leadName; result["phones" ]= value.phones.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); result["email" ]= typeof(value.email as any)?.__serialize === "function" ? (value.email as any).__serialize(ctx): value.email; result["leadSource" ]= value.leadSource; result["site" ]= value.site; result["memo" ]= value.memo; result["needsReview" ]= value.needsReview; result["hasAlert" ]= value.hasAlert; if(value.salesRep!== null){result["salesRep" ]= typeof(value.salesRep as any)?.__serialize === "function" ? (value.salesRep as any).__serialize(ctx): value.salesRep;}else {result["salesRep" ]= null;}result["color" ]= value.color; result["accountType" ]= value.accountType; result["subtype" ]= value.subtype; result["isTaxExempt" ]= value.isTaxExempt; result["paymentTerms" ]= value.paymentTerms; result["tags" ]= value.tags; result["customFields" ]= value.customFields.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); return result;}
+export function toStringifiedJSONLead(value: Lead): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeLead(value, ctx));}export function toObjectLead(value: Lead): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeLead(value, ctx);}export function __serializeLead(value: Lead, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Lead" , __id,}; result["id" ]= value.id; result["number" ]= value.number; result["accepted" ]= value.accepted; result["probability" ]= value.probability; result["priority" ]= __serializePriority(value.priority, ctx); result["dueDate" ]= value.dueDate; result["closeDate" ]= value.closeDate; result["value" ]= value.value; result["stage" ]= __serializeLeadStage(value.stage, ctx); result["status" ]= value.status; result["description" ]= value.description; result["nextStep" ]= __serializeNextStep(value.nextStep, ctx); result["favorite" ]= value.favorite; result["dateAdded" ]= value.dateAdded; if(value.taxRate!== null){result["taxRate" ]= value.taxRate; }else {result["taxRate" ]= null;}result["sector" ]= __serializeSector(value.sector, ctx); result["leadName" ]= __serializeAccountName(value.leadName, ctx); result["phones" ]= value.phones.map((item)=>__serializePhoneNumber(item, ctx)); result["email" ]= __serializeEmail(value.email, ctx); result["leadSource" ]= value.leadSource; result["site" ]= value.site; result["memo" ]= value.memo; result["needsReview" ]= value.needsReview; result["hasAlert" ]= value.hasAlert; if(value.salesRep!== null){result["salesRep" ]= value.salesRep; }else {result["salesRep" ]= null;}result["color" ]= value.color; result["accountType" ]= value.accountType; result["subtype" ]= value.subtype; result["isTaxExempt" ]= value.isTaxExempt; result["paymentTerms" ]= value.paymentTerms; result["tags" ]= value.tags; result["customFields" ]= value.customFields; return result;}
 
-export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions): Result<Lead, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectLead(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectLead(obj: unknown, opts?: DeserializeOptions): Result<Lead, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeLead(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Lead.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeLead(value: any, ctx: DeserializeContext): Lead | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Lead.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("number" in obj)){errors.push({field: "number" , message: "missing required field" });}if(!("accepted" in obj)){errors.push({field: "accepted" , message: "missing required field" });}if(!("probability" in obj)){errors.push({field: "probability" , message: "missing required field" });}if(!("priority" in obj)){errors.push({field: "priority" , message: "missing required field" });}if(!("dueDate" in obj)){errors.push({field: "dueDate" , message: "missing required field" });}if(!("closeDate" in obj)){errors.push({field: "closeDate" , message: "missing required field" });}if(!("value" in obj)){errors.push({field: "value" , message: "missing required field" });}if(!("stage" in obj)){errors.push({field: "stage" , message: "missing required field" });}if(!("status" in obj)){errors.push({field: "status" , message: "missing required field" });}if(!("description" in obj)){errors.push({field: "description" , message: "missing required field" });}if(!("nextStep" in obj)){errors.push({field: "nextStep" , message: "missing required field" });}if(!("favorite" in obj)){errors.push({field: "favorite" , message: "missing required field" });}if(!("dateAdded" in obj)){errors.push({field: "dateAdded" , message: "missing required field" });}if(!("taxRate" in obj)){errors.push({field: "taxRate" , message: "missing required field" });}if(!("sector" in obj)){errors.push({field: "sector" , message: "missing required field" });}if(!("leadName" in obj)){errors.push({field: "leadName" , message: "missing required field" });}if(!("phones" in obj)){errors.push({field: "phones" , message: "missing required field" });}if(!("email" in obj)){errors.push({field: "email" , message: "missing required field" });}if(!("leadSource" in obj)){errors.push({field: "leadSource" , message: "missing required field" });}if(!("site" in obj)){errors.push({field: "site" , message: "missing required field" });}if(!("memo" in obj)){errors.push({field: "memo" , message: "missing required field" });}if(!("needsReview" in obj)){errors.push({field: "needsReview" , message: "missing required field" });}if(!("hasAlert" in obj)){errors.push({field: "hasAlert" , message: "missing required field" });}if(!("salesRep" in obj)){errors.push({field: "salesRep" , message: "missing required field" });}if(!("color" in obj)){errors.push({field: "color" , message: "missing required field" });}if(!("accountType" in obj)){errors.push({field: "accountType" , message: "missing required field" });}if(!("subtype" in obj)){errors.push({field: "subtype" , message: "missing required field" });}if(!("isTaxExempt" in obj)){errors.push({field: "isTaxExempt" , message: "missing required field" });}if(!("paymentTerms" in obj)){errors.push({field: "paymentTerms" , message: "missing required field" });}if(!("tags" in obj)){errors.push({field: "tags" , message: "missing required field" });}if(!("customFields" in obj)){errors.push({field: "customFields" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_number = obj["number" ]as number | null; instance.number = __raw_number; }{const __raw_accepted = obj["accepted" ]as boolean; instance.accepted = __raw_accepted; }{const __raw_probability = obj["probability" ]as number; instance.probability = __raw_probability; }{const __raw_priority = obj["priority" ]as Priority; {const __result = Priority.__deserialize(__raw_priority, ctx); ctx.assignOrDefer(instance, "priority" , __result);}}{const __raw_dueDate = obj["dueDate" ]as string | null; instance.dueDate = __raw_dueDate; }{const __raw_closeDate = obj["closeDate" ]as string | null; instance.closeDate = __raw_closeDate; }{const __raw_value = obj["value" ]as number; instance.value = __raw_value; }{const __raw_stage = obj["stage" ]as LeadStage; {const __result = LeadStage.__deserialize(__raw_stage, ctx); ctx.assignOrDefer(instance, "stage" , __result);}}{const __raw_status = obj["status" ]as string; 
+export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions): Result<Lead, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectLead(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectLead(obj: unknown, opts?: DeserializeOptions): Result<Lead, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeLead(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Lead.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeLead(value: any, ctx: DeserializeContext): Lead | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Lead.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("number" in obj)){errors.push({field: "number" , message: "missing required field" });}if(!("accepted" in obj)){errors.push({field: "accepted" , message: "missing required field" });}if(!("probability" in obj)){errors.push({field: "probability" , message: "missing required field" });}if(!("priority" in obj)){errors.push({field: "priority" , message: "missing required field" });}if(!("dueDate" in obj)){errors.push({field: "dueDate" , message: "missing required field" });}if(!("closeDate" in obj)){errors.push({field: "closeDate" , message: "missing required field" });}if(!("value" in obj)){errors.push({field: "value" , message: "missing required field" });}if(!("stage" in obj)){errors.push({field: "stage" , message: "missing required field" });}if(!("status" in obj)){errors.push({field: "status" , message: "missing required field" });}if(!("description" in obj)){errors.push({field: "description" , message: "missing required field" });}if(!("nextStep" in obj)){errors.push({field: "nextStep" , message: "missing required field" });}if(!("favorite" in obj)){errors.push({field: "favorite" , message: "missing required field" });}if(!("dateAdded" in obj)){errors.push({field: "dateAdded" , message: "missing required field" });}if(!("taxRate" in obj)){errors.push({field: "taxRate" , message: "missing required field" });}if(!("sector" in obj)){errors.push({field: "sector" , message: "missing required field" });}if(!("leadName" in obj)){errors.push({field: "leadName" , message: "missing required field" });}if(!("phones" in obj)){errors.push({field: "phones" , message: "missing required field" });}if(!("email" in obj)){errors.push({field: "email" , message: "missing required field" });}if(!("leadSource" in obj)){errors.push({field: "leadSource" , message: "missing required field" });}if(!("site" in obj)){errors.push({field: "site" , message: "missing required field" });}if(!("memo" in obj)){errors.push({field: "memo" , message: "missing required field" });}if(!("needsReview" in obj)){errors.push({field: "needsReview" , message: "missing required field" });}if(!("hasAlert" in obj)){errors.push({field: "hasAlert" , message: "missing required field" });}if(!("salesRep" in obj)){errors.push({field: "salesRep" , message: "missing required field" });}if(!("color" in obj)){errors.push({field: "color" , message: "missing required field" });}if(!("accountType" in obj)){errors.push({field: "accountType" , message: "missing required field" });}if(!("subtype" in obj)){errors.push({field: "subtype" , message: "missing required field" });}if(!("isTaxExempt" in obj)){errors.push({field: "isTaxExempt" , message: "missing required field" });}if(!("paymentTerms" in obj)){errors.push({field: "paymentTerms" , message: "missing required field" });}if(!("tags" in obj)){errors.push({field: "tags" , message: "missing required field" });}if(!("customFields" in obj)){errors.push({field: "customFields" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_number = obj["number" ]as number | null; instance.number = __raw_number; }{const __raw_accepted = obj["accepted" ]as boolean; instance.accepted = __raw_accepted; }{const __raw_probability = obj["probability" ]as number; instance.probability = __raw_probability; }{const __raw_priority = obj["priority" ]as Priority; {const __result = __deserializePriority(__raw_priority, ctx); ctx.assignOrDefer(instance, "priority" , __result);}}{const __raw_dueDate = obj["dueDate" ]as string | null; instance.dueDate = __raw_dueDate; }{const __raw_closeDate = obj["closeDate" ]as string | null; instance.closeDate = __raw_closeDate; }{const __raw_value = obj["value" ]as number; instance.value = __raw_value; }{const __raw_stage = obj["stage" ]as LeadStage; {const __result = __deserializeLeadStage(__raw_stage, ctx); ctx.assignOrDefer(instance, "stage" , __result);}}{const __raw_status = obj["status" ]as string; 
                 if (__raw_status.length === 0) {
                     errors.push({ field: "status", message: "must not be empty" });
                 }
- instance.status = __raw_status; }{const __raw_description = obj["description" ]as string | null; instance.description = __raw_description; }{const __raw_nextStep = obj["nextStep" ]as NextStep; {const __result = NextStep.__deserialize(__raw_nextStep, ctx); ctx.assignOrDefer(instance, "nextStep" , __result);}}{const __raw_favorite = obj["favorite" ]as boolean; instance.favorite = __raw_favorite; }{const __raw_dateAdded = obj["dateAdded" ]as string | null; instance.dateAdded = __raw_dateAdded; }{const __raw_taxRate = obj["taxRate" ]as (string | TaxRate) | null; if(__raw_taxRate === null){instance.taxRate = null;}else {instance.taxRate = __raw_taxRate; }}{const __raw_sector = obj["sector" ]as Sector; {const __result = Sector.__deserialize(__raw_sector, ctx); ctx.assignOrDefer(instance, "sector" , __result);}}{const __raw_leadName = obj["leadName" ]as AccountName; {const __result = AccountName.__deserialize(__raw_leadName, ctx); ctx.assignOrDefer(instance, "leadName" , __result);}}{const __raw_phones = obj["phones" ]as PhoneNumber[]; if(Array.isArray(__raw_phones)){instance.phones = __raw_phones as PhoneNumber[];}}{const __raw_email = obj["email" ]as Email; {const __result = Email.__deserialize(__raw_email, ctx); ctx.assignOrDefer(instance, "email" , __result);}}{const __raw_leadSource = obj["leadSource" ]as string | null; instance.leadSource = __raw_leadSource; }{const __raw_site = obj["site" ]as string | Site; instance.site = __raw_site; }{const __raw_memo = obj["memo" ]as string; 
+ instance.status = __raw_status; }{const __raw_description = obj["description" ]as string | null; instance.description = __raw_description; }{const __raw_nextStep = obj["nextStep" ]as NextStep; {const __result = __deserializeNextStep(__raw_nextStep, ctx); ctx.assignOrDefer(instance, "nextStep" , __result);}}{const __raw_favorite = obj["favorite" ]as boolean; instance.favorite = __raw_favorite; }{const __raw_dateAdded = obj["dateAdded" ]as string | null; instance.dateAdded = __raw_dateAdded; }{const __raw_taxRate = obj["taxRate" ]as (string | TaxRate) | null; if(__raw_taxRate === null){instance.taxRate = null;}else {instance.taxRate = __raw_taxRate; }}{const __raw_sector = obj["sector" ]as Sector; {const __result = __deserializeSector(__raw_sector, ctx); ctx.assignOrDefer(instance, "sector" , __result);}}{const __raw_leadName = obj["leadName" ]as AccountName; {const __result = __deserializeAccountName(__raw_leadName, ctx); ctx.assignOrDefer(instance, "leadName" , __result);}}{const __raw_phones = obj["phones" ]as PhoneNumber[]; if(Array.isArray(__raw_phones)){instance.phones = __raw_phones as PhoneNumber[];}}{const __raw_email = obj["email" ]as Email; {const __result = __deserializeEmail(__raw_email, ctx); ctx.assignOrDefer(instance, "email" , __result);}}{const __raw_leadSource = obj["leadSource" ]as string | null; instance.leadSource = __raw_leadSource; }{const __raw_site = obj["site" ]as string | Site; instance.site = __raw_site; }{const __raw_memo = obj["memo" ]as string; 
                 if (__raw_memo.length === 0) {
                     errors.push({ field: "memo", message: "must not be empty" });
                 }
@@ -7790,7 +7790,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
             readonly isTaxExempt: FieldController<boolean>;
             readonly paymentTerms: FieldController<string>;
             readonly tags: ArrayFieldController<string>;
-            readonly customFields: ArrayFieldController<[string, string]>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformLead {readonly data: Lead; readonly errors: ErrorsLead; readonly tainted: TaintedLead; readonly fields: FieldControllersLead; validate(): Result<Lead, Array<{field: string; message: string}>>; reset(overrides?: Partial<Lead>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormLead(overrides?: Partial<Lead>): GigaformLead {let data = $state({...Lead.defaultValue(),...overrides}); let errors = $state<ErrorsLead>({ _errors: Option.none(), id: Option.none(), number: Option.none(), accepted: Option.none(), probability: Option.none(), priority: Option.none(), dueDate: Option.none(), closeDate: Option.none(), value: Option.none(), stage: Option.none(), status: Option.none(), description: Option.none(), nextStep: Option.none(), favorite: Option.none(), dateAdded: Option.none(), taxRate: Option.none(), sector: Option.none(), leadName: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), site: Option.none(), memo: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), salesRep: Option.none(), color: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), customFields: Option.none() }); let tainted = $state<TaintedLead>({ id: Option.none(), number: Option.none(), accepted: Option.none(), probability: Option.none(), priority: Option.none(), dueDate: Option.none(), closeDate: Option.none(), value: Option.none(), stage: Option.none(), status: Option.none(), description: Option.none(), nextStep: Option.none(), favorite: Option.none(), dateAdded: Option.none(), taxRate: Option.none(), sector: Option.none(), leadName: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), site: Option.none(), memo: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), salesRep: Option.none(), color: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), customFields: Option.none() }); const fields: FieldControllersLead = {id: {
+            readonly customFields: ArrayFieldController<[string, string]>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformLead {readonly data: Lead; readonly errors: ErrorsLead; readonly tainted: TaintedLead; readonly fields: FieldControllersLead; validate(): Result<Lead, Array<{field: string; message: string}>>; reset(overrides?: Partial<Lead>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormLead(overrides?: Partial<Lead>): GigaformLead {let data = $state({...defaultValueLead(),...overrides}); let errors = $state<ErrorsLead>({ _errors: Option.none(), id: Option.none(), number: Option.none(), accepted: Option.none(), probability: Option.none(), priority: Option.none(), dueDate: Option.none(), closeDate: Option.none(), value: Option.none(), stage: Option.none(), status: Option.none(), description: Option.none(), nextStep: Option.none(), favorite: Option.none(), dateAdded: Option.none(), taxRate: Option.none(), sector: Option.none(), leadName: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), site: Option.none(), memo: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), salesRep: Option.none(), color: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), customFields: Option.none() }); let tainted = $state<TaintedLead>({ id: Option.none(), number: Option.none(), accepted: Option.none(), probability: Option.none(), priority: Option.none(), dueDate: Option.none(), closeDate: Option.none(), value: Option.none(), stage: Option.none(), status: Option.none(), description: Option.none(), nextStep: Option.none(), favorite: Option.none(), dateAdded: Option.none(), taxRate: Option.none(), sector: Option.none(), leadName: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), site: Option.none(), memo: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), salesRep: Option.none(), color: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), customFields: Option.none() }); const fields: FieldControllersLead = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -7803,7 +7803,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("id", data.id);
+                        const fieldErrors = validateFieldLead("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7821,7 +7821,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.number,
                     setTainted: (value: Option<boolean>) => { tainted.number = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("number", data.number);
+                        const fieldErrors = validateFieldLead("number", data.number);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7839,7 +7839,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.accepted,
                     setTainted: (value: Option<boolean>) => { tainted.accepted = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("accepted", data.accepted);
+                        const fieldErrors = validateFieldLead("accepted", data.accepted);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7857,7 +7857,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.probability,
                     setTainted: (value: Option<boolean>) => { tainted.probability = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("probability", data.probability);
+                        const fieldErrors = validateFieldLead("probability", data.probability);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7875,7 +7875,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.priority,
                     setTainted: (value: Option<boolean>) => { tainted.priority = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("priority", data.priority);
+                        const fieldErrors = validateFieldLead("priority", data.priority);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7893,7 +7893,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.dueDate,
                     setTainted: (value: Option<boolean>) => { tainted.dueDate = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("dueDate", data.dueDate);
+                        const fieldErrors = validateFieldLead("dueDate", data.dueDate);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7911,7 +7911,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.closeDate,
                     setTainted: (value: Option<boolean>) => { tainted.closeDate = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("closeDate", data.closeDate);
+                        const fieldErrors = validateFieldLead("closeDate", data.closeDate);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7929,7 +7929,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.value,
                     setTainted: (value: Option<boolean>) => { tainted.value = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("value", data.value);
+                        const fieldErrors = validateFieldLead("value", data.value);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7947,7 +7947,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.stage,
                     setTainted: (value: Option<boolean>) => { tainted.stage = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("stage", data.stage);
+                        const fieldErrors = validateFieldLead("stage", data.stage);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7965,7 +7965,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.status,
                     setTainted: (value: Option<boolean>) => { tainted.status = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("status", data.status);
+                        const fieldErrors = validateFieldLead("status", data.status);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -7983,7 +7983,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.description,
                     setTainted: (value: Option<boolean>) => { tainted.description = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("description", data.description);
+                        const fieldErrors = validateFieldLead("description", data.description);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8001,7 +8001,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.nextStep,
                     setTainted: (value: Option<boolean>) => { tainted.nextStep = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("nextStep", data.nextStep);
+                        const fieldErrors = validateFieldLead("nextStep", data.nextStep);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8019,7 +8019,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.favorite,
                     setTainted: (value: Option<boolean>) => { tainted.favorite = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("favorite", data.favorite);
+                        const fieldErrors = validateFieldLead("favorite", data.favorite);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8037,7 +8037,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.dateAdded,
                     setTainted: (value: Option<boolean>) => { tainted.dateAdded = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("dateAdded", data.dateAdded);
+                        const fieldErrors = validateFieldLead("dateAdded", data.dateAdded);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8055,7 +8055,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.taxRate,
                     setTainted: (value: Option<boolean>) => { tainted.taxRate = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("taxRate", data.taxRate);
+                        const fieldErrors = validateFieldLead("taxRate", data.taxRate);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8073,7 +8073,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.sector,
                     setTainted: (value: Option<boolean>) => { tainted.sector = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("sector", data.sector);
+                        const fieldErrors = validateFieldLead("sector", data.sector);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8091,7 +8091,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.leadName,
                     setTainted: (value: Option<boolean>) => { tainted.leadName = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("leadName", data.leadName);
+                        const fieldErrors = validateFieldLead("leadName", data.leadName);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8109,7 +8109,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.phones,
                     setTainted: (value: Option<boolean>) => { tainted.phones = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("phones", data.phones);
+                        const fieldErrors = validateFieldLead("phones", data.phones);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -8146,7 +8146,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.email,
                     setTainted: (value: Option<boolean>) => { tainted.email = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("email", data.email);
+                        const fieldErrors = validateFieldLead("email", data.email);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8164,7 +8164,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.leadSource,
                     setTainted: (value: Option<boolean>) => { tainted.leadSource = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("leadSource", data.leadSource);
+                        const fieldErrors = validateFieldLead("leadSource", data.leadSource);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8182,7 +8182,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.site,
                     setTainted: (value: Option<boolean>) => { tainted.site = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("site", data.site);
+                        const fieldErrors = validateFieldLead("site", data.site);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8200,7 +8200,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.memo,
                     setTainted: (value: Option<boolean>) => { tainted.memo = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("memo", data.memo);
+                        const fieldErrors = validateFieldLead("memo", data.memo);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8218,7 +8218,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.needsReview,
                     setTainted: (value: Option<boolean>) => { tainted.needsReview = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("needsReview", data.needsReview);
+                        const fieldErrors = validateFieldLead("needsReview", data.needsReview);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8236,7 +8236,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.hasAlert,
                     setTainted: (value: Option<boolean>) => { tainted.hasAlert = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("hasAlert", data.hasAlert);
+                        const fieldErrors = validateFieldLead("hasAlert", data.hasAlert);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8254,7 +8254,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.salesRep,
                     setTainted: (value: Option<boolean>) => { tainted.salesRep = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("salesRep", data.salesRep);
+                        const fieldErrors = validateFieldLead("salesRep", data.salesRep);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8272,7 +8272,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.color,
                     setTainted: (value: Option<boolean>) => { tainted.color = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("color", data.color);
+                        const fieldErrors = validateFieldLead("color", data.color);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8290,7 +8290,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.accountType,
                     setTainted: (value: Option<boolean>) => { tainted.accountType = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("accountType", data.accountType);
+                        const fieldErrors = validateFieldLead("accountType", data.accountType);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8308,7 +8308,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.subtype,
                     setTainted: (value: Option<boolean>) => { tainted.subtype = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("subtype", data.subtype);
+                        const fieldErrors = validateFieldLead("subtype", data.subtype);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8326,7 +8326,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.isTaxExempt,
                     setTainted: (value: Option<boolean>) => { tainted.isTaxExempt = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("isTaxExempt", data.isTaxExempt);
+                        const fieldErrors = validateFieldLead("isTaxExempt", data.isTaxExempt);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8344,7 +8344,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.paymentTerms,
                     setTainted: (value: Option<boolean>) => { tainted.paymentTerms = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("paymentTerms", data.paymentTerms);
+                        const fieldErrors = validateFieldLead("paymentTerms", data.paymentTerms);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -8362,7 +8362,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.tags,
                     setTainted: (value: Option<boolean>) => { tainted.tags = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("tags", data.tags);
+                        const fieldErrors = validateFieldLead("tags", data.tags);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -8399,7 +8399,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.customFields,
                     setTainted: (value: Option<boolean>) => { tainted.customFields = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Lead.validateField("customFields", data.customFields);
+                        const fieldErrors = validateFieldLead("customFields", data.customFields);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -8422,7 +8422,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                         data.customFields[a] = data.customFields[b]!;
                         data.customFields[b] = tmp;
                     },
-                }}; function validate(): Result<Lead, Array<{field: string; message: string}>>{return Lead.fromObject(data);}function reset(newOverrides?: Partial<Lead>): void {data = {...Lead.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), number: Option.none(), accepted: Option.none(), probability: Option.none(), priority: Option.none(), dueDate: Option.none(), closeDate: Option.none(), value: Option.none(), stage: Option.none(), status: Option.none(), description: Option.none(), nextStep: Option.none(), favorite: Option.none(), dateAdded: Option.none(), taxRate: Option.none(), sector: Option.none(), leadName: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), site: Option.none(), memo: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), salesRep: Option.none(), color: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), customFields: Option.none() }; tainted = { id: Option.none(), number: Option.none(), accepted: Option.none(), probability: Option.none(), priority: Option.none(), dueDate: Option.none(), closeDate: Option.none(), value: Option.none(), stage: Option.none(), status: Option.none(), description: Option.none(), nextStep: Option.none(), favorite: Option.none(), dateAdded: Option.none(), taxRate: Option.none(), sector: Option.none(), leadName: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), site: Option.none(), memo: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), salesRep: Option.none(), color: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), customFields: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataLead(formData: FormData): Result<Lead, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+                }}; function validate(): Result<Lead, Array<{field: string; message: string}>>{return fromObjectLead(data);}function reset(newOverrides?: Partial<Lead>): void {data = {...defaultValueLead(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), number: Option.none(), accepted: Option.none(), probability: Option.none(), priority: Option.none(), dueDate: Option.none(), closeDate: Option.none(), value: Option.none(), stage: Option.none(), status: Option.none(), description: Option.none(), nextStep: Option.none(), favorite: Option.none(), dateAdded: Option.none(), taxRate: Option.none(), sector: Option.none(), leadName: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), site: Option.none(), memo: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), salesRep: Option.none(), color: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), customFields: Option.none() }; tainted = { id: Option.none(), number: Option.none(), accepted: Option.none(), probability: Option.none(), priority: Option.none(), dueDate: Option.none(), closeDate: Option.none(), value: Option.none(), stage: Option.none(), status: Option.none(), description: Option.none(), nextStep: Option.none(), favorite: Option.none(), dateAdded: Option.none(), taxRate: Option.none(), sector: Option.none(), leadName: Option.none(), phones: Option.none(), email: Option.none(), leadSource: Option.none(), site: Option.none(), memo: Option.none(), needsReview: Option.none(), hasAlert: Option.none(), salesRep: Option.none(), color: Option.none(), accountType: Option.none(), subtype: Option.none(), isTaxExempt: Option.none(), paymentTerms: Option.none(), tags: Option.none(), customFields: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataLead(formData: FormData): Result<Lead, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
             {
                 const numberStr = formData.get("number");
                 obj.number = numberStr ? parseFloat(numberStr as string) : 0;
@@ -8644,7 +8644,7 @@ export function fromStringifiedJSONLead(json: string, opts?: DeserializeOptions)
                     if (idx > 1000) break; // Safety limit
                 }
                 obj.customFields = customFieldsItems;
-            } return Lead.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONLead(JSON.stringify(obj));}
 
 
 export interface AppPermissions {
@@ -8657,7 +8657,7 @@ export function defaultValueAppPermissions(): AppPermissions {return {applicatio
                             pages: [],
                             data: [], }as AppPermissions;}
 
-export function toStringifiedJSONAppPermissions(value: AppPermissions): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeAppPermissions(value, ctx));}export function toObjectAppPermissions(value: AppPermissions): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeAppPermissions(value, ctx);}export function __serializeAppPermissions(value: AppPermissions, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "AppPermissions" , __id,}; result["applications" ]= value.applications.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); result["pages" ]= value.pages.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); result["data" ]= value.data.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); return result;}
+export function toStringifiedJSONAppPermissions(value: AppPermissions): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeAppPermissions(value, ctx));}export function toObjectAppPermissions(value: AppPermissions): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeAppPermissions(value, ctx);}export function __serializeAppPermissions(value: AppPermissions, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "AppPermissions" , __id,}; result["applications" ]= value.applications.map((item)=>__serializeApplications(item, ctx)); result["pages" ]= value.pages.map((item)=>__serializePage(item, ctx)); result["data" ]= value.data.map((item)=>__serializeTable(item, ctx)); return result;}
 
 export function fromStringifiedJSONAppPermissions(json: string, opts?: DeserializeOptions): Result<AppPermissions, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectAppPermissions(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectAppPermissions(obj: unknown, opts?: DeserializeOptions): Result<AppPermissions, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeAppPermissions(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "AppPermissions.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeAppPermissions(value: any, ctx: DeserializeContext): AppPermissions | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "AppPermissions.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("applications" in obj)){errors.push({field: "applications" , message: "missing required field" });}if(!("pages" in obj)){errors.push({field: "pages" , message: "missing required field" });}if(!("data" in obj)){errors.push({field: "data" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_applications = obj["applications" ]as Applications[]; if(Array.isArray(__raw_applications)){instance.applications = __raw_applications as Applications[];}}{const __raw_pages = obj["pages" ]as Page[]; if(Array.isArray(__raw_pages)){instance.pages = __raw_pages as Page[];}}{const __raw_data = obj["data" ]as Table[]; if(Array.isArray(__raw_data)){instance.data = __raw_data as Table[];}}if(errors.length>0){throw new DeserializeError(errors);}return instance as AppPermissions;}export function validateFieldAppPermissions<K extends keyof AppPermissions>(field: K, value: AppPermissions[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsAppPermissions(partial: Partial<AppPermissions>): Array<{field: string; message: string}>{return[]; }export function hasShapeAppPermissions(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "applications" in o && "pages" in o && "data" in o;}export function isAppPermissions(obj: unknown): obj is AppPermissions {if(!hasShapeAppPermissions(obj)){return false;}const result = fromObjectAppPermissions(obj); return Result.isOk(result);}
 
@@ -8667,7 +8667,7 @@ export function fromStringifiedJSONAppPermissions(json: string, opts?: Deseriali
             pages: Option<boolean>;
             data: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersAppPermissions {readonly applications: ArrayFieldController<Applications>;
             readonly pages: ArrayFieldController<Page>;
-            readonly data: ArrayFieldController<Table>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformAppPermissions {readonly data: AppPermissions; readonly errors: ErrorsAppPermissions; readonly tainted: TaintedAppPermissions; readonly fields: FieldControllersAppPermissions; validate(): Result<AppPermissions, Array<{field: string; message: string}>>; reset(overrides?: Partial<AppPermissions>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormAppPermissions(overrides?: Partial<AppPermissions>): GigaformAppPermissions {let data = $state({...AppPermissions.defaultValue(),...overrides}); let errors = $state<ErrorsAppPermissions>({ _errors: Option.none(), applications: Option.none(), pages: Option.none(), data: Option.none() }); let tainted = $state<TaintedAppPermissions>({ applications: Option.none(), pages: Option.none(), data: Option.none() }); const fields: FieldControllersAppPermissions = {applications: {
+            readonly data: ArrayFieldController<Table>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformAppPermissions {readonly data: AppPermissions; readonly errors: ErrorsAppPermissions; readonly tainted: TaintedAppPermissions; readonly fields: FieldControllersAppPermissions; validate(): Result<AppPermissions, Array<{field: string; message: string}>>; reset(overrides?: Partial<AppPermissions>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormAppPermissions(overrides?: Partial<AppPermissions>): GigaformAppPermissions {let data = $state({...defaultValueAppPermissions(),...overrides}); let errors = $state<ErrorsAppPermissions>({ _errors: Option.none(), applications: Option.none(), pages: Option.none(), data: Option.none() }); let tainted = $state<TaintedAppPermissions>({ applications: Option.none(), pages: Option.none(), data: Option.none() }); const fields: FieldControllersAppPermissions = {applications: {
                     path: ["applications"] as const,
                     name: "applications",
                     constraints: { required: true },
@@ -8680,7 +8680,7 @@ export function fromStringifiedJSONAppPermissions(json: string, opts?: Deseriali
                     getTainted: () => tainted.applications,
                     setTainted: (value: Option<boolean>) => { tainted.applications = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = AppPermissions.validateField("applications", data.applications);
+                        const fieldErrors = validateFieldAppPermissions("applications", data.applications);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -8717,7 +8717,7 @@ export function fromStringifiedJSONAppPermissions(json: string, opts?: Deseriali
                     getTainted: () => tainted.pages,
                     setTainted: (value: Option<boolean>) => { tainted.pages = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = AppPermissions.validateField("pages", data.pages);
+                        const fieldErrors = validateFieldAppPermissions("pages", data.pages);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -8754,7 +8754,7 @@ export function fromStringifiedJSONAppPermissions(json: string, opts?: Deseriali
                     getTainted: () => tainted.data,
                     setTainted: (value: Option<boolean>) => { tainted.data = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = AppPermissions.validateField("data", data.data);
+                        const fieldErrors = validateFieldAppPermissions("data", data.data);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -8777,7 +8777,7 @@ export function fromStringifiedJSONAppPermissions(json: string, opts?: Deseriali
                         data.data[a] = data.data[b]!;
                         data.data[b] = tmp;
                     },
-                }}; function validate(): Result<AppPermissions, Array<{field: string; message: string}>>{return AppPermissions.fromObject(data);}function reset(newOverrides?: Partial<AppPermissions>): void {data = {...AppPermissions.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), applications: Option.none(), pages: Option.none(), data: Option.none() }; tainted = { applications: Option.none(), pages: Option.none(), data: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataAppPermissions(formData: FormData): Result<AppPermissions, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<AppPermissions, Array<{field: string; message: string}>>{return fromObjectAppPermissions(data);}function reset(newOverrides?: Partial<AppPermissions>): void {data = {...defaultValueAppPermissions(),...newOverrides}; errors = { _errors: Option.none(), applications: Option.none(), pages: Option.none(), data: Option.none() }; tainted = { applications: Option.none(), pages: Option.none(), data: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataAppPermissions(formData: FormData): Result<AppPermissions, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 // Collect array items from indexed form fields
                 const applicationsItems: Array<Record<string, unknown>> = [];
                 let idx = 0;
@@ -8845,7 +8845,7 @@ export function fromStringifiedJSONAppPermissions(json: string, opts?: Deseriali
                     if (idx > 1000) break; // Safety limit
                 }
                 obj.data = dataItems;
-            } return AppPermissions.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONAppPermissions(JSON.stringify(obj));}
 
 
 export interface Company {
@@ -8921,9 +8921,9 @@ export function defaultValueCompany(): Company {return {id: "",
                             hasSortServiceItemsAlphabetically: false,
                             hasAttachOrderToAppointmentEmails: false,
                             scheduleInterval: 0,
-                            colorsConfig: ColorsConfig.defaultValue(), }as Company;}
+                            colorsConfig: defaultValueColorsConfig(), }as Company;}
 
-export function toStringifiedJSONCompany(value: Company): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeCompany(value, ctx));}export function toObjectCompany(value: Company): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeCompany(value, ctx);}export function __serializeCompany(value: Company, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Company" , __id,}; result["id" ]= value.id; result["legalName" ]= value.legalName; result["headquarters" ]= value.headquarters; result["phones" ]= value.phones.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); result["fax" ]= value.fax; result["email" ]= value.email; result["website" ]= value.website; result["taxId" ]= value.taxId; result["referenceNumber" ]= value.referenceNumber; result["postalCodeLookup" ]= value.postalCodeLookup; result["timeZone" ]= value.timeZone; result["defaultTax" ]= value.defaultTax; result["defaultTaxLocation" ]= value.defaultTaxLocation; result["defaultAreaCode" ]= value.defaultAreaCode; result["defaultAccountType" ]= value.defaultAccountType; result["lookupFormatting" ]= value.lookupFormatting; result["accountNameFormat" ]= value.accountNameFormat; result["merchantServiceProvider" ]= value.merchantServiceProvider; result["dateDisplayStyle" ]= value.dateDisplayStyle; result["hasAutoCommission" ]= value.hasAutoCommission; result["hasAutoDaylightSavings" ]= value.hasAutoDaylightSavings; result["hasAutoFmsTracking" ]= value.hasAutoFmsTracking; result["hasNotifications" ]= value.hasNotifications; result["hasRequiredLeadSource" ]= value.hasRequiredLeadSource; result["hasRequiredEmail" ]= value.hasRequiredEmail; result["hasSortServiceItemsAlphabetically" ]= value.hasSortServiceItemsAlphabetically; result["hasAttachOrderToAppointmentEmails" ]= value.hasAttachOrderToAppointmentEmails; result["scheduleInterval" ]= value.scheduleInterval; result["colorsConfig" ]= typeof(value.colorsConfig as any)?.__serialize === "function" ? (value.colorsConfig as any).__serialize(ctx): value.colorsConfig; return result;}
+export function toStringifiedJSONCompany(value: Company): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeCompany(value, ctx));}export function toObjectCompany(value: Company): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeCompany(value, ctx);}export function __serializeCompany(value: Company, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Company" , __id,}; result["id" ]= value.id; result["legalName" ]= value.legalName; result["headquarters" ]= value.headquarters; result["phones" ]= value.phones.map((item)=>__serializePhoneNumber(item, ctx)); result["fax" ]= value.fax; result["email" ]= value.email; result["website" ]= value.website; result["taxId" ]= value.taxId; result["referenceNumber" ]= value.referenceNumber; result["postalCodeLookup" ]= value.postalCodeLookup; result["timeZone" ]= value.timeZone; result["defaultTax" ]= value.defaultTax; result["defaultTaxLocation" ]= value.defaultTaxLocation; result["defaultAreaCode" ]= value.defaultAreaCode; result["defaultAccountType" ]= value.defaultAccountType; result["lookupFormatting" ]= value.lookupFormatting; result["accountNameFormat" ]= value.accountNameFormat; result["merchantServiceProvider" ]= value.merchantServiceProvider; result["dateDisplayStyle" ]= value.dateDisplayStyle; result["hasAutoCommission" ]= value.hasAutoCommission; result["hasAutoDaylightSavings" ]= value.hasAutoDaylightSavings; result["hasAutoFmsTracking" ]= value.hasAutoFmsTracking; result["hasNotifications" ]= value.hasNotifications; result["hasRequiredLeadSource" ]= value.hasRequiredLeadSource; result["hasRequiredEmail" ]= value.hasRequiredEmail; result["hasSortServiceItemsAlphabetically" ]= value.hasSortServiceItemsAlphabetically; result["hasAttachOrderToAppointmentEmails" ]= value.hasAttachOrderToAppointmentEmails; result["scheduleInterval" ]= value.scheduleInterval; result["colorsConfig" ]= __serializeColorsConfig(value.colorsConfig, ctx); return result;}
 
 export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptions): Result<Company, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectCompany(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectCompany(obj: unknown, opts?: DeserializeOptions): Result<Company, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeCompany(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Company.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeCompany(value: any, ctx: DeserializeContext): Company | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Company.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("legalName" in obj)){errors.push({field: "legalName" , message: "missing required field" });}if(!("headquarters" in obj)){errors.push({field: "headquarters" , message: "missing required field" });}if(!("phones" in obj)){errors.push({field: "phones" , message: "missing required field" });}if(!("fax" in obj)){errors.push({field: "fax" , message: "missing required field" });}if(!("email" in obj)){errors.push({field: "email" , message: "missing required field" });}if(!("website" in obj)){errors.push({field: "website" , message: "missing required field" });}if(!("taxId" in obj)){errors.push({field: "taxId" , message: "missing required field" });}if(!("referenceNumber" in obj)){errors.push({field: "referenceNumber" , message: "missing required field" });}if(!("postalCodeLookup" in obj)){errors.push({field: "postalCodeLookup" , message: "missing required field" });}if(!("timeZone" in obj)){errors.push({field: "timeZone" , message: "missing required field" });}if(!("defaultTax" in obj)){errors.push({field: "defaultTax" , message: "missing required field" });}if(!("defaultTaxLocation" in obj)){errors.push({field: "defaultTaxLocation" , message: "missing required field" });}if(!("defaultAreaCode" in obj)){errors.push({field: "defaultAreaCode" , message: "missing required field" });}if(!("defaultAccountType" in obj)){errors.push({field: "defaultAccountType" , message: "missing required field" });}if(!("lookupFormatting" in obj)){errors.push({field: "lookupFormatting" , message: "missing required field" });}if(!("accountNameFormat" in obj)){errors.push({field: "accountNameFormat" , message: "missing required field" });}if(!("merchantServiceProvider" in obj)){errors.push({field: "merchantServiceProvider" , message: "missing required field" });}if(!("dateDisplayStyle" in obj)){errors.push({field: "dateDisplayStyle" , message: "missing required field" });}if(!("hasAutoCommission" in obj)){errors.push({field: "hasAutoCommission" , message: "missing required field" });}if(!("hasAutoDaylightSavings" in obj)){errors.push({field: "hasAutoDaylightSavings" , message: "missing required field" });}if(!("hasAutoFmsTracking" in obj)){errors.push({field: "hasAutoFmsTracking" , message: "missing required field" });}if(!("hasNotifications" in obj)){errors.push({field: "hasNotifications" , message: "missing required field" });}if(!("hasRequiredLeadSource" in obj)){errors.push({field: "hasRequiredLeadSource" , message: "missing required field" });}if(!("hasRequiredEmail" in obj)){errors.push({field: "hasRequiredEmail" , message: "missing required field" });}if(!("hasSortServiceItemsAlphabetically" in obj)){errors.push({field: "hasSortServiceItemsAlphabetically" , message: "missing required field" });}if(!("hasAttachOrderToAppointmentEmails" in obj)){errors.push({field: "hasAttachOrderToAppointmentEmails" , message: "missing required field" });}if(!("scheduleInterval" in obj)){errors.push({field: "scheduleInterval" , message: "missing required field" });}if(!("colorsConfig" in obj)){errors.push({field: "colorsConfig" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_legalName = obj["legalName" ]as string; 
                 if (__raw_legalName.length === 0) {
@@ -8969,7 +8969,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                 if (__raw_dateDisplayStyle.length === 0) {
                     errors.push({ field: "dateDisplayStyle", message: "must not be empty" });
                 }
- instance.dateDisplayStyle = __raw_dateDisplayStyle; }{const __raw_hasAutoCommission = obj["hasAutoCommission" ]as boolean; instance.hasAutoCommission = __raw_hasAutoCommission; }{const __raw_hasAutoDaylightSavings = obj["hasAutoDaylightSavings" ]as boolean; instance.hasAutoDaylightSavings = __raw_hasAutoDaylightSavings; }{const __raw_hasAutoFmsTracking = obj["hasAutoFmsTracking" ]as boolean; instance.hasAutoFmsTracking = __raw_hasAutoFmsTracking; }{const __raw_hasNotifications = obj["hasNotifications" ]as boolean; instance.hasNotifications = __raw_hasNotifications; }{const __raw_hasRequiredLeadSource = obj["hasRequiredLeadSource" ]as boolean; instance.hasRequiredLeadSource = __raw_hasRequiredLeadSource; }{const __raw_hasRequiredEmail = obj["hasRequiredEmail" ]as boolean; instance.hasRequiredEmail = __raw_hasRequiredEmail; }{const __raw_hasSortServiceItemsAlphabetically = obj["hasSortServiceItemsAlphabetically" ]as boolean; instance.hasSortServiceItemsAlphabetically = __raw_hasSortServiceItemsAlphabetically; }{const __raw_hasAttachOrderToAppointmentEmails = obj["hasAttachOrderToAppointmentEmails" ]as boolean; instance.hasAttachOrderToAppointmentEmails = __raw_hasAttachOrderToAppointmentEmails; }{const __raw_scheduleInterval = obj["scheduleInterval" ]as number; instance.scheduleInterval = __raw_scheduleInterval; }{const __raw_colorsConfig = obj["colorsConfig" ]as ColorsConfig; {const __result = ColorsConfig.__deserialize(__raw_colorsConfig, ctx); ctx.assignOrDefer(instance, "colorsConfig" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as Company;}export function validateFieldCompany<K extends keyof Company>(field: K, value: Company[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "legalName" : {const __val = value as string; 
+ instance.dateDisplayStyle = __raw_dateDisplayStyle; }{const __raw_hasAutoCommission = obj["hasAutoCommission" ]as boolean; instance.hasAutoCommission = __raw_hasAutoCommission; }{const __raw_hasAutoDaylightSavings = obj["hasAutoDaylightSavings" ]as boolean; instance.hasAutoDaylightSavings = __raw_hasAutoDaylightSavings; }{const __raw_hasAutoFmsTracking = obj["hasAutoFmsTracking" ]as boolean; instance.hasAutoFmsTracking = __raw_hasAutoFmsTracking; }{const __raw_hasNotifications = obj["hasNotifications" ]as boolean; instance.hasNotifications = __raw_hasNotifications; }{const __raw_hasRequiredLeadSource = obj["hasRequiredLeadSource" ]as boolean; instance.hasRequiredLeadSource = __raw_hasRequiredLeadSource; }{const __raw_hasRequiredEmail = obj["hasRequiredEmail" ]as boolean; instance.hasRequiredEmail = __raw_hasRequiredEmail; }{const __raw_hasSortServiceItemsAlphabetically = obj["hasSortServiceItemsAlphabetically" ]as boolean; instance.hasSortServiceItemsAlphabetically = __raw_hasSortServiceItemsAlphabetically; }{const __raw_hasAttachOrderToAppointmentEmails = obj["hasAttachOrderToAppointmentEmails" ]as boolean; instance.hasAttachOrderToAppointmentEmails = __raw_hasAttachOrderToAppointmentEmails; }{const __raw_scheduleInterval = obj["scheduleInterval" ]as number; instance.scheduleInterval = __raw_scheduleInterval; }{const __raw_colorsConfig = obj["colorsConfig" ]as ColorsConfig; {const __result = __deserializeColorsConfig(__raw_colorsConfig, ctx); ctx.assignOrDefer(instance, "colorsConfig" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as Company;}export function validateFieldCompany<K extends keyof Company>(field: K, value: Company[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "legalName" : {const __val = value as string; 
                 if (__val.length === 0) {
                     errors.push({ field: "legalName", message: "must not be empty" });
                 }
@@ -9143,7 +9143,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
             readonly hasSortServiceItemsAlphabetically: FieldController<boolean>;
             readonly hasAttachOrderToAppointmentEmails: FieldController<boolean>;
             readonly scheduleInterval: FieldController<number>;
-            readonly colorsConfig: FieldController<ColorsConfig>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCompany {readonly data: Company; readonly errors: ErrorsCompany; readonly tainted: TaintedCompany; readonly fields: FieldControllersCompany; validate(): Result<Company, Array<{field: string; message: string}>>; reset(overrides?: Partial<Company>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCompany(overrides?: Partial<Company>): GigaformCompany {let data = $state({...Company.defaultValue(),...overrides}); let errors = $state<ErrorsCompany>({ _errors: Option.none(), id: Option.none(), legalName: Option.none(), headquarters: Option.none(), phones: Option.none(), fax: Option.none(), email: Option.none(), website: Option.none(), taxId: Option.none(), referenceNumber: Option.none(), postalCodeLookup: Option.none(), timeZone: Option.none(), defaultTax: Option.none(), defaultTaxLocation: Option.none(), defaultAreaCode: Option.none(), defaultAccountType: Option.none(), lookupFormatting: Option.none(), accountNameFormat: Option.none(), merchantServiceProvider: Option.none(), dateDisplayStyle: Option.none(), hasAutoCommission: Option.none(), hasAutoDaylightSavings: Option.none(), hasAutoFmsTracking: Option.none(), hasNotifications: Option.none(), hasRequiredLeadSource: Option.none(), hasRequiredEmail: Option.none(), hasSortServiceItemsAlphabetically: Option.none(), hasAttachOrderToAppointmentEmails: Option.none(), scheduleInterval: Option.none(), colorsConfig: Option.none() }); let tainted = $state<TaintedCompany>({ id: Option.none(), legalName: Option.none(), headquarters: Option.none(), phones: Option.none(), fax: Option.none(), email: Option.none(), website: Option.none(), taxId: Option.none(), referenceNumber: Option.none(), postalCodeLookup: Option.none(), timeZone: Option.none(), defaultTax: Option.none(), defaultTaxLocation: Option.none(), defaultAreaCode: Option.none(), defaultAccountType: Option.none(), lookupFormatting: Option.none(), accountNameFormat: Option.none(), merchantServiceProvider: Option.none(), dateDisplayStyle: Option.none(), hasAutoCommission: Option.none(), hasAutoDaylightSavings: Option.none(), hasAutoFmsTracking: Option.none(), hasNotifications: Option.none(), hasRequiredLeadSource: Option.none(), hasRequiredEmail: Option.none(), hasSortServiceItemsAlphabetically: Option.none(), hasAttachOrderToAppointmentEmails: Option.none(), scheduleInterval: Option.none(), colorsConfig: Option.none() }); const fields: FieldControllersCompany = {id: {
+            readonly colorsConfig: FieldController<ColorsConfig>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCompany {readonly data: Company; readonly errors: ErrorsCompany; readonly tainted: TaintedCompany; readonly fields: FieldControllersCompany; validate(): Result<Company, Array<{field: string; message: string}>>; reset(overrides?: Partial<Company>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCompany(overrides?: Partial<Company>): GigaformCompany {let data = $state({...defaultValueCompany(),...overrides}); let errors = $state<ErrorsCompany>({ _errors: Option.none(), id: Option.none(), legalName: Option.none(), headquarters: Option.none(), phones: Option.none(), fax: Option.none(), email: Option.none(), website: Option.none(), taxId: Option.none(), referenceNumber: Option.none(), postalCodeLookup: Option.none(), timeZone: Option.none(), defaultTax: Option.none(), defaultTaxLocation: Option.none(), defaultAreaCode: Option.none(), defaultAccountType: Option.none(), lookupFormatting: Option.none(), accountNameFormat: Option.none(), merchantServiceProvider: Option.none(), dateDisplayStyle: Option.none(), hasAutoCommission: Option.none(), hasAutoDaylightSavings: Option.none(), hasAutoFmsTracking: Option.none(), hasNotifications: Option.none(), hasRequiredLeadSource: Option.none(), hasRequiredEmail: Option.none(), hasSortServiceItemsAlphabetically: Option.none(), hasAttachOrderToAppointmentEmails: Option.none(), scheduleInterval: Option.none(), colorsConfig: Option.none() }); let tainted = $state<TaintedCompany>({ id: Option.none(), legalName: Option.none(), headquarters: Option.none(), phones: Option.none(), fax: Option.none(), email: Option.none(), website: Option.none(), taxId: Option.none(), referenceNumber: Option.none(), postalCodeLookup: Option.none(), timeZone: Option.none(), defaultTax: Option.none(), defaultTaxLocation: Option.none(), defaultAreaCode: Option.none(), defaultAccountType: Option.none(), lookupFormatting: Option.none(), accountNameFormat: Option.none(), merchantServiceProvider: Option.none(), dateDisplayStyle: Option.none(), hasAutoCommission: Option.none(), hasAutoDaylightSavings: Option.none(), hasAutoFmsTracking: Option.none(), hasNotifications: Option.none(), hasRequiredLeadSource: Option.none(), hasRequiredEmail: Option.none(), hasSortServiceItemsAlphabetically: Option.none(), hasAttachOrderToAppointmentEmails: Option.none(), scheduleInterval: Option.none(), colorsConfig: Option.none() }); const fields: FieldControllersCompany = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -9156,7 +9156,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("id", data.id);
+                        const fieldErrors = validateFieldCompany("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9174,7 +9174,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.legalName,
                     setTainted: (value: Option<boolean>) => { tainted.legalName = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("legalName", data.legalName);
+                        const fieldErrors = validateFieldCompany("legalName", data.legalName);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9192,7 +9192,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.headquarters,
                     setTainted: (value: Option<boolean>) => { tainted.headquarters = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("headquarters", data.headquarters);
+                        const fieldErrors = validateFieldCompany("headquarters", data.headquarters);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9210,7 +9210,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.phones,
                     setTainted: (value: Option<boolean>) => { tainted.phones = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("phones", data.phones);
+                        const fieldErrors = validateFieldCompany("phones", data.phones);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -9247,7 +9247,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.fax,
                     setTainted: (value: Option<boolean>) => { tainted.fax = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("fax", data.fax);
+                        const fieldErrors = validateFieldCompany("fax", data.fax);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9265,7 +9265,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.email,
                     setTainted: (value: Option<boolean>) => { tainted.email = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("email", data.email);
+                        const fieldErrors = validateFieldCompany("email", data.email);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9283,7 +9283,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.website,
                     setTainted: (value: Option<boolean>) => { tainted.website = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("website", data.website);
+                        const fieldErrors = validateFieldCompany("website", data.website);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9301,7 +9301,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.taxId,
                     setTainted: (value: Option<boolean>) => { tainted.taxId = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("taxId", data.taxId);
+                        const fieldErrors = validateFieldCompany("taxId", data.taxId);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9319,7 +9319,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.referenceNumber,
                     setTainted: (value: Option<boolean>) => { tainted.referenceNumber = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("referenceNumber", data.referenceNumber);
+                        const fieldErrors = validateFieldCompany("referenceNumber", data.referenceNumber);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9337,7 +9337,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.postalCodeLookup,
                     setTainted: (value: Option<boolean>) => { tainted.postalCodeLookup = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("postalCodeLookup", data.postalCodeLookup);
+                        const fieldErrors = validateFieldCompany("postalCodeLookup", data.postalCodeLookup);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9355,7 +9355,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.timeZone,
                     setTainted: (value: Option<boolean>) => { tainted.timeZone = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("timeZone", data.timeZone);
+                        const fieldErrors = validateFieldCompany("timeZone", data.timeZone);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9373,7 +9373,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.defaultTax,
                     setTainted: (value: Option<boolean>) => { tainted.defaultTax = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("defaultTax", data.defaultTax);
+                        const fieldErrors = validateFieldCompany("defaultTax", data.defaultTax);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9391,7 +9391,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.defaultTaxLocation,
                     setTainted: (value: Option<boolean>) => { tainted.defaultTaxLocation = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("defaultTaxLocation", data.defaultTaxLocation);
+                        const fieldErrors = validateFieldCompany("defaultTaxLocation", data.defaultTaxLocation);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9409,7 +9409,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.defaultAreaCode,
                     setTainted: (value: Option<boolean>) => { tainted.defaultAreaCode = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("defaultAreaCode", data.defaultAreaCode);
+                        const fieldErrors = validateFieldCompany("defaultAreaCode", data.defaultAreaCode);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9427,7 +9427,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.defaultAccountType,
                     setTainted: (value: Option<boolean>) => { tainted.defaultAccountType = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("defaultAccountType", data.defaultAccountType);
+                        const fieldErrors = validateFieldCompany("defaultAccountType", data.defaultAccountType);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9445,7 +9445,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.lookupFormatting,
                     setTainted: (value: Option<boolean>) => { tainted.lookupFormatting = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("lookupFormatting", data.lookupFormatting);
+                        const fieldErrors = validateFieldCompany("lookupFormatting", data.lookupFormatting);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9463,7 +9463,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.accountNameFormat,
                     setTainted: (value: Option<boolean>) => { tainted.accountNameFormat = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("accountNameFormat", data.accountNameFormat);
+                        const fieldErrors = validateFieldCompany("accountNameFormat", data.accountNameFormat);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9481,7 +9481,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.merchantServiceProvider,
                     setTainted: (value: Option<boolean>) => { tainted.merchantServiceProvider = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("merchantServiceProvider", data.merchantServiceProvider);
+                        const fieldErrors = validateFieldCompany("merchantServiceProvider", data.merchantServiceProvider);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9499,7 +9499,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.dateDisplayStyle,
                     setTainted: (value: Option<boolean>) => { tainted.dateDisplayStyle = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("dateDisplayStyle", data.dateDisplayStyle);
+                        const fieldErrors = validateFieldCompany("dateDisplayStyle", data.dateDisplayStyle);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9517,7 +9517,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.hasAutoCommission,
                     setTainted: (value: Option<boolean>) => { tainted.hasAutoCommission = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("hasAutoCommission", data.hasAutoCommission);
+                        const fieldErrors = validateFieldCompany("hasAutoCommission", data.hasAutoCommission);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9535,7 +9535,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.hasAutoDaylightSavings,
                     setTainted: (value: Option<boolean>) => { tainted.hasAutoDaylightSavings = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("hasAutoDaylightSavings", data.hasAutoDaylightSavings);
+                        const fieldErrors = validateFieldCompany("hasAutoDaylightSavings", data.hasAutoDaylightSavings);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9553,7 +9553,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.hasAutoFmsTracking,
                     setTainted: (value: Option<boolean>) => { tainted.hasAutoFmsTracking = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("hasAutoFmsTracking", data.hasAutoFmsTracking);
+                        const fieldErrors = validateFieldCompany("hasAutoFmsTracking", data.hasAutoFmsTracking);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9571,7 +9571,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.hasNotifications,
                     setTainted: (value: Option<boolean>) => { tainted.hasNotifications = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("hasNotifications", data.hasNotifications);
+                        const fieldErrors = validateFieldCompany("hasNotifications", data.hasNotifications);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9589,7 +9589,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.hasRequiredLeadSource,
                     setTainted: (value: Option<boolean>) => { tainted.hasRequiredLeadSource = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("hasRequiredLeadSource", data.hasRequiredLeadSource);
+                        const fieldErrors = validateFieldCompany("hasRequiredLeadSource", data.hasRequiredLeadSource);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9607,7 +9607,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.hasRequiredEmail,
                     setTainted: (value: Option<boolean>) => { tainted.hasRequiredEmail = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("hasRequiredEmail", data.hasRequiredEmail);
+                        const fieldErrors = validateFieldCompany("hasRequiredEmail", data.hasRequiredEmail);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9625,7 +9625,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.hasSortServiceItemsAlphabetically,
                     setTainted: (value: Option<boolean>) => { tainted.hasSortServiceItemsAlphabetically = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("hasSortServiceItemsAlphabetically", data.hasSortServiceItemsAlphabetically);
+                        const fieldErrors = validateFieldCompany("hasSortServiceItemsAlphabetically", data.hasSortServiceItemsAlphabetically);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9643,7 +9643,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.hasAttachOrderToAppointmentEmails,
                     setTainted: (value: Option<boolean>) => { tainted.hasAttachOrderToAppointmentEmails = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("hasAttachOrderToAppointmentEmails", data.hasAttachOrderToAppointmentEmails);
+                        const fieldErrors = validateFieldCompany("hasAttachOrderToAppointmentEmails", data.hasAttachOrderToAppointmentEmails);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9661,7 +9661,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.scheduleInterval,
                     setTainted: (value: Option<boolean>) => { tainted.scheduleInterval = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("scheduleInterval", data.scheduleInterval);
+                        const fieldErrors = validateFieldCompany("scheduleInterval", data.scheduleInterval);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9679,11 +9679,11 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.colorsConfig,
                     setTainted: (value: Option<boolean>) => { tainted.colorsConfig = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Company.validateField("colorsConfig", data.colorsConfig);
+                        const fieldErrors = validateFieldCompany("colorsConfig", data.colorsConfig);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Company, Array<{field: string; message: string}>>{return Company.fromObject(data);}function reset(newOverrides?: Partial<Company>): void {data = {...Company.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), legalName: Option.none(), headquarters: Option.none(), phones: Option.none(), fax: Option.none(), email: Option.none(), website: Option.none(), taxId: Option.none(), referenceNumber: Option.none(), postalCodeLookup: Option.none(), timeZone: Option.none(), defaultTax: Option.none(), defaultTaxLocation: Option.none(), defaultAreaCode: Option.none(), defaultAccountType: Option.none(), lookupFormatting: Option.none(), accountNameFormat: Option.none(), merchantServiceProvider: Option.none(), dateDisplayStyle: Option.none(), hasAutoCommission: Option.none(), hasAutoDaylightSavings: Option.none(), hasAutoFmsTracking: Option.none(), hasNotifications: Option.none(), hasRequiredLeadSource: Option.none(), hasRequiredEmail: Option.none(), hasSortServiceItemsAlphabetically: Option.none(), hasAttachOrderToAppointmentEmails: Option.none(), scheduleInterval: Option.none(), colorsConfig: Option.none() }; tainted = { id: Option.none(), legalName: Option.none(), headquarters: Option.none(), phones: Option.none(), fax: Option.none(), email: Option.none(), website: Option.none(), taxId: Option.none(), referenceNumber: Option.none(), postalCodeLookup: Option.none(), timeZone: Option.none(), defaultTax: Option.none(), defaultTaxLocation: Option.none(), defaultAreaCode: Option.none(), defaultAccountType: Option.none(), lookupFormatting: Option.none(), accountNameFormat: Option.none(), merchantServiceProvider: Option.none(), dateDisplayStyle: Option.none(), hasAutoCommission: Option.none(), hasAutoDaylightSavings: Option.none(), hasAutoFmsTracking: Option.none(), hasNotifications: Option.none(), hasRequiredLeadSource: Option.none(), hasRequiredEmail: Option.none(), hasSortServiceItemsAlphabetically: Option.none(), hasAttachOrderToAppointmentEmails: Option.none(), scheduleInterval: Option.none(), colorsConfig: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCompany(formData: FormData): Result<Company, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+                }}; function validate(): Result<Company, Array<{field: string; message: string}>>{return fromObjectCompany(data);}function reset(newOverrides?: Partial<Company>): void {data = {...defaultValueCompany(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), legalName: Option.none(), headquarters: Option.none(), phones: Option.none(), fax: Option.none(), email: Option.none(), website: Option.none(), taxId: Option.none(), referenceNumber: Option.none(), postalCodeLookup: Option.none(), timeZone: Option.none(), defaultTax: Option.none(), defaultTaxLocation: Option.none(), defaultAreaCode: Option.none(), defaultAccountType: Option.none(), lookupFormatting: Option.none(), accountNameFormat: Option.none(), merchantServiceProvider: Option.none(), dateDisplayStyle: Option.none(), hasAutoCommission: Option.none(), hasAutoDaylightSavings: Option.none(), hasAutoFmsTracking: Option.none(), hasNotifications: Option.none(), hasRequiredLeadSource: Option.none(), hasRequiredEmail: Option.none(), hasSortServiceItemsAlphabetically: Option.none(), hasAttachOrderToAppointmentEmails: Option.none(), scheduleInterval: Option.none(), colorsConfig: Option.none() }; tainted = { id: Option.none(), legalName: Option.none(), headquarters: Option.none(), phones: Option.none(), fax: Option.none(), email: Option.none(), website: Option.none(), taxId: Option.none(), referenceNumber: Option.none(), postalCodeLookup: Option.none(), timeZone: Option.none(), defaultTax: Option.none(), defaultTaxLocation: Option.none(), defaultAreaCode: Option.none(), defaultAccountType: Option.none(), lookupFormatting: Option.none(), accountNameFormat: Option.none(), merchantServiceProvider: Option.none(), dateDisplayStyle: Option.none(), hasAutoCommission: Option.none(), hasAutoDaylightSavings: Option.none(), hasAutoFmsTracking: Option.none(), hasNotifications: Option.none(), hasRequiredLeadSource: Option.none(), hasRequiredEmail: Option.none(), hasSortServiceItemsAlphabetically: Option.none(), hasAttachOrderToAppointmentEmails: Option.none(), scheduleInterval: Option.none(), colorsConfig: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCompany(formData: FormData): Result<Company, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
             obj.legalName = formData.get("legalName") ?? "";
             obj.headquarters = formData.get("headquarters") ?? "";
             {
@@ -9789,7 +9789,7 @@ export function fromStringifiedJSONCompany(json: string, opts?: DeserializeOptio
                 }
             }
             obj.colorsConfig = colorsConfigObj;
-        } return Company.fromStringifiedJSON(JSON.stringify(obj));}
+        } return fromStringifiedJSONCompany(JSON.stringify(obj));}
 
 
 export interface Ordinal {
@@ -9837,7 +9837,7 @@ export function fromStringifiedJSONOrdinal(json: string, opts?: DeserializeOptio
             readonly south: FieldController<number>;
             readonly southwest: FieldController<number>;
             readonly west: FieldController<number>;
-            readonly northwest: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformOrdinal {readonly data: Ordinal; readonly errors: ErrorsOrdinal; readonly tainted: TaintedOrdinal; readonly fields: FieldControllersOrdinal; validate(): Result<Ordinal, Array<{field: string; message: string}>>; reset(overrides?: Partial<Ordinal>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormOrdinal(overrides?: Partial<Ordinal>): GigaformOrdinal {let data = $state({...Ordinal.defaultValue(),...overrides}); let errors = $state<ErrorsOrdinal>({ _errors: Option.none(), north: Option.none(), northeast: Option.none(), east: Option.none(), southeast: Option.none(), south: Option.none(), southwest: Option.none(), west: Option.none(), northwest: Option.none() }); let tainted = $state<TaintedOrdinal>({ north: Option.none(), northeast: Option.none(), east: Option.none(), southeast: Option.none(), south: Option.none(), southwest: Option.none(), west: Option.none(), northwest: Option.none() }); const fields: FieldControllersOrdinal = {north: {
+            readonly northwest: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformOrdinal {readonly data: Ordinal; readonly errors: ErrorsOrdinal; readonly tainted: TaintedOrdinal; readonly fields: FieldControllersOrdinal; validate(): Result<Ordinal, Array<{field: string; message: string}>>; reset(overrides?: Partial<Ordinal>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormOrdinal(overrides?: Partial<Ordinal>): GigaformOrdinal {let data = $state({...defaultValueOrdinal(),...overrides}); let errors = $state<ErrorsOrdinal>({ _errors: Option.none(), north: Option.none(), northeast: Option.none(), east: Option.none(), southeast: Option.none(), south: Option.none(), southwest: Option.none(), west: Option.none(), northwest: Option.none() }); let tainted = $state<TaintedOrdinal>({ north: Option.none(), northeast: Option.none(), east: Option.none(), southeast: Option.none(), south: Option.none(), southwest: Option.none(), west: Option.none(), northwest: Option.none() }); const fields: FieldControllersOrdinal = {north: {
                     path: ["north"] as const,
                     name: "north",
                     constraints: { required: true },
@@ -9850,7 +9850,7 @@ export function fromStringifiedJSONOrdinal(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.north,
                     setTainted: (value: Option<boolean>) => { tainted.north = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Ordinal.validateField("north", data.north);
+                        const fieldErrors = validateFieldOrdinal("north", data.north);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9868,7 +9868,7 @@ export function fromStringifiedJSONOrdinal(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.northeast,
                     setTainted: (value: Option<boolean>) => { tainted.northeast = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Ordinal.validateField("northeast", data.northeast);
+                        const fieldErrors = validateFieldOrdinal("northeast", data.northeast);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9886,7 +9886,7 @@ export function fromStringifiedJSONOrdinal(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.east,
                     setTainted: (value: Option<boolean>) => { tainted.east = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Ordinal.validateField("east", data.east);
+                        const fieldErrors = validateFieldOrdinal("east", data.east);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9904,7 +9904,7 @@ export function fromStringifiedJSONOrdinal(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.southeast,
                     setTainted: (value: Option<boolean>) => { tainted.southeast = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Ordinal.validateField("southeast", data.southeast);
+                        const fieldErrors = validateFieldOrdinal("southeast", data.southeast);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9922,7 +9922,7 @@ export function fromStringifiedJSONOrdinal(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.south,
                     setTainted: (value: Option<boolean>) => { tainted.south = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Ordinal.validateField("south", data.south);
+                        const fieldErrors = validateFieldOrdinal("south", data.south);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9940,7 +9940,7 @@ export function fromStringifiedJSONOrdinal(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.southwest,
                     setTainted: (value: Option<boolean>) => { tainted.southwest = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Ordinal.validateField("southwest", data.southwest);
+                        const fieldErrors = validateFieldOrdinal("southwest", data.southwest);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9958,7 +9958,7 @@ export function fromStringifiedJSONOrdinal(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.west,
                     setTainted: (value: Option<boolean>) => { tainted.west = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Ordinal.validateField("west", data.west);
+                        const fieldErrors = validateFieldOrdinal("west", data.west);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -9976,11 +9976,11 @@ export function fromStringifiedJSONOrdinal(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.northwest,
                     setTainted: (value: Option<boolean>) => { tainted.northwest = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Ordinal.validateField("northwest", data.northwest);
+                        const fieldErrors = validateFieldOrdinal("northwest", data.northwest);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Ordinal, Array<{field: string; message: string}>>{return Ordinal.fromObject(data);}function reset(newOverrides?: Partial<Ordinal>): void {data = {...Ordinal.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), north: Option.none(), northeast: Option.none(), east: Option.none(), southeast: Option.none(), south: Option.none(), southwest: Option.none(), west: Option.none(), northwest: Option.none() }; tainted = { north: Option.none(), northeast: Option.none(), east: Option.none(), southeast: Option.none(), south: Option.none(), southwest: Option.none(), west: Option.none(), northwest: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataOrdinal(formData: FormData): Result<Ordinal, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<Ordinal, Array<{field: string; message: string}>>{return fromObjectOrdinal(data);}function reset(newOverrides?: Partial<Ordinal>): void {data = {...defaultValueOrdinal(),...newOverrides}; errors = { _errors: Option.none(), north: Option.none(), northeast: Option.none(), east: Option.none(), southeast: Option.none(), south: Option.none(), southwest: Option.none(), west: Option.none(), northwest: Option.none() }; tainted = { north: Option.none(), northeast: Option.none(), east: Option.none(), southeast: Option.none(), south: Option.none(), southwest: Option.none(), west: Option.none(), northwest: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataOrdinal(formData: FormData): Result<Ordinal, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const northStr = formData.get("north");
                 obj.north = northStr ? parseFloat(northStr as string) : 0;
                 if (obj.north !== undefined && isNaN(obj.north as number)) obj.north = 0;
@@ -10019,7 +10019,7 @@ export function fromStringifiedJSONOrdinal(json: string, opts?: DeserializeOptio
                 const northwestStr = formData.get("northwest");
                 obj.northwest = northwestStr ? parseFloat(northwestStr as string) : 0;
                 if (obj.northwest !== undefined && isNaN(obj.northwest as number)) obj.northwest = 0;
-            } return Ordinal.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONOrdinal(JSON.stringify(obj));}
 
 
 export interface Password {
@@ -10045,7 +10045,7 @@ export function fromStringifiedJSONPassword(json: string, opts?: DeserializeOpti
                 }
 }return errors; }export function hasShapePassword(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "password" in o;}export function isPassword(obj: unknown): obj is Password {if(!hasShapePassword(obj)){return false;}const result = fromObjectPassword(obj); return Result.isOk(result);}
 
-/** Nested error structure matching the data shape */export type ErrorsPassword = {_errors: Option<Array<string>>; password: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedPassword = {password: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersPassword {readonly password: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformPassword {readonly data: Password; readonly errors: ErrorsPassword; readonly tainted: TaintedPassword; readonly fields: FieldControllersPassword; validate(): Result<Password, Array<{field: string; message: string}>>; reset(overrides?: Partial<Password>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormPassword(overrides?: Partial<Password>): GigaformPassword {let data = $state({...Password.defaultValue(),...overrides}); let errors = $state<ErrorsPassword>({ _errors: Option.none(), password: Option.none() }); let tainted = $state<TaintedPassword>({ password: Option.none() }); const fields: FieldControllersPassword = {password: {
+/** Nested error structure matching the data shape */export type ErrorsPassword = {_errors: Option<Array<string>>; password: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedPassword = {password: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersPassword {readonly password: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformPassword {readonly data: Password; readonly errors: ErrorsPassword; readonly tainted: TaintedPassword; readonly fields: FieldControllersPassword; validate(): Result<Password, Array<{field: string; message: string}>>; reset(overrides?: Partial<Password>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormPassword(overrides?: Partial<Password>): GigaformPassword {let data = $state({...defaultValuePassword(),...overrides}); let errors = $state<ErrorsPassword>({ _errors: Option.none(), password: Option.none() }); let tainted = $state<TaintedPassword>({ password: Option.none() }); const fields: FieldControllersPassword = {password: {
                     path: ["password"] as const,
                     name: "password",
                     constraints: { required: true },
@@ -10058,11 +10058,11 @@ export function fromStringifiedJSONPassword(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.password,
                     setTainted: (value: Option<boolean>) => { tainted.password = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Password.validateField("password", data.password);
+                        const fieldErrors = validateFieldPassword("password", data.password);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Password, Array<{field: string; message: string}>>{return Password.fromObject(data);}function reset(newOverrides?: Partial<Password>): void {data = {...Password.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), password: Option.none() }; tainted = { password: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataPassword(formData: FormData): Result<Password, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.password = formData.get("password") ?? ""; return Password.fromStringifiedJSON(JSON.stringify(obj));}
+                }}; function validate(): Result<Password, Array<{field: string; message: string}>>{return fromObjectPassword(data);}function reset(newOverrides?: Partial<Password>): void {data = {...defaultValuePassword(),...newOverrides}; errors = { _errors: Option.none(), password: Option.none() }; tainted = { password: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataPassword(formData: FormData): Result<Password, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.password = formData.get("password") ?? ""; return fromStringifiedJSONPassword(JSON.stringify(obj));}
 
 
 export interface Created {
@@ -10075,7 +10075,7 @@ export function toStringifiedJSONCreated(value: Created): string {const ctx = Se
 
 export function fromStringifiedJSONCreated(json: string, opts?: DeserializeOptions): Result<Created, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectCreated(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectCreated(obj: unknown, opts?: DeserializeOptions): Result<Created, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeCreated(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Created.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeCreated(value: any, ctx: DeserializeContext): Created | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Created.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("initialData" in obj)){errors.push({field: "initialData" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_initialData = obj["initialData" ]as string | null; instance.initialData = __raw_initialData; }if(errors.length>0){throw new DeserializeError(errors);}return instance as Created;}export function validateFieldCreated<K extends keyof Created>(field: K, value: Created[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsCreated(partial: Partial<Created>): Array<{field: string; message: string}>{return[]; }export function hasShapeCreated(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "initialData" in o;}export function isCreated(obj: unknown): obj is Created {if(!hasShapeCreated(obj)){return false;}const result = fromObjectCreated(obj); return Result.isOk(result);}
 
-/** Nested error structure matching the data shape */export type ErrorsCreated = {_errors: Option<Array<string>>; initialData: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedCreated = {initialData: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersCreated {readonly initialData: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCreated {readonly data: Created; readonly errors: ErrorsCreated; readonly tainted: TaintedCreated; readonly fields: FieldControllersCreated; validate(): Result<Created, Array<{field: string; message: string}>>; reset(overrides?: Partial<Created>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCreated(overrides?: Partial<Created>): GigaformCreated {let data = $state({...Created.defaultValue(),...overrides}); let errors = $state<ErrorsCreated>({ _errors: Option.none(), initialData: Option.none() }); let tainted = $state<TaintedCreated>({ initialData: Option.none() }); const fields: FieldControllersCreated = {initialData: {
+/** Nested error structure matching the data shape */export type ErrorsCreated = {_errors: Option<Array<string>>; initialData: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedCreated = {initialData: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersCreated {readonly initialData: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCreated {readonly data: Created; readonly errors: ErrorsCreated; readonly tainted: TaintedCreated; readonly fields: FieldControllersCreated; validate(): Result<Created, Array<{field: string; message: string}>>; reset(overrides?: Partial<Created>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCreated(overrides?: Partial<Created>): GigaformCreated {let data = $state({...defaultValueCreated(),...overrides}); let errors = $state<ErrorsCreated>({ _errors: Option.none(), initialData: Option.none() }); let tainted = $state<TaintedCreated>({ initialData: Option.none() }); const fields: FieldControllersCreated = {initialData: {
                     path: ["initialData"] as const,
                     name: "initialData",
                     constraints: { required: true },
@@ -10088,11 +10088,11 @@ export function fromStringifiedJSONCreated(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.initialData,
                     setTainted: (value: Option<boolean>) => { tainted.initialData = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Created.validateField("initialData", data.initialData);
+                        const fieldErrors = validateFieldCreated("initialData", data.initialData);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Created, Array<{field: string; message: string}>>{return Created.fromObject(data);}function reset(newOverrides?: Partial<Created>): void {data = {...Created.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), initialData: Option.none() }; tainted = { initialData: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCreated(formData: FormData): Result<Created, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.initialData = formData.get("initialData") ?? ""; return Created.fromStringifiedJSON(JSON.stringify(obj));}
+                }}; function validate(): Result<Created, Array<{field: string; message: string}>>{return fromObjectCreated(data);}function reset(newOverrides?: Partial<Created>): void {data = {...defaultValueCreated(),...newOverrides}; errors = { _errors: Option.none(), initialData: Option.none() }; tainted = { initialData: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCreated(formData: FormData): Result<Created, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.initialData = formData.get("initialData") ?? ""; return fromStringifiedJSONCreated(JSON.stringify(obj));}
 
 
 export interface Employee {
@@ -10128,7 +10128,7 @@ export function defaultValueEmployee(): Employee {return {id: "",
                             phones: [],
                             role: "",
                             title: "Technician",
-                            email: Email.defaultValue(),
+                            email: defaultValueEmail(),
                             address: "",
                             username: "",
                             route: "",
@@ -10139,9 +10139,9 @@ export function defaultValueEmployee(): Employee {return {id: "",
                             description: null,
                             linkedinUrl: null,
                             attendance: [],
-                            settings: Settings.defaultValue(), }as Employee;}
+                            settings: defaultValueSettings(), }as Employee;}
 
-export function toStringifiedJSONEmployee(value: Employee): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeEmployee(value, ctx));}export function toObjectEmployee(value: Employee): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeEmployee(value, ctx);}export function __serializeEmployee(value: Employee, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Employee" , __id,}; result["id" ]= value.id; result["imageUrl" ]= value.imageUrl; result["name" ]= value.name; result["phones" ]= value.phones.map((item: any)=>typeof item?.__serialize === "function" ? item.__serialize(ctx): item); result["role" ]= value.role; result["title" ]= typeof(value.title as any)?.__serialize === "function" ? (value.title as any).__serialize(ctx): value.title; result["email" ]= typeof(value.email as any)?.__serialize === "function" ? (value.email as any).__serialize(ctx): value.email; result["address" ]= value.address; result["username" ]= value.username; result["route" ]= value.route; result["ratePerHour" ]= value.ratePerHour; result["active" ]= value.active; result["isTechnician" ]= value.isTechnician; result["isSalesRep" ]= value.isSalesRep; result["description" ]= value.description; result["linkedinUrl" ]= value.linkedinUrl; result["attendance" ]= value.attendance; result["settings" ]= typeof(value.settings as any)?.__serialize === "function" ? (value.settings as any).__serialize(ctx): value.settings; return result;}
+export function toStringifiedJSONEmployee(value: Employee): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeEmployee(value, ctx));}export function toObjectEmployee(value: Employee): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeEmployee(value, ctx);}export function __serializeEmployee(value: Employee, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Employee" , __id,}; result["id" ]= value.id; result["imageUrl" ]= value.imageUrl; result["name" ]= value.name; result["phones" ]= value.phones.map((item)=>__serializePhoneNumber(item, ctx)); result["role" ]= value.role; result["title" ]= __serializeJobTitle(value.title, ctx); result["email" ]= __serializeEmail(value.email, ctx); result["address" ]= value.address; result["username" ]= value.username; result["route" ]= value.route; result["ratePerHour" ]= value.ratePerHour; result["active" ]= value.active; result["isTechnician" ]= value.isTechnician; result["isSalesRep" ]= value.isSalesRep; result["description" ]= value.description; result["linkedinUrl" ]= value.linkedinUrl; result["attendance" ]= value.attendance; result["settings" ]= __serializeSettings(value.settings, ctx); return result;}
 
 export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOptions): Result<Employee, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectEmployee(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectEmployee(obj: unknown, opts?: DeserializeOptions): Result<Employee, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeEmployee(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Employee.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeEmployee(value: any, ctx: DeserializeContext): Employee | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Employee.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("imageUrl" in obj)){errors.push({field: "imageUrl" , message: "missing required field" });}if(!("name" in obj)){errors.push({field: "name" , message: "missing required field" });}if(!("phones" in obj)){errors.push({field: "phones" , message: "missing required field" });}if(!("role" in obj)){errors.push({field: "role" , message: "missing required field" });}if(!("title" in obj)){errors.push({field: "title" , message: "missing required field" });}if(!("email" in obj)){errors.push({field: "email" , message: "missing required field" });}if(!("address" in obj)){errors.push({field: "address" , message: "missing required field" });}if(!("username" in obj)){errors.push({field: "username" , message: "missing required field" });}if(!("route" in obj)){errors.push({field: "route" , message: "missing required field" });}if(!("ratePerHour" in obj)){errors.push({field: "ratePerHour" , message: "missing required field" });}if(!("active" in obj)){errors.push({field: "active" , message: "missing required field" });}if(!("isTechnician" in obj)){errors.push({field: "isTechnician" , message: "missing required field" });}if(!("isSalesRep" in obj)){errors.push({field: "isSalesRep" , message: "missing required field" });}if(!("description" in obj)){errors.push({field: "description" , message: "missing required field" });}if(!("linkedinUrl" in obj)){errors.push({field: "linkedinUrl" , message: "missing required field" });}if(!("attendance" in obj)){errors.push({field: "attendance" , message: "missing required field" });}if(!("settings" in obj)){errors.push({field: "settings" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_imageUrl = obj["imageUrl" ]as string | null; instance.imageUrl = __raw_imageUrl; }{const __raw_name = obj["name" ]as string; 
                 if (__raw_name.length === 0) {
@@ -10151,7 +10151,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                 if (__raw_role.length === 0) {
                     errors.push({ field: "role", message: "must not be empty" });
                 }
- instance.role = __raw_role; }{const __raw_title = obj["title" ]as JobTitle; {const __result = JobTitle.__deserialize(__raw_title, ctx); ctx.assignOrDefer(instance, "title" , __result);}}{const __raw_email = obj["email" ]as Email; {const __result = Email.__deserialize(__raw_email, ctx); ctx.assignOrDefer(instance, "email" , __result);}}{const __raw_address = obj["address" ]as string; 
+ instance.role = __raw_role; }{const __raw_title = obj["title" ]as JobTitle; {const __result = __deserializeJobTitle(__raw_title, ctx); ctx.assignOrDefer(instance, "title" , __result);}}{const __raw_email = obj["email" ]as Email; {const __result = __deserializeEmail(__raw_email, ctx); ctx.assignOrDefer(instance, "email" , __result);}}{const __raw_address = obj["address" ]as string; 
                 if (__raw_address.length === 0) {
                     errors.push({ field: "address", message: "must not be empty" });
                 }
@@ -10159,7 +10159,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                 if (__raw_username.length === 0) {
                     errors.push({ field: "username", message: "must not be empty" });
                 }
- instance.username = __raw_username; }{const __raw_route = obj["route" ]as string | Route; instance.route = __raw_route; }{const __raw_ratePerHour = obj["ratePerHour" ]as number; instance.ratePerHour = __raw_ratePerHour; }{const __raw_active = obj["active" ]as boolean; instance.active = __raw_active; }{const __raw_isTechnician = obj["isTechnician" ]as boolean; instance.isTechnician = __raw_isTechnician; }{const __raw_isSalesRep = obj["isSalesRep" ]as boolean; instance.isSalesRep = __raw_isSalesRep; }{const __raw_description = obj["description" ]as string | null; instance.description = __raw_description; }{const __raw_linkedinUrl = obj["linkedinUrl" ]as string | null; instance.linkedinUrl = __raw_linkedinUrl; }{const __raw_attendance = obj["attendance" ]as string[]; if(Array.isArray(__raw_attendance)){instance.attendance = __raw_attendance as string[];}}{const __raw_settings = obj["settings" ]as Settings; {const __result = Settings.__deserialize(__raw_settings, ctx); ctx.assignOrDefer(instance, "settings" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as Employee;}export function validateFieldEmployee<K extends keyof Employee>(field: K, value: Employee[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "name" : {const __val = value as string; 
+ instance.username = __raw_username; }{const __raw_route = obj["route" ]as string | Route; instance.route = __raw_route; }{const __raw_ratePerHour = obj["ratePerHour" ]as number; instance.ratePerHour = __raw_ratePerHour; }{const __raw_active = obj["active" ]as boolean; instance.active = __raw_active; }{const __raw_isTechnician = obj["isTechnician" ]as boolean; instance.isTechnician = __raw_isTechnician; }{const __raw_isSalesRep = obj["isSalesRep" ]as boolean; instance.isSalesRep = __raw_isSalesRep; }{const __raw_description = obj["description" ]as string | null; instance.description = __raw_description; }{const __raw_linkedinUrl = obj["linkedinUrl" ]as string | null; instance.linkedinUrl = __raw_linkedinUrl; }{const __raw_attendance = obj["attendance" ]as string[]; if(Array.isArray(__raw_attendance)){instance.attendance = __raw_attendance as string[];}}{const __raw_settings = obj["settings" ]as Settings; {const __result = __deserializeSettings(__raw_settings, ctx); ctx.assignOrDefer(instance, "settings" , __result);}}if(errors.length>0){throw new DeserializeError(errors);}return instance as Employee;}export function validateFieldEmployee<K extends keyof Employee>(field: K, value: Employee[K]): Array<{field: string; message: string}>{const errors: Array<{field: string; message: string}>= []; switch(field){case "name" : {const __val = value as string; 
                 if (__val.length === 0) {
                     errors.push({ field: "name", message: "must not be empty" });
                 }
@@ -10244,7 +10244,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
             readonly description: FieldController<string | null>;
             readonly linkedinUrl: FieldController<string | null>;
             readonly attendance: ArrayFieldController<string>;
-            readonly settings: FieldController<Settings>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformEmployee {readonly data: Employee; readonly errors: ErrorsEmployee; readonly tainted: TaintedEmployee; readonly fields: FieldControllersEmployee; validate(): Result<Employee, Array<{field: string; message: string}>>; reset(overrides?: Partial<Employee>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmployee {let data = $state({...Employee.defaultValue(),...overrides}); let errors = $state<ErrorsEmployee>({ _errors: Option.none(), id: Option.none(), imageUrl: Option.none(), name: Option.none(), phones: Option.none(), role: Option.none(), title: Option.none(), email: Option.none(), address: Option.none(), username: Option.none(), route: Option.none(), ratePerHour: Option.none(), active: Option.none(), isTechnician: Option.none(), isSalesRep: Option.none(), description: Option.none(), linkedinUrl: Option.none(), attendance: Option.none(), settings: Option.none() }); let tainted = $state<TaintedEmployee>({ id: Option.none(), imageUrl: Option.none(), name: Option.none(), phones: Option.none(), role: Option.none(), title: Option.none(), email: Option.none(), address: Option.none(), username: Option.none(), route: Option.none(), ratePerHour: Option.none(), active: Option.none(), isTechnician: Option.none(), isSalesRep: Option.none(), description: Option.none(), linkedinUrl: Option.none(), attendance: Option.none(), settings: Option.none() }); const fields: FieldControllersEmployee = {id: {
+            readonly settings: FieldController<Settings>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformEmployee {readonly data: Employee; readonly errors: ErrorsEmployee; readonly tainted: TaintedEmployee; readonly fields: FieldControllersEmployee; validate(): Result<Employee, Array<{field: string; message: string}>>; reset(overrides?: Partial<Employee>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormEmployee(overrides?: Partial<Employee>): GigaformEmployee {let data = $state({...defaultValueEmployee(),...overrides}); let errors = $state<ErrorsEmployee>({ _errors: Option.none(), id: Option.none(), imageUrl: Option.none(), name: Option.none(), phones: Option.none(), role: Option.none(), title: Option.none(), email: Option.none(), address: Option.none(), username: Option.none(), route: Option.none(), ratePerHour: Option.none(), active: Option.none(), isTechnician: Option.none(), isSalesRep: Option.none(), description: Option.none(), linkedinUrl: Option.none(), attendance: Option.none(), settings: Option.none() }); let tainted = $state<TaintedEmployee>({ id: Option.none(), imageUrl: Option.none(), name: Option.none(), phones: Option.none(), role: Option.none(), title: Option.none(), email: Option.none(), address: Option.none(), username: Option.none(), route: Option.none(), ratePerHour: Option.none(), active: Option.none(), isTechnician: Option.none(), isSalesRep: Option.none(), description: Option.none(), linkedinUrl: Option.none(), attendance: Option.none(), settings: Option.none() }); const fields: FieldControllersEmployee = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -10257,7 +10257,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("id", data.id);
+                        const fieldErrors = validateFieldEmployee("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10275,7 +10275,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.imageUrl,
                     setTainted: (value: Option<boolean>) => { tainted.imageUrl = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("imageUrl", data.imageUrl);
+                        const fieldErrors = validateFieldEmployee("imageUrl", data.imageUrl);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10293,7 +10293,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.name,
                     setTainted: (value: Option<boolean>) => { tainted.name = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("name", data.name);
+                        const fieldErrors = validateFieldEmployee("name", data.name);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10311,7 +10311,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.phones,
                     setTainted: (value: Option<boolean>) => { tainted.phones = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("phones", data.phones);
+                        const fieldErrors = validateFieldEmployee("phones", data.phones);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -10348,7 +10348,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.role,
                     setTainted: (value: Option<boolean>) => { tainted.role = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("role", data.role);
+                        const fieldErrors = validateFieldEmployee("role", data.role);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10366,7 +10366,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.title,
                     setTainted: (value: Option<boolean>) => { tainted.title = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("title", data.title);
+                        const fieldErrors = validateFieldEmployee("title", data.title);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10384,7 +10384,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.email,
                     setTainted: (value: Option<boolean>) => { tainted.email = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("email", data.email);
+                        const fieldErrors = validateFieldEmployee("email", data.email);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10402,7 +10402,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.address,
                     setTainted: (value: Option<boolean>) => { tainted.address = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("address", data.address);
+                        const fieldErrors = validateFieldEmployee("address", data.address);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10420,7 +10420,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.username,
                     setTainted: (value: Option<boolean>) => { tainted.username = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("username", data.username);
+                        const fieldErrors = validateFieldEmployee("username", data.username);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10438,7 +10438,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.route,
                     setTainted: (value: Option<boolean>) => { tainted.route = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("route", data.route);
+                        const fieldErrors = validateFieldEmployee("route", data.route);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10456,7 +10456,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.ratePerHour,
                     setTainted: (value: Option<boolean>) => { tainted.ratePerHour = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("ratePerHour", data.ratePerHour);
+                        const fieldErrors = validateFieldEmployee("ratePerHour", data.ratePerHour);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10474,7 +10474,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.active,
                     setTainted: (value: Option<boolean>) => { tainted.active = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("active", data.active);
+                        const fieldErrors = validateFieldEmployee("active", data.active);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10492,7 +10492,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.isTechnician,
                     setTainted: (value: Option<boolean>) => { tainted.isTechnician = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("isTechnician", data.isTechnician);
+                        const fieldErrors = validateFieldEmployee("isTechnician", data.isTechnician);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10510,7 +10510,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.isSalesRep,
                     setTainted: (value: Option<boolean>) => { tainted.isSalesRep = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("isSalesRep", data.isSalesRep);
+                        const fieldErrors = validateFieldEmployee("isSalesRep", data.isSalesRep);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10528,7 +10528,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.description,
                     setTainted: (value: Option<boolean>) => { tainted.description = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("description", data.description);
+                        const fieldErrors = validateFieldEmployee("description", data.description);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10546,7 +10546,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.linkedinUrl,
                     setTainted: (value: Option<boolean>) => { tainted.linkedinUrl = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("linkedinUrl", data.linkedinUrl);
+                        const fieldErrors = validateFieldEmployee("linkedinUrl", data.linkedinUrl);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10564,7 +10564,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.attendance,
                     setTainted: (value: Option<boolean>) => { tainted.attendance = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("attendance", data.attendance);
+                        const fieldErrors = validateFieldEmployee("attendance", data.attendance);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -10601,11 +10601,11 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.settings,
                     setTainted: (value: Option<boolean>) => { tainted.settings = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Employee.validateField("settings", data.settings);
+                        const fieldErrors = validateFieldEmployee("settings", data.settings);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Employee, Array<{field: string; message: string}>>{return Employee.fromObject(data);}function reset(newOverrides?: Partial<Employee>): void {data = {...Employee.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), imageUrl: Option.none(), name: Option.none(), phones: Option.none(), role: Option.none(), title: Option.none(), email: Option.none(), address: Option.none(), username: Option.none(), route: Option.none(), ratePerHour: Option.none(), active: Option.none(), isTechnician: Option.none(), isSalesRep: Option.none(), description: Option.none(), linkedinUrl: Option.none(), attendance: Option.none(), settings: Option.none() }; tainted = { id: Option.none(), imageUrl: Option.none(), name: Option.none(), phones: Option.none(), role: Option.none(), title: Option.none(), email: Option.none(), address: Option.none(), username: Option.none(), route: Option.none(), ratePerHour: Option.none(), active: Option.none(), isTechnician: Option.none(), isSalesRep: Option.none(), description: Option.none(), linkedinUrl: Option.none(), attendance: Option.none(), settings: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataEmployee(formData: FormData): Result<Employee, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+                }}; function validate(): Result<Employee, Array<{field: string; message: string}>>{return fromObjectEmployee(data);}function reset(newOverrides?: Partial<Employee>): void {data = {...defaultValueEmployee(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), imageUrl: Option.none(), name: Option.none(), phones: Option.none(), role: Option.none(), title: Option.none(), email: Option.none(), address: Option.none(), username: Option.none(), route: Option.none(), ratePerHour: Option.none(), active: Option.none(), isTechnician: Option.none(), isSalesRep: Option.none(), description: Option.none(), linkedinUrl: Option.none(), attendance: Option.none(), settings: Option.none() }; tainted = { id: Option.none(), imageUrl: Option.none(), name: Option.none(), phones: Option.none(), role: Option.none(), title: Option.none(), email: Option.none(), address: Option.none(), username: Option.none(), route: Option.none(), ratePerHour: Option.none(), active: Option.none(), isTechnician: Option.none(), isSalesRep: Option.none(), description: Option.none(), linkedinUrl: Option.none(), attendance: Option.none(), settings: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataEmployee(formData: FormData): Result<Employee, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
             obj.imageUrl = formData.get("imageUrl") ?? "";
             obj.name = formData.get("name") ?? "";
             {
@@ -10717,7 +10717,7 @@ export function fromStringifiedJSONEmployee(json: string, opts?: DeserializeOpti
                 }
             }
             obj.settings = settingsObj;
-        } return Employee.fromStringifiedJSON(JSON.stringify(obj));}
+        } return fromStringifiedJSONEmployee(JSON.stringify(obj));}
 
 
 export interface Commissions {
@@ -10761,7 +10761,7 @@ export function fromStringifiedJSONCommissions(json: string, opts?: DeserializeO
 /** Nested error structure matching the data shape */export type ErrorsCommissions = {_errors: Option<Array<string>>; technician: Option<Array<string>>;
             salesRep: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedCommissions = {technician: Option<boolean>;
             salesRep: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersCommissions {readonly technician: FieldController<string>;
-            readonly salesRep: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCommissions {readonly data: Commissions; readonly errors: ErrorsCommissions; readonly tainted: TaintedCommissions; readonly fields: FieldControllersCommissions; validate(): Result<Commissions, Array<{field: string; message: string}>>; reset(overrides?: Partial<Commissions>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCommissions(overrides?: Partial<Commissions>): GigaformCommissions {let data = $state({...Commissions.defaultValue(),...overrides}); let errors = $state<ErrorsCommissions>({ _errors: Option.none(), technician: Option.none(), salesRep: Option.none() }); let tainted = $state<TaintedCommissions>({ technician: Option.none(), salesRep: Option.none() }); const fields: FieldControllersCommissions = {technician: {
+            readonly salesRep: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCommissions {readonly data: Commissions; readonly errors: ErrorsCommissions; readonly tainted: TaintedCommissions; readonly fields: FieldControllersCommissions; validate(): Result<Commissions, Array<{field: string; message: string}>>; reset(overrides?: Partial<Commissions>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCommissions(overrides?: Partial<Commissions>): GigaformCommissions {let data = $state({...defaultValueCommissions(),...overrides}); let errors = $state<ErrorsCommissions>({ _errors: Option.none(), technician: Option.none(), salesRep: Option.none() }); let tainted = $state<TaintedCommissions>({ technician: Option.none(), salesRep: Option.none() }); const fields: FieldControllersCommissions = {technician: {
                     path: ["technician"] as const,
                     name: "technician",
                     constraints: { required: true },
@@ -10774,7 +10774,7 @@ export function fromStringifiedJSONCommissions(json: string, opts?: DeserializeO
                     getTainted: () => tainted.technician,
                     setTainted: (value: Option<boolean>) => { tainted.technician = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Commissions.validateField("technician", data.technician);
+                        const fieldErrors = validateFieldCommissions("technician", data.technician);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10792,12 +10792,12 @@ export function fromStringifiedJSONCommissions(json: string, opts?: DeserializeO
                     getTainted: () => tainted.salesRep,
                     setTainted: (value: Option<boolean>) => { tainted.salesRep = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Commissions.validateField("salesRep", data.salesRep);
+                        const fieldErrors = validateFieldCommissions("salesRep", data.salesRep);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Commissions, Array<{field: string; message: string}>>{return Commissions.fromObject(data);}function reset(newOverrides?: Partial<Commissions>): void {data = {...Commissions.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), technician: Option.none(), salesRep: Option.none() }; tainted = { technician: Option.none(), salesRep: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCommissions(formData: FormData): Result<Commissions, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.technician = formData.get("technician") ?? "";
-            obj.salesRep = formData.get("salesRep") ?? ""; return Commissions.fromStringifiedJSON(JSON.stringify(obj));}
+                }}; function validate(): Result<Commissions, Array<{field: string; message: string}>>{return fromObjectCommissions(data);}function reset(newOverrides?: Partial<Commissions>): void {data = {...defaultValueCommissions(),...newOverrides}; errors = { _errors: Option.none(), technician: Option.none(), salesRep: Option.none() }; tainted = { technician: Option.none(), salesRep: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCommissions(formData: FormData): Result<Commissions, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.technician = formData.get("technician") ?? "";
+            obj.salesRep = formData.get("salesRep") ?? ""; return fromStringifiedJSONCommissions(JSON.stringify(obj));}
 
 
 export interface Number {
@@ -10859,7 +10859,7 @@ export function fromStringifiedJSONNumber(json: string, opts?: DeserializeOption
             areaCode: Option<boolean>;
             localNumber: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersNumber {readonly countryCode: FieldController<string>;
             readonly areaCode: FieldController<string>;
-            readonly localNumber: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformNumber {readonly data: Number; readonly errors: ErrorsNumber; readonly tainted: TaintedNumber; readonly fields: FieldControllersNumber; validate(): Result<Number, Array<{field: string; message: string}>>; reset(overrides?: Partial<Number>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormNumber(overrides?: Partial<Number>): GigaformNumber {let data = $state({...Number.defaultValue(),...overrides}); let errors = $state<ErrorsNumber>({ _errors: Option.none(), countryCode: Option.none(), areaCode: Option.none(), localNumber: Option.none() }); let tainted = $state<TaintedNumber>({ countryCode: Option.none(), areaCode: Option.none(), localNumber: Option.none() }); const fields: FieldControllersNumber = {countryCode: {
+            readonly localNumber: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformNumber {readonly data: Number; readonly errors: ErrorsNumber; readonly tainted: TaintedNumber; readonly fields: FieldControllersNumber; validate(): Result<Number, Array<{field: string; message: string}>>; reset(overrides?: Partial<Number>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormNumber(overrides?: Partial<Number>): GigaformNumber {let data = $state({...defaultValueNumber(),...overrides}); let errors = $state<ErrorsNumber>({ _errors: Option.none(), countryCode: Option.none(), areaCode: Option.none(), localNumber: Option.none() }); let tainted = $state<TaintedNumber>({ countryCode: Option.none(), areaCode: Option.none(), localNumber: Option.none() }); const fields: FieldControllersNumber = {countryCode: {
                     path: ["countryCode"] as const,
                     name: "countryCode",
                     constraints: { required: true },
@@ -10872,7 +10872,7 @@ export function fromStringifiedJSONNumber(json: string, opts?: DeserializeOption
                     getTainted: () => tainted.countryCode,
                     setTainted: (value: Option<boolean>) => { tainted.countryCode = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Number.validateField("countryCode", data.countryCode);
+                        const fieldErrors = validateFieldNumber("countryCode", data.countryCode);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10890,7 +10890,7 @@ export function fromStringifiedJSONNumber(json: string, opts?: DeserializeOption
                     getTainted: () => tainted.areaCode,
                     setTainted: (value: Option<boolean>) => { tainted.areaCode = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Number.validateField("areaCode", data.areaCode);
+                        const fieldErrors = validateFieldNumber("areaCode", data.areaCode);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -10908,13 +10908,13 @@ export function fromStringifiedJSONNumber(json: string, opts?: DeserializeOption
                     getTainted: () => tainted.localNumber,
                     setTainted: (value: Option<boolean>) => { tainted.localNumber = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Number.validateField("localNumber", data.localNumber);
+                        const fieldErrors = validateFieldNumber("localNumber", data.localNumber);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Number, Array<{field: string; message: string}>>{return Number.fromObject(data);}function reset(newOverrides?: Partial<Number>): void {data = {...Number.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), countryCode: Option.none(), areaCode: Option.none(), localNumber: Option.none() }; tainted = { countryCode: Option.none(), areaCode: Option.none(), localNumber: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataNumber(formData: FormData): Result<Number, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.countryCode = formData.get("countryCode") ?? "";
+                }}; function validate(): Result<Number, Array<{field: string; message: string}>>{return fromObjectNumber(data);}function reset(newOverrides?: Partial<Number>): void {data = {...defaultValueNumber(),...newOverrides}; errors = { _errors: Option.none(), countryCode: Option.none(), areaCode: Option.none(), localNumber: Option.none() }; tainted = { countryCode: Option.none(), areaCode: Option.none(), localNumber: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataNumber(formData: FormData): Result<Number, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.countryCode = formData.get("countryCode") ?? "";
             obj.areaCode = formData.get("areaCode") ?? "";
-            obj.localNumber = formData.get("localNumber") ?? ""; return Number.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.localNumber = formData.get("localNumber") ?? ""; return fromStringifiedJSONNumber(JSON.stringify(obj));}
 
 
 export interface DataPath {
@@ -10932,7 +10932,7 @@ export function fromStringifiedJSONDataPath(json: string, opts?: DeserializeOpti
 /** Nested error structure matching the data shape */export type ErrorsDataPath = {_errors: Option<Array<string>>; path: Option<Array<string>>;
             formatter: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedDataPath = {path: Option<boolean>;
             formatter: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersDataPath {readonly path: ArrayFieldController<string>;
-            readonly formatter: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformDataPath {readonly data: DataPath; readonly errors: ErrorsDataPath; readonly tainted: TaintedDataPath; readonly fields: FieldControllersDataPath; validate(): Result<DataPath, Array<{field: string; message: string}>>; reset(overrides?: Partial<DataPath>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormDataPath(overrides?: Partial<DataPath>): GigaformDataPath {let data = $state({...DataPath.defaultValue(),...overrides}); let errors = $state<ErrorsDataPath>({ _errors: Option.none(), path: Option.none(), formatter: Option.none() }); let tainted = $state<TaintedDataPath>({ path: Option.none(), formatter: Option.none() }); const fields: FieldControllersDataPath = {path: {
+            readonly formatter: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformDataPath {readonly data: DataPath; readonly errors: ErrorsDataPath; readonly tainted: TaintedDataPath; readonly fields: FieldControllersDataPath; validate(): Result<DataPath, Array<{field: string; message: string}>>; reset(overrides?: Partial<DataPath>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormDataPath(overrides?: Partial<DataPath>): GigaformDataPath {let data = $state({...defaultValueDataPath(),...overrides}); let errors = $state<ErrorsDataPath>({ _errors: Option.none(), path: Option.none(), formatter: Option.none() }); let tainted = $state<TaintedDataPath>({ path: Option.none(), formatter: Option.none() }); const fields: FieldControllersDataPath = {path: {
                     path: ["path"] as const,
                     name: "path",
                     constraints: { required: true },
@@ -10945,7 +10945,7 @@ export function fromStringifiedJSONDataPath(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.path,
                     setTainted: (value: Option<boolean>) => { tainted.path = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = DataPath.validateField("path", data.path);
+                        const fieldErrors = validateFieldDataPath("path", data.path);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -10982,12 +10982,12 @@ export function fromStringifiedJSONDataPath(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.formatter,
                     setTainted: (value: Option<boolean>) => { tainted.formatter = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = DataPath.validateField("formatter", data.formatter);
+                        const fieldErrors = validateFieldDataPath("formatter", data.formatter);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<DataPath, Array<{field: string; message: string}>>{return DataPath.fromObject(data);}function reset(newOverrides?: Partial<DataPath>): void {data = {...DataPath.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), path: Option.none(), formatter: Option.none() }; tainted = { path: Option.none(), formatter: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataDataPath(formData: FormData): Result<DataPath, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.path = formData.getAll("path") as Array<string>;
-            obj.formatter = formData.get("formatter") ?? ""; return DataPath.fromStringifiedJSON(JSON.stringify(obj));}
+                }}; function validate(): Result<DataPath, Array<{field: string; message: string}>>{return fromObjectDataPath(data);}function reset(newOverrides?: Partial<DataPath>): void {data = {...defaultValueDataPath(),...newOverrides}; errors = { _errors: Option.none(), path: Option.none(), formatter: Option.none() }; tainted = { path: Option.none(), formatter: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataDataPath(formData: FormData): Result<DataPath, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.path = formData.getAll("path") as Array<string>;
+            obj.formatter = formData.get("formatter") ?? ""; return fromStringifiedJSONDataPath(JSON.stringify(obj));}
 
 
 export interface Route {
@@ -11019,7 +11019,7 @@ export function defaultValueRoute(): Route {return {id: "",
                             icon: null,
                             color: null, }as Route;}
 
-export function toStringifiedJSONRoute(value: Route): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeRoute(value, ctx));}export function toObjectRoute(value: Route): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeRoute(value, ctx);}export function __serializeRoute(value: Route, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Route" , __id,}; result["id" ]= value.id; if(value.techs!== null){result["techs" ]= typeof(value.techs as any)?.__serialize === "function" ? (value.techs as any).__serialize(ctx): value.techs;}else {result["techs" ]= null;}result["active" ]= value.active; result["name" ]= value.name; result["phone" ]= value.phone; result["position" ]= value.position; result["serviceRoute" ]= value.serviceRoute; result["defaultDurationHours" ]= value.defaultDurationHours; result["tags" ]= value.tags; result["icon" ]= value.icon; result["color" ]= value.color; return result;}
+export function toStringifiedJSONRoute(value: Route): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeRoute(value, ctx));}export function toObjectRoute(value: Route): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeRoute(value, ctx);}export function __serializeRoute(value: Route, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "Route" , __id,}; result["id" ]= value.id; if(value.techs!== null){result["techs" ]= value.techs; }else {result["techs" ]= null;}result["active" ]= value.active; result["name" ]= value.name; result["phone" ]= value.phone; result["position" ]= value.position; result["serviceRoute" ]= value.serviceRoute; result["defaultDurationHours" ]= value.defaultDurationHours; result["tags" ]= value.tags; result["icon" ]= value.icon; result["color" ]= value.color; return result;}
 
 export function fromStringifiedJSONRoute(json: string, opts?: DeserializeOptions): Result<Route, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectRoute(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectRoute(obj: unknown, opts?: DeserializeOptions): Result<Route, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeRoute(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Route.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeRoute(value: any, ctx: DeserializeContext): Route | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "Route.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("id" in obj)){errors.push({field: "id" , message: "missing required field" });}if(!("techs" in obj)){errors.push({field: "techs" , message: "missing required field" });}if(!("active" in obj)){errors.push({field: "active" , message: "missing required field" });}if(!("name" in obj)){errors.push({field: "name" , message: "missing required field" });}if(!("phone" in obj)){errors.push({field: "phone" , message: "missing required field" });}if(!("position" in obj)){errors.push({field: "position" , message: "missing required field" });}if(!("serviceRoute" in obj)){errors.push({field: "serviceRoute" , message: "missing required field" });}if(!("defaultDurationHours" in obj)){errors.push({field: "defaultDurationHours" , message: "missing required field" });}if(!("tags" in obj)){errors.push({field: "tags" , message: "missing required field" });}if(!("icon" in obj)){errors.push({field: "icon" , message: "missing required field" });}if(!("color" in obj)){errors.push({field: "color" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_id = obj["id" ]as string; instance.id = __raw_id; }{const __raw_techs = obj["techs" ]as (string | Employee)[] | null; if(__raw_techs === null){instance.techs = null;}else {instance.techs = __raw_techs; }}{const __raw_active = obj["active" ]as boolean; instance.active = __raw_active; }{const __raw_name = obj["name" ]as string; 
                 if (__raw_name.length === 0) {
@@ -11089,7 +11089,7 @@ export function fromStringifiedJSONRoute(json: string, opts?: DeserializeOptions
             readonly defaultDurationHours: FieldController<number>;
             readonly tags: ArrayFieldController<string>;
             readonly icon: FieldController<string | null>;
-            readonly color: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformRoute {readonly data: Route; readonly errors: ErrorsRoute; readonly tainted: TaintedRoute; readonly fields: FieldControllersRoute; validate(): Result<Route, Array<{field: string; message: string}>>; reset(overrides?: Partial<Route>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormRoute(overrides?: Partial<Route>): GigaformRoute {let data = $state({...Route.defaultValue(),...overrides}); let errors = $state<ErrorsRoute>({ _errors: Option.none(), id: Option.none(), techs: Option.none(), active: Option.none(), name: Option.none(), phone: Option.none(), position: Option.none(), serviceRoute: Option.none(), defaultDurationHours: Option.none(), tags: Option.none(), icon: Option.none(), color: Option.none() }); let tainted = $state<TaintedRoute>({ id: Option.none(), techs: Option.none(), active: Option.none(), name: Option.none(), phone: Option.none(), position: Option.none(), serviceRoute: Option.none(), defaultDurationHours: Option.none(), tags: Option.none(), icon: Option.none(), color: Option.none() }); const fields: FieldControllersRoute = {id: {
+            readonly color: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformRoute {readonly data: Route; readonly errors: ErrorsRoute; readonly tainted: TaintedRoute; readonly fields: FieldControllersRoute; validate(): Result<Route, Array<{field: string; message: string}>>; reset(overrides?: Partial<Route>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormRoute(overrides?: Partial<Route>): GigaformRoute {let data = $state({...defaultValueRoute(),...overrides}); let errors = $state<ErrorsRoute>({ _errors: Option.none(), id: Option.none(), techs: Option.none(), active: Option.none(), name: Option.none(), phone: Option.none(), position: Option.none(), serviceRoute: Option.none(), defaultDurationHours: Option.none(), tags: Option.none(), icon: Option.none(), color: Option.none() }); let tainted = $state<TaintedRoute>({ id: Option.none(), techs: Option.none(), active: Option.none(), name: Option.none(), phone: Option.none(), position: Option.none(), serviceRoute: Option.none(), defaultDurationHours: Option.none(), tags: Option.none(), icon: Option.none(), color: Option.none() }); const fields: FieldControllersRoute = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -11102,7 +11102,7 @@ export function fromStringifiedJSONRoute(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Route.validateField("id", data.id);
+                        const fieldErrors = validateFieldRoute("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11120,7 +11120,7 @@ export function fromStringifiedJSONRoute(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.techs,
                     setTainted: (value: Option<boolean>) => { tainted.techs = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Route.validateField("techs", data.techs);
+                        const fieldErrors = validateFieldRoute("techs", data.techs);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11138,7 +11138,7 @@ export function fromStringifiedJSONRoute(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.active,
                     setTainted: (value: Option<boolean>) => { tainted.active = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Route.validateField("active", data.active);
+                        const fieldErrors = validateFieldRoute("active", data.active);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11156,7 +11156,7 @@ export function fromStringifiedJSONRoute(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.name,
                     setTainted: (value: Option<boolean>) => { tainted.name = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Route.validateField("name", data.name);
+                        const fieldErrors = validateFieldRoute("name", data.name);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11174,7 +11174,7 @@ export function fromStringifiedJSONRoute(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.phone,
                     setTainted: (value: Option<boolean>) => { tainted.phone = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Route.validateField("phone", data.phone);
+                        const fieldErrors = validateFieldRoute("phone", data.phone);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11192,7 +11192,7 @@ export function fromStringifiedJSONRoute(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.position,
                     setTainted: (value: Option<boolean>) => { tainted.position = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Route.validateField("position", data.position);
+                        const fieldErrors = validateFieldRoute("position", data.position);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11210,7 +11210,7 @@ export function fromStringifiedJSONRoute(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.serviceRoute,
                     setTainted: (value: Option<boolean>) => { tainted.serviceRoute = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Route.validateField("serviceRoute", data.serviceRoute);
+                        const fieldErrors = validateFieldRoute("serviceRoute", data.serviceRoute);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11228,7 +11228,7 @@ export function fromStringifiedJSONRoute(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.defaultDurationHours,
                     setTainted: (value: Option<boolean>) => { tainted.defaultDurationHours = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Route.validateField("defaultDurationHours", data.defaultDurationHours);
+                        const fieldErrors = validateFieldRoute("defaultDurationHours", data.defaultDurationHours);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11246,7 +11246,7 @@ export function fromStringifiedJSONRoute(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.tags,
                     setTainted: (value: Option<boolean>) => { tainted.tags = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Route.validateField("tags", data.tags);
+                        const fieldErrors = validateFieldRoute("tags", data.tags);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     at: (index: number) => ({
@@ -11283,7 +11283,7 @@ export function fromStringifiedJSONRoute(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.icon,
                     setTainted: (value: Option<boolean>) => { tainted.icon = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Route.validateField("icon", data.icon);
+                        const fieldErrors = validateFieldRoute("icon", data.icon);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11301,11 +11301,11 @@ export function fromStringifiedJSONRoute(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.color,
                     setTainted: (value: Option<boolean>) => { tainted.color = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Route.validateField("color", data.color);
+                        const fieldErrors = validateFieldRoute("color", data.color);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Route, Array<{field: string; message: string}>>{return Route.fromObject(data);}function reset(newOverrides?: Partial<Route>): void {data = {...Route.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), techs: Option.none(), active: Option.none(), name: Option.none(), phone: Option.none(), position: Option.none(), serviceRoute: Option.none(), defaultDurationHours: Option.none(), tags: Option.none(), icon: Option.none(), color: Option.none() }; tainted = { id: Option.none(), techs: Option.none(), active: Option.none(), name: Option.none(), phone: Option.none(), position: Option.none(), serviceRoute: Option.none(), defaultDurationHours: Option.none(), tags: Option.none(), icon: Option.none(), color: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataRoute(formData: FormData): Result<Route, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+                }}; function validate(): Result<Route, Array<{field: string; message: string}>>{return fromObjectRoute(data);}function reset(newOverrides?: Partial<Route>): void {data = {...defaultValueRoute(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), techs: Option.none(), active: Option.none(), name: Option.none(), phone: Option.none(), position: Option.none(), serviceRoute: Option.none(), defaultDurationHours: Option.none(), tags: Option.none(), icon: Option.none(), color: Option.none() }; tainted = { id: Option.none(), techs: Option.none(), active: Option.none(), name: Option.none(), phone: Option.none(), position: Option.none(), serviceRoute: Option.none(), defaultDurationHours: Option.none(), tags: Option.none(), icon: Option.none(), color: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataRoute(formData: FormData): Result<Route, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
             obj.techs = formData.get("techs") ?? "";
             {
                 const activeVal = formData.get("active");
@@ -11325,7 +11325,7 @@ export function fromStringifiedJSONRoute(json: string, opts?: DeserializeOptions
             }
             obj.tags = formData.getAll("tags") as Array<string>;
             obj.icon = formData.get("icon") ?? "";
-            obj.color = formData.get("color") ?? ""; return Route.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.color = formData.get("color") ?? ""; return fromStringifiedJSONRoute(JSON.stringify(obj));}
 
 
 export interface EmailParts {
@@ -11387,7 +11387,7 @@ export function fromStringifiedJSONEmailParts(json: string, opts?: DeserializeOp
             domainName: Option<boolean>;
             topLevelDomain: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersEmailParts {readonly local: FieldController<string>;
             readonly domainName: FieldController<string>;
-            readonly topLevelDomain: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformEmailParts {readonly data: EmailParts; readonly errors: ErrorsEmailParts; readonly tainted: TaintedEmailParts; readonly fields: FieldControllersEmailParts; validate(): Result<EmailParts, Array<{field: string; message: string}>>; reset(overrides?: Partial<EmailParts>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormEmailParts(overrides?: Partial<EmailParts>): GigaformEmailParts {let data = $state({...EmailParts.defaultValue(),...overrides}); let errors = $state<ErrorsEmailParts>({ _errors: Option.none(), local: Option.none(), domainName: Option.none(), topLevelDomain: Option.none() }); let tainted = $state<TaintedEmailParts>({ local: Option.none(), domainName: Option.none(), topLevelDomain: Option.none() }); const fields: FieldControllersEmailParts = {local: {
+            readonly topLevelDomain: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformEmailParts {readonly data: EmailParts; readonly errors: ErrorsEmailParts; readonly tainted: TaintedEmailParts; readonly fields: FieldControllersEmailParts; validate(): Result<EmailParts, Array<{field: string; message: string}>>; reset(overrides?: Partial<EmailParts>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormEmailParts(overrides?: Partial<EmailParts>): GigaformEmailParts {let data = $state({...defaultValueEmailParts(),...overrides}); let errors = $state<ErrorsEmailParts>({ _errors: Option.none(), local: Option.none(), domainName: Option.none(), topLevelDomain: Option.none() }); let tainted = $state<TaintedEmailParts>({ local: Option.none(), domainName: Option.none(), topLevelDomain: Option.none() }); const fields: FieldControllersEmailParts = {local: {
                     path: ["local"] as const,
                     name: "local",
                     constraints: { required: true },
@@ -11400,7 +11400,7 @@ export function fromStringifiedJSONEmailParts(json: string, opts?: DeserializeOp
                     getTainted: () => tainted.local,
                     setTainted: (value: Option<boolean>) => { tainted.local = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = EmailParts.validateField("local", data.local);
+                        const fieldErrors = validateFieldEmailParts("local", data.local);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11418,7 +11418,7 @@ export function fromStringifiedJSONEmailParts(json: string, opts?: DeserializeOp
                     getTainted: () => tainted.domainName,
                     setTainted: (value: Option<boolean>) => { tainted.domainName = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = EmailParts.validateField("domainName", data.domainName);
+                        const fieldErrors = validateFieldEmailParts("domainName", data.domainName);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11436,13 +11436,13 @@ export function fromStringifiedJSONEmailParts(json: string, opts?: DeserializeOp
                     getTainted: () => tainted.topLevelDomain,
                     setTainted: (value: Option<boolean>) => { tainted.topLevelDomain = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = EmailParts.validateField("topLevelDomain", data.topLevelDomain);
+                        const fieldErrors = validateFieldEmailParts("topLevelDomain", data.topLevelDomain);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<EmailParts, Array<{field: string; message: string}>>{return EmailParts.fromObject(data);}function reset(newOverrides?: Partial<EmailParts>): void {data = {...EmailParts.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), local: Option.none(), domainName: Option.none(), topLevelDomain: Option.none() }; tainted = { local: Option.none(), domainName: Option.none(), topLevelDomain: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataEmailParts(formData: FormData): Result<EmailParts, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.local = formData.get("local") ?? "";
+                }}; function validate(): Result<EmailParts, Array<{field: string; message: string}>>{return fromObjectEmailParts(data);}function reset(newOverrides?: Partial<EmailParts>): void {data = {...defaultValueEmailParts(),...newOverrides}; errors = { _errors: Option.none(), local: Option.none(), domainName: Option.none(), topLevelDomain: Option.none() }; tainted = { local: Option.none(), domainName: Option.none(), topLevelDomain: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataEmailParts(formData: FormData): Result<EmailParts, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.local = formData.get("local") ?? "";
             obj.domainName = formData.get("domainName") ?? "";
-            obj.topLevelDomain = formData.get("topLevelDomain") ?? ""; return EmailParts.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.topLevelDomain = formData.get("topLevelDomain") ?? ""; return fromStringifiedJSONEmailParts(JSON.stringify(obj));}
 
 
 export interface Sent {
@@ -11460,7 +11460,7 @@ export function fromStringifiedJSONSent(json: string, opts?: DeserializeOptions)
 /** Nested error structure matching the data shape */export type ErrorsSent = {_errors: Option<Array<string>>; recipient: Option<Array<string>>;
             method: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedSent = {recipient: Option<boolean>;
             method: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersSent {readonly recipient: FieldController<string | null>;
-            readonly method: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformSent {readonly data: Sent; readonly errors: ErrorsSent; readonly tainted: TaintedSent; readonly fields: FieldControllersSent; validate(): Result<Sent, Array<{field: string; message: string}>>; reset(overrides?: Partial<Sent>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormSent(overrides?: Partial<Sent>): GigaformSent {let data = $state({...Sent.defaultValue(),...overrides}); let errors = $state<ErrorsSent>({ _errors: Option.none(), recipient: Option.none(), method: Option.none() }); let tainted = $state<TaintedSent>({ recipient: Option.none(), method: Option.none() }); const fields: FieldControllersSent = {recipient: {
+            readonly method: FieldController<string | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformSent {readonly data: Sent; readonly errors: ErrorsSent; readonly tainted: TaintedSent; readonly fields: FieldControllersSent; validate(): Result<Sent, Array<{field: string; message: string}>>; reset(overrides?: Partial<Sent>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormSent(overrides?: Partial<Sent>): GigaformSent {let data = $state({...defaultValueSent(),...overrides}); let errors = $state<ErrorsSent>({ _errors: Option.none(), recipient: Option.none(), method: Option.none() }); let tainted = $state<TaintedSent>({ recipient: Option.none(), method: Option.none() }); const fields: FieldControllersSent = {recipient: {
                     path: ["recipient"] as const,
                     name: "recipient",
                     constraints: { required: true },
@@ -11473,7 +11473,7 @@ export function fromStringifiedJSONSent(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.recipient,
                     setTainted: (value: Option<boolean>) => { tainted.recipient = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Sent.validateField("recipient", data.recipient);
+                        const fieldErrors = validateFieldSent("recipient", data.recipient);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11491,12 +11491,12 @@ export function fromStringifiedJSONSent(json: string, opts?: DeserializeOptions)
                     getTainted: () => tainted.method,
                     setTainted: (value: Option<boolean>) => { tainted.method = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Sent.validateField("method", data.method);
+                        const fieldErrors = validateFieldSent("method", data.method);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Sent, Array<{field: string; message: string}>>{return Sent.fromObject(data);}function reset(newOverrides?: Partial<Sent>): void {data = {...Sent.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), recipient: Option.none(), method: Option.none() }; tainted = { recipient: Option.none(), method: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataSent(formData: FormData): Result<Sent, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.recipient = formData.get("recipient") ?? "";
-            obj.method = formData.get("method") ?? ""; return Sent.fromStringifiedJSON(JSON.stringify(obj));}
+                }}; function validate(): Result<Sent, Array<{field: string; message: string}>>{return fromObjectSent(data);}function reset(newOverrides?: Partial<Sent>): void {data = {...defaultValueSent(),...newOverrides}; errors = { _errors: Option.none(), recipient: Option.none(), method: Option.none() }; tainted = { recipient: Option.none(), method: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataSent(formData: FormData): Result<Sent, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.recipient = formData.get("recipient") ?? "";
+            obj.method = formData.get("method") ?? ""; return fromStringifiedJSONSent(JSON.stringify(obj));}
 
 
 export interface BilledItem {
@@ -11516,9 +11516,9 @@ export function defaultValueBilledItem(): BilledItem {return {item: "",
                             taxed: false,
                             upsale: false, }as BilledItem;}
 
-export function toStringifiedJSONBilledItem(value: BilledItem): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeBilledItem(value, ctx));}export function toObjectBilledItem(value: BilledItem): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeBilledItem(value, ctx);}export function __serializeBilledItem(value: BilledItem, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "BilledItem" , __id,}; result["item" ]= typeof(value.item as any)?.__serialize === "function" ? (value.item as any).__serialize(ctx): value.item; result["quantity" ]= value.quantity; result["taxed" ]= value.taxed; result["upsale" ]= value.upsale; return result;}
+export function toStringifiedJSONBilledItem(value: BilledItem): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeBilledItem(value, ctx));}export function toObjectBilledItem(value: BilledItem): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeBilledItem(value, ctx);}export function __serializeBilledItem(value: BilledItem, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "BilledItem" , __id,}; result["item" ]= __serializeItem(value.item, ctx); result["quantity" ]= value.quantity; result["taxed" ]= value.taxed; result["upsale" ]= value.upsale; return result;}
 
-export function fromStringifiedJSONBilledItem(json: string, opts?: DeserializeOptions): Result<BilledItem, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectBilledItem(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectBilledItem(obj: unknown, opts?: DeserializeOptions): Result<BilledItem, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeBilledItem(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "BilledItem.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeBilledItem(value: any, ctx: DeserializeContext): BilledItem | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "BilledItem.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("item" in obj)){errors.push({field: "item" , message: "missing required field" });}if(!("quantity" in obj)){errors.push({field: "quantity" , message: "missing required field" });}if(!("taxed" in obj)){errors.push({field: "taxed" , message: "missing required field" });}if(!("upsale" in obj)){errors.push({field: "upsale" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_item = obj["item" ]as Item; {const __result = Item.__deserialize(__raw_item, ctx); ctx.assignOrDefer(instance, "item" , __result);}}{const __raw_quantity = obj["quantity" ]as number; instance.quantity = __raw_quantity; }{const __raw_taxed = obj["taxed" ]as boolean; instance.taxed = __raw_taxed; }{const __raw_upsale = obj["upsale" ]as boolean; instance.upsale = __raw_upsale; }if(errors.length>0){throw new DeserializeError(errors);}return instance as BilledItem;}export function validateFieldBilledItem<K extends keyof BilledItem>(field: K, value: BilledItem[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsBilledItem(partial: Partial<BilledItem>): Array<{field: string; message: string}>{return[]; }export function hasShapeBilledItem(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "item" in o && "quantity" in o && "taxed" in o && "upsale" in o;}export function isBilledItem(obj: unknown): obj is BilledItem {if(!hasShapeBilledItem(obj)){return false;}const result = fromObjectBilledItem(obj); return Result.isOk(result);}
+export function fromStringifiedJSONBilledItem(json: string, opts?: DeserializeOptions): Result<BilledItem, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectBilledItem(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectBilledItem(obj: unknown, opts?: DeserializeOptions): Result<BilledItem, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeBilledItem(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "BilledItem.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeBilledItem(value: any, ctx: DeserializeContext): BilledItem | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "BilledItem.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("item" in obj)){errors.push({field: "item" , message: "missing required field" });}if(!("quantity" in obj)){errors.push({field: "quantity" , message: "missing required field" });}if(!("taxed" in obj)){errors.push({field: "taxed" , message: "missing required field" });}if(!("upsale" in obj)){errors.push({field: "upsale" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_item = obj["item" ]as Item; {const __result = __deserializeItem(__raw_item, ctx); ctx.assignOrDefer(instance, "item" , __result);}}{const __raw_quantity = obj["quantity" ]as number; instance.quantity = __raw_quantity; }{const __raw_taxed = obj["taxed" ]as boolean; instance.taxed = __raw_taxed; }{const __raw_upsale = obj["upsale" ]as boolean; instance.upsale = __raw_upsale; }if(errors.length>0){throw new DeserializeError(errors);}return instance as BilledItem;}export function validateFieldBilledItem<K extends keyof BilledItem>(field: K, value: BilledItem[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsBilledItem(partial: Partial<BilledItem>): Array<{field: string; message: string}>{return[]; }export function hasShapeBilledItem(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "item" in o && "quantity" in o && "taxed" in o && "upsale" in o;}export function isBilledItem(obj: unknown): obj is BilledItem {if(!hasShapeBilledItem(obj)){return false;}const result = fromObjectBilledItem(obj); return Result.isOk(result);}
 
 /** Nested error structure matching the data shape */export type ErrorsBilledItem = {_errors: Option<Array<string>>; item: Option<Array<string>>;
             quantity: Option<Array<string>>;
@@ -11529,7 +11529,7 @@ export function fromStringifiedJSONBilledItem(json: string, opts?: DeserializeOp
             upsale: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersBilledItem {readonly item: FieldController<Item>;
             readonly quantity: FieldController<number>;
             readonly taxed: FieldController<boolean>;
-            readonly upsale: FieldController<boolean>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformBilledItem {readonly data: BilledItem; readonly errors: ErrorsBilledItem; readonly tainted: TaintedBilledItem; readonly fields: FieldControllersBilledItem; validate(): Result<BilledItem, Array<{field: string; message: string}>>; reset(overrides?: Partial<BilledItem>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormBilledItem(overrides?: Partial<BilledItem>): GigaformBilledItem {let data = $state({...BilledItem.defaultValue(),...overrides}); let errors = $state<ErrorsBilledItem>({ _errors: Option.none(), item: Option.none(), quantity: Option.none(), taxed: Option.none(), upsale: Option.none() }); let tainted = $state<TaintedBilledItem>({ item: Option.none(), quantity: Option.none(), taxed: Option.none(), upsale: Option.none() }); const fields: FieldControllersBilledItem = {item: {
+            readonly upsale: FieldController<boolean>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformBilledItem {readonly data: BilledItem; readonly errors: ErrorsBilledItem; readonly tainted: TaintedBilledItem; readonly fields: FieldControllersBilledItem; validate(): Result<BilledItem, Array<{field: string; message: string}>>; reset(overrides?: Partial<BilledItem>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormBilledItem(overrides?: Partial<BilledItem>): GigaformBilledItem {let data = $state({...defaultValueBilledItem(),...overrides}); let errors = $state<ErrorsBilledItem>({ _errors: Option.none(), item: Option.none(), quantity: Option.none(), taxed: Option.none(), upsale: Option.none() }); let tainted = $state<TaintedBilledItem>({ item: Option.none(), quantity: Option.none(), taxed: Option.none(), upsale: Option.none() }); const fields: FieldControllersBilledItem = {item: {
                     path: ["item"] as const,
                     name: "item",
                     constraints: { required: true },
@@ -11542,7 +11542,7 @@ export function fromStringifiedJSONBilledItem(json: string, opts?: DeserializeOp
                     getTainted: () => tainted.item,
                     setTainted: (value: Option<boolean>) => { tainted.item = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = BilledItem.validateField("item", data.item);
+                        const fieldErrors = validateFieldBilledItem("item", data.item);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11560,7 +11560,7 @@ export function fromStringifiedJSONBilledItem(json: string, opts?: DeserializeOp
                     getTainted: () => tainted.quantity,
                     setTainted: (value: Option<boolean>) => { tainted.quantity = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = BilledItem.validateField("quantity", data.quantity);
+                        const fieldErrors = validateFieldBilledItem("quantity", data.quantity);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11578,7 +11578,7 @@ export function fromStringifiedJSONBilledItem(json: string, opts?: DeserializeOp
                     getTainted: () => tainted.taxed,
                     setTainted: (value: Option<boolean>) => { tainted.taxed = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = BilledItem.validateField("taxed", data.taxed);
+                        const fieldErrors = validateFieldBilledItem("taxed", data.taxed);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11596,11 +11596,11 @@ export function fromStringifiedJSONBilledItem(json: string, opts?: DeserializeOp
                     getTainted: () => tainted.upsale,
                     setTainted: (value: Option<boolean>) => { tainted.upsale = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = BilledItem.validateField("upsale", data.upsale);
+                        const fieldErrors = validateFieldBilledItem("upsale", data.upsale);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<BilledItem, Array<{field: string; message: string}>>{return BilledItem.fromObject(data);}function reset(newOverrides?: Partial<BilledItem>): void {data = {...BilledItem.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), item: Option.none(), quantity: Option.none(), taxed: Option.none(), upsale: Option.none() }; tainted = { item: Option.none(), quantity: Option.none(), taxed: Option.none(), upsale: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataBilledItem(formData: FormData): Result<BilledItem, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<BilledItem, Array<{field: string; message: string}>>{return fromObjectBilledItem(data);}function reset(newOverrides?: Partial<BilledItem>): void {data = {...defaultValueBilledItem(),...newOverrides}; errors = { _errors: Option.none(), item: Option.none(), quantity: Option.none(), taxed: Option.none(), upsale: Option.none() }; tainted = { item: Option.none(), quantity: Option.none(), taxed: Option.none(), upsale: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataBilledItem(formData: FormData): Result<BilledItem, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
             // Collect nested object fields with prefix "item."
             const itemObj: Record<string, unknown> = {};
             for (const [key, value] of Array.from(formData.entries())) {
@@ -11633,7 +11633,7 @@ export function fromStringifiedJSONBilledItem(json: string, opts?: DeserializeOp
             {
                 const upsaleVal = formData.get("upsale");
                 obj.upsale = upsaleVal === "true" || upsaleVal === "on" || upsaleVal === "1";
-            } return BilledItem.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONBilledItem(JSON.stringify(obj));}
 
 
 export interface Coordinates {
@@ -11651,7 +11651,7 @@ export function fromStringifiedJSONCoordinates(json: string, opts?: DeserializeO
 /** Nested error structure matching the data shape */export type ErrorsCoordinates = {_errors: Option<Array<string>>; lat: Option<Array<string>>;
             lng: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedCoordinates = {lat: Option<boolean>;
             lng: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersCoordinates {readonly lat: FieldController<number>;
-            readonly lng: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCoordinates {readonly data: Coordinates; readonly errors: ErrorsCoordinates; readonly tainted: TaintedCoordinates; readonly fields: FieldControllersCoordinates; validate(): Result<Coordinates, Array<{field: string; message: string}>>; reset(overrides?: Partial<Coordinates>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCoordinates(overrides?: Partial<Coordinates>): GigaformCoordinates {let data = $state({...Coordinates.defaultValue(),...overrides}); let errors = $state<ErrorsCoordinates>({ _errors: Option.none(), lat: Option.none(), lng: Option.none() }); let tainted = $state<TaintedCoordinates>({ lat: Option.none(), lng: Option.none() }); const fields: FieldControllersCoordinates = {lat: {
+            readonly lng: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCoordinates {readonly data: Coordinates; readonly errors: ErrorsCoordinates; readonly tainted: TaintedCoordinates; readonly fields: FieldControllersCoordinates; validate(): Result<Coordinates, Array<{field: string; message: string}>>; reset(overrides?: Partial<Coordinates>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCoordinates(overrides?: Partial<Coordinates>): GigaformCoordinates {let data = $state({...defaultValueCoordinates(),...overrides}); let errors = $state<ErrorsCoordinates>({ _errors: Option.none(), lat: Option.none(), lng: Option.none() }); let tainted = $state<TaintedCoordinates>({ lat: Option.none(), lng: Option.none() }); const fields: FieldControllersCoordinates = {lat: {
                     path: ["lat"] as const,
                     name: "lat",
                     constraints: { required: true },
@@ -11664,7 +11664,7 @@ export function fromStringifiedJSONCoordinates(json: string, opts?: DeserializeO
                     getTainted: () => tainted.lat,
                     setTainted: (value: Option<boolean>) => { tainted.lat = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Coordinates.validateField("lat", data.lat);
+                        const fieldErrors = validateFieldCoordinates("lat", data.lat);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11682,11 +11682,11 @@ export function fromStringifiedJSONCoordinates(json: string, opts?: DeserializeO
                     getTainted: () => tainted.lng,
                     setTainted: (value: Option<boolean>) => { tainted.lng = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Coordinates.validateField("lng", data.lng);
+                        const fieldErrors = validateFieldCoordinates("lng", data.lng);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Coordinates, Array<{field: string; message: string}>>{return Coordinates.fromObject(data);}function reset(newOverrides?: Partial<Coordinates>): void {data = {...Coordinates.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), lat: Option.none(), lng: Option.none() }; tainted = { lat: Option.none(), lng: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCoordinates(formData: FormData): Result<Coordinates, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<Coordinates, Array<{field: string; message: string}>>{return fromObjectCoordinates(data);}function reset(newOverrides?: Partial<Coordinates>): void {data = {...defaultValueCoordinates(),...newOverrides}; errors = { _errors: Option.none(), lat: Option.none(), lng: Option.none() }; tainted = { lat: Option.none(), lng: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCoordinates(formData: FormData): Result<Coordinates, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const latStr = formData.get("lat");
                 obj.lat = latStr ? parseFloat(latStr as string) : 0;
                 if (obj.lat !== undefined && isNaN(obj.lat as number)) obj.lat = 0;
@@ -11695,7 +11695,7 @@ export function fromStringifiedJSONCoordinates(json: string, opts?: DeserializeO
                 const lngStr = formData.get("lng");
                 obj.lng = lngStr ? parseFloat(lngStr as string) : 0;
                 if (obj.lng !== undefined && isNaN(obj.lng as number)) obj.lng = 0;
-            } return Coordinates.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONCoordinates(JSON.stringify(obj));}
 
 
 export interface Ordered {
@@ -11725,7 +11725,7 @@ export function fromStringifiedJSONOrdered(json: string, opts?: DeserializeOptio
             date: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersOrdered {readonly id: FieldController<string>;
             readonly in: FieldController<string | Account>;
             readonly out: FieldController<string | Order>;
-            readonly date: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformOrdered {readonly data: Ordered; readonly errors: ErrorsOrdered; readonly tainted: TaintedOrdered; readonly fields: FieldControllersOrdered; validate(): Result<Ordered, Array<{field: string; message: string}>>; reset(overrides?: Partial<Ordered>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormOrdered(overrides?: Partial<Ordered>): GigaformOrdered {let data = $state({...Ordered.defaultValue(),...overrides}); let errors = $state<ErrorsOrdered>({ _errors: Option.none(), id: Option.none(), in: Option.none(), out: Option.none(), date: Option.none() }); let tainted = $state<TaintedOrdered>({ id: Option.none(), in: Option.none(), out: Option.none(), date: Option.none() }); const fields: FieldControllersOrdered = {id: {
+            readonly date: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformOrdered {readonly data: Ordered; readonly errors: ErrorsOrdered; readonly tainted: TaintedOrdered; readonly fields: FieldControllersOrdered; validate(): Result<Ordered, Array<{field: string; message: string}>>; reset(overrides?: Partial<Ordered>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormOrdered(overrides?: Partial<Ordered>): GigaformOrdered {let data = $state({...defaultValueOrdered(),...overrides}); let errors = $state<ErrorsOrdered>({ _errors: Option.none(), id: Option.none(), in: Option.none(), out: Option.none(), date: Option.none() }); let tainted = $state<TaintedOrdered>({ id: Option.none(), in: Option.none(), out: Option.none(), date: Option.none() }); const fields: FieldControllersOrdered = {id: {
                     path: ["id"] as const,
                     name: "id",
                     constraints: { required: true },
@@ -11738,7 +11738,7 @@ export function fromStringifiedJSONOrdered(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.id,
                     setTainted: (value: Option<boolean>) => { tainted.id = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Ordered.validateField("id", data.id);
+                        const fieldErrors = validateFieldOrdered("id", data.id);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11756,7 +11756,7 @@ export function fromStringifiedJSONOrdered(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.in,
                     setTainted: (value: Option<boolean>) => { tainted.in = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Ordered.validateField("in", data.in);
+                        const fieldErrors = validateFieldOrdered("in", data.in);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11774,7 +11774,7 @@ export function fromStringifiedJSONOrdered(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.out,
                     setTainted: (value: Option<boolean>) => { tainted.out = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Ordered.validateField("out", data.out);
+                        const fieldErrors = validateFieldOrdered("out", data.out);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11792,14 +11792,14 @@ export function fromStringifiedJSONOrdered(json: string, opts?: DeserializeOptio
                     getTainted: () => tainted.date,
                     setTainted: (value: Option<boolean>) => { tainted.date = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Ordered.validateField("date", data.date);
+                        const fieldErrors = validateFieldOrdered("date", data.date);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Ordered, Array<{field: string; message: string}>>{return Ordered.fromObject(data);}function reset(newOverrides?: Partial<Ordered>): void {data = {...Ordered.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), in: Option.none(), out: Option.none(), date: Option.none() }; tainted = { id: Option.none(), in: Option.none(), out: Option.none(), date: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataOrdered(formData: FormData): Result<Ordered, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
+                }}; function validate(): Result<Ordered, Array<{field: string; message: string}>>{return fromObjectOrdered(data);}function reset(newOverrides?: Partial<Ordered>): void {data = {...defaultValueOrdered(),...newOverrides}; errors = { _errors: Option.none(), id: Option.none(), in: Option.none(), out: Option.none(), date: Option.none() }; tainted = { id: Option.none(), in: Option.none(), out: Option.none(), date: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataOrdered(formData: FormData): Result<Ordered, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.id = formData.get("id") ?? "";
             obj.in = formData.get("in") ?? "";
             obj.out = formData.get("out") ?? "";
-            obj.date = formData.get("date") ?? ""; return Ordered.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.date = formData.get("date") ?? ""; return fromStringifiedJSONOrdered(JSON.stringify(obj));}
 
 
 export interface Email {
@@ -11844,7 +11844,7 @@ export function fromStringifiedJSONEmail(json: string, opts?: DeserializeOptions
 /** Nested error structure matching the data shape */export type ErrorsEmail = {_errors: Option<Array<string>>; canEmail: Option<Array<string>>;
             emailString: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedEmail = {canEmail: Option<boolean>;
             emailString: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersEmail {readonly canEmail: FieldController<boolean>;
-            readonly emailString: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformEmail {readonly data: Email; readonly errors: ErrorsEmail; readonly tainted: TaintedEmail; readonly fields: FieldControllersEmail; validate(): Result<Email, Array<{field: string; message: string}>>; reset(overrides?: Partial<Email>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormEmail(overrides?: Partial<Email>): GigaformEmail {let data = $state({...Email.defaultValue(),...overrides}); let errors = $state<ErrorsEmail>({ _errors: Option.none(), canEmail: Option.none(), emailString: Option.none() }); let tainted = $state<TaintedEmail>({ canEmail: Option.none(), emailString: Option.none() }); const fields: FieldControllersEmail = {canEmail: {
+            readonly emailString: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformEmail {readonly data: Email; readonly errors: ErrorsEmail; readonly tainted: TaintedEmail; readonly fields: FieldControllersEmail; validate(): Result<Email, Array<{field: string; message: string}>>; reset(overrides?: Partial<Email>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormEmail(overrides?: Partial<Email>): GigaformEmail {let data = $state({...defaultValueEmail(),...overrides}); let errors = $state<ErrorsEmail>({ _errors: Option.none(), canEmail: Option.none(), emailString: Option.none() }); let tainted = $state<TaintedEmail>({ canEmail: Option.none(), emailString: Option.none() }); const fields: FieldControllersEmail = {canEmail: {
                     path: ["canEmail"] as const,
                     name: "canEmail",
                     constraints: { required: true },
@@ -11857,7 +11857,7 @@ export function fromStringifiedJSONEmail(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.canEmail,
                     setTainted: (value: Option<boolean>) => { tainted.canEmail = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Email.validateField("canEmail", data.canEmail);
+                        const fieldErrors = validateFieldEmail("canEmail", data.canEmail);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11875,15 +11875,15 @@ export function fromStringifiedJSONEmail(json: string, opts?: DeserializeOptions
                     getTainted: () => tainted.emailString,
                     setTainted: (value: Option<boolean>) => { tainted.emailString = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Email.validateField("emailString", data.emailString);
+                        const fieldErrors = validateFieldEmail("emailString", data.emailString);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Email, Array<{field: string; message: string}>>{return Email.fromObject(data);}function reset(newOverrides?: Partial<Email>): void {data = {...Email.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), canEmail: Option.none(), emailString: Option.none() }; tainted = { canEmail: Option.none(), emailString: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataEmail(formData: FormData): Result<Email, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<Email, Array<{field: string; message: string}>>{return fromObjectEmail(data);}function reset(newOverrides?: Partial<Email>): void {data = {...defaultValueEmail(),...newOverrides}; errors = { _errors: Option.none(), canEmail: Option.none(), emailString: Option.none() }; tainted = { canEmail: Option.none(), emailString: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataEmail(formData: FormData): Result<Email, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const canEmailVal = formData.get("canEmail");
                 obj.canEmail = canEmailVal === "true" || canEmailVal === "on" || canEmailVal === "1";
             }
-            obj.emailString = formData.get("emailString") ?? ""; return Email.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.emailString = formData.get("emailString") ?? ""; return fromStringifiedJSONEmail(JSON.stringify(obj));}
 
 
 export interface RecurrenceRule {
@@ -11894,15 +11894,15 @@ export interface RecurrenceRule {
     additionalInstances: string[] | null;
 }
 
-export function defaultValueRecurrenceRule(): RecurrenceRule {return {interval: Interval.defaultValue(),
+export function defaultValueRecurrenceRule(): RecurrenceRule {return {interval: defaultValueInterval(),
                             recurrenceBegins: "",
                             recurrenceEnds: null,
                             cancelledInstances: null,
                             additionalInstances: null, }as RecurrenceRule;}
 
-export function toStringifiedJSONRecurrenceRule(value: RecurrenceRule): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeRecurrenceRule(value, ctx));}export function toObjectRecurrenceRule(value: RecurrenceRule): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeRecurrenceRule(value, ctx);}export function __serializeRecurrenceRule(value: RecurrenceRule, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "RecurrenceRule" , __id,}; result["interval" ]= typeof(value.interval as any)?.__serialize === "function" ? (value.interval as any).__serialize(ctx): value.interval; result["recurrenceBegins" ]= value.recurrenceBegins; if(value.recurrenceEnds!== null){result["recurrenceEnds" ]= typeof(value.recurrenceEnds as any)?.__serialize === "function" ? (value.recurrenceEnds as any).__serialize(ctx): value.recurrenceEnds;}else {result["recurrenceEnds" ]= null;}if(value.cancelledInstances!== null){result["cancelledInstances" ]= typeof(value.cancelledInstances as any)?.__serialize === "function" ? (value.cancelledInstances as any).__serialize(ctx): value.cancelledInstances;}else {result["cancelledInstances" ]= null;}if(value.additionalInstances!== null){result["additionalInstances" ]= typeof(value.additionalInstances as any)?.__serialize === "function" ? (value.additionalInstances as any).__serialize(ctx): value.additionalInstances;}else {result["additionalInstances" ]= null;}return result;}
+export function toStringifiedJSONRecurrenceRule(value: RecurrenceRule): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeRecurrenceRule(value, ctx));}export function toObjectRecurrenceRule(value: RecurrenceRule): Record<string, unknown>{const ctx = SerializeContext.create(); return __serializeRecurrenceRule(value, ctx);}export function __serializeRecurrenceRule(value: RecurrenceRule, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "RecurrenceRule" , __id,}; result["interval" ]= __serializeInterval(value.interval, ctx); result["recurrenceBegins" ]= value.recurrenceBegins; if(value.recurrenceEnds!== null){result["recurrenceEnds" ]= __serializeRecurrenceEnd(value.recurrenceEnds, ctx); }else {result["recurrenceEnds" ]= null;}if(value.cancelledInstances!== null){result["cancelledInstances" ]= value.cancelledInstances; }else {result["cancelledInstances" ]= null;}if(value.additionalInstances!== null){result["additionalInstances" ]= value.additionalInstances; }else {result["additionalInstances" ]= null;}return result;}
 
-export function fromStringifiedJSONRecurrenceRule(json: string, opts?: DeserializeOptions): Result<RecurrenceRule, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectRecurrenceRule(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectRecurrenceRule(obj: unknown, opts?: DeserializeOptions): Result<RecurrenceRule, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeRecurrenceRule(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "RecurrenceRule.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeRecurrenceRule(value: any, ctx: DeserializeContext): RecurrenceRule | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "RecurrenceRule.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("interval" in obj)){errors.push({field: "interval" , message: "missing required field" });}if(!("recurrenceBegins" in obj)){errors.push({field: "recurrenceBegins" , message: "missing required field" });}if(!("recurrenceEnds" in obj)){errors.push({field: "recurrenceEnds" , message: "missing required field" });}if(!("cancelledInstances" in obj)){errors.push({field: "cancelledInstances" , message: "missing required field" });}if(!("additionalInstances" in obj)){errors.push({field: "additionalInstances" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_interval = obj["interval" ]as Interval; {const __result = Interval.__deserialize(__raw_interval, ctx); ctx.assignOrDefer(instance, "interval" , __result);}}{const __raw_recurrenceBegins = obj["recurrenceBegins" ]as string; instance.recurrenceBegins = __raw_recurrenceBegins; }{const __raw_recurrenceEnds = obj["recurrenceEnds" ]as RecurrenceEnd | null; if(__raw_recurrenceEnds === null){instance.recurrenceEnds = null;}else {const __result = RecurrenceEnd.__deserialize(__raw_recurrenceEnds, ctx); ctx.assignOrDefer(instance, "recurrenceEnds" , __result); }}{const __raw_cancelledInstances = obj["cancelledInstances" ]as string[] | null; if(__raw_cancelledInstances === null){instance.cancelledInstances = null;}else {instance.cancelledInstances = __raw_cancelledInstances; }}{const __raw_additionalInstances = obj["additionalInstances" ]as string[] | null; if(__raw_additionalInstances === null){instance.additionalInstances = null;}else {instance.additionalInstances = __raw_additionalInstances; }}if(errors.length>0){throw new DeserializeError(errors);}return instance as RecurrenceRule;}export function validateFieldRecurrenceRule<K extends keyof RecurrenceRule>(field: K, value: RecurrenceRule[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsRecurrenceRule(partial: Partial<RecurrenceRule>): Array<{field: string; message: string}>{return[]; }export function hasShapeRecurrenceRule(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "interval" in o && "recurrenceBegins" in o && "recurrenceEnds" in o && "cancelledInstances" in o && "additionalInstances" in o;}export function isRecurrenceRule(obj: unknown): obj is RecurrenceRule {if(!hasShapeRecurrenceRule(obj)){return false;}const result = fromObjectRecurrenceRule(obj); return Result.isOk(result);}
+export function fromStringifiedJSONRecurrenceRule(json: string, opts?: DeserializeOptions): Result<RecurrenceRule, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectRecurrenceRule(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectRecurrenceRule(obj: unknown, opts?: DeserializeOptions): Result<RecurrenceRule, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeRecurrenceRule(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "RecurrenceRule.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeRecurrenceRule(value: any, ctx: DeserializeContext): RecurrenceRule | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref);}if(typeof value!== "object" || value === null || Array.isArray(value)){throw new DeserializeError([{field: "_root" , message: "RecurrenceRule.__deserialize: expected an object" }]);}const obj = value as Record<string, unknown>; const errors: Array<{field: string; message: string}>= []; if(!("interval" in obj)){errors.push({field: "interval" , message: "missing required field" });}if(!("recurrenceBegins" in obj)){errors.push({field: "recurrenceBegins" , message: "missing required field" });}if(!("recurrenceEnds" in obj)){errors.push({field: "recurrenceEnds" , message: "missing required field" });}if(!("cancelledInstances" in obj)){errors.push({field: "cancelledInstances" , message: "missing required field" });}if(!("additionalInstances" in obj)){errors.push({field: "additionalInstances" , message: "missing required field" });}if(errors.length>0){throw new DeserializeError(errors);}const instance: any = {}; if(obj.__id!== undefined){ctx.register(obj.__id as number, instance);}ctx.trackForFreeze(instance); {const __raw_interval = obj["interval" ]as Interval; {const __result = __deserializeInterval(__raw_interval, ctx); ctx.assignOrDefer(instance, "interval" , __result);}}{const __raw_recurrenceBegins = obj["recurrenceBegins" ]as string; instance.recurrenceBegins = __raw_recurrenceBegins; }{const __raw_recurrenceEnds = obj["recurrenceEnds" ]as RecurrenceEnd | null; if(__raw_recurrenceEnds === null){instance.recurrenceEnds = null;}else {const __result = __deserializeRecurrenceEnd(__raw_recurrenceEnds, ctx); ctx.assignOrDefer(instance, "recurrenceEnds" , __result); }}{const __raw_cancelledInstances = obj["cancelledInstances" ]as string[] | null; if(__raw_cancelledInstances === null){instance.cancelledInstances = null;}else {instance.cancelledInstances = __raw_cancelledInstances; }}{const __raw_additionalInstances = obj["additionalInstances" ]as string[] | null; if(__raw_additionalInstances === null){instance.additionalInstances = null;}else {instance.additionalInstances = __raw_additionalInstances; }}if(errors.length>0){throw new DeserializeError(errors);}return instance as RecurrenceRule;}export function validateFieldRecurrenceRule<K extends keyof RecurrenceRule>(field: K, value: RecurrenceRule[K]): Array<{field: string; message: string}>{return[]; }export function validateFieldsRecurrenceRule(partial: Partial<RecurrenceRule>): Array<{field: string; message: string}>{return[]; }export function hasShapeRecurrenceRule(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "interval" in o && "recurrenceBegins" in o && "recurrenceEnds" in o && "cancelledInstances" in o && "additionalInstances" in o;}export function isRecurrenceRule(obj: unknown): obj is RecurrenceRule {if(!hasShapeRecurrenceRule(obj)){return false;}const result = fromObjectRecurrenceRule(obj); return Result.isOk(result);}
 
 /** Nested error structure matching the data shape */export type ErrorsRecurrenceRule = {_errors: Option<Array<string>>; interval: Option<Array<string>>;
             recurrenceBegins: Option<Array<string>>;
@@ -11916,7 +11916,7 @@ export function fromStringifiedJSONRecurrenceRule(json: string, opts?: Deseriali
             readonly recurrenceBegins: FieldController<string>;
             readonly recurrenceEnds: FieldController<RecurrenceEnd | null>;
             readonly cancelledInstances: FieldController<string[] | null>;
-            readonly additionalInstances: FieldController<string[] | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformRecurrenceRule {readonly data: RecurrenceRule; readonly errors: ErrorsRecurrenceRule; readonly tainted: TaintedRecurrenceRule; readonly fields: FieldControllersRecurrenceRule; validate(): Result<RecurrenceRule, Array<{field: string; message: string}>>; reset(overrides?: Partial<RecurrenceRule>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormRecurrenceRule(overrides?: Partial<RecurrenceRule>): GigaformRecurrenceRule {let data = $state({...RecurrenceRule.defaultValue(),...overrides}); let errors = $state<ErrorsRecurrenceRule>({ _errors: Option.none(), interval: Option.none(), recurrenceBegins: Option.none(), recurrenceEnds: Option.none(), cancelledInstances: Option.none(), additionalInstances: Option.none() }); let tainted = $state<TaintedRecurrenceRule>({ interval: Option.none(), recurrenceBegins: Option.none(), recurrenceEnds: Option.none(), cancelledInstances: Option.none(), additionalInstances: Option.none() }); const fields: FieldControllersRecurrenceRule = {interval: {
+            readonly additionalInstances: FieldController<string[] | null>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformRecurrenceRule {readonly data: RecurrenceRule; readonly errors: ErrorsRecurrenceRule; readonly tainted: TaintedRecurrenceRule; readonly fields: FieldControllersRecurrenceRule; validate(): Result<RecurrenceRule, Array<{field: string; message: string}>>; reset(overrides?: Partial<RecurrenceRule>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormRecurrenceRule(overrides?: Partial<RecurrenceRule>): GigaformRecurrenceRule {let data = $state({...defaultValueRecurrenceRule(),...overrides}); let errors = $state<ErrorsRecurrenceRule>({ _errors: Option.none(), interval: Option.none(), recurrenceBegins: Option.none(), recurrenceEnds: Option.none(), cancelledInstances: Option.none(), additionalInstances: Option.none() }); let tainted = $state<TaintedRecurrenceRule>({ interval: Option.none(), recurrenceBegins: Option.none(), recurrenceEnds: Option.none(), cancelledInstances: Option.none(), additionalInstances: Option.none() }); const fields: FieldControllersRecurrenceRule = {interval: {
                     path: ["interval"] as const,
                     name: "interval",
                     constraints: { required: true },
@@ -11929,7 +11929,7 @@ export function fromStringifiedJSONRecurrenceRule(json: string, opts?: Deseriali
                     getTainted: () => tainted.interval,
                     setTainted: (value: Option<boolean>) => { tainted.interval = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = RecurrenceRule.validateField("interval", data.interval);
+                        const fieldErrors = validateFieldRecurrenceRule("interval", data.interval);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11947,7 +11947,7 @@ export function fromStringifiedJSONRecurrenceRule(json: string, opts?: Deseriali
                     getTainted: () => tainted.recurrenceBegins,
                     setTainted: (value: Option<boolean>) => { tainted.recurrenceBegins = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = RecurrenceRule.validateField("recurrenceBegins", data.recurrenceBegins);
+                        const fieldErrors = validateFieldRecurrenceRule("recurrenceBegins", data.recurrenceBegins);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11965,7 +11965,7 @@ export function fromStringifiedJSONRecurrenceRule(json: string, opts?: Deseriali
                     getTainted: () => tainted.recurrenceEnds,
                     setTainted: (value: Option<boolean>) => { tainted.recurrenceEnds = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = RecurrenceRule.validateField("recurrenceEnds", data.recurrenceEnds);
+                        const fieldErrors = validateFieldRecurrenceRule("recurrenceEnds", data.recurrenceEnds);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -11983,7 +11983,7 @@ export function fromStringifiedJSONRecurrenceRule(json: string, opts?: Deseriali
                     getTainted: () => tainted.cancelledInstances,
                     setTainted: (value: Option<boolean>) => { tainted.cancelledInstances = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = RecurrenceRule.validateField("cancelledInstances", data.cancelledInstances);
+                        const fieldErrors = validateFieldRecurrenceRule("cancelledInstances", data.cancelledInstances);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -12001,11 +12001,11 @@ export function fromStringifiedJSONRecurrenceRule(json: string, opts?: Deseriali
                     getTainted: () => tainted.additionalInstances,
                     setTainted: (value: Option<boolean>) => { tainted.additionalInstances = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = RecurrenceRule.validateField("additionalInstances", data.additionalInstances);
+                        const fieldErrors = validateFieldRecurrenceRule("additionalInstances", data.additionalInstances);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<RecurrenceRule, Array<{field: string; message: string}>>{return RecurrenceRule.fromObject(data);}function reset(newOverrides?: Partial<RecurrenceRule>): void {data = {...RecurrenceRule.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), interval: Option.none(), recurrenceBegins: Option.none(), recurrenceEnds: Option.none(), cancelledInstances: Option.none(), additionalInstances: Option.none() }; tainted = { interval: Option.none(), recurrenceBegins: Option.none(), recurrenceEnds: Option.none(), cancelledInstances: Option.none(), additionalInstances: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataRecurrenceRule(formData: FormData): Result<RecurrenceRule, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<RecurrenceRule, Array<{field: string; message: string}>>{return fromObjectRecurrenceRule(data);}function reset(newOverrides?: Partial<RecurrenceRule>): void {data = {...defaultValueRecurrenceRule(),...newOverrides}; errors = { _errors: Option.none(), interval: Option.none(), recurrenceBegins: Option.none(), recurrenceEnds: Option.none(), cancelledInstances: Option.none(), additionalInstances: Option.none() }; tainted = { interval: Option.none(), recurrenceBegins: Option.none(), recurrenceEnds: Option.none(), cancelledInstances: Option.none(), additionalInstances: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataRecurrenceRule(formData: FormData): Result<RecurrenceRule, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
             // Collect nested object fields with prefix "interval."
             const intervalObj: Record<string, unknown> = {};
             for (const [key, value] of Array.from(formData.entries())) {
@@ -12029,7 +12029,7 @@ export function fromStringifiedJSONRecurrenceRule(json: string, opts?: Deseriali
             obj.recurrenceBegins = formData.get("recurrenceBegins") ?? "";
             obj.recurrenceEnds = formData.get("recurrenceEnds") ?? "";
             obj.cancelledInstances = formData.get("cancelledInstances") ?? "";
-            obj.additionalInstances = formData.get("additionalInstances") ?? ""; return RecurrenceRule.fromStringifiedJSON(JSON.stringify(obj));}
+            obj.additionalInstances = formData.get("additionalInstances") ?? ""; return fromStringifiedJSONRecurrenceRule(JSON.stringify(obj));}
 
 
 export interface LastName {
@@ -12055,7 +12055,7 @@ export function fromStringifiedJSONLastName(json: string, opts?: DeserializeOpti
                 }
 }return errors; }export function hasShapeLastName(obj: unknown): boolean {if(typeof obj!== "object" || obj === null || Array.isArray(obj)){return false;}const o = obj as Record<string, unknown>; return "name" in o;}export function isLastName(obj: unknown): obj is LastName {if(!hasShapeLastName(obj)){return false;}const result = fromObjectLastName(obj); return Result.isOk(result);}
 
-/** Nested error structure matching the data shape */export type ErrorsLastName = {_errors: Option<Array<string>>; name: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedLastName = {name: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersLastName {readonly name: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformLastName {readonly data: LastName; readonly errors: ErrorsLastName; readonly tainted: TaintedLastName; readonly fields: FieldControllersLastName; validate(): Result<LastName, Array<{field: string; message: string}>>; reset(overrides?: Partial<LastName>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormLastName(overrides?: Partial<LastName>): GigaformLastName {let data = $state({...LastName.defaultValue(),...overrides}); let errors = $state<ErrorsLastName>({ _errors: Option.none(), name: Option.none() }); let tainted = $state<TaintedLastName>({ name: Option.none() }); const fields: FieldControllersLastName = {name: {
+/** Nested error structure matching the data shape */export type ErrorsLastName = {_errors: Option<Array<string>>; name: Option<Array<string>>;}; /** Nested boolean structure for tracking touched/dirty fields */export type TaintedLastName = {name: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersLastName {readonly name: FieldController<string>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformLastName {readonly data: LastName; readonly errors: ErrorsLastName; readonly tainted: TaintedLastName; readonly fields: FieldControllersLastName; validate(): Result<LastName, Array<{field: string; message: string}>>; reset(overrides?: Partial<LastName>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormLastName(overrides?: Partial<LastName>): GigaformLastName {let data = $state({...defaultValueLastName(),...overrides}); let errors = $state<ErrorsLastName>({ _errors: Option.none(), name: Option.none() }); let tainted = $state<TaintedLastName>({ name: Option.none() }); const fields: FieldControllersLastName = {name: {
                     path: ["name"] as const,
                     name: "name",
                     constraints: { required: true },
@@ -12068,11 +12068,11 @@ export function fromStringifiedJSONLastName(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.name,
                     setTainted: (value: Option<boolean>) => { tainted.name = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = LastName.validateField("name", data.name);
+                        const fieldErrors = validateFieldLastName("name", data.name);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<LastName, Array<{field: string; message: string}>>{return LastName.fromObject(data);}function reset(newOverrides?: Partial<LastName>): void {data = {...LastName.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), name: Option.none() }; tainted = { name: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataLastName(formData: FormData): Result<LastName, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.name = formData.get("name") ?? ""; return LastName.fromStringifiedJSON(JSON.stringify(obj));}
+                }}; function validate(): Result<LastName, Array<{field: string; message: string}>>{return fromObjectLastName(data);}function reset(newOverrides?: Partial<LastName>): void {data = {...defaultValueLastName(),...newOverrides}; errors = { _errors: Option.none(), name: Option.none() }; tainted = { name: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataLastName(formData: FormData): Result<LastName, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; obj.name = formData.get("name") ?? ""; return fromStringifiedJSONLastName(JSON.stringify(obj));}
 
 
 export interface Cardinal {
@@ -12100,7 +12100,7 @@ export function fromStringifiedJSONCardinal(json: string, opts?: DeserializeOpti
             west: Option<boolean>;}; /** Type-safe field controllers for this form */export interface FieldControllersCardinal {readonly north: FieldController<number>;
             readonly east: FieldController<number>;
             readonly south: FieldController<number>;
-            readonly west: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCardinal {readonly data: Cardinal; readonly errors: ErrorsCardinal; readonly tainted: TaintedCardinal; readonly fields: FieldControllersCardinal; validate(): Result<Cardinal, Array<{field: string; message: string}>>; reset(overrides?: Partial<Cardinal>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCardinal(overrides?: Partial<Cardinal>): GigaformCardinal {let data = $state({...Cardinal.defaultValue(),...overrides}); let errors = $state<ErrorsCardinal>({ _errors: Option.none(), north: Option.none(), east: Option.none(), south: Option.none(), west: Option.none() }); let tainted = $state<TaintedCardinal>({ north: Option.none(), east: Option.none(), south: Option.none(), west: Option.none() }); const fields: FieldControllersCardinal = {north: {
+            readonly west: FieldController<number>;}/** Gigaform instance containing reactive state and field controllers */export interface GigaformCardinal {readonly data: Cardinal; readonly errors: ErrorsCardinal; readonly tainted: TaintedCardinal; readonly fields: FieldControllersCardinal; validate(): Result<Cardinal, Array<{field: string; message: string}>>; reset(overrides?: Partial<Cardinal>): void;}/** Creates a new Gigaform instance with reactive state and field controllers. */export function createFormCardinal(overrides?: Partial<Cardinal>): GigaformCardinal {let data = $state({...defaultValueCardinal(),...overrides}); let errors = $state<ErrorsCardinal>({ _errors: Option.none(), north: Option.none(), east: Option.none(), south: Option.none(), west: Option.none() }); let tainted = $state<TaintedCardinal>({ north: Option.none(), east: Option.none(), south: Option.none(), west: Option.none() }); const fields: FieldControllersCardinal = {north: {
                     path: ["north"] as const,
                     name: "north",
                     constraints: { required: true },
@@ -12113,7 +12113,7 @@ export function fromStringifiedJSONCardinal(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.north,
                     setTainted: (value: Option<boolean>) => { tainted.north = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Cardinal.validateField("north", data.north);
+                        const fieldErrors = validateFieldCardinal("north", data.north);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -12131,7 +12131,7 @@ export function fromStringifiedJSONCardinal(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.east,
                     setTainted: (value: Option<boolean>) => { tainted.east = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Cardinal.validateField("east", data.east);
+                        const fieldErrors = validateFieldCardinal("east", data.east);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -12149,7 +12149,7 @@ export function fromStringifiedJSONCardinal(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.south,
                     setTainted: (value: Option<boolean>) => { tainted.south = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Cardinal.validateField("south", data.south);
+                        const fieldErrors = validateFieldCardinal("south", data.south);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
@@ -12167,11 +12167,11 @@ export function fromStringifiedJSONCardinal(json: string, opts?: DeserializeOpti
                     getTainted: () => tainted.west,
                     setTainted: (value: Option<boolean>) => { tainted.west = value; },
                     validate: (): Array<string> => {
-                        const fieldErrors = Cardinal.validateField("west", data.west);
+                        const fieldErrors = validateFieldCardinal("west", data.west);
                         return fieldErrors.map((e: { field: string; message: string }) => e.message);
                     },
                     
-                }}; function validate(): Result<Cardinal, Array<{field: string; message: string}>>{return Cardinal.fromObject(data);}function reset(newOverrides?: Partial<Cardinal>): void {data = {...Cardinal.defaultValue(),...newOverrides}; errors = { _errors: Option.none(), north: Option.none(), east: Option.none(), south: Option.none(), west: Option.none() }; tainted = { north: Option.none(), east: Option.none(), south: Option.none(), west: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCardinal(formData: FormData): Result<Cardinal, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
+                }}; function validate(): Result<Cardinal, Array<{field: string; message: string}>>{return fromObjectCardinal(data);}function reset(newOverrides?: Partial<Cardinal>): void {data = {...defaultValueCardinal(),...newOverrides}; errors = { _errors: Option.none(), north: Option.none(), east: Option.none(), south: Option.none(), west: Option.none() }; tainted = { north: Option.none(), east: Option.none(), south: Option.none(), west: Option.none() };}return {get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, fields, validate, reset,};}/** Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize). */export function fromFormDataCardinal(formData: FormData): Result<Cardinal, Array<{field: string; message: string}>>{const obj: Record<string, unknown>= {}; {
                 const northStr = formData.get("north");
                 obj.north = northStr ? parseFloat(northStr as string) : 0;
                 if (obj.north !== undefined && isNaN(obj.north as number)) obj.north = 0;
@@ -12190,7 +12190,7 @@ export function fromStringifiedJSONCardinal(json: string, opts?: DeserializeOpti
                 const westStr = formData.get("west");
                 obj.west = westStr ? parseFloat(westStr as string) : 0;
                 if (obj.west !== undefined && isNaN(obj.west as number)) obj.west = 0;
-            } return Cardinal.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONCardinal(JSON.stringify(obj));}
 
 
 export type Interval =
@@ -12203,7 +12203,7 @@ export function defaultValueInterval(): Interval {return DailyRecurrenceRule.def
 
 export function toStringifiedJSONInterval(value: Interval): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeInterval(value, ctx));}export function toObjectInterval(value: Interval): unknown {const ctx = SerializeContext.create(); return __serializeInterval(value, ctx);}export function __serializeInterval(value: Interval, ctx: SerializeContext): unknown {if(typeof(value as any)?.__serialize === "function" ){return(value as any).__serialize(ctx);}return value;}
 
-export function fromStringifiedJSONInterval(json: string, opts?: DeserializeOptions): Result<Interval, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectInterval(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectInterval(obj: unknown, opts?: DeserializeOptions): Result<Interval, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeInterval(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Interval.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeInterval(value: any, ctx: DeserializeContext): Interval | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as Interval | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "Interval.__deserialize: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "Interval.__deserialize: missing __type field for union dispatch" }]);}if(__typeName === "DailyRecurrenceRule" ){if(typeof(DailyRecurrenceRule as any)?.__deserialize === "function" ){return(DailyRecurrenceRule as any).__deserialize(value, ctx)as Interval;}return value as Interval;}if(__typeName === "WeeklyRecurrenceRule" ){if(typeof(WeeklyRecurrenceRule as any)?.__deserialize === "function" ){return(WeeklyRecurrenceRule as any).__deserialize(value, ctx)as Interval;}return value as Interval;}if(__typeName === "MonthlyRecurrenceRule" ){if(typeof(MonthlyRecurrenceRule as any)?.__deserialize === "function" ){return(MonthlyRecurrenceRule as any).__deserialize(value, ctx)as Interval;}return value as Interval;}if(__typeName === "YearlyRecurrenceRule" ){if(typeof(YearlyRecurrenceRule as any)?.__deserialize === "function" ){return(YearlyRecurrenceRule as any).__deserialize(value, ctx)as Interval;}return value as Interval;}throw new DeserializeError([{field: "_root" , message: "Interval.__deserialize: unknown type \"" + __typeName + "\". Expected one of: DailyRecurrenceRule, WeeklyRecurrenceRule, MonthlyRecurrenceRule, YearlyRecurrenceRule" }]); }export function isInterval(value: unknown): value is Interval {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "DailyRecurrenceRule" || __typeName === "WeeklyRecurrenceRule" || __typeName === "MonthlyRecurrenceRule" || __typeName === "YearlyRecurrenceRule" ; }
+export function fromStringifiedJSONInterval(json: string, opts?: DeserializeOptions): Result<Interval, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectInterval(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectInterval(obj: unknown, opts?: DeserializeOptions): Result<Interval, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeInterval(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Interval.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeInterval(value: any, ctx: DeserializeContext): Interval | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as Interval | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "Interval.__deserialize: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "Interval.__deserialize: missing __type field for union dispatch" }]);}if(__typeName === "DailyRecurrenceRule" ){return __deserializeDailyRecurrenceRule(value, ctx)as Interval;}if(__typeName === "WeeklyRecurrenceRule" ){return __deserializeWeeklyRecurrenceRule(value, ctx)as Interval;}if(__typeName === "MonthlyRecurrenceRule" ){return __deserializeMonthlyRecurrenceRule(value, ctx)as Interval;}if(__typeName === "YearlyRecurrenceRule" ){return __deserializeYearlyRecurrenceRule(value, ctx)as Interval;}throw new DeserializeError([{field: "_root" , message: "Interval.__deserialize: unknown type \"" + __typeName + "\". Expected one of: DailyRecurrenceRule, WeeklyRecurrenceRule, MonthlyRecurrenceRule, YearlyRecurrenceRule" }]); }export function isInterval(value: unknown): value is Interval {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "DailyRecurrenceRule" || __typeName === "WeeklyRecurrenceRule" || __typeName === "MonthlyRecurrenceRule" || __typeName === "YearlyRecurrenceRule" ; }
 
 /** Per-variant error types */export type DailyRecurrenceRuleErrorsInterval = { _errors: Option<Array<string>>;  };
         export type WeeklyRecurrenceRuleErrorsInterval = { _errors: Option<Array<string>>;  };
@@ -12219,11 +12219,11 @@ export function fromStringifiedJSONInterval(json: string, opts?: DeserializeOpti
             readonly MonthlyRecurrenceRule: { readonly fields: MonthlyRecurrenceRuleFieldControllersInterval };
             readonly YearlyRecurrenceRule: { readonly fields: YearlyRecurrenceRuleFieldControllersInterval };}/** Gets default value for a specific variant */function getDefaultForVariantInterval(variant: string): Interval {
         switch (variant) {
-            case "DailyRecurrenceRule": return DailyRecurrenceRule.defaultValue() as Interval;
-            case "WeeklyRecurrenceRule": return WeeklyRecurrenceRule.defaultValue() as Interval;
-            case "MonthlyRecurrenceRule": return MonthlyRecurrenceRule.defaultValue() as Interval;
-            case "YearlyRecurrenceRule": return YearlyRecurrenceRule.defaultValue() as Interval;
-            default: return DailyRecurrenceRule.defaultValue() as Interval;
+            case "DailyRecurrenceRule": return defaultValueDailyRecurrenceRule() as Interval;
+            case "WeeklyRecurrenceRule": return defaultValueWeeklyRecurrenceRule() as Interval;
+            case "MonthlyRecurrenceRule": return defaultValueMonthlyRecurrenceRule() as Interval;
+            case "YearlyRecurrenceRule": return defaultValueYearlyRecurrenceRule() as Interval;
+            default: return defaultValueDailyRecurrenceRule() as Interval;
         }
     } /** Creates a new discriminated union Gigaform with variant switching */export function createFormInterval(initial?: Interval): GigaformInterval {const initialVariant: "DailyRecurrenceRule" | "WeeklyRecurrenceRule" | "MonthlyRecurrenceRule" | "YearlyRecurrenceRule" = "DailyRecurrenceRule"; let currentVariant = $state<"DailyRecurrenceRule" | "WeeklyRecurrenceRule" | "MonthlyRecurrenceRule" | "YearlyRecurrenceRule">(initialVariant); let data = $state<Interval>(initial?? getDefaultForVariantInterval(initialVariant)); let errors = $state<ErrorsInterval>({}as ErrorsInterval); let tainted = $state<TaintedInterval>({}as TaintedInterval); const variants: VariantFieldsInterval = {DailyRecurrenceRule: {
                     fields: {
@@ -12244,7 +12244,7 @@ export function fromStringifiedJSONInterval(json: string, opts?: DeserializeOpti
                     fields: {
                         
                     } as YearlyRecurrenceRuleFieldControllersInterval
-                }}; function switchVariant(variant: "DailyRecurrenceRule" | "WeeklyRecurrenceRule" | "MonthlyRecurrenceRule" | "YearlyRecurrenceRule"): void {currentVariant = variant; data = getDefaultForVariantInterval(variant); errors = {}as ErrorsInterval; tainted = {}as TaintedInterval;}function validate(): Result<Interval, Array<{field: string; message: string}>>{return Interval.fromObject(data);}function reset(overrides?: Partial<Interval>): void {data = overrides ? overrides as typeof data : getDefaultForVariantInterval(currentVariant); errors = {}as ErrorsInterval; tainted = {}as TaintedInterval;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataInterval(formData: FormData): Result<Interval, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "DailyRecurrenceRule" | "WeeklyRecurrenceRule" | "MonthlyRecurrenceRule" | "YearlyRecurrenceRule" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "DailyRecurrenceRule") {
+                }}; function switchVariant(variant: "DailyRecurrenceRule" | "WeeklyRecurrenceRule" | "MonthlyRecurrenceRule" | "YearlyRecurrenceRule"): void {currentVariant = variant; data = getDefaultForVariantInterval(variant); errors = {}as ErrorsInterval; tainted = {}as TaintedInterval;}function validate(): Result<Interval, Array<{field: string; message: string}>>{return fromObjectInterval(data);}function reset(overrides?: Partial<Interval>): void {data = overrides ? overrides as typeof data : getDefaultForVariantInterval(currentVariant); errors = {}as ErrorsInterval; tainted = {}as TaintedInterval;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataInterval(formData: FormData): Result<Interval, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "DailyRecurrenceRule" | "WeeklyRecurrenceRule" | "MonthlyRecurrenceRule" | "YearlyRecurrenceRule" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "DailyRecurrenceRule") {
                 
             } else if (discriminant === "WeeklyRecurrenceRule") {
                 
@@ -12252,7 +12252,7 @@ export function fromStringifiedJSONInterval(json: string, opts?: DeserializeOpti
                 
             } else if (discriminant === "YearlyRecurrenceRule") {
                 
-            } return Interval.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONInterval(JSON.stringify(obj));}
 
 
 export type Page =
@@ -12537,7 +12537,7 @@ export function fromStringifiedJSONPage(json: string, opts?: DeserializeOptions)
                     fields: {
                         
                     } as UserHomeFieldControllersPage
-                }}; function switchVariant(variant: "SalesHomeDashboard" | "SalesHomeProducts" | "SalesHomeServices" | "SalesHomePackages" | "SalesHomeTaxRates" | "SalesLeadsOverview" | "SalesLeadsActivities" | "SalesLeadsCampaigns" | "SalesLeadsDripCampaigns" | "SalesLeadsOpportunities" | "SalesLeadsPromotions" | "SalesAccountsOverview" | "SalesAccountsActivities" | "SalesAccountsBilling" | "SalesAccountsContracts" | "SalesOrdersOverview" | "SalesOrdersActivities" | "SalesOrdersPayments" | "SalesOrdersCommissions" | "SalesSchedulingSchedule" | "SalesSchedulingAppointments" | "SalesSchedulingRecurring" | "SalesSchedulingRoutes" | "SalesSchedulingReminders" | "UserHome"): void {currentVariant = variant; data = getDefaultForVariantPage(variant); errors = {}as ErrorsPage; tainted = {}as TaintedPage;}function validate(): Result<Page, Array<{field: string; message: string}>>{return Page.fromObject(data);}function reset(overrides?: Partial<Page>): void {data = overrides ? overrides as typeof data : getDefaultForVariantPage(currentVariant); errors = {}as ErrorsPage; tainted = {}as TaintedPage;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataPage(formData: FormData): Result<Page, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "SalesHomeDashboard" | "SalesHomeProducts" | "SalesHomeServices" | "SalesHomePackages" | "SalesHomeTaxRates" | "SalesLeadsOverview" | "SalesLeadsActivities" | "SalesLeadsCampaigns" | "SalesLeadsDripCampaigns" | "SalesLeadsOpportunities" | "SalesLeadsPromotions" | "SalesAccountsOverview" | "SalesAccountsActivities" | "SalesAccountsBilling" | "SalesAccountsContracts" | "SalesOrdersOverview" | "SalesOrdersActivities" | "SalesOrdersPayments" | "SalesOrdersCommissions" | "SalesSchedulingSchedule" | "SalesSchedulingAppointments" | "SalesSchedulingRecurring" | "SalesSchedulingRoutes" | "SalesSchedulingReminders" | "UserHome" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "SalesHomeDashboard") {
+                }}; function switchVariant(variant: "SalesHomeDashboard" | "SalesHomeProducts" | "SalesHomeServices" | "SalesHomePackages" | "SalesHomeTaxRates" | "SalesLeadsOverview" | "SalesLeadsActivities" | "SalesLeadsCampaigns" | "SalesLeadsDripCampaigns" | "SalesLeadsOpportunities" | "SalesLeadsPromotions" | "SalesAccountsOverview" | "SalesAccountsActivities" | "SalesAccountsBilling" | "SalesAccountsContracts" | "SalesOrdersOverview" | "SalesOrdersActivities" | "SalesOrdersPayments" | "SalesOrdersCommissions" | "SalesSchedulingSchedule" | "SalesSchedulingAppointments" | "SalesSchedulingRecurring" | "SalesSchedulingRoutes" | "SalesSchedulingReminders" | "UserHome"): void {currentVariant = variant; data = getDefaultForVariantPage(variant); errors = {}as ErrorsPage; tainted = {}as TaintedPage;}function validate(): Result<Page, Array<{field: string; message: string}>>{return fromObjectPage(data);}function reset(overrides?: Partial<Page>): void {data = overrides ? overrides as typeof data : getDefaultForVariantPage(currentVariant); errors = {}as ErrorsPage; tainted = {}as TaintedPage;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataPage(formData: FormData): Result<Page, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "SalesHomeDashboard" | "SalesHomeProducts" | "SalesHomeServices" | "SalesHomePackages" | "SalesHomeTaxRates" | "SalesLeadsOverview" | "SalesLeadsActivities" | "SalesLeadsCampaigns" | "SalesLeadsDripCampaigns" | "SalesLeadsOpportunities" | "SalesLeadsPromotions" | "SalesAccountsOverview" | "SalesAccountsActivities" | "SalesAccountsBilling" | "SalesAccountsContracts" | "SalesOrdersOverview" | "SalesOrdersActivities" | "SalesOrdersPayments" | "SalesOrdersCommissions" | "SalesSchedulingSchedule" | "SalesSchedulingAppointments" | "SalesSchedulingRecurring" | "SalesSchedulingRoutes" | "SalesSchedulingReminders" | "UserHome" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "SalesHomeDashboard") {
                 
             } else if (discriminant === "SalesHomeProducts") {
                 
@@ -12587,7 +12587,7 @@ export function fromStringifiedJSONPage(json: string, opts?: DeserializeOptions)
                 
             } else if (discriminant === "UserHome") {
                 
-            } return Page.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONPage(JSON.stringify(obj));}
 
 
 export type UserRole =
@@ -12652,7 +12652,7 @@ export function fromStringifiedJSONUserRole(json: string, opts?: DeserializeOpti
                     fields: {
                         
                     } as InformationTechnologyFieldControllersUserRole
-                }}; function switchVariant(variant: "Administrator" | "SalesRepresentative" | "Technician" | "HumanResources" | "InformationTechnology"): void {currentVariant = variant; data = getDefaultForVariantUserRole(variant); errors = {}as ErrorsUserRole; tainted = {}as TaintedUserRole;}function validate(): Result<UserRole, Array<{field: string; message: string}>>{return UserRole.fromObject(data);}function reset(overrides?: Partial<UserRole>): void {data = overrides ? overrides as typeof data : getDefaultForVariantUserRole(currentVariant); errors = {}as ErrorsUserRole; tainted = {}as TaintedUserRole;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataUserRole(formData: FormData): Result<UserRole, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Administrator" | "SalesRepresentative" | "Technician" | "HumanResources" | "InformationTechnology" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Administrator") {
+                }}; function switchVariant(variant: "Administrator" | "SalesRepresentative" | "Technician" | "HumanResources" | "InformationTechnology"): void {currentVariant = variant; data = getDefaultForVariantUserRole(variant); errors = {}as ErrorsUserRole; tainted = {}as TaintedUserRole;}function validate(): Result<UserRole, Array<{field: string; message: string}>>{return fromObjectUserRole(data);}function reset(overrides?: Partial<UserRole>): void {data = overrides ? overrides as typeof data : getDefaultForVariantUserRole(currentVariant); errors = {}as ErrorsUserRole; tainted = {}as TaintedUserRole;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataUserRole(formData: FormData): Result<UserRole, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Administrator" | "SalesRepresentative" | "Technician" | "HumanResources" | "InformationTechnology" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Administrator") {
                 
             } else if (discriminant === "SalesRepresentative") {
                 
@@ -12662,7 +12662,7 @@ export function fromStringifiedJSONUserRole(json: string, opts?: DeserializeOpti
                 
             } else if (discriminant === "InformationTechnology") {
                 
-            } return UserRole.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONUserRole(JSON.stringify(obj));}
 
 
 export type Target =
@@ -12688,7 +12688,7 @@ export function defaultValueTarget(): Target {return Account.defaultValue();}
 
 export function toStringifiedJSONTarget(value: Target): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeTarget(value, ctx));}export function toObjectTarget(value: Target): unknown {const ctx = SerializeContext.create(); return __serializeTarget(value, ctx);}export function __serializeTarget(value: Target, ctx: SerializeContext): unknown {if(typeof(value as any)?.__serialize === "function" ){return(value as any).__serialize(ctx);}return value;}
 
-export function fromStringifiedJSONTarget(json: string, opts?: DeserializeOptions): Result<Target, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectTarget(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectTarget(obj: unknown, opts?: DeserializeOptions): Result<Target, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeTarget(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Target.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeTarget(value: any, ctx: DeserializeContext): Target | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as Target | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "Target.__deserialize: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "Target.__deserialize: missing __type field for union dispatch" }]);}if(__typeName === "Account" ){if(typeof(Account as any)?.__deserialize === "function" ){return(Account as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "User" ){if(typeof(User as any)?.__deserialize === "function" ){return(User as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "Employee" ){if(typeof(Employee as any)?.__deserialize === "function" ){return(Employee as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "Appointment" ){if(typeof(Appointment as any)?.__deserialize === "function" ){return(Appointment as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "Lead" ){if(typeof(Lead as any)?.__deserialize === "function" ){return(Lead as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "TaxRate" ){if(typeof(TaxRate as any)?.__deserialize === "function" ){return(TaxRate as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "Site" ){if(typeof(Site as any)?.__deserialize === "function" ){return(Site as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "Route" ){if(typeof(Route as any)?.__deserialize === "function" ){return(Route as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "Company" ){if(typeof(Company as any)?.__deserialize === "function" ){return(Company as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "Product" ){if(typeof(Product as any)?.__deserialize === "function" ){return(Product as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "Service" ){if(typeof(Service as any)?.__deserialize === "function" ){return(Service as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "Order" ){if(typeof(Order as any)?.__deserialize === "function" ){return(Order as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "Payment" ){if(typeof(Payment as any)?.__deserialize === "function" ){return(Payment as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "Package" ){if(typeof(Package as any)?.__deserialize === "function" ){return(Package as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "Promotion" ){if(typeof(Promotion as any)?.__deserialize === "function" ){return(Promotion as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "Represents" ){if(typeof(Represents as any)?.__deserialize === "function" ){return(Represents as any).__deserialize(value, ctx)as Target;}return value as Target;}if(__typeName === "Ordered" ){if(typeof(Ordered as any)?.__deserialize === "function" ){return(Ordered as any).__deserialize(value, ctx)as Target;}return value as Target;}throw new DeserializeError([{field: "_root" , message: "Target.__deserialize: unknown type \"" + __typeName + "\". Expected one of: Account, User, Employee, Appointment, Lead, TaxRate, Site, Route, Company, Product, Service, Order, Payment, Package, Promotion, Represents, Ordered" }]); }export function isTarget(value: unknown): value is Target {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "Account" || __typeName === "User" || __typeName === "Employee" || __typeName === "Appointment" || __typeName === "Lead" || __typeName === "TaxRate" || __typeName === "Site" || __typeName === "Route" || __typeName === "Company" || __typeName === "Product" || __typeName === "Service" || __typeName === "Order" || __typeName === "Payment" || __typeName === "Package" || __typeName === "Promotion" || __typeName === "Represents" || __typeName === "Ordered" ; }
+export function fromStringifiedJSONTarget(json: string, opts?: DeserializeOptions): Result<Target, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectTarget(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectTarget(obj: unknown, opts?: DeserializeOptions): Result<Target, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeTarget(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Target.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeTarget(value: any, ctx: DeserializeContext): Target | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as Target | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "Target.__deserialize: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "Target.__deserialize: missing __type field for union dispatch" }]);}if(__typeName === "Account" ){return __deserializeAccount(value, ctx)as Target;}if(__typeName === "User" ){return __deserializeUser(value, ctx)as Target;}if(__typeName === "Employee" ){return __deserializeEmployee(value, ctx)as Target;}if(__typeName === "Appointment" ){return __deserializeAppointment(value, ctx)as Target;}if(__typeName === "Lead" ){return __deserializeLead(value, ctx)as Target;}if(__typeName === "TaxRate" ){return __deserializeTaxRate(value, ctx)as Target;}if(__typeName === "Site" ){return __deserializeSite(value, ctx)as Target;}if(__typeName === "Route" ){return __deserializeRoute(value, ctx)as Target;}if(__typeName === "Company" ){return __deserializeCompany(value, ctx)as Target;}if(__typeName === "Product" ){return __deserializeProduct(value, ctx)as Target;}if(__typeName === "Service" ){return __deserializeService(value, ctx)as Target;}if(__typeName === "Order" ){return __deserializeOrder(value, ctx)as Target;}if(__typeName === "Payment" ){return __deserializePayment(value, ctx)as Target;}if(__typeName === "Package" ){return __deserializePackage(value, ctx)as Target;}if(__typeName === "Promotion" ){return __deserializePromotion(value, ctx)as Target;}if(__typeName === "Represents" ){return __deserializeRepresents(value, ctx)as Target;}if(__typeName === "Ordered" ){return __deserializeOrdered(value, ctx)as Target;}throw new DeserializeError([{field: "_root" , message: "Target.__deserialize: unknown type \"" + __typeName + "\". Expected one of: Account, User, Employee, Appointment, Lead, TaxRate, Site, Route, Company, Product, Service, Order, Payment, Package, Promotion, Represents, Ordered" }]); }export function isTarget(value: unknown): value is Target {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "Account" || __typeName === "User" || __typeName === "Employee" || __typeName === "Appointment" || __typeName === "Lead" || __typeName === "TaxRate" || __typeName === "Site" || __typeName === "Route" || __typeName === "Company" || __typeName === "Product" || __typeName === "Service" || __typeName === "Order" || __typeName === "Payment" || __typeName === "Package" || __typeName === "Promotion" || __typeName === "Represents" || __typeName === "Ordered" ; }
 
 /** Per-variant error types */export type AccountErrorsTarget = { _errors: Option<Array<string>>;  };
         export type UserErrorsTarget = { _errors: Option<Array<string>>;  };
@@ -12756,24 +12756,24 @@ export function fromStringifiedJSONTarget(json: string, opts?: DeserializeOption
             readonly Represents: { readonly fields: RepresentsFieldControllersTarget };
             readonly Ordered: { readonly fields: OrderedFieldControllersTarget };}/** Gets default value for a specific variant */function getDefaultForVariantTarget(variant: string): Target {
         switch (variant) {
-            case "Account": return Account.defaultValue() as Target;
-            case "User": return User.defaultValue() as Target;
-            case "Employee": return Employee.defaultValue() as Target;
-            case "Appointment": return Appointment.defaultValue() as Target;
-            case "Lead": return Lead.defaultValue() as Target;
-            case "TaxRate": return TaxRate.defaultValue() as Target;
-            case "Site": return Site.defaultValue() as Target;
-            case "Route": return Route.defaultValue() as Target;
-            case "Company": return Company.defaultValue() as Target;
-            case "Product": return Product.defaultValue() as Target;
-            case "Service": return Service.defaultValue() as Target;
-            case "Order": return Order.defaultValue() as Target;
-            case "Payment": return Payment.defaultValue() as Target;
-            case "Package": return Package.defaultValue() as Target;
-            case "Promotion": return Promotion.defaultValue() as Target;
-            case "Represents": return Represents.defaultValue() as Target;
-            case "Ordered": return Ordered.defaultValue() as Target;
-            default: return Account.defaultValue() as Target;
+            case "Account": return defaultValueAccount() as Target;
+            case "User": return defaultValueUser() as Target;
+            case "Employee": return defaultValueEmployee() as Target;
+            case "Appointment": return defaultValueAppointment() as Target;
+            case "Lead": return defaultValueLead() as Target;
+            case "TaxRate": return defaultValueTaxRate() as Target;
+            case "Site": return defaultValueSite() as Target;
+            case "Route": return defaultValueRoute() as Target;
+            case "Company": return defaultValueCompany() as Target;
+            case "Product": return defaultValueProduct() as Target;
+            case "Service": return defaultValueService() as Target;
+            case "Order": return defaultValueOrder() as Target;
+            case "Payment": return defaultValuePayment() as Target;
+            case "Package": return defaultValuePackage() as Target;
+            case "Promotion": return defaultValuePromotion() as Target;
+            case "Represents": return defaultValueRepresents() as Target;
+            case "Ordered": return defaultValueOrdered() as Target;
+            default: return defaultValueAccount() as Target;
         }
     } /** Creates a new discriminated union Gigaform with variant switching */export function createFormTarget(initial?: Target): GigaformTarget {const initialVariant: "Account" | "User" | "Employee" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Route" | "Company" | "Product" | "Service" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered" = "Account"; let currentVariant = $state<"Account" | "User" | "Employee" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Route" | "Company" | "Product" | "Service" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered">(initialVariant); let data = $state<Target>(initial?? getDefaultForVariantTarget(initialVariant)); let errors = $state<ErrorsTarget>({}as ErrorsTarget); let tainted = $state<TaintedTarget>({}as TaintedTarget); const variants: VariantFieldsTarget = {Account: {
                     fields: {
@@ -12859,7 +12859,7 @@ export function fromStringifiedJSONTarget(json: string, opts?: DeserializeOption
                     fields: {
                         
                     } as OrderedFieldControllersTarget
-                }}; function switchVariant(variant: "Account" | "User" | "Employee" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Route" | "Company" | "Product" | "Service" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered"): void {currentVariant = variant; data = getDefaultForVariantTarget(variant); errors = {}as ErrorsTarget; tainted = {}as TaintedTarget;}function validate(): Result<Target, Array<{field: string; message: string}>>{return Target.fromObject(data);}function reset(overrides?: Partial<Target>): void {data = overrides ? overrides as typeof data : getDefaultForVariantTarget(currentVariant); errors = {}as ErrorsTarget; tainted = {}as TaintedTarget;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataTarget(formData: FormData): Result<Target, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "Account" | "User" | "Employee" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Route" | "Company" | "Product" | "Service" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "Account") {
+                }}; function switchVariant(variant: "Account" | "User" | "Employee" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Route" | "Company" | "Product" | "Service" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered"): void {currentVariant = variant; data = getDefaultForVariantTarget(variant); errors = {}as ErrorsTarget; tainted = {}as TaintedTarget;}function validate(): Result<Target, Array<{field: string; message: string}>>{return fromObjectTarget(data);}function reset(overrides?: Partial<Target>): void {data = overrides ? overrides as typeof data : getDefaultForVariantTarget(currentVariant); errors = {}as ErrorsTarget; tainted = {}as TaintedTarget;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataTarget(formData: FormData): Result<Target, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "Account" | "User" | "Employee" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Route" | "Company" | "Product" | "Service" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "Account") {
                 
             } else if (discriminant === "User") {
                 
@@ -12893,7 +12893,7 @@ export function fromStringifiedJSONTarget(json: string, opts?: DeserializeOption
                 
             } else if (discriminant === "Ordered") {
                 
-            } return Target.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONTarget(JSON.stringify(obj));}
 
 
 export type RecurrenceEnd = /** @default(0) */ number | string;
@@ -12923,11 +12923,11 @@ export function fromStringifiedJSONRecurrenceEnd(json: string, opts?: Deserializ
                     fields: {
                         
                     } as StringFieldControllersRecurrenceEnd
-                }}; function switchVariant(variant: "number" | "string"): void {currentVariant = variant; data = getDefaultForVariantRecurrenceEnd(variant); errors = {}as ErrorsRecurrenceEnd; tainted = {}as TaintedRecurrenceEnd;}function validate(): Result<RecurrenceEnd, Array<{field: string; message: string}>>{return RecurrenceEnd.fromObject(data);}function reset(overrides?: Partial<RecurrenceEnd>): void {data = overrides ? overrides as typeof data : getDefaultForVariantRecurrenceEnd(currentVariant); errors = {}as ErrorsRecurrenceEnd; tainted = {}as TaintedRecurrenceEnd;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataRecurrenceEnd(formData: FormData): Result<RecurrenceEnd, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "number" | "string" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "number") {
+                }}; function switchVariant(variant: "number" | "string"): void {currentVariant = variant; data = getDefaultForVariantRecurrenceEnd(variant); errors = {}as ErrorsRecurrenceEnd; tainted = {}as TaintedRecurrenceEnd;}function validate(): Result<RecurrenceEnd, Array<{field: string; message: string}>>{return fromObjectRecurrenceEnd(data);}function reset(overrides?: Partial<RecurrenceEnd>): void {data = overrides ? overrides as typeof data : getDefaultForVariantRecurrenceEnd(currentVariant); errors = {}as ErrorsRecurrenceEnd; tainted = {}as TaintedRecurrenceEnd;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataRecurrenceEnd(formData: FormData): Result<RecurrenceEnd, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "number" | "string" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "number") {
                 
             } else if (discriminant === "string") {
                 
-            } return RecurrenceEnd.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONRecurrenceEnd(JSON.stringify(obj));}
 
 
 export type OverviewDisplay = /** @default */ 'Card' | 'Table';
@@ -12957,11 +12957,11 @@ export function fromStringifiedJSONOverviewDisplay(json: string, opts?: Deserial
                     fields: {
                         
                     } as TableFieldControllersOverviewDisplay
-                }}; function switchVariant(variant: "Card" | "Table"): void {currentVariant = variant; data = getDefaultForVariantOverviewDisplay(variant); errors = {}as ErrorsOverviewDisplay; tainted = {}as TaintedOverviewDisplay;}function validate(): Result<OverviewDisplay, Array<{field: string; message: string}>>{return OverviewDisplay.fromObject(data);}function reset(overrides?: Partial<OverviewDisplay>): void {data = overrides ? overrides as typeof data : getDefaultForVariantOverviewDisplay(currentVariant); errors = {}as ErrorsOverviewDisplay; tainted = {}as TaintedOverviewDisplay;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataOverviewDisplay(formData: FormData): Result<OverviewDisplay, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Card" | "Table" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Card") {
+                }}; function switchVariant(variant: "Card" | "Table"): void {currentVariant = variant; data = getDefaultForVariantOverviewDisplay(variant); errors = {}as ErrorsOverviewDisplay; tainted = {}as TaintedOverviewDisplay;}function validate(): Result<OverviewDisplay, Array<{field: string; message: string}>>{return fromObjectOverviewDisplay(data);}function reset(overrides?: Partial<OverviewDisplay>): void {data = overrides ? overrides as typeof data : getDefaultForVariantOverviewDisplay(currentVariant); errors = {}as ErrorsOverviewDisplay; tainted = {}as TaintedOverviewDisplay;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataOverviewDisplay(formData: FormData): Result<OverviewDisplay, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Card" | "Table" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Card") {
                 
             } else if (discriminant === "Table") {
                 
-            } return OverviewDisplay.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONOverviewDisplay(JSON.stringify(obj));}
 
 
 export type IntervalUnit = /** @default */ 'Day' | 'Week' | 'Month' | 'Year';
@@ -13011,7 +13011,7 @@ export function fromStringifiedJSONIntervalUnit(json: string, opts?: Deserialize
                     fields: {
                         
                     } as YearFieldControllersIntervalUnit
-                }}; function switchVariant(variant: "Day" | "Week" | "Month" | "Year"): void {currentVariant = variant; data = getDefaultForVariantIntervalUnit(variant); errors = {}as ErrorsIntervalUnit; tainted = {}as TaintedIntervalUnit;}function validate(): Result<IntervalUnit, Array<{field: string; message: string}>>{return IntervalUnit.fromObject(data);}function reset(overrides?: Partial<IntervalUnit>): void {data = overrides ? overrides as typeof data : getDefaultForVariantIntervalUnit(currentVariant); errors = {}as ErrorsIntervalUnit; tainted = {}as TaintedIntervalUnit;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataIntervalUnit(formData: FormData): Result<IntervalUnit, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Day" | "Week" | "Month" | "Year" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Day") {
+                }}; function switchVariant(variant: "Day" | "Week" | "Month" | "Year"): void {currentVariant = variant; data = getDefaultForVariantIntervalUnit(variant); errors = {}as ErrorsIntervalUnit; tainted = {}as TaintedIntervalUnit;}function validate(): Result<IntervalUnit, Array<{field: string; message: string}>>{return fromObjectIntervalUnit(data);}function reset(overrides?: Partial<IntervalUnit>): void {data = overrides ? overrides as typeof data : getDefaultForVariantIntervalUnit(currentVariant); errors = {}as ErrorsIntervalUnit; tainted = {}as TaintedIntervalUnit;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataIntervalUnit(formData: FormData): Result<IntervalUnit, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Day" | "Week" | "Month" | "Year" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Day") {
                 
             } else if (discriminant === "Week") {
                 
@@ -13019,7 +13019,7 @@ export function fromStringifiedJSONIntervalUnit(json: string, opts?: Deserialize
                 
             } else if (discriminant === "Year") {
                 
-            } return IntervalUnit.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONIntervalUnit(JSON.stringify(obj));}
 
 
 export type Sector = /** @default */ 'Residential' | 'Commercial';
@@ -13049,11 +13049,11 @@ export function fromStringifiedJSONSector(json: string, opts?: DeserializeOption
                     fields: {
                         
                     } as CommercialFieldControllersSector
-                }}; function switchVariant(variant: "Residential" | "Commercial"): void {currentVariant = variant; data = getDefaultForVariantSector(variant); errors = {}as ErrorsSector; tainted = {}as TaintedSector;}function validate(): Result<Sector, Array<{field: string; message: string}>>{return Sector.fromObject(data);}function reset(overrides?: Partial<Sector>): void {data = overrides ? overrides as typeof data : getDefaultForVariantSector(currentVariant); errors = {}as ErrorsSector; tainted = {}as TaintedSector;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataSector(formData: FormData): Result<Sector, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Residential" | "Commercial" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Residential") {
+                }}; function switchVariant(variant: "Residential" | "Commercial"): void {currentVariant = variant; data = getDefaultForVariantSector(variant); errors = {}as ErrorsSector; tainted = {}as TaintedSector;}function validate(): Result<Sector, Array<{field: string; message: string}>>{return fromObjectSector(data);}function reset(overrides?: Partial<Sector>): void {data = overrides ? overrides as typeof data : getDefaultForVariantSector(currentVariant); errors = {}as ErrorsSector; tainted = {}as TaintedSector;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataSector(formData: FormData): Result<Sector, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Residential" | "Commercial" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Residential") {
                 
             } else if (discriminant === "Commercial") {
                 
-            } return Sector.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONSector(JSON.stringify(obj));}
 
 
 export type Weekday =
@@ -13140,7 +13140,7 @@ export function fromStringifiedJSONWeekday(json: string, opts?: DeserializeOptio
                     fields: {
                         
                     } as SundayFieldControllersWeekday
-                }}; function switchVariant(variant: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday"): void {currentVariant = variant; data = getDefaultForVariantWeekday(variant); errors = {}as ErrorsWeekday; tainted = {}as TaintedWeekday;}function validate(): Result<Weekday, Array<{field: string; message: string}>>{return Weekday.fromObject(data);}function reset(overrides?: Partial<Weekday>): void {data = overrides ? overrides as typeof data : getDefaultForVariantWeekday(currentVariant); errors = {}as ErrorsWeekday; tainted = {}as TaintedWeekday;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataWeekday(formData: FormData): Result<Weekday, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Monday") {
+                }}; function switchVariant(variant: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday"): void {currentVariant = variant; data = getDefaultForVariantWeekday(variant); errors = {}as ErrorsWeekday; tainted = {}as TaintedWeekday;}function validate(): Result<Weekday, Array<{field: string; message: string}>>{return fromObjectWeekday(data);}function reset(overrides?: Partial<Weekday>): void {data = overrides ? overrides as typeof data : getDefaultForVariantWeekday(currentVariant); errors = {}as ErrorsWeekday; tainted = {}as TaintedWeekday;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataWeekday(formData: FormData): Result<Weekday, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Monday") {
                 
             } else if (discriminant === "Tuesday") {
                 
@@ -13154,7 +13154,7 @@ export function fromStringifiedJSONWeekday(json: string, opts?: DeserializeOptio
                 
             } else if (discriminant === "Sunday") {
                 
-            } return Weekday.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONWeekday(JSON.stringify(obj));}
 
 
 export type Status = /** @default */ 'Scheduled' | 'OnDeck' | 'Waiting';
@@ -13194,13 +13194,13 @@ export function fromStringifiedJSONStatus(json: string, opts?: DeserializeOption
                     fields: {
                         
                     } as WaitingFieldControllersStatus
-                }}; function switchVariant(variant: "Scheduled" | "OnDeck" | "Waiting"): void {currentVariant = variant; data = getDefaultForVariantStatus(variant); errors = {}as ErrorsStatus; tainted = {}as TaintedStatus;}function validate(): Result<Status, Array<{field: string; message: string}>>{return Status.fromObject(data);}function reset(overrides?: Partial<Status>): void {data = overrides ? overrides as typeof data : getDefaultForVariantStatus(currentVariant); errors = {}as ErrorsStatus; tainted = {}as TaintedStatus;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataStatus(formData: FormData): Result<Status, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Scheduled" | "OnDeck" | "Waiting" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Scheduled") {
+                }}; function switchVariant(variant: "Scheduled" | "OnDeck" | "Waiting"): void {currentVariant = variant; data = getDefaultForVariantStatus(variant); errors = {}as ErrorsStatus; tainted = {}as TaintedStatus;}function validate(): Result<Status, Array<{field: string; message: string}>>{return fromObjectStatus(data);}function reset(overrides?: Partial<Status>): void {data = overrides ? overrides as typeof data : getDefaultForVariantStatus(currentVariant); errors = {}as ErrorsStatus; tainted = {}as TaintedStatus;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataStatus(formData: FormData): Result<Status, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Scheduled" | "OnDeck" | "Waiting" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Scheduled") {
                 
             } else if (discriminant === "OnDeck") {
                 
             } else if (discriminant === "Waiting") {
                 
-            } return Status.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONStatus(JSON.stringify(obj));}
 
 
 export type NextStep = /** @default */ 'InitialContact' | 'Qualified' | 'Estimate' | 'Negotiation';
@@ -13250,7 +13250,7 @@ export function fromStringifiedJSONNextStep(json: string, opts?: DeserializeOpti
                     fields: {
                         
                     } as NegotiationFieldControllersNextStep
-                }}; function switchVariant(variant: "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void {currentVariant = variant; data = getDefaultForVariantNextStep(variant); errors = {}as ErrorsNextStep; tainted = {}as TaintedNextStep;}function validate(): Result<NextStep, Array<{field: string; message: string}>>{return NextStep.fromObject(data);}function reset(overrides?: Partial<NextStep>): void {data = overrides ? overrides as typeof data : getDefaultForVariantNextStep(currentVariant); errors = {}as ErrorsNextStep; tainted = {}as TaintedNextStep;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataNextStep(formData: FormData): Result<NextStep, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "InitialContact" | "Qualified" | "Estimate" | "Negotiation" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "InitialContact") {
+                }}; function switchVariant(variant: "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void {currentVariant = variant; data = getDefaultForVariantNextStep(variant); errors = {}as ErrorsNextStep; tainted = {}as TaintedNextStep;}function validate(): Result<NextStep, Array<{field: string; message: string}>>{return fromObjectNextStep(data);}function reset(overrides?: Partial<NextStep>): void {data = overrides ? overrides as typeof data : getDefaultForVariantNextStep(currentVariant); errors = {}as ErrorsNextStep; tainted = {}as TaintedNextStep;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataNextStep(formData: FormData): Result<NextStep, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "InitialContact" | "Qualified" | "Estimate" | "Negotiation" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "InitialContact") {
                 
             } else if (discriminant === "Qualified") {
                 
@@ -13258,7 +13258,7 @@ export function fromStringifiedJSONNextStep(json: string, opts?: DeserializeOpti
                 
             } else if (discriminant === "Negotiation") {
                 
-            } return NextStep.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONNextStep(JSON.stringify(obj));}
 
 
 export type LeadStage =
@@ -13323,7 +13323,7 @@ export function fromStringifiedJSONLeadStage(json: string, opts?: DeserializeOpt
                     fields: {
                         
                     } as NegotiationFieldControllersLeadStage
-                }}; function switchVariant(variant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void {currentVariant = variant; data = getDefaultForVariantLeadStage(variant); errors = {}as ErrorsLeadStage; tainted = {}as TaintedLeadStage;}function validate(): Result<LeadStage, Array<{field: string; message: string}>>{return LeadStage.fromObject(data);}function reset(overrides?: Partial<LeadStage>): void {data = overrides ? overrides as typeof data : getDefaultForVariantLeadStage(currentVariant); errors = {}as ErrorsLeadStage; tainted = {}as TaintedLeadStage;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataLeadStage(formData: FormData): Result<LeadStage, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Open") {
+                }}; function switchVariant(variant: "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation"): void {currentVariant = variant; data = getDefaultForVariantLeadStage(variant); errors = {}as ErrorsLeadStage; tainted = {}as TaintedLeadStage;}function validate(): Result<LeadStage, Array<{field: string; message: string}>>{return fromObjectLeadStage(data);}function reset(overrides?: Partial<LeadStage>): void {data = overrides ? overrides as typeof data : getDefaultForVariantLeadStage(currentVariant); errors = {}as ErrorsLeadStage; tainted = {}as TaintedLeadStage;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataLeadStage(formData: FormData): Result<LeadStage, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Open" | "InitialContact" | "Qualified" | "Estimate" | "Negotiation" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Open") {
                 
             } else if (discriminant === "InitialContact") {
                 
@@ -13333,7 +13333,7 @@ export function fromStringifiedJSONLeadStage(json: string, opts?: DeserializeOpt
                 
             } else if (discriminant === "Negotiation") {
                 
-            } return LeadStage.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONLeadStage(JSON.stringify(obj));}
 
 
 export type AccountName = /** @default */ CompanyName | PersonName;
@@ -13342,7 +13342,7 @@ export function defaultValueAccountName(): AccountName {return CompanyName.defau
 
 export function toStringifiedJSONAccountName(value: AccountName): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeAccountName(value, ctx));}export function toObjectAccountName(value: AccountName): unknown {const ctx = SerializeContext.create(); return __serializeAccountName(value, ctx);}export function __serializeAccountName(value: AccountName, ctx: SerializeContext): unknown {if(typeof(value as any)?.__serialize === "function" ){return(value as any).__serialize(ctx);}return value;}
 
-export function fromStringifiedJSONAccountName(json: string, opts?: DeserializeOptions): Result<AccountName, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectAccountName(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectAccountName(obj: unknown, opts?: DeserializeOptions): Result<AccountName, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeAccountName(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "AccountName.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeAccountName(value: any, ctx: DeserializeContext): AccountName | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as AccountName | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "AccountName.__deserialize: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "AccountName.__deserialize: missing __type field for union dispatch" }]);}if(__typeName === "CompanyName" ){if(typeof(CompanyName as any)?.__deserialize === "function" ){return(CompanyName as any).__deserialize(value, ctx)as AccountName;}return value as AccountName;}if(__typeName === "PersonName" ){if(typeof(PersonName as any)?.__deserialize === "function" ){return(PersonName as any).__deserialize(value, ctx)as AccountName;}return value as AccountName;}throw new DeserializeError([{field: "_root" , message: "AccountName.__deserialize: unknown type \"" + __typeName + "\". Expected one of: CompanyName, PersonName" }]); }export function isAccountName(value: unknown): value is AccountName {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "CompanyName" || __typeName === "PersonName" ; }
+export function fromStringifiedJSONAccountName(json: string, opts?: DeserializeOptions): Result<AccountName, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectAccountName(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectAccountName(obj: unknown, opts?: DeserializeOptions): Result<AccountName, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeAccountName(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "AccountName.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeAccountName(value: any, ctx: DeserializeContext): AccountName | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as AccountName | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "AccountName.__deserialize: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "AccountName.__deserialize: missing __type field for union dispatch" }]);}if(__typeName === "CompanyName" ){return __deserializeCompanyName(value, ctx)as AccountName;}if(__typeName === "PersonName" ){return __deserializePersonName(value, ctx)as AccountName;}throw new DeserializeError([{field: "_root" , message: "AccountName.__deserialize: unknown type \"" + __typeName + "\". Expected one of: CompanyName, PersonName" }]); }export function isAccountName(value: unknown): value is AccountName {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "CompanyName" || __typeName === "PersonName" ; }
 
 /** Per-variant error types */export type CompanyNameErrorsAccountName = { _errors: Option<Array<string>>;  };
         export type PersonNameErrorsAccountName = { _errors: Option<Array<string>>;  }; /** Per-variant tainted types */export type CompanyNameTaintedAccountName = {  };
@@ -13350,9 +13350,9 @@ export function fromStringifiedJSONAccountName(json: string, opts?: DeserializeO
         export interface PersonNameFieldControllersAccountName {  } /** Union Gigaform interface with variant switching */export interface GigaformAccountName {readonly currentVariant: "CompanyName" | "PersonName"; readonly data: AccountName; readonly errors: ErrorsAccountName; readonly tainted: TaintedAccountName; readonly variants: VariantFieldsAccountName; switchVariant(variant: "CompanyName" | "PersonName"): void; validate(): Result<AccountName, Array<{field: string; message: string}>>; reset(overrides?: Partial<AccountName>): void;}/** Variant fields container */export interface VariantFieldsAccountName {readonly CompanyName: { readonly fields: CompanyNameFieldControllersAccountName };
             readonly PersonName: { readonly fields: PersonNameFieldControllersAccountName };}/** Gets default value for a specific variant */function getDefaultForVariantAccountName(variant: string): AccountName {
         switch (variant) {
-            case "CompanyName": return CompanyName.defaultValue() as AccountName;
-            case "PersonName": return PersonName.defaultValue() as AccountName;
-            default: return CompanyName.defaultValue() as AccountName;
+            case "CompanyName": return defaultValueCompanyName() as AccountName;
+            case "PersonName": return defaultValuePersonName() as AccountName;
+            default: return defaultValueCompanyName() as AccountName;
         }
     } /** Creates a new discriminated union Gigaform with variant switching */export function createFormAccountName(initial?: AccountName): GigaformAccountName {const initialVariant: "CompanyName" | "PersonName" = "CompanyName"; let currentVariant = $state<"CompanyName" | "PersonName">(initialVariant); let data = $state<AccountName>(initial?? getDefaultForVariantAccountName(initialVariant)); let errors = $state<ErrorsAccountName>({}as ErrorsAccountName); let tainted = $state<TaintedAccountName>({}as TaintedAccountName); const variants: VariantFieldsAccountName = {CompanyName: {
                     fields: {
@@ -13363,11 +13363,11 @@ export function fromStringifiedJSONAccountName(json: string, opts?: DeserializeO
                     fields: {
                         
                     } as PersonNameFieldControllersAccountName
-                }}; function switchVariant(variant: "CompanyName" | "PersonName"): void {currentVariant = variant; data = getDefaultForVariantAccountName(variant); errors = {}as ErrorsAccountName; tainted = {}as TaintedAccountName;}function validate(): Result<AccountName, Array<{field: string; message: string}>>{return AccountName.fromObject(data);}function reset(overrides?: Partial<AccountName>): void {data = overrides ? overrides as typeof data : getDefaultForVariantAccountName(currentVariant); errors = {}as ErrorsAccountName; tainted = {}as TaintedAccountName;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataAccountName(formData: FormData): Result<AccountName, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "CompanyName" | "PersonName" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "CompanyName") {
+                }}; function switchVariant(variant: "CompanyName" | "PersonName"): void {currentVariant = variant; data = getDefaultForVariantAccountName(variant); errors = {}as ErrorsAccountName; tainted = {}as TaintedAccountName;}function validate(): Result<AccountName, Array<{field: string; message: string}>>{return fromObjectAccountName(data);}function reset(overrides?: Partial<AccountName>): void {data = overrides ? overrides as typeof data : getDefaultForVariantAccountName(currentVariant); errors = {}as ErrorsAccountName; tainted = {}as TaintedAccountName;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataAccountName(formData: FormData): Result<AccountName, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "CompanyName" | "PersonName" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "CompanyName") {
                 
             } else if (discriminant === "PersonName") {
                 
-            } return AccountName.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONAccountName(JSON.stringify(obj));}
 
 
 export type Priority = /** @default */ 'Medium' | 'High' | 'Low';
@@ -13407,13 +13407,13 @@ export function fromStringifiedJSONPriority(json: string, opts?: DeserializeOpti
                     fields: {
                         
                     } as LowFieldControllersPriority
-                }}; function switchVariant(variant: "Medium" | "High" | "Low"): void {currentVariant = variant; data = getDefaultForVariantPriority(variant); errors = {}as ErrorsPriority; tainted = {}as TaintedPriority;}function validate(): Result<Priority, Array<{field: string; message: string}>>{return Priority.fromObject(data);}function reset(overrides?: Partial<Priority>): void {data = overrides ? overrides as typeof data : getDefaultForVariantPriority(currentVariant); errors = {}as ErrorsPriority; tainted = {}as TaintedPriority;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataPriority(formData: FormData): Result<Priority, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Medium" | "High" | "Low" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Medium") {
+                }}; function switchVariant(variant: "Medium" | "High" | "Low"): void {currentVariant = variant; data = getDefaultForVariantPriority(variant); errors = {}as ErrorsPriority; tainted = {}as TaintedPriority;}function validate(): Result<Priority, Array<{field: string; message: string}>>{return fromObjectPriority(data);}function reset(overrides?: Partial<Priority>): void {data = overrides ? overrides as typeof data : getDefaultForVariantPriority(currentVariant); errors = {}as ErrorsPriority; tainted = {}as TaintedPriority;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataPriority(formData: FormData): Result<Priority, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Medium" | "High" | "Low" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Medium") {
                 
             } else if (discriminant === "High") {
                 
             } else if (discriminant === "Low") {
                 
-            } return Priority.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONPriority(JSON.stringify(obj));}
 
 
 export type Applications =
@@ -13500,7 +13500,7 @@ export function fromStringifiedJSONApplications(json: string, opts?: Deserialize
                     fields: {
                         
                     } as WebsiteFieldControllersApplications
-                }}; function switchVariant(variant: "Sales" | "Accounting" | "Errand" | "HumanResources" | "Logistics" | "Marketing" | "Website"): void {currentVariant = variant; data = getDefaultForVariantApplications(variant); errors = {}as ErrorsApplications; tainted = {}as TaintedApplications;}function validate(): Result<Applications, Array<{field: string; message: string}>>{return Applications.fromObject(data);}function reset(overrides?: Partial<Applications>): void {data = overrides ? overrides as typeof data : getDefaultForVariantApplications(currentVariant); errors = {}as ErrorsApplications; tainted = {}as TaintedApplications;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataApplications(formData: FormData): Result<Applications, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Sales" | "Accounting" | "Errand" | "HumanResources" | "Logistics" | "Marketing" | "Website" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Sales") {
+                }}; function switchVariant(variant: "Sales" | "Accounting" | "Errand" | "HumanResources" | "Logistics" | "Marketing" | "Website"): void {currentVariant = variant; data = getDefaultForVariantApplications(variant); errors = {}as ErrorsApplications; tainted = {}as TaintedApplications;}function validate(): Result<Applications, Array<{field: string; message: string}>>{return fromObjectApplications(data);}function reset(overrides?: Partial<Applications>): void {data = overrides ? overrides as typeof data : getDefaultForVariantApplications(currentVariant); errors = {}as ErrorsApplications; tainted = {}as TaintedApplications;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataApplications(formData: FormData): Result<Applications, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Sales" | "Accounting" | "Errand" | "HumanResources" | "Logistics" | "Marketing" | "Website" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Sales") {
                 
             } else if (discriminant === "Accounting") {
                 
@@ -13514,7 +13514,7 @@ export function fromStringifiedJSONApplications(json: string, opts?: Deserialize
                 
             } else if (discriminant === "Website") {
                 
-            } return Applications.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONApplications(JSON.stringify(obj));}
 
 
 export type JobTitle =
@@ -13568,7 +13568,7 @@ export function fromStringifiedJSONJobTitle(json: string, opts?: DeserializeOpti
                     fields: {
                         
                     } as InformationTechnologyFieldControllersJobTitle
-                }}; function switchVariant(variant: "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology"): void {currentVariant = variant; data = getDefaultForVariantJobTitle(variant); errors = {}as ErrorsJobTitle; tainted = {}as TaintedJobTitle;}function validate(): Result<JobTitle, Array<{field: string; message: string}>>{return JobTitle.fromObject(data);}function reset(overrides?: Partial<JobTitle>): void {data = overrides ? overrides as typeof data : getDefaultForVariantJobTitle(currentVariant); errors = {}as ErrorsJobTitle; tainted = {}as TaintedJobTitle;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataJobTitle(formData: FormData): Result<JobTitle, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Technician") {
+                }}; function switchVariant(variant: "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology"): void {currentVariant = variant; data = getDefaultForVariantJobTitle(variant); errors = {}as ErrorsJobTitle; tainted = {}as TaintedJobTitle;}function validate(): Result<JobTitle, Array<{field: string; message: string}>>{return fromObjectJobTitle(data);}function reset(overrides?: Partial<JobTitle>): void {data = overrides ? overrides as typeof data : getDefaultForVariantJobTitle(currentVariant); errors = {}as ErrorsJobTitle; tainted = {}as TaintedJobTitle;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataJobTitle(formData: FormData): Result<JobTitle, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Technician" | "SalesRepresentative" | "HumanResources" | "InformationTechnology" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Technician") {
                 
             } else if (discriminant === "SalesRepresentative") {
                 
@@ -13576,7 +13576,7 @@ export function fromStringifiedJSONJobTitle(json: string, opts?: DeserializeOpti
                 
             } else if (discriminant === "InformationTechnology") {
                 
-            } return JobTitle.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONJobTitle(JSON.stringify(obj));}
 
 
 export type ColorsConfig = Cardinal | Ordinal | Custom | /** @default */ Gradient;
@@ -13585,7 +13585,7 @@ export function defaultValueColorsConfig(): ColorsConfig {return Gradient.defaul
 
 export function toStringifiedJSONColorsConfig(value: ColorsConfig): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeColorsConfig(value, ctx));}export function toObjectColorsConfig(value: ColorsConfig): unknown {const ctx = SerializeContext.create(); return __serializeColorsConfig(value, ctx);}export function __serializeColorsConfig(value: ColorsConfig, ctx: SerializeContext): unknown {if(typeof(value as any)?.__serialize === "function" ){return(value as any).__serialize(ctx);}return value;}
 
-export function fromStringifiedJSONColorsConfig(json: string, opts?: DeserializeOptions): Result<ColorsConfig, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectColorsConfig(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectColorsConfig(obj: unknown, opts?: DeserializeOptions): Result<ColorsConfig, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeColorsConfig(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "ColorsConfig.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeColorsConfig(value: any, ctx: DeserializeContext): ColorsConfig | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as ColorsConfig | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "ColorsConfig.__deserialize: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "ColorsConfig.__deserialize: missing __type field for union dispatch" }]);}if(__typeName === "Cardinal" ){if(typeof(Cardinal as any)?.__deserialize === "function" ){return(Cardinal as any).__deserialize(value, ctx)as ColorsConfig;}return value as ColorsConfig;}if(__typeName === "Ordinal" ){if(typeof(Ordinal as any)?.__deserialize === "function" ){return(Ordinal as any).__deserialize(value, ctx)as ColorsConfig;}return value as ColorsConfig;}if(__typeName === "Custom" ){if(typeof(Custom as any)?.__deserialize === "function" ){return(Custom as any).__deserialize(value, ctx)as ColorsConfig;}return value as ColorsConfig;}if(__typeName === "Gradient" ){if(typeof(Gradient as any)?.__deserialize === "function" ){return(Gradient as any).__deserialize(value, ctx)as ColorsConfig;}return value as ColorsConfig;}throw new DeserializeError([{field: "_root" , message: "ColorsConfig.__deserialize: unknown type \"" + __typeName + "\". Expected one of: Cardinal, Ordinal, Custom, Gradient" }]); }export function isColorsConfig(value: unknown): value is ColorsConfig {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "Cardinal" || __typeName === "Ordinal" || __typeName === "Custom" || __typeName === "Gradient" ; }
+export function fromStringifiedJSONColorsConfig(json: string, opts?: DeserializeOptions): Result<ColorsConfig, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectColorsConfig(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectColorsConfig(obj: unknown, opts?: DeserializeOptions): Result<ColorsConfig, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeColorsConfig(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "ColorsConfig.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeColorsConfig(value: any, ctx: DeserializeContext): ColorsConfig | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as ColorsConfig | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "ColorsConfig.__deserialize: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "ColorsConfig.__deserialize: missing __type field for union dispatch" }]);}if(__typeName === "Cardinal" ){return __deserializeCardinal(value, ctx)as ColorsConfig;}if(__typeName === "Ordinal" ){return __deserializeOrdinal(value, ctx)as ColorsConfig;}if(__typeName === "Custom" ){return __deserializeCustom(value, ctx)as ColorsConfig;}if(__typeName === "Gradient" ){return __deserializeGradient(value, ctx)as ColorsConfig;}throw new DeserializeError([{field: "_root" , message: "ColorsConfig.__deserialize: unknown type \"" + __typeName + "\". Expected one of: Cardinal, Ordinal, Custom, Gradient" }]); }export function isColorsConfig(value: unknown): value is ColorsConfig {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "Cardinal" || __typeName === "Ordinal" || __typeName === "Custom" || __typeName === "Gradient" ; }
 
 /** Per-variant error types */export type CardinalErrorsColorsConfig = { _errors: Option<Array<string>>;  };
         export type OrdinalErrorsColorsConfig = { _errors: Option<Array<string>>;  };
@@ -13601,11 +13601,11 @@ export function fromStringifiedJSONColorsConfig(json: string, opts?: Deserialize
             readonly Custom: { readonly fields: CustomFieldControllersColorsConfig };
             readonly Gradient: { readonly fields: GradientFieldControllersColorsConfig };}/** Gets default value for a specific variant */function getDefaultForVariantColorsConfig(variant: string): ColorsConfig {
         switch (variant) {
-            case "Cardinal": return Cardinal.defaultValue() as ColorsConfig;
-            case "Ordinal": return Ordinal.defaultValue() as ColorsConfig;
-            case "Custom": return Custom.defaultValue() as ColorsConfig;
-            case "Gradient": return Gradient.defaultValue() as ColorsConfig;
-            default: return Cardinal.defaultValue() as ColorsConfig;
+            case "Cardinal": return defaultValueCardinal() as ColorsConfig;
+            case "Ordinal": return defaultValueOrdinal() as ColorsConfig;
+            case "Custom": return defaultValueCustom() as ColorsConfig;
+            case "Gradient": return defaultValueGradient() as ColorsConfig;
+            default: return defaultValueCardinal() as ColorsConfig;
         }
     } /** Creates a new discriminated union Gigaform with variant switching */export function createFormColorsConfig(initial?: ColorsConfig): GigaformColorsConfig {const initialVariant: "Cardinal" | "Ordinal" | "Custom" | "Gradient" = "Cardinal"; let currentVariant = $state<"Cardinal" | "Ordinal" | "Custom" | "Gradient">(initialVariant); let data = $state<ColorsConfig>(initial?? getDefaultForVariantColorsConfig(initialVariant)); let errors = $state<ErrorsColorsConfig>({}as ErrorsColorsConfig); let tainted = $state<TaintedColorsConfig>({}as TaintedColorsConfig); const variants: VariantFieldsColorsConfig = {Cardinal: {
                     fields: {
@@ -13626,7 +13626,7 @@ export function fromStringifiedJSONColorsConfig(json: string, opts?: Deserialize
                     fields: {
                         
                     } as GradientFieldControllersColorsConfig
-                }}; function switchVariant(variant: "Cardinal" | "Ordinal" | "Custom" | "Gradient"): void {currentVariant = variant; data = getDefaultForVariantColorsConfig(variant); errors = {}as ErrorsColorsConfig; tainted = {}as TaintedColorsConfig;}function validate(): Result<ColorsConfig, Array<{field: string; message: string}>>{return ColorsConfig.fromObject(data);}function reset(overrides?: Partial<ColorsConfig>): void {data = overrides ? overrides as typeof data : getDefaultForVariantColorsConfig(currentVariant); errors = {}as ErrorsColorsConfig; tainted = {}as TaintedColorsConfig;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataColorsConfig(formData: FormData): Result<ColorsConfig, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "Cardinal" | "Ordinal" | "Custom" | "Gradient" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "Cardinal") {
+                }}; function switchVariant(variant: "Cardinal" | "Ordinal" | "Custom" | "Gradient"): void {currentVariant = variant; data = getDefaultForVariantColorsConfig(variant); errors = {}as ErrorsColorsConfig; tainted = {}as TaintedColorsConfig;}function validate(): Result<ColorsConfig, Array<{field: string; message: string}>>{return fromObjectColorsConfig(data);}function reset(overrides?: Partial<ColorsConfig>): void {data = overrides ? overrides as typeof data : getDefaultForVariantColorsConfig(currentVariant); errors = {}as ErrorsColorsConfig; tainted = {}as TaintedColorsConfig;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataColorsConfig(formData: FormData): Result<ColorsConfig, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "Cardinal" | "Ordinal" | "Custom" | "Gradient" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "Cardinal") {
                 
             } else if (discriminant === "Ordinal") {
                 
@@ -13634,7 +13634,7 @@ export function fromStringifiedJSONColorsConfig(json: string, opts?: Deserialize
                 
             } else if (discriminant === "Gradient") {
                 
-            } return ColorsConfig.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONColorsConfig(JSON.stringify(obj));}
 
 
 export type WeekOfMonth = /** @default */ 'First' | 'Second' | 'Third' | 'Fourth' | 'Last';
@@ -13694,7 +13694,7 @@ export function fromStringifiedJSONWeekOfMonth(json: string, opts?: DeserializeO
                     fields: {
                         
                     } as LastFieldControllersWeekOfMonth
-                }}; function switchVariant(variant: "First" | "Second" | "Third" | "Fourth" | "Last"): void {currentVariant = variant; data = getDefaultForVariantWeekOfMonth(variant); errors = {}as ErrorsWeekOfMonth; tainted = {}as TaintedWeekOfMonth;}function validate(): Result<WeekOfMonth, Array<{field: string; message: string}>>{return WeekOfMonth.fromObject(data);}function reset(overrides?: Partial<WeekOfMonth>): void {data = overrides ? overrides as typeof data : getDefaultForVariantWeekOfMonth(currentVariant); errors = {}as ErrorsWeekOfMonth; tainted = {}as TaintedWeekOfMonth;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataWeekOfMonth(formData: FormData): Result<WeekOfMonth, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "First" | "Second" | "Third" | "Fourth" | "Last" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "First") {
+                }}; function switchVariant(variant: "First" | "Second" | "Third" | "Fourth" | "Last"): void {currentVariant = variant; data = getDefaultForVariantWeekOfMonth(variant); errors = {}as ErrorsWeekOfMonth; tainted = {}as TaintedWeekOfMonth;}function validate(): Result<WeekOfMonth, Array<{field: string; message: string}>>{return fromObjectWeekOfMonth(data);}function reset(overrides?: Partial<WeekOfMonth>): void {data = overrides ? overrides as typeof data : getDefaultForVariantWeekOfMonth(currentVariant); errors = {}as ErrorsWeekOfMonth; tainted = {}as TaintedWeekOfMonth;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataWeekOfMonth(formData: FormData): Result<WeekOfMonth, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "First" | "Second" | "Third" | "Fourth" | "Last" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "First") {
                 
             } else if (discriminant === "Second") {
                 
@@ -13704,7 +13704,7 @@ export function fromStringifiedJSONWeekOfMonth(json: string, opts?: DeserializeO
                 
             } else if (discriminant === "Last") {
                 
-            } return WeekOfMonth.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONWeekOfMonth(JSON.stringify(obj));}
 
 
 export type ActivityType = /** @default */ Created | Edited | Sent | Viewed | Commented | Paid;
@@ -13713,7 +13713,7 @@ export function defaultValueActivityType(): ActivityType {return Created.default
 
 export function toStringifiedJSONActivityType(value: ActivityType): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeActivityType(value, ctx));}export function toObjectActivityType(value: ActivityType): unknown {const ctx = SerializeContext.create(); return __serializeActivityType(value, ctx);}export function __serializeActivityType(value: ActivityType, ctx: SerializeContext): unknown {if(typeof(value as any)?.__serialize === "function" ){return(value as any).__serialize(ctx);}return value;}
 
-export function fromStringifiedJSONActivityType(json: string, opts?: DeserializeOptions): Result<ActivityType, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectActivityType(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectActivityType(obj: unknown, opts?: DeserializeOptions): Result<ActivityType, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeActivityType(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "ActivityType.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeActivityType(value: any, ctx: DeserializeContext): ActivityType | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as ActivityType | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "ActivityType.__deserialize: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "ActivityType.__deserialize: missing __type field for union dispatch" }]);}if(__typeName === "Created" ){if(typeof(Created as any)?.__deserialize === "function" ){return(Created as any).__deserialize(value, ctx)as ActivityType;}return value as ActivityType;}if(__typeName === "Edited" ){if(typeof(Edited as any)?.__deserialize === "function" ){return(Edited as any).__deserialize(value, ctx)as ActivityType;}return value as ActivityType;}if(__typeName === "Sent" ){if(typeof(Sent as any)?.__deserialize === "function" ){return(Sent as any).__deserialize(value, ctx)as ActivityType;}return value as ActivityType;}if(__typeName === "Viewed" ){if(typeof(Viewed as any)?.__deserialize === "function" ){return(Viewed as any).__deserialize(value, ctx)as ActivityType;}return value as ActivityType;}if(__typeName === "Commented" ){if(typeof(Commented as any)?.__deserialize === "function" ){return(Commented as any).__deserialize(value, ctx)as ActivityType;}return value as ActivityType;}if(__typeName === "Paid" ){if(typeof(Paid as any)?.__deserialize === "function" ){return(Paid as any).__deserialize(value, ctx)as ActivityType;}return value as ActivityType;}throw new DeserializeError([{field: "_root" , message: "ActivityType.__deserialize: unknown type \"" + __typeName + "\". Expected one of: Created, Edited, Sent, Viewed, Commented, Paid" }]); }export function isActivityType(value: unknown): value is ActivityType {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "Created" || __typeName === "Edited" || __typeName === "Sent" || __typeName === "Viewed" || __typeName === "Commented" || __typeName === "Paid" ; }
+export function fromStringifiedJSONActivityType(json: string, opts?: DeserializeOptions): Result<ActivityType, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectActivityType(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectActivityType(obj: unknown, opts?: DeserializeOptions): Result<ActivityType, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeActivityType(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "ActivityType.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeActivityType(value: any, ctx: DeserializeContext): ActivityType | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as ActivityType | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "ActivityType.__deserialize: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "ActivityType.__deserialize: missing __type field for union dispatch" }]);}if(__typeName === "Created" ){return __deserializeCreated(value, ctx)as ActivityType;}if(__typeName === "Edited" ){return __deserializeEdited(value, ctx)as ActivityType;}if(__typeName === "Sent" ){return __deserializeSent(value, ctx)as ActivityType;}if(__typeName === "Viewed" ){return __deserializeViewed(value, ctx)as ActivityType;}if(__typeName === "Commented" ){return __deserializeCommented(value, ctx)as ActivityType;}if(__typeName === "Paid" ){return __deserializePaid(value, ctx)as ActivityType;}throw new DeserializeError([{field: "_root" , message: "ActivityType.__deserialize: unknown type \"" + __typeName + "\". Expected one of: Created, Edited, Sent, Viewed, Commented, Paid" }]); }export function isActivityType(value: unknown): value is ActivityType {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "Created" || __typeName === "Edited" || __typeName === "Sent" || __typeName === "Viewed" || __typeName === "Commented" || __typeName === "Paid" ; }
 
 /** Per-variant error types */export type CreatedErrorsActivityType = { _errors: Option<Array<string>>;  };
         export type EditedErrorsActivityType = { _errors: Option<Array<string>>;  };
@@ -13737,13 +13737,13 @@ export function fromStringifiedJSONActivityType(json: string, opts?: Deserialize
             readonly Commented: { readonly fields: CommentedFieldControllersActivityType };
             readonly Paid: { readonly fields: PaidFieldControllersActivityType };}/** Gets default value for a specific variant */function getDefaultForVariantActivityType(variant: string): ActivityType {
         switch (variant) {
-            case "Created": return Created.defaultValue() as ActivityType;
-            case "Edited": return Edited.defaultValue() as ActivityType;
-            case "Sent": return Sent.defaultValue() as ActivityType;
-            case "Viewed": return Viewed.defaultValue() as ActivityType;
-            case "Commented": return Commented.defaultValue() as ActivityType;
-            case "Paid": return Paid.defaultValue() as ActivityType;
-            default: return Created.defaultValue() as ActivityType;
+            case "Created": return defaultValueCreated() as ActivityType;
+            case "Edited": return defaultValueEdited() as ActivityType;
+            case "Sent": return defaultValueSent() as ActivityType;
+            case "Viewed": return defaultValueViewed() as ActivityType;
+            case "Commented": return defaultValueCommented() as ActivityType;
+            case "Paid": return defaultValuePaid() as ActivityType;
+            default: return defaultValueCreated() as ActivityType;
         }
     } /** Creates a new discriminated union Gigaform with variant switching */export function createFormActivityType(initial?: ActivityType): GigaformActivityType {const initialVariant: "Created" | "Edited" | "Sent" | "Viewed" | "Commented" | "Paid" = "Created"; let currentVariant = $state<"Created" | "Edited" | "Sent" | "Viewed" | "Commented" | "Paid">(initialVariant); let data = $state<ActivityType>(initial?? getDefaultForVariantActivityType(initialVariant)); let errors = $state<ErrorsActivityType>({}as ErrorsActivityType); let tainted = $state<TaintedActivityType>({}as TaintedActivityType); const variants: VariantFieldsActivityType = {Created: {
                     fields: {
@@ -13774,7 +13774,7 @@ export function fromStringifiedJSONActivityType(json: string, opts?: Deserialize
                     fields: {
                         
                     } as PaidFieldControllersActivityType
-                }}; function switchVariant(variant: "Created" | "Edited" | "Sent" | "Viewed" | "Commented" | "Paid"): void {currentVariant = variant; data = getDefaultForVariantActivityType(variant); errors = {}as ErrorsActivityType; tainted = {}as TaintedActivityType;}function validate(): Result<ActivityType, Array<{field: string; message: string}>>{return ActivityType.fromObject(data);}function reset(overrides?: Partial<ActivityType>): void {data = overrides ? overrides as typeof data : getDefaultForVariantActivityType(currentVariant); errors = {}as ErrorsActivityType; tainted = {}as TaintedActivityType;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataActivityType(formData: FormData): Result<ActivityType, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "Created" | "Edited" | "Sent" | "Viewed" | "Commented" | "Paid" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "Created") {
+                }}; function switchVariant(variant: "Created" | "Edited" | "Sent" | "Viewed" | "Commented" | "Paid"): void {currentVariant = variant; data = getDefaultForVariantActivityType(variant); errors = {}as ErrorsActivityType; tainted = {}as TaintedActivityType;}function validate(): Result<ActivityType, Array<{field: string; message: string}>>{return fromObjectActivityType(data);}function reset(overrides?: Partial<ActivityType>): void {data = overrides ? overrides as typeof data : getDefaultForVariantActivityType(currentVariant); errors = {}as ErrorsActivityType; tainted = {}as TaintedActivityType;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataActivityType(formData: FormData): Result<ActivityType, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "Created" | "Edited" | "Sent" | "Viewed" | "Commented" | "Paid" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "Created") {
                 
             } else if (discriminant === "Edited") {
                 
@@ -13786,7 +13786,7 @@ export function fromStringifiedJSONActivityType(json: string, opts?: Deserialize
                 
             } else if (discriminant === "Paid") {
                 
-            } return ActivityType.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONActivityType(JSON.stringify(obj));}
 
 
 export type RowHeight = 'ExtraSmall' | 'Small' | /** @default */ 'Medium' | 'Large';
@@ -13836,7 +13836,7 @@ export function fromStringifiedJSONRowHeight(json: string, opts?: DeserializeOpt
                     fields: {
                         
                     } as LargeFieldControllersRowHeight
-                }}; function switchVariant(variant: "ExtraSmall" | "Small" | "Medium" | "Large"): void {currentVariant = variant; data = getDefaultForVariantRowHeight(variant); errors = {}as ErrorsRowHeight; tainted = {}as TaintedRowHeight;}function validate(): Result<RowHeight, Array<{field: string; message: string}>>{return RowHeight.fromObject(data);}function reset(overrides?: Partial<RowHeight>): void {data = overrides ? overrides as typeof data : getDefaultForVariantRowHeight(currentVariant); errors = {}as ErrorsRowHeight; tainted = {}as TaintedRowHeight;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataRowHeight(formData: FormData): Result<RowHeight, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "ExtraSmall" | "Small" | "Medium" | "Large" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "ExtraSmall") {
+                }}; function switchVariant(variant: "ExtraSmall" | "Small" | "Medium" | "Large"): void {currentVariant = variant; data = getDefaultForVariantRowHeight(variant); errors = {}as ErrorsRowHeight; tainted = {}as TaintedRowHeight;}function validate(): Result<RowHeight, Array<{field: string; message: string}>>{return fromObjectRowHeight(data);}function reset(overrides?: Partial<RowHeight>): void {data = overrides ? overrides as typeof data : getDefaultForVariantRowHeight(currentVariant); errors = {}as ErrorsRowHeight; tainted = {}as TaintedRowHeight;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataRowHeight(formData: FormData): Result<RowHeight, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "ExtraSmall" | "Small" | "Medium" | "Large" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "ExtraSmall") {
                 
             } else if (discriminant === "Small") {
                 
@@ -13844,7 +13844,7 @@ export function fromStringifiedJSONRowHeight(json: string, opts?: DeserializeOpt
                 
             } else if (discriminant === "Large") {
                 
-            } return RowHeight.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONRowHeight(JSON.stringify(obj));}
 
 
 export type OrderStage = /** @default */ 'Estimate' | 'Active' | 'Invoice';
@@ -13884,13 +13884,13 @@ export function fromStringifiedJSONOrderStage(json: string, opts?: DeserializeOp
                     fields: {
                         
                     } as InvoiceFieldControllersOrderStage
-                }}; function switchVariant(variant: "Estimate" | "Active" | "Invoice"): void {currentVariant = variant; data = getDefaultForVariantOrderStage(variant); errors = {}as ErrorsOrderStage; tainted = {}as TaintedOrderStage;}function validate(): Result<OrderStage, Array<{field: string; message: string}>>{return OrderStage.fromObject(data);}function reset(overrides?: Partial<OrderStage>): void {data = overrides ? overrides as typeof data : getDefaultForVariantOrderStage(currentVariant); errors = {}as ErrorsOrderStage; tainted = {}as TaintedOrderStage;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataOrderStage(formData: FormData): Result<OrderStage, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Estimate" | "Active" | "Invoice" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Estimate") {
+                }}; function switchVariant(variant: "Estimate" | "Active" | "Invoice"): void {currentVariant = variant; data = getDefaultForVariantOrderStage(variant); errors = {}as ErrorsOrderStage; tainted = {}as TaintedOrderStage;}function validate(): Result<OrderStage, Array<{field: string; message: string}>>{return fromObjectOrderStage(data);}function reset(overrides?: Partial<OrderStage>): void {data = overrides ? overrides as typeof data : getDefaultForVariantOrderStage(currentVariant); errors = {}as ErrorsOrderStage; tainted = {}as TaintedOrderStage;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataOrderStage(formData: FormData): Result<OrderStage, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Estimate" | "Active" | "Invoice" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Estimate") {
                 
             } else if (discriminant === "Active") {
                 
             } else if (discriminant === "Invoice") {
                 
-            } return OrderStage.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONOrderStage(JSON.stringify(obj));}
 
 
 export type Table =
@@ -14098,7 +14098,7 @@ export function fromStringifiedJSONTable(json: string, opts?: DeserializeOptions
                     fields: {
                         
                     } as OrderedFieldControllersTable
-                }}; function switchVariant(variant: "Account" | "Did" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Employee" | "Route" | "Company" | "Product" | "Service" | "User" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered"): void {currentVariant = variant; data = getDefaultForVariantTable(variant); errors = {}as ErrorsTable; tainted = {}as TaintedTable;}function validate(): Result<Table, Array<{field: string; message: string}>>{return Table.fromObject(data);}function reset(overrides?: Partial<Table>): void {data = overrides ? overrides as typeof data : getDefaultForVariantTable(currentVariant); errors = {}as ErrorsTable; tainted = {}as TaintedTable;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataTable(formData: FormData): Result<Table, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Account" | "Did" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Employee" | "Route" | "Company" | "Product" | "Service" | "User" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Account") {
+                }}; function switchVariant(variant: "Account" | "Did" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Employee" | "Route" | "Company" | "Product" | "Service" | "User" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered"): void {currentVariant = variant; data = getDefaultForVariantTable(variant); errors = {}as ErrorsTable; tainted = {}as TaintedTable;}function validate(): Result<Table, Array<{field: string; message: string}>>{return fromObjectTable(data);}function reset(overrides?: Partial<Table>): void {data = overrides ? overrides as typeof data : getDefaultForVariantTable(currentVariant); errors = {}as ErrorsTable; tainted = {}as TaintedTable;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataTable(formData: FormData): Result<Table, Array<{field: string; message: string}>>{const discriminant = formData.get("_value" )as "Account" | "Did" | "Appointment" | "Lead" | "TaxRate" | "Site" | "Employee" | "Route" | "Company" | "Product" | "Service" | "User" | "Order" | "Payment" | "Package" | "Promotion" | "Represents" | "Ordered" | null; if(!discriminant){return Result.err([{field: "_value" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._value = discriminant; if (discriminant === "Account") {
                 
             } else if (discriminant === "Did") {
                 
@@ -14134,16 +14134,16 @@ export function fromStringifiedJSONTable(json: string, opts?: DeserializeOptions
                 
             } else if (discriminant === "Ordered") {
                 
-            } return Table.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONTable(JSON.stringify(obj));}
 
 
 export type Item = RecordLink<Product> | /** @default */ RecordLink<Service>;
 
-export function defaultValueItem(): Item {return RecordLink.defaultValue<Service>();}
+export function defaultValueItem(): Item {return defaultValueRecordLink<Service>();}
 
 export function toStringifiedJSONItem(value: Item): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeItem(value, ctx));}export function toObjectItem(value: Item): unknown {const ctx = SerializeContext.create(); return __serializeItem(value, ctx);}export function __serializeItem(value: Item, ctx: SerializeContext): unknown {if(typeof(value as any)?.__serialize === "function" ){return(value as any).__serialize(ctx);}return value;}
 
-export function fromStringifiedJSONItem(json: string, opts?: DeserializeOptions): Result<Item, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectItem(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectItem(obj: unknown, opts?: DeserializeOptions): Result<Item, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeItem(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Item.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeItem(value: any, ctx: DeserializeContext): Item | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as Item | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "Item.__deserialize: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "Item.__deserialize: missing __type field for union dispatch" }]);}if(__typeName === "RecordLink<Product>" ){if(typeof(RecordLink as any)?.__deserialize === "function" ){return(RecordLink as any).__deserialize(value, ctx)as Item;}return value as Item;}if(__typeName === "RecordLink<Service>" ){if(typeof(RecordLink as any)?.__deserialize === "function" ){return(RecordLink as any).__deserialize(value, ctx)as Item;}return value as Item;}throw new DeserializeError([{field: "_root" , message: "Item.__deserialize: unknown type \"" + __typeName + "\". Expected one of: RecordLink<Product>, RecordLink<Service>" }]); }export function isItem(value: unknown): value is Item {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "RecordLink<Product>" || __typeName === "RecordLink<Service>" ; }
+export function fromStringifiedJSONItem(json: string, opts?: DeserializeOptions): Result<Item, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectItem(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectItem(obj: unknown, opts?: DeserializeOptions): Result<Item, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeItem(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Item.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeItem(value: any, ctx: DeserializeContext): Item | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as Item | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "Item.__deserialize: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "Item.__deserialize: missing __type field for union dispatch" }]);}if(__typeName === "RecordLink<Product>" ){return __deserializeRecordLink(value, ctx)as Item;}if(__typeName === "RecordLink<Service>" ){return __deserializeRecordLink(value, ctx)as Item;}throw new DeserializeError([{field: "_root" , message: "Item.__deserialize: unknown type \"" + __typeName + "\". Expected one of: RecordLink<Product>, RecordLink<Service>" }]); }export function isItem(value: unknown): value is Item {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "RecordLink<Product>" || __typeName === "RecordLink<Service>" ; }
 
 /** Per-variant error types */export type RecordLinkProductErrorsItem = { _errors: Option<Array<string>>;  };
         export type RecordLinkServiceErrorsItem = { _errors: Option<Array<string>>;  }; /** Per-variant tainted types */export type RecordLinkProductTaintedItem = {  };
@@ -14151,9 +14151,9 @@ export function fromStringifiedJSONItem(json: string, opts?: DeserializeOptions)
         export interface RecordLinkServiceFieldControllersItem {  } /** Union Gigaform interface with variant switching */export interface GigaformItem {readonly currentVariant: "RecordLink<Product>" | "RecordLink<Service>"; readonly data: Item; readonly errors: ErrorsItem; readonly tainted: TaintedItem; readonly variants: VariantFieldsItem; switchVariant(variant: "RecordLink<Product>" | "RecordLink<Service>"): void; validate(): Result<Item, Array<{field: string; message: string}>>; reset(overrides?: Partial<Item>): void;}/** Variant fields container */export interface VariantFieldsItem {readonly "RecordLink<Product>": { readonly fields: RecordLinkProductFieldControllersItem };
             readonly "RecordLink<Service>": { readonly fields: RecordLinkServiceFieldControllersItem };}/** Gets default value for a specific variant */function getDefaultForVariantItem(variant: string): Item {
         switch (variant) {
-            case "RecordLink<Product>": return RecordLink.defaultValue<Product>() as Item;
-            case "RecordLink<Service>": return RecordLink.defaultValue<Service>() as Item;
-            default: return RecordLink.defaultValue<Product>() as Item;
+            case "RecordLink<Product>": return defaultValueRecordLink<Product>() as Item;
+            case "RecordLink<Service>": return defaultValueRecordLink<Service>() as Item;
+            default: return defaultValueRecordLink<Product>() as Item;
         }
     } /** Creates a new discriminated union Gigaform with variant switching */export function createFormItem(initial?: Item): GigaformItem {const initialVariant: "RecordLink<Product>" | "RecordLink<Service>" = "RecordLink<Product>"; let currentVariant = $state<"RecordLink<Product>" | "RecordLink<Service>">(initialVariant); let data = $state<Item>(initial?? getDefaultForVariantItem(initialVariant)); let errors = $state<ErrorsItem>({}as ErrorsItem); let tainted = $state<TaintedItem>({}as TaintedItem); const variants: VariantFieldsItem = {"RecordLink<Product>": {
                     fields: {
@@ -14164,11 +14164,11 @@ export function fromStringifiedJSONItem(json: string, opts?: DeserializeOptions)
                     fields: {
                         
                     } as RecordLinkServiceFieldControllersItem
-                }}; function switchVariant(variant: "RecordLink<Product>" | "RecordLink<Service>"): void {currentVariant = variant; data = getDefaultForVariantItem(variant); errors = {}as ErrorsItem; tainted = {}as TaintedItem;}function validate(): Result<Item, Array<{field: string; message: string}>>{return Item.fromObject(data);}function reset(overrides?: Partial<Item>): void {data = overrides ? overrides as typeof data : getDefaultForVariantItem(currentVariant); errors = {}as ErrorsItem; tainted = {}as TaintedItem;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataItem(formData: FormData): Result<Item, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "RecordLink<Product>" | "RecordLink<Service>" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "RecordLink<Product>") {
+                }}; function switchVariant(variant: "RecordLink<Product>" | "RecordLink<Service>"): void {currentVariant = variant; data = getDefaultForVariantItem(variant); errors = {}as ErrorsItem; tainted = {}as TaintedItem;}function validate(): Result<Item, Array<{field: string; message: string}>>{return fromObjectItem(data);}function reset(overrides?: Partial<Item>): void {data = overrides ? overrides as typeof data : getDefaultForVariantItem(currentVariant); errors = {}as ErrorsItem; tainted = {}as TaintedItem;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataItem(formData: FormData): Result<Item, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "RecordLink<Product>" | "RecordLink<Service>" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "RecordLink<Product>") {
                 
             } else if (discriminant === "RecordLink<Service>") {
                 
-            } return Item.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONItem(JSON.stringify(obj));}
 
 
 export type RecordLink<T> = /** @default */ string | T;
@@ -14186,7 +14186,7 @@ export function defaultValueActor(): Actor {return User.defaultValue();}
 
 export function toStringifiedJSONActor(value: Actor): string {const ctx = SerializeContext.create(); return JSON.stringify(__serializeActor(value, ctx));}export function toObjectActor(value: Actor): unknown {const ctx = SerializeContext.create(); return __serializeActor(value, ctx);}export function __serializeActor(value: Actor, ctx: SerializeContext): unknown {if(typeof(value as any)?.__serialize === "function" ){return(value as any).__serialize(ctx);}return value;}
 
-export function fromStringifiedJSONActor(json: string, opts?: DeserializeOptions): Result<Actor, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectActor(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectActor(obj: unknown, opts?: DeserializeOptions): Result<Actor, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeActor(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Actor.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeActor(value: any, ctx: DeserializeContext): Actor | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as Actor | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "Actor.__deserialize: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "Actor.__deserialize: missing __type field for union dispatch" }]);}if(__typeName === "User" ){if(typeof(User as any)?.__deserialize === "function" ){return(User as any).__deserialize(value, ctx)as Actor;}return value as Actor;}if(__typeName === "Employee" ){if(typeof(Employee as any)?.__deserialize === "function" ){return(Employee as any).__deserialize(value, ctx)as Actor;}return value as Actor;}if(__typeName === "Account" ){if(typeof(Account as any)?.__deserialize === "function" ){return(Account as any).__deserialize(value, ctx)as Actor;}return value as Actor;}throw new DeserializeError([{field: "_root" , message: "Actor.__deserialize: unknown type \"" + __typeName + "\". Expected one of: User, Employee, Account" }]); }export function isActor(value: unknown): value is Actor {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "User" || __typeName === "Employee" || __typeName === "Account" ; }
+export function fromStringifiedJSONActor(json: string, opts?: DeserializeOptions): Result<Actor, Array<{field: string; message: string}>>{try {const raw = JSON.parse(json); return fromObjectActor(raw, opts);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function fromObjectActor(obj: unknown, opts?: DeserializeOptions): Result<Actor, Array<{field: string; message: string}>>{try {const ctx = DeserializeContext.create(); const resultOrRef = __deserializeActor(obj, ctx); if(PendingRef.is(resultOrRef)){return Result.err([{field: "_root" , message: "Actor.fromObject: root cannot be a forward reference" }]);}ctx.applyPatches(); if(opts?.freeze){ctx.freezeAll();}return Result.ok(resultOrRef);}catch(e){if(e instanceof DeserializeError){return Result.err(e.errors);}const message = e instanceof Error? e.message: String(e); return Result.err([{field: "_root" , message}]);}}export function __deserializeActor(value: any, ctx: DeserializeContext): Actor | PendingRef {if(value?.__ref!== undefined){return ctx.getOrDefer(value.__ref)as Actor | PendingRef;}if(typeof value!== "object" || value === null){throw new DeserializeError([{field: "_root" , message: "Actor.__deserialize: expected an object" }]);}const __typeName = (value as any).__type; if(typeof __typeName!== "string" ){throw new DeserializeError([{field: "_root" , message: "Actor.__deserialize: missing __type field for union dispatch" }]);}if(__typeName === "User" ){return __deserializeUser(value, ctx)as Actor;}if(__typeName === "Employee" ){return __deserializeEmployee(value, ctx)as Actor;}if(__typeName === "Account" ){return __deserializeAccount(value, ctx)as Actor;}throw new DeserializeError([{field: "_root" , message: "Actor.__deserialize: unknown type \"" + __typeName + "\". Expected one of: User, Employee, Account" }]); }export function isActor(value: unknown): value is Actor {if(typeof value!== "object" || value === null){return false;}const __typeName = (value as any).__type; return __typeName === "User" || __typeName === "Employee" || __typeName === "Account" ; }
 
 /** Per-variant error types */export type UserErrorsActor = { _errors: Option<Array<string>>;  };
         export type EmployeeErrorsActor = { _errors: Option<Array<string>>;  };
@@ -14198,10 +14198,10 @@ export function fromStringifiedJSONActor(json: string, opts?: DeserializeOptions
             readonly Employee: { readonly fields: EmployeeFieldControllersActor };
             readonly Account: { readonly fields: AccountFieldControllersActor };}/** Gets default value for a specific variant */function getDefaultForVariantActor(variant: string): Actor {
         switch (variant) {
-            case "User": return User.defaultValue() as Actor;
-            case "Employee": return Employee.defaultValue() as Actor;
-            case "Account": return Account.defaultValue() as Actor;
-            default: return User.defaultValue() as Actor;
+            case "User": return defaultValueUser() as Actor;
+            case "Employee": return defaultValueEmployee() as Actor;
+            case "Account": return defaultValueAccount() as Actor;
+            default: return defaultValueUser() as Actor;
         }
     } /** Creates a new discriminated union Gigaform with variant switching */export function createFormActor(initial?: Actor): GigaformActor {const initialVariant: "User" | "Employee" | "Account" = "User"; let currentVariant = $state<"User" | "Employee" | "Account">(initialVariant); let data = $state<Actor>(initial?? getDefaultForVariantActor(initialVariant)); let errors = $state<ErrorsActor>({}as ErrorsActor); let tainted = $state<TaintedActor>({}as TaintedActor); const variants: VariantFieldsActor = {User: {
                     fields: {
@@ -14217,10 +14217,10 @@ export function fromStringifiedJSONActor(json: string, opts?: DeserializeOptions
                     fields: {
                         
                     } as AccountFieldControllersActor
-                }}; function switchVariant(variant: "User" | "Employee" | "Account"): void {currentVariant = variant; data = getDefaultForVariantActor(variant); errors = {}as ErrorsActor; tainted = {}as TaintedActor;}function validate(): Result<Actor, Array<{field: string; message: string}>>{return Actor.fromObject(data);}function reset(overrides?: Partial<Actor>): void {data = overrides ? overrides as typeof data : getDefaultForVariantActor(currentVariant); errors = {}as ErrorsActor; tainted = {}as TaintedActor;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataActor(formData: FormData): Result<Actor, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "User" | "Employee" | "Account" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "User") {
+                }}; function switchVariant(variant: "User" | "Employee" | "Account"): void {currentVariant = variant; data = getDefaultForVariantActor(variant); errors = {}as ErrorsActor; tainted = {}as TaintedActor;}function validate(): Result<Actor, Array<{field: string; message: string}>>{return fromObjectActor(data);}function reset(overrides?: Partial<Actor>): void {data = overrides ? overrides as typeof data : getDefaultForVariantActor(currentVariant); errors = {}as ErrorsActor; tainted = {}as TaintedActor;}return {get currentVariant(){return currentVariant;}, get data(){return data;}, set data(v){data = v;}, get errors(){return errors;}, set errors(v){errors = v;}, get tainted(){return tainted;}, set tainted(v){tainted = v;}, variants, switchVariant, validate, reset,};}/** Parses FormData for union type, determining variant from discriminant field */export function fromFormDataActor(formData: FormData): Result<Actor, Array<{field: string; message: string}>>{const discriminant = formData.get("_type" )as "User" | "Employee" | "Account" | null; if(!discriminant){return Result.err([{field: "_type" , message: "Missing discriminant field" }]);}const obj: Record<string, unknown>= {}; obj._type = discriminant; if (discriminant === "User") {
                 
             } else if (discriminant === "Employee") {
                 
             } else if (discriminant === "Account") {
                 
-            } return Actor.fromStringifiedJSON(JSON.stringify(obj));}
+            } return fromStringifiedJSONActor(JSON.stringify(obj));}

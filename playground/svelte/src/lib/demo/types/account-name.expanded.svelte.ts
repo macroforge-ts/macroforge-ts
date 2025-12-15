@@ -4,8 +4,12 @@ import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeCompanyName } from './company-name.svelte';
+import { __deserializePersonName } from './person-name.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
+import { defaultValueCompanyName } from './company-name.svelte';
+import { defaultValuePersonName } from './person-name.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import { PersonName } from './person-name.svelte';
@@ -98,16 +102,10 @@ export function __deserializeAccountName(
         ]);
     }
     if (__typeName === 'CompanyName') {
-        if (typeof (CompanyName as any)?.__deserialize === 'function') {
-            return (CompanyName as any).__deserialize(value, ctx) as AccountName;
-        }
-        return value as AccountName;
+        return __deserializeCompanyName(value, ctx) as AccountName;
     }
     if (__typeName === 'PersonName') {
-        if (typeof (PersonName as any)?.__deserialize === 'function') {
-            return (PersonName as any).__deserialize(value, ctx) as AccountName;
-        }
-        return value as AccountName;
+        return __deserializePersonName(value, ctx) as AccountName;
     }
     throw new DeserializeError([
         {
@@ -162,11 +160,11 @@ export interface VariantFieldsAccountName {
 function getDefaultForVariantAccountName(variant: string): AccountName {
     switch (variant) {
         case 'CompanyName':
-            return CompanyName.defaultValue() as AccountName;
+            return defaultValueCompanyName() as AccountName;
         case 'PersonName':
-            return PersonName.defaultValue() as AccountName;
+            return defaultValuePersonName() as AccountName;
         default:
-            return CompanyName.defaultValue() as AccountName;
+            return defaultValueCompanyName() as AccountName;
     }
 } /** Creates a new discriminated union Gigaform with variant switching */
 export function createFormAccountName(initial?: AccountName): GigaformAccountName {
@@ -190,7 +188,7 @@ export function createFormAccountName(initial?: AccountName): GigaformAccountNam
         tainted = {} as TaintedAccountName;
     }
     function validate(): Result<AccountName, Array<{ field: string; message: string }>> {
-        return AccountName.fromObject(data);
+        return fromObjectAccountName(data);
     }
     function reset(overrides?: Partial<AccountName>): void {
         data = overrides
@@ -239,5 +237,5 @@ export function fromFormDataAccountName(
     if (discriminant === 'CompanyName') {
     } else if (discriminant === 'PersonName') {
     }
-    return AccountName.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONAccountName(JSON.stringify(obj));
 }

@@ -1,9 +1,21 @@
+import { defaultValueOverviewSettings } from './overview-settings.svelte';
+import { defaultValueScheduleSettings } from './schedule-settings.svelte';
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeAppointmentNotifications } from './appointment-notifications.svelte';
+import { __serializeCommissions } from './commissions.svelte';
+import { __serializeOverviewSettings } from './overview-settings.svelte';
+import { __serializePage } from './page.svelte';
+import { __serializeScheduleSettings } from './schedule-settings.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeAppointmentNotifications } from './appointment-notifications.svelte';
+import { __deserializeCommissions } from './commissions.svelte';
+import { __deserializeOverviewSettings } from './overview-settings.svelte';
+import { __deserializePage } from './page.svelte';
+import { __deserializeScheduleSettings } from './schedule-settings.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -34,15 +46,15 @@ export function defaultValueSettings(): Settings {
     return {
         appointmentNotifications: null,
         commissions: null,
-        scheduleSettings: ScheduleSettings.defaultValue(),
-        accountOverviewSettings: OverviewSettings.defaultValue(),
-        serviceOverviewSettings: OverviewSettings.defaultValue(),
-        appointmentOverviewSettings: OverviewSettings.defaultValue(),
-        leadOverviewSettings: OverviewSettings.defaultValue(),
-        packageOverviewSettings: OverviewSettings.defaultValue(),
-        productOverviewSettings: OverviewSettings.defaultValue(),
-        orderOverviewSettings: OverviewSettings.defaultValue(),
-        taxRateOverviewSettings: OverviewSettings.defaultValue(),
+        scheduleSettings: defaultValueScheduleSettings(),
+        accountOverviewSettings: defaultValueOverviewSettings(),
+        serviceOverviewSettings: defaultValueOverviewSettings(),
+        appointmentOverviewSettings: defaultValueOverviewSettings(),
+        leadOverviewSettings: defaultValueOverviewSettings(),
+        packageOverviewSettings: defaultValueOverviewSettings(),
+        productOverviewSettings: defaultValueOverviewSettings(),
+        orderOverviewSettings: defaultValueOverviewSettings(),
+        taxRateOverviewSettings: defaultValueOverviewSettings(),
         homePage: 'UserHome'
     } as Settings;
 }
@@ -66,61 +78,46 @@ export function __serializeSettings(
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Settings', __id };
     if (value.appointmentNotifications !== null) {
-        result['appointmentNotifications'] =
-            typeof (value.appointmentNotifications as any)?.__serialize === 'function'
-                ? (value.appointmentNotifications as any).__serialize(ctx)
-                : value.appointmentNotifications;
+        result['appointmentNotifications'] = __serializeAppointmentNotifications(
+            value.appointmentNotifications,
+            ctx
+        );
     } else {
         result['appointmentNotifications'] = null;
     }
     if (value.commissions !== null) {
-        result['commissions'] =
-            typeof (value.commissions as any)?.__serialize === 'function'
-                ? (value.commissions as any).__serialize(ctx)
-                : value.commissions;
+        result['commissions'] = __serializeCommissions(value.commissions, ctx);
     } else {
         result['commissions'] = null;
     }
-    result['scheduleSettings'] =
-        typeof (value.scheduleSettings as any)?.__serialize === 'function'
-            ? (value.scheduleSettings as any).__serialize(ctx)
-            : value.scheduleSettings;
-    result['accountOverviewSettings'] =
-        typeof (value.accountOverviewSettings as any)?.__serialize === 'function'
-            ? (value.accountOverviewSettings as any).__serialize(ctx)
-            : value.accountOverviewSettings;
-    result['serviceOverviewSettings'] =
-        typeof (value.serviceOverviewSettings as any)?.__serialize === 'function'
-            ? (value.serviceOverviewSettings as any).__serialize(ctx)
-            : value.serviceOverviewSettings;
-    result['appointmentOverviewSettings'] =
-        typeof (value.appointmentOverviewSettings as any)?.__serialize === 'function'
-            ? (value.appointmentOverviewSettings as any).__serialize(ctx)
-            : value.appointmentOverviewSettings;
-    result['leadOverviewSettings'] =
-        typeof (value.leadOverviewSettings as any)?.__serialize === 'function'
-            ? (value.leadOverviewSettings as any).__serialize(ctx)
-            : value.leadOverviewSettings;
-    result['packageOverviewSettings'] =
-        typeof (value.packageOverviewSettings as any)?.__serialize === 'function'
-            ? (value.packageOverviewSettings as any).__serialize(ctx)
-            : value.packageOverviewSettings;
-    result['productOverviewSettings'] =
-        typeof (value.productOverviewSettings as any)?.__serialize === 'function'
-            ? (value.productOverviewSettings as any).__serialize(ctx)
-            : value.productOverviewSettings;
-    result['orderOverviewSettings'] =
-        typeof (value.orderOverviewSettings as any)?.__serialize === 'function'
-            ? (value.orderOverviewSettings as any).__serialize(ctx)
-            : value.orderOverviewSettings;
-    result['taxRateOverviewSettings'] =
-        typeof (value.taxRateOverviewSettings as any)?.__serialize === 'function'
-            ? (value.taxRateOverviewSettings as any).__serialize(ctx)
-            : value.taxRateOverviewSettings;
-    result['homePage'] =
-        typeof (value.homePage as any)?.__serialize === 'function'
-            ? (value.homePage as any).__serialize(ctx)
-            : value.homePage;
+    result['scheduleSettings'] = __serializeScheduleSettings(value.scheduleSettings, ctx);
+    result['accountOverviewSettings'] = __serializeOverviewSettings(
+        value.accountOverviewSettings,
+        ctx
+    );
+    result['serviceOverviewSettings'] = __serializeOverviewSettings(
+        value.serviceOverviewSettings,
+        ctx
+    );
+    result['appointmentOverviewSettings'] = __serializeOverviewSettings(
+        value.appointmentOverviewSettings,
+        ctx
+    );
+    result['leadOverviewSettings'] = __serializeOverviewSettings(value.leadOverviewSettings, ctx);
+    result['packageOverviewSettings'] = __serializeOverviewSettings(
+        value.packageOverviewSettings,
+        ctx
+    );
+    result['productOverviewSettings'] = __serializeOverviewSettings(
+        value.productOverviewSettings,
+        ctx
+    );
+    result['orderOverviewSettings'] = __serializeOverviewSettings(value.orderOverviewSettings, ctx);
+    result['taxRateOverviewSettings'] = __serializeOverviewSettings(
+        value.taxRateOverviewSettings,
+        ctx
+    );
+    result['homePage'] = __serializePage(value.homePage, ctx);
     return result;
 }
 
@@ -229,7 +226,7 @@ export function __deserializeSettings(value: any, ctx: DeserializeContext): Sett
         if (__raw_appointmentNotifications === null) {
             instance.appointmentNotifications = null;
         } else {
-            const __result = AppointmentNotifications.__deserialize(
+            const __result = __deserializeAppointmentNotifications(
                 __raw_appointmentNotifications,
                 ctx
             );
@@ -241,28 +238,28 @@ export function __deserializeSettings(value: any, ctx: DeserializeContext): Sett
         if (__raw_commissions === null) {
             instance.commissions = null;
         } else {
-            const __result = Commissions.__deserialize(__raw_commissions, ctx);
+            const __result = __deserializeCommissions(__raw_commissions, ctx);
             ctx.assignOrDefer(instance, 'commissions', __result);
         }
     }
     {
         const __raw_scheduleSettings = obj['scheduleSettings'] as ScheduleSettings;
         {
-            const __result = ScheduleSettings.__deserialize(__raw_scheduleSettings, ctx);
+            const __result = __deserializeScheduleSettings(__raw_scheduleSettings, ctx);
             ctx.assignOrDefer(instance, 'scheduleSettings', __result);
         }
     }
     {
         const __raw_accountOverviewSettings = obj['accountOverviewSettings'] as OverviewSettings;
         {
-            const __result = OverviewSettings.__deserialize(__raw_accountOverviewSettings, ctx);
+            const __result = __deserializeOverviewSettings(__raw_accountOverviewSettings, ctx);
             ctx.assignOrDefer(instance, 'accountOverviewSettings', __result);
         }
     }
     {
         const __raw_serviceOverviewSettings = obj['serviceOverviewSettings'] as OverviewSettings;
         {
-            const __result = OverviewSettings.__deserialize(__raw_serviceOverviewSettings, ctx);
+            const __result = __deserializeOverviewSettings(__raw_serviceOverviewSettings, ctx);
             ctx.assignOrDefer(instance, 'serviceOverviewSettings', __result);
         }
     }
@@ -271,49 +268,49 @@ export function __deserializeSettings(value: any, ctx: DeserializeContext): Sett
             'appointmentOverviewSettings'
         ] as OverviewSettings;
         {
-            const __result = OverviewSettings.__deserialize(__raw_appointmentOverviewSettings, ctx);
+            const __result = __deserializeOverviewSettings(__raw_appointmentOverviewSettings, ctx);
             ctx.assignOrDefer(instance, 'appointmentOverviewSettings', __result);
         }
     }
     {
         const __raw_leadOverviewSettings = obj['leadOverviewSettings'] as OverviewSettings;
         {
-            const __result = OverviewSettings.__deserialize(__raw_leadOverviewSettings, ctx);
+            const __result = __deserializeOverviewSettings(__raw_leadOverviewSettings, ctx);
             ctx.assignOrDefer(instance, 'leadOverviewSettings', __result);
         }
     }
     {
         const __raw_packageOverviewSettings = obj['packageOverviewSettings'] as OverviewSettings;
         {
-            const __result = OverviewSettings.__deserialize(__raw_packageOverviewSettings, ctx);
+            const __result = __deserializeOverviewSettings(__raw_packageOverviewSettings, ctx);
             ctx.assignOrDefer(instance, 'packageOverviewSettings', __result);
         }
     }
     {
         const __raw_productOverviewSettings = obj['productOverviewSettings'] as OverviewSettings;
         {
-            const __result = OverviewSettings.__deserialize(__raw_productOverviewSettings, ctx);
+            const __result = __deserializeOverviewSettings(__raw_productOverviewSettings, ctx);
             ctx.assignOrDefer(instance, 'productOverviewSettings', __result);
         }
     }
     {
         const __raw_orderOverviewSettings = obj['orderOverviewSettings'] as OverviewSettings;
         {
-            const __result = OverviewSettings.__deserialize(__raw_orderOverviewSettings, ctx);
+            const __result = __deserializeOverviewSettings(__raw_orderOverviewSettings, ctx);
             ctx.assignOrDefer(instance, 'orderOverviewSettings', __result);
         }
     }
     {
         const __raw_taxRateOverviewSettings = obj['taxRateOverviewSettings'] as OverviewSettings;
         {
-            const __result = OverviewSettings.__deserialize(__raw_taxRateOverviewSettings, ctx);
+            const __result = __deserializeOverviewSettings(__raw_taxRateOverviewSettings, ctx);
             ctx.assignOrDefer(instance, 'taxRateOverviewSettings', __result);
         }
     }
     {
         const __raw_homePage = obj['homePage'] as Page;
         {
-            const __result = Page.__deserialize(__raw_homePage, ctx);
+            const __result = __deserializePage(__raw_homePage, ctx);
             ctx.assignOrDefer(instance, 'homePage', __result);
         }
     }
@@ -413,7 +410,7 @@ export interface GigaformSettings {
     reset(overrides?: Partial<Settings>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormSettings(overrides?: Partial<Settings>): GigaformSettings {
-    let data = $state({ ...Settings.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueSettings(), ...overrides });
     let errors = $state<ErrorsSettings>({
         _errors: Option.none(),
         appointmentNotifications: Option.none(),
@@ -464,7 +461,7 @@ export function createFormSettings(overrides?: Partial<Settings>): GigaformSetti
                 tainted.appointmentNotifications = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Settings.validateField(
+                const fieldErrors = validateFieldSettings(
                     'appointmentNotifications',
                     data.appointmentNotifications
                 );
@@ -490,7 +487,7 @@ export function createFormSettings(overrides?: Partial<Settings>): GigaformSetti
                 tainted.commissions = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Settings.validateField('commissions', data.commissions);
+                const fieldErrors = validateFieldSettings('commissions', data.commissions);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -513,7 +510,7 @@ export function createFormSettings(overrides?: Partial<Settings>): GigaformSetti
                 tainted.scheduleSettings = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Settings.validateField(
+                const fieldErrors = validateFieldSettings(
                     'scheduleSettings',
                     data.scheduleSettings
                 );
@@ -539,7 +536,7 @@ export function createFormSettings(overrides?: Partial<Settings>): GigaformSetti
                 tainted.accountOverviewSettings = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Settings.validateField(
+                const fieldErrors = validateFieldSettings(
                     'accountOverviewSettings',
                     data.accountOverviewSettings
                 );
@@ -565,7 +562,7 @@ export function createFormSettings(overrides?: Partial<Settings>): GigaformSetti
                 tainted.serviceOverviewSettings = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Settings.validateField(
+                const fieldErrors = validateFieldSettings(
                     'serviceOverviewSettings',
                     data.serviceOverviewSettings
                 );
@@ -591,7 +588,7 @@ export function createFormSettings(overrides?: Partial<Settings>): GigaformSetti
                 tainted.appointmentOverviewSettings = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Settings.validateField(
+                const fieldErrors = validateFieldSettings(
                     'appointmentOverviewSettings',
                     data.appointmentOverviewSettings
                 );
@@ -617,7 +614,7 @@ export function createFormSettings(overrides?: Partial<Settings>): GigaformSetti
                 tainted.leadOverviewSettings = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Settings.validateField(
+                const fieldErrors = validateFieldSettings(
                     'leadOverviewSettings',
                     data.leadOverviewSettings
                 );
@@ -643,7 +640,7 @@ export function createFormSettings(overrides?: Partial<Settings>): GigaformSetti
                 tainted.packageOverviewSettings = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Settings.validateField(
+                const fieldErrors = validateFieldSettings(
                     'packageOverviewSettings',
                     data.packageOverviewSettings
                 );
@@ -669,7 +666,7 @@ export function createFormSettings(overrides?: Partial<Settings>): GigaformSetti
                 tainted.productOverviewSettings = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Settings.validateField(
+                const fieldErrors = validateFieldSettings(
                     'productOverviewSettings',
                     data.productOverviewSettings
                 );
@@ -695,7 +692,7 @@ export function createFormSettings(overrides?: Partial<Settings>): GigaformSetti
                 tainted.orderOverviewSettings = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Settings.validateField(
+                const fieldErrors = validateFieldSettings(
                     'orderOverviewSettings',
                     data.orderOverviewSettings
                 );
@@ -721,7 +718,7 @@ export function createFormSettings(overrides?: Partial<Settings>): GigaformSetti
                 tainted.taxRateOverviewSettings = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Settings.validateField(
+                const fieldErrors = validateFieldSettings(
                     'taxRateOverviewSettings',
                     data.taxRateOverviewSettings
                 );
@@ -747,16 +744,16 @@ export function createFormSettings(overrides?: Partial<Settings>): GigaformSetti
                 tainted.homePage = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Settings.validateField('homePage', data.homePage);
+                const fieldErrors = validateFieldSettings('homePage', data.homePage);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Settings, Array<{ field: string; message: string }>> {
-        return Settings.fromObject(data);
+        return fromObjectSettings(data);
     }
     function reset(newOverrides?: Partial<Settings>): void {
-        data = { ...Settings.defaultValue(), ...newOverrides };
+        data = { ...defaultValueSettings(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             appointmentNotifications: Option.none(),
@@ -1027,5 +1024,5 @@ export function fromFormDataSettings(
         }
         obj.homePage = homePageObj;
     }
-    return Settings.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONSettings(JSON.stringify(obj));
 }

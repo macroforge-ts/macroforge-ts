@@ -1,4 +1,7 @@
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeApplications } from './applications.svelte';
+import { __serializePage } from './page.svelte';
+import { __serializeTable } from './table.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
@@ -41,15 +44,9 @@ export function __serializeAppPermissions(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'AppPermissions', __id };
-    result['applications'] = value.applications.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
-    result['pages'] = value.pages.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
-    result['data'] = value.data.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
+    result['applications'] = value.applications.map((item) => __serializeApplications(item, ctx));
+    result['pages'] = value.pages.map((item) => __serializePage(item, ctx));
+    result['data'] = value.data.map((item) => __serializeTable(item, ctx));
     return result;
 }
 
@@ -203,7 +200,7 @@ export interface GigaformAppPermissions {
 export function createFormAppPermissions(
     overrides?: Partial<AppPermissions>
 ): GigaformAppPermissions {
-    let data = $state({ ...AppPermissions.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueAppPermissions(), ...overrides });
     let errors = $state<ErrorsAppPermissions>({
         _errors: Option.none(),
         applications: Option.none(),
@@ -235,7 +232,7 @@ export function createFormAppPermissions(
                 tainted.applications = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = AppPermissions.validateField('applications', data.applications);
+                const fieldErrors = validateFieldAppPermissions('applications', data.applications);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -288,7 +285,7 @@ export function createFormAppPermissions(
                 tainted.pages = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = AppPermissions.validateField('pages', data.pages);
+                const fieldErrors = validateFieldAppPermissions('pages', data.pages);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -341,7 +338,7 @@ export function createFormAppPermissions(
                 tainted.data = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = AppPermissions.validateField('data', data.data);
+                const fieldErrors = validateFieldAppPermissions('data', data.data);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -377,10 +374,10 @@ export function createFormAppPermissions(
         }
     };
     function validate(): Result<AppPermissions, Array<{ field: string; message: string }>> {
-        return AppPermissions.fromObject(data);
+        return fromObjectAppPermissions(data);
     }
     function reset(newOverrides?: Partial<AppPermissions>): void {
-        data = { ...AppPermissions.defaultValue(), ...newOverrides };
+        data = { ...defaultValueAppPermissions(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             applications: Option.none(),
@@ -494,5 +491,5 @@ export function fromFormDataAppPermissions(
         }
         obj.data = dataItems;
     }
-    return AppPermissions.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONAppPermissions(JSON.stringify(obj));
 }

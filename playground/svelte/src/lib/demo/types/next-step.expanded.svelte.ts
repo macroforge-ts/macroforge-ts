@@ -186,7 +186,7 @@ export function createFormNextStep(initial?: NextStep): GigaformNextStep {
         tainted = {} as TaintedNextStep;
     }
     function validate(): Result<NextStep, Array<{ field: string; message: string }>> {
-        return NextStep.fromObject(data);
+        return fromObjectNextStep(data);
     }
     function reset(overrides?: Partial<NextStep>): void {
         data = overrides
@@ -242,5 +242,5 @@ export function fromFormDataNextStep(
     } else if (discriminant === 'Estimate') {
     } else if (discriminant === 'Negotiation') {
     }
-    return NextStep.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONNextStep(JSON.stringify(obj));
 }

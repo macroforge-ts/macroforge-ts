@@ -4,8 +4,14 @@ import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeAccount } from './account.svelte';
+import { __deserializeEmployee } from './employee.svelte';
+import { __deserializeUser } from './user.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
+import { defaultValueAccount } from './account.svelte';
+import { defaultValueEmployee } from './employee.svelte';
+import { defaultValueUser } from './user.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import { User } from './user.svelte';
@@ -92,22 +98,13 @@ export function __deserializeActor(value: any, ctx: DeserializeContext): Actor |
         ]);
     }
     if (__typeName === 'User') {
-        if (typeof (User as any)?.__deserialize === 'function') {
-            return (User as any).__deserialize(value, ctx) as Actor;
-        }
-        return value as Actor;
+        return __deserializeUser(value, ctx) as Actor;
     }
     if (__typeName === 'Employee') {
-        if (typeof (Employee as any)?.__deserialize === 'function') {
-            return (Employee as any).__deserialize(value, ctx) as Actor;
-        }
-        return value as Actor;
+        return __deserializeEmployee(value, ctx) as Actor;
     }
     if (__typeName === 'Account') {
-        if (typeof (Account as any)?.__deserialize === 'function') {
-            return (Account as any).__deserialize(value, ctx) as Actor;
-        }
-        return value as Actor;
+        return __deserializeAccount(value, ctx) as Actor;
     }
     throw new DeserializeError([
         {
@@ -164,13 +161,13 @@ export interface VariantFieldsActor {
 function getDefaultForVariantActor(variant: string): Actor {
     switch (variant) {
         case 'User':
-            return User.defaultValue() as Actor;
+            return defaultValueUser() as Actor;
         case 'Employee':
-            return Employee.defaultValue() as Actor;
+            return defaultValueEmployee() as Actor;
         case 'Account':
-            return Account.defaultValue() as Actor;
+            return defaultValueAccount() as Actor;
         default:
-            return User.defaultValue() as Actor;
+            return defaultValueUser() as Actor;
     }
 } /** Creates a new discriminated union Gigaform with variant switching */
 export function createFormActor(initial?: Actor): GigaformActor {
@@ -197,7 +194,7 @@ export function createFormActor(initial?: Actor): GigaformActor {
         tainted = {} as TaintedActor;
     }
     function validate(): Result<Actor, Array<{ field: string; message: string }>> {
-        return Actor.fromObject(data);
+        return fromObjectActor(data);
     }
     function reset(overrides?: Partial<Actor>): void {
         data = overrides ? (overrides as typeof data) : getDefaultForVariantActor(currentVariant);
@@ -245,5 +242,5 @@ export function fromFormDataActor(
     } else if (discriminant === 'Employee') {
     } else if (discriminant === 'Account') {
     }
-    return Actor.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONActor(JSON.stringify(obj));
 }

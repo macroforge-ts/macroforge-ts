@@ -61,10 +61,7 @@ export function __serializeRoute(value: Route, ctx: SerializeContext): Record<st
     const result: Record<string, unknown> = { __type: 'Route', __id };
     result['id'] = value.id;
     if (value.techs !== null) {
-        result['techs'] =
-            typeof (value.techs as any)?.__serialize === 'function'
-                ? (value.techs as any).__serialize(ctx)
-                : value.techs;
+        result['techs'] = value.techs;
     } else {
         result['techs'] = null;
     }
@@ -366,7 +363,7 @@ export interface GigaformRoute {
     reset(overrides?: Partial<Route>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormRoute(overrides?: Partial<Route>): GigaformRoute {
-    let data = $state({ ...Route.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueRoute(), ...overrides });
     let errors = $state<ErrorsRoute>({
         _errors: Option.none(),
         id: Option.none(),
@@ -414,7 +411,7 @@ export function createFormRoute(overrides?: Partial<Route>): GigaformRoute {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Route.validateField('id', data.id);
+                const fieldErrors = validateFieldRoute('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -437,7 +434,7 @@ export function createFormRoute(overrides?: Partial<Route>): GigaformRoute {
                 tainted.techs = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Route.validateField('techs', data.techs);
+                const fieldErrors = validateFieldRoute('techs', data.techs);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -460,7 +457,7 @@ export function createFormRoute(overrides?: Partial<Route>): GigaformRoute {
                 tainted.active = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Route.validateField('active', data.active);
+                const fieldErrors = validateFieldRoute('active', data.active);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -483,7 +480,7 @@ export function createFormRoute(overrides?: Partial<Route>): GigaformRoute {
                 tainted.name = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Route.validateField('name', data.name);
+                const fieldErrors = validateFieldRoute('name', data.name);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -506,7 +503,7 @@ export function createFormRoute(overrides?: Partial<Route>): GigaformRoute {
                 tainted.phone = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Route.validateField('phone', data.phone);
+                const fieldErrors = validateFieldRoute('phone', data.phone);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -529,7 +526,7 @@ export function createFormRoute(overrides?: Partial<Route>): GigaformRoute {
                 tainted.position = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Route.validateField('position', data.position);
+                const fieldErrors = validateFieldRoute('position', data.position);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -552,7 +549,7 @@ export function createFormRoute(overrides?: Partial<Route>): GigaformRoute {
                 tainted.serviceRoute = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Route.validateField('serviceRoute', data.serviceRoute);
+                const fieldErrors = validateFieldRoute('serviceRoute', data.serviceRoute);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -575,7 +572,7 @@ export function createFormRoute(overrides?: Partial<Route>): GigaformRoute {
                 tainted.defaultDurationHours = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Route.validateField(
+                const fieldErrors = validateFieldRoute(
                     'defaultDurationHours',
                     data.defaultDurationHours
                 );
@@ -601,7 +598,7 @@ export function createFormRoute(overrides?: Partial<Route>): GigaformRoute {
                 tainted.tags = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Route.validateField('tags', data.tags);
+                const fieldErrors = validateFieldRoute('tags', data.tags);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -654,7 +651,7 @@ export function createFormRoute(overrides?: Partial<Route>): GigaformRoute {
                 tainted.icon = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Route.validateField('icon', data.icon);
+                const fieldErrors = validateFieldRoute('icon', data.icon);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -677,16 +674,16 @@ export function createFormRoute(overrides?: Partial<Route>): GigaformRoute {
                 tainted.color = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Route.validateField('color', data.color);
+                const fieldErrors = validateFieldRoute('color', data.color);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Route, Array<{ field: string; message: string }>> {
-        return Route.fromObject(data);
+        return fromObjectRoute(data);
     }
     function reset(newOverrides?: Partial<Route>): void {
-        data = { ...Route.defaultValue(), ...newOverrides };
+        data = { ...defaultValueRoute(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             id: Option.none(),
@@ -768,5 +765,5 @@ export function fromFormDataRoute(
     obj.tags = formData.getAll('tags') as Array<string>;
     obj.icon = formData.get('icon') ?? '';
     obj.color = formData.get('color') ?? '';
-    return Route.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONRoute(JSON.stringify(obj));
 }

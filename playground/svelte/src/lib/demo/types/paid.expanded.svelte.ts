@@ -175,7 +175,7 @@ export interface GigaformPaid {
     reset(overrides?: Partial<Paid>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormPaid(overrides?: Partial<Paid>): GigaformPaid {
-    let data = $state({ ...Paid.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValuePaid(), ...overrides });
     let errors = $state<ErrorsPaid>({
         _errors: Option.none(),
         amount: Option.none(),
@@ -207,7 +207,7 @@ export function createFormPaid(overrides?: Partial<Paid>): GigaformPaid {
                 tainted.amount = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Paid.validateField('amount', data.amount);
+                const fieldErrors = validateFieldPaid('amount', data.amount);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -230,7 +230,7 @@ export function createFormPaid(overrides?: Partial<Paid>): GigaformPaid {
                 tainted.currency = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Paid.validateField('currency', data.currency);
+                const fieldErrors = validateFieldPaid('currency', data.currency);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -253,16 +253,16 @@ export function createFormPaid(overrides?: Partial<Paid>): GigaformPaid {
                 tainted.paymentMethod = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Paid.validateField('paymentMethod', data.paymentMethod);
+                const fieldErrors = validateFieldPaid('paymentMethod', data.paymentMethod);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Paid, Array<{ field: string; message: string }>> {
-        return Paid.fromObject(data);
+        return fromObjectPaid(data);
     }
     function reset(newOverrides?: Partial<Paid>): void {
-        data = { ...Paid.defaultValue(), ...newOverrides };
+        data = { ...defaultValuePaid(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             amount: Option.none(),
@@ -306,5 +306,5 @@ export function fromFormDataPaid(
     }
     obj.currency = formData.get('currency') ?? '';
     obj.paymentMethod = formData.get('paymentMethod') ?? '';
-    return Paid.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONPaid(JSON.stringify(obj));
 }

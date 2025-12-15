@@ -196,7 +196,7 @@ export interface GigaformMetadata {
     reset(overrides?: Partial<Metadata>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormMetadata(overrides?: Partial<Metadata>): GigaformMetadata {
-    let data = $state({ ...Metadata.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueMetadata(), ...overrides });
     let errors = $state<ErrorsMetadata>({
         _errors: Option.none(),
         createdAt: Option.none(),
@@ -230,7 +230,7 @@ export function createFormMetadata(overrides?: Partial<Metadata>): GigaformMetad
                 tainted.createdAt = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Metadata.validateField('createdAt', data.createdAt);
+                const fieldErrors = validateFieldMetadata('createdAt', data.createdAt);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -253,7 +253,7 @@ export function createFormMetadata(overrides?: Partial<Metadata>): GigaformMetad
                 tainted.lastLogin = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Metadata.validateField('lastLogin', data.lastLogin);
+                const fieldErrors = validateFieldMetadata('lastLogin', data.lastLogin);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -276,7 +276,7 @@ export function createFormMetadata(overrides?: Partial<Metadata>): GigaformMetad
                 tainted.isActive = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Metadata.validateField('isActive', data.isActive);
+                const fieldErrors = validateFieldMetadata('isActive', data.isActive);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -299,7 +299,7 @@ export function createFormMetadata(overrides?: Partial<Metadata>): GigaformMetad
                 tainted.roles = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Metadata.validateField('roles', data.roles);
+                const fieldErrors = validateFieldMetadata('roles', data.roles);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -335,10 +335,10 @@ export function createFormMetadata(overrides?: Partial<Metadata>): GigaformMetad
         }
     };
     function validate(): Result<Metadata, Array<{ field: string; message: string }>> {
-        return Metadata.fromObject(data);
+        return fromObjectMetadata(data);
     }
     function reset(newOverrides?: Partial<Metadata>): void {
-        data = { ...Metadata.defaultValue(), ...newOverrides };
+        data = { ...defaultValueMetadata(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             createdAt: Option.none(),
@@ -388,5 +388,5 @@ export function fromFormDataMetadata(
         obj.isActive = isActiveVal === 'true' || isActiveVal === 'on' || isActiveVal === '1';
     }
     obj.roles = formData.getAll('roles') as Array<string>;
-    return Metadata.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONMetadata(JSON.stringify(obj));
 }

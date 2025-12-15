@@ -1,9 +1,12 @@
+import { defaultValueDataPath } from './data-path.svelte';
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeDataPath } from './data-path.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeDataPath } from './data-path.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -16,7 +19,7 @@ export interface ColumnConfig {
 }
 
 export function defaultValueColumnConfig(): ColumnConfig {
-    return { heading: '', dataPath: DataPath.defaultValue() } as ColumnConfig;
+    return { heading: '', dataPath: defaultValueDataPath() } as ColumnConfig;
 }
 
 export function toStringifiedJSONColumnConfig(value: ColumnConfig): string {
@@ -38,10 +41,7 @@ export function __serializeColumnConfig(
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'ColumnConfig', __id };
     result['heading'] = value.heading;
-    result['dataPath'] =
-        typeof (value.dataPath as any)?.__serialize === 'function'
-            ? (value.dataPath as any).__serialize(ctx)
-            : value.dataPath;
+    result['dataPath'] = __serializeDataPath(value.dataPath, ctx);
     return result;
 }
 
@@ -126,7 +126,7 @@ export function __deserializeColumnConfig(
     {
         const __raw_dataPath = obj['dataPath'] as DataPath;
         {
-            const __result = DataPath.__deserialize(__raw_dataPath, ctx);
+            const __result = __deserializeDataPath(__raw_dataPath, ctx);
             ctx.assignOrDefer(instance, 'dataPath', __result);
         }
     }
@@ -200,7 +200,7 @@ export interface GigaformColumnConfig {
     reset(overrides?: Partial<ColumnConfig>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormColumnConfig(overrides?: Partial<ColumnConfig>): GigaformColumnConfig {
-    let data = $state({ ...ColumnConfig.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueColumnConfig(), ...overrides });
     let errors = $state<ErrorsColumnConfig>({
         _errors: Option.none(),
         heading: Option.none(),
@@ -227,7 +227,7 @@ export function createFormColumnConfig(overrides?: Partial<ColumnConfig>): Gigaf
                 tainted.heading = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = ColumnConfig.validateField('heading', data.heading);
+                const fieldErrors = validateFieldColumnConfig('heading', data.heading);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -250,16 +250,16 @@ export function createFormColumnConfig(overrides?: Partial<ColumnConfig>): Gigaf
                 tainted.dataPath = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = ColumnConfig.validateField('dataPath', data.dataPath);
+                const fieldErrors = validateFieldColumnConfig('dataPath', data.dataPath);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<ColumnConfig, Array<{ field: string; message: string }>> {
-        return ColumnConfig.fromObject(data);
+        return fromObjectColumnConfig(data);
     }
     function reset(newOverrides?: Partial<ColumnConfig>): void {
-        data = { ...ColumnConfig.defaultValue(), ...newOverrides };
+        data = { ...defaultValueColumnConfig(), ...newOverrides };
         errors = { _errors: Option.none(), heading: Option.none(), dataPath: Option.none() };
         tainted = { heading: Option.none(), dataPath: Option.none() };
     }
@@ -313,5 +313,5 @@ export function fromFormDataColumnConfig(
         }
         obj.dataPath = dataPathObj;
     }
-    return ColumnConfig.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONColumnConfig(JSON.stringify(obj));
 }

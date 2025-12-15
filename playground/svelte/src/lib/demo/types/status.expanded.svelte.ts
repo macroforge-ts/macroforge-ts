@@ -165,7 +165,7 @@ export function createFormStatus(initial?: Status): GigaformStatus {
         tainted = {} as TaintedStatus;
     }
     function validate(): Result<Status, Array<{ field: string; message: string }>> {
-        return Status.fromObject(data);
+        return fromObjectStatus(data);
     }
     function reset(overrides?: Partial<Status>): void {
         data = overrides ? (overrides as typeof data) : getDefaultForVariantStatus(currentVariant);
@@ -213,5 +213,5 @@ export function fromFormDataStatus(
     } else if (discriminant === 'OnDeck') {
     } else if (discriminant === 'Waiting') {
     }
-    return Status.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONStatus(JSON.stringify(obj));
 }

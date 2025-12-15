@@ -1,9 +1,11 @@
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeItem } from './item.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeItem } from './item.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -42,10 +44,7 @@ export function __serializeBilledItem(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'BilledItem', __id };
-    result['item'] =
-        typeof (value.item as any)?.__serialize === 'function'
-            ? (value.item as any).__serialize(ctx)
-            : value.item;
+    result['item'] = __serializeItem(value.item, ctx);
     result['quantity'] = value.quantity;
     result['taxed'] = value.taxed;
     result['upsale'] = value.upsale;
@@ -132,7 +131,7 @@ export function __deserializeBilledItem(
     {
         const __raw_item = obj['item'] as Item;
         {
-            const __result = Item.__deserialize(__raw_item, ctx);
+            const __result = __deserializeItem(__raw_item, ctx);
             ctx.assignOrDefer(instance, 'item', __result);
         }
     }
@@ -207,7 +206,7 @@ export interface GigaformBilledItem {
     reset(overrides?: Partial<BilledItem>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormBilledItem(overrides?: Partial<BilledItem>): GigaformBilledItem {
-    let data = $state({ ...BilledItem.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueBilledItem(), ...overrides });
     let errors = $state<ErrorsBilledItem>({
         _errors: Option.none(),
         item: Option.none(),
@@ -241,7 +240,7 @@ export function createFormBilledItem(overrides?: Partial<BilledItem>): GigaformB
                 tainted.item = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = BilledItem.validateField('item', data.item);
+                const fieldErrors = validateFieldBilledItem('item', data.item);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -264,7 +263,7 @@ export function createFormBilledItem(overrides?: Partial<BilledItem>): GigaformB
                 tainted.quantity = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = BilledItem.validateField('quantity', data.quantity);
+                const fieldErrors = validateFieldBilledItem('quantity', data.quantity);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -287,7 +286,7 @@ export function createFormBilledItem(overrides?: Partial<BilledItem>): GigaformB
                 tainted.taxed = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = BilledItem.validateField('taxed', data.taxed);
+                const fieldErrors = validateFieldBilledItem('taxed', data.taxed);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -310,16 +309,16 @@ export function createFormBilledItem(overrides?: Partial<BilledItem>): GigaformB
                 tainted.upsale = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = BilledItem.validateField('upsale', data.upsale);
+                const fieldErrors = validateFieldBilledItem('upsale', data.upsale);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<BilledItem, Array<{ field: string; message: string }>> {
-        return BilledItem.fromObject(data);
+        return fromObjectBilledItem(data);
     }
     function reset(newOverrides?: Partial<BilledItem>): void {
-        data = { ...BilledItem.defaultValue(), ...newOverrides };
+        data = { ...defaultValueBilledItem(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             item: Option.none(),
@@ -396,5 +395,5 @@ export function fromFormDataBilledItem(
         const upsaleVal = formData.get('upsale');
         obj.upsale = upsaleVal === 'true' || upsaleVal === 'on' || upsaleVal === '1';
     }
-    return BilledItem.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONBilledItem(JSON.stringify(obj));
 }

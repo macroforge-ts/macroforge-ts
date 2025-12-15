@@ -171,7 +171,7 @@ export function createFormOrderStage(initial?: OrderStage): GigaformOrderStage {
         tainted = {} as TaintedOrderStage;
     }
     function validate(): Result<OrderStage, Array<{ field: string; message: string }>> {
-        return OrderStage.fromObject(data);
+        return fromObjectOrderStage(data);
     }
     function reset(overrides?: Partial<OrderStage>): void {
         data = overrides
@@ -221,5 +221,5 @@ export function fromFormDataOrderStage(
     } else if (discriminant === 'Active') {
     } else if (discriminant === 'Invoice') {
     }
-    return OrderStage.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONOrderStage(JSON.stringify(obj));
 }

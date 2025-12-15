@@ -657,7 +657,7 @@ export function createFormPage(initial?: Page): GigaformPage {
         tainted = {} as TaintedPage;
     }
     function validate(): Result<Page, Array<{ field: string; message: string }>> {
-        return Page.fromObject(data);
+        return fromObjectPage(data);
     }
     function reset(overrides?: Partial<Page>): void {
         data = overrides ? (overrides as typeof data) : getDefaultForVariantPage(currentVariant);
@@ -753,5 +753,5 @@ export function fromFormDataPage(
     } else if (discriminant === 'SalesSchedulingReminders') {
     } else if (discriminant === 'UserHome') {
     }
-    return Page.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONPage(JSON.stringify(obj));
 }

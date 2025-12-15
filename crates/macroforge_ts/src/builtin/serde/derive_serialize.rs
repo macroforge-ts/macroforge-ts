@@ -109,6 +109,15 @@ fn to_camel_case(name: &str) -> String {
     }
 }
 
+fn nested_serialize_fn_name(type_name: &str, naming_style: FunctionNamingStyle) -> String {
+    match naming_style {
+        FunctionNamingStyle::Namespace => format!("{type_name}.__serialize"),
+        FunctionNamingStyle::Generic => "__serialize".to_string(),
+        FunctionNamingStyle::Prefix => format!("{}__serialize", to_camel_case(type_name)),
+        FunctionNamingStyle::Suffix => format!("__serialize{type_name}"),
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum SerdeValueKind {
     PrimitiveLike,
@@ -251,6 +260,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
+            let naming_style = input.context.function_naming_style;
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
 
             // Collect serializable fields with diagnostic collection
@@ -409,8 +419,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     result["@{field.json_key}"] = this.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
                                                 {:case _}
                                                     {#if let Some(elem_type) = &field.array_elem_serializable_type}
+                                                        {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                         result["@{field.json_key}"] = this.@{field.field_name}.map(
-                                                            (item) => __serialize@{elem_type}(item, ctx)
+                                                            (item) => @{__serialize_elem}(item, ctx)
                                                         );
                                                     {:else}
                                                         result["@{field.json_key}"] = this.@{field.field_name};
@@ -427,8 +438,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 result["@{field.json_key}"] = this.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
                                             {:case _}
                                                 {#if let Some(elem_type) = &field.array_elem_serializable_type}
+                                                    {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                     result["@{field.json_key}"] = this.@{field.field_name}.map(
-                                                        (item) => __serialize@{elem_type}(item, ctx)
+                                                        (item) => @{__serialize_elem}(item, ctx)
                                                     );
                                                 {:else}
                                                     result["@{field.json_key}"] = this.@{field.field_name};
@@ -456,9 +468,10 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     );
                                                 {:case _}
                                                     {#if let Some(value_type) = &field.map_value_serializable_type}
+                                                        {$let __serialize_value = nested_serialize_fn_name(value_type, naming_style)}
                                                         result["@{field.json_key}"] = Object.fromEntries(
                                                             Array.from(this.@{field.field_name}.entries()).map(
-                                                                ([k, v]) => [k, __serialize@{value_type}(v, ctx)]
+                                                                ([k, v]) => [k, @{__serialize_value}(v, ctx)]
                                                             )
                                                         );
                                                     {:else}
@@ -484,9 +497,10 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 );
                                             {:case _}
                                                 {#if let Some(value_type) = &field.map_value_serializable_type}
+                                                    {$let __serialize_value = nested_serialize_fn_name(value_type, naming_style)}
                                                     result["@{field.json_key}"] = Object.fromEntries(
                                                         Array.from(this.@{field.field_name}.entries()).map(
-                                                            ([k, v]) => [k, __serialize@{value_type}(v, ctx)]
+                                                            ([k, v]) => [k, @{__serialize_value}(v, ctx)]
                                                         )
                                                     );
                                                 {:else}
@@ -507,8 +521,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
                                                 {:case _}
                                                     {#if let Some(elem_type) = &field.set_elem_serializable_type}
+                                                        {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                         result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map(
-                                                            (item) => __serialize@{elem_type}(item, ctx)
+                                                            (item) => @{__serialize_elem}(item, ctx)
                                                         );
                                                     {:else}
                                                         result["@{field.json_key}"] = Array.from(this.@{field.field_name});
@@ -525,8 +540,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
                                             {:case _}
                                                 {#if let Some(elem_type) = &field.set_elem_serializable_type}
+                                                    {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                     result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map(
-                                                        (item) => __serialize@{elem_type}(item, ctx)
+                                                        (item) => @{__serialize_elem}(item, ctx)
                                                     );
                                                 {:else}
                                                     result["@{field.json_key}"] = Array.from(this.@{field.field_name});
@@ -543,7 +559,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 result["@{field.json_key}"] = (this.@{field.field_name} as Date).toISOString();
                                             {:case _}
                                                 {#if let Some(inner_type) = &field.optional_serializable_type}
-                                                    result["@{field.json_key}"] = __serialize@{inner_type}(this.@{field.field_name}, ctx);
+                                                    {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                    result["@{field.json_key}"] = @{__serialize_fn}(this.@{field.field_name}, ctx);
                                                 {:else}
                                                     result["@{field.json_key}"] = this.@{field.field_name};
                                                 {/if}
@@ -561,7 +578,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                         {:case _}
                                             if (this.@{field.field_name} !== null) {
                                                 {#if let Some(inner_type) = &field.nullable_serializable_type}
-                                                    result["@{field.json_key}"] = __serialize@{inner_type}(this.@{field.field_name}, ctx);
+                                                    {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                    result["@{field.json_key}"] = @{__serialize_fn}(this.@{field.field_name}, ctx);
                                                 {:else}
                                                     result["@{field.json_key}"] = this.@{field.field_name};
                                                 {/if}
@@ -571,12 +589,13 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {/match}
 
                                 {:case TypeCategory::Serializable(type_name)}
+                                    {$let __serialize_fn = nested_serialize_fn_name(type_name, naming_style)}
                                     {#if field.optional}
                                         if (this.@{field.field_name} !== undefined) {
-                                            result["@{field.json_key}"] = __serialize@{type_name}(this.@{field.field_name}, ctx);
+                                            result["@{field.json_key}"] = @{__serialize_fn}(this.@{field.field_name}, ctx);
                                         }
                                     {:else}
-                                        result["@{field.json_key}"] = __serialize@{type_name}(this.@{field.field_name}, ctx);
+                                        result["@{field.json_key}"] = @{__serialize_fn}(this.@{field.field_name}, ctx);
                                     {/if}
 
                                 {:case TypeCategory::Unknown}
@@ -595,16 +614,17 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         {#for field in flatten_fields}
                             {#match &field.type_cat}
                                 {:case TypeCategory::Serializable(type_name)}
+                                    {$let __serialize_fn = nested_serialize_fn_name(type_name, naming_style)}
                                     {#if field.optional}
                                         if (this.@{field.field_name} !== undefined) {
-                                            const __flattened = __serialize@{type_name}(this.@{field.field_name}, ctx);
+                                            const __flattened = @{__serialize_fn}(this.@{field.field_name}, ctx);
                                             // Remove __type and __id from flattened object
                                             const { __type: _, __id: __, ...rest } = __flattened as any;
                                             Object.assign(result, rest);
                                         }
                                     {:else}
                                         {
-                                            const __flattened = __serialize@{type_name}(this.@{field.field_name}, ctx);
+                                            const __flattened = @{__serialize_fn}(this.@{field.field_name}, ctx);
                                             // Remove __type and __id from flattened object
                                             const { __type: _, __id: __, ...rest } = __flattened as any;
                                             Object.assign(result, rest);
@@ -879,8 +899,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                                 result["@{field.json_key}"] = self.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
                                                             {:case _}
                                                                 {#if let Some(elem_type) = &field.array_elem_serializable_type}
+                                                                    {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                                     result["@{field.json_key}"] = self.@{field.field_name}.map(
-                                                                        (item) => __serialize@{elem_type}(item, ctx)
+                                                                        (item) => @{__serialize_elem}(item, ctx)
                                                                     );
                                                                 {:else}
                                                                     result["@{field.json_key}"] = self.@{field.field_name};
@@ -897,8 +918,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                             result["@{field.json_key}"] = self.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
                                                         {:case _}
                                                             {#if let Some(elem_type) = &field.array_elem_serializable_type}
+                                                                {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                                 result["@{field.json_key}"] = self.@{field.field_name}.map(
-                                                                    (item) => __serialize@{elem_type}(item, ctx)
+                                                                    (item) => @{__serialize_elem}(item, ctx)
                                                                 );
                                                             {:else}
                                                                 result["@{field.json_key}"] = self.@{field.field_name};
@@ -924,16 +946,17 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                                         ([k, v]) => [k, v === null ? null : (v as Date).toISOString()]
                                                                     )
                                                                 );
-                                                            {:case _}
-                                                                {#if let Some(value_type) = &field.map_value_serializable_type}
-                                                                    result["@{field.json_key}"] = Object.fromEntries(
-                                                                        Array.from(self.@{field.field_name}.entries()).map(
-                                                                            ([k, v]) => [k, __serialize@{value_type}(v, ctx)]
-                                                                        )
-                                                                    );
-                                                                {:else}
-                                                                    result["@{field.json_key}"] = Object.fromEntries(self.@{field.field_name}.entries());
-                                                                {/if}
+                                                    {:case _}
+                                                        {#if let Some(value_type) = &field.map_value_serializable_type}
+                                                            {$let __serialize_value = nested_serialize_fn_name(value_type, naming_style)}
+                                                            result["@{field.json_key}"] = Object.fromEntries(
+                                                                Array.from(self.@{field.field_name}.entries()).map(
+                                                                    ([k, v]) => [k, @{__serialize_value}(v, ctx)]
+                                                                )
+                                                            );
+                                                        {:else}
+                                                            result["@{field.json_key}"] = Object.fromEntries(self.@{field.field_name}.entries());
+                                                        {/if}
                                                         {/match}
                                                     }
                                                 {:else}
@@ -952,16 +975,17 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                                     ([k, v]) => [k, v === null ? null : (v as Date).toISOString()]
                                                                 )
                                                             );
-                                                        {:case _}
-                                                            {#if let Some(value_type) = &field.map_value_serializable_type}
-                                                                result["@{field.json_key}"] = Object.fromEntries(
-                                                                    Array.from(self.@{field.field_name}.entries()).map(
-                                                                        ([k, v]) => [k, __serialize@{value_type}(v, ctx)]
-                                                                    )
-                                                                );
-                                                            {:else}
-                                                                result["@{field.json_key}"] = Object.fromEntries(self.@{field.field_name}.entries());
-                                                            {/if}
+                                                {:case _}
+                                                    {#if let Some(value_type) = &field.map_value_serializable_type}
+                                                        {$let __serialize_value = nested_serialize_fn_name(value_type, naming_style)}
+                                                        result["@{field.json_key}"] = Object.fromEntries(
+                                                            Array.from(self.@{field.field_name}.entries()).map(
+                                                                ([k, v]) => [k, @{__serialize_value}(v, ctx)]
+                                                            )
+                                                        );
+                                                    {:else}
+                                                        result["@{field.json_key}"] = Object.fromEntries(self.@{field.field_name}.entries());
+                                                    {/if}
                                                     {/match}
                                                 {/if}
 
@@ -977,8 +1001,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                                 result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
                                                             {:case _}
                                                                 {#if let Some(elem_type) = &field.set_elem_serializable_type}
+                                                                    {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                                     result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map(
-                                                                        (item) => __serialize@{elem_type}(item, ctx)
+                                                                        (item) => @{__serialize_elem}(item, ctx)
                                                                     );
                                                                 {:else}
                                                                     result["@{field.json_key}"] = Array.from(self.@{field.field_name});
@@ -995,8 +1020,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                             result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
                                                         {:case _}
                                                             {#if let Some(elem_type) = &field.set_elem_serializable_type}
+                                                                {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                                 result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map(
-                                                                    (item) => __serialize@{elem_type}(item, ctx)
+                                                                    (item) => @{__serialize_elem}(item, ctx)
                                                                 );
                                                             {:else}
                                                                 result["@{field.json_key}"] = Array.from(self.@{field.field_name});
@@ -1013,7 +1039,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                             result["@{field.json_key}"] = (self.@{field.field_name} as Date).toISOString();
                                                         {:case _}
                                                             {#if let Some(inner_type) = &field.optional_serializable_type}
-                                                                result["@{field.json_key}"] = __serialize@{inner_type}(self.@{field.field_name}, ctx);
+                                                                {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                                result["@{field.json_key}"] = @{__serialize_fn}(self.@{field.field_name}, ctx);
                                                             {:else}
                                                                 result["@{field.json_key}"] = self.@{field.field_name};
                                                             {/if}
@@ -1031,7 +1058,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     {:case _}
                                                         if (self.@{field.field_name} !== null) {
                                                             {#if let Some(inner_type) = &field.nullable_serializable_type}
-                                                                result["@{field.json_key}"] = __serialize@{inner_type}(self.@{field.field_name}, ctx);
+                                                                {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                                result["@{field.json_key}"] = @{__serialize_fn}(self.@{field.field_name}, ctx);
                                                             {:else}
                                                                 result["@{field.json_key}"] = self.@{field.field_name};
                                                             {/if}
@@ -1041,12 +1069,13 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 {/match}
 
                                             {:case TypeCategory::Serializable(type_name)}
+                                                {$let __serialize_fn = nested_serialize_fn_name(type_name, naming_style)}
                                                 {#if field.optional}
                                                     if (self.@{field.field_name} !== undefined) {
-                                                        result["@{field.json_key}"] = __serialize@{type_name}(self.@{field.field_name}, ctx);
+                                                        result["@{field.json_key}"] = @{__serialize_fn}(self.@{field.field_name}, ctx);
                                                     }
                                                 {:else}
-                                                    result["@{field.json_key}"] = __serialize@{type_name}(self.@{field.field_name}, ctx);
+                                                    result["@{field.json_key}"] = @{__serialize_fn}(self.@{field.field_name}, ctx);
                                                 {/if}
 
                                             {:case TypeCategory::Unknown}
@@ -1063,23 +1092,97 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                                 {#if has_flatten}
                                     {#for field in flatten_fields}
-                                        {#if field.optional}
-                                            if (self.@{field.field_name} !== undefined) {
-                                                const __flattened = typeof (self.@{field.field_name} as any)?.__serialize === "function"
-                                                    ? (self.@{field.field_name} as any).__serialize(ctx)
-                                                    : self.@{field.field_name};
-                                                const { __type: _, __id: __, ...rest } = __flattened as any;
-                                                Object.assign(result, rest);
-                                            }
-                                        {:else}
-                                            {
-                                                const __flattened = typeof (self.@{field.field_name} as any)?.__serialize === "function"
-                                                    ? (self.@{field.field_name} as any).__serialize(ctx)
-                                                    : self.@{field.field_name};
-                                                const { __type: _, __id: __, ...rest } = __flattened as any;
-                                                Object.assign(result, rest);
-                                            }
-                                        {/if}
+                                        {#match &field.type_cat}
+                                            {:case TypeCategory::Serializable(type_name)}
+                                                {$let __serialize_fn = nested_serialize_fn_name(type_name, naming_style)}
+                                                {#if field.optional}
+                                                    if (self.@{field.field_name} !== undefined) {
+                                                        const __flattened = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                        const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                        Object.assign(result, rest);
+                                                    }
+                                                {:else}
+                                                    {
+                                                        const __flattened = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                        const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                        Object.assign(result, rest);
+                                                    }
+                                                {/if}
+                                            {:case TypeCategory::Optional(_)}
+                                                {#if field.optional}
+                                                    if (self.@{field.field_name} !== undefined) {
+                                                        {#if let Some(inner_type) = &field.optional_serializable_type}
+                                                            {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                            const __flattened = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                            Object.assign(result, rest);
+                                                        {:else}
+                                                            const __flattened = self.@{field.field_name};
+                                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                            Object.assign(result, rest);
+                                                        {/if}
+                                                    }
+                                                {:else}
+                                                    {
+                                                        {#if let Some(inner_type) = &field.optional_serializable_type}
+                                                            {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                            const __flattened = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                            Object.assign(result, rest);
+                                                        {:else}
+                                                            const __flattened = self.@{field.field_name};
+                                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                            Object.assign(result, rest);
+                                                        {/if}
+                                                    }
+                                                {/if}
+                                            {:case TypeCategory::Nullable(_)}
+                                                {#if field.optional}
+                                                    if (self.@{field.field_name} !== undefined) {
+                                                        if (self.@{field.field_name} !== null) {
+                                                            {#if let Some(inner_type) = &field.nullable_serializable_type}
+                                                                {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                                const __flattened = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                                const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                                Object.assign(result, rest);
+                                                            {:else}
+                                                                const __flattened = self.@{field.field_name};
+                                                                const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                                Object.assign(result, rest);
+                                                            {/if}
+                                                        }
+                                                    }
+                                                {:else}
+                                                    {
+                                                        if (self.@{field.field_name} !== null) {
+                                                            {#if let Some(inner_type) = &field.nullable_serializable_type}
+                                                                {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                                const __flattened = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                                const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                                Object.assign(result, rest);
+                                                            {:else}
+                                                                const __flattened = self.@{field.field_name};
+                                                                const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                                Object.assign(result, rest);
+                                                            {/if}
+                                                        }
+                                                    }
+                                                {/if}
+                                            {:case _}
+                                                {#if field.optional}
+                                                    if (self.@{field.field_name} !== undefined) {
+                                                        const __flattened = self.@{field.field_name};
+                                                        const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                        Object.assign(result, rest);
+                                                    }
+                                                {:else}
+                                                    {
+                                                        const __flattened = self.@{field.field_name};
+                                                        const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                        Object.assign(result, rest);
+                                                    }
+                                                {/if}
+                                        {/match}
                                     {/for}
                                 {/if}
 
@@ -1148,11 +1251,14 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                         {:case SerdeValueKind::NullableDate}
                                                             result["@{field.json_key}"] = value.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
                                                         {:case _}
-                                                            result["@{field.json_key}"] = value.@{field.field_name}.map(
-                                                                (item: any) => typeof item?.__serialize === "function"
-                                                                    ? item.__serialize(ctx)
-                                                                    : item
-                                                            );
+                                                            {#if let Some(elem_type) = &field.array_elem_serializable_type}
+                                                                {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                                result["@{field.json_key}"] = value.@{field.field_name}.map(
+                                                                    (item) => @{__serialize_elem}(item, ctx)
+                                                                );
+                                                            {:else}
+                                                                result["@{field.json_key}"] = value.@{field.field_name};
+                                                            {/if}
                                                     {/match}
                                                 }
                                             {:else}
@@ -1164,11 +1270,14 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     {:case SerdeValueKind::NullableDate}
                                                         result["@{field.json_key}"] = value.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
                                                     {:case _}
-                                                        result["@{field.json_key}"] = value.@{field.field_name}.map(
-                                                            (item: any) => typeof item?.__serialize === "function"
-                                                                ? item.__serialize(ctx)
-                                                                : item
-                                                        );
+                                                        {#if let Some(elem_type) = &field.array_elem_serializable_type}
+                                                            {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                            result["@{field.json_key}"] = value.@{field.field_name}.map(
+                                                                (item) => @{__serialize_elem}(item, ctx)
+                                                            );
+                                                        {:else}
+                                                            result["@{field.json_key}"] = value.@{field.field_name};
+                                                        {/if}
                                                 {/match}
                                             {/if}
 
@@ -1191,13 +1300,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                                 )
                                                             );
                                                         {:case _}
-                                                            result["@{field.json_key}"] = Object.fromEntries(
-                                                                Array.from(value.@{field.field_name}.entries()).map(
-                                                                    ([k, v]) => [k, typeof (v as any)?.__serialize === "function"
-                                                                        ? (v as any).__serialize(ctx)
-                                                                        : v]
-                                                                )
-                                                            );
+                                                            {#if let Some(value_type) = &field.map_value_serializable_type}
+                                                                {$let __serialize_value = nested_serialize_fn_name(value_type, naming_style)}
+                                                                result["@{field.json_key}"] = Object.fromEntries(
+                                                                    Array.from(value.@{field.field_name}.entries()).map(
+                                                                        ([k, v]) => [k, @{__serialize_value}(v, ctx)]
+                                                                    )
+                                                                );
+                                                            {:else}
+                                                                result["@{field.json_key}"] = Object.fromEntries(value.@{field.field_name}.entries());
+                                                            {/if}
                                                     {/match}
                                                 }
                                             {:else}
@@ -1217,13 +1329,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                             )
                                                         );
                                                     {:case _}
-                                                        result["@{field.json_key}"] = Object.fromEntries(
-                                                            Array.from(value.@{field.field_name}.entries()).map(
-                                                                ([k, v]) => [k, typeof (v as any)?.__serialize === "function"
-                                                                    ? (v as any).__serialize(ctx)
-                                                                    : v]
-                                                            )
-                                                        );
+                                                        {#if let Some(value_type) = &field.map_value_serializable_type}
+                                                            {$let __serialize_value = nested_serialize_fn_name(value_type, naming_style)}
+                                                            result["@{field.json_key}"] = Object.fromEntries(
+                                                                Array.from(value.@{field.field_name}.entries()).map(
+                                                                    ([k, v]) => [k, @{__serialize_value}(v, ctx)]
+                                                                )
+                                                            );
+                                                        {:else}
+                                                            result["@{field.json_key}"] = Object.fromEntries(value.@{field.field_name}.entries());
+                                                        {/if}
                                                 {/match}
                                             {/if}
 
@@ -1238,11 +1353,14 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                         {:case SerdeValueKind::NullableDate}
                                                             result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
                                                         {:case _}
-                                                            result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map(
-                                                                (item: any) => typeof item?.__serialize === "function"
-                                                                    ? item.__serialize(ctx)
-                                                                    : item
-                                                            );
+                                                            {#if let Some(elem_type) = &field.set_elem_serializable_type}
+                                                                {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                                result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map(
+                                                                    (item) => @{__serialize_elem}(item, ctx)
+                                                                );
+                                                            {:else}
+                                                                result["@{field.json_key}"] = Array.from(value.@{field.field_name});
+                                                            {/if}
                                                     {/match}
                                                 }
                                             {:else}
@@ -1254,11 +1372,14 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     {:case SerdeValueKind::NullableDate}
                                                         result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
                                                     {:case _}
-                                                        result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map(
-                                                            (item: any) => typeof item?.__serialize === "function"
-                                                                ? item.__serialize(ctx)
-                                                                : item
-                                                        );
+                                                        {#if let Some(elem_type) = &field.set_elem_serializable_type}
+                                                            {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                            result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map(
+                                                                (item) => @{__serialize_elem}(item, ctx)
+                                                            );
+                                                        {:else}
+                                                            result["@{field.json_key}"] = Array.from(value.@{field.field_name});
+                                                        {/if}
                                                 {/match}
                                             {/if}
 
@@ -1270,9 +1391,12 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     {:case SerdeValueKind::Date}
                                                         result["@{field.json_key}"] = (value.@{field.field_name} as Date).toISOString();
                                                     {:case _}
-                                                        result["@{field.json_key}"] = typeof (value.@{field.field_name} as any)?.__serialize === "function"
-                                                            ? (value.@{field.field_name} as any).__serialize(ctx)
-                                                            : value.@{field.field_name};
+                                                        {#if let Some(inner_type) = &field.optional_serializable_type}
+                                                            {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                            result["@{field.json_key}"] = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                        {:else}
+                                                            result["@{field.json_key}"] = value.@{field.field_name};
+                                                        {/if}
                                                 {/match}
                                             }
 
@@ -1286,25 +1410,25 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                         : (value.@{field.field_name} as Date).toISOString();
                                                 {:case _}
                                                     if (value.@{field.field_name} !== null) {
-                                                        result["@{field.json_key}"] = typeof (value.@{field.field_name} as any)?.__serialize === "function"
-                                                            ? (value.@{field.field_name} as any).__serialize(ctx)
-                                                            : value.@{field.field_name};
+                                                        {#if let Some(inner_type) = &field.nullable_serializable_type}
+                                                            {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                            result["@{field.json_key}"] = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                        {:else}
+                                                            result["@{field.json_key}"] = value.@{field.field_name};
+                                                        {/if}
                                                     } else {
                                                         result["@{field.json_key}"] = null;
                                                     }
                                             {/match}
 
-                                        {:case TypeCategory::Serializable(_)}
+                                        {:case TypeCategory::Serializable(type_name)}
+                                            {$let __serialize_fn = nested_serialize_fn_name(type_name, naming_style)}
                                             {#if field.optional}
                                                 if (value.@{field.field_name} !== undefined) {
-                                                    result["@{field.json_key}"] = typeof (value.@{field.field_name} as any)?.__serialize === "function"
-                                                        ? (value.@{field.field_name} as any).__serialize(ctx)
-                                                        : value.@{field.field_name};
+                                                    result["@{field.json_key}"] = @{__serialize_fn}(value.@{field.field_name}, ctx);
                                                 }
                                             {:else}
-                                                result["@{field.json_key}"] = typeof (value.@{field.field_name} as any)?.__serialize === "function"
-                                                    ? (value.@{field.field_name} as any).__serialize(ctx)
-                                                    : value.@{field.field_name};
+                                                result["@{field.json_key}"] = @{__serialize_fn}(value.@{field.field_name}, ctx);
                                             {/if}
 
                                         {:case TypeCategory::Unknown}
@@ -1321,23 +1445,97 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                             {#if has_flatten}
                                 {#for field in flatten_fields}
-                                    {#if field.optional}
-                                        if (value.@{field.field_name} !== undefined) {
-                                            const __flattened = typeof (value.@{field.field_name} as any)?.__serialize === "function"
-                                                ? (value.@{field.field_name} as any).__serialize(ctx)
-                                                : value.@{field.field_name};
-                                            const { __type: _, __id: __, ...rest } = __flattened as any;
-                                            Object.assign(result, rest);
-                                        }
-                                    {:else}
-                                        {
-                                            const __flattened = typeof (value.@{field.field_name} as any)?.__serialize === "function"
-                                                ? (value.@{field.field_name} as any).__serialize(ctx)
-                                                : value.@{field.field_name};
-                                            const { __type: _, __id: __, ...rest } = __flattened as any;
-                                            Object.assign(result, rest);
-                                        }
-                                    {/if}
+                                    {#match &field.type_cat}
+                                        {:case TypeCategory::Serializable(type_name)}
+                                            {$let __serialize_fn = nested_serialize_fn_name(type_name, naming_style)}
+                                            {#if field.optional}
+                                                if (value.@{field.field_name} !== undefined) {
+                                                    const __flattened = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                    const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                    Object.assign(result, rest);
+                                                }
+                                            {:else}
+                                                {
+                                                    const __flattened = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                    const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                    Object.assign(result, rest);
+                                                }
+                                            {/if}
+                                        {:case TypeCategory::Optional(_)}
+                                            {#if field.optional}
+                                                if (value.@{field.field_name} !== undefined) {
+                                                    {#if let Some(inner_type) = &field.optional_serializable_type}
+                                                        {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                        const __flattened = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                        const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                        Object.assign(result, rest);
+                                                    {:else}
+                                                        const __flattened = value.@{field.field_name};
+                                                        const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                        Object.assign(result, rest);
+                                                    {/if}
+                                                }
+                                            {:else}
+                                                {
+                                                    {#if let Some(inner_type) = &field.optional_serializable_type}
+                                                        {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                        const __flattened = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                        const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                        Object.assign(result, rest);
+                                                    {:else}
+                                                        const __flattened = value.@{field.field_name};
+                                                        const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                        Object.assign(result, rest);
+                                                    {/if}
+                                                }
+                                            {/if}
+                                        {:case TypeCategory::Nullable(_)}
+                                            {#if field.optional}
+                                                if (value.@{field.field_name} !== undefined) {
+                                                    if (value.@{field.field_name} !== null) {
+                                                        {#if let Some(inner_type) = &field.nullable_serializable_type}
+                                                            {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                            const __flattened = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                            Object.assign(result, rest);
+                                                        {:else}
+                                                            const __flattened = value.@{field.field_name};
+                                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                            Object.assign(result, rest);
+                                                        {/if}
+                                                    }
+                                                }
+                                            {:else}
+                                                {
+                                                    if (value.@{field.field_name} !== null) {
+                                                        {#if let Some(inner_type) = &field.nullable_serializable_type}
+                                                            {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                            const __flattened = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                            Object.assign(result, rest);
+                                                        {:else}
+                                                            const __flattened = value.@{field.field_name};
+                                                            const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                            Object.assign(result, rest);
+                                                        {/if}
+                                                    }
+                                                }
+                                            {/if}
+                                        {:case _}
+                                            {#if field.optional}
+                                                if (value.@{field.field_name} !== undefined) {
+                                                    const __flattened = value.@{field.field_name};
+                                                    const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                    Object.assign(result, rest);
+                                                }
+                                            {:else}
+                                                {
+                                                    const __flattened = value.@{field.field_name};
+                                                    const { __type: _, __id: __, ...rest } = __flattened as any;
+                                                    Object.assign(result, rest);
+                                                }
+                                            {/if}
+                                    {/match}
                                 {/for}
                             {/if}
 

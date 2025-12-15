@@ -216,7 +216,7 @@ export function createFormLeadStage(initial?: LeadStage): GigaformLeadStage {
         tainted = {} as TaintedLeadStage;
     }
     function validate(): Result<LeadStage, Array<{ field: string; message: string }>> {
-        return LeadStage.fromObject(data);
+        return fromObjectLeadStage(data);
     }
     function reset(overrides?: Partial<LeadStage>): void {
         data = overrides
@@ -274,5 +274,5 @@ export function fromFormDataLeadStage(
     } else if (discriminant === 'Estimate') {
     } else if (discriminant === 'Negotiation') {
     }
-    return LeadStage.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONLeadStage(JSON.stringify(obj));
 }

@@ -163,7 +163,7 @@ export interface GigaformSent {
     reset(overrides?: Partial<Sent>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormSent(overrides?: Partial<Sent>): GigaformSent {
-    let data = $state({ ...Sent.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueSent(), ...overrides });
     let errors = $state<ErrorsSent>({
         _errors: Option.none(),
         recipient: Option.none(),
@@ -190,7 +190,7 @@ export function createFormSent(overrides?: Partial<Sent>): GigaformSent {
                 tainted.recipient = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Sent.validateField('recipient', data.recipient);
+                const fieldErrors = validateFieldSent('recipient', data.recipient);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -213,16 +213,16 @@ export function createFormSent(overrides?: Partial<Sent>): GigaformSent {
                 tainted.method = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Sent.validateField('method', data.method);
+                const fieldErrors = validateFieldSent('method', data.method);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Sent, Array<{ field: string; message: string }>> {
-        return Sent.fromObject(data);
+        return fromObjectSent(data);
     }
     function reset(newOverrides?: Partial<Sent>): void {
-        data = { ...Sent.defaultValue(), ...newOverrides };
+        data = { ...defaultValueSent(), ...newOverrides };
         errors = { _errors: Option.none(), recipient: Option.none(), method: Option.none() };
         tainted = { recipient: Option.none(), method: Option.none() };
     }
@@ -256,5 +256,5 @@ export function fromFormDataSent(
     const obj: Record<string, unknown> = {};
     obj.recipient = formData.get('recipient') ?? '';
     obj.method = formData.get('method') ?? '';
-    return Sent.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONSent(JSON.stringify(obj));
 }

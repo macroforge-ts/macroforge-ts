@@ -195,7 +195,7 @@ export interface GigaformServiceDefaults {
 export function createFormServiceDefaults(
     overrides?: Partial<ServiceDefaults>
 ): GigaformServiceDefaults {
-    let data = $state({ ...ServiceDefaults.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueServiceDefaults(), ...overrides });
     let errors = $state<ErrorsServiceDefaults>({
         _errors: Option.none(),
         price: Option.none(),
@@ -225,7 +225,7 @@ export function createFormServiceDefaults(
                 tainted.price = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = ServiceDefaults.validateField('price', data.price);
+                const fieldErrors = validateFieldServiceDefaults('price', data.price);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -248,16 +248,16 @@ export function createFormServiceDefaults(
                 tainted.description = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = ServiceDefaults.validateField('description', data.description);
+                const fieldErrors = validateFieldServiceDefaults('description', data.description);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<ServiceDefaults, Array<{ field: string; message: string }>> {
-        return ServiceDefaults.fromObject(data);
+        return fromObjectServiceDefaults(data);
     }
     function reset(newOverrides?: Partial<ServiceDefaults>): void {
-        data = { ...ServiceDefaults.defaultValue(), ...newOverrides };
+        data = { ...defaultValueServiceDefaults(), ...newOverrides };
         errors = { _errors: Option.none(), price: Option.none(), description: Option.none() };
         tainted = { price: Option.none(), description: Option.none() };
     }
@@ -295,5 +295,5 @@ export function fromFormDataServiceDefaults(
         if (obj.price !== undefined && isNaN(obj.price as number)) obj.price = 0;
     }
     obj.description = formData.get('description') ?? '';
-    return ServiceDefaults.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONServiceDefaults(JSON.stringify(obj));
 }

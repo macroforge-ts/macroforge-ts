@@ -1,4 +1,5 @@
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeDirectionHue } from './direction-hue.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
@@ -34,9 +35,7 @@ export function __serializeCustom(value: Custom, ctx: SerializeContext): Record<
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'Custom', __id };
-    result['mappings'] = value.mappings.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
+    result['mappings'] = value.mappings.map((item) => __serializeDirectionHue(item, ctx));
     return result;
 }
 
@@ -158,7 +157,7 @@ export interface GigaformCustom {
     reset(overrides?: Partial<Custom>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormCustom(overrides?: Partial<Custom>): GigaformCustom {
-    let data = $state({ ...Custom.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueCustom(), ...overrides });
     let errors = $state<ErrorsCustom>({ _errors: Option.none(), mappings: Option.none() });
     let tainted = $state<TaintedCustom>({ mappings: Option.none() });
     const fields: FieldControllersCustom = {
@@ -181,7 +180,7 @@ export function createFormCustom(overrides?: Partial<Custom>): GigaformCustom {
                 tainted.mappings = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Custom.validateField('mappings', data.mappings);
+                const fieldErrors = validateFieldCustom('mappings', data.mappings);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -217,10 +216,10 @@ export function createFormCustom(overrides?: Partial<Custom>): GigaformCustom {
         }
     };
     function validate(): Result<Custom, Array<{ field: string; message: string }>> {
-        return Custom.fromObject(data);
+        return fromObjectCustom(data);
     }
     function reset(newOverrides?: Partial<Custom>): void {
-        data = { ...Custom.defaultValue(), ...newOverrides };
+        data = { ...defaultValueCustom(), ...newOverrides };
         errors = { _errors: Option.none(), mappings: Option.none() };
         tainted = { mappings: Option.none() };
     }
@@ -277,5 +276,5 @@ export function fromFormDataCustom(
         }
         obj.mappings = mappingsItems;
     }
-    return Custom.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONCustom(JSON.stringify(obj));
 }

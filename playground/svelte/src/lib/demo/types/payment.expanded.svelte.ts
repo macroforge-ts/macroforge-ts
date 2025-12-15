@@ -166,7 +166,7 @@ export interface GigaformPayment {
     reset(overrides?: Partial<Payment>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormPayment(overrides?: Partial<Payment>): GigaformPayment {
-    let data = $state({ ...Payment.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValuePayment(), ...overrides });
     let errors = $state<ErrorsPayment>({
         _errors: Option.none(),
         id: Option.none(),
@@ -193,7 +193,7 @@ export function createFormPayment(overrides?: Partial<Payment>): GigaformPayment
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Payment.validateField('id', data.id);
+                const fieldErrors = validateFieldPayment('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -216,16 +216,16 @@ export function createFormPayment(overrides?: Partial<Payment>): GigaformPayment
                 tainted.date = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Payment.validateField('date', data.date);
+                const fieldErrors = validateFieldPayment('date', data.date);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Payment, Array<{ field: string; message: string }>> {
-        return Payment.fromObject(data);
+        return fromObjectPayment(data);
     }
     function reset(newOverrides?: Partial<Payment>): void {
-        data = { ...Payment.defaultValue(), ...newOverrides };
+        data = { ...defaultValuePayment(), ...newOverrides };
         errors = { _errors: Option.none(), id: Option.none(), date: Option.none() };
         tainted = { id: Option.none(), date: Option.none() };
     }
@@ -259,5 +259,5 @@ export function fromFormDataPayment(
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.date = formData.get('date') ?? '';
-    return Payment.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONPayment(JSON.stringify(obj));
 }

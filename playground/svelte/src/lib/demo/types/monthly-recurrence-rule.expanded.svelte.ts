@@ -209,7 +209,7 @@ export interface GigaformMonthlyRecurrenceRule {
 export function createFormMonthlyRecurrenceRule(
     overrides?: Partial<MonthlyRecurrenceRule>
 ): GigaformMonthlyRecurrenceRule {
-    let data = $state({ ...MonthlyRecurrenceRule.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueMonthlyRecurrenceRule(), ...overrides });
     let errors = $state<ErrorsMonthlyRecurrenceRule>({
         _errors: Option.none(),
         quantityOfMonths: Option.none(),
@@ -241,7 +241,7 @@ export function createFormMonthlyRecurrenceRule(
                 tainted.quantityOfMonths = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = MonthlyRecurrenceRule.validateField(
+                const fieldErrors = validateFieldMonthlyRecurrenceRule(
                     'quantityOfMonths',
                     data.quantityOfMonths
                 );
@@ -267,7 +267,7 @@ export function createFormMonthlyRecurrenceRule(
                 tainted.day = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = MonthlyRecurrenceRule.validateField('day', data.day);
+                const fieldErrors = validateFieldMonthlyRecurrenceRule('day', data.day);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -290,16 +290,16 @@ export function createFormMonthlyRecurrenceRule(
                 tainted.name = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = MonthlyRecurrenceRule.validateField('name', data.name);
+                const fieldErrors = validateFieldMonthlyRecurrenceRule('name', data.name);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<MonthlyRecurrenceRule, Array<{ field: string; message: string }>> {
-        return MonthlyRecurrenceRule.fromObject(data);
+        return fromObjectMonthlyRecurrenceRule(data);
     }
     function reset(newOverrides?: Partial<MonthlyRecurrenceRule>): void {
-        data = { ...MonthlyRecurrenceRule.defaultValue(), ...newOverrides };
+        data = { ...defaultValueMonthlyRecurrenceRule(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             quantityOfMonths: Option.none(),
@@ -348,5 +348,5 @@ export function fromFormDataMonthlyRecurrenceRule(
         if (obj.day !== undefined && isNaN(obj.day as number)) obj.day = 0;
     }
     obj.name = formData.get('name') ?? '';
-    return MonthlyRecurrenceRule.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONMonthlyRecurrenceRule(JSON.stringify(obj));
 }

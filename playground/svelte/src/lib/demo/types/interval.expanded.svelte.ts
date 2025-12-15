@@ -4,8 +4,16 @@ import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeDailyRecurrenceRule } from './daily-recurrence-rule.svelte';
+import { __deserializeMonthlyRecurrenceRule } from './monthly-recurrence-rule.svelte';
+import { __deserializeWeeklyRecurrenceRule } from './weekly-recurrence-rule.svelte';
+import { __deserializeYearlyRecurrenceRule } from './yearly-recurrence-rule.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
+import { defaultValueDailyRecurrenceRule } from './daily-recurrence-rule.svelte';
+import { defaultValueMonthlyRecurrenceRule } from './monthly-recurrence-rule.svelte';
+import { defaultValueWeeklyRecurrenceRule } from './weekly-recurrence-rule.svelte';
+import { defaultValueYearlyRecurrenceRule } from './yearly-recurrence-rule.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import { YearlyRecurrenceRule } from './yearly-recurrence-rule.svelte';
@@ -100,28 +108,16 @@ export function __deserializeInterval(value: any, ctx: DeserializeContext): Inte
         ]);
     }
     if (__typeName === 'DailyRecurrenceRule') {
-        if (typeof (DailyRecurrenceRule as any)?.__deserialize === 'function') {
-            return (DailyRecurrenceRule as any).__deserialize(value, ctx) as Interval;
-        }
-        return value as Interval;
+        return __deserializeDailyRecurrenceRule(value, ctx) as Interval;
     }
     if (__typeName === 'WeeklyRecurrenceRule') {
-        if (typeof (WeeklyRecurrenceRule as any)?.__deserialize === 'function') {
-            return (WeeklyRecurrenceRule as any).__deserialize(value, ctx) as Interval;
-        }
-        return value as Interval;
+        return __deserializeWeeklyRecurrenceRule(value, ctx) as Interval;
     }
     if (__typeName === 'MonthlyRecurrenceRule') {
-        if (typeof (MonthlyRecurrenceRule as any)?.__deserialize === 'function') {
-            return (MonthlyRecurrenceRule as any).__deserialize(value, ctx) as Interval;
-        }
-        return value as Interval;
+        return __deserializeMonthlyRecurrenceRule(value, ctx) as Interval;
     }
     if (__typeName === 'YearlyRecurrenceRule') {
-        if (typeof (YearlyRecurrenceRule as any)?.__deserialize === 'function') {
-            return (YearlyRecurrenceRule as any).__deserialize(value, ctx) as Interval;
-        }
-        return value as Interval;
+        return __deserializeYearlyRecurrenceRule(value, ctx) as Interval;
     }
     throw new DeserializeError([
         {
@@ -211,15 +207,15 @@ export interface VariantFieldsInterval {
 function getDefaultForVariantInterval(variant: string): Interval {
     switch (variant) {
         case 'DailyRecurrenceRule':
-            return DailyRecurrenceRule.defaultValue() as Interval;
+            return defaultValueDailyRecurrenceRule() as Interval;
         case 'WeeklyRecurrenceRule':
-            return WeeklyRecurrenceRule.defaultValue() as Interval;
+            return defaultValueWeeklyRecurrenceRule() as Interval;
         case 'MonthlyRecurrenceRule':
-            return MonthlyRecurrenceRule.defaultValue() as Interval;
+            return defaultValueMonthlyRecurrenceRule() as Interval;
         case 'YearlyRecurrenceRule':
-            return YearlyRecurrenceRule.defaultValue() as Interval;
+            return defaultValueYearlyRecurrenceRule() as Interval;
         default:
-            return DailyRecurrenceRule.defaultValue() as Interval;
+            return defaultValueDailyRecurrenceRule() as Interval;
     }
 } /** Creates a new discriminated union Gigaform with variant switching */
 export function createFormInterval(initial?: Interval): GigaformInterval {
@@ -264,7 +260,7 @@ export function createFormInterval(initial?: Interval): GigaformInterval {
         tainted = {} as TaintedInterval;
     }
     function validate(): Result<Interval, Array<{ field: string; message: string }>> {
-        return Interval.fromObject(data);
+        return fromObjectInterval(data);
     }
     function reset(overrides?: Partial<Interval>): void {
         data = overrides
@@ -320,5 +316,5 @@ export function fromFormDataInterval(
     } else if (discriminant === 'MonthlyRecurrenceRule') {
     } else if (discriminant === 'YearlyRecurrenceRule') {
     }
-    return Interval.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONInterval(JSON.stringify(obj));
 }

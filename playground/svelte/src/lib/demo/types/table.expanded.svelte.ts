@@ -517,7 +517,7 @@ export function createFormTable(initial?: Table): GigaformTable {
         tainted = {} as TaintedTable;
     }
     function validate(): Result<Table, Array<{ field: string; message: string }>> {
-        return Table.fromObject(data);
+        return fromObjectTable(data);
     }
     function reset(overrides?: Partial<Table>): void {
         data = overrides ? (overrides as typeof data) : getDefaultForVariantTable(currentVariant);
@@ -599,5 +599,5 @@ export function fromFormDataTable(
     } else if (discriminant === 'Represents') {
     } else if (discriminant === 'Ordered') {
     }
-    return Table.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONTable(JSON.stringify(obj));
 }

@@ -1,9 +1,21 @@
+import { defaultValueEmailParts } from './email-parts.svelte';
+import { defaultValueFirstName } from './first-name.svelte';
+import { defaultValueLastName } from './last-name.svelte';
+import { defaultValuePassword } from './password.svelte';
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeEmailParts } from './email-parts.svelte';
+import { __serializeFirstName } from './first-name.svelte';
+import { __serializeLastName } from './last-name.svelte';
+import { __serializePassword } from './password.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeEmailParts } from './email-parts.svelte';
+import { __deserializeFirstName } from './first-name.svelte';
+import { __deserializeLastName } from './last-name.svelte';
+import { __deserializePassword } from './password.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -23,10 +35,10 @@ export interface SignUpCredentials {
 
 export function defaultValueSignUpCredentials(): SignUpCredentials {
     return {
-        firstName: FirstName.defaultValue(),
-        lastName: LastName.defaultValue(),
-        email: EmailParts.defaultValue(),
-        password: Password.defaultValue(),
+        firstName: defaultValueFirstName(),
+        lastName: defaultValueLastName(),
+        email: defaultValueEmailParts(),
+        password: defaultValuePassword(),
         rememberMe: false
     } as SignUpCredentials;
 }
@@ -49,22 +61,10 @@ export function __serializeSignUpCredentials(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'SignUpCredentials', __id };
-    result['firstName'] =
-        typeof (value.firstName as any)?.__serialize === 'function'
-            ? (value.firstName as any).__serialize(ctx)
-            : value.firstName;
-    result['lastName'] =
-        typeof (value.lastName as any)?.__serialize === 'function'
-            ? (value.lastName as any).__serialize(ctx)
-            : value.lastName;
-    result['email'] =
-        typeof (value.email as any)?.__serialize === 'function'
-            ? (value.email as any).__serialize(ctx)
-            : value.email;
-    result['password'] =
-        typeof (value.password as any)?.__serialize === 'function'
-            ? (value.password as any).__serialize(ctx)
-            : value.password;
+    result['firstName'] = __serializeFirstName(value.firstName, ctx);
+    result['lastName'] = __serializeLastName(value.lastName, ctx);
+    result['email'] = __serializeEmailParts(value.email, ctx);
+    result['password'] = __serializePassword(value.password, ctx);
     result['rememberMe'] = value.rememberMe;
     return result;
 }
@@ -152,28 +152,28 @@ export function __deserializeSignUpCredentials(
     {
         const __raw_firstName = obj['firstName'] as FirstName;
         {
-            const __result = FirstName.__deserialize(__raw_firstName, ctx);
+            const __result = __deserializeFirstName(__raw_firstName, ctx);
             ctx.assignOrDefer(instance, 'firstName', __result);
         }
     }
     {
         const __raw_lastName = obj['lastName'] as LastName;
         {
-            const __result = LastName.__deserialize(__raw_lastName, ctx);
+            const __result = __deserializeLastName(__raw_lastName, ctx);
             ctx.assignOrDefer(instance, 'lastName', __result);
         }
     }
     {
         const __raw_email = obj['email'] as EmailParts;
         {
-            const __result = EmailParts.__deserialize(__raw_email, ctx);
+            const __result = __deserializeEmailParts(__raw_email, ctx);
             ctx.assignOrDefer(instance, 'email', __result);
         }
     }
     {
         const __raw_password = obj['password'] as Password;
         {
-            const __result = Password.__deserialize(__raw_password, ctx);
+            const __result = __deserializePassword(__raw_password, ctx);
             ctx.assignOrDefer(instance, 'password', __result);
         }
     }
@@ -247,7 +247,7 @@ export interface GigaformSignUpCredentials {
 export function createFormSignUpCredentials(
     overrides?: Partial<SignUpCredentials>
 ): GigaformSignUpCredentials {
-    let data = $state({ ...SignUpCredentials.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueSignUpCredentials(), ...overrides });
     let errors = $state<ErrorsSignUpCredentials>({
         _errors: Option.none(),
         firstName: Option.none(),
@@ -283,7 +283,7 @@ export function createFormSignUpCredentials(
                 tainted.firstName = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = SignUpCredentials.validateField('firstName', data.firstName);
+                const fieldErrors = validateFieldSignUpCredentials('firstName', data.firstName);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -306,7 +306,7 @@ export function createFormSignUpCredentials(
                 tainted.lastName = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = SignUpCredentials.validateField('lastName', data.lastName);
+                const fieldErrors = validateFieldSignUpCredentials('lastName', data.lastName);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -329,7 +329,7 @@ export function createFormSignUpCredentials(
                 tainted.email = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = SignUpCredentials.validateField('email', data.email);
+                const fieldErrors = validateFieldSignUpCredentials('email', data.email);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -352,7 +352,7 @@ export function createFormSignUpCredentials(
                 tainted.password = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = SignUpCredentials.validateField('password', data.password);
+                const fieldErrors = validateFieldSignUpCredentials('password', data.password);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -375,16 +375,16 @@ export function createFormSignUpCredentials(
                 tainted.rememberMe = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = SignUpCredentials.validateField('rememberMe', data.rememberMe);
+                const fieldErrors = validateFieldSignUpCredentials('rememberMe', data.rememberMe);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<SignUpCredentials, Array<{ field: string; message: string }>> {
-        return SignUpCredentials.fromObject(data);
+        return fromObjectSignUpCredentials(data);
     }
     function reset(newOverrides?: Partial<SignUpCredentials>): void {
-        data = { ...SignUpCredentials.defaultValue(), ...newOverrides };
+        data = { ...defaultValueSignUpCredentials(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             firstName: Option.none(),
@@ -518,5 +518,5 @@ export function fromFormDataSignUpCredentials(
         obj.rememberMe =
             rememberMeVal === 'true' || rememberMeVal === 'on' || rememberMeVal === '1';
     }
-    return SignUpCredentials.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONSignUpCredentials(JSON.stringify(obj));
 }

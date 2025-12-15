@@ -163,7 +163,7 @@ export interface GigaformViewed {
     reset(overrides?: Partial<Viewed>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormViewed(overrides?: Partial<Viewed>): GigaformViewed {
-    let data = $state({ ...Viewed.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueViewed(), ...overrides });
     let errors = $state<ErrorsViewed>({
         _errors: Option.none(),
         durationSeconds: Option.none(),
@@ -190,7 +190,7 @@ export function createFormViewed(overrides?: Partial<Viewed>): GigaformViewed {
                 tainted.durationSeconds = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Viewed.validateField('durationSeconds', data.durationSeconds);
+                const fieldErrors = validateFieldViewed('durationSeconds', data.durationSeconds);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -213,16 +213,16 @@ export function createFormViewed(overrides?: Partial<Viewed>): GigaformViewed {
                 tainted.source = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Viewed.validateField('source', data.source);
+                const fieldErrors = validateFieldViewed('source', data.source);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Viewed, Array<{ field: string; message: string }>> {
-        return Viewed.fromObject(data);
+        return fromObjectViewed(data);
     }
     function reset(newOverrides?: Partial<Viewed>): void {
-        data = { ...Viewed.defaultValue(), ...newOverrides };
+        data = { ...defaultValueViewed(), ...newOverrides };
         errors = { _errors: Option.none(), durationSeconds: Option.none(), source: Option.none() };
         tainted = { durationSeconds: Option.none(), source: Option.none() };
     }
@@ -261,5 +261,5 @@ export function fromFormDataViewed(
             obj.durationSeconds = 0;
     }
     obj.source = formData.get('source') ?? '';
-    return Viewed.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONViewed(JSON.stringify(obj));
 }

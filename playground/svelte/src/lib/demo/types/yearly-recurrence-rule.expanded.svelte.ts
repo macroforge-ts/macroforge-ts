@@ -162,7 +162,7 @@ export interface GigaformYearlyRecurrenceRule {
 export function createFormYearlyRecurrenceRule(
     overrides?: Partial<YearlyRecurrenceRule>
 ): GigaformYearlyRecurrenceRule {
-    let data = $state({ ...YearlyRecurrenceRule.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueYearlyRecurrenceRule(), ...overrides });
     let errors = $state<ErrorsYearlyRecurrenceRule>({
         _errors: Option.none(),
         quantityOfYears: Option.none()
@@ -188,7 +188,7 @@ export function createFormYearlyRecurrenceRule(
                 tainted.quantityOfYears = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = YearlyRecurrenceRule.validateField(
+                const fieldErrors = validateFieldYearlyRecurrenceRule(
                     'quantityOfYears',
                     data.quantityOfYears
                 );
@@ -197,10 +197,10 @@ export function createFormYearlyRecurrenceRule(
         }
     };
     function validate(): Result<YearlyRecurrenceRule, Array<{ field: string; message: string }>> {
-        return YearlyRecurrenceRule.fromObject(data);
+        return fromObjectYearlyRecurrenceRule(data);
     }
     function reset(newOverrides?: Partial<YearlyRecurrenceRule>): void {
-        data = { ...YearlyRecurrenceRule.defaultValue(), ...newOverrides };
+        data = { ...defaultValueYearlyRecurrenceRule(), ...newOverrides };
         errors = { _errors: Option.none(), quantityOfYears: Option.none() };
         tainted = { quantityOfYears: Option.none() };
     }
@@ -238,5 +238,5 @@ export function fromFormDataYearlyRecurrenceRule(
         if (obj.quantityOfYears !== undefined && isNaN(obj.quantityOfYears as number))
             obj.quantityOfYears = 0;
     }
-    return YearlyRecurrenceRule.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONYearlyRecurrenceRule(JSON.stringify(obj));
 }

@@ -193,7 +193,7 @@ export function createFormWeekOfMonth(initial?: WeekOfMonth): GigaformWeekOfMont
         tainted = {} as TaintedWeekOfMonth;
     }
     function validate(): Result<WeekOfMonth, Array<{ field: string; message: string }>> {
-        return WeekOfMonth.fromObject(data);
+        return fromObjectWeekOfMonth(data);
     }
     function reset(overrides?: Partial<WeekOfMonth>): void {
         data = overrides
@@ -251,5 +251,5 @@ export function fromFormDataWeekOfMonth(
     } else if (discriminant === 'Fourth') {
     } else if (discriminant === 'Last') {
     }
-    return WeekOfMonth.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONWeekOfMonth(JSON.stringify(obj));
 }
