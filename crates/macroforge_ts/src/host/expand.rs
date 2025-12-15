@@ -1416,8 +1416,7 @@ fn contains_identifier(haystack: &str, ident: &str) -> bool {
         let prev_ok = start == 0
             || !haystack[..start]
                 .chars()
-                .rev()
-                .next()
+                .next_back()
                 .is_some_and(is_ident_char);
         let next_ok = end >= haystack.len()
             || !haystack[end..]

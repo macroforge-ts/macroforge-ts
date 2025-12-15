@@ -222,7 +222,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 let fn_name = match naming_style {
                     FunctionNamingStyle::Suffix => format!("defaultValue{}", class_name),
                     FunctionNamingStyle::Prefix => format!("{}DefaultValue", to_camel_case(class_name)),
-                    FunctionNamingStyle::Generic => format!("defaultValue"), // Generic style usually means defaultValue<T> but for class it might be ambiguous without type params?
+                    FunctionNamingStyle::Generic => "defaultValue".to_string(), // Generic style usually means defaultValue<T> but for class it might be ambiguous without type params?
                     _ => String::new(),
                 };
 
