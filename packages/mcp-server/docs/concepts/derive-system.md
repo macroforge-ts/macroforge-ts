@@ -62,56 +62,61 @@ class User {
 ```  
 **After:**
 ```
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext } from "macroforge/serde";
 
 class User {
-    id: number;
+  
+  
+  id: number;
 
-    name: string;
+  name: string;
 
-    password: string;
+  
+  
+  password: string;
 
-    metadata: Record<string, unknown>;
+  
+  metadata: Record<string, unknown>;
 
-    toString(): string {
-        const parts: string[] = [];
-        parts.push('userId: ' + this.id);
-        parts.push('name: ' + this.name);
-        parts.push('metadata: ' + this.metadata);
-        return 'User { ' + parts.join(', ') + ' }';
-    }
+  toString(): string {
+    const parts: string[] = [];
+    parts.push("userId: " + this.id);
+    parts.push("name: " + this.name);
+    parts.push("metadata: " + this.metadata);
+    return "User { " + parts.join(", ") + " }";
+}
 
-    toStringifiedJSON(): string {
-        const ctx = SerializeContext.create();
-        return JSON.stringify(this.__serialize(ctx));
-    }
+  toStringifiedJSON(): string {
+    const ctx = SerializeContext.create();
+    return JSON.stringify(this.__serialize(ctx));
+}
 
-    toObject(): Record<string, unknown> {
-        const ctx = SerializeContext.create();
-        return this.__serialize(ctx);
-    }
+  toObject(): Record<string, unknown> {
+    const ctx = SerializeContext.create();
+    return this.__serialize(ctx);
+}
 
-    __serialize(ctx: SerializeContext): Record<string, unknown> {
-        const existingId = ctx.getId(this);
-        if (existingId !== undefined) {
-            return {
-                __ref: existingId
-            };
-        }
-        const __id = ctx.register(this);
-        const result: Record<string, unknown> = {
-            __type: 'User',
-            __id
+  __serialize(ctx: SerializeContext): Record<string, unknown> {
+    const existingId = ctx.getId(this);
+    if (existingId !== undefined) {
+        return {
+            __ref: existingId
         };
-        result['user_id'] = this.id;
-        result['name'] = this.name;
-        {
-            const __flattened = __serializeRecord<string, unknown>(this.metadata, ctx);
-            const { __type: _, __id: __, ...rest } = __flattened as any;
-            Object.assign(result, rest);
-        }
-        return result;
     }
+    const __id = ctx.register(this);
+    const result: Record<string, unknown> = {
+        __type: "User",
+        __id
+    };
+    result["user_id"] = this.id;
+    result["name"] = this.name;
+    {
+        const __flattened = record < string, unknown;
+        const { __type: _, __id: __, ...rest } = __flattened as any;
+        Object.assign(result, rest);
+    }
+    return result;
+}
 }
 ``` Syntax rules:
  - Must be inside a JSDoc comment immediately before the field
