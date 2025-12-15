@@ -172,7 +172,7 @@ export interface GigaformDirectionHue {
     reset(overrides?: Partial<DirectionHue>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormDirectionHue(overrides?: Partial<DirectionHue>): GigaformDirectionHue {
-    let data = $state({ ...DirectionHue.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueDirectionHue(), ...overrides });
     let errors = $state<ErrorsDirectionHue>({
         _errors: Option.none(),
         bearing: Option.none(),
@@ -199,7 +199,7 @@ export function createFormDirectionHue(overrides?: Partial<DirectionHue>): Gigaf
                 tainted.bearing = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = DirectionHue.validateField('bearing', data.bearing);
+                const fieldErrors = validateFieldDirectionHue('bearing', data.bearing);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -222,16 +222,16 @@ export function createFormDirectionHue(overrides?: Partial<DirectionHue>): Gigaf
                 tainted.hue = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = DirectionHue.validateField('hue', data.hue);
+                const fieldErrors = validateFieldDirectionHue('hue', data.hue);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<DirectionHue, Array<{ field: string; message: string }>> {
-        return DirectionHue.fromObject(data);
+        return fromObjectDirectionHue(data);
     }
     function reset(newOverrides?: Partial<DirectionHue>): void {
-        data = { ...DirectionHue.defaultValue(), ...newOverrides };
+        data = { ...defaultValueDirectionHue(), ...newOverrides };
         errors = { _errors: Option.none(), bearing: Option.none(), hue: Option.none() };
         tainted = { bearing: Option.none(), hue: Option.none() };
     }
@@ -273,5 +273,5 @@ export function fromFormDataDirectionHue(
         obj.hue = hueStr ? parseFloat(hueStr as string) : 0;
         if (obj.hue !== undefined && isNaN(obj.hue as number)) obj.hue = 0;
     }
-    return DirectionHue.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONDirectionHue(JSON.stringify(obj));
 }

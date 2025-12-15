@@ -1,4 +1,5 @@
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeWeekday } from './weekday.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
@@ -39,9 +40,7 @@ export function __serializeWeeklyRecurrenceRule(
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'WeeklyRecurrenceRule', __id };
     result['quantityOfWeeks'] = value.quantityOfWeeks;
-    result['weekdays'] = value.weekdays.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
+    result['weekdays'] = value.weekdays.map((item) => __serializeWeekday(item, ctx));
     return result;
 }
 
@@ -181,7 +180,7 @@ export interface GigaformWeeklyRecurrenceRule {
 export function createFormWeeklyRecurrenceRule(
     overrides?: Partial<WeeklyRecurrenceRule>
 ): GigaformWeeklyRecurrenceRule {
-    let data = $state({ ...WeeklyRecurrenceRule.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueWeeklyRecurrenceRule(), ...overrides });
     let errors = $state<ErrorsWeeklyRecurrenceRule>({
         _errors: Option.none(),
         quantityOfWeeks: Option.none(),
@@ -211,7 +210,7 @@ export function createFormWeeklyRecurrenceRule(
                 tainted.quantityOfWeeks = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = WeeklyRecurrenceRule.validateField(
+                const fieldErrors = validateFieldWeeklyRecurrenceRule(
                     'quantityOfWeeks',
                     data.quantityOfWeeks
                 );
@@ -237,7 +236,7 @@ export function createFormWeeklyRecurrenceRule(
                 tainted.weekdays = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = WeeklyRecurrenceRule.validateField('weekdays', data.weekdays);
+                const fieldErrors = validateFieldWeeklyRecurrenceRule('weekdays', data.weekdays);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -273,10 +272,10 @@ export function createFormWeeklyRecurrenceRule(
         }
     };
     function validate(): Result<WeeklyRecurrenceRule, Array<{ field: string; message: string }>> {
-        return WeeklyRecurrenceRule.fromObject(data);
+        return fromObjectWeeklyRecurrenceRule(data);
     }
     function reset(newOverrides?: Partial<WeeklyRecurrenceRule>): void {
-        data = { ...WeeklyRecurrenceRule.defaultValue(), ...newOverrides };
+        data = { ...defaultValueWeeklyRecurrenceRule(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             quantityOfWeeks: Option.none(),
@@ -343,5 +342,5 @@ export function fromFormDataWeeklyRecurrenceRule(
         }
         obj.weekdays = weekdaysItems;
     }
-    return WeeklyRecurrenceRule.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONWeeklyRecurrenceRule(JSON.stringify(obj));
 }

@@ -209,7 +209,7 @@ export interface GigaformCommissions {
     reset(overrides?: Partial<Commissions>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormCommissions(overrides?: Partial<Commissions>): GigaformCommissions {
-    let data = $state({ ...Commissions.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueCommissions(), ...overrides });
     let errors = $state<ErrorsCommissions>({
         _errors: Option.none(),
         technician: Option.none(),
@@ -239,7 +239,7 @@ export function createFormCommissions(overrides?: Partial<Commissions>): Gigafor
                 tainted.technician = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Commissions.validateField('technician', data.technician);
+                const fieldErrors = validateFieldCommissions('technician', data.technician);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -262,16 +262,16 @@ export function createFormCommissions(overrides?: Partial<Commissions>): Gigafor
                 tainted.salesRep = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Commissions.validateField('salesRep', data.salesRep);
+                const fieldErrors = validateFieldCommissions('salesRep', data.salesRep);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Commissions, Array<{ field: string; message: string }>> {
-        return Commissions.fromObject(data);
+        return fromObjectCommissions(data);
     }
     function reset(newOverrides?: Partial<Commissions>): void {
-        data = { ...Commissions.defaultValue(), ...newOverrides };
+        data = { ...defaultValueCommissions(), ...newOverrides };
         errors = { _errors: Option.none(), technician: Option.none(), salesRep: Option.none() };
         tainted = { technician: Option.none(), salesRep: Option.none() };
     }
@@ -305,5 +305,5 @@ export function fromFormDataCommissions(
     const obj: Record<string, unknown> = {};
     obj.technician = formData.get('technician') ?? '';
     obj.salesRep = formData.get('salesRep') ?? '';
-    return Commissions.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONCommissions(JSON.stringify(obj));
 }

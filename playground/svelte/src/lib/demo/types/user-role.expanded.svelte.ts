@@ -248,7 +248,7 @@ export function createFormUserRole(initial?: UserRole): GigaformUserRole {
         tainted = {} as TaintedUserRole;
     }
     function validate(): Result<UserRole, Array<{ field: string; message: string }>> {
-        return UserRole.fromObject(data);
+        return fromObjectUserRole(data);
     }
     function reset(overrides?: Partial<UserRole>): void {
         data = overrides
@@ -306,5 +306,5 @@ export function fromFormDataUserRole(
     } else if (discriminant === 'HumanResources') {
     } else if (discriminant === 'InformationTechnology') {
     }
-    return UserRole.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONUserRole(JSON.stringify(obj));
 }

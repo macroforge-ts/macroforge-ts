@@ -167,7 +167,7 @@ export interface GigaformPackage {
     reset(overrides?: Partial<Package>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormPackage(overrides?: Partial<Package>): GigaformPackage {
-    let data = $state({ ...Package.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValuePackage(), ...overrides });
     let errors = $state<ErrorsPackage>({
         _errors: Option.none(),
         id: Option.none(),
@@ -194,7 +194,7 @@ export function createFormPackage(overrides?: Partial<Package>): GigaformPackage
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Package.validateField('id', data.id);
+                const fieldErrors = validateFieldPackage('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -217,16 +217,16 @@ export function createFormPackage(overrides?: Partial<Package>): GigaformPackage
                 tainted.date = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Package.validateField('date', data.date);
+                const fieldErrors = validateFieldPackage('date', data.date);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Package, Array<{ field: string; message: string }>> {
-        return Package.fromObject(data);
+        return fromObjectPackage(data);
     }
     function reset(newOverrides?: Partial<Package>): void {
-        data = { ...Package.defaultValue(), ...newOverrides };
+        data = { ...defaultValuePackage(), ...newOverrides };
         errors = { _errors: Option.none(), id: Option.none(), date: Option.none() };
         tainted = { id: Option.none(), date: Option.none() };
     }
@@ -260,5 +260,5 @@ export function fromFormDataPackage(
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.date = formData.get('date') ?? '';
-    return Package.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONPackage(JSON.stringify(obj));
 }

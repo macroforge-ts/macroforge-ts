@@ -4,8 +4,20 @@ import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeCommented } from './commented.svelte';
+import { __deserializeCreated } from './created.svelte';
+import { __deserializeEdited } from './edited.svelte';
+import { __deserializePaid } from './paid.svelte';
+import { __deserializeSent } from './sent.svelte';
+import { __deserializeViewed } from './viewed.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
+import { defaultValueCommented } from './commented.svelte';
+import { defaultValueCreated } from './created.svelte';
+import { defaultValueEdited } from './edited.svelte';
+import { defaultValuePaid } from './paid.svelte';
+import { defaultValueSent } from './sent.svelte';
+import { defaultValueViewed } from './viewed.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import { Edited } from './edited.svelte';
@@ -101,40 +113,22 @@ export function __deserializeActivityType(
         ]);
     }
     if (__typeName === 'Created') {
-        if (typeof (Created as any)?.__deserialize === 'function') {
-            return (Created as any).__deserialize(value, ctx) as ActivityType;
-        }
-        return value as ActivityType;
+        return __deserializeCreated(value, ctx) as ActivityType;
     }
     if (__typeName === 'Edited') {
-        if (typeof (Edited as any)?.__deserialize === 'function') {
-            return (Edited as any).__deserialize(value, ctx) as ActivityType;
-        }
-        return value as ActivityType;
+        return __deserializeEdited(value, ctx) as ActivityType;
     }
     if (__typeName === 'Sent') {
-        if (typeof (Sent as any)?.__deserialize === 'function') {
-            return (Sent as any).__deserialize(value, ctx) as ActivityType;
-        }
-        return value as ActivityType;
+        return __deserializeSent(value, ctx) as ActivityType;
     }
     if (__typeName === 'Viewed') {
-        if (typeof (Viewed as any)?.__deserialize === 'function') {
-            return (Viewed as any).__deserialize(value, ctx) as ActivityType;
-        }
-        return value as ActivityType;
+        return __deserializeViewed(value, ctx) as ActivityType;
     }
     if (__typeName === 'Commented') {
-        if (typeof (Commented as any)?.__deserialize === 'function') {
-            return (Commented as any).__deserialize(value, ctx) as ActivityType;
-        }
-        return value as ActivityType;
+        return __deserializeCommented(value, ctx) as ActivityType;
     }
     if (__typeName === 'Paid') {
-        if (typeof (Paid as any)?.__deserialize === 'function') {
-            return (Paid as any).__deserialize(value, ctx) as ActivityType;
-        }
-        return value as ActivityType;
+        return __deserializePaid(value, ctx) as ActivityType;
     }
     throw new DeserializeError([
         {
@@ -218,19 +212,19 @@ export interface VariantFieldsActivityType {
 function getDefaultForVariantActivityType(variant: string): ActivityType {
     switch (variant) {
         case 'Created':
-            return Created.defaultValue() as ActivityType;
+            return defaultValueCreated() as ActivityType;
         case 'Edited':
-            return Edited.defaultValue() as ActivityType;
+            return defaultValueEdited() as ActivityType;
         case 'Sent':
-            return Sent.defaultValue() as ActivityType;
+            return defaultValueSent() as ActivityType;
         case 'Viewed':
-            return Viewed.defaultValue() as ActivityType;
+            return defaultValueViewed() as ActivityType;
         case 'Commented':
-            return Commented.defaultValue() as ActivityType;
+            return defaultValueCommented() as ActivityType;
         case 'Paid':
-            return Paid.defaultValue() as ActivityType;
+            return defaultValuePaid() as ActivityType;
         default:
-            return Created.defaultValue() as ActivityType;
+            return defaultValueCreated() as ActivityType;
     }
 } /** Creates a new discriminated union Gigaform with variant switching */
 export function createFormActivityType(initial?: ActivityType): GigaformActivityType {
@@ -271,7 +265,7 @@ export function createFormActivityType(initial?: ActivityType): GigaformActivity
         tainted = {} as TaintedActivityType;
     }
     function validate(): Result<ActivityType, Array<{ field: string; message: string }>> {
-        return ActivityType.fromObject(data);
+        return fromObjectActivityType(data);
     }
     function reset(overrides?: Partial<ActivityType>): void {
         data = overrides
@@ -331,5 +325,5 @@ export function fromFormDataActivityType(
     } else if (discriminant === 'Commented') {
     } else if (discriminant === 'Paid') {
     }
-    return ActivityType.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONActivityType(JSON.stringify(obj));
 }

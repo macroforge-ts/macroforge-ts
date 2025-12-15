@@ -195,7 +195,7 @@ export interface GigaformEdited {
     reset(overrides?: Partial<Edited>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormEdited(overrides?: Partial<Edited>): GigaformEdited {
-    let data = $state({ ...Edited.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueEdited(), ...overrides });
     let errors = $state<ErrorsEdited>({
         _errors: Option.none(),
         fieldName: Option.none(),
@@ -227,7 +227,7 @@ export function createFormEdited(overrides?: Partial<Edited>): GigaformEdited {
                 tainted.fieldName = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Edited.validateField('fieldName', data.fieldName);
+                const fieldErrors = validateFieldEdited('fieldName', data.fieldName);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -250,7 +250,7 @@ export function createFormEdited(overrides?: Partial<Edited>): GigaformEdited {
                 tainted.oldValue = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Edited.validateField('oldValue', data.oldValue);
+                const fieldErrors = validateFieldEdited('oldValue', data.oldValue);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -273,16 +273,16 @@ export function createFormEdited(overrides?: Partial<Edited>): GigaformEdited {
                 tainted.newValue = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Edited.validateField('newValue', data.newValue);
+                const fieldErrors = validateFieldEdited('newValue', data.newValue);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Edited, Array<{ field: string; message: string }>> {
-        return Edited.fromObject(data);
+        return fromObjectEdited(data);
     }
     function reset(newOverrides?: Partial<Edited>): void {
-        data = { ...Edited.defaultValue(), ...newOverrides };
+        data = { ...defaultValueEdited(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             fieldName: Option.none(),
@@ -322,5 +322,5 @@ export function fromFormDataEdited(
     obj.fieldName = formData.get('fieldName') ?? '';
     obj.oldValue = formData.get('oldValue') ?? '';
     obj.newValue = formData.get('newValue') ?? '';
-    return Edited.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONEdited(JSON.stringify(obj));
 }

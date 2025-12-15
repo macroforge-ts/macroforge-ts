@@ -172,7 +172,7 @@ export interface GigaformCoordinates {
     reset(overrides?: Partial<Coordinates>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormCoordinates(overrides?: Partial<Coordinates>): GigaformCoordinates {
-    let data = $state({ ...Coordinates.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueCoordinates(), ...overrides });
     let errors = $state<ErrorsCoordinates>({
         _errors: Option.none(),
         lat: Option.none(),
@@ -199,7 +199,7 @@ export function createFormCoordinates(overrides?: Partial<Coordinates>): Gigafor
                 tainted.lat = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Coordinates.validateField('lat', data.lat);
+                const fieldErrors = validateFieldCoordinates('lat', data.lat);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -222,16 +222,16 @@ export function createFormCoordinates(overrides?: Partial<Coordinates>): Gigafor
                 tainted.lng = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Coordinates.validateField('lng', data.lng);
+                const fieldErrors = validateFieldCoordinates('lng', data.lng);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Coordinates, Array<{ field: string; message: string }>> {
-        return Coordinates.fromObject(data);
+        return fromObjectCoordinates(data);
     }
     function reset(newOverrides?: Partial<Coordinates>): void {
-        data = { ...Coordinates.defaultValue(), ...newOverrides };
+        data = { ...defaultValueCoordinates(), ...newOverrides };
         errors = { _errors: Option.none(), lat: Option.none(), lng: Option.none() };
         tainted = { lat: Option.none(), lng: Option.none() };
     }
@@ -273,5 +273,5 @@ export function fromFormDataCoordinates(
         obj.lng = lngStr ? parseFloat(lngStr as string) : 0;
         if (obj.lng !== undefined && isNaN(obj.lng as number)) obj.lng = 0;
     }
-    return Coordinates.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONCoordinates(JSON.stringify(obj));
 }

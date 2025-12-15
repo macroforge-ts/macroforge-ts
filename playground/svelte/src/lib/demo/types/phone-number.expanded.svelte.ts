@@ -256,7 +256,7 @@ export interface GigaformPhoneNumber {
     reset(overrides?: Partial<PhoneNumber>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormPhoneNumber(overrides?: Partial<PhoneNumber>): GigaformPhoneNumber {
-    let data = $state({ ...PhoneNumber.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValuePhoneNumber(), ...overrides });
     let errors = $state<ErrorsPhoneNumber>({
         _errors: Option.none(),
         main: Option.none(),
@@ -292,7 +292,7 @@ export function createFormPhoneNumber(overrides?: Partial<PhoneNumber>): Gigafor
                 tainted.main = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = PhoneNumber.validateField('main', data.main);
+                const fieldErrors = validateFieldPhoneNumber('main', data.main);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -315,7 +315,7 @@ export function createFormPhoneNumber(overrides?: Partial<PhoneNumber>): Gigafor
                 tainted.phoneType = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = PhoneNumber.validateField('phoneType', data.phoneType);
+                const fieldErrors = validateFieldPhoneNumber('phoneType', data.phoneType);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -338,7 +338,7 @@ export function createFormPhoneNumber(overrides?: Partial<PhoneNumber>): Gigafor
                 tainted.number = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = PhoneNumber.validateField('number', data.number);
+                const fieldErrors = validateFieldPhoneNumber('number', data.number);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -361,7 +361,7 @@ export function createFormPhoneNumber(overrides?: Partial<PhoneNumber>): Gigafor
                 tainted.canText = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = PhoneNumber.validateField('canText', data.canText);
+                const fieldErrors = validateFieldPhoneNumber('canText', data.canText);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -384,16 +384,16 @@ export function createFormPhoneNumber(overrides?: Partial<PhoneNumber>): Gigafor
                 tainted.canCall = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = PhoneNumber.validateField('canCall', data.canCall);
+                const fieldErrors = validateFieldPhoneNumber('canCall', data.canCall);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<PhoneNumber, Array<{ field: string; message: string }>> {
-        return PhoneNumber.fromObject(data);
+        return fromObjectPhoneNumber(data);
     }
     function reset(newOverrides?: Partial<PhoneNumber>): void {
-        data = { ...PhoneNumber.defaultValue(), ...newOverrides };
+        data = { ...defaultValuePhoneNumber(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             main: Option.none(),
@@ -452,5 +452,5 @@ export function fromFormDataPhoneNumber(
         const canCallVal = formData.get('canCall');
         obj.canCall = canCallVal === 'true' || canCallVal === 'on' || canCallVal === '1';
     }
-    return PhoneNumber.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONPhoneNumber(JSON.stringify(obj));
 }

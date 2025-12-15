@@ -256,7 +256,7 @@ export interface GigaformOrdinal {
     reset(overrides?: Partial<Ordinal>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormOrdinal(overrides?: Partial<Ordinal>): GigaformOrdinal {
-    let data = $state({ ...Ordinal.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueOrdinal(), ...overrides });
     let errors = $state<ErrorsOrdinal>({
         _errors: Option.none(),
         north: Option.none(),
@@ -298,7 +298,7 @@ export function createFormOrdinal(overrides?: Partial<Ordinal>): GigaformOrdinal
                 tainted.north = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Ordinal.validateField('north', data.north);
+                const fieldErrors = validateFieldOrdinal('north', data.north);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -321,7 +321,7 @@ export function createFormOrdinal(overrides?: Partial<Ordinal>): GigaformOrdinal
                 tainted.northeast = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Ordinal.validateField('northeast', data.northeast);
+                const fieldErrors = validateFieldOrdinal('northeast', data.northeast);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -344,7 +344,7 @@ export function createFormOrdinal(overrides?: Partial<Ordinal>): GigaformOrdinal
                 tainted.east = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Ordinal.validateField('east', data.east);
+                const fieldErrors = validateFieldOrdinal('east', data.east);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -367,7 +367,7 @@ export function createFormOrdinal(overrides?: Partial<Ordinal>): GigaformOrdinal
                 tainted.southeast = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Ordinal.validateField('southeast', data.southeast);
+                const fieldErrors = validateFieldOrdinal('southeast', data.southeast);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -390,7 +390,7 @@ export function createFormOrdinal(overrides?: Partial<Ordinal>): GigaformOrdinal
                 tainted.south = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Ordinal.validateField('south', data.south);
+                const fieldErrors = validateFieldOrdinal('south', data.south);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -413,7 +413,7 @@ export function createFormOrdinal(overrides?: Partial<Ordinal>): GigaformOrdinal
                 tainted.southwest = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Ordinal.validateField('southwest', data.southwest);
+                const fieldErrors = validateFieldOrdinal('southwest', data.southwest);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -436,7 +436,7 @@ export function createFormOrdinal(overrides?: Partial<Ordinal>): GigaformOrdinal
                 tainted.west = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Ordinal.validateField('west', data.west);
+                const fieldErrors = validateFieldOrdinal('west', data.west);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -459,16 +459,16 @@ export function createFormOrdinal(overrides?: Partial<Ordinal>): GigaformOrdinal
                 tainted.northwest = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Ordinal.validateField('northwest', data.northwest);
+                const fieldErrors = validateFieldOrdinal('northwest', data.northwest);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Ordinal, Array<{ field: string; message: string }>> {
-        return Ordinal.fromObject(data);
+        return fromObjectOrdinal(data);
     }
     function reset(newOverrides?: Partial<Ordinal>): void {
-        data = { ...Ordinal.defaultValue(), ...newOverrides };
+        data = { ...defaultValueOrdinal(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             north: Option.none(),
@@ -559,5 +559,5 @@ export function fromFormDataOrdinal(
         obj.northwest = northwestStr ? parseFloat(northwestStr as string) : 0;
         if (obj.northwest !== undefined && isNaN(obj.northwest as number)) obj.northwest = 0;
     }
-    return Ordinal.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONOrdinal(JSON.stringify(obj));
 }

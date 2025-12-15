@@ -217,7 +217,7 @@ export function createFormJobTitle(initial?: JobTitle): GigaformJobTitle {
         tainted = {} as TaintedJobTitle;
     }
     function validate(): Result<JobTitle, Array<{ field: string; message: string }>> {
-        return JobTitle.fromObject(data);
+        return fromObjectJobTitle(data);
     }
     function reset(overrides?: Partial<JobTitle>): void {
         data = overrides
@@ -273,5 +273,5 @@ export function fromFormDataJobTitle(
     } else if (discriminant === 'HumanResources') {
     } else if (discriminant === 'InformationTechnology') {
     }
-    return JobTitle.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONJobTitle(JSON.stringify(obj));
 }

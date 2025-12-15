@@ -172,7 +172,7 @@ export interface GigaformPromotion {
     reset(overrides?: Partial<Promotion>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormPromotion(overrides?: Partial<Promotion>): GigaformPromotion {
-    let data = $state({ ...Promotion.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValuePromotion(), ...overrides });
     let errors = $state<ErrorsPromotion>({
         _errors: Option.none(),
         id: Option.none(),
@@ -199,7 +199,7 @@ export function createFormPromotion(overrides?: Partial<Promotion>): GigaformPro
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Promotion.validateField('id', data.id);
+                const fieldErrors = validateFieldPromotion('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -222,16 +222,16 @@ export function createFormPromotion(overrides?: Partial<Promotion>): GigaformPro
                 tainted.date = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Promotion.validateField('date', data.date);
+                const fieldErrors = validateFieldPromotion('date', data.date);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Promotion, Array<{ field: string; message: string }>> {
-        return Promotion.fromObject(data);
+        return fromObjectPromotion(data);
     }
     function reset(newOverrides?: Partial<Promotion>): void {
-        data = { ...Promotion.defaultValue(), ...newOverrides };
+        data = { ...defaultValuePromotion(), ...newOverrides };
         errors = { _errors: Option.none(), id: Option.none(), date: Option.none() };
         tainted = { id: Option.none(), date: Option.none() };
     }
@@ -265,5 +265,5 @@ export function fromFormDataPromotion(
     const obj: Record<string, unknown> = {};
     obj.id = formData.get('id') ?? '';
     obj.date = formData.get('date') ?? '';
-    return Promotion.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONPromotion(JSON.stringify(obj));
 }

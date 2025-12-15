@@ -153,6 +153,15 @@ fn to_camel_case(name: &str) -> String {
     }
 }
 
+fn nested_deserialize_fn_name(type_name: &str, naming_style: FunctionNamingStyle) -> String {
+    match naming_style {
+        FunctionNamingStyle::Namespace => format!("{type_name}.__deserialize"),
+        FunctionNamingStyle::Generic => "__deserialize".to_string(),
+        FunctionNamingStyle::Prefix => format!("{}__deserialize", to_camel_case(type_name)),
+        FunctionNamingStyle::Suffix => format!("__deserialize{type_name}"),
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum SerdeValueKind {
     PrimitiveLike,
@@ -1869,7 +1878,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                                                 {:case TypeCategory::Serializable(type_name)}
                                                     {
-                                                        const __result = @{type_name}.__deserialize(@{raw_var}, ctx);
+                                                        {$let __deserialize_fn = nested_deserialize_fn_name(type_name, naming_style)}
+                                                        const __result = @{__deserialize_fn}(@{raw_var}, ctx);
                                                         ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                                     }
 
@@ -1890,7 +1900,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                                 instance.@{field.field_name} = null;
                                                             } else {
                                                                 {#if let Some(inner_type) = &field.nullable_serializable_type}
-                                                                    const __result = @{inner_type}.__deserialize(@{raw_var}, ctx);
+                                                                    {$let __deserialize_fn = nested_deserialize_fn_name(inner_type, naming_style)}
+                                                                    const __result = @{__deserialize_fn}(@{raw_var}, ctx);
                                                                     ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                                                 {:else}
                                                                     instance.@{field.field_name} = @{raw_var};
@@ -1951,7 +1962,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                                                 {:case TypeCategory::Serializable(type_name)}
                                                     {
-                                                        const __result = @{type_name}.__deserialize(@{raw_var}, ctx);
+                                                        {$let __deserialize_fn = nested_deserialize_fn_name(type_name, naming_style)}
+                                                        const __result = @{__deserialize_fn}(@{raw_var}, ctx);
                                                         ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                                     }
 
@@ -1972,7 +1984,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                                 instance.@{field.field_name} = null;
                                                             } else {
                                                                 {#if let Some(inner_type) = &field.nullable_serializable_type}
-                                                                    const __result = @{inner_type}.__deserialize(@{raw_var}, ctx);
+                                                                    {$let __deserialize_fn = nested_deserialize_fn_name(inner_type, naming_style)}
+                                                                    const __result = @{__deserialize_fn}(@{raw_var}, ctx);
                                                                     ctx.assignOrDefer(instance, "@{field.field_name}", __result);
                                                                 {:else}
                                                                     instance.@{field.field_name} = @{raw_var};
@@ -3061,10 +3074,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     // Dispatch to the appropriate type's deserializer
                                     {#for type_ref in &serializable_types}
                                         if (__typeName === "@{type_ref.full_type}") {
-                                            if (typeof (@{type_ref.base_type} as any)?.__deserialize === "function") {
-                                                return (@{type_ref.base_type} as any).__deserialize(value, ctx) as @{full_type_name};
-                                            }
-                                            return value as @{full_type_name};
+                                            {$let __deserialize_fn = nested_deserialize_fn_name(&type_ref.base_type, naming_style)}
+                                            return @{__deserialize_fn}(value, ctx) as @{full_type_name};
                                         }
                                     {/for}
 
@@ -3110,10 +3121,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             if (typeof __typeName === "string") {
                                                 {#for type_ref in &serializable_types}
                                                     if (__typeName === "@{type_ref.full_type}") {
-                                                        if (typeof (@{type_ref.base_type} as any)?.__deserialize === "function") {
-                                                            return (@{type_ref.base_type} as any).__deserialize(value, ctx) as @{full_type_name};
-                                                        }
-                                                        return value as @{full_type_name};
+                                                        {$let __deserialize_fn = nested_deserialize_fn_name(&type_ref.base_type, naming_style)}
+                                                        return @{__deserialize_fn}(value, ctx) as @{full_type_name};
                                                     }
                                                 {/for}
                                             }
@@ -3258,10 +3267,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
                                     {#for type_ref in &serializable_types}
                                         if (__typeName === "@{type_ref.full_type}") {
-                                            if (typeof (@{type_ref.base_type} as any)?.__deserialize === "function") {
-                                                return (@{type_ref.base_type} as any).__deserialize(value, ctx) as @{full_type_name};
-                                            }
-                                            return value as @{full_type_name};
+                                            {$let __deserialize_fn = nested_deserialize_fn_name(&type_ref.base_type, naming_style)}
+                                            return @{__deserialize_fn}(value, ctx) as @{full_type_name};
                                         }
                                     {/for}
 
@@ -3303,10 +3310,8 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                             if (typeof __typeName === "string") {
                                                 {#for type_ref in &serializable_types}
                                                     if (__typeName === "@{type_ref.full_type}") {
-                                                        if (typeof (@{type_ref.base_type} as any)?.__deserialize === "function") {
-                                                            return (@{type_ref.base_type} as any).__deserialize(value, ctx) as @{full_type_name};
-                                                        }
-                                                        return value as @{full_type_name};
+                                                        {$let __deserialize_fn = nested_deserialize_fn_name(&type_ref.base_type, naming_style)}
+                                                        return @{__deserialize_fn}(value, ctx) as @{full_type_name};
                                                     }
                                                 {/for}
                                             }

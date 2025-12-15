@@ -229,7 +229,7 @@ export interface GigaformNumber {
     reset(overrides?: Partial<Number>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormNumber(overrides?: Partial<Number>): GigaformNumber {
-    let data = $state({ ...Number.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueNumber(), ...overrides });
     let errors = $state<ErrorsNumber>({
         _errors: Option.none(),
         countryCode: Option.none(),
@@ -261,7 +261,7 @@ export function createFormNumber(overrides?: Partial<Number>): GigaformNumber {
                 tainted.countryCode = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Number.validateField('countryCode', data.countryCode);
+                const fieldErrors = validateFieldNumber('countryCode', data.countryCode);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -284,7 +284,7 @@ export function createFormNumber(overrides?: Partial<Number>): GigaformNumber {
                 tainted.areaCode = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Number.validateField('areaCode', data.areaCode);
+                const fieldErrors = validateFieldNumber('areaCode', data.areaCode);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -307,16 +307,16 @@ export function createFormNumber(overrides?: Partial<Number>): GigaformNumber {
                 tainted.localNumber = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Number.validateField('localNumber', data.localNumber);
+                const fieldErrors = validateFieldNumber('localNumber', data.localNumber);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Number, Array<{ field: string; message: string }>> {
-        return Number.fromObject(data);
+        return fromObjectNumber(data);
     }
     function reset(newOverrides?: Partial<Number>): void {
-        data = { ...Number.defaultValue(), ...newOverrides };
+        data = { ...defaultValueNumber(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             countryCode: Option.none(),
@@ -360,5 +360,5 @@ export function fromFormDataNumber(
     obj.countryCode = formData.get('countryCode') ?? '';
     obj.areaCode = formData.get('areaCode') ?? '';
     obj.localNumber = formData.get('localNumber') ?? '';
-    return Number.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONNumber(JSON.stringify(obj));
 }

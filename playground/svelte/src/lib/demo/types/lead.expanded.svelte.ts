@@ -1,9 +1,24 @@
+import { defaultValueAccountName } from './account-name.svelte';
+import { defaultValueEmail } from './email.svelte';
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeAccountName } from './account-name.svelte';
+import { __serializeEmail } from './email.svelte';
+import { __serializeLeadStage } from './lead-stage.svelte';
+import { __serializeNextStep } from './next-step.svelte';
+import { __serializePhoneNumber } from './phone-number.svelte';
+import { __serializePriority } from './priority.svelte';
+import { __serializeSector } from './sector.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeAccountName } from './account-name.svelte';
+import { __deserializeEmail } from './email.svelte';
+import { __deserializeLeadStage } from './lead-stage.svelte';
+import { __deserializeNextStep } from './next-step.svelte';
+import { __deserializePriority } from './priority.svelte';
+import { __deserializeSector } from './sector.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -111,9 +126,9 @@ export function defaultValueLead(): Lead {
         dateAdded: null,
         taxRate: null,
         sector: 'Residential',
-        leadName: AccountName.defaultValue(),
+        leadName: defaultValueAccountName(),
         phones: [],
-        email: Email.defaultValue(),
+        email: defaultValueEmail(),
         leadSource: null,
         site: '',
         memo: '',
@@ -149,58 +164,32 @@ export function __serializeLead(value: Lead, ctx: SerializeContext): Record<stri
     result['number'] = value.number;
     result['accepted'] = value.accepted;
     result['probability'] = value.probability;
-    result['priority'] =
-        typeof (value.priority as any)?.__serialize === 'function'
-            ? (value.priority as any).__serialize(ctx)
-            : value.priority;
+    result['priority'] = __serializePriority(value.priority, ctx);
     result['dueDate'] = value.dueDate;
     result['closeDate'] = value.closeDate;
     result['value'] = value.value;
-    result['stage'] =
-        typeof (value.stage as any)?.__serialize === 'function'
-            ? (value.stage as any).__serialize(ctx)
-            : value.stage;
+    result['stage'] = __serializeLeadStage(value.stage, ctx);
     result['status'] = value.status;
     result['description'] = value.description;
-    result['nextStep'] =
-        typeof (value.nextStep as any)?.__serialize === 'function'
-            ? (value.nextStep as any).__serialize(ctx)
-            : value.nextStep;
+    result['nextStep'] = __serializeNextStep(value.nextStep, ctx);
     result['favorite'] = value.favorite;
     result['dateAdded'] = value.dateAdded;
     if (value.taxRate !== null) {
-        result['taxRate'] =
-            typeof (value.taxRate as any)?.__serialize === 'function'
-                ? (value.taxRate as any).__serialize(ctx)
-                : value.taxRate;
+        result['taxRate'] = value.taxRate;
     } else {
         result['taxRate'] = null;
     }
-    result['sector'] =
-        typeof (value.sector as any)?.__serialize === 'function'
-            ? (value.sector as any).__serialize(ctx)
-            : value.sector;
-    result['leadName'] =
-        typeof (value.leadName as any)?.__serialize === 'function'
-            ? (value.leadName as any).__serialize(ctx)
-            : value.leadName;
-    result['phones'] = value.phones.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
-    result['email'] =
-        typeof (value.email as any)?.__serialize === 'function'
-            ? (value.email as any).__serialize(ctx)
-            : value.email;
+    result['sector'] = __serializeSector(value.sector, ctx);
+    result['leadName'] = __serializeAccountName(value.leadName, ctx);
+    result['phones'] = value.phones.map((item) => __serializePhoneNumber(item, ctx));
+    result['email'] = __serializeEmail(value.email, ctx);
     result['leadSource'] = value.leadSource;
     result['site'] = value.site;
     result['memo'] = value.memo;
     result['needsReview'] = value.needsReview;
     result['hasAlert'] = value.hasAlert;
     if (value.salesRep !== null) {
-        result['salesRep'] =
-            typeof (value.salesRep as any)?.__serialize === 'function'
-                ? (value.salesRep as any).__serialize(ctx)
-                : value.salesRep;
+        result['salesRep'] = value.salesRep;
     } else {
         result['salesRep'] = null;
     }
@@ -210,9 +199,7 @@ export function __serializeLead(value: Lead, ctx: SerializeContext): Record<stri
     result['isTaxExempt'] = value.isTaxExempt;
     result['paymentTerms'] = value.paymentTerms;
     result['tags'] = value.tags;
-    result['customFields'] = value.customFields.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
+    result['customFields'] = value.customFields;
     return result;
 }
 
@@ -390,7 +377,7 @@ export function __deserializeLead(value: any, ctx: DeserializeContext): Lead | P
     {
         const __raw_priority = obj['priority'] as Priority;
         {
-            const __result = Priority.__deserialize(__raw_priority, ctx);
+            const __result = __deserializePriority(__raw_priority, ctx);
             ctx.assignOrDefer(instance, 'priority', __result);
         }
     }
@@ -409,7 +396,7 @@ export function __deserializeLead(value: any, ctx: DeserializeContext): Lead | P
     {
         const __raw_stage = obj['stage'] as LeadStage;
         {
-            const __result = LeadStage.__deserialize(__raw_stage, ctx);
+            const __result = __deserializeLeadStage(__raw_stage, ctx);
             ctx.assignOrDefer(instance, 'stage', __result);
         }
     }
@@ -427,7 +414,7 @@ export function __deserializeLead(value: any, ctx: DeserializeContext): Lead | P
     {
         const __raw_nextStep = obj['nextStep'] as NextStep;
         {
-            const __result = NextStep.__deserialize(__raw_nextStep, ctx);
+            const __result = __deserializeNextStep(__raw_nextStep, ctx);
             ctx.assignOrDefer(instance, 'nextStep', __result);
         }
     }
@@ -450,14 +437,14 @@ export function __deserializeLead(value: any, ctx: DeserializeContext): Lead | P
     {
         const __raw_sector = obj['sector'] as Sector;
         {
-            const __result = Sector.__deserialize(__raw_sector, ctx);
+            const __result = __deserializeSector(__raw_sector, ctx);
             ctx.assignOrDefer(instance, 'sector', __result);
         }
     }
     {
         const __raw_leadName = obj['leadName'] as AccountName;
         {
-            const __result = AccountName.__deserialize(__raw_leadName, ctx);
+            const __result = __deserializeAccountName(__raw_leadName, ctx);
             ctx.assignOrDefer(instance, 'leadName', __result);
         }
     }
@@ -470,7 +457,7 @@ export function __deserializeLead(value: any, ctx: DeserializeContext): Lead | P
     {
         const __raw_email = obj['email'] as Email;
         {
-            const __result = Email.__deserialize(__raw_email, ctx);
+            const __result = __deserializeEmail(__raw_email, ctx);
             ctx.assignOrDefer(instance, 'email', __result);
         }
     }
@@ -791,7 +778,7 @@ export interface GigaformLead {
     reset(overrides?: Partial<Lead>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
-    let data = $state({ ...Lead.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueLead(), ...overrides });
     let errors = $state<ErrorsLead>({
         _errors: Option.none(),
         id: Option.none(),
@@ -881,7 +868,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('id', data.id);
+                const fieldErrors = validateFieldLead('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -904,7 +891,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.number = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('number', data.number);
+                const fieldErrors = validateFieldLead('number', data.number);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -927,7 +914,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.accepted = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('accepted', data.accepted);
+                const fieldErrors = validateFieldLead('accepted', data.accepted);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -950,7 +937,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.probability = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('probability', data.probability);
+                const fieldErrors = validateFieldLead('probability', data.probability);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -973,7 +960,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.priority = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('priority', data.priority);
+                const fieldErrors = validateFieldLead('priority', data.priority);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -996,7 +983,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.dueDate = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('dueDate', data.dueDate);
+                const fieldErrors = validateFieldLead('dueDate', data.dueDate);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1019,7 +1006,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.closeDate = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('closeDate', data.closeDate);
+                const fieldErrors = validateFieldLead('closeDate', data.closeDate);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1042,7 +1029,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.value = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('value', data.value);
+                const fieldErrors = validateFieldLead('value', data.value);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1065,7 +1052,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.stage = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('stage', data.stage);
+                const fieldErrors = validateFieldLead('stage', data.stage);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1088,7 +1075,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.status = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('status', data.status);
+                const fieldErrors = validateFieldLead('status', data.status);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1111,7 +1098,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.description = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('description', data.description);
+                const fieldErrors = validateFieldLead('description', data.description);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1134,7 +1121,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.nextStep = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('nextStep', data.nextStep);
+                const fieldErrors = validateFieldLead('nextStep', data.nextStep);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1157,7 +1144,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.favorite = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('favorite', data.favorite);
+                const fieldErrors = validateFieldLead('favorite', data.favorite);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1180,7 +1167,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.dateAdded = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('dateAdded', data.dateAdded);
+                const fieldErrors = validateFieldLead('dateAdded', data.dateAdded);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1203,7 +1190,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.taxRate = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('taxRate', data.taxRate);
+                const fieldErrors = validateFieldLead('taxRate', data.taxRate);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1226,7 +1213,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.sector = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('sector', data.sector);
+                const fieldErrors = validateFieldLead('sector', data.sector);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1249,7 +1236,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.leadName = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('leadName', data.leadName);
+                const fieldErrors = validateFieldLead('leadName', data.leadName);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1272,7 +1259,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.phones = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('phones', data.phones);
+                const fieldErrors = validateFieldLead('phones', data.phones);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -1325,7 +1312,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.email = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('email', data.email);
+                const fieldErrors = validateFieldLead('email', data.email);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1348,7 +1335,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.leadSource = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('leadSource', data.leadSource);
+                const fieldErrors = validateFieldLead('leadSource', data.leadSource);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1371,7 +1358,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.site = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('site', data.site);
+                const fieldErrors = validateFieldLead('site', data.site);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1394,7 +1381,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.memo = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('memo', data.memo);
+                const fieldErrors = validateFieldLead('memo', data.memo);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1417,7 +1404,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.needsReview = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('needsReview', data.needsReview);
+                const fieldErrors = validateFieldLead('needsReview', data.needsReview);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1440,7 +1427,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.hasAlert = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('hasAlert', data.hasAlert);
+                const fieldErrors = validateFieldLead('hasAlert', data.hasAlert);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1463,7 +1450,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.salesRep = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('salesRep', data.salesRep);
+                const fieldErrors = validateFieldLead('salesRep', data.salesRep);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1486,7 +1473,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.color = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('color', data.color);
+                const fieldErrors = validateFieldLead('color', data.color);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1509,7 +1496,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.accountType = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('accountType', data.accountType);
+                const fieldErrors = validateFieldLead('accountType', data.accountType);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1532,7 +1519,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.subtype = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('subtype', data.subtype);
+                const fieldErrors = validateFieldLead('subtype', data.subtype);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1555,7 +1542,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.isTaxExempt = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('isTaxExempt', data.isTaxExempt);
+                const fieldErrors = validateFieldLead('isTaxExempt', data.isTaxExempt);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1578,7 +1565,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.paymentTerms = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('paymentTerms', data.paymentTerms);
+                const fieldErrors = validateFieldLead('paymentTerms', data.paymentTerms);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1601,7 +1588,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.tags = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('tags', data.tags);
+                const fieldErrors = validateFieldLead('tags', data.tags);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -1654,7 +1641,7 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
                 tainted.customFields = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Lead.validateField('customFields', data.customFields);
+                const fieldErrors = validateFieldLead('customFields', data.customFields);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -1690,10 +1677,10 @@ export function createFormLead(overrides?: Partial<Lead>): GigaformLead {
         }
     };
     function validate(): Result<Lead, Array<{ field: string; message: string }>> {
-        return Lead.fromObject(data);
+        return fromObjectLead(data);
     }
     function reset(newOverrides?: Partial<Lead>): void {
-        data = { ...Lead.defaultValue(), ...newOverrides };
+        data = { ...defaultValueLead(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             id: Option.none(),
@@ -2023,5 +2010,5 @@ export function fromFormDataLead(
         }
         obj.customFields = customFieldsItems;
     }
-    return Lead.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONLead(JSON.stringify(obj));
 }

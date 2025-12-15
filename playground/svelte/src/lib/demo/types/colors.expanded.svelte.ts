@@ -229,7 +229,7 @@ export interface GigaformColors {
     reset(overrides?: Partial<Colors>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormColors(overrides?: Partial<Colors>): GigaformColors {
-    let data = $state({ ...Colors.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueColors(), ...overrides });
     let errors = $state<ErrorsColors>({
         _errors: Option.none(),
         main: Option.none(),
@@ -261,7 +261,7 @@ export function createFormColors(overrides?: Partial<Colors>): GigaformColors {
                 tainted.main = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Colors.validateField('main', data.main);
+                const fieldErrors = validateFieldColors('main', data.main);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -284,7 +284,7 @@ export function createFormColors(overrides?: Partial<Colors>): GigaformColors {
                 tainted.hover = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Colors.validateField('hover', data.hover);
+                const fieldErrors = validateFieldColors('hover', data.hover);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -307,16 +307,16 @@ export function createFormColors(overrides?: Partial<Colors>): GigaformColors {
                 tainted.active = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Colors.validateField('active', data.active);
+                const fieldErrors = validateFieldColors('active', data.active);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Colors, Array<{ field: string; message: string }>> {
-        return Colors.fromObject(data);
+        return fromObjectColors(data);
     }
     function reset(newOverrides?: Partial<Colors>): void {
-        data = { ...Colors.defaultValue(), ...newOverrides };
+        data = { ...defaultValueColors(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             main: Option.none(),
@@ -356,5 +356,5 @@ export function fromFormDataColors(
     obj.main = formData.get('main') ?? '';
     obj.hover = formData.get('hover') ?? '';
     obj.active = formData.get('active') ?? '';
-    return Colors.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONColors(JSON.stringify(obj));
 }

@@ -4,8 +4,42 @@ import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeAccount } from './account.svelte';
+import { __deserializeAppointment } from './appointment.svelte';
+import { __deserializeCompany } from './company.svelte';
+import { __deserializeEmployee } from './employee.svelte';
+import { __deserializeLead } from './lead.svelte';
+import { __deserializeOrder } from './order.svelte';
+import { __deserializeOrdered } from './ordered.svelte';
+import { __deserializePackage } from './package.svelte';
+import { __deserializePayment } from './payment.svelte';
+import { __deserializeProduct } from './product.svelte';
+import { __deserializePromotion } from './promotion.svelte';
+import { __deserializeRepresents } from './represents.svelte';
+import { __deserializeRoute } from './route.svelte';
+import { __deserializeService } from './service.svelte';
+import { __deserializeSite } from './site.svelte';
+import { __deserializeTaxRate } from './tax-rate.svelte';
+import { __deserializeUser } from './user.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
+import { defaultValueAccount } from './account.svelte';
+import { defaultValueAppointment } from './appointment.svelte';
+import { defaultValueCompany } from './company.svelte';
+import { defaultValueEmployee } from './employee.svelte';
+import { defaultValueLead } from './lead.svelte';
+import { defaultValueOrder } from './order.svelte';
+import { defaultValueOrdered } from './ordered.svelte';
+import { defaultValuePackage } from './package.svelte';
+import { defaultValuePayment } from './payment.svelte';
+import { defaultValueProduct } from './product.svelte';
+import { defaultValuePromotion } from './promotion.svelte';
+import { defaultValueRepresents } from './represents.svelte';
+import { defaultValueRoute } from './route.svelte';
+import { defaultValueService } from './service.svelte';
+import { defaultValueSite } from './site.svelte';
+import { defaultValueTaxRate } from './tax-rate.svelte';
+import { defaultValueUser } from './user.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import { User } from './user.svelte';
@@ -123,106 +157,55 @@ export function __deserializeTarget(value: any, ctx: DeserializeContext): Target
         ]);
     }
     if (__typeName === 'Account') {
-        if (typeof (Account as any)?.__deserialize === 'function') {
-            return (Account as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializeAccount(value, ctx) as Target;
     }
     if (__typeName === 'User') {
-        if (typeof (User as any)?.__deserialize === 'function') {
-            return (User as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializeUser(value, ctx) as Target;
     }
     if (__typeName === 'Employee') {
-        if (typeof (Employee as any)?.__deserialize === 'function') {
-            return (Employee as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializeEmployee(value, ctx) as Target;
     }
     if (__typeName === 'Appointment') {
-        if (typeof (Appointment as any)?.__deserialize === 'function') {
-            return (Appointment as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializeAppointment(value, ctx) as Target;
     }
     if (__typeName === 'Lead') {
-        if (typeof (Lead as any)?.__deserialize === 'function') {
-            return (Lead as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializeLead(value, ctx) as Target;
     }
     if (__typeName === 'TaxRate') {
-        if (typeof (TaxRate as any)?.__deserialize === 'function') {
-            return (TaxRate as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializeTaxRate(value, ctx) as Target;
     }
     if (__typeName === 'Site') {
-        if (typeof (Site as any)?.__deserialize === 'function') {
-            return (Site as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializeSite(value, ctx) as Target;
     }
     if (__typeName === 'Route') {
-        if (typeof (Route as any)?.__deserialize === 'function') {
-            return (Route as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializeRoute(value, ctx) as Target;
     }
     if (__typeName === 'Company') {
-        if (typeof (Company as any)?.__deserialize === 'function') {
-            return (Company as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializeCompany(value, ctx) as Target;
     }
     if (__typeName === 'Product') {
-        if (typeof (Product as any)?.__deserialize === 'function') {
-            return (Product as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializeProduct(value, ctx) as Target;
     }
     if (__typeName === 'Service') {
-        if (typeof (Service as any)?.__deserialize === 'function') {
-            return (Service as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializeService(value, ctx) as Target;
     }
     if (__typeName === 'Order') {
-        if (typeof (Order as any)?.__deserialize === 'function') {
-            return (Order as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializeOrder(value, ctx) as Target;
     }
     if (__typeName === 'Payment') {
-        if (typeof (Payment as any)?.__deserialize === 'function') {
-            return (Payment as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializePayment(value, ctx) as Target;
     }
     if (__typeName === 'Package') {
-        if (typeof (Package as any)?.__deserialize === 'function') {
-            return (Package as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializePackage(value, ctx) as Target;
     }
     if (__typeName === 'Promotion') {
-        if (typeof (Promotion as any)?.__deserialize === 'function') {
-            return (Promotion as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializePromotion(value, ctx) as Target;
     }
     if (__typeName === 'Represents') {
-        if (typeof (Represents as any)?.__deserialize === 'function') {
-            return (Represents as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializeRepresents(value, ctx) as Target;
     }
     if (__typeName === 'Ordered') {
-        if (typeof (Ordered as any)?.__deserialize === 'function') {
-            return (Ordered as any).__deserialize(value, ctx) as Target;
-        }
-        return value as Target;
+        return __deserializeOrdered(value, ctx) as Target;
     }
     throw new DeserializeError([
         {
@@ -417,41 +400,41 @@ export interface VariantFieldsTarget {
 function getDefaultForVariantTarget(variant: string): Target {
     switch (variant) {
         case 'Account':
-            return Account.defaultValue() as Target;
+            return defaultValueAccount() as Target;
         case 'User':
-            return User.defaultValue() as Target;
+            return defaultValueUser() as Target;
         case 'Employee':
-            return Employee.defaultValue() as Target;
+            return defaultValueEmployee() as Target;
         case 'Appointment':
-            return Appointment.defaultValue() as Target;
+            return defaultValueAppointment() as Target;
         case 'Lead':
-            return Lead.defaultValue() as Target;
+            return defaultValueLead() as Target;
         case 'TaxRate':
-            return TaxRate.defaultValue() as Target;
+            return defaultValueTaxRate() as Target;
         case 'Site':
-            return Site.defaultValue() as Target;
+            return defaultValueSite() as Target;
         case 'Route':
-            return Route.defaultValue() as Target;
+            return defaultValueRoute() as Target;
         case 'Company':
-            return Company.defaultValue() as Target;
+            return defaultValueCompany() as Target;
         case 'Product':
-            return Product.defaultValue() as Target;
+            return defaultValueProduct() as Target;
         case 'Service':
-            return Service.defaultValue() as Target;
+            return defaultValueService() as Target;
         case 'Order':
-            return Order.defaultValue() as Target;
+            return defaultValueOrder() as Target;
         case 'Payment':
-            return Payment.defaultValue() as Target;
+            return defaultValuePayment() as Target;
         case 'Package':
-            return Package.defaultValue() as Target;
+            return defaultValuePackage() as Target;
         case 'Promotion':
-            return Promotion.defaultValue() as Target;
+            return defaultValuePromotion() as Target;
         case 'Represents':
-            return Represents.defaultValue() as Target;
+            return defaultValueRepresents() as Target;
         case 'Ordered':
-            return Ordered.defaultValue() as Target;
+            return defaultValueOrdered() as Target;
         default:
-            return Account.defaultValue() as Target;
+            return defaultValueAccount() as Target;
     }
 } /** Creates a new discriminated union Gigaform with variant switching */
 export function createFormTarget(initial?: Target): GigaformTarget {
@@ -574,7 +557,7 @@ export function createFormTarget(initial?: Target): GigaformTarget {
         tainted = {} as TaintedTarget;
     }
     function validate(): Result<Target, Array<{ field: string; message: string }>> {
-        return Target.fromObject(data);
+        return fromObjectTarget(data);
     }
     function reset(overrides?: Partial<Target>): void {
         data = overrides ? (overrides as typeof data) : getDefaultForVariantTarget(currentVariant);
@@ -654,5 +637,5 @@ export function fromFormDataTarget(
     } else if (discriminant === 'Represents') {
     } else if (discriminant === 'Ordered') {
     }
-    return Target.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONTarget(JSON.stringify(obj));
 }

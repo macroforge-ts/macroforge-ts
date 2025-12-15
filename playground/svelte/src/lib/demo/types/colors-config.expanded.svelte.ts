@@ -4,8 +4,16 @@ import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeCardinal } from './cardinal.svelte';
+import { __deserializeCustom } from './custom.svelte';
+import { __deserializeGradient } from './gradient.svelte';
+import { __deserializeOrdinal } from './ordinal.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
+import { defaultValueCardinal } from './cardinal.svelte';
+import { defaultValueCustom } from './custom.svelte';
+import { defaultValueGradient } from './gradient.svelte';
+import { defaultValueOrdinal } from './ordinal.svelte';
 /** import macro {Gigaform} from "@playground/macro"; */
 
 import { Gradient } from './gradient.svelte';
@@ -99,28 +107,16 @@ export function __deserializeColorsConfig(
         ]);
     }
     if (__typeName === 'Cardinal') {
-        if (typeof (Cardinal as any)?.__deserialize === 'function') {
-            return (Cardinal as any).__deserialize(value, ctx) as ColorsConfig;
-        }
-        return value as ColorsConfig;
+        return __deserializeCardinal(value, ctx) as ColorsConfig;
     }
     if (__typeName === 'Ordinal') {
-        if (typeof (Ordinal as any)?.__deserialize === 'function') {
-            return (Ordinal as any).__deserialize(value, ctx) as ColorsConfig;
-        }
-        return value as ColorsConfig;
+        return __deserializeOrdinal(value, ctx) as ColorsConfig;
     }
     if (__typeName === 'Custom') {
-        if (typeof (Custom as any)?.__deserialize === 'function') {
-            return (Custom as any).__deserialize(value, ctx) as ColorsConfig;
-        }
-        return value as ColorsConfig;
+        return __deserializeCustom(value, ctx) as ColorsConfig;
     }
     if (__typeName === 'Gradient') {
-        if (typeof (Gradient as any)?.__deserialize === 'function') {
-            return (Gradient as any).__deserialize(value, ctx) as ColorsConfig;
-        }
-        return value as ColorsConfig;
+        return __deserializeGradient(value, ctx) as ColorsConfig;
     }
     throw new DeserializeError([
         {
@@ -192,15 +188,15 @@ export interface VariantFieldsColorsConfig {
 function getDefaultForVariantColorsConfig(variant: string): ColorsConfig {
     switch (variant) {
         case 'Cardinal':
-            return Cardinal.defaultValue() as ColorsConfig;
+            return defaultValueCardinal() as ColorsConfig;
         case 'Ordinal':
-            return Ordinal.defaultValue() as ColorsConfig;
+            return defaultValueOrdinal() as ColorsConfig;
         case 'Custom':
-            return Custom.defaultValue() as ColorsConfig;
+            return defaultValueCustom() as ColorsConfig;
         case 'Gradient':
-            return Gradient.defaultValue() as ColorsConfig;
+            return defaultValueGradient() as ColorsConfig;
         default:
-            return Cardinal.defaultValue() as ColorsConfig;
+            return defaultValueCardinal() as ColorsConfig;
     }
 } /** Creates a new discriminated union Gigaform with variant switching */
 export function createFormColorsConfig(initial?: ColorsConfig): GigaformColorsConfig {
@@ -230,7 +226,7 @@ export function createFormColorsConfig(initial?: ColorsConfig): GigaformColorsCo
         tainted = {} as TaintedColorsConfig;
     }
     function validate(): Result<ColorsConfig, Array<{ field: string; message: string }>> {
-        return ColorsConfig.fromObject(data);
+        return fromObjectColorsConfig(data);
     }
     function reset(overrides?: Partial<ColorsConfig>): void {
         data = overrides
@@ -286,5 +282,5 @@ export function fromFormDataColorsConfig(
     } else if (discriminant === 'Custom') {
     } else if (discriminant === 'Gradient') {
     }
-    return ColorsConfig.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONColorsConfig(JSON.stringify(obj));
 }

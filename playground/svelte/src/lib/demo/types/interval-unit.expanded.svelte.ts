@@ -182,7 +182,7 @@ export function createFormIntervalUnit(initial?: IntervalUnit): GigaformInterval
         tainted = {} as TaintedIntervalUnit;
     }
     function validate(): Result<IntervalUnit, Array<{ field: string; message: string }>> {
-        return IntervalUnit.fromObject(data);
+        return fromObjectIntervalUnit(data);
     }
     function reset(overrides?: Partial<IntervalUnit>): void {
         data = overrides
@@ -233,5 +233,5 @@ export function fromFormDataIntervalUnit(
     } else if (discriminant === 'Month') {
     } else if (discriminant === 'Year') {
     }
-    return IntervalUnit.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONIntervalUnit(JSON.stringify(obj));
 }

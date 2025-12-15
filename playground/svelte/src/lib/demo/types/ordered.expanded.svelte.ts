@@ -195,7 +195,7 @@ export interface GigaformOrdered {
     reset(overrides?: Partial<Ordered>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormOrdered(overrides?: Partial<Ordered>): GigaformOrdered {
-    let data = $state({ ...Ordered.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueOrdered(), ...overrides });
     let errors = $state<ErrorsOrdered>({
         _errors: Option.none(),
         id: Option.none(),
@@ -229,7 +229,7 @@ export function createFormOrdered(overrides?: Partial<Ordered>): GigaformOrdered
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Ordered.validateField('id', data.id);
+                const fieldErrors = validateFieldOrdered('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -252,7 +252,7 @@ export function createFormOrdered(overrides?: Partial<Ordered>): GigaformOrdered
                 tainted.in = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Ordered.validateField('in', data.in);
+                const fieldErrors = validateFieldOrdered('in', data.in);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -275,7 +275,7 @@ export function createFormOrdered(overrides?: Partial<Ordered>): GigaformOrdered
                 tainted.out = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Ordered.validateField('out', data.out);
+                const fieldErrors = validateFieldOrdered('out', data.out);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -298,16 +298,16 @@ export function createFormOrdered(overrides?: Partial<Ordered>): GigaformOrdered
                 tainted.date = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Ordered.validateField('date', data.date);
+                const fieldErrors = validateFieldOrdered('date', data.date);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Ordered, Array<{ field: string; message: string }>> {
-        return Ordered.fromObject(data);
+        return fromObjectOrdered(data);
     }
     function reset(newOverrides?: Partial<Ordered>): void {
-        data = { ...Ordered.defaultValue(), ...newOverrides };
+        data = { ...defaultValueOrdered(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             id: Option.none(),
@@ -349,5 +349,5 @@ export function fromFormDataOrdered(
     obj.in = formData.get('in') ?? '';
     obj.out = formData.get('out') ?? '';
     obj.date = formData.get('date') ?? '';
-    return Ordered.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONOrdered(JSON.stringify(obj));
 }

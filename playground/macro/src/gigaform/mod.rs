@@ -16,16 +16,19 @@
 pub mod field_descriptors;
 pub mod form_data;
 pub mod i18n;
+pub mod naming;
 pub mod parser;
 pub mod types;
 
 use macroforge_ts::macros::{ts_macro_derive, ts_template};
+use macroforge_ts::ts_syn::abi::FunctionNamingStyle;
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 /// Generates Gigaform helpers (suffixed exports) with types, fromFormData, and field controllers.
 pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
     let type_name = input.name();
     let options = parser::parse_gigaform_options(&input);
+    let naming_style: FunctionNamingStyle = input.context.function_naming_style;
 
     // Extract type params from the data variant
     let type_params = extract_type_params(&input.data);
@@ -65,7 +68,7 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
                     })?;
 
                 // Generate union-specific form (different from regular field-based forms)
-                return generate_union_form(type_name, &union_config, &options, &generics);
+                return generate_union_form(type_name, &union_config, &options, &generics, naming_style);
             } else if type_alias.body().is_tuple() {
                 return Err(MacroforgeError::new(
                     input.decorator_span(),
@@ -103,9 +106,15 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
 
     // Generate each section with generics
     let type_defs = types::generate_with_generics(type_name, &fields, &generics);
-    let form_data_fn = form_data::generate_with_generics(type_name, &fields, &generics);
-    let factory_fn =
-        field_descriptors::generate_factory_with_generics(type_name, &fields, &options, &generics);
+    let form_data_fn =
+        form_data::generate_with_generics(type_name, &fields, &generics, naming_style);
+    let factory_fn = field_descriptors::generate_factory_with_generics(
+        type_name,
+        &fields,
+        &options,
+        &generics,
+        naming_style,
+    );
 
     // Combine into plain, suffixed exports (no namespace merging)
     let mut output = ts_template! {
@@ -206,6 +215,7 @@ fn generate_union_form(
     union_config: &parser::UnionConfig,
     options: &parser::GigaformOptions,
     generics: &GenericInfo,
+    naming_style: FunctionNamingStyle,
 ) -> Result<TsStream, MacroforgeError> {
     let type_defs = types::generate_union_with_generics(type_name, union_config, generics);
     let factory_fn = field_descriptors::generate_union_factory_with_generics(
@@ -213,8 +223,10 @@ fn generate_union_form(
         union_config,
         options,
         generics,
+        naming_style,
     );
-    let form_data_fn = form_data::generate_union_with_generics(type_name, union_config, generics);
+    let form_data_fn =
+        form_data::generate_union_with_generics(type_name, union_config, generics, naming_style);
 
     let mut output = ts_template! {
         {$typescript type_defs}

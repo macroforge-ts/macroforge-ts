@@ -238,7 +238,7 @@ export interface GigaformEmailParts {
     reset(overrides?: Partial<EmailParts>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormEmailParts(overrides?: Partial<EmailParts>): GigaformEmailParts {
-    let data = $state({ ...EmailParts.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueEmailParts(), ...overrides });
     let errors = $state<ErrorsEmailParts>({
         _errors: Option.none(),
         local: Option.none(),
@@ -270,7 +270,7 @@ export function createFormEmailParts(overrides?: Partial<EmailParts>): GigaformE
                 tainted.local = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = EmailParts.validateField('local', data.local);
+                const fieldErrors = validateFieldEmailParts('local', data.local);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -293,7 +293,7 @@ export function createFormEmailParts(overrides?: Partial<EmailParts>): GigaformE
                 tainted.domainName = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = EmailParts.validateField('domainName', data.domainName);
+                const fieldErrors = validateFieldEmailParts('domainName', data.domainName);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -316,16 +316,16 @@ export function createFormEmailParts(overrides?: Partial<EmailParts>): GigaformE
                 tainted.topLevelDomain = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = EmailParts.validateField('topLevelDomain', data.topLevelDomain);
+                const fieldErrors = validateFieldEmailParts('topLevelDomain', data.topLevelDomain);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<EmailParts, Array<{ field: string; message: string }>> {
-        return EmailParts.fromObject(data);
+        return fromObjectEmailParts(data);
     }
     function reset(newOverrides?: Partial<EmailParts>): void {
-        data = { ...EmailParts.defaultValue(), ...newOverrides };
+        data = { ...defaultValueEmailParts(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             local: Option.none(),
@@ -369,5 +369,5 @@ export function fromFormDataEmailParts(
     obj.local = formData.get('local') ?? '';
     obj.domainName = formData.get('domainName') ?? '';
     obj.topLevelDomain = formData.get('topLevelDomain') ?? '';
-    return EmailParts.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONEmailParts(JSON.stringify(obj));
 }

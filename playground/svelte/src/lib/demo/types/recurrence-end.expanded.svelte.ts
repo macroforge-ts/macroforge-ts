@@ -156,7 +156,7 @@ export function createFormRecurrenceEnd(initial?: RecurrenceEnd): GigaformRecurr
         tainted = {} as TaintedRecurrenceEnd;
     }
     function validate(): Result<RecurrenceEnd, Array<{ field: string; message: string }>> {
-        return RecurrenceEnd.fromObject(data);
+        return fromObjectRecurrenceEnd(data);
     }
     function reset(overrides?: Partial<RecurrenceEnd>): void {
         data = overrides
@@ -205,5 +205,5 @@ export function fromFormDataRecurrenceEnd(
     if (discriminant === 'number') {
     } else if (discriminant === 'string') {
     }
-    return RecurrenceEnd.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONRecurrenceEnd(JSON.stringify(obj));
 }

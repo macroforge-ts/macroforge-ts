@@ -281,7 +281,7 @@ export function createFormApplications(initial?: Applications): GigaformApplicat
         tainted = {} as TaintedApplications;
     }
     function validate(): Result<Applications, Array<{ field: string; message: string }>> {
-        return Applications.fromObject(data);
+        return fromObjectApplications(data);
     }
     function reset(overrides?: Partial<Applications>): void {
         data = overrides
@@ -343,5 +343,5 @@ export function fromFormDataApplications(
     } else if (discriminant === 'Marketing') {
     } else if (discriminant === 'Website') {
     }
-    return Applications.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONApplications(JSON.stringify(obj));
 }

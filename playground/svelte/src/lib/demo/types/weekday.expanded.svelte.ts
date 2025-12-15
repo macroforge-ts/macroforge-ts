@@ -260,7 +260,7 @@ export function createFormWeekday(initial?: Weekday): GigaformWeekday {
         tainted = {} as TaintedWeekday;
     }
     function validate(): Result<Weekday, Array<{ field: string; message: string }>> {
-        return Weekday.fromObject(data);
+        return fromObjectWeekday(data);
     }
     function reset(overrides?: Partial<Weekday>): void {
         data = overrides ? (overrides as typeof data) : getDefaultForVariantWeekday(currentVariant);
@@ -320,5 +320,5 @@ export function fromFormDataWeekday(
     } else if (discriminant === 'Saturday') {
     } else if (discriminant === 'Sunday') {
     }
-    return Weekday.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONWeekday(JSON.stringify(obj));
 }

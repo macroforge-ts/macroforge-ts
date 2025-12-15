@@ -261,7 +261,7 @@ export interface GigaformAddress {
     reset(overrides?: Partial<Address>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormAddress(overrides?: Partial<Address>): GigaformAddress {
-    let data = $state({ ...Address.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueAddress(), ...overrides });
     let errors = $state<ErrorsAddress>({
         _errors: Option.none(),
         street: Option.none(),
@@ -295,7 +295,7 @@ export function createFormAddress(overrides?: Partial<Address>): GigaformAddress
                 tainted.street = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Address.validateField('street', data.street);
+                const fieldErrors = validateFieldAddress('street', data.street);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -318,7 +318,7 @@ export function createFormAddress(overrides?: Partial<Address>): GigaformAddress
                 tainted.city = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Address.validateField('city', data.city);
+                const fieldErrors = validateFieldAddress('city', data.city);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -341,7 +341,7 @@ export function createFormAddress(overrides?: Partial<Address>): GigaformAddress
                 tainted.state = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Address.validateField('state', data.state);
+                const fieldErrors = validateFieldAddress('state', data.state);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -364,16 +364,16 @@ export function createFormAddress(overrides?: Partial<Address>): GigaformAddress
                 tainted.zipcode = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Address.validateField('zipcode', data.zipcode);
+                const fieldErrors = validateFieldAddress('zipcode', data.zipcode);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Address, Array<{ field: string; message: string }>> {
-        return Address.fromObject(data);
+        return fromObjectAddress(data);
     }
     function reset(newOverrides?: Partial<Address>): void {
-        data = { ...Address.defaultValue(), ...newOverrides };
+        data = { ...defaultValueAddress(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             street: Option.none(),
@@ -420,5 +420,5 @@ export function fromFormDataAddress(
     obj.city = formData.get('city') ?? '';
     obj.state = formData.get('state') ?? '';
     obj.zipcode = formData.get('zipcode') ?? '';
-    return Address.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONAddress(JSON.stringify(obj));
 }

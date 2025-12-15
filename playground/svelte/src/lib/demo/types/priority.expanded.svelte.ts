@@ -166,7 +166,7 @@ export function createFormPriority(initial?: Priority): GigaformPriority {
         tainted = {} as TaintedPriority;
     }
     function validate(): Result<Priority, Array<{ field: string; message: string }>> {
-        return Priority.fromObject(data);
+        return fromObjectPriority(data);
     }
     function reset(overrides?: Partial<Priority>): void {
         data = overrides
@@ -216,5 +216,5 @@ export function fromFormDataPriority(
     } else if (discriminant === 'High') {
     } else if (discriminant === 'Low') {
     }
-    return Priority.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONPriority(JSON.stringify(obj));
 }

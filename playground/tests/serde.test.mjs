@@ -94,6 +94,25 @@ describe("Serialize macro expansion", () => {
     assert.ok(result.code.includes("function __serializeIPoint("), "Should generate __serializeIPoint function");
   });
 
+  test("interfaces call nested suffixed __serialize functions", () => {
+    const code = `
+      /** @derive(Serialize) */
+      interface Metadata {
+        createdAt: string;
+      }
+
+      /** @derive(Serialize) */
+      interface User {
+        metadata: Metadata | null;
+      }
+    `;
+    const result = expandSync(code, "test.ts");
+
+    assert.ok(result.code.includes("function __serializeUser("), "Should generate __serializeUser");
+    assert.ok(result.code.includes("__serializeMetadata("), "Should call __serializeMetadata for nested type");
+    assert.ok(!result.code.includes("Metadata.__serialize("), "Should not use namespace-style Metadata.__serialize");
+  });
+
   test("handles @serde(rename) decorator", () => {
     const code = `
       /** @derive(Serialize) */
@@ -363,6 +382,61 @@ describe("Deserialize macro expansion", () => {
     assert.ok(result.code.includes("opts?.freeze"), "Should check freeze option");
     assert.ok(result.code.includes("freezeAll"), "Should call freezeAll");
   });
+
+  test("interfaces call nested suffixed __deserialize functions", () => {
+    const code = `
+      /** @derive(Deserialize) */
+      interface Metadata {
+        createdAt: string;
+      }
+
+      /** @derive(Deserialize) */
+      interface User {
+        metadata: Metadata | null;
+      }
+    `;
+    const result = expandSync(code, "test.ts");
+
+    assert.ok(result.code.includes("function __deserializeUser("), "Should generate __deserializeUser");
+    assert.ok(result.code.includes("__deserializeMetadata("), "Should call __deserializeMetadata for nested type");
+    assert.ok(!result.code.includes("Metadata.__deserialize("), "Should not use namespace-style Metadata.__deserialize");
+  });
+});
+
+describe("External type function imports", () => {
+  test("injects imports for nested type functions (suffix style)", () => {
+    const code = `
+      import { Metadata } from "./metadata.svelte";
+
+      /** @derive(Default, Serialize, Deserialize) */
+      interface User {
+        metadata: Metadata;
+      }
+    `;
+    const result = expandSync(code, "test.ts");
+
+    assert.ok(
+      result.code.includes("defaultValueMetadata()"),
+      "Should call defaultValueMetadata for nested default values"
+    );
+    assert.ok(
+      !result.code.includes("Metadata.defaultValue()"),
+      "Should not use namespace-style Metadata.defaultValue"
+    );
+
+    assert.ok(
+      result.code.includes('import { __serializeMetadata } from "./metadata.svelte";'),
+      "Should import __serializeMetadata from metadata module"
+    );
+    assert.ok(
+      result.code.includes('import { __deserializeMetadata } from "./metadata.svelte";'),
+      "Should import __deserializeMetadata from metadata module"
+    );
+    assert.ok(
+      result.code.includes('import { defaultValueMetadata } from "./metadata.svelte";'),
+      "Should import defaultValueMetadata from metadata module"
+    );
+  });
 });
 
 // ============================================================================
@@ -574,9 +648,8 @@ describe("Edge cases", () => {
     `;
     const result = expandSync(code, "test.ts");
 
-    assert.ok(result.code.includes("Map"), "Should handle Map");
-    assert.ok(result.code.includes("Set"), "Should handle Set");
-    assert.ok(result.code.includes("Array"), "Should handle Array");
+    assert.ok(result.code.includes("Object.fromEntries"), "Should handle Map serialization");
+    assert.ok(result.code.includes(".entries()"), "Should iterate Map entries");
   });
 });
 

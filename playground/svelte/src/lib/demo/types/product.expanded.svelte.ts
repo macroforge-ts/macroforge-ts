@@ -1,9 +1,12 @@
+import { defaultValueProductDefaults } from './product-defaults.svelte';
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeProductDefaults } from './product-defaults.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeProductDefaults } from './product-defaults.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -42,7 +45,7 @@ export function defaultValueProduct(): Product {
         active: false,
         commission: false,
         favorite: false,
-        defaults: ProductDefaults.defaultValue()
+        defaults: defaultValueProductDefaults()
     } as Product;
 }
 
@@ -70,10 +73,7 @@ export function __serializeProduct(value: Product, ctx: SerializeContext): Recor
     result['active'] = value.active;
     result['commission'] = value.commission;
     result['favorite'] = value.favorite;
-    result['defaults'] =
-        typeof (value.defaults as any)?.__serialize === 'function'
-            ? (value.defaults as any).__serialize(ctx)
-            : value.defaults;
+    result['defaults'] = __serializeProductDefaults(value.defaults, ctx);
     return result;
 }
 
@@ -214,7 +214,7 @@ export function __deserializeProduct(value: any, ctx: DeserializeContext): Produ
     {
         const __raw_defaults = obj['defaults'] as ProductDefaults;
         {
-            const __result = ProductDefaults.__deserialize(__raw_defaults, ctx);
+            const __result = __deserializeProductDefaults(__raw_defaults, ctx);
             ctx.assignOrDefer(instance, 'defaults', __result);
         }
     }
@@ -336,7 +336,7 @@ export interface GigaformProduct {
     reset(overrides?: Partial<Product>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormProduct(overrides?: Partial<Product>): GigaformProduct {
-    let data = $state({ ...Product.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueProduct(), ...overrides });
     let errors = $state<ErrorsProduct>({
         _errors: Option.none(),
         id: Option.none(),
@@ -382,7 +382,7 @@ export function createFormProduct(overrides?: Partial<Product>): GigaformProduct
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Product.validateField('id', data.id);
+                const fieldErrors = validateFieldProduct('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -405,7 +405,7 @@ export function createFormProduct(overrides?: Partial<Product>): GigaformProduct
                 tainted.name = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Product.validateField('name', data.name);
+                const fieldErrors = validateFieldProduct('name', data.name);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -428,7 +428,7 @@ export function createFormProduct(overrides?: Partial<Product>): GigaformProduct
                 tainted.quickCode = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Product.validateField('quickCode', data.quickCode);
+                const fieldErrors = validateFieldProduct('quickCode', data.quickCode);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -451,7 +451,7 @@ export function createFormProduct(overrides?: Partial<Product>): GigaformProduct
                 tainted.group = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Product.validateField('group', data.group);
+                const fieldErrors = validateFieldProduct('group', data.group);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -474,7 +474,7 @@ export function createFormProduct(overrides?: Partial<Product>): GigaformProduct
                 tainted.subgroup = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Product.validateField('subgroup', data.subgroup);
+                const fieldErrors = validateFieldProduct('subgroup', data.subgroup);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -497,7 +497,7 @@ export function createFormProduct(overrides?: Partial<Product>): GigaformProduct
                 tainted.unit = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Product.validateField('unit', data.unit);
+                const fieldErrors = validateFieldProduct('unit', data.unit);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -520,7 +520,7 @@ export function createFormProduct(overrides?: Partial<Product>): GigaformProduct
                 tainted.active = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Product.validateField('active', data.active);
+                const fieldErrors = validateFieldProduct('active', data.active);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -543,7 +543,7 @@ export function createFormProduct(overrides?: Partial<Product>): GigaformProduct
                 tainted.commission = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Product.validateField('commission', data.commission);
+                const fieldErrors = validateFieldProduct('commission', data.commission);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -566,7 +566,7 @@ export function createFormProduct(overrides?: Partial<Product>): GigaformProduct
                 tainted.favorite = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Product.validateField('favorite', data.favorite);
+                const fieldErrors = validateFieldProduct('favorite', data.favorite);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -589,16 +589,16 @@ export function createFormProduct(overrides?: Partial<Product>): GigaformProduct
                 tainted.defaults = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Product.validateField('defaults', data.defaults);
+                const fieldErrors = validateFieldProduct('defaults', data.defaults);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Product, Array<{ field: string; message: string }>> {
-        return Product.fromObject(data);
+        return fromObjectProduct(data);
     }
     function reset(newOverrides?: Partial<Product>): void {
-        data = { ...Product.defaultValue(), ...newOverrides };
+        data = { ...defaultValueProduct(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             id: Option.none(),
@@ -693,5 +693,5 @@ export function fromFormDataProduct(
         }
         obj.defaults = defaultsObj;
     }
-    return Product.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONProduct(JSON.stringify(obj));
 }

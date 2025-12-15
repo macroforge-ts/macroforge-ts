@@ -1,9 +1,13 @@
+import { defaultValueColorsConfig } from './colors-config.svelte';
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeColorsConfig } from './colors-config.svelte';
+import { __serializePhoneNumber } from './phone-number.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeColorsConfig } from './colors-config.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -89,7 +93,7 @@ export function defaultValueCompany(): Company {
         hasSortServiceItemsAlphabetically: false,
         hasAttachOrderToAppointmentEmails: false,
         scheduleInterval: 0,
-        colorsConfig: ColorsConfig.defaultValue()
+        colorsConfig: defaultValueColorsConfig()
     } as Company;
 }
 
@@ -111,9 +115,7 @@ export function __serializeCompany(value: Company, ctx: SerializeContext): Recor
     result['id'] = value.id;
     result['legalName'] = value.legalName;
     result['headquarters'] = value.headquarters;
-    result['phones'] = value.phones.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
+    result['phones'] = value.phones.map((item) => __serializePhoneNumber(item, ctx));
     result['fax'] = value.fax;
     result['email'] = value.email;
     result['website'] = value.website;
@@ -138,10 +140,7 @@ export function __serializeCompany(value: Company, ctx: SerializeContext): Recor
     result['hasSortServiceItemsAlphabetically'] = value.hasSortServiceItemsAlphabetically;
     result['hasAttachOrderToAppointmentEmails'] = value.hasAttachOrderToAppointmentEmails;
     result['scheduleInterval'] = value.scheduleInterval;
-    result['colorsConfig'] =
-        typeof (value.colorsConfig as any)?.__serialize === 'function'
-            ? (value.colorsConfig as any).__serialize(ctx)
-            : value.colorsConfig;
+    result['colorsConfig'] = __serializeColorsConfig(value.colorsConfig, ctx);
     return result;
 }
 
@@ -454,7 +453,7 @@ export function __deserializeCompany(value: any, ctx: DeserializeContext): Compa
     {
         const __raw_colorsConfig = obj['colorsConfig'] as ColorsConfig;
         {
-            const __result = ColorsConfig.__deserialize(__raw_colorsConfig, ctx);
+            const __result = __deserializeColorsConfig(__raw_colorsConfig, ctx);
             ctx.assignOrDefer(instance, 'colorsConfig', __result);
         }
     }
@@ -769,7 +768,7 @@ export interface GigaformCompany {
     reset(overrides?: Partial<Company>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormCompany(overrides?: Partial<Company>): GigaformCompany {
-    let data = $state({ ...Company.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueCompany(), ...overrides });
     let errors = $state<ErrorsCompany>({
         _errors: Option.none(),
         id: Option.none(),
@@ -853,7 +852,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField('id', data.id);
+                const fieldErrors = validateFieldCompany('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -876,7 +875,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.legalName = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField('legalName', data.legalName);
+                const fieldErrors = validateFieldCompany('legalName', data.legalName);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -899,7 +898,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.headquarters = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField('headquarters', data.headquarters);
+                const fieldErrors = validateFieldCompany('headquarters', data.headquarters);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -922,7 +921,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.phones = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField('phones', data.phones);
+                const fieldErrors = validateFieldCompany('phones', data.phones);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -975,7 +974,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.fax = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField('fax', data.fax);
+                const fieldErrors = validateFieldCompany('fax', data.fax);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -998,7 +997,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.email = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField('email', data.email);
+                const fieldErrors = validateFieldCompany('email', data.email);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1021,7 +1020,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.website = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField('website', data.website);
+                const fieldErrors = validateFieldCompany('website', data.website);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1044,7 +1043,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.taxId = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField('taxId', data.taxId);
+                const fieldErrors = validateFieldCompany('taxId', data.taxId);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1067,7 +1066,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.referenceNumber = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField('referenceNumber', data.referenceNumber);
+                const fieldErrors = validateFieldCompany('referenceNumber', data.referenceNumber);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1090,10 +1089,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.postalCodeLookup = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
-                    'postalCodeLookup',
-                    data.postalCodeLookup
-                );
+                const fieldErrors = validateFieldCompany('postalCodeLookup', data.postalCodeLookup);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1116,7 +1112,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.timeZone = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField('timeZone', data.timeZone);
+                const fieldErrors = validateFieldCompany('timeZone', data.timeZone);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1139,7 +1135,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.defaultTax = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField('defaultTax', data.defaultTax);
+                const fieldErrors = validateFieldCompany('defaultTax', data.defaultTax);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1162,7 +1158,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.defaultTaxLocation = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
+                const fieldErrors = validateFieldCompany(
                     'defaultTaxLocation',
                     data.defaultTaxLocation
                 );
@@ -1188,7 +1184,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.defaultAreaCode = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField('defaultAreaCode', data.defaultAreaCode);
+                const fieldErrors = validateFieldCompany('defaultAreaCode', data.defaultAreaCode);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1211,7 +1207,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.defaultAccountType = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
+                const fieldErrors = validateFieldCompany(
                     'defaultAccountType',
                     data.defaultAccountType
                 );
@@ -1237,10 +1233,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.lookupFormatting = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
-                    'lookupFormatting',
-                    data.lookupFormatting
-                );
+                const fieldErrors = validateFieldCompany('lookupFormatting', data.lookupFormatting);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1263,7 +1256,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.accountNameFormat = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
+                const fieldErrors = validateFieldCompany(
                     'accountNameFormat',
                     data.accountNameFormat
                 );
@@ -1289,7 +1282,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.merchantServiceProvider = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
+                const fieldErrors = validateFieldCompany(
                     'merchantServiceProvider',
                     data.merchantServiceProvider
                 );
@@ -1315,10 +1308,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.dateDisplayStyle = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
-                    'dateDisplayStyle',
-                    data.dateDisplayStyle
-                );
+                const fieldErrors = validateFieldCompany('dateDisplayStyle', data.dateDisplayStyle);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1341,7 +1331,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.hasAutoCommission = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
+                const fieldErrors = validateFieldCompany(
                     'hasAutoCommission',
                     data.hasAutoCommission
                 );
@@ -1367,7 +1357,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.hasAutoDaylightSavings = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
+                const fieldErrors = validateFieldCompany(
                     'hasAutoDaylightSavings',
                     data.hasAutoDaylightSavings
                 );
@@ -1393,7 +1383,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.hasAutoFmsTracking = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
+                const fieldErrors = validateFieldCompany(
                     'hasAutoFmsTracking',
                     data.hasAutoFmsTracking
                 );
@@ -1419,10 +1409,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.hasNotifications = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
-                    'hasNotifications',
-                    data.hasNotifications
-                );
+                const fieldErrors = validateFieldCompany('hasNotifications', data.hasNotifications);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1445,7 +1432,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.hasRequiredLeadSource = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
+                const fieldErrors = validateFieldCompany(
                     'hasRequiredLeadSource',
                     data.hasRequiredLeadSource
                 );
@@ -1471,10 +1458,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.hasRequiredEmail = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
-                    'hasRequiredEmail',
-                    data.hasRequiredEmail
-                );
+                const fieldErrors = validateFieldCompany('hasRequiredEmail', data.hasRequiredEmail);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1497,7 +1481,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.hasSortServiceItemsAlphabetically = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
+                const fieldErrors = validateFieldCompany(
                     'hasSortServiceItemsAlphabetically',
                     data.hasSortServiceItemsAlphabetically
                 );
@@ -1523,7 +1507,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.hasAttachOrderToAppointmentEmails = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
+                const fieldErrors = validateFieldCompany(
                     'hasAttachOrderToAppointmentEmails',
                     data.hasAttachOrderToAppointmentEmails
                 );
@@ -1549,10 +1533,7 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.scheduleInterval = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField(
-                    'scheduleInterval',
-                    data.scheduleInterval
-                );
+                const fieldErrors = validateFieldCompany('scheduleInterval', data.scheduleInterval);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1575,16 +1556,16 @@ export function createFormCompany(overrides?: Partial<Company>): GigaformCompany
                 tainted.colorsConfig = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Company.validateField('colorsConfig', data.colorsConfig);
+                const fieldErrors = validateFieldCompany('colorsConfig', data.colorsConfig);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Company, Array<{ field: string; message: string }>> {
-        return Company.fromObject(data);
+        return fromObjectCompany(data);
     }
     function reset(newOverrides?: Partial<Company>): void {
-        data = { ...Company.defaultValue(), ...newOverrides };
+        data = { ...defaultValueCompany(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             id: Option.none(),
@@ -1817,5 +1798,5 @@ export function fromFormDataCompany(
         }
         obj.colorsConfig = colorsConfigObj;
     }
-    return Company.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONCompany(JSON.stringify(obj));
 }

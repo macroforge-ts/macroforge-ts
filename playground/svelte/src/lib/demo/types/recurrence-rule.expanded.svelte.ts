@@ -1,9 +1,14 @@
+import { defaultValueInterval } from './interval.svelte';
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeInterval } from './interval.svelte';
+import { __serializeRecurrenceEnd } from './recurrence-end.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeInterval } from './interval.svelte';
+import { __deserializeRecurrenceEnd } from './recurrence-end.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -21,7 +26,7 @@ export interface RecurrenceRule {
 
 export function defaultValueRecurrenceRule(): RecurrenceRule {
     return {
-        interval: Interval.defaultValue(),
+        interval: defaultValueInterval(),
         recurrenceBegins: '',
         recurrenceEnds: null,
         cancelledInstances: null,
@@ -47,32 +52,20 @@ export function __serializeRecurrenceRule(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'RecurrenceRule', __id };
-    result['interval'] =
-        typeof (value.interval as any)?.__serialize === 'function'
-            ? (value.interval as any).__serialize(ctx)
-            : value.interval;
+    result['interval'] = __serializeInterval(value.interval, ctx);
     result['recurrenceBegins'] = value.recurrenceBegins;
     if (value.recurrenceEnds !== null) {
-        result['recurrenceEnds'] =
-            typeof (value.recurrenceEnds as any)?.__serialize === 'function'
-                ? (value.recurrenceEnds as any).__serialize(ctx)
-                : value.recurrenceEnds;
+        result['recurrenceEnds'] = __serializeRecurrenceEnd(value.recurrenceEnds, ctx);
     } else {
         result['recurrenceEnds'] = null;
     }
     if (value.cancelledInstances !== null) {
-        result['cancelledInstances'] =
-            typeof (value.cancelledInstances as any)?.__serialize === 'function'
-                ? (value.cancelledInstances as any).__serialize(ctx)
-                : value.cancelledInstances;
+        result['cancelledInstances'] = value.cancelledInstances;
     } else {
         result['cancelledInstances'] = null;
     }
     if (value.additionalInstances !== null) {
-        result['additionalInstances'] =
-            typeof (value.additionalInstances as any)?.__serialize === 'function'
-                ? (value.additionalInstances as any).__serialize(ctx)
-                : value.additionalInstances;
+        result['additionalInstances'] = value.additionalInstances;
     } else {
         result['additionalInstances'] = null;
     }
@@ -162,7 +155,7 @@ export function __deserializeRecurrenceRule(
     {
         const __raw_interval = obj['interval'] as Interval;
         {
-            const __result = Interval.__deserialize(__raw_interval, ctx);
+            const __result = __deserializeInterval(__raw_interval, ctx);
             ctx.assignOrDefer(instance, 'interval', __result);
         }
     }
@@ -175,7 +168,7 @@ export function __deserializeRecurrenceRule(
         if (__raw_recurrenceEnds === null) {
             instance.recurrenceEnds = null;
         } else {
-            const __result = RecurrenceEnd.__deserialize(__raw_recurrenceEnds, ctx);
+            const __result = __deserializeRecurrenceEnd(__raw_recurrenceEnds, ctx);
             ctx.assignOrDefer(instance, 'recurrenceEnds', __result);
         }
     }
@@ -265,7 +258,7 @@ export interface GigaformRecurrenceRule {
 export function createFormRecurrenceRule(
     overrides?: Partial<RecurrenceRule>
 ): GigaformRecurrenceRule {
-    let data = $state({ ...RecurrenceRule.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueRecurrenceRule(), ...overrides });
     let errors = $state<ErrorsRecurrenceRule>({
         _errors: Option.none(),
         interval: Option.none(),
@@ -301,7 +294,7 @@ export function createFormRecurrenceRule(
                 tainted.interval = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = RecurrenceRule.validateField('interval', data.interval);
+                const fieldErrors = validateFieldRecurrenceRule('interval', data.interval);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -324,7 +317,7 @@ export function createFormRecurrenceRule(
                 tainted.recurrenceBegins = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = RecurrenceRule.validateField(
+                const fieldErrors = validateFieldRecurrenceRule(
                     'recurrenceBegins',
                     data.recurrenceBegins
                 );
@@ -350,7 +343,7 @@ export function createFormRecurrenceRule(
                 tainted.recurrenceEnds = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = RecurrenceRule.validateField(
+                const fieldErrors = validateFieldRecurrenceRule(
                     'recurrenceEnds',
                     data.recurrenceEnds
                 );
@@ -376,7 +369,7 @@ export function createFormRecurrenceRule(
                 tainted.cancelledInstances = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = RecurrenceRule.validateField(
+                const fieldErrors = validateFieldRecurrenceRule(
                     'cancelledInstances',
                     data.cancelledInstances
                 );
@@ -402,7 +395,7 @@ export function createFormRecurrenceRule(
                 tainted.additionalInstances = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = RecurrenceRule.validateField(
+                const fieldErrors = validateFieldRecurrenceRule(
                     'additionalInstances',
                     data.additionalInstances
                 );
@@ -411,10 +404,10 @@ export function createFormRecurrenceRule(
         }
     };
     function validate(): Result<RecurrenceRule, Array<{ field: string; message: string }>> {
-        return RecurrenceRule.fromObject(data);
+        return fromObjectRecurrenceRule(data);
     }
     function reset(newOverrides?: Partial<RecurrenceRule>): void {
-        data = { ...RecurrenceRule.defaultValue(), ...newOverrides };
+        data = { ...defaultValueRecurrenceRule(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             interval: Option.none(),
@@ -484,5 +477,5 @@ export function fromFormDataRecurrenceRule(
     obj.recurrenceEnds = formData.get('recurrenceEnds') ?? '';
     obj.cancelledInstances = formData.get('cancelledInstances') ?? '';
     obj.additionalInstances = formData.get('additionalInstances') ?? '';
-    return RecurrenceRule.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONRecurrenceRule(JSON.stringify(obj));
 }

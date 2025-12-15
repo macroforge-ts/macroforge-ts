@@ -1,9 +1,14 @@
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeColumnConfig } from './column-config.svelte';
+import { __serializeOverviewDisplay } from './overview-display.svelte';
+import { __serializeRowHeight } from './row-height.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeOverviewDisplay } from './overview-display.svelte';
+import { __deserializeRowHeight } from './row-height.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -49,18 +54,10 @@ export function __serializeOverviewSettings(
     }
     const __id = ctx.register(value);
     const result: Record<string, unknown> = { __type: 'OverviewSettings', __id };
-    result['rowHeight'] =
-        typeof (value.rowHeight as any)?.__serialize === 'function'
-            ? (value.rowHeight as any).__serialize(ctx)
-            : value.rowHeight;
-    result['cardOrRow'] =
-        typeof (value.cardOrRow as any)?.__serialize === 'function'
-            ? (value.cardOrRow as any).__serialize(ctx)
-            : value.cardOrRow;
+    result['rowHeight'] = __serializeRowHeight(value.rowHeight, ctx);
+    result['cardOrRow'] = __serializeOverviewDisplay(value.cardOrRow, ctx);
     result['perPage'] = value.perPage;
-    result['columnConfigs'] = value.columnConfigs.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
+    result['columnConfigs'] = value.columnConfigs.map((item) => __serializeColumnConfig(item, ctx));
     return result;
 }
 
@@ -144,14 +141,14 @@ export function __deserializeOverviewSettings(
     {
         const __raw_rowHeight = obj['rowHeight'] as RowHeight;
         {
-            const __result = RowHeight.__deserialize(__raw_rowHeight, ctx);
+            const __result = __deserializeRowHeight(__raw_rowHeight, ctx);
             ctx.assignOrDefer(instance, 'rowHeight', __result);
         }
     }
     {
         const __raw_cardOrRow = obj['cardOrRow'] as OverviewDisplay;
         {
-            const __result = OverviewDisplay.__deserialize(__raw_cardOrRow, ctx);
+            const __result = __deserializeOverviewDisplay(__raw_cardOrRow, ctx);
             ctx.assignOrDefer(instance, 'cardOrRow', __result);
         }
     }
@@ -226,7 +223,7 @@ export interface GigaformOverviewSettings {
 export function createFormOverviewSettings(
     overrides?: Partial<OverviewSettings>
 ): GigaformOverviewSettings {
-    let data = $state({ ...OverviewSettings.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueOverviewSettings(), ...overrides });
     let errors = $state<ErrorsOverviewSettings>({
         _errors: Option.none(),
         rowHeight: Option.none(),
@@ -260,7 +257,7 @@ export function createFormOverviewSettings(
                 tainted.rowHeight = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = OverviewSettings.validateField('rowHeight', data.rowHeight);
+                const fieldErrors = validateFieldOverviewSettings('rowHeight', data.rowHeight);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -283,7 +280,7 @@ export function createFormOverviewSettings(
                 tainted.cardOrRow = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = OverviewSettings.validateField('cardOrRow', data.cardOrRow);
+                const fieldErrors = validateFieldOverviewSettings('cardOrRow', data.cardOrRow);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -306,7 +303,7 @@ export function createFormOverviewSettings(
                 tainted.perPage = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = OverviewSettings.validateField('perPage', data.perPage);
+                const fieldErrors = validateFieldOverviewSettings('perPage', data.perPage);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -329,7 +326,7 @@ export function createFormOverviewSettings(
                 tainted.columnConfigs = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = OverviewSettings.validateField(
+                const fieldErrors = validateFieldOverviewSettings(
                     'columnConfigs',
                     data.columnConfigs
                 );
@@ -368,10 +365,10 @@ export function createFormOverviewSettings(
         }
     };
     function validate(): Result<OverviewSettings, Array<{ field: string; message: string }>> {
-        return OverviewSettings.fromObject(data);
+        return fromObjectOverviewSettings(data);
     }
     function reset(newOverrides?: Partial<OverviewSettings>): void {
-        data = { ...OverviewSettings.defaultValue(), ...newOverrides };
+        data = { ...defaultValueOverviewSettings(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             rowHeight: Option.none(),
@@ -488,5 +485,5 @@ export function fromFormDataOverviewSettings(
         }
         obj.columnConfigs = columnConfigsItems;
     }
-    return OverviewSettings.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONOverviewSettings(JSON.stringify(obj));
 }

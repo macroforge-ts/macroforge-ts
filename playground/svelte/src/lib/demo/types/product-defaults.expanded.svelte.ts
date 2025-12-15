@@ -195,7 +195,7 @@ export interface GigaformProductDefaults {
 export function createFormProductDefaults(
     overrides?: Partial<ProductDefaults>
 ): GigaformProductDefaults {
-    let data = $state({ ...ProductDefaults.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueProductDefaults(), ...overrides });
     let errors = $state<ErrorsProductDefaults>({
         _errors: Option.none(),
         price: Option.none(),
@@ -225,7 +225,7 @@ export function createFormProductDefaults(
                 tainted.price = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = ProductDefaults.validateField('price', data.price);
+                const fieldErrors = validateFieldProductDefaults('price', data.price);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -248,16 +248,16 @@ export function createFormProductDefaults(
                 tainted.description = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = ProductDefaults.validateField('description', data.description);
+                const fieldErrors = validateFieldProductDefaults('description', data.description);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<ProductDefaults, Array<{ field: string; message: string }>> {
-        return ProductDefaults.fromObject(data);
+        return fromObjectProductDefaults(data);
     }
     function reset(newOverrides?: Partial<ProductDefaults>): void {
-        data = { ...ProductDefaults.defaultValue(), ...newOverrides };
+        data = { ...defaultValueProductDefaults(), ...newOverrides };
         errors = { _errors: Option.none(), price: Option.none(), description: Option.none() };
         tainted = { price: Option.none(), description: Option.none() };
     }
@@ -295,5 +295,5 @@ export function fromFormDataProductDefaults(
         if (obj.price !== undefined && isNaN(obj.price as number)) obj.price = 0;
     }
     obj.description = formData.get('description') ?? '';
-    return ProductDefaults.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONProductDefaults(JSON.stringify(obj));
 }

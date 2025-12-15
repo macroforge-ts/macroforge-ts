@@ -1,9 +1,12 @@
+import { defaultValueServiceDefaults } from './service-defaults.svelte';
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeServiceDefaults } from './service-defaults.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeServiceDefaults } from './service-defaults.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -45,7 +48,7 @@ export function defaultValueService(): Service {
         commission: false,
         favorite: false,
         averageTime: null,
-        defaults: ServiceDefaults.defaultValue()
+        defaults: defaultValueServiceDefaults()
     } as Service;
 }
 
@@ -74,10 +77,7 @@ export function __serializeService(value: Service, ctx: SerializeContext): Recor
     result['commission'] = value.commission;
     result['favorite'] = value.favorite;
     result['averageTime'] = value.averageTime;
-    result['defaults'] =
-        typeof (value.defaults as any)?.__serialize === 'function'
-            ? (value.defaults as any).__serialize(ctx)
-            : value.defaults;
+    result['defaults'] = __serializeServiceDefaults(value.defaults, ctx);
     return result;
 }
 
@@ -225,7 +225,7 @@ export function __deserializeService(value: any, ctx: DeserializeContext): Servi
     {
         const __raw_defaults = obj['defaults'] as ServiceDefaults;
         {
-            const __result = ServiceDefaults.__deserialize(__raw_defaults, ctx);
+            const __result = __deserializeServiceDefaults(__raw_defaults, ctx);
             ctx.assignOrDefer(instance, 'defaults', __result);
         }
     }
@@ -351,7 +351,7 @@ export interface GigaformService {
     reset(overrides?: Partial<Service>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormService(overrides?: Partial<Service>): GigaformService {
-    let data = $state({ ...Service.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueService(), ...overrides });
     let errors = $state<ErrorsService>({
         _errors: Option.none(),
         id: Option.none(),
@@ -399,7 +399,7 @@ export function createFormService(overrides?: Partial<Service>): GigaformService
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Service.validateField('id', data.id);
+                const fieldErrors = validateFieldService('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -422,7 +422,7 @@ export function createFormService(overrides?: Partial<Service>): GigaformService
                 tainted.name = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Service.validateField('name', data.name);
+                const fieldErrors = validateFieldService('name', data.name);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -445,7 +445,7 @@ export function createFormService(overrides?: Partial<Service>): GigaformService
                 tainted.quickCode = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Service.validateField('quickCode', data.quickCode);
+                const fieldErrors = validateFieldService('quickCode', data.quickCode);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -468,7 +468,7 @@ export function createFormService(overrides?: Partial<Service>): GigaformService
                 tainted.group = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Service.validateField('group', data.group);
+                const fieldErrors = validateFieldService('group', data.group);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -491,7 +491,7 @@ export function createFormService(overrides?: Partial<Service>): GigaformService
                 tainted.subgroup = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Service.validateField('subgroup', data.subgroup);
+                const fieldErrors = validateFieldService('subgroup', data.subgroup);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -514,7 +514,7 @@ export function createFormService(overrides?: Partial<Service>): GigaformService
                 tainted.unit = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Service.validateField('unit', data.unit);
+                const fieldErrors = validateFieldService('unit', data.unit);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -537,7 +537,7 @@ export function createFormService(overrides?: Partial<Service>): GigaformService
                 tainted.active = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Service.validateField('active', data.active);
+                const fieldErrors = validateFieldService('active', data.active);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -560,7 +560,7 @@ export function createFormService(overrides?: Partial<Service>): GigaformService
                 tainted.commission = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Service.validateField('commission', data.commission);
+                const fieldErrors = validateFieldService('commission', data.commission);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -583,7 +583,7 @@ export function createFormService(overrides?: Partial<Service>): GigaformService
                 tainted.favorite = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Service.validateField('favorite', data.favorite);
+                const fieldErrors = validateFieldService('favorite', data.favorite);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -606,7 +606,7 @@ export function createFormService(overrides?: Partial<Service>): GigaformService
                 tainted.averageTime = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Service.validateField('averageTime', data.averageTime);
+                const fieldErrors = validateFieldService('averageTime', data.averageTime);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -629,16 +629,16 @@ export function createFormService(overrides?: Partial<Service>): GigaformService
                 tainted.defaults = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Service.validateField('defaults', data.defaults);
+                const fieldErrors = validateFieldService('defaults', data.defaults);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Service, Array<{ field: string; message: string }>> {
-        return Service.fromObject(data);
+        return fromObjectService(data);
     }
     function reset(newOverrides?: Partial<Service>): void {
-        data = { ...Service.defaultValue(), ...newOverrides };
+        data = { ...defaultValueService(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             id: Option.none(),
@@ -736,5 +736,5 @@ export function fromFormDataService(
         }
         obj.defaults = defaultsObj;
     }
-    return Service.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONService(JSON.stringify(obj));
 }

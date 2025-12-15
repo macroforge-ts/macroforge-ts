@@ -1,9 +1,23 @@
+import { defaultValueAccountName } from './account-name.svelte';
+import { defaultValueColors } from './colors.svelte';
+import { defaultValueEmail } from './email.svelte';
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeAccountName } from './account-name.svelte';
+import { __serializeColors } from './colors.svelte';
+import { __serializeDid } from './did.svelte';
+import { __serializeEmail } from './email.svelte';
+import { __serializeOrdered } from './ordered.svelte';
+import { __serializePhoneNumber } from './phone-number.svelte';
+import { __serializeSector } from './sector.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeAccountName } from './account-name.svelte';
+import { __deserializeColors } from './colors.svelte';
+import { __deserializeEmail } from './email.svelte';
+import { __deserializeSector } from './sector.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -80,13 +94,13 @@ export function defaultValueAccount(): Account {
         orders: [],
         activity: [],
         customFields: [],
-        accountName: AccountName.defaultValue(),
+        accountName: defaultValueAccountName(),
         sector: 'Residential',
         memo: null,
         phones: [],
-        email: Email.defaultValue(),
+        email: defaultValueEmail(),
         leadSource: '',
-        colors: Colors.defaultValue(),
+        colors: defaultValueColors(),
         needsReview: false,
         hasAlert: false,
         accountType: '',
@@ -117,43 +131,20 @@ export function __serializeAccount(value: Account, ctx: SerializeContext): Recor
     result['taxRate'] = value.taxRate;
     result['site'] = value.site;
     if (value.salesRep !== null) {
-        result['salesRep'] =
-            typeof (value.salesRep as any)?.__serialize === 'function'
-                ? (value.salesRep as any).__serialize(ctx)
-                : value.salesRep;
+        result['salesRep'] = value.salesRep;
     } else {
         result['salesRep'] = null;
     }
-    result['orders'] = value.orders.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
-    result['activity'] = value.activity.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
-    result['customFields'] = value.customFields.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
-    result['accountName'] =
-        typeof (value.accountName as any)?.__serialize === 'function'
-            ? (value.accountName as any).__serialize(ctx)
-            : value.accountName;
-    result['sector'] =
-        typeof (value.sector as any)?.__serialize === 'function'
-            ? (value.sector as any).__serialize(ctx)
-            : value.sector;
+    result['orders'] = value.orders.map((item) => __serializeOrdered(item, ctx));
+    result['activity'] = value.activity.map((item) => __serializeDid(item, ctx));
+    result['customFields'] = value.customFields;
+    result['accountName'] = __serializeAccountName(value.accountName, ctx);
+    result['sector'] = __serializeSector(value.sector, ctx);
     result['memo'] = value.memo;
-    result['phones'] = value.phones.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
-    result['email'] =
-        typeof (value.email as any)?.__serialize === 'function'
-            ? (value.email as any).__serialize(ctx)
-            : value.email;
+    result['phones'] = value.phones.map((item) => __serializePhoneNumber(item, ctx));
+    result['email'] = __serializeEmail(value.email, ctx);
     result['leadSource'] = value.leadSource;
-    result['colors'] =
-        typeof (value.colors as any)?.__serialize === 'function'
-            ? (value.colors as any).__serialize(ctx)
-            : value.colors;
+    result['colors'] = __serializeColors(value.colors, ctx);
     result['needsReview'] = value.needsReview;
     result['hasAlert'] = value.hasAlert;
     result['accountType'] = value.accountType;
@@ -334,14 +325,14 @@ export function __deserializeAccount(value: any, ctx: DeserializeContext): Accou
     {
         const __raw_accountName = obj['accountName'] as AccountName;
         {
-            const __result = AccountName.__deserialize(__raw_accountName, ctx);
+            const __result = __deserializeAccountName(__raw_accountName, ctx);
             ctx.assignOrDefer(instance, 'accountName', __result);
         }
     }
     {
         const __raw_sector = obj['sector'] as Sector;
         {
-            const __result = Sector.__deserialize(__raw_sector, ctx);
+            const __result = __deserializeSector(__raw_sector, ctx);
             ctx.assignOrDefer(instance, 'sector', __result);
         }
     }
@@ -358,7 +349,7 @@ export function __deserializeAccount(value: any, ctx: DeserializeContext): Accou
     {
         const __raw_email = obj['email'] as Email;
         {
-            const __result = Email.__deserialize(__raw_email, ctx);
+            const __result = __deserializeEmail(__raw_email, ctx);
             ctx.assignOrDefer(instance, 'email', __result);
         }
     }
@@ -372,7 +363,7 @@ export function __deserializeAccount(value: any, ctx: DeserializeContext): Accou
     {
         const __raw_colors = obj['colors'] as Colors;
         {
-            const __result = Colors.__deserialize(__raw_colors, ctx);
+            const __result = __deserializeColors(__raw_colors, ctx);
             ctx.assignOrDefer(instance, 'colors', __result);
         }
     }
@@ -611,7 +602,7 @@ export interface GigaformAccount {
     reset(overrides?: Partial<Account>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormAccount(overrides?: Partial<Account>): GigaformAccount {
-    let data = $state({ ...Account.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueAccount(), ...overrides });
     let errors = $state<ErrorsAccount>({
         _errors: Option.none(),
         id: Option.none(),
@@ -681,7 +672,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('id', data.id);
+                const fieldErrors = validateFieldAccount('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -704,7 +695,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.taxRate = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('taxRate', data.taxRate);
+                const fieldErrors = validateFieldAccount('taxRate', data.taxRate);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -727,7 +718,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.site = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('site', data.site);
+                const fieldErrors = validateFieldAccount('site', data.site);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -750,7 +741,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.salesRep = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('salesRep', data.salesRep);
+                const fieldErrors = validateFieldAccount('salesRep', data.salesRep);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -773,7 +764,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.orders = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('orders', data.orders);
+                const fieldErrors = validateFieldAccount('orders', data.orders);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -826,7 +817,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.activity = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('activity', data.activity);
+                const fieldErrors = validateFieldAccount('activity', data.activity);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -879,7 +870,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.customFields = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('customFields', data.customFields);
+                const fieldErrors = validateFieldAccount('customFields', data.customFields);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -932,7 +923,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.accountName = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('accountName', data.accountName);
+                const fieldErrors = validateFieldAccount('accountName', data.accountName);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -955,7 +946,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.sector = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('sector', data.sector);
+                const fieldErrors = validateFieldAccount('sector', data.sector);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -978,7 +969,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.memo = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('memo', data.memo);
+                const fieldErrors = validateFieldAccount('memo', data.memo);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1001,7 +992,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.phones = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('phones', data.phones);
+                const fieldErrors = validateFieldAccount('phones', data.phones);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -1054,7 +1045,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.email = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('email', data.email);
+                const fieldErrors = validateFieldAccount('email', data.email);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1077,7 +1068,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.leadSource = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('leadSource', data.leadSource);
+                const fieldErrors = validateFieldAccount('leadSource', data.leadSource);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1100,7 +1091,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.colors = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('colors', data.colors);
+                const fieldErrors = validateFieldAccount('colors', data.colors);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1123,7 +1114,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.needsReview = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('needsReview', data.needsReview);
+                const fieldErrors = validateFieldAccount('needsReview', data.needsReview);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1146,7 +1137,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.hasAlert = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('hasAlert', data.hasAlert);
+                const fieldErrors = validateFieldAccount('hasAlert', data.hasAlert);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1169,7 +1160,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.accountType = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('accountType', data.accountType);
+                const fieldErrors = validateFieldAccount('accountType', data.accountType);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1192,7 +1183,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.subtype = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('subtype', data.subtype);
+                const fieldErrors = validateFieldAccount('subtype', data.subtype);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1215,7 +1206,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.isTaxExempt = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('isTaxExempt', data.isTaxExempt);
+                const fieldErrors = validateFieldAccount('isTaxExempt', data.isTaxExempt);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1238,7 +1229,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.paymentTerms = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('paymentTerms', data.paymentTerms);
+                const fieldErrors = validateFieldAccount('paymentTerms', data.paymentTerms);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1261,7 +1252,7 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.tags = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('tags', data.tags);
+                const fieldErrors = validateFieldAccount('tags', data.tags);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -1314,16 +1305,16 @@ export function createFormAccount(overrides?: Partial<Account>): GigaformAccount
                 tainted.dateAdded = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Account.validateField('dateAdded', data.dateAdded);
+                const fieldErrors = validateFieldAccount('dateAdded', data.dateAdded);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Account, Array<{ field: string; message: string }>> {
-        return Account.fromObject(data);
+        return fromObjectAccount(data);
     }
     function reset(newOverrides?: Partial<Account>): void {
-        data = { ...Account.defaultValue(), ...newOverrides };
+        data = { ...defaultValueAccount(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             id: Option.none(),
@@ -1613,5 +1604,5 @@ export function fromFormDataAccount(
     obj.paymentTerms = formData.get('paymentTerms') ?? '';
     obj.tags = formData.getAll('tags') as Array<string>;
     obj.dateAdded = formData.get('dateAdded') ?? '';
-    return Account.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONAccount(JSON.stringify(obj));
 }

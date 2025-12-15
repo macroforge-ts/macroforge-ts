@@ -164,7 +164,7 @@ export function createFormOverviewDisplay(initial?: OverviewDisplay): GigaformOv
         tainted = {} as TaintedOverviewDisplay;
     }
     function validate(): Result<OverviewDisplay, Array<{ field: string; message: string }>> {
-        return OverviewDisplay.fromObject(data);
+        return fromObjectOverviewDisplay(data);
     }
     function reset(overrides?: Partial<OverviewDisplay>): void {
         data = overrides
@@ -213,5 +213,5 @@ export function fromFormDataOverviewDisplay(
     if (discriminant === 'Card') {
     } else if (discriminant === 'Table') {
     }
-    return OverviewDisplay.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONOverviewDisplay(JSON.stringify(obj));
 }

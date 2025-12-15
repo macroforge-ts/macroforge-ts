@@ -193,7 +193,7 @@ export interface GigaformCardinal {
     reset(overrides?: Partial<Cardinal>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormCardinal(overrides?: Partial<Cardinal>): GigaformCardinal {
-    let data = $state({ ...Cardinal.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueCardinal(), ...overrides });
     let errors = $state<ErrorsCardinal>({
         _errors: Option.none(),
         north: Option.none(),
@@ -227,7 +227,7 @@ export function createFormCardinal(overrides?: Partial<Cardinal>): GigaformCardi
                 tainted.north = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Cardinal.validateField('north', data.north);
+                const fieldErrors = validateFieldCardinal('north', data.north);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -250,7 +250,7 @@ export function createFormCardinal(overrides?: Partial<Cardinal>): GigaformCardi
                 tainted.east = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Cardinal.validateField('east', data.east);
+                const fieldErrors = validateFieldCardinal('east', data.east);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -273,7 +273,7 @@ export function createFormCardinal(overrides?: Partial<Cardinal>): GigaformCardi
                 tainted.south = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Cardinal.validateField('south', data.south);
+                const fieldErrors = validateFieldCardinal('south', data.south);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -296,16 +296,16 @@ export function createFormCardinal(overrides?: Partial<Cardinal>): GigaformCardi
                 tainted.west = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Cardinal.validateField('west', data.west);
+                const fieldErrors = validateFieldCardinal('west', data.west);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Cardinal, Array<{ field: string; message: string }>> {
-        return Cardinal.fromObject(data);
+        return fromObjectCardinal(data);
     }
     function reset(newOverrides?: Partial<Cardinal>): void {
-        data = { ...Cardinal.defaultValue(), ...newOverrides };
+        data = { ...defaultValueCardinal(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             north: Option.none(),
@@ -368,5 +368,5 @@ export function fromFormDataCardinal(
         obj.west = westStr ? parseFloat(westStr as string) : 0;
         if (obj.west !== undefined && isNaN(obj.west as number)) obj.west = 0;
     }
-    return Cardinal.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONCardinal(JSON.stringify(obj));
 }

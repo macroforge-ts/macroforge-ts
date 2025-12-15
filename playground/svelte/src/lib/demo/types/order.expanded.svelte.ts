@@ -1,9 +1,12 @@
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeBilledItem } from './billed-item.svelte';
+import { __serializeOrderStage } from './order-stage.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeOrderStage } from './order-stage.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 import type { ArrayFieldController } from '@playground/macro/gigaform';
@@ -132,14 +135,9 @@ export function __serializeOrder(value: Order, ctx: SerializeContext): Record<st
     const result: Record<string, unknown> = { __type: 'Order', __id };
     result['id'] = value.id;
     result['account'] = value.account;
-    result['stage'] =
-        typeof (value.stage as any)?.__serialize === 'function'
-            ? (value.stage as any).__serialize(ctx)
-            : value.stage;
+    result['stage'] = __serializeOrderStage(value.stage, ctx);
     result['number'] = value.number;
-    result['payments'] = value.payments.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
+    result['payments'] = value.payments;
     result['opportunity'] = value.opportunity;
     result['reference'] = value.reference;
     result['leadSource'] = value.leadSource;
@@ -152,22 +150,14 @@ export function __serializeOrder(value: Order, ctx: SerializeContext): Record<st
     result['upsale'] = value.upsale;
     result['dateCreated'] = value.dateCreated;
     result['appointment'] = value.appointment;
-    result['lastTechs'] = value.lastTechs.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
+    result['lastTechs'] = value.lastTechs;
     if (value.package !== null) {
-        result['package'] =
-            typeof (value.package as any)?.__serialize === 'function'
-                ? (value.package as any).__serialize(ctx)
-                : value.package;
+        result['package'] = value.package;
     } else {
         result['package'] = null;
     }
     if (value.promotion !== null) {
-        result['promotion'] =
-            typeof (value.promotion as any)?.__serialize === 'function'
-                ? (value.promotion as any).__serialize(ctx)
-                : value.promotion;
+        result['promotion'] = value.promotion;
     } else {
         result['promotion'] = null;
     }
@@ -175,9 +165,7 @@ export function __serializeOrder(value: Order, ctx: SerializeContext): Record<st
     result['due'] = value.due;
     result['total'] = value.total;
     result['site'] = value.site;
-    result['billedItems'] = value.billedItems.map((item: any) =>
-        typeof item?.__serialize === 'function' ? item.__serialize(ctx) : item
-    );
+    result['billedItems'] = value.billedItems.map((item) => __serializeBilledItem(item, ctx));
     result['memo'] = value.memo;
     result['discount'] = value.discount;
     result['tip'] = value.tip;
@@ -342,7 +330,7 @@ export function __deserializeOrder(value: any, ctx: DeserializeContext): Order |
     {
         const __raw_stage = obj['stage'] as OrderStage;
         {
-            const __result = OrderStage.__deserialize(__raw_stage, ctx);
+            const __result = __deserializeOrderStage(__raw_stage, ctx);
             ctx.assignOrDefer(instance, 'stage', __result);
         }
     }
@@ -746,7 +734,7 @@ export interface GigaformOrder {
     reset(overrides?: Partial<Order>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
-    let data = $state({ ...Order.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueOrder(), ...overrides });
     let errors = $state<ErrorsOrder>({
         _errors: Option.none(),
         id: Option.none(),
@@ -830,7 +818,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('id', data.id);
+                const fieldErrors = validateFieldOrder('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -853,7 +841,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.account = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('account', data.account);
+                const fieldErrors = validateFieldOrder('account', data.account);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -876,7 +864,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.stage = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('stage', data.stage);
+                const fieldErrors = validateFieldOrder('stage', data.stage);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -899,7 +887,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.number = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('number', data.number);
+                const fieldErrors = validateFieldOrder('number', data.number);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -922,7 +910,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.payments = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('payments', data.payments);
+                const fieldErrors = validateFieldOrder('payments', data.payments);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -975,7 +963,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.opportunity = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('opportunity', data.opportunity);
+                const fieldErrors = validateFieldOrder('opportunity', data.opportunity);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -998,7 +986,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.reference = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('reference', data.reference);
+                const fieldErrors = validateFieldOrder('reference', data.reference);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1021,7 +1009,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.leadSource = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('leadSource', data.leadSource);
+                const fieldErrors = validateFieldOrder('leadSource', data.leadSource);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1044,7 +1032,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.salesRep = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('salesRep', data.salesRep);
+                const fieldErrors = validateFieldOrder('salesRep', data.salesRep);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1067,7 +1055,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.group = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('group', data.group);
+                const fieldErrors = validateFieldOrder('group', data.group);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1090,7 +1078,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.subgroup = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('subgroup', data.subgroup);
+                const fieldErrors = validateFieldOrder('subgroup', data.subgroup);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1113,7 +1101,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.isPosted = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('isPosted', data.isPosted);
+                const fieldErrors = validateFieldOrder('isPosted', data.isPosted);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1136,7 +1124,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.needsReview = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('needsReview', data.needsReview);
+                const fieldErrors = validateFieldOrder('needsReview', data.needsReview);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1159,7 +1147,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.actionItem = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('actionItem', data.actionItem);
+                const fieldErrors = validateFieldOrder('actionItem', data.actionItem);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1182,7 +1170,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.upsale = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('upsale', data.upsale);
+                const fieldErrors = validateFieldOrder('upsale', data.upsale);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1205,7 +1193,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.dateCreated = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('dateCreated', data.dateCreated);
+                const fieldErrors = validateFieldOrder('dateCreated', data.dateCreated);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1228,7 +1216,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.appointment = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('appointment', data.appointment);
+                const fieldErrors = validateFieldOrder('appointment', data.appointment);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1251,7 +1239,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.lastTechs = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('lastTechs', data.lastTechs);
+                const fieldErrors = validateFieldOrder('lastTechs', data.lastTechs);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -1304,7 +1292,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.package = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('package', data.package);
+                const fieldErrors = validateFieldOrder('package', data.package);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1328,7 +1316,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.promotion = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('promotion', data.promotion);
+                const fieldErrors = validateFieldOrder('promotion', data.promotion);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1351,7 +1339,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.balance = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('balance', data.balance);
+                const fieldErrors = validateFieldOrder('balance', data.balance);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1374,7 +1362,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.due = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('due', data.due);
+                const fieldErrors = validateFieldOrder('due', data.due);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1397,7 +1385,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.total = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('total', data.total);
+                const fieldErrors = validateFieldOrder('total', data.total);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1420,7 +1408,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.site = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('site', data.site);
+                const fieldErrors = validateFieldOrder('site', data.site);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1443,7 +1431,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.billedItems = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('billedItems', data.billedItems);
+                const fieldErrors = validateFieldOrder('billedItems', data.billedItems);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -1496,7 +1484,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.memo = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('memo', data.memo);
+                const fieldErrors = validateFieldOrder('memo', data.memo);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1519,7 +1507,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.discount = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('discount', data.discount);
+                const fieldErrors = validateFieldOrder('discount', data.discount);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1542,7 +1530,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.tip = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('tip', data.tip);
+                const fieldErrors = validateFieldOrder('tip', data.tip);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -1565,7 +1553,7 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
                 tainted.commissions = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Order.validateField('commissions', data.commissions);
+                const fieldErrors = validateFieldOrder('commissions', data.commissions);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             },
             at: (index: number) => ({
@@ -1601,10 +1589,10 @@ export function createFormOrder(overrides?: Partial<Order>): GigaformOrder {
         }
     };
     function validate(): Result<Order, Array<{ field: string; message: string }>> {
-        return Order.fromObject(data);
+        return fromObjectOrder(data);
     }
     function reset(newOverrides?: Partial<Order>): void {
-        data = { ...Order.defaultValue(), ...newOverrides };
+        data = { ...defaultValueOrder(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             id: Option.none(),
@@ -1852,5 +1840,5 @@ export function fromFormDataOrder(
         .getAll('commissions')
         .map((v) => parseFloat(v as string))
         .filter((n) => !isNaN(n));
-    return Order.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONOrder(JSON.stringify(obj));
 }

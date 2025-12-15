@@ -393,7 +393,7 @@ export interface GigaformTaxRate {
     reset(overrides?: Partial<TaxRate>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormTaxRate(overrides?: Partial<TaxRate>): GigaformTaxRate {
-    let data = $state({ ...TaxRate.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueTaxRate(), ...overrides });
     let errors = $state<ErrorsTaxRate>({
         _errors: Option.none(),
         id: Option.none(),
@@ -439,7 +439,7 @@ export function createFormTaxRate(overrides?: Partial<TaxRate>): GigaformTaxRate
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = TaxRate.validateField('id', data.id);
+                const fieldErrors = validateFieldTaxRate('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -462,7 +462,7 @@ export function createFormTaxRate(overrides?: Partial<TaxRate>): GigaformTaxRate
                 tainted.name = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = TaxRate.validateField('name', data.name);
+                const fieldErrors = validateFieldTaxRate('name', data.name);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -485,7 +485,7 @@ export function createFormTaxRate(overrides?: Partial<TaxRate>): GigaformTaxRate
                 tainted.taxAgency = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = TaxRate.validateField('taxAgency', data.taxAgency);
+                const fieldErrors = validateFieldTaxRate('taxAgency', data.taxAgency);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -508,7 +508,7 @@ export function createFormTaxRate(overrides?: Partial<TaxRate>): GigaformTaxRate
                 tainted.zip = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = TaxRate.validateField('zip', data.zip);
+                const fieldErrors = validateFieldTaxRate('zip', data.zip);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -531,7 +531,7 @@ export function createFormTaxRate(overrides?: Partial<TaxRate>): GigaformTaxRate
                 tainted.city = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = TaxRate.validateField('city', data.city);
+                const fieldErrors = validateFieldTaxRate('city', data.city);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -554,7 +554,7 @@ export function createFormTaxRate(overrides?: Partial<TaxRate>): GigaformTaxRate
                 tainted.county = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = TaxRate.validateField('county', data.county);
+                const fieldErrors = validateFieldTaxRate('county', data.county);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -577,7 +577,7 @@ export function createFormTaxRate(overrides?: Partial<TaxRate>): GigaformTaxRate
                 tainted.state = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = TaxRate.validateField('state', data.state);
+                const fieldErrors = validateFieldTaxRate('state', data.state);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -600,7 +600,7 @@ export function createFormTaxRate(overrides?: Partial<TaxRate>): GigaformTaxRate
                 tainted.isActive = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = TaxRate.validateField('isActive', data.isActive);
+                const fieldErrors = validateFieldTaxRate('isActive', data.isActive);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -623,7 +623,7 @@ export function createFormTaxRate(overrides?: Partial<TaxRate>): GigaformTaxRate
                 tainted.description = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = TaxRate.validateField('description', data.description);
+                const fieldErrors = validateFieldTaxRate('description', data.description);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -646,16 +646,16 @@ export function createFormTaxRate(overrides?: Partial<TaxRate>): GigaformTaxRate
                 tainted.taxComponents = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = TaxRate.validateField('taxComponents', data.taxComponents);
+                const fieldErrors = validateFieldTaxRate('taxComponents', data.taxComponents);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<TaxRate, Array<{ field: string; message: string }>> {
-        return TaxRate.fromObject(data);
+        return fromObjectTaxRate(data);
     }
     function reset(newOverrides?: Partial<TaxRate>): void {
-        data = { ...TaxRate.defaultValue(), ...newOverrides };
+        data = { ...defaultValueTaxRate(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             id: Option.none(),
@@ -727,5 +727,5 @@ export function fromFormDataTaxRate(
     }
     obj.description = formData.get('description') ?? '';
     obj.taxComponents = formData.get('taxComponents') ?? '';
-    return TaxRate.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONTaxRate(JSON.stringify(obj));
 }

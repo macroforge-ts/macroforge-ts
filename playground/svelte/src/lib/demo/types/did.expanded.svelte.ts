@@ -1,9 +1,12 @@
+import { defaultValueActivityType } from './activity-type.svelte';
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeActivityType } from './activity-type.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeActivityType } from './activity-type.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -27,7 +30,7 @@ export function defaultValueDid(): Did {
         in: '',
         out: '',
         id: '',
-        activityType: ActivityType.defaultValue(),
+        activityType: defaultValueActivityType(),
         createdAt: '',
         metadata: null
     } as Did;
@@ -51,10 +54,7 @@ export function __serializeDid(value: Did, ctx: SerializeContext): Record<string
     result['in'] = value.in;
     result['out'] = value.out;
     result['id'] = value.id;
-    result['activityType'] =
-        typeof (value.activityType as any)?.__serialize === 'function'
-            ? (value.activityType as any).__serialize(ctx)
-            : value.activityType;
+    result['activityType'] = __serializeActivityType(value.activityType, ctx);
     result['createdAt'] = value.createdAt;
     result['metadata'] = value.metadata;
     return result;
@@ -152,7 +152,7 @@ export function __deserializeDid(value: any, ctx: DeserializeContext): Did | Pen
     {
         const __raw_activityType = obj['activityType'] as ActivityType;
         {
-            const __result = ActivityType.__deserialize(__raw_activityType, ctx);
+            const __result = __deserializeActivityType(__raw_activityType, ctx);
             ctx.assignOrDefer(instance, 'activityType', __result);
         }
     }
@@ -236,7 +236,7 @@ export interface GigaformDid {
     reset(overrides?: Partial<Did>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormDid(overrides?: Partial<Did>): GigaformDid {
-    let data = $state({ ...Did.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueDid(), ...overrides });
     let errors = $state<ErrorsDid>({
         _errors: Option.none(),
         in: Option.none(),
@@ -274,7 +274,7 @@ export function createFormDid(overrides?: Partial<Did>): GigaformDid {
                 tainted.in = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Did.validateField('in', data.in);
+                const fieldErrors = validateFieldDid('in', data.in);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -297,7 +297,7 @@ export function createFormDid(overrides?: Partial<Did>): GigaformDid {
                 tainted.out = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Did.validateField('out', data.out);
+                const fieldErrors = validateFieldDid('out', data.out);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -320,7 +320,7 @@ export function createFormDid(overrides?: Partial<Did>): GigaformDid {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Did.validateField('id', data.id);
+                const fieldErrors = validateFieldDid('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -343,7 +343,7 @@ export function createFormDid(overrides?: Partial<Did>): GigaformDid {
                 tainted.activityType = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Did.validateField('activityType', data.activityType);
+                const fieldErrors = validateFieldDid('activityType', data.activityType);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -366,7 +366,7 @@ export function createFormDid(overrides?: Partial<Did>): GigaformDid {
                 tainted.createdAt = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Did.validateField('createdAt', data.createdAt);
+                const fieldErrors = validateFieldDid('createdAt', data.createdAt);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -389,16 +389,16 @@ export function createFormDid(overrides?: Partial<Did>): GigaformDid {
                 tainted.metadata = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Did.validateField('metadata', data.metadata);
+                const fieldErrors = validateFieldDid('metadata', data.metadata);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Did, Array<{ field: string; message: string }>> {
-        return Did.fromObject(data);
+        return fromObjectDid(data);
     }
     function reset(newOverrides?: Partial<Did>): void {
-        data = { ...Did.defaultValue(), ...newOverrides };
+        data = { ...defaultValueDid(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             in: Option.none(),
@@ -471,5 +471,5 @@ export function fromFormDataDid(
     }
     obj.createdAt = formData.get('createdAt') ?? '';
     obj.metadata = formData.get('metadata') ?? '';
-    return Did.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONDid(JSON.stringify(obj));
 }

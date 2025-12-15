@@ -177,7 +177,7 @@ export interface GigaformLastName {
     reset(overrides?: Partial<LastName>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormLastName(overrides?: Partial<LastName>): GigaformLastName {
-    let data = $state({ ...LastName.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueLastName(), ...overrides });
     let errors = $state<ErrorsLastName>({ _errors: Option.none(), name: Option.none() });
     let tainted = $state<TaintedLastName>({ name: Option.none() });
     const fields: FieldControllersLastName = {
@@ -200,16 +200,16 @@ export function createFormLastName(overrides?: Partial<LastName>): GigaformLastN
                 tainted.name = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = LastName.validateField('name', data.name);
+                const fieldErrors = validateFieldLastName('name', data.name);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<LastName, Array<{ field: string; message: string }>> {
-        return LastName.fromObject(data);
+        return fromObjectLastName(data);
     }
     function reset(newOverrides?: Partial<LastName>): void {
-        data = { ...LastName.defaultValue(), ...newOverrides };
+        data = { ...defaultValueLastName(), ...newOverrides };
         errors = { _errors: Option.none(), name: Option.none() };
         tainted = { name: Option.none() };
     }
@@ -242,5 +242,5 @@ export function fromFormDataLastName(
 ): Result<LastName, Array<{ field: string; message: string }>> {
     const obj: Record<string, unknown> = {};
     obj.name = formData.get('name') ?? '';
-    return LastName.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONLastName(JSON.stringify(obj));
 }

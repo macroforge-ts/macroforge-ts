@@ -1,9 +1,19 @@
+import { defaultValueAppPermissions } from './app-permissions.svelte';
+import { defaultValueSettings } from './settings.svelte';
 import { SerializeContext } from 'macroforge/serde';
+import { __serializeAppPermissions } from './app-permissions.svelte';
+import { __serializeMetadata } from './metadata.svelte';
+import { __serializeSettings } from './settings.svelte';
+import { __serializeUserRole } from './user-role.svelte';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeAppPermissions } from './app-permissions.svelte';
+import { __deserializeMetadata } from './metadata.svelte';
+import { __deserializeSettings } from './settings.svelte';
+import { __deserializeUserRole } from './user-role.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -41,14 +51,14 @@ export function defaultValueUser(): User {
         lastName: '',
         password: null,
         metadata: null,
-        settings: Settings.defaultValue(),
+        settings: defaultValueSettings(),
         role: 'Administrator',
         emailVerified: false,
         verificationToken: null,
         verificationExpires: null,
         passwordResetToken: null,
         passwordResetExpires: null,
-        permissions: AppPermissions.defaultValue()
+        permissions: defaultValueAppPermissions()
     } as User;
 }
 
@@ -73,30 +83,18 @@ export function __serializeUser(value: User, ctx: SerializeContext): Record<stri
     result['lastName'] = value.lastName;
     result['password'] = value.password;
     if (value.metadata !== null) {
-        result['metadata'] =
-            typeof (value.metadata as any)?.__serialize === 'function'
-                ? (value.metadata as any).__serialize(ctx)
-                : value.metadata;
+        result['metadata'] = __serializeMetadata(value.metadata, ctx);
     } else {
         result['metadata'] = null;
     }
-    result['settings'] =
-        typeof (value.settings as any)?.__serialize === 'function'
-            ? (value.settings as any).__serialize(ctx)
-            : value.settings;
-    result['role'] =
-        typeof (value.role as any)?.__serialize === 'function'
-            ? (value.role as any).__serialize(ctx)
-            : value.role;
+    result['settings'] = __serializeSettings(value.settings, ctx);
+    result['role'] = __serializeUserRole(value.role, ctx);
     result['emailVerified'] = value.emailVerified;
     result['verificationToken'] = value.verificationToken;
     result['verificationExpires'] = value.verificationExpires;
     result['passwordResetToken'] = value.passwordResetToken;
     result['passwordResetExpires'] = value.passwordResetExpires;
-    result['permissions'] =
-        typeof (value.permissions as any)?.__serialize === 'function'
-            ? (value.permissions as any).__serialize(ctx)
-            : value.permissions;
+    result['permissions'] = __serializeAppPermissions(value.permissions, ctx);
     return result;
 }
 
@@ -232,21 +230,21 @@ export function __deserializeUser(value: any, ctx: DeserializeContext): User | P
         if (__raw_metadata === null) {
             instance.metadata = null;
         } else {
-            const __result = Metadata.__deserialize(__raw_metadata, ctx);
+            const __result = __deserializeMetadata(__raw_metadata, ctx);
             ctx.assignOrDefer(instance, 'metadata', __result);
         }
     }
     {
         const __raw_settings = obj['settings'] as Settings;
         {
-            const __result = Settings.__deserialize(__raw_settings, ctx);
+            const __result = __deserializeSettings(__raw_settings, ctx);
             ctx.assignOrDefer(instance, 'settings', __result);
         }
     }
     {
         const __raw_role = obj['role'] as UserRole;
         {
-            const __result = UserRole.__deserialize(__raw_role, ctx);
+            const __result = __deserializeUserRole(__raw_role, ctx);
             ctx.assignOrDefer(instance, 'role', __result);
         }
     }
@@ -273,7 +271,7 @@ export function __deserializeUser(value: any, ctx: DeserializeContext): User | P
     {
         const __raw_permissions = obj['permissions'] as AppPermissions;
         {
-            const __result = AppPermissions.__deserialize(__raw_permissions, ctx);
+            const __result = __deserializeAppPermissions(__raw_permissions, ctx);
             ctx.assignOrDefer(instance, 'permissions', __result);
         }
     }
@@ -411,7 +409,7 @@ export interface GigaformUser {
     reset(overrides?: Partial<User>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormUser(overrides?: Partial<User>): GigaformUser {
-    let data = $state({ ...User.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueUser(), ...overrides });
     let errors = $state<ErrorsUser>({
         _errors: Option.none(),
         id: Option.none(),
@@ -465,7 +463,7 @@ export function createFormUser(overrides?: Partial<User>): GigaformUser {
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = User.validateField('id', data.id);
+                const fieldErrors = validateFieldUser('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -488,7 +486,7 @@ export function createFormUser(overrides?: Partial<User>): GigaformUser {
                 tainted.email = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = User.validateField('email', data.email);
+                const fieldErrors = validateFieldUser('email', data.email);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -511,7 +509,7 @@ export function createFormUser(overrides?: Partial<User>): GigaformUser {
                 tainted.firstName = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = User.validateField('firstName', data.firstName);
+                const fieldErrors = validateFieldUser('firstName', data.firstName);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -534,7 +532,7 @@ export function createFormUser(overrides?: Partial<User>): GigaformUser {
                 tainted.lastName = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = User.validateField('lastName', data.lastName);
+                const fieldErrors = validateFieldUser('lastName', data.lastName);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -557,7 +555,7 @@ export function createFormUser(overrides?: Partial<User>): GigaformUser {
                 tainted.password = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = User.validateField('password', data.password);
+                const fieldErrors = validateFieldUser('password', data.password);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -580,7 +578,7 @@ export function createFormUser(overrides?: Partial<User>): GigaformUser {
                 tainted.metadata = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = User.validateField('metadata', data.metadata);
+                const fieldErrors = validateFieldUser('metadata', data.metadata);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -603,7 +601,7 @@ export function createFormUser(overrides?: Partial<User>): GigaformUser {
                 tainted.settings = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = User.validateField('settings', data.settings);
+                const fieldErrors = validateFieldUser('settings', data.settings);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -626,7 +624,7 @@ export function createFormUser(overrides?: Partial<User>): GigaformUser {
                 tainted.role = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = User.validateField('role', data.role);
+                const fieldErrors = validateFieldUser('role', data.role);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -649,7 +647,7 @@ export function createFormUser(overrides?: Partial<User>): GigaformUser {
                 tainted.emailVerified = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = User.validateField('emailVerified', data.emailVerified);
+                const fieldErrors = validateFieldUser('emailVerified', data.emailVerified);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -672,7 +670,7 @@ export function createFormUser(overrides?: Partial<User>): GigaformUser {
                 tainted.verificationToken = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = User.validateField('verificationToken', data.verificationToken);
+                const fieldErrors = validateFieldUser('verificationToken', data.verificationToken);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -695,7 +693,7 @@ export function createFormUser(overrides?: Partial<User>): GigaformUser {
                 tainted.verificationExpires = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = User.validateField(
+                const fieldErrors = validateFieldUser(
                     'verificationExpires',
                     data.verificationExpires
                 );
@@ -721,7 +719,7 @@ export function createFormUser(overrides?: Partial<User>): GigaformUser {
                 tainted.passwordResetToken = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = User.validateField(
+                const fieldErrors = validateFieldUser(
                     'passwordResetToken',
                     data.passwordResetToken
                 );
@@ -747,7 +745,7 @@ export function createFormUser(overrides?: Partial<User>): GigaformUser {
                 tainted.passwordResetExpires = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = User.validateField(
+                const fieldErrors = validateFieldUser(
                     'passwordResetExpires',
                     data.passwordResetExpires
                 );
@@ -773,16 +771,16 @@ export function createFormUser(overrides?: Partial<User>): GigaformUser {
                 tainted.permissions = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = User.validateField('permissions', data.permissions);
+                const fieldErrors = validateFieldUser('permissions', data.permissions);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<User, Array<{ field: string; message: string }>> {
-        return User.fromObject(data);
+        return fromObjectUser(data);
     }
     function reset(newOverrides?: Partial<User>): void {
-        data = { ...User.defaultValue(), ...newOverrides };
+        data = { ...defaultValueUser(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             id: Option.none(),
@@ -923,5 +921,5 @@ export function fromFormDataUser(
         }
         obj.permissions = permissionsObj;
     }
-    return User.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONUser(JSON.stringify(obj));
 }

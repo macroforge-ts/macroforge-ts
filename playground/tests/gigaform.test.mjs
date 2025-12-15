@@ -159,7 +159,8 @@ describe("Gigaform createForm factory", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(result.code.includes("let data = $state("), "Should use $state for data");
-    assert.ok(result.code.includes("ReactiveForm.defaultValue()"), "Should call defaultValue()");
+    assert.ok(result.code.includes("defaultValueReactiveForm()"), "Should call defaultValueReactiveForm()");
+    assert.ok(!result.code.includes("ReactiveForm.defaultValue()"), "Should not use namespace-style defaultValue()");
   });
 
   test("generates reactive $state for errors and tainted", () => {
@@ -187,7 +188,8 @@ describe("Gigaform createForm factory", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(result.code.includes("function validate()"), "Should generate validate function");
-    assert.ok(result.code.includes("ValidatedForm.fromObject(data)"), "Should call fromObject for validation");
+    assert.ok(result.code.includes("fromObjectValidatedForm(data)"), "Should call fromObjectValidatedForm for validation");
+    assert.ok(!result.code.includes("ValidatedForm.fromObject(data)"), "Should not use namespace-style fromObject");
   });
 
   test("generates reset function", () => {
@@ -281,7 +283,14 @@ describe("Gigaform field controllers", () => {
     const result = expandSync(withGigaformImport(code), "test.ts");
 
     assert.ok(result.code.includes("validate: ()"), "Should generate validate method");
-    assert.ok(result.code.includes('FilterForm.validateField("username", data.username)'), "Should call per-field validation");
+    assert.ok(
+      result.code.includes('validateFieldFilterForm("username", data.username)'),
+      "Should call per-field validation via validateFieldFilterForm"
+    );
+    assert.ok(
+      !result.code.includes('FilterForm.validateField("username", data.username)'),
+      "Should not use namespace-style FilterForm.validateField"
+    );
     assert.ok(result.code.includes(".map((e: { field: string; message: string }) => e.message)"), "Should extract messages");
   });
 
@@ -510,8 +519,14 @@ describe("Gigaform fromFormData", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("DelegateForm.fromStringifiedJSON(JSON.stringify(obj))"),
-      "Should delegate to fromStringifiedJSON");
+    assert.ok(
+      result.code.includes("fromStringifiedJSONDelegateForm(JSON.stringify(obj))"),
+      "Should delegate to fromStringifiedJSONDelegateForm"
+    );
+    assert.ok(
+      !result.code.includes("DelegateForm.fromStringifiedJSON(JSON.stringify(obj))"),
+      "Should not use namespace-style fromStringifiedJSON"
+    );
   });
 });
 
@@ -551,8 +566,8 @@ describe("Gigaform integration with other macros", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("DefaultForm.defaultValue()"),
-      "Should use defaultValue() from Default macro");
+    assert.ok(result.code.includes("defaultValueDefaultForm()"), "Should use defaultValueDefaultForm()");
+    assert.ok(!result.code.includes("DefaultForm.defaultValue()"), "Should not use namespace-style defaultValue()");
   });
 
   test("works with Deserialize macro for fromObject", () => {
@@ -564,8 +579,8 @@ describe("Gigaform integration with other macros", () => {
     `;
     const result = expandSync(withGigaformImport(code), "test.ts");
 
-    assert.ok(result.code.includes("DeserializeForm.fromObject("),
-      "Should use fromObject from Deserialize macro");
+    assert.ok(result.code.includes("fromObjectDeserializeForm("), "Should use fromObjectDeserializeForm()");
+    assert.ok(!result.code.includes("DeserializeForm.fromObject("), "Should not use namespace-style fromObject()");
   });
 
   test("all three macros generate non-conflicting code", () => {

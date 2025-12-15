@@ -200,7 +200,7 @@ export interface GigaformRepresents {
     reset(overrides?: Partial<Represents>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormRepresents(overrides?: Partial<Represents>): GigaformRepresents {
-    let data = $state({ ...Represents.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueRepresents(), ...overrides });
     let errors = $state<ErrorsRepresents>({
         _errors: Option.none(),
         in: Option.none(),
@@ -234,7 +234,7 @@ export function createFormRepresents(overrides?: Partial<Represents>): GigaformR
                 tainted.in = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Represents.validateField('in', data.in);
+                const fieldErrors = validateFieldRepresents('in', data.in);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -257,7 +257,7 @@ export function createFormRepresents(overrides?: Partial<Represents>): GigaformR
                 tainted.out = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Represents.validateField('out', data.out);
+                const fieldErrors = validateFieldRepresents('out', data.out);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -280,7 +280,7 @@ export function createFormRepresents(overrides?: Partial<Represents>): GigaformR
                 tainted.id = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Represents.validateField('id', data.id);
+                const fieldErrors = validateFieldRepresents('id', data.id);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -303,16 +303,16 @@ export function createFormRepresents(overrides?: Partial<Represents>): GigaformR
                 tainted.dateStarted = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Represents.validateField('dateStarted', data.dateStarted);
+                const fieldErrors = validateFieldRepresents('dateStarted', data.dateStarted);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Represents, Array<{ field: string; message: string }>> {
-        return Represents.fromObject(data);
+        return fromObjectRepresents(data);
     }
     function reset(newOverrides?: Partial<Represents>): void {
-        data = { ...Represents.defaultValue(), ...newOverrides };
+        data = { ...defaultValueRepresents(), ...newOverrides };
         errors = {
             _errors: Option.none(),
             in: Option.none(),
@@ -359,5 +359,5 @@ export function fromFormDataRepresents(
     obj.out = formData.get('out') ?? '';
     obj.id = formData.get('id') ?? '';
     obj.dateStarted = formData.get('dateStarted') ?? '';
-    return Represents.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONRepresents(JSON.stringify(obj));
 }

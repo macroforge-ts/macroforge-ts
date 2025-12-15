@@ -196,7 +196,7 @@ export interface GigaformEmail {
     reset(overrides?: Partial<Email>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormEmail(overrides?: Partial<Email>): GigaformEmail {
-    let data = $state({ ...Email.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueEmail(), ...overrides });
     let errors = $state<ErrorsEmail>({
         _errors: Option.none(),
         canEmail: Option.none(),
@@ -223,7 +223,7 @@ export function createFormEmail(overrides?: Partial<Email>): GigaformEmail {
                 tainted.canEmail = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Email.validateField('canEmail', data.canEmail);
+                const fieldErrors = validateFieldEmail('canEmail', data.canEmail);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         },
@@ -246,16 +246,16 @@ export function createFormEmail(overrides?: Partial<Email>): GigaformEmail {
                 tainted.emailString = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Email.validateField('emailString', data.emailString);
+                const fieldErrors = validateFieldEmail('emailString', data.emailString);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Email, Array<{ field: string; message: string }>> {
-        return Email.fromObject(data);
+        return fromObjectEmail(data);
     }
     function reset(newOverrides?: Partial<Email>): void {
-        data = { ...Email.defaultValue(), ...newOverrides };
+        data = { ...defaultValueEmail(), ...newOverrides };
         errors = { _errors: Option.none(), canEmail: Option.none(), emailString: Option.none() };
         tainted = { canEmail: Option.none(), emailString: Option.none() };
     }
@@ -292,5 +292,5 @@ export function fromFormDataEmail(
         obj.canEmail = canEmailVal === 'true' || canEmailVal === 'on' || canEmailVal === '1';
     }
     obj.emailString = formData.get('emailString') ?? '';
-    return Email.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONEmail(JSON.stringify(obj));
 }

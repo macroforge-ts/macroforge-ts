@@ -1,9 +1,11 @@
+import { defaultValueRecordLink } from './record-link.svelte';
 import { SerializeContext } from 'macroforge/serde';
 import { Result } from 'macroforge/utils';
 import { DeserializeContext } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
+import { __deserializeRecordLink } from './record-link.svelte';
 import { Option } from 'macroforge/utils';
 import type { FieldController } from '@playground/macro/gigaform';
 /** import macro {Gigaform} from "@playground/macro"; */
@@ -15,7 +17,7 @@ import { RecordLink } from './record-link.svelte';
 export type Item = RecordLink<Product> | /** @default */ RecordLink<Service>;
 
 export function defaultValueItem(): Item {
-    return RecordLink.defaultValue<Service>();
+    return defaultValueRecordLink<Service>();
 }
 
 export function toStringifiedJSONItem(value: Item): string {
@@ -92,16 +94,10 @@ export function __deserializeItem(value: any, ctx: DeserializeContext): Item | P
         ]);
     }
     if (__typeName === 'RecordLink<Product>') {
-        if (typeof (RecordLink as any)?.__deserialize === 'function') {
-            return (RecordLink as any).__deserialize(value, ctx) as Item;
-        }
-        return value as Item;
+        return __deserializeRecordLink(value, ctx) as Item;
     }
     if (__typeName === 'RecordLink<Service>') {
-        if (typeof (RecordLink as any)?.__deserialize === 'function') {
-            return (RecordLink as any).__deserialize(value, ctx) as Item;
-        }
-        return value as Item;
+        return __deserializeRecordLink(value, ctx) as Item;
     }
     throw new DeserializeError([
         {
@@ -156,11 +152,11 @@ export interface VariantFieldsItem {
 function getDefaultForVariantItem(variant: string): Item {
     switch (variant) {
         case 'RecordLink<Product>':
-            return RecordLink.defaultValue<Product>() as Item;
+            return defaultValueRecordLink<Product>() as Item;
         case 'RecordLink<Service>':
-            return RecordLink.defaultValue<Service>() as Item;
+            return defaultValueRecordLink<Service>() as Item;
         default:
-            return RecordLink.defaultValue<Product>() as Item;
+            return defaultValueRecordLink<Product>() as Item;
     }
 } /** Creates a new discriminated union Gigaform with variant switching */
 export function createFormItem(initial?: Item): GigaformItem {
@@ -184,7 +180,7 @@ export function createFormItem(initial?: Item): GigaformItem {
         tainted = {} as TaintedItem;
     }
     function validate(): Result<Item, Array<{ field: string; message: string }>> {
-        return Item.fromObject(data);
+        return fromObjectItem(data);
     }
     function reset(overrides?: Partial<Item>): void {
         data = overrides ? (overrides as typeof data) : getDefaultForVariantItem(currentVariant);
@@ -234,5 +230,5 @@ export function fromFormDataItem(
     if (discriminant === 'RecordLink<Product>') {
     } else if (discriminant === 'RecordLink<Service>') {
     }
-    return Item.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONItem(JSON.stringify(obj));
 }

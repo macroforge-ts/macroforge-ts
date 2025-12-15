@@ -81,8 +81,8 @@ use std::path::Path;
 use std::process::Command;
 
 use crate::ts_syn::abi::{
-    ClassIR, Diagnostic, DiagnosticLevel, EnumIR, InterfaceIR, MacroContextIR, MacroResult, Patch,
-    PatchCode, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
+    ClassIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionNamingStyle, InterfaceIR, MacroContextIR,
+    MacroResult, Patch, PatchCode, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
 };
 use crate::ts_syn::{lower_classes, lower_enums, lower_interfaces, lower_type_aliases};
 use anyhow::Context;
@@ -402,6 +402,9 @@ impl MacroExpander {
         // Check for imports of built-in macros and add warnings
         diagnostics.extend(check_builtin_import_warnings(module, source));
 
+        // Used for external type function imports (e.g. __serializeFoo) based on existing type imports.
+        let import_sources = collect_import_sources(module, source);
+
         let class_map: HashMap<SpanKey, ClassIR> = classes
             .into_iter()
             .map(|class| (SpanKey::from(class.span), class))
@@ -697,6 +700,19 @@ impl MacroExpander {
                 if let Ok((runtime, type_def)) =
                     self.process_macro_output(&mut result, &ctx, source)
                 {
+                    let mut runtime = runtime;
+                    let mut type_def = type_def;
+
+                    if let Some(tokens) = &result.tokens {
+                        let external_imports = external_type_function_import_patches(
+                            tokens,
+                            &import_sources,
+                            self.config.function_naming_style,
+                        );
+                        runtime.extend(external_imports.clone());
+                        type_def.extend(external_imports);
+                    }
+
                     result.runtime_patches.extend(runtime);
                     result.type_patches.extend(type_def);
                 }
@@ -1373,6 +1389,126 @@ pub fn collect_import_sources(module: &Module, source: &str) -> HashMap<String, 
     }
 
     import_map
+}
+
+fn to_camel_case(name: &str) -> String {
+    let mut chars = name.chars();
+    match chars.next() {
+        Some(first) => first.to_lowercase().collect::<String>() + chars.as_str(),
+        None => String::new(),
+    }
+}
+
+fn is_ident_char(c: char) -> bool {
+    c.is_ascii_alphanumeric() || c == '_' || c == '$'
+}
+
+fn contains_identifier(haystack: &str, ident: &str) -> bool {
+    if ident.is_empty() {
+        return false;
+    }
+
+    let mut search_start = 0;
+    while let Some(pos) = haystack[search_start..].find(ident) {
+        let start = search_start + pos;
+        let end = start + ident.len();
+
+        let prev_ok = start == 0
+            || !haystack[..start]
+                .chars()
+                .rev()
+                .next()
+                .is_some_and(is_ident_char);
+        let next_ok = end >= haystack.len()
+            || !haystack[end..]
+                .chars()
+                .next()
+                .is_some_and(is_ident_char);
+
+        if prev_ok && next_ok {
+            return true;
+        }
+
+        search_start = end;
+    }
+
+    false
+}
+
+fn external_type_function_import_patches(
+    tokens: &str,
+    import_sources: &HashMap<String, String>,
+    naming_style: FunctionNamingStyle,
+) -> Vec<Patch> {
+    if matches!(naming_style, FunctionNamingStyle::Namespace | FunctionNamingStyle::Generic) {
+        return vec![];
+    }
+
+    let mut needed: std::collections::BTreeMap<(String, String), ()> = Default::default();
+
+    for (type_name, module_src) in import_sources {
+        if !type_name
+            .chars()
+            .next()
+            .is_some_and(|c| c.is_ascii_uppercase())
+        {
+            continue;
+        }
+
+        // For now, only add external imports for relative module specifiers.
+        // This matches the common `./foo` / `../foo` patterns for sharing types across files.
+        if !module_src.starts_with('.') {
+            continue;
+        }
+
+        let candidates: Vec<String> = match naming_style {
+            FunctionNamingStyle::Prefix => {
+                let camel = to_camel_case(type_name);
+                vec![
+                    format!("{camel}__serialize"),
+                    format!("{camel}__deserialize"),
+                    format!("{camel}DefaultValue"),
+                    format!("{camel}FromObject"),
+                    format!("{camel}FromStringifiedJSON"),
+                    format!("{camel}ValidateField"),
+                    format!("{camel}ValidateFields"),
+                    format!("{camel}ToObject"),
+                    format!("{camel}ToStringifiedJSON"),
+                ]
+            }
+            FunctionNamingStyle::Suffix => vec![
+                format!("__serialize{type_name}"),
+                format!("__deserialize{type_name}"),
+                format!("defaultValue{type_name}"),
+                format!("fromObject{type_name}"),
+                format!("fromStringifiedJSON{type_name}"),
+                format!("validateField{type_name}"),
+                format!("validateFields{type_name}"),
+                format!("toObject{type_name}"),
+                format!("toStringifiedJSON{type_name}"),
+            ],
+            FunctionNamingStyle::Namespace | FunctionNamingStyle::Generic => unreachable!(),
+        };
+
+        for ident in candidates {
+            if import_sources.contains_key(&ident) {
+                continue;
+            }
+            if contains_identifier(tokens, &ident) {
+                needed.insert((ident, module_src.clone()), ());
+            }
+        }
+    }
+
+    needed
+        .into_keys()
+        .map(|(ident, module_src)| Patch::InsertRaw {
+            at: SpanIR::new(1, 1),
+            code: format!("import {{ {ident} }} from \"{module_src}\";\n"),
+            context: Some("import".to_string()),
+            source_macro: None,
+        })
+        .collect()
 }
 
 /// Check for imports of built-in macros and return warnings

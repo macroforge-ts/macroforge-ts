@@ -1,9 +1,13 @@
 //! Generates the createForm factory function with reactive state and field controllers.
 
 use macroforge_ts::macros::ts_template;
+use macroforge_ts::ts_syn::abi::FunctionNamingStyle;
 use macroforge_ts::ts_syn::TsStream;
 
 use crate::gigaform::GenericInfo;
+use crate::gigaform::naming::{
+    call_default_value, call_default_value_for_type_ref, call_from_object, call_validate_field,
+};
 use crate::gigaform::parser::{
     BaseControllerOptions, ControllerOptions, GigaformOptions, ParsedField, UnionConfig, UnionMode,
     ValidatorSpec,
@@ -18,6 +22,7 @@ pub fn generate_factory(
     interface_name: &str,
     fields: &[ParsedField],
     options: &GigaformOptions,
+    naming_style: FunctionNamingStyle,
 ) -> TsStream {
     let create_fn_name = suffixed("createForm", interface_name);
     let errors_name = suffixed("Errors", interface_name);
@@ -25,10 +30,11 @@ pub fn generate_factory(
     let field_controllers_name = suffixed("FieldControllers", interface_name);
     let gigaform_name = suffixed("Gigaform", interface_name);
 
-    let field_controllers = generate_field_controllers(fields, options, interface_name);
-    let default_init = generate_default_init(interface_name, options);
+    let field_controllers = generate_field_controllers(fields, options, interface_name, naming_style);
+    let default_init = generate_default_init(interface_name, options, naming_style, "");
     let default_errors_init = generate_default_errors_init(fields);
     let default_tainted_init = generate_default_tainted_init(fields);
+    let validate_call = call_from_object(interface_name, "", naming_style, "data");
 
     ts_template! {
         {>> "Creates a new Gigaform instance with reactive state and field controllers." <<}
@@ -45,7 +51,7 @@ pub fn generate_factory(
 
             // Validate the entire form using Deserialize's fromObject
             function validate(): Result<@{interface_name}, Array<{ field: string; message: string }>> {
-                return @{interface_name}.fromObject(data);
+                return @{validate_call};
             }
 
             // Reset form to defaults
@@ -76,9 +82,10 @@ pub fn generate_factory_with_generics(
     fields: &[ParsedField],
     options: &GigaformOptions,
     generics: &GenericInfo,
+    naming_style: FunctionNamingStyle,
 ) -> TsStream {
     if generics.is_empty() {
-        return generate_factory(interface_name, fields, options);
+        return generate_factory(interface_name, fields, options, naming_style);
     }
 
     let create_fn_name = suffixed("createForm", interface_name);
@@ -87,12 +94,13 @@ pub fn generate_factory_with_generics(
     let field_controllers_name = suffixed("FieldControllers", interface_name);
     let gigaform_name = suffixed("Gigaform", interface_name);
 
-    let field_controllers = generate_field_controllers(fields, options, interface_name);
-    let default_init = generate_default_init(interface_name, options);
+    let field_controllers = generate_field_controllers(fields, options, interface_name, naming_style);
     let default_errors_init = generate_default_errors_init(fields);
     let default_tainted_init = generate_default_tainted_init(fields);
     let generic_decl = generics.decl();
     let generic_args = generics.args();
+    let default_init = generate_default_init(interface_name, options, naming_style, &generic_args);
+    let validate_call = call_from_object(interface_name, &generic_args, naming_style, "data");
 
     ts_template! {
         {>> "Creates a new Gigaform instance with reactive state and field controllers." <<}
@@ -109,7 +117,7 @@ pub fn generate_factory_with_generics(
 
             // Validate the entire form using Deserialize's fromObject
             function validate(): Result<@{interface_name}@{generic_args}, Array<{ field: string; message: string }>> {
-                return @{interface_name}.fromObject@{generic_args}(data);
+                return @{validate_call};
             }
 
             // Reset form to defaults
@@ -144,9 +152,10 @@ pub fn generate_union_factory_with_generics(
     config: &UnionConfig,
     options: &GigaformOptions,
     _generics: &GenericInfo,
+    naming_style: FunctionNamingStyle,
 ) -> TsStream {
     // Unions typically don't have type parameters
-    generate_union_factory(type_name, config, options)
+    generate_union_factory(type_name, config, options, naming_style)
 }
 
 /// Generates the createForm factory for a discriminated union.
@@ -154,6 +163,7 @@ pub fn generate_union_factory(
     type_name: &str,
     config: &UnionConfig,
     options: &GigaformOptions,
+    naming_style: FunctionNamingStyle,
 ) -> TsStream {
     let create_fn_name = suffixed("createForm", type_name);
     let errors_name = suffixed("Errors", type_name);
@@ -180,10 +190,11 @@ pub fn generate_union_factory(
         .map(|v| v.discriminant_value.as_str())
         .unwrap_or("unknown");
 
-    let _default_init = generate_default_init(type_name, options);
+    let _default_init = generate_default_init(type_name, options, naming_style, "");
 
     // Generate per-variant field controllers
-    let variant_controllers = generate_union_variant_controllers(config, options, type_name);
+    let variant_controllers =
+        generate_union_variant_controllers(config, options, type_name, naming_style);
 
     // Generate getDefaultForVariant function
     let default_for_variant = generate_default_for_variant(
@@ -191,6 +202,7 @@ pub fn generate_union_factory(
         config,
         discriminant_field,
         &default_for_variant_fn,
+        naming_style,
     );
 
     // Generate initial variant detection based on union type
@@ -244,10 +256,11 @@ pub fn generate_union_factory(
                 tainted = {} as @{tainted_name};
             }
 
-            // Validate the entire form using Deserialize's fromObject
-            function validate(): Result<@{type_name}, Array<{ field: string; message: string }>> {
-                return @{type_name}.fromObject(data);
-            }
+    // Validate the entire form using Deserialize's fromObject
+    function validate(): Result<@{type_name}, Array<{ field: string; message: string }>> {
+        {$let validate_call = call_from_object(type_name, "", naming_style, "data")}
+        return @{validate_call};
+    }
 
             // Reset form
             function reset(overrides?: Partial<@{type_name}>): void {
@@ -276,40 +289,13 @@ pub fn generate_union_factory(
 /// Returns the default value expression for a type ref in a union.
 /// For primitive types, returns the primitive default (0, "", false, etc.)
 /// For named types, returns TypeName.defaultValue()
-fn get_type_ref_default(type_ref: &str, cast_type: &str) -> String {
-    let tr = type_ref.trim();
-    match tr {
-        "number" => format!("0 as {cast_type}"),
-        "string" => format!("\"\" as {cast_type}"),
-        "boolean" => format!("false as {cast_type}"),
-        "bigint" => format!("0n as {cast_type}"),
-        "undefined" => format!("undefined as {cast_type}"),
-        "null" => format!("null as {cast_type}"),
-        "symbol" => format!("Symbol() as {cast_type}"),
-        "object" => format!("{{}} as {cast_type}"),
-        "any" | "unknown" => format!("undefined as {cast_type}"),
-        "void" | "never" => format!("undefined as {cast_type}"),
-        // Generic type like RecordLink<Service> -> RecordLink.defaultValue<Service>()
-        _ if tr.contains('<') => {
-            if let Some(bracket_pos) = tr.find('<') {
-                let base_type = &tr[..bracket_pos];
-                let type_args = &tr[bracket_pos..]; // includes the <>
-                format!("{base_type}.defaultValue{type_args}() as {cast_type}")
-            } else {
-                format!("{tr}.defaultValue() as {cast_type}")
-            }
-        }
-        // Named type - use TypeName.defaultValue()
-        _ => format!("{tr}.defaultValue() as {cast_type}"),
-    }
-}
-
 /// Generates the getDefaultForVariant function.
 fn generate_default_for_variant(
     type_name: &str,
     config: &UnionConfig,
     discriminant_field: &str,
     fn_name: &str,
+    naming_style: FunctionNamingStyle,
 ) -> String {
     // Determine how to generate the default value based on the discriminant field
     // - "_value": literal union (e.g., "Home" | "About") - return the literal
@@ -323,7 +309,7 @@ fn generate_default_for_variant(
         if is_literal_union {
             format!(r#"case "{value}": return "{value}" as {type_name};"#)
         } else if is_type_ref_union {
-            let default_expr = get_type_ref_default(value, type_name);
+            let default_expr = get_type_ref_default_with_style(value, type_name, naming_style);
             format!(r#"case "{value}": return {default_expr};"#)
         } else {
             format!(r#"case "{value}": return {{ {discriminant_field}: "{value}" }} as {type_name};"#)
@@ -339,7 +325,7 @@ fn generate_default_for_variant(
     let default_return = if is_literal_union {
         format!(r#"return "{first_value}" as {type_name};"#)
     } else if is_type_ref_union {
-        let default_expr = get_type_ref_default(first_value, type_name);
+        let default_expr = get_type_ref_default_with_style(first_value, type_name, naming_style);
         format!(r#"return {default_expr};"#)
     } else {
         format!(r#"return {{ {discriminant_field}: "{first_value}" }} as {type_name};"#)
@@ -360,6 +346,7 @@ fn generate_union_variant_controllers(
     config: &UnionConfig,
     options: &GigaformOptions,
     type_name: &str,
+    naming_style: FunctionNamingStyle,
 ) -> String {
     config
         .variants
@@ -367,7 +354,8 @@ fn generate_union_variant_controllers(
         .map(|variant| {
             let value = &variant.discriminant_value;
             let variant_name = to_pascal_case(&variant.discriminant_value);
-            let field_controllers = generate_field_controllers(&variant.fields, options, type_name);
+            let field_controllers =
+                generate_field_controllers(&variant.fields, options, type_name, naming_style);
 
             // Quote the property key if it contains special characters
             let prop_key = if needs_quoting(value) {
@@ -447,16 +435,43 @@ fn to_pascal_case(s: &str) -> String {
     }
 }
 
+fn get_type_ref_default_with_style(
+    type_ref: &str,
+    cast_type: &str,
+    naming_style: FunctionNamingStyle,
+) -> String {
+    let tr = type_ref.trim();
+    match tr {
+        "number" => format!("0 as {cast_type}"),
+        "string" => format!("\"\" as {cast_type}"),
+        "boolean" => format!("false as {cast_type}"),
+        "bigint" => format!("0n as {cast_type}"),
+        "undefined" => format!("undefined as {cast_type}"),
+        "null" => format!("null as {cast_type}"),
+        "symbol" => format!("Symbol() as {cast_type}"),
+        "object" => format!("{{}} as {cast_type}"),
+        "any" | "unknown" => format!("undefined as {cast_type}"),
+        "void" | "never" => format!("undefined as {cast_type}"),
+        _ => format!("{} as {cast_type}", call_default_value_for_type_ref(tr, naming_style)),
+    }
+}
+
 // =============================================================================
 // Standard Field Factory Generation
 // =============================================================================
 
 /// Generates the default initialization expression.
-fn generate_default_init(interface_name: &str, options: &GigaformOptions) -> String {
+fn generate_default_init(
+    interface_name: &str,
+    options: &GigaformOptions,
+    naming_style: FunctionNamingStyle,
+    generic_args: &str,
+) -> String {
+    let default_expr = call_default_value(interface_name, generic_args, naming_style);
     if let Some(override_fn) = &options.default_override {
-        format!("...{interface_name}.defaultValue(), ...{override_fn}()")
+        format!("...{default_expr}, ...{override_fn}()")
     } else {
-        format!("...{interface_name}.defaultValue()")
+        format!("...{default_expr}")
     }
 }
 
@@ -491,10 +506,11 @@ fn generate_field_controllers(
     fields: &[ParsedField],
     options: &GigaformOptions,
     interface_name: &str,
+    naming_style: FunctionNamingStyle,
 ) -> String {
     fields
         .iter()
-        .map(|field| generate_field_controller(field, options, interface_name))
+        .map(|field| generate_field_controller(field, options, interface_name, naming_style))
         .collect::<Vec<_>>()
         .join(",\n                ")
 }
@@ -504,6 +520,7 @@ fn generate_field_controller(
     field: &ParsedField,
     _options: &GigaformOptions,
     interface_name: &str,
+    naming_style: FunctionNamingStyle,
 ) -> String {
     let name = &field.name;
     let ts_type = &field.ts_type;
@@ -519,7 +536,7 @@ fn generate_field_controller(
     let ui_metadata = generate_ui_metadata(field);
 
     // Generate the validate function that delegates to form validation
-    let validate_fn = generate_field_validate_function(name, interface_name);
+    let validate_fn = generate_field_validate_function(name, interface_name, naming_style);
 
     // Generate the transform function
     let transform_fn = generate_transform_function(field, ts_type);
@@ -705,10 +722,20 @@ fn generate_constraints(validators: &[ValidatorSpec], required: bool) -> String 
 }
 
 /// Generates the field-level validate function that uses per-field validation.
-fn generate_field_validate_function(field_name: &str, interface_name: &str) -> String {
+fn generate_field_validate_function(
+    field_name: &str,
+    interface_name: &str,
+    naming_style: FunctionNamingStyle,
+) -> String {
+    let validate_call = call_validate_field(
+        interface_name,
+        naming_style,
+        &format!("\"{field_name}\""),
+        &format!("data.{field_name}"),
+    );
     format!(
         r#"validate: (): Array<string> => {{
-                        const fieldErrors = {interface_name}.validateField("{field_name}", data.{field_name});
+                        const fieldErrors = {validate_call};
                         return fieldErrors.map((e: {{ field: string; message: string }}) => e.message);
                     }},"#
     )

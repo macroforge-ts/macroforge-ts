@@ -157,7 +157,7 @@ export interface GigaformGradient {
     reset(overrides?: Partial<Gradient>): void;
 } /** Creates a new Gigaform instance with reactive state and field controllers. */
 export function createFormGradient(overrides?: Partial<Gradient>): GigaformGradient {
-    let data = $state({ ...Gradient.defaultValue(), ...overrides });
+    let data = $state({ ...defaultValueGradient(), ...overrides });
     let errors = $state<ErrorsGradient>({ _errors: Option.none(), startHue: Option.none() });
     let tainted = $state<TaintedGradient>({ startHue: Option.none() });
     const fields: FieldControllersGradient = {
@@ -180,16 +180,16 @@ export function createFormGradient(overrides?: Partial<Gradient>): GigaformGradi
                 tainted.startHue = value;
             },
             validate: (): Array<string> => {
-                const fieldErrors = Gradient.validateField('startHue', data.startHue);
+                const fieldErrors = validateFieldGradient('startHue', data.startHue);
                 return fieldErrors.map((e: { field: string; message: string }) => e.message);
             }
         }
     };
     function validate(): Result<Gradient, Array<{ field: string; message: string }>> {
-        return Gradient.fromObject(data);
+        return fromObjectGradient(data);
     }
     function reset(newOverrides?: Partial<Gradient>): void {
-        data = { ...Gradient.defaultValue(), ...newOverrides };
+        data = { ...defaultValueGradient(), ...newOverrides };
         errors = { _errors: Option.none(), startHue: Option.none() };
         tainted = { startHue: Option.none() };
     }
@@ -226,5 +226,5 @@ export function fromFormDataGradient(
         obj.startHue = startHueStr ? parseFloat(startHueStr as string) : 0;
         if (obj.startHue !== undefined && isNaN(obj.startHue as number)) obj.startHue = 0;
     }
-    return Gradient.fromStringifiedJSON(JSON.stringify(obj));
+    return fromStringifiedJSONGradient(JSON.stringify(obj));
 }
