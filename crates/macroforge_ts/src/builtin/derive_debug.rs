@@ -19,8 +19,8 @@
 //! ## Configuration
 //!
 //! The `functionNamingStyle` option in `macroforge.json` controls naming:
-//! - `"suffix"` (default): Suffixes with type name (e.g., `toStringMyType`)
-//! - `"prefix"`: Prefixes with type name (e.g., `myTypeToString`)
+//! - `"prefix"` (default): Prefixes with type name (e.g., `myTypeToString`)
+//! - `"suffix"`: Suffixes with type name (e.g., `toStringMyType`)
 //! - `"generic"`: Uses TypeScript generics (e.g., `toString<T extends MyType>`)
 //! - `"namespace"`: Legacy namespace wrapping
 //!

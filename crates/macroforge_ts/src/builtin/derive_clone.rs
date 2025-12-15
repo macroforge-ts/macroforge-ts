@@ -16,8 +16,8 @@
 //! ## Configuration
 //!
 //! The `functionNamingStyle` option in `macroforge.json` controls naming:
-//! - `"suffix"` (default): Suffixes with type name (e.g., `cloneMyType`)
-//! - `"prefix"`: Prefixes with type name (e.g., `myTypeClone`)
+//! - `"prefix"` (default): Prefixes with type name (e.g., `myTypeClone`)
+//! - `"suffix"`: Suffixes with type name (e.g., `cloneMyType`)
 //! - `"generic"`: Uses TypeScript generics (e.g., `clone<T extends MyType>`)
 //! - `"namespace"`: Legacy namespace wrapping
 //!
