@@ -102,7 +102,7 @@
 //! - A union type has no `@default` on a variant
 
 use crate::builtin::derive_common::{
-    DefaultFieldOptions, get_type_default, has_known_default, is_generic_type,
+    DefaultFieldOptions, get_type_default, has_known_default,
 };
 use crate::macros::{body, ts_macro_derive, ts_template};
 use crate::ts_syn::abi::FunctionNamingStyle;
@@ -585,43 +585,15 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         || variant == "true"
                         || variant == "false"
                         || variant == "null";
-                    // Primitive TYPE names like "string", "number", etc. need to use get_type_default
-                    let is_primitive_type =
-                        matches!(variant.as_str(), "string" | "number" | "boolean" | "bigint");
 
                     let default_expr = if is_expression || is_string_literal || is_primitive_value {
                         variant // Use as-is
-                    } else if is_primitive_type {
-                        // Handle primitive type names - use get_type_default to get actual default value
-                        get_type_default(&variant, naming_style)
-                    } else if is_generic_type(&variant) {
-                        // Handle generic type variants like "RecordLink<Service>"
-                        get_type_default(&variant, naming_style)
                     } else {
-                        // Check for primitive types that need special handling
-                        match variant.trim() {
-                            "string" => "\"\"".to_string(),
-                            "number" => "0".to_string(),
-                            "boolean" => "false".to_string(),
-                            "bigint" => "0n".to_string(),
-                            "undefined" => "undefined".to_string(),
-                            "null" => "null".to_string(),
-                            "symbol" => "Symbol()".to_string(),
-                            "object" => "{}".to_string(),
-                            "any" | "unknown" | "void" | "never" => "undefined".to_string(),
-                            v if v.contains('<') => {
-                                // Generic type like RecordLink<Service>
-                                // Extract base type and type args: "RecordLink<Service>" -> "RecordLink.defaultValue<Service>()"
-                                if let Some(bracket_pos) = v.find('<') {
-                                    let base_type = &v[..bracket_pos];
-                                    let type_args = &v[bracket_pos..]; // includes the <>
-                                    format!("{}.defaultValue{}()", base_type, type_args)
-                                } else {
-                                    format!("{}.defaultValue()", v)
-                                }
-                            }
-                            v => format!("{}.defaultValue()", v), // Named type
-                        }
+                        // Use get_type_default which properly handles naming_style for all types:
+                        // - Primitives (string, number, boolean, bigint)
+                        // - Generic types (RecordLink<Service>)
+                        // - Named types (CompanyName, PersonName - interfaces/classes)
+                        get_type_default(&variant, naming_style)
                     };
 
                     // Handle generic type aliases (e.g., type RecordLink<T> = ...)
