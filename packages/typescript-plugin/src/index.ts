@@ -1541,7 +1541,10 @@ function init(modules: { typescript: typeof ts }) {
         }
 
         // Check for macro hover first (JSDoc @derive comments and decorators)
-        const snapshot = info.languageServiceHost.getScriptSnapshot(fileName);
+        // Use the *original* snapshot for macro/decorator hover detection.
+        // The plugin's host hook returns expanded code where macro directives
+        // are stripped by default, which would make macro hover impossible.
+        const snapshot = originalGetScriptSnapshot(fileName);
         if (snapshot) {
           const text = snapshot.getText(0, snapshot.getLength());
           const macroHover = getMacroHoverInfo(text, position, tsModule);

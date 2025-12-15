@@ -241,6 +241,41 @@ class InvalidClass {
   );
 });
 
+test("invalid @serde(validate) surfaces as a macro diagnostic near the decorator", () => {
+  const source = `
+/** @derive(Deserialize) */
+interface User {
+  /** @serde({ validate: ["doesNotExist"] }) */
+  name: string;
+}`;
+
+  const serdeCommentStart = findMarker(source, "/** @serde");
+
+  const env = createEnv({
+    "/virtual/test.ts": source,
+    "/virtual/macros.ts": MACROS_DTS,
+    "/virtual/lib.d.ts": LIB_DTS,
+  });
+
+  env.info.languageServiceHost.getScriptSnapshot("/virtual/test.ts");
+
+  const diagnostics =
+    env.pluginService.getSemanticDiagnostics("/virtual/test.ts");
+  const macroDiags = diagnostics.filter((d) => d.source === "macroforge");
+
+  assert.ok(macroDiags.length >= 1, "expected at least one macro diagnostic");
+  const diag = macroDiags.find((d) =>
+    String(d.messageText).toLowerCase().includes("unknown validator"),
+  );
+  assert.ok(diag, "expected unknown validator diagnostic");
+  assert.strictEqual(diag.category, ts.DiagnosticCategory.Error);
+  assert.strictEqual(
+    diag.start,
+    serdeCommentStart.offset,
+    `diagnostic should start at @serde comment (${serdeCommentStart.offset}), got ${diag.start}`,
+  );
+});
+
 test("generic class with unknown macro - error at decorator position", () => {
   const source = `
 /** @derive(NonExistent) */
