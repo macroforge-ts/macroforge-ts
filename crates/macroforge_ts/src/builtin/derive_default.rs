@@ -51,12 +51,12 @@
 //! ## Example
 //!
 //! ```typescript
-//! @derive(Default)
+//! /** @derive(Default) */
 //! class UserSettings {
-//!     @default("light")
+//!     /** @default("light") */
 //!     theme: string;
 //!
-//!     @default(10)
+//!     /** @default(10) */
 //!     pageSize: number;
 //!
 //!     notifications: boolean;  // Uses type default: false
@@ -67,25 +67,19 @@
 //!
 //! ```typescript
 //! class UserSettings {
-//!     
 //!     theme: string;
 //! 
-//!     
 //!     pageSize: number;
 //! 
-//!     notifications: boolean;  // Uses type default: false
+//!     notifications: boolean; // Uses type default: false
 //! 
 //!     static defaultValue(): UserSettings {
-//!     const instance = new UserSettings();
-//!     instance.theme = {
-//!         "light": <invalid>
-//!     };
-//!     instance.pageSize = {
-//!         10: true
-//!     };
-//!     instance.notifications = false;
-//!     return instance;
-//! }
+//!         const instance = new UserSettings();
+//!         instance.theme = 'light';
+//!         instance.pageSize = 10;
+//!         instance.notifications = false;
+//!         return instance;
+//!     }
 //! }
 //! ```
 //!
@@ -94,9 +88,9 @@
 //! For enums, mark one variant with `@default`:
 //!
 //! ```typescript
-//! @derive(Default)
+//! /** @derive(Default) */
 //! enum Status {
-//!     @default
+//!     /** @default */
 //!     Pending,
 //!     Active,
 //!     Completed
@@ -106,73 +100,20 @@
 //! Generated output:
 //!
 //! ```typescript
-//! /** @derive(Default) */
 //! enum Status {
-//!     @default
+//!     /** @default */
 //!     Pending,
 //!     Active,
 //!     Completed
 //! }
-//! ```
-//!
-//! Generated output:
-//!
-//! ```typescript
-//! /** @derive(Default) */
-//! enum Status {
-//!     @default
-//!     Pending,
-//!     Active,
-//!     Completed
+//! 
+//! export function statusDefaultValue(): Status {
+//!     return Status.Pending;
 //! }
-//! ```
-//!
-//! Generated output:
-//!
-//! ```typescript
-//! /** @derive(Default) */
-//! enum Status {
-//!     @default
-//!     Pending,
-//!     Active,
-//!     Completed
-//! }
-//! ```
-//!
-//! Generated output:
-//!
-//! ```typescript
-//! /** @derive(Default) */
-//! enum Status {
-//!     @default
-//!     Pending,
-//!     Active,
-//!     Completed
-//! }
-//! ```
-//!
-//! Generated output:
-//!
-//! ```typescript
-//! /** @derive(Default) */
-//! enum Status {
-//!     @default
-//!     Pending,
-//!     Active,
-//!     Completed
-//! }
-//! ```
-//!
-//! Generated output:
-//!
-//! ```typescript
-//! /** @derive(Default) */
-//! enum Status {
-//!     @default
-//!     Pending,
-//!     Active,
-//!     Completed
-//! }
+//! 
+//! export const Status = {
+//!     defaultValue: statusDefaultValue
+//! } as const;
 //! ```
 //!
 //! ## Error Handling

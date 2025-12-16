@@ -45,16 +45,15 @@
 //! Most macros support field-level decorators to customize behavior:
 //!
 //! ```typescript
-//! @derive(Debug, PartialEq, Serialize)
+//! /** @derive(Debug, PartialEq, Serialize) */
 //! class User {
-//!     @debug(rename = "identifier")
+//!     /** @debug({ rename: "identifier" }) */
 //!     id: number;
 //!
-//!     @partialEq(skip)
-//!     @serde(skip_serializing)
+//!     /** @partialEq({ skip: true }) @serde({ skipSerializing: true }) */
 //!     password: string;
 //!
-//!     @serde(rename = "emailAddress")
+//!     /** @serde({ rename: "emailAddress" }) */
 //!     email: string;
 //! }
 //! ```
@@ -62,9 +61,7 @@
 //! ## Example Usage
 //!
 //! ```typescript
-//! import { derive, Debug, Clone, PartialEq, Hash } from "macroforge-ts";
-//!
-//! @derive(Debug, Clone, PartialEq, Hash)
+//! /** @derive(Debug, Clone, PartialEq, Hash) */
 //! class Point {
 //!     x: number;
 //!     y: number;
@@ -74,12 +71,6 @@
 //!         this.y = y;
 //!     }
 //! }
-//!
-//! // After macro expansion:
-//! // - point.toString() => "Point { x: 0, y: 0 }"
-//! // - point.clone() => new Point with same values
-//! // - point.equals(other) => true if x and y match
-//! // - point.hashCode() => numeric hash
 //! ```
 
 /// Clone macro implementation (deep copy).

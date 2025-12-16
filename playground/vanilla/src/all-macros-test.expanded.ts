@@ -56,18 +56,16 @@ export class AllMacrosTestClass {
             this.score === typedOther.score
         );
     }
+    /** Serializes this instance to a JSON string.
+@returns JSON string representation with cycle detection metadata  */
 
-    toStringifiedJSON(): string {
+    serialize(): string {
         const ctx = SerializeContext.create();
-        return JSON.stringify(this.__serialize(ctx));
+        return JSON.stringify(this.serializeWithContext(ctx));
     }
+    /** @internal Serializes with an existing context for nested/cyclic object graphs.  */
 
-    toObject(): Record<string, unknown> {
-        const ctx = SerializeContext.create();
-        return this.__serialize(ctx);
-    }
-
-    __serialize(ctx: SerializeContext): Record<string, unknown> {
+    serializeWithContext(ctx: SerializeContext): Record<string, unknown> {
         const existingId = ctx.getId(this);
         if (existingId !== undefined) {
             return {
@@ -103,9 +101,14 @@ export class AllMacrosTestClass {
         this.isActive = props.isActive;
         this.score = props.score;
     }
+    /** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(
-        json: string,
+    static deserialize(
+        input: unknown,
         opts?: DeserializeOptions
     ): Result<
         AllMacrosTestClass,
@@ -115,40 +118,15 @@ export class AllMacrosTestClass {
         }>
     > {
         try {
-            const raw = JSON.parse(json);
-            return AllMacrosTestClass.fromObject(raw, opts);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    static fromObject(
-        obj: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        AllMacrosTestClass,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
+            const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = DeserializeContext.create();
-            const resultOrRef = AllMacrosTestClass.__deserialize(obj, ctx);
+            const resultOrRef = AllMacrosTestClass.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
                         field: '_root',
-                        message: 'AllMacrosTestClass.fromObject: root cannot be a forward reference'
+                        message:
+                            'AllMacrosTestClass.deserialize: root cannot be a forward reference'
                     }
                 ]);
             }
@@ -170,8 +148,14 @@ export class AllMacrosTestClass {
             ]);
         }
     }
+    /** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
-    static __deserialize(value: any, ctx: DeserializeContext): AllMacrosTestClass | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): AllMacrosTestClass | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -179,7 +163,7 @@ export class AllMacrosTestClass {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'AllMacrosTestClass.__deserialize: expected an object'
+                    message: 'AllMacrosTestClass.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -260,49 +244,6 @@ export class AllMacrosTestClass {
             throw new DeserializeError(errors);
         }
         return instance;
-    }
-
-    static validateField<K extends keyof AllMacrosTestClass>(
-        field: K,
-        value: AllMacrosTestClass[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static validateFields(partial: Partial<AllMacrosTestClass>): Array<{
-        field: string;
-        message: string;
-    }> {
-        return [];
-    }
-
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return (
-            'id' in o &&
-            'name' in o &&
-            'email' in o &&
-            'secretToken' in o &&
-            'isActive' in o &&
-            'score' in o
-        );
-    }
-
-    static is(obj: unknown): obj is AllMacrosTestClass {
-        if (obj instanceof AllMacrosTestClass) {
-            return true;
-        }
-        if (!AllMacrosTestClass.hasShape(obj)) {
-            return false;
-        }
-        const result = AllMacrosTestClass.fromObject(obj);
-        return Result.isOk(result);
     }
 }
 

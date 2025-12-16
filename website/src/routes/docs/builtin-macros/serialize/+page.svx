@@ -20,8 +20,8 @@ including circular references.
 
 | Type | Generated Code | Description |
 |------|----------------|-------------|
-| Class | `serialize()`, `__serialize(ctx)` | Instance methods |
-| Enum | `myEnumSerialize(value)`, `myEnum__serialize` | Standalone functions |
+| Class | `serialize()`, `SerializeWithContext(ctx)` | Instance methods |
+| Enum | `myEnumSerialize(value)`, `myEnumSerializeWithContext` | Standalone functions |
 | Interface | `myInterfaceSerialize(value)`, etc. | Standalone functions |
 | Type Alias | `myTypeSerialize(value)`, etc. | Standalone functions |
 
@@ -57,11 +57,11 @@ When an object is serialized:
 |------|------------------------|
 | Primitives | Direct value |
 | `Date` | `toISOString()` |
-| Arrays | For primitive-like element types, pass through; for `Date`/`Date | null`, map to ISO strings; otherwise map and call `__serialize(ctx)` when available |
-| `Map<K,V>` | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date | null`, convert to ISO strings; otherwise call `__serialize(ctx)` per value when available |
+| Arrays | For primitive-like element types, pass through; for `Date`/`Date | null`, map to ISO strings; otherwise map and call `SerializeWithContext(ctx)` when available |
+| `Map<K,V>` | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date | null`, convert to ISO strings; otherwise call `SerializeWithContext(ctx)` per value when available |
 | `Set<T>` | Convert to array; element handling matches `Array<T>` |
-| Nullable | Include `null` explicitly; for primitive-like and `Date` unions the generator avoids runtime `__serialize` checks |
-| Objects | Call `__serialize(ctx)` if available (to support user-defined implementations) |
+| Nullable | Include `null` explicitly; for primitive-like and `Date` unions the generator avoids runtime `SerializeWithContext` checks |
+| Objects | Call `SerializeWithContext(ctx)` if available (to support user-defined implementations) |
 
 Note: the generator specializes some code paths based on the declared TypeScript type to
 avoid runtime feature detection on primitives and literal unions.
@@ -90,116 +90,44 @@ class User {
     /** @serde({ flatten: true }) */
     metadata: UserMetadata;
 }
-
-// Usage:
-const user = new User();
-const json = user.serialize();
-// => '{"__type":"User","__id":1,"id":1,"userName":"Alice",...}'
 ```
 
 ```typescript after
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext } from "macroforge/serde";
 
 class User {
     id: number;
 
+    
     name: string;
 
+    
     password: string;
 
+    
     metadata: UserMetadata;
-
-    toStringifiedJSON(): string {
-        const ctx = SerializeContext.create();
-        return JSON.stringify(this.__serialize(ctx));
-    }
-
-    toObject(): Record<string, unknown> {
-        const ctx = SerializeContext.create();
-        return this.__serialize(ctx);
-    }
-
-    __serialize(ctx: SerializeContext): Record<string, unknown> {
-        const existingId = ctx.getId(this);
-        if (existingId !== undefined) {
-            return {
-                __ref: existingId
-            };
-        }
-        const __id = ctx.register(this);
-        const result: Record<string, unknown> = {
-            __type: 'User',
-            __id
-        };
-        result['id'] = this.id;
-        result['userName'] = this.name;
-        result['password'] = this.password;
-        {
-            const __flattened = userMetadata__serialize(this.metadata, ctx);
-            const { __type: _, __id: __, ...rest } = __flattened as any;
-            Object.assign(result, rest);
-        }
-        return result;
-    }
-}
-
-// Usage:
-const user = new User();
-const json = user.serialize();
-// => '{"__type":"User","__id":1,"id":1,"userName":"Alice",...}'
+/** macroforge warning: Failed to parse macro output for @macro/derive::Serialize: Failed to parse macro output into class members */
+# [doc = "\n                 * Serializes this instance to a JSON string.\n                 * @returns JSON string representation with cycle detection metadata\n                 " ]serialize(): string {const ctx = SerializeContext.create(); return JSON.stringify(this.serializeWithContext(ctx));}# [doc = " @internal " ]SerializeWithContext(ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(this); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(this); const result: Record<string, unknown>= {__type: "User" , __id,}; result["id" ]= this.id; result["userName" ]= this.name; {const __flattened = userMetadataSerializeWithContext(this.metadata, ctx); const {__type: _, __id: __,...rest}= __flattened as any; Object.assign(result, rest);}return result;}}
 ```
 
 Generated output:
 
 ```typescript
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext } from "macroforge/serde";
 
 class User {
     id: number;
 
+
     name: string;
+
 
     password: string;
 
+
     metadata: UserMetadata;
-
-    /**
-     * Serializes this instance to a JSON string.
-     * @returns JSON string representation with cycle detection metadata
-     */
-    serialize(): string {
-        const ctx = SerializeContext.create();
-        return JSON.stringify(this.__serialize(ctx));
-    }
-
-    /** @internal */
-    __serialize(ctx: SerializeContext): Record<string, unknown> {
-        const existingId = ctx.getId(this);
-        if (existingId !== undefined) {
-            return {
-                __ref: existingId
-            };
-        }
-        const __id = ctx.register(this);
-        const result: Record<string, unknown> = {
-            __type: 'User',
-            __id
-        };
-        result['id'] = this.id;
-        result['userName'] = this.name;
-        {
-            const __flattened = userMetadata__serialize(this.metadata, ctx);
-            const { __type: _, __id: __, ...rest } = __flattened as any;
-            Object.assign(result, rest);
-        }
-        return result;
-    }
-}
-
-// Usage:
-const user = new User();
-const json = user.serialize();
-// => '{"__type":"User","__id":1,"id":1,"userName":"Alice",...}'
+/** macroforge warning: Failed to parse macro output for @macro/derive::Serialize: Failed to parse macro output into class members */
+# [doc = "\n                 * Serializes this instance to a JSON string.\n                 * @returns JSON string representation with cycle detection metadata\n                 " ]serialize(): string {const ctx = SerializeContext.create(); return JSON.stringify(this.serializeWithContext(ctx));}# [doc = " @internal " ]SerializeWithContext(ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(this); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(this); const result: Record<string, unknown>= {__type: "User" , __id,}; result["id" ]= this.id; result["userName" ]= this.name; {const __flattened = userMetadataSerializeWithContext(this.metadata, ctx); const {__type: _, __id: __,...rest}= __flattened as any; Object.assign(result, rest);}return result;}}
 ```
 
 ## Required Import

@@ -34,9 +34,14 @@ export class UserRegistrationForm {
         this.age = props.age;
         this.website = props.website;
     }
+    /** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(
-        json: string,
+    static deserialize(
+        input: unknown,
         opts?: DeserializeOptions
     ): Result<
         UserRegistrationForm,
@@ -46,41 +51,15 @@ export class UserRegistrationForm {
         }>
     > {
         try {
-            const raw = JSON.parse(json);
-            return UserRegistrationForm.fromObject(raw, opts);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    static fromObject(
-        obj: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        UserRegistrationForm,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
+            const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = DeserializeContext.create();
-            const resultOrRef = UserRegistrationForm.__deserialize(obj, ctx);
+            const resultOrRef = UserRegistrationForm.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
                         field: '_root',
                         message:
-                            'UserRegistrationForm.fromObject: root cannot be a forward reference'
+                            'UserRegistrationForm.deserialize: root cannot be a forward reference'
                     }
                 ]);
             }
@@ -102,8 +81,14 @@ export class UserRegistrationForm {
             ]);
         }
     }
+    /** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
-    static __deserialize(value: any, ctx: DeserializeContext): UserRegistrationForm | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): UserRegistrationForm | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -111,7 +96,7 @@ export class UserRegistrationForm {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'UserRegistrationForm.__deserialize: expected an object'
+                    message: 'UserRegistrationForm.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -252,225 +237,6 @@ export class UserRegistrationForm {
         }
         return instance;
     }
-
-    static validateField<K extends keyof UserRegistrationForm>(
-        field: K,
-        value: UserRegistrationForm[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        switch (field) {
-            case 'email': {
-                const __val = value as string;
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
-                    errors.push({
-                        field: 'email',
-                        message: 'must be a valid email'
-                    });
-                }
-                break;
-            }
-            case 'password': {
-                const __val = value as string;
-                if (__val.length < 8) {
-                    errors.push({
-                        field: 'password',
-                        message: 'must have at least 8 characters'
-                    });
-                }
-                if (__val.length > 50) {
-                    errors.push({
-                        field: 'password',
-                        message: 'must have at most 50 characters'
-                    });
-                }
-                break;
-            }
-            case 'username': {
-                const __val = value as string;
-                if (__val.length < 3) {
-                    errors.push({
-                        field: 'username',
-                        message: 'must have at least 3 characters'
-                    });
-                }
-                if (__val.length > 20) {
-                    errors.push({
-                        field: 'username',
-                        message: 'must have at most 20 characters'
-                    });
-                }
-                if (__val !== __val.toLowerCase()) {
-                    errors.push({
-                        field: 'username',
-                        message: 'must be lowercase'
-                    });
-                }
-                if (!/^[a-z][a-z0-9_]+$/.test(__val)) {
-                    errors.push({
-                        field: 'username',
-                        message: 'must match the required pattern'
-                    });
-                }
-                break;
-            }
-            case 'age': {
-                const __val = value as number;
-                if (!Number.isInteger(__val)) {
-                    errors.push({
-                        field: 'age',
-                        message: 'must be an integer'
-                    });
-                }
-                if (__val < 18 || __val > 120) {
-                    errors.push({
-                        field: 'age',
-                        message: 'must be between 18 and 120'
-                    });
-                }
-                break;
-            }
-            case 'website': {
-                const __val = value as string;
-                if (
-                    (() => {
-                        try {
-                            new URL(__val);
-                            return false;
-                        } catch {
-                            return true;
-                        }
-                    })()
-                ) {
-                    errors.push({
-                        field: 'website',
-                        message: 'must be a valid URL'
-                    });
-                }
-                break;
-            }
-        }
-        return errors;
-    }
-
-    static validateFields(partial: Partial<UserRegistrationForm>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('email' in partial && partial.email !== undefined) {
-            const __val = partial.email as string;
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(__val)) {
-                errors.push({
-                    field: 'email',
-                    message: 'must be a valid email'
-                });
-            }
-        }
-        if ('password' in partial && partial.password !== undefined) {
-            const __val = partial.password as string;
-            if (__val.length < 8) {
-                errors.push({
-                    field: 'password',
-                    message: 'must have at least 8 characters'
-                });
-            }
-            if (__val.length > 50) {
-                errors.push({
-                    field: 'password',
-                    message: 'must have at most 50 characters'
-                });
-            }
-        }
-        if ('username' in partial && partial.username !== undefined) {
-            const __val = partial.username as string;
-            if (__val.length < 3) {
-                errors.push({
-                    field: 'username',
-                    message: 'must have at least 3 characters'
-                });
-            }
-            if (__val.length > 20) {
-                errors.push({
-                    field: 'username',
-                    message: 'must have at most 20 characters'
-                });
-            }
-            if (__val !== __val.toLowerCase()) {
-                errors.push({
-                    field: 'username',
-                    message: 'must be lowercase'
-                });
-            }
-            if (!/^[a-z][a-z0-9_]+$/.test(__val)) {
-                errors.push({
-                    field: 'username',
-                    message: 'must match the required pattern'
-                });
-            }
-        }
-        if ('age' in partial && partial.age !== undefined) {
-            const __val = partial.age as number;
-            if (!Number.isInteger(__val)) {
-                errors.push({
-                    field: 'age',
-                    message: 'must be an integer'
-                });
-            }
-            if (__val < 18 || __val > 120) {
-                errors.push({
-                    field: 'age',
-                    message: 'must be between 18 and 120'
-                });
-            }
-        }
-        if ('website' in partial && partial.website !== undefined) {
-            const __val = partial.website as string;
-            if (
-                (() => {
-                    try {
-                        new URL(__val);
-                        return false;
-                    } catch {
-                        return true;
-                    }
-                })()
-            ) {
-                errors.push({
-                    field: 'website',
-                    message: 'must be a valid URL'
-                });
-            }
-        }
-        return errors;
-    }
-
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'email' in o && 'password' in o && 'username' in o && 'age' in o && 'website' in o;
-    }
-
-    static is(obj: unknown): obj is UserRegistrationForm {
-        if (obj instanceof UserRegistrationForm) {
-            return true;
-        }
-        if (!UserRegistrationForm.hasShape(obj)) {
-            return false;
-        }
-        const result = UserRegistrationForm.fromObject(obj);
-        return Result.isOk(result);
-    }
 }
 
 export class ProductForm {
@@ -497,9 +263,14 @@ export class ProductForm {
         this.tags = props.tags;
         this.sku = props.sku;
     }
+    /** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(
-        json: string,
+    static deserialize(
+        input: unknown,
         opts?: DeserializeOptions
     ): Result<
         ProductForm,
@@ -509,40 +280,14 @@ export class ProductForm {
         }>
     > {
         try {
-            const raw = JSON.parse(json);
-            return ProductForm.fromObject(raw, opts);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    static fromObject(
-        obj: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        ProductForm,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
+            const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = DeserializeContext.create();
-            const resultOrRef = ProductForm.__deserialize(obj, ctx);
+            const resultOrRef = ProductForm.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
                         field: '_root',
-                        message: 'ProductForm.fromObject: root cannot be a forward reference'
+                        message: 'ProductForm.deserialize: root cannot be a forward reference'
                     }
                 ]);
             }
@@ -564,8 +309,11 @@ export class ProductForm {
             ]);
         }
     }
+    /** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
-    static __deserialize(value: any, ctx: DeserializeContext): ProductForm | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): ProductForm | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -573,7 +321,7 @@ export class ProductForm {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'ProductForm.__deserialize: expected an object'
+                    message: 'ProductForm.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -705,203 +453,6 @@ export class ProductForm {
         }
         return instance;
     }
-
-    static validateField<K extends keyof ProductForm>(
-        field: K,
-        value: ProductForm[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        switch (field) {
-            case 'name': {
-                const __val = value as string;
-                if (__val.length === 0) {
-                    errors.push({
-                        field: 'name',
-                        message: 'must not be empty'
-                    });
-                }
-                if (__val.length > 100) {
-                    errors.push({
-                        field: 'name',
-                        message: 'must have at most 100 characters'
-                    });
-                }
-                break;
-            }
-            case 'price': {
-                const __val = value as number;
-                if (__val <= 0) {
-                    errors.push({
-                        field: 'price',
-                        message: 'must be positive'
-                    });
-                }
-                if (__val >= 1000000) {
-                    errors.push({
-                        field: 'price',
-                        message: 'must be less than 1000000'
-                    });
-                }
-                break;
-            }
-            case 'quantity': {
-                const __val = value as number;
-                if (!Number.isInteger(__val)) {
-                    errors.push({
-                        field: 'quantity',
-                        message: 'must be an integer'
-                    });
-                }
-                if (__val < 0) {
-                    errors.push({
-                        field: 'quantity',
-                        message: 'must be non-negative'
-                    });
-                }
-                break;
-            }
-            case 'tags': {
-                const __val = value as string[];
-                if (__val.length < 1) {
-                    errors.push({
-                        field: 'tags',
-                        message: 'must have at least 1 items'
-                    });
-                }
-                if (__val.length > 5) {
-                    errors.push({
-                        field: 'tags',
-                        message: 'must have at most 5 items'
-                    });
-                }
-                break;
-            }
-            case 'sku': {
-                const __val = value as string;
-                if (
-                    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-                        __val
-                    )
-                ) {
-                    errors.push({
-                        field: 'sku',
-                        message: 'must be a valid UUID'
-                    });
-                }
-                break;
-            }
-        }
-        return errors;
-    }
-
-    static validateFields(partial: Partial<ProductForm>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('name' in partial && partial.name !== undefined) {
-            const __val = partial.name as string;
-            if (__val.length === 0) {
-                errors.push({
-                    field: 'name',
-                    message: 'must not be empty'
-                });
-            }
-            if (__val.length > 100) {
-                errors.push({
-                    field: 'name',
-                    message: 'must have at most 100 characters'
-                });
-            }
-        }
-        if ('price' in partial && partial.price !== undefined) {
-            const __val = partial.price as number;
-            if (__val <= 0) {
-                errors.push({
-                    field: 'price',
-                    message: 'must be positive'
-                });
-            }
-            if (__val >= 1000000) {
-                errors.push({
-                    field: 'price',
-                    message: 'must be less than 1000000'
-                });
-            }
-        }
-        if ('quantity' in partial && partial.quantity !== undefined) {
-            const __val = partial.quantity as number;
-            if (!Number.isInteger(__val)) {
-                errors.push({
-                    field: 'quantity',
-                    message: 'must be an integer'
-                });
-            }
-            if (__val < 0) {
-                errors.push({
-                    field: 'quantity',
-                    message: 'must be non-negative'
-                });
-            }
-        }
-        if ('tags' in partial && partial.tags !== undefined) {
-            const __val = partial.tags as string[];
-            if (__val.length < 1) {
-                errors.push({
-                    field: 'tags',
-                    message: 'must have at least 1 items'
-                });
-            }
-            if (__val.length > 5) {
-                errors.push({
-                    field: 'tags',
-                    message: 'must have at most 5 items'
-                });
-            }
-        }
-        if ('sku' in partial && partial.sku !== undefined) {
-            const __val = partial.sku as string;
-            if (
-                !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-                    __val
-                )
-            ) {
-                errors.push({
-                    field: 'sku',
-                    message: 'must be a valid UUID'
-                });
-            }
-        }
-        return errors;
-    }
-
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'name' in o && 'price' in o && 'quantity' in o && 'tags' in o && 'sku' in o;
-    }
-
-    static is(obj: unknown): obj is ProductForm {
-        if (obj instanceof ProductForm) {
-            return true;
-        }
-        if (!ProductForm.hasShape(obj)) {
-            return false;
-        }
-        const result = ProductForm.fromObject(obj);
-        return Result.isOk(result);
-    }
 }
 
 export class EventForm {
@@ -924,9 +475,14 @@ export class EventForm {
         this.endDate = props.endDate;
         this.maxAttendees = props.maxAttendees;
     }
+    /** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(
-        json: string,
+    static deserialize(
+        input: unknown,
         opts?: DeserializeOptions
     ): Result<
         EventForm,
@@ -936,40 +492,14 @@ export class EventForm {
         }>
     > {
         try {
-            const raw = JSON.parse(json);
-            return EventForm.fromObject(raw, opts);
-        } catch (e) {
-            if (e instanceof DeserializeError) {
-                return Result.err(e.errors);
-            }
-            const message = e instanceof Error ? e.message : String(e);
-            return Result.err([
-                {
-                    field: '_root',
-                    message
-                }
-            ]);
-        }
-    }
-
-    static fromObject(
-        obj: unknown,
-        opts?: DeserializeOptions
-    ): Result<
-        EventForm,
-        Array<{
-            field: string;
-            message: string;
-        }>
-    > {
-        try {
+            const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = DeserializeContext.create();
-            const resultOrRef = EventForm.__deserialize(obj, ctx);
+            const resultOrRef = EventForm.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
                         field: '_root',
-                        message: 'EventForm.fromObject: root cannot be a forward reference'
+                        message: 'EventForm.deserialize: root cannot be a forward reference'
                     }
                 ]);
             }
@@ -991,8 +521,11 @@ export class EventForm {
             ]);
         }
     }
+    /** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
-    static __deserialize(value: any, ctx: DeserializeContext): EventForm | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): EventForm | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -1000,7 +533,7 @@ export class EventForm {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'EventForm.__deserialize: expected an object'
+                    message: 'EventForm.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -1115,164 +648,6 @@ export class EventForm {
             throw new DeserializeError(errors);
         }
         return instance;
-    }
-
-    static validateField<K extends keyof EventForm>(
-        field: K,
-        value: EventForm[K]
-    ): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        switch (field) {
-            case 'title': {
-                const __val = value as string;
-                if (__val.length === 0) {
-                    errors.push({
-                        field: 'title',
-                        message: 'must not be empty'
-                    });
-                }
-                if (__val !== __val.trim()) {
-                    errors.push({
-                        field: 'title',
-                        message: 'must be trimmed (no leading/trailing whitespace)'
-                    });
-                }
-                break;
-            }
-            case 'startDate': {
-                const __val = value as Date;
-                if (__val == null || isNaN(__val.getTime())) {
-                    errors.push({
-                        field: 'startDate',
-                        message: 'must be a valid date'
-                    });
-                }
-                if (__val == null || __val.getTime() <= new Date('2020-01-01').getTime()) {
-                    errors.push({
-                        field: 'startDate',
-                        message: 'must be after 2020-01-01'
-                    });
-                }
-                break;
-            }
-            case 'endDate': {
-                const __val = value as Date;
-                if (__val == null || isNaN(__val.getTime())) {
-                    errors.push({
-                        field: 'endDate',
-                        message: 'must be a valid date'
-                    });
-                }
-                break;
-            }
-            case 'maxAttendees': {
-                const __val = value as number;
-                if (!Number.isInteger(__val)) {
-                    errors.push({
-                        field: 'maxAttendees',
-                        message: 'must be an integer'
-                    });
-                }
-                if (__val < 1 || __val > 1000) {
-                    errors.push({
-                        field: 'maxAttendees',
-                        message: 'must be between 1 and 1000'
-                    });
-                }
-                break;
-            }
-        }
-        return errors;
-    }
-
-    static validateFields(partial: Partial<EventForm>): Array<{
-        field: string;
-        message: string;
-    }> {
-        const errors: Array<{
-            field: string;
-            message: string;
-        }> = [];
-        if ('title' in partial && partial.title !== undefined) {
-            const __val = partial.title as string;
-            if (__val.length === 0) {
-                errors.push({
-                    field: 'title',
-                    message: 'must not be empty'
-                });
-            }
-            if (__val !== __val.trim()) {
-                errors.push({
-                    field: 'title',
-                    message: 'must be trimmed (no leading/trailing whitespace)'
-                });
-            }
-        }
-        if ('startDate' in partial && partial.startDate !== undefined) {
-            const __val = partial.startDate as Date;
-            if (__val == null || isNaN(__val.getTime())) {
-                errors.push({
-                    field: 'startDate',
-                    message: 'must be a valid date'
-                });
-            }
-            if (__val == null || __val.getTime() <= new Date('2020-01-01').getTime()) {
-                errors.push({
-                    field: 'startDate',
-                    message: 'must be after 2020-01-01'
-                });
-            }
-        }
-        if ('endDate' in partial && partial.endDate !== undefined) {
-            const __val = partial.endDate as Date;
-            if (__val == null || isNaN(__val.getTime())) {
-                errors.push({
-                    field: 'endDate',
-                    message: 'must be a valid date'
-                });
-            }
-        }
-        if ('maxAttendees' in partial && partial.maxAttendees !== undefined) {
-            const __val = partial.maxAttendees as number;
-            if (!Number.isInteger(__val)) {
-                errors.push({
-                    field: 'maxAttendees',
-                    message: 'must be an integer'
-                });
-            }
-            if (__val < 1 || __val > 1000) {
-                errors.push({
-                    field: 'maxAttendees',
-                    message: 'must be between 1 and 1000'
-                });
-            }
-        }
-        return errors;
-    }
-
-    static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-            return false;
-        }
-        const o = obj as Record<string, unknown>;
-        return 'title' in o && 'startDate' in o && 'endDate' in o && 'maxAttendees' in o;
-    }
-
-    static is(obj: unknown): obj is EventForm {
-        if (obj instanceof EventForm) {
-            return true;
-        }
-        if (!EventForm.hasShape(obj)) {
-            return false;
-        }
-        const result = EventForm.fromObject(obj);
-        return Result.isOk(result);
     }
 }
 

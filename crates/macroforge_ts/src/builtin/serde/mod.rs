@@ -8,24 +8,23 @@
 //! ### Serialize
 //!
 //! - `serialize(): string` - Serialize to JSON string
-//! - `__serialize(ctx): Record<string, unknown>` - Internal method with cycle detection
+//! - `SerializeWithContext(ctx): Record<string, unknown>` - Internal method with cycle detection
 //!
 //! ### Deserialize
 //!
 //! - `static deserialize(input: unknown): Result<T, Error[]>` - Parse and validate (auto-detects string vs object)
-//! - `static __deserialize(value, ctx): T` - Internal method with cycle resolution
+//! - `static deserializeWithContext(value, ctx): T` - Internal method with cycle resolution
 //!
 //! ## Cycle Detection
 //!
 //! Both macros support cycle detection for object graphs with circular references:
 //!
 //! ```typescript
-//! @derive(Serialize, Deserialize)
+//! /** @derive(Serialize, Deserialize) */
 //! class Node {
 //!     value: number;
 //!     next: Node | null;
 //! }
-//!
 //! // Creates: { __type: "Node", __id: 1, value: 1, next: { __ref: 1 } }
 //! ```
 //!
@@ -93,22 +92,21 @@
 //! ## Example
 //!
 //! ```typescript
-//! @derive(Serialize, Deserialize)
-//! @serde(renameAll = "camelCase")
+//! /** @derive(Serialize, Deserialize) @serde({ renameAll: "camelCase" }) */
 //! class User {
-//!     @serde(email)
+//!     /** @serde({ validate: { email: true } }) */
 //!     emailAddress: string;
 //!
-//!     @serde(minLength(3), maxLength(50))
+//!     /** @serde({ validate: { minLength: 3, maxLength: 50 } }) */
 //!     username: string;
 //!
-//!     @serde(skipSerializing)
+//!     /** @serde({ skipSerializing: true }) */
 //!     password: string;
 //!
-//!     @serde(default)
+//!     /** @serde({ default: true }) */
 //!     role: string;
 //!
-//!     @serde(flatten)
+//!     /** @serde({ flatten: true }) */
 //!     metadata: UserMetadata;
 //! }
 //! ```

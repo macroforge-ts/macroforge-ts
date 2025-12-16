@@ -35,14 +35,11 @@
 //! ## Example
 //!
 //! ```typescript
-//! @derive(Clone)
+//! /** @derive(Clone) */
 //! class Point {
 //!     x: number;
 //!     y: number;
 //! }
-//!
-//! const p1 = new Point();
-//! const p2 = p1.clone(); // Creates a new Point with same values
 //! ```
 //!
 //! Generated output:
@@ -59,9 +56,6 @@
 //!         return cloned;
 //!     }
 //! }
-//! 
-//! const p1 = new Point();
-//! const p2 = p1.clone(); // Creates a new Point with same values
 //! ```
 //!
 //! ## Implementation Notes

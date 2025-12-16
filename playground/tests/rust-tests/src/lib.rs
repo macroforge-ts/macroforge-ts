@@ -561,7 +561,7 @@ mod tests {
             function dispatch(value: any) {
                 {#for type_ref in type_refs}
                     if (value.__type === "@{type_ref}") {
-                        return @{type_ref}.__deserialize(value);
+                        return @{type_ref}.deserializeWithContext(value);
                     }
                 {/for}
             }
@@ -570,9 +570,9 @@ mod tests {
         let s = stream.source();
         println!("Generated Source:\n{}", s);
 
-        assert!(s.contains("User.__deserialize"), "Expected User.__deserialize, found: {}", s);
-        assert!(s.contains("Admin.__deserialize"), "Expected Admin.__deserialize, found: {}", s);
-        assert!(s.contains("Guest.__deserialize"), "Expected Guest.__deserialize, found: {}", s);
+        assert!(s.contains("User.deserializeWithContext"), "Expected User.deserializeWithContext, found: {}", s);
+        assert!(s.contains("Admin.deserializeWithContext"), "Expected Admin.deserializeWithContext, found: {}", s);
+        assert!(s.contains("Guest.deserializeWithContext"), "Expected Guest.deserializeWithContext, found: {}", s);
     }
 
     #[test]
@@ -585,7 +585,7 @@ mod tests {
         let is_type_ref_only = true;
 
         let stream: TsStream = ts_template! {
-            function __deserialize(value: any) {
+            function deserializeWithContext(value: any) {
                 {#if is_literal_only}
                     const allowedValues = [{#for lit in literals}@{lit}, {/for}] as const;
                     return value;
@@ -593,7 +593,7 @@ mod tests {
                     const typeName = value.__type;
                     {#for type_ref in type_refs}
                         if (typeName === "@{type_ref}") {
-                            return @{type_ref}.__deserialize(value);
+                            return @{type_ref}.deserializeWithContext(value);
                         }
                     {/for}
                     throw new Error("Unknown type");
@@ -606,8 +606,8 @@ mod tests {
         let s = stream.source();
         println!("Generated Source:\n{}", s);
 
-        assert!(s.contains("Success.__deserialize"), "Expected Success.__deserialize, found: {}", s);
-        assert!(s.contains("Failure.__deserialize"), "Expected Failure.__deserialize, found: {}", s);
+        assert!(s.contains("Success.deserializeWithContext"), "Expected Success.deserializeWithContext, found: {}", s);
+        assert!(s.contains("Failure.deserializeWithContext"), "Expected Failure.deserializeWithContext, found: {}", s);
     }
 
     #[test]
@@ -644,14 +644,14 @@ mod tests {
         let has_type_refs = !type_refs.is_empty();
 
         let stream: TsStream = ts_template! {
-            function __deserialize(value: any) {
+            function deserializeWithContext(value: any) {
                 {#if has_type_refs}
                     if (typeof value === "object" && value !== null) {
                         const __typeName = value.__type;
                         if (typeof __typeName === "string") {
                             {#for type_ref in type_refs}
                                 if (__typeName === "@{type_ref}") {
-                                    return @{type_ref}.__deserialize(value);
+                                    return @{type_ref}.deserializeWithContext(value);
                                 }
                             {/for}
                         }
@@ -664,7 +664,7 @@ mod tests {
         let s = stream.source();
         println!("Generated Source:\n{}", s);
 
-        assert!(s.contains("Option1.__deserialize"), "Expected Option1.__deserialize, found: {}", s);
-        assert!(s.contains("Option2.__deserialize"), "Expected Option2.__deserialize, found: {}", s);
+        assert!(s.contains("Option1.deserializeWithContext"), "Expected Option1.deserializeWithContext, found: {}", s);
+        assert!(s.contains("Option2.deserializeWithContext"), "Expected Option2.deserializeWithContext, found: {}", s);
     }
 }

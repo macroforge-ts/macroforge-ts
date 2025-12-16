@@ -12,13 +12,12 @@
 //! Many macros support field-level customization through decorators:
 //!
 //! ```typescript
-//! @derive(PartialEq, Hash, Default)
+//! /** @derive(PartialEq, Hash, Default) */
 //! class User {
-//!     @partialEq(skip)  // Exclude from equality comparison
-//!     @hash(skip)       // Exclude from hash calculation
+//!     /** @partialEq({ skip: true }) @hash({ skip: true }) */
 //!     cachedValue: number;
 //!
-//!     @default("guest") // Use "guest" as default value
+//!     /** @default("guest") */
 //!     name: string;
 //! }
 //! ```

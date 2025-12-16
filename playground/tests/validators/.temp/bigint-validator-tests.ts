@@ -46,7 +46,7 @@ export class GreaterThanBigIntValidator {
 }>> {
     try {
         const ctx = DeserializeContext.create();
-        const resultOrRef = GreaterThanBigIntValidator.__deserialize(obj, ctx);
+        const resultOrRef = GreaterThanBigIntValidator.deserializeWithContext(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
@@ -74,7 +74,7 @@ export class GreaterThanBigIntValidator {
     }
 }
 
-    static __deserialize(value: any, ctx: DeserializeContext): GreaterThanBigIntValidator | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): GreaterThanBigIntValidator | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -82,7 +82,7 @@ export class GreaterThanBigIntValidator {
         throw new DeserializeError([
             {
                 field: "_root",
-                message: "GreaterThanBigIntValidator.__deserialize: expected an object"
+                message: "GreaterThanBigIntValidator.deserializeWithContext: expected an object"
             }
         ]);
     }
@@ -224,7 +224,7 @@ export class GreaterThanOrEqualToBigIntValidator {
 }>> {
     try {
         const ctx = DeserializeContext.create();
-        const resultOrRef = GreaterThanOrEqualToBigIntValidator.__deserialize(obj, ctx);
+        const resultOrRef = GreaterThanOrEqualToBigIntValidator.deserializeWithContext(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
@@ -252,7 +252,7 @@ export class GreaterThanOrEqualToBigIntValidator {
     }
 }
 
-    static __deserialize(value: any, ctx: DeserializeContext): GreaterThanOrEqualToBigIntValidator | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): GreaterThanOrEqualToBigIntValidator | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -260,7 +260,7 @@ export class GreaterThanOrEqualToBigIntValidator {
         throw new DeserializeError([
             {
                 field: "_root",
-                message: "GreaterThanOrEqualToBigIntValidator.__deserialize: expected an object"
+                message: "GreaterThanOrEqualToBigIntValidator.deserializeWithContext: expected an object"
             }
         ]);
     }
@@ -402,7 +402,7 @@ export class LessThanBigIntValidator {
 }>> {
     try {
         const ctx = DeserializeContext.create();
-        const resultOrRef = LessThanBigIntValidator.__deserialize(obj, ctx);
+        const resultOrRef = LessThanBigIntValidator.deserializeWithContext(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
@@ -430,7 +430,7 @@ export class LessThanBigIntValidator {
     }
 }
 
-    static __deserialize(value: any, ctx: DeserializeContext): LessThanBigIntValidator | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): LessThanBigIntValidator | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -438,7 +438,7 @@ export class LessThanBigIntValidator {
         throw new DeserializeError([
             {
                 field: "_root",
-                message: "LessThanBigIntValidator.__deserialize: expected an object"
+                message: "LessThanBigIntValidator.deserializeWithContext: expected an object"
             }
         ]);
     }
@@ -580,7 +580,7 @@ export class LessThanOrEqualToBigIntValidator {
 }>> {
     try {
         const ctx = DeserializeContext.create();
-        const resultOrRef = LessThanOrEqualToBigIntValidator.__deserialize(obj, ctx);
+        const resultOrRef = LessThanOrEqualToBigIntValidator.deserializeWithContext(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
@@ -608,7 +608,7 @@ export class LessThanOrEqualToBigIntValidator {
     }
 }
 
-    static __deserialize(value: any, ctx: DeserializeContext): LessThanOrEqualToBigIntValidator | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): LessThanOrEqualToBigIntValidator | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -616,7 +616,7 @@ export class LessThanOrEqualToBigIntValidator {
         throw new DeserializeError([
             {
                 field: "_root",
-                message: "LessThanOrEqualToBigIntValidator.__deserialize: expected an object"
+                message: "LessThanOrEqualToBigIntValidator.deserializeWithContext: expected an object"
             }
         ]);
     }
@@ -758,7 +758,7 @@ export class BetweenBigIntValidator {
 }>> {
     try {
         const ctx = DeserializeContext.create();
-        const resultOrRef = BetweenBigIntValidator.__deserialize(obj, ctx);
+        const resultOrRef = BetweenBigIntValidator.deserializeWithContext(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
@@ -786,7 +786,7 @@ export class BetweenBigIntValidator {
     }
 }
 
-    static __deserialize(value: any, ctx: DeserializeContext): BetweenBigIntValidator | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): BetweenBigIntValidator | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -794,7 +794,7 @@ export class BetweenBigIntValidator {
         throw new DeserializeError([
             {
                 field: "_root",
-                message: "BetweenBigIntValidator.__deserialize: expected an object"
+                message: "BetweenBigIntValidator.deserializeWithContext: expected an object"
             }
         ]);
     }
@@ -936,7 +936,7 @@ export class PositiveBigIntValidator {
 }>> {
     try {
         const ctx = DeserializeContext.create();
-        const resultOrRef = PositiveBigIntValidator.__deserialize(obj, ctx);
+        const resultOrRef = PositiveBigIntValidator.deserializeWithContext(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
@@ -964,7 +964,7 @@ export class PositiveBigIntValidator {
     }
 }
 
-    static __deserialize(value: any, ctx: DeserializeContext): PositiveBigIntValidator | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): PositiveBigIntValidator | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -972,7 +972,7 @@ export class PositiveBigIntValidator {
         throw new DeserializeError([
             {
                 field: "_root",
-                message: "PositiveBigIntValidator.__deserialize: expected an object"
+                message: "PositiveBigIntValidator.deserializeWithContext: expected an object"
             }
         ]);
     }
@@ -1114,7 +1114,7 @@ export class NonNegativeBigIntValidator {
 }>> {
     try {
         const ctx = DeserializeContext.create();
-        const resultOrRef = NonNegativeBigIntValidator.__deserialize(obj, ctx);
+        const resultOrRef = NonNegativeBigIntValidator.deserializeWithContext(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
@@ -1142,7 +1142,7 @@ export class NonNegativeBigIntValidator {
     }
 }
 
-    static __deserialize(value: any, ctx: DeserializeContext): NonNegativeBigIntValidator | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): NonNegativeBigIntValidator | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -1150,7 +1150,7 @@ export class NonNegativeBigIntValidator {
         throw new DeserializeError([
             {
                 field: "_root",
-                message: "NonNegativeBigIntValidator.__deserialize: expected an object"
+                message: "NonNegativeBigIntValidator.deserializeWithContext: expected an object"
             }
         ]);
     }
@@ -1292,7 +1292,7 @@ export class NegativeBigIntValidator {
 }>> {
     try {
         const ctx = DeserializeContext.create();
-        const resultOrRef = NegativeBigIntValidator.__deserialize(obj, ctx);
+        const resultOrRef = NegativeBigIntValidator.deserializeWithContext(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
@@ -1320,7 +1320,7 @@ export class NegativeBigIntValidator {
     }
 }
 
-    static __deserialize(value: any, ctx: DeserializeContext): NegativeBigIntValidator | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): NegativeBigIntValidator | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -1328,7 +1328,7 @@ export class NegativeBigIntValidator {
         throw new DeserializeError([
             {
                 field: "_root",
-                message: "NegativeBigIntValidator.__deserialize: expected an object"
+                message: "NegativeBigIntValidator.deserializeWithContext: expected an object"
             }
         ]);
     }
@@ -1470,7 +1470,7 @@ export class NonPositiveBigIntValidator {
 }>> {
     try {
         const ctx = DeserializeContext.create();
-        const resultOrRef = NonPositiveBigIntValidator.__deserialize(obj, ctx);
+        const resultOrRef = NonPositiveBigIntValidator.deserializeWithContext(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
@@ -1498,7 +1498,7 @@ export class NonPositiveBigIntValidator {
     }
 }
 
-    static __deserialize(value: any, ctx: DeserializeContext): NonPositiveBigIntValidator | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): NonPositiveBigIntValidator | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -1506,7 +1506,7 @@ export class NonPositiveBigIntValidator {
         throw new DeserializeError([
             {
                 field: "_root",
-                message: "NonPositiveBigIntValidator.__deserialize: expected an object"
+                message: "NonPositiveBigIntValidator.deserializeWithContext: expected an object"
             }
         ]);
     }

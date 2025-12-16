@@ -46,7 +46,7 @@ export class MultipleValidatorsTest {
 }>> {
     try {
         const ctx = DeserializeContext.create();
-        const resultOrRef = MultipleValidatorsTest.__deserialize(obj, ctx);
+        const resultOrRef = MultipleValidatorsTest.deserializeWithContext(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
@@ -74,7 +74,7 @@ export class MultipleValidatorsTest {
     }
 }
 
-    static __deserialize(value: any, ctx: DeserializeContext): MultipleValidatorsTest | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): MultipleValidatorsTest | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -82,7 +82,7 @@ export class MultipleValidatorsTest {
         throw new DeserializeError([
             {
                 field: "_root",
-                message: "MultipleValidatorsTest.__deserialize: expected an object"
+                message: "MultipleValidatorsTest.deserializeWithContext: expected an object"
             }
         ]);
     }
@@ -260,7 +260,7 @@ export class CustomMessageTest {
 }>> {
     try {
         const ctx = DeserializeContext.create();
-        const resultOrRef = CustomMessageTest.__deserialize(obj, ctx);
+        const resultOrRef = CustomMessageTest.deserializeWithContext(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
@@ -288,7 +288,7 @@ export class CustomMessageTest {
     }
 }
 
-    static __deserialize(value: any, ctx: DeserializeContext): CustomMessageTest | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): CustomMessageTest | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -296,7 +296,7 @@ export class CustomMessageTest {
         throw new DeserializeError([
             {
                 field: "_root",
-                message: "CustomMessageTest.__deserialize: expected an object"
+                message: "CustomMessageTest.deserializeWithContext: expected an object"
             }
         ]);
     }
@@ -438,7 +438,7 @@ export class MixedValidatorsTest {
 }>> {
     try {
         const ctx = DeserializeContext.create();
-        const resultOrRef = MixedValidatorsTest.__deserialize(obj, ctx);
+        const resultOrRef = MixedValidatorsTest.deserializeWithContext(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
@@ -466,7 +466,7 @@ export class MixedValidatorsTest {
     }
 }
 
-    static __deserialize(value: any, ctx: DeserializeContext): MixedValidatorsTest | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): MixedValidatorsTest | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -474,7 +474,7 @@ export class MixedValidatorsTest {
         throw new DeserializeError([
             {
                 field: "_root",
-                message: "MixedValidatorsTest.__deserialize: expected an object"
+                message: "MixedValidatorsTest.deserializeWithContext: expected an object"
             }
         ]);
     }
@@ -634,7 +634,7 @@ export class CombinedStringValidatorsTest {
 }>> {
     try {
         const ctx = DeserializeContext.create();
-        const resultOrRef = CombinedStringValidatorsTest.__deserialize(obj, ctx);
+        const resultOrRef = CombinedStringValidatorsTest.deserializeWithContext(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
@@ -662,7 +662,7 @@ export class CombinedStringValidatorsTest {
     }
 }
 
-    static __deserialize(value: any, ctx: DeserializeContext): CombinedStringValidatorsTest | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): CombinedStringValidatorsTest | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -670,7 +670,7 @@ export class CombinedStringValidatorsTest {
         throw new DeserializeError([
             {
                 field: "_root",
-                message: "CombinedStringValidatorsTest.__deserialize: expected an object"
+                message: "CombinedStringValidatorsTest.deserializeWithContext: expected an object"
             }
         ]);
     }
@@ -848,7 +848,7 @@ export class CombinedNumberValidatorsTest {
 }>> {
     try {
         const ctx = DeserializeContext.create();
-        const resultOrRef = CombinedNumberValidatorsTest.__deserialize(obj, ctx);
+        const resultOrRef = CombinedNumberValidatorsTest.deserializeWithContext(obj, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
@@ -876,7 +876,7 @@ export class CombinedNumberValidatorsTest {
     }
 }
 
-    static __deserialize(value: any, ctx: DeserializeContext): CombinedNumberValidatorsTest | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): CombinedNumberValidatorsTest | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref);
     }
@@ -884,7 +884,7 @@ export class CombinedNumberValidatorsTest {
         throw new DeserializeError([
             {
                 field: "_root",
-                message: "CombinedNumberValidatorsTest.__deserialize: expected an object"
+                message: "CombinedNumberValidatorsTest.deserializeWithContext: expected an object"
             }
         ]);
     }

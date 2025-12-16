@@ -8,8 +8,8 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `serialize()`, `__serialize(ctx)` | Instance methods |
-//! | Enum | `myEnumSerialize(value)`, `myEnum__serialize` | Standalone functions |
+//! | Class | `serialize()`, `SerializeWithContext(ctx)` | Instance methods |
+//! | Enum | `myEnumSerialize(value)`, `myEnumSerializeWithContext` | Standalone functions |
 //! | Interface | `myInterfaceSerialize(value)`, etc. | Standalone functions |
 //! | Type Alias | `myTypeSerialize(value)`, etc. | Standalone functions |
 //!
@@ -45,11 +45,11 @@
 //! |------|------------------------|
 //! | Primitives | Direct value |
 //! | `Date` | `toISOString()` |
-//! | Arrays | For primitive-like element types, pass through; for `Date`/`Date | null`, map to ISO strings; otherwise map and call `__serialize(ctx)` when available |
-//! | `Map<K,V>` | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date | null`, convert to ISO strings; otherwise call `__serialize(ctx)` per value when available |
+//! | Arrays | For primitive-like element types, pass through; for `Date`/`Date | null`, map to ISO strings; otherwise map and call `SerializeWithContext(ctx)` when available |
+//! | `Map<K,V>` | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date | null`, convert to ISO strings; otherwise call `SerializeWithContext(ctx)` per value when available |
 //! | `Set<T>` | Convert to array; element handling matches `Array<T>` |
-//! | Nullable | Include `null` explicitly; for primitive-like and `Date` unions the generator avoids runtime `__serialize` checks |
-//! | Objects | Call `__serialize(ctx)` if available (to support user-defined implementations) |
+//! | Nullable | Include `null` explicitly; for primitive-like and `Date` unions the generator avoids runtime `SerializeWithContext` checks |
+//! | Objects | Call `SerializeWithContext(ctx)` if available (to support user-defined implementations) |
 //!
 //! Note: the generator specializes some code paths based on the declared TypeScript type to
 //! avoid runtime feature detection on primitives and literal unions.
@@ -65,77 +65,39 @@
 //! ## Example
 //!
 //! ```typescript
-//! @derive(Serialize)
+//! /** @derive(Serialize) */
 //! class User {
 //!     id: number;
 //!
-//!     @serde(rename = "userName")
+//!     /** @serde({ rename: "userName" }) */
 //!     name: string;
 //!
-//!     @serde(skipSerializing)
+//!     /** @serde({ skipSerializing: true }) */
 //!     password: string;
 //!
-//!     @serde(flatten)
+//!     /** @serde({ flatten: true }) */
 //!     metadata: UserMetadata;
 //! }
-//!
-//! // Usage:
-//! const user = new User();
-//! const json = user.serialize();
-//! // => '{"__type":"User","__id":1,"id":1,"userName":"Alice",...}'
 //! ```
 //!
 //! Generated output:
 //!
 //! ```typescript
-//! import { SerializeContext } from 'macroforge/serde';
+//! import { SerializeContext } from "macroforge/serde";
 //!
 //! class User {
 //!     id: number;
 //!
+//!
 //!     name: string;
+//!
 //!
 //!     password: string;
 //!
+//!
 //!     metadata: UserMetadata;
-//!
-//!     /**
-//!      * Serializes this instance to a JSON string.
-//!      * @returns JSON string representation with cycle detection metadata
-//!      */
-//!     serialize(): string {
-//!         const ctx = SerializeContext.create();
-//!         return JSON.stringify(this.__serialize(ctx));
-//!     }
-//!
-//!     /** @internal */
-//!     __serialize(ctx: SerializeContext): Record<string, unknown> {
-//!         const existingId = ctx.getId(this);
-//!         if (existingId !== undefined) {
-//!             return {
-//!                 __ref: existingId
-//!             };
-//!         }
-//!         const __id = ctx.register(this);
-//!         const result: Record<string, unknown> = {
-//!             __type: 'User',
-//!             __id
-//!         };
-//!         result['id'] = this.id;
-//!         result['userName'] = this.name;
-//!         {
-//!             const __flattened = userMetadata__serialize(this.metadata, ctx);
-//!             const { __type: _, __id: __, ...rest } = __flattened as any;
-//!             Object.assign(result, rest);
-//!         }
-//!         return result;
-//!     }
-//! }
-//!
-//! // Usage:
-//! const user = new User();
-//! const json = user.serialize();
-//! // => '{"__type":"User","__id":1,"id":1,"userName":"Alice",...}'
+//! /** macroforge warning: Failed to parse macro output for @macro/derive::Serialize: Failed to parse macro output into class members */
+//! # [doc = "\n                 * Serializes this instance to a JSON string.\n                 * @returns JSON string representation with cycle detection metadata\n                 " ]serialize(): string {const ctx = SerializeContext.create(); return JSON.stringify(this.serializeWithContext(ctx));}# [doc = " @internal " ]SerializeWithContext(ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(this); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(this); const result: Record<string, unknown>= {__type: "User" , __id,}; result["id" ]= this.id; result["userName" ]= this.name; {const __flattened = userMetadataSerializeWithContext(this.metadata, ctx); const {__type: _, __id: __,...rest}= __flattened as any; Object.assign(result, rest);}return result;}}
 //! ```
 //!
 //! ## Required Import
@@ -161,10 +123,10 @@ fn to_camel_case(name: &str) -> String {
 
 fn nested_serialize_fn_name(type_name: &str, naming_style: FunctionNamingStyle) -> String {
     match naming_style {
-        FunctionNamingStyle::Namespace => format!("{type_name}.__serialize"),
-        FunctionNamingStyle::Generic => "__serialize".to_string(),
-        FunctionNamingStyle::Prefix => format!("{}__serialize", to_camel_case(type_name)),
-        FunctionNamingStyle::Suffix => format!("__serialize{type_name}"),
+        FunctionNamingStyle::Namespace => format!("{type_name}.serializeWithContext"),
+        FunctionNamingStyle::Generic => "serializeWithContext".to_string(),
+        FunctionNamingStyle::Prefix => format!("{}serializeWithContext", to_camel_case(type_name)),
+        FunctionNamingStyle::Suffix => format!("serializeWithContext{type_name}"),
     }
 }
 
@@ -301,7 +263,7 @@ struct SerializeField {
 
 #[ts_macro_derive(
     Serialize,
-    description = "Generates serialization methods with cycle detection (toStringifiedJSON, __serialize)",
+    description = "Generates serialization methods with cycle detection (toStringifiedJSON, serializeWithContext)",
     attributes((serde, "Configure serialization for this field. Options: skip, rename, flatten"))
 )]
 pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
@@ -411,17 +373,14 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let has_flatten = !flatten_fields.is_empty();
 
             let mut result = body! {
-                /**
-                 * Serializes this instance to a JSON string.
-                 * @returns JSON string representation with cycle detection metadata
-                 */
+                {>> "Serializes this instance to a JSON string.\n@returns JSON string representation with cycle detection metadata" <<}
                 serialize(): string {
                     const ctx = SerializeContext.create();
-                    return JSON.stringify(this.__serialize(ctx));
+                    return JSON.stringify(this.serializeWithContext(ctx));
                 }
 
-                /** @internal */
-                __serialize(ctx: SerializeContext): Record<string, unknown> {
+                {>> "@internal Serializes with an existing context for nested/cyclic object graphs." <<}
+                serializeWithContext(ctx: SerializeContext): Record<string, unknown> {
                     // Check if already serialized (cycle detection)
                     const existingId = ctx.getId(this);
                     if (existingId !== undefined) {
@@ -469,9 +428,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     result["@{field.json_key}"] = this.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
                                                 {:case _}
                                                     {#if let Some(elem_type) = &field.array_elem_serializable_type}
-                                                        {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                        {$let serialize_with_context_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                         result["@{field.json_key}"] = this.@{field.field_name}.map(
-                                                            (item) => @{__serialize_elem}(item, ctx)
+                                                            (item) => @{serialize_with_context_elem}(item, ctx)
                                                         );
                                                     {:else}
                                                         result["@{field.json_key}"] = this.@{field.field_name};
@@ -488,9 +447,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 result["@{field.json_key}"] = this.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
                                             {:case _}
                                                 {#if let Some(elem_type) = &field.array_elem_serializable_type}
-                                                    {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                    {$let serialize_with_context_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                     result["@{field.json_key}"] = this.@{field.field_name}.map(
-                                                        (item) => @{__serialize_elem}(item, ctx)
+                                                        (item) => @{serialize_with_context_elem}(item, ctx)
                                                     );
                                                 {:else}
                                                     result["@{field.json_key}"] = this.@{field.field_name};
@@ -518,10 +477,10 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     );
                                                 {:case _}
                                                     {#if let Some(value_type) = &field.map_value_serializable_type}
-                                                        {$let __serialize_value = nested_serialize_fn_name(value_type, naming_style)}
+                                                        {$let serialize_with_context_value = nested_serialize_fn_name(value_type, naming_style)}
                                                         result["@{field.json_key}"] = Object.fromEntries(
                                                             Array.from(this.@{field.field_name}.entries()).map(
-                                                                ([k, v]) => [k, @{__serialize_value}(v, ctx)]
+                                                                ([k, v]) => [k, @{serialize_with_context_value}(v, ctx)]
                                                             )
                                                         );
                                                     {:else}
@@ -547,10 +506,10 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 );
                                             {:case _}
                                                 {#if let Some(value_type) = &field.map_value_serializable_type}
-                                                    {$let __serialize_value = nested_serialize_fn_name(value_type, naming_style)}
+                                                    {$let serialize_with_context_value = nested_serialize_fn_name(value_type, naming_style)}
                                                     result["@{field.json_key}"] = Object.fromEntries(
                                                         Array.from(this.@{field.field_name}.entries()).map(
-                                                            ([k, v]) => [k, @{__serialize_value}(v, ctx)]
+                                                            ([k, v]) => [k, @{serialize_with_context_value}(v, ctx)]
                                                         )
                                                     );
                                                 {:else}
@@ -571,9 +530,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
                                                 {:case _}
                                                     {#if let Some(elem_type) = &field.set_elem_serializable_type}
-                                                        {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                        {$let serialize_with_context_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                         result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map(
-                                                            (item) => @{__serialize_elem}(item, ctx)
+                                                            (item) => @{serialize_with_context_elem}(item, ctx)
                                                         );
                                                     {:else}
                                                         result["@{field.json_key}"] = Array.from(this.@{field.field_name});
@@ -590,9 +549,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
                                             {:case _}
                                                 {#if let Some(elem_type) = &field.set_elem_serializable_type}
-                                                    {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                    {$let serialize_with_context_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                     result["@{field.json_key}"] = Array.from(this.@{field.field_name}).map(
-                                                        (item) => @{__serialize_elem}(item, ctx)
+                                                        (item) => @{serialize_with_context_elem}(item, ctx)
                                                     );
                                                 {:else}
                                                     result["@{field.json_key}"] = Array.from(this.@{field.field_name});
@@ -609,8 +568,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 result["@{field.json_key}"] = (this.@{field.field_name} as Date).toISOString();
                                             {:case _}
                                                 {#if let Some(inner_type) = &field.optional_serializable_type}
-                                                    {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
-                                                    result["@{field.json_key}"] = @{__serialize_fn}(this.@{field.field_name}, ctx);
+                                                    {$let serialize_with_context_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                    result["@{field.json_key}"] = @{serialize_with_context_fn}(this.@{field.field_name}, ctx);
                                                 {:else}
                                                     result["@{field.json_key}"] = this.@{field.field_name};
                                                 {/if}
@@ -628,8 +587,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                         {:case _}
                                             if (this.@{field.field_name} !== null) {
                                                 {#if let Some(inner_type) = &field.nullable_serializable_type}
-                                                    {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
-                                                    result["@{field.json_key}"] = @{__serialize_fn}(this.@{field.field_name}, ctx);
+                                                    {$let serialize_with_context_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                    result["@{field.json_key}"] = @{serialize_with_context_fn}(this.@{field.field_name}, ctx);
                                                 {:else}
                                                     result["@{field.json_key}"] = this.@{field.field_name};
                                                 {/if}
@@ -639,13 +598,13 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {/match}
 
                                 {:case TypeCategory::Serializable(type_name)}
-                                    {$let __serialize_fn = nested_serialize_fn_name(type_name, naming_style)}
+                                    {$let serialize_with_context_fn = nested_serialize_fn_name(type_name, naming_style)}
                                     {#if field.optional}
                                         if (this.@{field.field_name} !== undefined) {
-                                            result["@{field.json_key}"] = @{__serialize_fn}(this.@{field.field_name}, ctx);
+                                            result["@{field.json_key}"] = @{serialize_with_context_fn}(this.@{field.field_name}, ctx);
                                         }
                                     {:else}
-                                        result["@{field.json_key}"] = @{__serialize_fn}(this.@{field.field_name}, ctx);
+                                        result["@{field.json_key}"] = @{serialize_with_context_fn}(this.@{field.field_name}, ctx);
                                     {/if}
 
                                 {:case TypeCategory::Unknown}
@@ -664,17 +623,17 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         {#for field in flatten_fields}
                             {#match &field.type_cat}
                                 {:case TypeCategory::Serializable(type_name)}
-                                    {$let __serialize_fn = nested_serialize_fn_name(type_name, naming_style)}
+                                    {$let serialize_with_context_fn = nested_serialize_fn_name(type_name, naming_style)}
                                     {#if field.optional}
                                         if (this.@{field.field_name} !== undefined) {
-                                            const __flattened = @{__serialize_fn}(this.@{field.field_name}, ctx);
+                                            const __flattened = @{serialize_with_context_fn}(this.@{field.field_name}, ctx);
                                             // Remove __type and __id from flattened object
                                             const { __type: _, __id: __, ...rest } = __flattened as any;
                                             Object.assign(result, rest);
                                         }
                                     {:else}
                                         {
-                                            const __flattened = @{__serialize_fn}(this.@{field.field_name}, ctx);
+                                            const __flattened = @{serialize_with_context_fn}(this.@{field.field_name}, ctx);
                                             // Remove __type and __id from flattened object
                                             const { __type: _, __id: __, ...rest } = __flattened as any;
                                             Object.assign(result, rest);
@@ -714,50 +673,39 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             match naming_style {
                 FunctionNamingStyle::Namespace => Ok(ts_template! {
                     export namespace @{enum_name} {
-                        /**
-                         * Serializes an enum value to a JSON string.
-                         * @param value - The enum value to serialize
-                         * @returns JSON string representation
-                         */
+                        {>> "Serializes this enum value to a JSON string." <<}
                         export function serialize(value: @{enum_name}): string {
                             return JSON.stringify(value);
                         }
 
-                        /** @internal */
-                        export function __serialize(value: @{enum_name}, _ctx: SerializeContext): string | number {
+                        {>> "Serializes with an existing context for nested/cyclic object graphs." <<}
+                        export function serializeWithContext(value: @{enum_name}, _ctx: SerializeContext): string | number {
                             return value;
                         }
                     }
                 }),
                 FunctionNamingStyle::Generic => Ok(ts_template! {
-                    /**
-                     * Serializes an enum value to a JSON string.
-                     * @param value - The enum value to serialize
-                     * @returns JSON string representation
-                     */
+                    {>> "Serializes this enum value to a JSON string." <<}
                     export function serialize<T extends @{enum_name}>(value: T): string {
                         return JSON.stringify(value);
                     }
 
-                    /** @internal */
-                    export function __serialize<T extends @{enum_name}>(value: T, _ctx: SerializeContext): T {
+                    {>> "Serializes with an existing context for nested/cyclic object graphs." <<}
+                    export function serializeWithContext<T extends @{enum_name}>(value: T, _ctx: SerializeContext): T {
                         return value;
                     }
                 }),
                 FunctionNamingStyle::Prefix => {
                     let fn_name = format!("{}Serialize", to_camel_case(enum_name));
-                    let fn_name_internal = format!("{}__serialize", to_camel_case(enum_name));
+                    let fn_name_internal =
+                        format!("{}SerializeWithContext", to_camel_case(enum_name));
                     Ok(ts_template! {
-                        /**
-                         * Serializes an enum value to a JSON string.
-                         * @param value - The enum value to serialize
-                         * @returns JSON string representation
-                         */
+                        {>> "Serializes this enum value to a JSON string." <<}
                         export function @{fn_name}(value: @{enum_name}): string {
                             return JSON.stringify(value);
                         }
 
-                        /** @internal */
+                        {>> "Serializes with an existing context for nested/cyclic object graphs." <<}
                         export function @{fn_name_internal}(value: @{enum_name}, _ctx: SerializeContext): string | number {
                             return value;
                         }
@@ -765,18 +713,14 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 }
                 FunctionNamingStyle::Suffix => {
                     let fn_name = format!("serialize{}", enum_name);
-                    let fn_name_internal = format!("__serialize{}", enum_name);
+                    let fn_name_internal = format!("serializeWithContext{}", enum_name);
                     Ok(ts_template! {
-                        /**
-                         * Serializes an enum value to a JSON string.
-                         * @param value - The enum value to serialize
-                         * @returns JSON string representation
-                         */
+                        {>> "Serializes this enum value to a JSON string." <<}
                         export function @{fn_name}(value: @{enum_name}): string {
                             return JSON.stringify(value);
                         }
 
-                        /** @internal */
+                        {>> "Serializes with an existing context for nested/cyclic object graphs." <<}
                         export function @{fn_name_internal}(value: @{enum_name}, _ctx: SerializeContext): string | number {
                             return value;
                         }
@@ -889,21 +833,19 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
             // Generate function names based on naming style
             let (fn_serialize, fn_serialize_internal) = match naming_style {
-                FunctionNamingStyle::Namespace => (
-                    "serialize".to_string(),
-                    "__serialize".to_string(),
-                ),
-                FunctionNamingStyle::Generic => (
-                    "serialize".to_string(),
-                    "__serialize".to_string(),
-                ),
+                FunctionNamingStyle::Namespace => {
+                    ("serialize".to_string(), "serializeWithContext".to_string())
+                }
+                FunctionNamingStyle::Generic => {
+                    ("serialize".to_string(), "serializeWithContext".to_string())
+                }
                 FunctionNamingStyle::Prefix => (
                     format!("{}Serialize", to_camel_case(interface_name)),
-                    format!("{}__serialize", to_camel_case(interface_name)),
+                    format!("{}SerializeWithContext", to_camel_case(interface_name)),
                 ),
                 FunctionNamingStyle::Suffix => (
                     format!("serialize{}", interface_name),
-                    format!("__serialize{}", interface_name),
+                    format!("serializeWithContext{}", interface_name),
                 ),
             };
 
@@ -911,18 +853,14 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 FunctionNamingStyle::Namespace => {
                     ts_template! {
                         export namespace @{interface_name} {
-                            /**
-                             * Serializes a value to a JSON string.
-                             * @param self - The value to serialize
-                             * @returns JSON string representation with cycle detection metadata
-                             */
+                            {>> "Serializes a value to a JSON string.\n@param self - The value to serialize\n@returns JSON string representation with cycle detection metadata" <<}
                             export function serialize(self: @{interface_name}): string {
                                 const ctx = SerializeContext.create();
-                                return JSON.stringify(__serialize(self, ctx));
+                                return JSON.stringify(serializeWithContext(self, ctx));
                             }
 
-                            /** @internal */
-                            export function __serialize(self: @{interface_name}, ctx: SerializeContext): Record<string, unknown> {
+                            {>> "Serializes with an existing context for nested/cyclic object graphs.\n@param self - The value to serialize\n@param ctx - The serialization context" <<}
+                            export function serializeWithContext(self: @{interface_name}, ctx: SerializeContext): Record<string, unknown> {
                                 // Check if already serialized (cycle detection)
                                 const existingId = ctx.getId(self);
                                 if (existingId !== undefined) {
@@ -970,9 +908,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                                 result["@{field.json_key}"] = self.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
                                                             {:case _}
                                                                 {#if let Some(elem_type) = &field.array_elem_serializable_type}
-                                                                    {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                                    {$let serialize_with_context_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                                     result["@{field.json_key}"] = self.@{field.field_name}.map(
-                                                                        (item) => @{__serialize_elem}(item, ctx)
+                                                                        (item) => @{serialize_with_context_elem}(item, ctx)
                                                                     );
                                                                 {:else}
                                                                     result["@{field.json_key}"] = self.@{field.field_name};
@@ -989,9 +927,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                             result["@{field.json_key}"] = self.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
                                                         {:case _}
                                                             {#if let Some(elem_type) = &field.array_elem_serializable_type}
-                                                                {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                                {$let serialize_with_context_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                                 result["@{field.json_key}"] = self.@{field.field_name}.map(
-                                                                    (item) => @{__serialize_elem}(item, ctx)
+                                                                    (item) => @{serialize_with_context_elem}(item, ctx)
                                                                 );
                                                             {:else}
                                                                 result["@{field.json_key}"] = self.@{field.field_name};
@@ -1019,10 +957,10 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                                 );
                                                     {:case _}
                                                         {#if let Some(value_type) = &field.map_value_serializable_type}
-                                                            {$let __serialize_value = nested_serialize_fn_name(value_type, naming_style)}
+                                                            {$let serialize_with_context_value = nested_serialize_fn_name(value_type, naming_style)}
                                                             result["@{field.json_key}"] = Object.fromEntries(
                                                                 Array.from(self.@{field.field_name}.entries()).map(
-                                                                    ([k, v]) => [k, @{__serialize_value}(v, ctx)]
+                                                                    ([k, v]) => [k, @{serialize_with_context_value}(v, ctx)]
                                                                 )
                                                             );
                                                         {:else}
@@ -1048,10 +986,10 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                             );
                                                 {:case _}
                                                     {#if let Some(value_type) = &field.map_value_serializable_type}
-                                                        {$let __serialize_value = nested_serialize_fn_name(value_type, naming_style)}
+                                                        {$let serialize_with_context_value = nested_serialize_fn_name(value_type, naming_style)}
                                                         result["@{field.json_key}"] = Object.fromEntries(
                                                             Array.from(self.@{field.field_name}.entries()).map(
-                                                                ([k, v]) => [k, @{__serialize_value}(v, ctx)]
+                                                                ([k, v]) => [k, @{serialize_with_context_value}(v, ctx)]
                                                             )
                                                         );
                                                     {:else}
@@ -1072,9 +1010,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                                 result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
                                                             {:case _}
                                                                 {#if let Some(elem_type) = &field.set_elem_serializable_type}
-                                                                    {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                                    {$let serialize_with_context_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                                     result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map(
-                                                                        (item) => @{__serialize_elem}(item, ctx)
+                                                                        (item) => @{serialize_with_context_elem}(item, ctx)
                                                                     );
                                                                 {:else}
                                                                     result["@{field.json_key}"] = Array.from(self.@{field.field_name});
@@ -1091,9 +1029,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                             result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
                                                         {:case _}
                                                             {#if let Some(elem_type) = &field.set_elem_serializable_type}
-                                                                {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                                {$let serialize_with_context_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                                 result["@{field.json_key}"] = Array.from(self.@{field.field_name}).map(
-                                                                    (item) => @{__serialize_elem}(item, ctx)
+                                                                    (item) => @{serialize_with_context_elem}(item, ctx)
                                                                 );
                                                             {:else}
                                                                 result["@{field.json_key}"] = Array.from(self.@{field.field_name});
@@ -1110,8 +1048,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                             result["@{field.json_key}"] = (self.@{field.field_name} as Date).toISOString();
                                                         {:case _}
                                                             {#if let Some(inner_type) = &field.optional_serializable_type}
-                                                                {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
-                                                                result["@{field.json_key}"] = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                                {$let serialize_with_context_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                                result["@{field.json_key}"] = @{serialize_with_context_fn}(self.@{field.field_name}, ctx);
                                                             {:else}
                                                                 result["@{field.json_key}"] = self.@{field.field_name};
                                                             {/if}
@@ -1129,8 +1067,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     {:case _}
                                                         if (self.@{field.field_name} !== null) {
                                                             {#if let Some(inner_type) = &field.nullable_serializable_type}
-                                                                {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
-                                                                result["@{field.json_key}"] = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                                {$let serialize_with_context_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                                result["@{field.json_key}"] = @{serialize_with_context_fn}(self.@{field.field_name}, ctx);
                                                             {:else}
                                                                 result["@{field.json_key}"] = self.@{field.field_name};
                                                             {/if}
@@ -1140,13 +1078,13 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 {/match}
 
                                             {:case TypeCategory::Serializable(type_name)}
-                                                {$let __serialize_fn = nested_serialize_fn_name(type_name, naming_style)}
+                                                {$let serialize_with_context_fn = nested_serialize_fn_name(type_name, naming_style)}
                                                 {#if field.optional}
                                                     if (self.@{field.field_name} !== undefined) {
-                                                        result["@{field.json_key}"] = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                        result["@{field.json_key}"] = @{serialize_with_context_fn}(self.@{field.field_name}, ctx);
                                                     }
                                                 {:else}
-                                                    result["@{field.json_key}"] = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                    result["@{field.json_key}"] = @{serialize_with_context_fn}(self.@{field.field_name}, ctx);
                                                 {/if}
 
                                             {:case TypeCategory::Unknown}
@@ -1165,16 +1103,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                     {#for field in flatten_fields}
                                         {#match &field.type_cat}
                                             {:case TypeCategory::Serializable(type_name)}
-                                                {$let __serialize_fn = nested_serialize_fn_name(type_name, naming_style)}
+                                                {$let serialize_with_context_fn = nested_serialize_fn_name(type_name, naming_style)}
                                                 {#if field.optional}
                                                     if (self.@{field.field_name} !== undefined) {
-                                                        const __flattened = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                        const __flattened = @{serialize_with_context_fn}(self.@{field.field_name}, ctx);
                                                         const { __type: _, __id: __, ...rest } = __flattened as any;
                                                         Object.assign(result, rest);
                                                     }
                                                 {:else}
                                                     {
-                                                        const __flattened = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                        const __flattened = @{serialize_with_context_fn}(self.@{field.field_name}, ctx);
                                                         const { __type: _, __id: __, ...rest } = __flattened as any;
                                                         Object.assign(result, rest);
                                                     }
@@ -1183,8 +1121,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 {#if field.optional}
                                                     if (self.@{field.field_name} !== undefined) {
                                                         {#if let Some(inner_type) = &field.optional_serializable_type}
-                                                            {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
-                                                            const __flattened = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                            {$let serialize_with_context_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                            const __flattened = @{serialize_with_context_fn}(self.@{field.field_name}, ctx);
                                                             const { __type: _, __id: __, ...rest } = __flattened as any;
                                                             Object.assign(result, rest);
                                                         {:else}
@@ -1196,8 +1134,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 {:else}
                                                     {
                                                         {#if let Some(inner_type) = &field.optional_serializable_type}
-                                                            {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
-                                                            const __flattened = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                            {$let serialize_with_context_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                            const __flattened = @{serialize_with_context_fn}(self.@{field.field_name}, ctx);
                                                             const { __type: _, __id: __, ...rest } = __flattened as any;
                                                             Object.assign(result, rest);
                                                         {:else}
@@ -1212,8 +1150,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     if (self.@{field.field_name} !== undefined) {
                                                         if (self.@{field.field_name} !== null) {
                                                             {#if let Some(inner_type) = &field.nullable_serializable_type}
-                                                                {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
-                                                                const __flattened = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                                {$let serialize_with_context_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                                const __flattened = @{serialize_with_context_fn}(self.@{field.field_name}, ctx);
                                                                 const { __type: _, __id: __, ...rest } = __flattened as any;
                                                                 Object.assign(result, rest);
                                                             {:else}
@@ -1227,8 +1165,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                     {
                                                         if (self.@{field.field_name} !== null) {
                                                             {#if let Some(inner_type) = &field.nullable_serializable_type}
-                                                                {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
-                                                                const __flattened = @{__serialize_fn}(self.@{field.field_name}, ctx);
+                                                                {$let serialize_with_context_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                                const __flattened = @{serialize_with_context_fn}(self.@{field.field_name}, ctx);
                                                                 const { __type: _, __id: __, ...rest } = __flattened as any;
                                                                 Object.assign(result, rest);
                                                             {:else}
@@ -1265,17 +1203,13 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 _ => {
                     // For non-namespace styles (Generic, Prefix, Suffix), use standalone functions
                     ts_template! {
-                        /**
-                         * Serializes a value to a JSON string.
-                         * @param value - The value to serialize
-                         * @returns JSON string representation with cycle detection metadata
-                         */
+                        {>> "Serializes a value to a JSON string.\n@param value - The value to serialize\n@returns JSON string representation with cycle detection metadata" <<}
                         export function @{fn_serialize}(value: @{interface_name}): string {
                             const ctx = SerializeContext.create();
                             return JSON.stringify(@{fn_serialize_internal}(value, ctx));
                         }
 
-                        /** @internal */
+                        {>> "Serializes with an existing context for nested/cyclic object graphs.\n@param value - The value to serialize\n@param ctx - The serialization context" <<}
                         export function @{fn_serialize_internal}(value: @{interface_name}, ctx: SerializeContext): Record<string, unknown> {
                             // Check if already serialized (cycle detection)
                             const existingId = ctx.getId(value);
@@ -1324,9 +1258,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                             result["@{field.json_key}"] = value.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
                                                         {:case _}
                                                             {#if let Some(elem_type) = &field.array_elem_serializable_type}
-                                                                {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                                {$let serialize_with_context_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                                 result["@{field.json_key}"] = value.@{field.field_name}.map(
-                                                                    (item) => @{__serialize_elem}(item, ctx)
+                                                                    (item) => @{serialize_with_context_elem}(item, ctx)
                                                                 );
                                                             {:else}
                                                                 result["@{field.json_key}"] = value.@{field.field_name};
@@ -1343,9 +1277,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                         result["@{field.json_key}"] = value.@{field.field_name}.map((item: Date | null) => item === null ? null : item.toISOString());
                                                     {:case _}
                                                         {#if let Some(elem_type) = &field.array_elem_serializable_type}
-                                                            {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                            {$let serialize_with_context_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                             result["@{field.json_key}"] = value.@{field.field_name}.map(
-                                                                (item) => @{__serialize_elem}(item, ctx)
+                                                                (item) => @{serialize_with_context_elem}(item, ctx)
                                                             );
                                                         {:else}
                                                             result["@{field.json_key}"] = value.@{field.field_name};
@@ -1373,10 +1307,10 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                             );
                                                         {:case _}
                                                             {#if let Some(value_type) = &field.map_value_serializable_type}
-                                                                {$let __serialize_value = nested_serialize_fn_name(value_type, naming_style)}
+                                                                {$let serialize_with_context_value = nested_serialize_fn_name(value_type, naming_style)}
                                                                 result["@{field.json_key}"] = Object.fromEntries(
                                                                     Array.from(value.@{field.field_name}.entries()).map(
-                                                                        ([k, v]) => [k, @{__serialize_value}(v, ctx)]
+                                                                        ([k, v]) => [k, @{serialize_with_context_value}(v, ctx)]
                                                                     )
                                                                 );
                                                             {:else}
@@ -1402,10 +1336,10 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                         );
                                                     {:case _}
                                                         {#if let Some(value_type) = &field.map_value_serializable_type}
-                                                            {$let __serialize_value = nested_serialize_fn_name(value_type, naming_style)}
+                                                            {$let serialize_with_context_value = nested_serialize_fn_name(value_type, naming_style)}
                                                             result["@{field.json_key}"] = Object.fromEntries(
                                                                 Array.from(value.@{field.field_name}.entries()).map(
-                                                                    ([k, v]) => [k, @{__serialize_value}(v, ctx)]
+                                                                    ([k, v]) => [k, @{serialize_with_context_value}(v, ctx)]
                                                                 )
                                                             );
                                                         {:else}
@@ -1426,9 +1360,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                             result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
                                                         {:case _}
                                                             {#if let Some(elem_type) = &field.set_elem_serializable_type}
-                                                                {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                                {$let serialize_with_context_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                                 result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map(
-                                                                    (item) => @{__serialize_elem}(item, ctx)
+                                                                    (item) => @{serialize_with_context_elem}(item, ctx)
                                                                 );
                                                             {:else}
                                                                 result["@{field.json_key}"] = Array.from(value.@{field.field_name});
@@ -1445,9 +1379,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                         result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map((item: Date | null) => item === null ? null : item.toISOString());
                                                     {:case _}
                                                         {#if let Some(elem_type) = &field.set_elem_serializable_type}
-                                                            {$let __serialize_elem = nested_serialize_fn_name(elem_type, naming_style)}
+                                                            {$let serialize_with_context_elem = nested_serialize_fn_name(elem_type, naming_style)}
                                                             result["@{field.json_key}"] = Array.from(value.@{field.field_name}).map(
-                                                                (item) => @{__serialize_elem}(item, ctx)
+                                                                (item) => @{serialize_with_context_elem}(item, ctx)
                                                             );
                                                         {:else}
                                                             result["@{field.json_key}"] = Array.from(value.@{field.field_name});
@@ -1464,8 +1398,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                         result["@{field.json_key}"] = (value.@{field.field_name} as Date).toISOString();
                                                     {:case _}
                                                         {#if let Some(inner_type) = &field.optional_serializable_type}
-                                                            {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
-                                                            result["@{field.json_key}"] = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                            {$let serialize_with_context_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                            result["@{field.json_key}"] = @{serialize_with_context_fn}(value.@{field.field_name}, ctx);
                                                         {:else}
                                                             result["@{field.json_key}"] = value.@{field.field_name};
                                                         {/if}
@@ -1483,8 +1417,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 {:case _}
                                                     if (value.@{field.field_name} !== null) {
                                                         {#if let Some(inner_type) = &field.nullable_serializable_type}
-                                                            {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
-                                                            result["@{field.json_key}"] = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                            {$let serialize_with_context_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                            result["@{field.json_key}"] = @{serialize_with_context_fn}(value.@{field.field_name}, ctx);
                                                         {:else}
                                                             result["@{field.json_key}"] = value.@{field.field_name};
                                                         {/if}
@@ -1494,13 +1428,13 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                             {/match}
 
                                         {:case TypeCategory::Serializable(type_name)}
-                                            {$let __serialize_fn = nested_serialize_fn_name(type_name, naming_style)}
+                                            {$let serialize_with_context_fn = nested_serialize_fn_name(type_name, naming_style)}
                                             {#if field.optional}
                                                 if (value.@{field.field_name} !== undefined) {
-                                                    result["@{field.json_key}"] = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                    result["@{field.json_key}"] = @{serialize_with_context_fn}(value.@{field.field_name}, ctx);
                                                 }
                                             {:else}
-                                                result["@{field.json_key}"] = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                result["@{field.json_key}"] = @{serialize_with_context_fn}(value.@{field.field_name}, ctx);
                                             {/if}
 
                                         {:case TypeCategory::Unknown}
@@ -1519,16 +1453,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                 {#for field in flatten_fields}
                                     {#match &field.type_cat}
                                         {:case TypeCategory::Serializable(type_name)}
-                                            {$let __serialize_fn = nested_serialize_fn_name(type_name, naming_style)}
+                                            {$let serialize_with_context_fn = nested_serialize_fn_name(type_name, naming_style)}
                                             {#if field.optional}
                                                 if (value.@{field.field_name} !== undefined) {
-                                                    const __flattened = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                    const __flattened = @{serialize_with_context_fn}(value.@{field.field_name}, ctx);
                                                     const { __type: _, __id: __, ...rest } = __flattened as any;
                                                     Object.assign(result, rest);
                                                 }
                                             {:else}
                                                 {
-                                                    const __flattened = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                    const __flattened = @{serialize_with_context_fn}(value.@{field.field_name}, ctx);
                                                     const { __type: _, __id: __, ...rest } = __flattened as any;
                                                     Object.assign(result, rest);
                                                 }
@@ -1537,8 +1471,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                             {#if field.optional}
                                                 if (value.@{field.field_name} !== undefined) {
                                                     {#if let Some(inner_type) = &field.optional_serializable_type}
-                                                        {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
-                                                        const __flattened = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                        {$let serialize_with_context_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                        const __flattened = @{serialize_with_context_fn}(value.@{field.field_name}, ctx);
                                                         const { __type: _, __id: __, ...rest } = __flattened as any;
                                                         Object.assign(result, rest);
                                                     {:else}
@@ -1550,8 +1484,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                             {:else}
                                                 {
                                                     {#if let Some(inner_type) = &field.optional_serializable_type}
-                                                        {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
-                                                        const __flattened = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                        {$let serialize_with_context_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                        const __flattened = @{serialize_with_context_fn}(value.@{field.field_name}, ctx);
                                                         const { __type: _, __id: __, ...rest } = __flattened as any;
                                                         Object.assign(result, rest);
                                                     {:else}
@@ -1566,8 +1500,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 if (value.@{field.field_name} !== undefined) {
                                                     if (value.@{field.field_name} !== null) {
                                                         {#if let Some(inner_type) = &field.nullable_serializable_type}
-                                                            {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
-                                                            const __flattened = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                            {$let serialize_with_context_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                            const __flattened = @{serialize_with_context_fn}(value.@{field.field_name}, ctx);
                                                             const { __type: _, __id: __, ...rest } = __flattened as any;
                                                             Object.assign(result, rest);
                                                         {:else}
@@ -1581,8 +1515,8 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                                 {
                                                     if (value.@{field.field_name} !== null) {
                                                         {#if let Some(inner_type) = &field.nullable_serializable_type}
-                                                            {$let __serialize_fn = nested_serialize_fn_name(inner_type, naming_style)}
-                                                            const __flattened = @{__serialize_fn}(value.@{field.field_name}, ctx);
+                                                            {$let serialize_with_context_fn = nested_serialize_fn_name(inner_type, naming_style)}
+                                                            const __flattened = @{serialize_with_context_fn}(value.@{field.field_name}, ctx);
                                                             const { __type: _, __id: __, ...rest } = __flattened as any;
                                                             Object.assign(result, rest);
                                                         {:else}
@@ -1637,19 +1571,23 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let (fn_serialize, fn_serialize_internal) = match naming_style {
                 FunctionNamingStyle::Namespace => (
                     format!("serialize{}", generic_decl),
-                    format!("__serialize{}", generic_decl),
+                    format!("serializeWithContext{}", generic_decl),
                 ),
                 FunctionNamingStyle::Generic => (
                     format!("serialize{}", generic_decl),
-                    format!("__serialize{}", generic_decl),
+                    format!("serializeWithContext{}", generic_decl),
                 ),
                 FunctionNamingStyle::Prefix => (
                     format!("{}Serialize{}", to_camel_case(type_name), generic_decl),
-                    format!("{}__serialize{}", to_camel_case(type_name), generic_decl),
+                    format!(
+                        "{}SerializeWithContext{}",
+                        to_camel_case(type_name),
+                        generic_decl
+                    ),
                 ),
                 FunctionNamingStyle::Suffix => (
                     format!("serialize{}{}", type_name, generic_decl),
-                    format!("__serialize{}{}", type_name, generic_decl),
+                    format!("serializeWithContext{}{}", type_name, generic_decl),
                 ),
             };
 
@@ -1757,18 +1695,14 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     FunctionNamingStyle::Namespace => {
                         ts_template! {
                             export namespace @{type_name} {
-                                /**
-                                 * Serializes a value to a JSON string.
-                                 * @param value - The value to serialize
-                                 * @returns JSON string representation with cycle detection metadata
-                                 */
+                                {>> "Serializes a value to a JSON string.\n@param value - The value to serialize\n@returns JSON string representation with cycle detection metadata" <<}
                                 export function {|serialize@{generic_decl}|}(value: @{full_type_name}): string {
                                     const ctx = SerializeContext.create();
-                                    return JSON.stringify(__serialize(value, ctx));
+                                    return JSON.stringify(serializeWithContext(value, ctx));
                                 }
 
-                                /** @internal */
-                                export function {|__serialize@{generic_decl}|}(value: @{full_type_name}, ctx: SerializeContext): Record<string, unknown> {
+                                {>> "Serializes with an existing context for nested/cyclic object graphs.\n@param value - The value to serialize\n@param ctx - The serialization context" <<}
+                                export function {|serializeWithContext@{generic_decl}|}(value: @{full_type_name}, ctx: SerializeContext): Record<string, unknown> {
                                     const existingId = ctx.getId(value);
                                     if (existingId !== undefined) {
                                         return { __ref: existingId };
@@ -1799,17 +1733,13 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     }
                     _ => {
                         ts_template! {
-                            /**
-                             * Serializes a value to a JSON string.
-                             * @param value - The value to serialize
-                             * @returns JSON string representation with cycle detection metadata
-                             */
+                            {>> "Serializes a value to a JSON string.\n@param value - The value to serialize\n@returns JSON string representation with cycle detection metadata" <<}
                             export function {|@{fn_serialize}|}(value: @{full_type_name}): string {
                                 const ctx = SerializeContext.create();
                                 return JSON.stringify({|@{fn_serialize_internal}|}(value, ctx));
                             }
 
-                            /** @internal */
+                            {>> "Serializes with an existing context for nested/cyclic object graphs.\n@param value - The value to serialize\n@param ctx - The serialization context" <<}
                             export function {|@{fn_serialize_internal}|}(value: @{full_type_name}, ctx: SerializeContext): Record<string, unknown> {
                                 const existingId = ctx.getId(value);
                                 if (existingId !== undefined) {
@@ -1842,25 +1772,21 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 result.add_import("SerializeContext", "macroforge/serde");
                 Ok(result)
             } else {
-                // Union, tuple, or simple alias: delegate to inner type's __serialize if available
+                // Union, tuple, or simple alias: delegate to inner type's serializeWithContext if available
                 let mut result = match naming_style {
                     FunctionNamingStyle::Namespace => {
                         ts_template! {
                             export namespace @{type_name} {
-                                /**
-                                 * Serializes a value to a JSON string.
-                                 * @param value - The value to serialize
-                                 * @returns JSON string representation with cycle detection metadata
-                                 */
+                                {>> "Serializes a value to a JSON string.\n@param value - The value to serialize\n@returns JSON string representation with cycle detection metadata" <<}
                                 export function {|serialize@{generic_decl}|}(value: @{full_type_name}): string {
                                     const ctx = SerializeContext.create();
-                                    return JSON.stringify(__serialize(value, ctx));
+                                    return JSON.stringify(serializeWithContext(value, ctx));
                                 }
 
-                                /** @internal */
-                                export function {|__serialize@{generic_decl}|}(value: @{full_type_name}, ctx: SerializeContext): unknown {
-                                    if (typeof (value as any)?.__serialize === "function") {
-                                        return (value as any).__serialize(ctx);
+                                {>> "Serializes with an existing context for nested/cyclic object graphs.\n@param value - The value to serialize\n@param ctx - The serialization context" <<}
+                                export function {|serializeWithContext@{generic_decl}|}(value: @{full_type_name}, ctx: SerializeContext): unknown {
+                                    if (typeof (value as any)?.serializeWithContext === "function") {
+                                        return (value as any).serializeWithContext(ctx);
                                     }
                                     return value;
                                 }
@@ -1869,20 +1795,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     }
                     _ => {
                         ts_template! {
-                            /**
-                             * Serializes a value to a JSON string.
-                             * @param value - The value to serialize
-                             * @returns JSON string representation with cycle detection metadata
-                             */
+                            {>> "Serializes a value to a JSON string.\n@param value - The value to serialize\n@returns JSON string representation with cycle detection metadata" <<}
                             export function {|@{fn_serialize}|}(value: @{full_type_name}): string {
                                 const ctx = SerializeContext.create();
                                 return JSON.stringify({|@{fn_serialize_internal}|}(value, ctx));
                             }
 
-                            /** @internal */
+                            {>> "Serializes with an existing context for nested/cyclic object graphs.\n@param value - The value to serialize\n@param ctx - The serialization context" <<}
                             export function {|@{fn_serialize_internal}|}(value: @{full_type_name}, ctx: SerializeContext): unknown {
-                                if (typeof (value as any)?.__serialize === "function") {
-                                    return (value as any).__serialize(ctx);
+                                if (typeof (value as any)?.serializeWithContext === "function") {
+                                    return (value as any).serializeWithContext(ctx);
                                 }
                                 return value;
                             }

@@ -8,7 +8,7 @@
     type Priority,
     type LeadStage,
     type Sector,
-  } from "$lib/demo/types.svelte";
+  } from "$lib/demo/types";
 
   // Create Lead form with union type AccountName
   const leadForm = leadCreateForm({

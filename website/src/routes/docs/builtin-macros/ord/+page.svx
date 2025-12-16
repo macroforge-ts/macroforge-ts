@@ -79,9 +79,6 @@ class Version {
     minor: number;
     patch: number;
 }
-
-// Usage:
-versions.sort((a, b) => a.compareTo(b));
 ```
 
 ```typescript after
@@ -102,9 +99,6 @@ class Version {
         return 0;
     }
 }
-
-// Usage:
-versions.sort((a, b) => a.compareTo(b));
 ```
 
 Generated output:
@@ -127,9 +121,6 @@ class Version {
         return 0;
     }
 }
-
-// Usage:
-versions.sort((a, b) => a.compareTo(b));
 ```
 
 ## Ord vs PartialOrd
