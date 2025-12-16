@@ -85,20 +85,20 @@ test("TS Language Plugin augments types", async () => {
   const text = snapshot.getText(0, snapshot.getLength());
 
   // The plugin returns expanded code (implementation), not type stubs
-  // Check for the generated toString method implementation
-  if (!text.includes("toString(): string")) {
+  // Check for the generated static toString method
+  if (!text.includes("static toString(value:")) {
     console.log("Snapshot text content:", text);
   }
 
   assert.ok(
-    text.includes("toString(): string"),
-    "Should include toString() method",
+    text.includes("static toString(value:"),
+    "Should include static toString() method",
   );
   // The @Debug decorator generates toString(), not toJSON()
-  // /** @derive(Debug) */ => toString()
+  // /** @derive(Debug) */ => static toString(value)
   // /** @derive(JSON) */ => toJSON()
   assert.ok(
-    text.includes("toString()"),
+    text.includes("toString("),
     "Should include generated toString method",
   );
   // The @derive decorator should be removed from the expanded output
@@ -227,10 +227,10 @@ test("Macro expansion formats code correctly", async () => {
 
   // Check each method is on its own line
   // vanilla uses @derive(JSON) from @playground/macro which generates toJSON()
-  const toStringLine = lines.find((l) => l.includes("toString()"));
+  const toStringLine = lines.find((l) => l.includes("static toString("));
   const toJSONLine = lines.find((l) => l.includes("toJSON()"));
 
-  assert.ok(toStringLine, "Should have toString() method");
+  assert.ok(toStringLine, "Should have static toString() method");
   assert.ok(toJSONLine, "Should have toJSON() method");
 
   const toStringIndex = lines.indexOf(toStringLine);
@@ -285,11 +285,11 @@ test(
       );
 
       assert.equal(
-        typeof vanillaUser.toString,
+        typeof mod.User.toString,
         "function",
-        "Debug derive should add toString",
+        "Debug derive should add static toString",
       );
-      const summary = vanillaUser.toString();
+      const summary = mod.User.toString(vanillaUser);
       assert.ok(
         summary.startsWith("User {"),
         "Derived toString() should include class label",
@@ -326,7 +326,7 @@ test(
           since: "2025-02-01",
           apiToken: "token_qa",
         });
-        assert.deepEqual(JSON.parse(svelteUser.serialize()), {
+        assert.deepEqual(JSON.parse(MacroUser.serialize(svelteUser)), {
           __type: "MacroUser",
           __id: 0,
           id: "usr_55",
@@ -356,8 +356,8 @@ test(
           "/src/lib/demo/macro-user.ts",
         );
         assert.ok(
-          transformed?.code.includes("serialize()"),
-          "Derived methods should appear in transformed code",
+          transformed?.code.includes("static serialize("),
+          "Derived static methods should appear in transformed code",
         );
       },
     );

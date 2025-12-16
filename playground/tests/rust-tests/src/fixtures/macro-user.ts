@@ -50,7 +50,7 @@ const showcaseUser = new MacroUser(
   "svelte-secret-token",
 );
 
-export const showcaseUserSummary = showcaseUser.toString();
+export const showcaseUserSummary = MacroUser.toString(showcaseUser);
 export const showcaseUserJson = showcaseUser.toObject();
 
 export class Account extends Schema.Class<Account>("Account")({

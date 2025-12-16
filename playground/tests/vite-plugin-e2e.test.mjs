@@ -144,9 +144,9 @@ describe("SSR Module Loading", () => {
 
       const user = new mod.User(1, "Test User", "test@example.com", "secret");
 
-      // Verify Debug macro generated toString
-      assert.equal(typeof user.toString, "function", "Should have toString method");
-      const str = user.toString();
+      // Verify Debug macro generated static toString
+      assert.equal(typeof mod.User.toString, "function", "Should have static toString method");
+      const str = mod.User.toString(user);
       assert.ok(str.includes("User {"), "toString should include class name");
       assert.ok(str.includes("identifier: 1"), "Should respect @debug rename");
       assert.ok(!str.includes("authToken"), "Should skip fields marked with skip: true");
@@ -187,11 +187,11 @@ describe("SSR Module Loading", () => {
         apiToken: "token_secret"
       });
 
-      // Verify methods work
-      assert.equal(typeof user.toString, "function");
-      assert.equal(typeof user.serialize, "function");
+      // Verify static methods work
+      assert.equal(typeof mod.MacroUser.toString, "function");
+      assert.equal(typeof mod.MacroUser.serialize, "function");
 
-      const json = JSON.parse(user.serialize());
+      const json = JSON.parse(mod.MacroUser.serialize(user));
       assert.equal(json.id, "usr_1");
       assert.equal(json.name, "Svelte Tester");
     });
