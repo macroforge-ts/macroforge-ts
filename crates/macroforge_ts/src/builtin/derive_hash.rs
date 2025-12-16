@@ -8,10 +8,10 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `hashCode(): number` | Instance method computing hash from all fields |
-//! | Enum | `hashCodeEnumName(value: EnumName): number` | Standalone function hashing by enum value |
-//! | Interface | `hashCodeInterfaceName(value: InterfaceName): number` | Standalone function computing hash |
-//! | Type Alias | `hashCodeTypeName(value: TypeName): number` | Standalone function computing hash |
+//! | Class | `classNameHashCode(value)` + `static hashCode(value)` | Standalone function + static wrapper method |
+//! | Enum | `enumNameHashCode(value: EnumName): number` | Standalone function hashing by enum value |
+//! | Interface | `interfaceNameHashCode(value: InterfaceName): number` | Standalone function computing hash |
+//! | Type Alias | `typeNameHashCode(value: TypeName): number` | Standalone function computing hash |
 //!
 //! ## Configuration
 //!
@@ -69,39 +69,20 @@
 //! Generated output:
 //!
 //! ```typescript
+//! export function userHashCode(value: User): number {
+//!     let hash = 17;
+//!     hash = (hash * 31 + (Number.isInteger(value.id) ? value.id | 0 : ...)) | 0;
+//!     hash = (hash * 31 + (value.name ?? '').split('').reduce(...)) | 0;
+//!     return hash;
+//! }
+//!
 //! class User {
 //!     id: number;
 //!     name: string;
-//! 
 //!     cachedScore: number;
-//! 
-//!     hashCode(): number {
-//!         let hash = 17;
-//!         hash =
-//!             (hash * 31 +
-//!                 (Number.isInteger(this.id)
-//!                     ? this.id | 0
-//!                     : this.id
-//!                           .toString()
-//!                           .split('')
-//!                           .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-//!             0;
-//!         hash =
-//!             (hash * 31 +
-//!                 (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
-//!             0;
-//!         return hash;
-//!     }
-//! 
-//!     equals(other: unknown): boolean {
-//!         if (this === other) return true;
-//!         if (!(other instanceof User)) return false;
-//!         const typedOther = other as User;
-//!         return (
-//!             this.id === typedOther.id &&
-//!             this.name === typedOther.name &&
-//!             this.cachedScore === typedOther.cachedScore
-//!         );
+//!
+//!     static hashCode(value: User): number {
+//!         return userHashCode(value);
 //!     }
 //! }
 //! ```
@@ -349,6 +330,9 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
 
     match &input.data {
         Data::Class(class) => {
+            let class_name = input.name();
+            let naming_style = input.context.function_naming_style;
+
             // Collect fields that should be included in hash
             let hash_fields: Vec<HashField> = class
                 .fields()
@@ -367,26 +351,56 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
 
             let has_fields = !hash_fields.is_empty();
 
-            // Build hash computation
+            // Generate function name based on naming style
+            let fn_name = match naming_style {
+                FunctionNamingStyle::Prefix => format!("{}HashCode", to_camel_case(class_name)),
+                FunctionNamingStyle::Suffix => format!("hashCode{}", class_name),
+                FunctionNamingStyle::Generic => "hashCode".to_string(),
+                FunctionNamingStyle::Namespace => format!("{}.hashCode", class_name),
+            };
+
+            // Build hash computation using value parameter instead of this
             let hash_body = if has_fields {
                 hash_fields
                     .iter()
-                    .map(|f| format!("hash = (hash * 31 + {}) | 0;", generate_field_hash(f)))
+                    .map(|f| {
+                        format!(
+                            "hash = (hash * 31 + {}) | 0;",
+                            generate_field_hash_for_interface(f, "value")
+                        )
+                    })
                     .collect::<Vec<_>>()
                     .join("\n                    ")
             } else {
                 String::new()
             };
 
-            Ok(body! {
-                hashCode(): number {
+            // Generate standalone function with value parameter
+            let standalone = ts_template! {
+                export function @{fn_name}(value: @{class_name}): number {
                     let hash = 17;
                     {#if has_fields}
                         @{hash_body}
                     {/if}
                     return hash;
                 }
-            })
+            };
+
+            // Generate static wrapper method that delegates to standalone function
+            let class_body = body! {
+                static hashCode(value: @{class_name}): number {
+                    return @{fn_name}(value);
+                }
+            };
+
+            // Combine standalone function with class body by concatenating sources
+            // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
+            let combined_source = format!("{}\n{}", standalone.source(), class_body.source());
+            let mut combined = TsStream::from_string(combined_source);
+            combined.runtime_patches = standalone.runtime_patches;
+            combined.runtime_patches.extend(class_body.runtime_patches);
+
+            Ok(combined)
         }
         Data::Enum(_) => {
             let enum_name = input.name();
