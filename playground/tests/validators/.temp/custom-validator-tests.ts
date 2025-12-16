@@ -28,40 +28,25 @@ export class CustomNumberValidator {
 }){
     this.evenNumber = props.evenNumber;
 }
+/** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<CustomNumberValidator, Array<{
+    static deserialize(input: unknown, opts?: DeserializeOptions): Result<CustomNumberValidator, Array<{
     field: string;
     message: string;
 }>> {
     try {
-        const raw = JSON.parse(json);
-        return CustomNumberValidator.fromObject(raw, opts);
-    } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return Result.err([
-            {
-                field: "_root",
-                message
-            }
-        ]);
-    }
-}
-
-    static fromObject(obj: unknown, opts?: DeserializeOptions): Result<CustomNumberValidator, Array<{
-    field: string;
-    message: string;
-}>> {
-    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
-        const resultOrRef = CustomNumberValidator.deserializeWithContext(obj, ctx);
+        const resultOrRef = CustomNumberValidator.deserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: "_root",
-                    message: "CustomNumberValidator.fromObject: root cannot be a forward reference"
+                    message: "CustomNumberValidator.deserialize: root cannot be a forward reference"
                 }
             ]);
         }
@@ -83,6 +68,9 @@ export class CustomNumberValidator {
         ]);
     }
 }
+/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
     static deserializeWithContext(value: any, ctx: DeserializeContext): CustomNumberValidator | PendingRef {
     if (value?.__ref !== undefined) {
@@ -199,7 +187,7 @@ export class CustomNumberValidator {
     if (!CustomNumberValidator.hasShape(obj)) {
         return false;
     }
-    const result = CustomNumberValidator.fromObject(obj);
+    const result = CustomNumberValidator.deserialize(obj);
     return Result.isOk(result);
 }
 }
@@ -215,40 +203,25 @@ export class CustomStringValidator {
 }){
     this.username = props.username;
 }
+/** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<CustomStringValidator, Array<{
+    static deserialize(input: unknown, opts?: DeserializeOptions): Result<CustomStringValidator, Array<{
     field: string;
     message: string;
 }>> {
     try {
-        const raw = JSON.parse(json);
-        return CustomStringValidator.fromObject(raw, opts);
-    } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return Result.err([
-            {
-                field: "_root",
-                message
-            }
-        ]);
-    }
-}
-
-    static fromObject(obj: unknown, opts?: DeserializeOptions): Result<CustomStringValidator, Array<{
-    field: string;
-    message: string;
-}>> {
-    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
-        const resultOrRef = CustomStringValidator.deserializeWithContext(obj, ctx);
+        const resultOrRef = CustomStringValidator.deserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: "_root",
-                    message: "CustomStringValidator.fromObject: root cannot be a forward reference"
+                    message: "CustomStringValidator.deserialize: root cannot be a forward reference"
                 }
             ]);
         }
@@ -270,6 +243,9 @@ export class CustomStringValidator {
         ]);
     }
 }
+/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
     static deserializeWithContext(value: any, ctx: DeserializeContext): CustomStringValidator | PendingRef {
     if (value?.__ref !== undefined) {
@@ -386,7 +362,7 @@ export class CustomStringValidator {
     if (!CustomStringValidator.hasShape(obj)) {
         return false;
     }
-    const result = CustomStringValidator.fromObject(obj);
+    const result = CustomStringValidator.deserialize(obj);
     return Result.isOk(result);
 }
 }
@@ -402,40 +378,25 @@ export class CustomWithMessageValidator {
 }){
     this.evenNumber = props.evenNumber;
 }
+/** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<CustomWithMessageValidator, Array<{
+    static deserialize(input: unknown, opts?: DeserializeOptions): Result<CustomWithMessageValidator, Array<{
     field: string;
     message: string;
 }>> {
     try {
-        const raw = JSON.parse(json);
-        return CustomWithMessageValidator.fromObject(raw, opts);
-    } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return Result.err([
-            {
-                field: "_root",
-                message
-            }
-        ]);
-    }
-}
-
-    static fromObject(obj: unknown, opts?: DeserializeOptions): Result<CustomWithMessageValidator, Array<{
-    field: string;
-    message: string;
-}>> {
-    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
-        const resultOrRef = CustomWithMessageValidator.deserializeWithContext(obj, ctx);
+        const resultOrRef = CustomWithMessageValidator.deserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: "_root",
-                    message: "CustomWithMessageValidator.fromObject: root cannot be a forward reference"
+                    message: "CustomWithMessageValidator.deserialize: root cannot be a forward reference"
                 }
             ]);
         }
@@ -457,6 +418,9 @@ export class CustomWithMessageValidator {
         ]);
     }
 }
+/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
     static deserializeWithContext(value: any, ctx: DeserializeContext): CustomWithMessageValidator | PendingRef {
     if (value?.__ref !== undefined) {
@@ -573,7 +537,7 @@ export class CustomWithMessageValidator {
     if (!CustomWithMessageValidator.hasShape(obj)) {
         return false;
     }
-    const result = CustomWithMessageValidator.fromObject(obj);
+    const result = CustomWithMessageValidator.deserialize(obj);
     return Result.isOk(result);
 }
 }

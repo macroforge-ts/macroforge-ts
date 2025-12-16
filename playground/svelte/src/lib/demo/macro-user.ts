@@ -22,4 +22,4 @@ const showcaseUser = new MacroUser({
 });
 
 export const showcaseUserSummary = showcaseUser.toString();
-export const showcaseUserJson = showcaseUser.toObject();
+export const showcaseUserJson = JSON.parse(showcaseUser.serialize());

@@ -326,7 +326,7 @@ test(
           since: "2025-02-01",
           apiToken: "token_qa",
         });
-        assert.deepEqual(svelteUser.toObject(), {
+        assert.deepEqual(JSON.parse(svelteUser.serialize()), {
           __type: "MacroUser",
           __id: 0,
           id: "usr_55",
@@ -356,7 +356,7 @@ test(
           "/src/lib/demo/macro-user.ts",
         );
         assert.ok(
-          transformed?.code.includes("toObject()"),
+          transformed?.code.includes("serialize()"),
           "Derived methods should appear in transformed code",
         );
       },

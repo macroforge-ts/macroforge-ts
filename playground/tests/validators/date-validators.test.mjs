@@ -21,22 +21,22 @@ describe("Date Validators", () => {
   // ============================================================================
   describe("ValidDate", () => {
     test("accepts valid ISO date string", () => {
-      const result = mod.ValidDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2023-06-15" }));
+      const result = mod.ValidDateValidator.deserialize(JSON.stringify({ date: "2023-06-15" }));
       assertValidationSuccess(result, "date");
     });
 
     test("accepts valid date with time", () => {
-      const result = mod.ValidDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2023-06-15T10:30:00" }));
+      const result = mod.ValidDateValidator.deserialize(JSON.stringify({ date: "2023-06-15T10:30:00" }));
       assertValidationSuccess(result, "date");
     });
 
     test("rejects invalid date string", () => {
-      const result = mod.ValidDateValidator.fromStringifiedJSON(JSON.stringify({ date: "not-a-date" }));
+      const result = mod.ValidDateValidator.deserialize(JSON.stringify({ date: "not-a-date" }));
       assertValidationError(result, "date", "must be a valid date");
     });
 
     test("rejects invalid date format", () => {
-      const result = mod.ValidDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2023-13-45" }));
+      const result = mod.ValidDateValidator.deserialize(JSON.stringify({ date: "2023-13-45" }));
       assertValidationError(result, "date", "must be a valid date");
     });
   });
@@ -46,22 +46,22 @@ describe("Date Validators", () => {
   // ============================================================================
   describe("GreaterThanDate", () => {
     test("accepts date after threshold", () => {
-      const result = mod.GreaterThanDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2021-01-01" }));
+      const result = mod.GreaterThanDateValidator.deserialize(JSON.stringify({ date: "2021-01-01" }));
       assertValidationSuccess(result, "date");
     });
 
     test("accepts far future date", () => {
-      const result = mod.GreaterThanDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2099-12-31" }));
+      const result = mod.GreaterThanDateValidator.deserialize(JSON.stringify({ date: "2099-12-31" }));
       assertValidationSuccess(result, "date");
     });
 
     test("rejects date on threshold", () => {
-      const result = mod.GreaterThanDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2020-01-01" }));
+      const result = mod.GreaterThanDateValidator.deserialize(JSON.stringify({ date: "2020-01-01" }));
       assertValidationError(result, "date", "must be after");
     });
 
     test("rejects date before threshold", () => {
-      const result = mod.GreaterThanDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2019-06-15" }));
+      const result = mod.GreaterThanDateValidator.deserialize(JSON.stringify({ date: "2019-06-15" }));
       assertValidationError(result, "date", "must be after");
     });
   });
@@ -71,17 +71,17 @@ describe("Date Validators", () => {
   // ============================================================================
   describe("GreaterThanOrEqualToDate", () => {
     test("accepts date on threshold", () => {
-      const result = mod.GreaterThanOrEqualToDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2020-01-01" }));
+      const result = mod.GreaterThanOrEqualToDateValidator.deserialize(JSON.stringify({ date: "2020-01-01" }));
       assertValidationSuccess(result, "date");
     });
 
     test("accepts date after threshold", () => {
-      const result = mod.GreaterThanOrEqualToDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2021-01-01" }));
+      const result = mod.GreaterThanOrEqualToDateValidator.deserialize(JSON.stringify({ date: "2021-01-01" }));
       assertValidationSuccess(result, "date");
     });
 
     test("rejects date before threshold", () => {
-      const result = mod.GreaterThanOrEqualToDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2019-06-15" }));
+      const result = mod.GreaterThanOrEqualToDateValidator.deserialize(JSON.stringify({ date: "2019-06-15" }));
       assertValidationError(result, "date", "must be on or after");
     });
   });
@@ -91,22 +91,22 @@ describe("Date Validators", () => {
   // ============================================================================
   describe("LessThanDate", () => {
     test("accepts date before threshold", () => {
-      const result = mod.LessThanDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2029-01-01" }));
+      const result = mod.LessThanDateValidator.deserialize(JSON.stringify({ date: "2029-01-01" }));
       assertValidationSuccess(result, "date");
     });
 
     test("accepts far past date", () => {
-      const result = mod.LessThanDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2000-01-01" }));
+      const result = mod.LessThanDateValidator.deserialize(JSON.stringify({ date: "2000-01-01" }));
       assertValidationSuccess(result, "date");
     });
 
     test("rejects date on threshold", () => {
-      const result = mod.LessThanDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2030-01-01" }));
+      const result = mod.LessThanDateValidator.deserialize(JSON.stringify({ date: "2030-01-01" }));
       assertValidationError(result, "date", "must be before");
     });
 
     test("rejects date after threshold", () => {
-      const result = mod.LessThanDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2031-01-01" }));
+      const result = mod.LessThanDateValidator.deserialize(JSON.stringify({ date: "2031-01-01" }));
       assertValidationError(result, "date", "must be before");
     });
   });
@@ -116,17 +116,17 @@ describe("Date Validators", () => {
   // ============================================================================
   describe("LessThanOrEqualToDate", () => {
     test("accepts date on threshold", () => {
-      const result = mod.LessThanOrEqualToDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2030-01-01" }));
+      const result = mod.LessThanOrEqualToDateValidator.deserialize(JSON.stringify({ date: "2030-01-01" }));
       assertValidationSuccess(result, "date");
     });
 
     test("accepts date before threshold", () => {
-      const result = mod.LessThanOrEqualToDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2029-01-01" }));
+      const result = mod.LessThanOrEqualToDateValidator.deserialize(JSON.stringify({ date: "2029-01-01" }));
       assertValidationSuccess(result, "date");
     });
 
     test("rejects date after threshold", () => {
-      const result = mod.LessThanOrEqualToDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2031-01-01" }));
+      const result = mod.LessThanOrEqualToDateValidator.deserialize(JSON.stringify({ date: "2031-01-01" }));
       assertValidationError(result, "date", "must be on or before");
     });
   });
@@ -136,27 +136,27 @@ describe("Date Validators", () => {
   // ============================================================================
   describe("BetweenDate", () => {
     test("accepts date at min boundary", () => {
-      const result = mod.BetweenDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2020-01-01" }));
+      const result = mod.BetweenDateValidator.deserialize(JSON.stringify({ date: "2020-01-01" }));
       assertValidationSuccess(result, "date");
     });
 
     test("accepts date at max boundary", () => {
-      const result = mod.BetweenDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2030-01-01" }));
+      const result = mod.BetweenDateValidator.deserialize(JSON.stringify({ date: "2030-01-01" }));
       assertValidationSuccess(result, "date");
     });
 
     test("accepts date in middle", () => {
-      const result = mod.BetweenDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2025-06-15" }));
+      const result = mod.BetweenDateValidator.deserialize(JSON.stringify({ date: "2025-06-15" }));
       assertValidationSuccess(result, "date");
     });
 
     test("rejects date before min", () => {
-      const result = mod.BetweenDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2019-06-15" }));
+      const result = mod.BetweenDateValidator.deserialize(JSON.stringify({ date: "2019-06-15" }));
       assertValidationError(result, "date", "must be between");
     });
 
     test("rejects date after max", () => {
-      const result = mod.BetweenDateValidator.fromStringifiedJSON(JSON.stringify({ date: "2031-01-01" }));
+      const result = mod.BetweenDateValidator.deserialize(JSON.stringify({ date: "2031-01-01" }));
       assertValidationError(result, "date", "must be between");
     });
   });
