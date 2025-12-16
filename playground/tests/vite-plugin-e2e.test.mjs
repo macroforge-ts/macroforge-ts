@@ -189,9 +189,9 @@ describe("SSR Module Loading", () => {
 
       // Verify methods work
       assert.equal(typeof user.toString, "function");
-      assert.equal(typeof user.toObject, "function");
+      assert.equal(typeof user.serialize, "function");
 
-      const json = user.toObject();
+      const json = JSON.parse(user.serialize());
       assert.equal(json.id, "usr_1");
       assert.equal(json.name, "Svelte Tester");
     });

@@ -171,12 +171,12 @@ function assertNamingStyle(results, namingStyleLabel) {
       );
       expectContains(
         codeByName["serialize-interface"],
-        "export function toObjectUser",
+        "export function serializeUser",
         "suffix serialize-interface",
       );
       expectContains(
         codeByName["deserialize-interface"],
-        "export function fromObjectUser",
+        "export function deserializeUser",
         "suffix deserialize-interface",
       );
       expectContains(
@@ -212,12 +212,12 @@ function assertNamingStyle(results, namingStyleLabel) {
 
       expectMatches(
         codeByName["external-imports"],
-        /import\s+\{\s*SerializeWithContextMetadata\s*\}\s+from\s+['"]\.\/metadata\.svelte['"];/,
+        /import\s+\{\s*serializeWithContextMetadata\s*\}\s+from\s+['"]\.\/metadata\.svelte['"];/,
         "suffix external-imports",
       );
       expectMatches(
         codeByName["external-imports"],
-        /import\s+\{\s*DeserializeWithContextMetadata\s*\}\s+from\s+['"]\.\/metadata\.svelte['"];/,
+        /import\s+\{\s*deserializeWithContextMetadata\s*\}\s+from\s+['"]\.\/metadata\.svelte['"];/,
         "suffix external-imports",
       );
       // `metadata: Metadata` (non-null) should require a default value helper.
@@ -228,12 +228,12 @@ function assertNamingStyle(results, namingStyleLabel) {
       );
       expectContains(
         codeByName["external-imports"],
-        "SerializeWithContextMetadata(",
+        "serializeWithContextMetadata(",
         "suffix external-imports",
       );
       expectContains(
         codeByName["external-imports"],
-        "DeserializeWithContextMetadata(",
+        "deserializeWithContextMetadata(",
         "suffix external-imports",
       );
       break;
@@ -246,12 +246,12 @@ function assertNamingStyle(results, namingStyleLabel) {
       );
       expectContains(
         codeByName["serialize-interface"],
-        "export function userToObject",
+        "export function userSerialize",
         "prefix serialize-interface",
       );
       expectContains(
         codeByName["deserialize-interface"],
-        "export function userFromObject",
+        "export function userDeserialize",
         "prefix deserialize-interface",
       );
       expectContains(
@@ -295,12 +295,12 @@ function assertNamingStyle(results, namingStyleLabel) {
       // Serde macros use the generic style as "unsuffixed" (not `<T extends User>`).
       expectMatches(
         codeByName["serialize-interface"],
-        /export function toObject\s*\(\s*value:\s*User\s*\)/m,
+        /export function serialize\s*\(\s*value:\s*User\s*\)/m,
         "generic serialize-interface",
       );
       expectMatches(
         codeByName["deserialize-interface"],
-        /export function fromObject\s*\(\s*obj:\s*unknown/m,
+        /export function deserialize\s*\(/m,
         "generic deserialize-interface",
       );
       expectMatches(

@@ -18,7 +18,7 @@ const { expandSync } = require(swcMacrosPath);
 // ============================================================================
 
 describe("Serialize macro expansion", () => {
-  test("generates toStringifiedJSON, toObject, and serializeWithContext methods for classes", () => {
+  test("generates serialize and serializeWithContext methods for classes", () => {
     const code = `
       /** @derive(Serialize) */
       class User {
@@ -29,15 +29,11 @@ describe("Serialize macro expansion", () => {
     const result = expandSync(code, "test.ts");
 
     assert.ok(
-      result.code.includes("toStringifiedJSON():"),
-      "Should generate toStringifiedJSON method",
+      result.code.includes("serialize():"),
+      "Should generate serialize method",
     );
     assert.ok(
-      result.code.includes("toObject():"),
-      "Should generate toObject method",
-    );
-    assert.ok(
-      result.code.includes("SerializeWithContext("),
+      result.code.includes("serializeWithContext("),
       "Should generate serializeWithContext method",
     );
     assert.ok(
@@ -115,12 +111,8 @@ describe("Serialize macro expansion", () => {
     const result = expandSync(code, "test.ts");
 
     assert.ok(
-      result.code.includes("function iPointToStringifiedJSON("),
-      "Should generate iPointToStringifiedJSON function",
-    );
-    assert.ok(
-      result.code.includes("function iPointToObject("),
-      "Should generate iPointToObject function",
+      result.code.includes("function iPointSerialize("),
+      "Should generate iPointSerialize function",
     );
     assert.ok(
       result.code.includes("function iPointSerializeWithContext("),
@@ -291,7 +283,7 @@ describe("Serialize macro expansion", () => {
 // ============================================================================
 
 describe("Deserialize macro expansion", () => {
-  test("generates fromStringifiedJSON and deserializeWithContext methods for classes", () => {
+  test("generates deserialize and deserializeWithContext methods for classes", () => {
     const code = `
       /** @derive(Deserialize) */
       class User {
@@ -302,8 +294,8 @@ describe("Deserialize macro expansion", () => {
     const result = expandSync(code, "test.ts");
 
     assert.ok(
-      result.code.includes("static fromStringifiedJSON("),
-      "Should generate static fromStringifiedJSON",
+      result.code.includes("static deserialize("),
+      "Should generate static deserialize",
     );
     assert.ok(
       result.code.includes("static deserializeWithContext("),
@@ -454,11 +446,11 @@ describe("Deserialize macro expansion", () => {
     );
   });
 
-  test("handles @serde(deny_unknown_fields)", () => {
+  test("handles @serde(denyUnknownFields)", () => {
     const code = `
       /**
        * @derive(Deserialize)
-       * @serde({ deny_unknown_fields: true })
+       * @serde({ denyUnknownFields: true })
        */
       class Strict {
         name: string;
@@ -488,7 +480,7 @@ describe("Deserialize macro expansion", () => {
     );
   });
 
-  test("supports freeze option in fromStringifiedJSON", () => {
+  test("supports freeze option in deserialize", () => {
     const code = `
       /** @derive(Deserialize) */
       class Data {
@@ -562,9 +554,9 @@ describe("External type function imports", () => {
     );
     assert.ok(
       result.code.includes(
-        'import { metadataDeserializeWithContext} from "./metadata.svelte";',
+        'import { metadataDeserializeWithContext } from "./metadata.svelte";',
       ),
-      "Should import metadataDeserializeWithContextfrom metadata module",
+      "Should import metadataDeserializeWithContext from metadata module",
     );
     assert.ok(
       result.code.includes(
@@ -592,18 +584,18 @@ describe("Combined Serialize + Deserialize", () => {
 
     // Serialize methods
     assert.ok(
-      result.code.includes("toStringifiedJSON():"),
-      "Should have toStringifiedJSON",
+      result.code.includes("serialize():"),
+      "Should have serialize",
     );
     assert.ok(
-      result.code.includes("SerializeWithContext(ctx:"),
+      result.code.includes("serializeWithContext(ctx:"),
       "Should have serializeWithContext",
     );
 
     // Deserialize methods
     assert.ok(
-      result.code.includes("static fromStringifiedJSON("),
-      "Should have fromStringifiedJSON",
+      result.code.includes("static deserialize("),
+      "Should have deserialize",
     );
     assert.ok(
       result.code.includes("static deserializeWithContext("),
@@ -658,8 +650,8 @@ describe("Enum serialization", () => {
     const result = expandSync(code, "test.ts");
 
     assert.ok(
-      result.code.includes("function statusToStringifiedJSON("),
-      "Should have statusToStringifiedJSON function",
+      result.code.includes("function statusSerialize("),
+      "Should have statusSerialize function",
     );
     assert.ok(
       result.code.includes("function statusSerializeWithContext("),
@@ -678,12 +670,12 @@ describe("Enum serialization", () => {
     const result = expandSync(code, "test.ts");
 
     assert.ok(
-      result.code.includes("function statusFromStringifiedJSON("),
-      "Should have statusFromStringifiedJSON function",
+      result.code.includes("function statusDeserialize("),
+      "Should have statusDeserialize function",
     );
     assert.ok(
       result.code.includes("function statusDeserializeWithContext("),
-      "Should have statusDeserializeWithContextfunction",
+      "Should have statusDeserializeWithContext function",
     );
     assert.ok(result.code.includes("Invalid"), "Should validate enum values");
   });
@@ -705,12 +697,8 @@ describe("Type alias serialization", () => {
     const result = expandSync(code, "test.ts");
 
     assert.ok(
-      result.code.includes("function pointToStringifiedJSON("),
-      "Should have pointToStringifiedJSON",
-    );
-    assert.ok(
-      result.code.includes("function pointToObject("),
-      "Should have pointToObject",
+      result.code.includes("function pointSerialize("),
+      "Should have pointSerialize",
     );
     assert.ok(
       result.code.includes("function pointSerializeWithContext("),
@@ -726,8 +714,8 @@ describe("Type alias serialization", () => {
     const result = expandSync(code, "test.ts");
 
     assert.ok(
-      result.code.includes("function resultToStringifiedJSON("),
-      "Should have resultToStringifiedJSON",
+      result.code.includes("function resultSerialize("),
+      "Should have resultSerialize",
     );
     assert.ok(
       result.code.includes("function resultSerializeWithContext("),
@@ -791,12 +779,12 @@ describe("Edge cases", () => {
     const result = expandSync(code, "test.ts");
 
     assert.ok(
-      result.code.includes("toStringifiedJSON()"),
-      "Should generate toStringifiedJSON",
+      result.code.includes("serialize()"),
+      "Should generate serialize",
     );
     assert.ok(
-      result.code.includes("fromStringifiedJSON"),
-      "Should generate fromStringifiedJSON",
+      result.code.includes("deserialize"),
+      "Should generate deserialize",
     );
     assert.ok(
       result.code.includes('__type: "Empty"'),
@@ -852,15 +840,15 @@ describe("Edge cases", () => {
 });
 
 // ============================================================================
-// rename_all container option
+// renameAll container option
 // ============================================================================
 
-describe("rename_all container option", () => {
+describe("renameAll container option", () => {
   test("camelCase rename", () => {
     const code = `
       /**
        * @derive(Serialize)
-       * @serde({ rename_all: "camelCase" })
+       * @serde({ renameAll: "camelCase" })
        */
       class User {
         user_name: string;
@@ -883,7 +871,7 @@ describe("rename_all container option", () => {
     const code = `
       /**
        * @derive(Serialize)
-       * @serde({ rename_all: "snake_case" })
+       * @serde({ renameAll: "snake_case" })
        */
       class User {
         userName: string;
