@@ -70,9 +70,9 @@
 //! ## Example
 //!
 //! ```typescript
-//! @derive(PartialOrd)
+//! /** @derive(PartialOrd) */
 //! class Temperature {
-//!     value: number | null;  // null represents "unknown"
+//!     value: number | null;
 //!     unit: string;
 //! }
 //! ```
@@ -81,7 +81,7 @@
 //!
 //! ```typescript
 //! class Temperature {
-//!     value: number | null; // null represents "unknown"
+//!     value: number | null;
 //!     unit: string;
 //! 
 //!     compareTo(other: unknown): Option<number> {
