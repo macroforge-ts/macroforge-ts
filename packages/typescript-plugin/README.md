@@ -59,17 +59,17 @@ npm install @macroforge/typescript-plugin
 
 ### Functions
 
+- **`parseMacroImportComments`** - Parses macro import comments to extract macro name to module path mappings.
+- **`getExternalManifest`** - Attempts to load the manifest from an external macro package.
+- **`getExternalMacroInfo`** - Looks up macro info from an external package manifest.
+- **`getExternalDecoratorInfo`** - Looks up decorator info from an external package manifest.
 - **`findDeriveAtPosition`** - Finds a macro name within `@derive(...)` decorators at a given cursor position.
+- **`findDeriveKeywordAtPosition`** - Finds the `@derive` keyword at a given cursor position.
 - **`findDecoratorAtPosition`** - Finds a field decorator (like `@serde` or `@debug`) at a given cursor position.
-- **`getMacroHoverInfo`** - const lastCommentEnd = beforeMatch.lastIndexOf("*/
+- **`findEnclosingDeriveContext`** - const lastCommentEnd = beforeMatch.lastIndexOf("*/
+- **`getMacroHoverInfo`** - Generates hover information (QuickInfo) for macros and decorators at a cursor position.
 - **`shouldProcess`** - Determines whether a file should be processed for macro expansion.
-- **`hasMacroDirectives`** - Performs a quick check to determine if a file contains any macro-related directives.
-- **`loadMacroConfig`** - Whether to preserve decorator syntax in the expanded output.
-- **`init`** - Main plugin factory function conforming to the TypeScript Language Service Plugin API.
-- **`create`** - Creates the plugin instance for a TypeScript project.
-- **`processFile`** - Processes a file through macro expansion via the native Rust plugin.
-- **`toPlainDiagnostic`** - Converts a TypeScript diagnostic to a plain object for the native plugin.
-- ... and 1 more
+- ... and 7 more
 
 ### Types
 
