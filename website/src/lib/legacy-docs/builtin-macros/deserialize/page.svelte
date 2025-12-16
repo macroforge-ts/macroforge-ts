@@ -138,19 +138,19 @@ class User {
   /** @serde({ skip: true }) */
   cachedData: unknown;
 
-  /** @serde({ skip_deserializing: true }) */
+  /** @serde({ skipDeserializing: true }) */
   computedField: string;
 }`} />
 
-<Alert type="tip" title="skip vs skip_deserializing">
+<Alert type="tip" title="skip vs skipDeserializing">
 	Use <code>skip: true</code> to exclude from both serialization and deserialization.
-	Use <code>skip_deserializing: true</code> to only skip during deserialization.
+	Use <code>skipDeserializing: true</code> to only skip during deserialization.
 </Alert>
 
 <h3>Deny Unknown Fields</h3>
 
 <InteractiveMacro code={`/** @derive(Deserialize) */
-/** @serde({ deny_unknown_fields: true }) */
+/** @serde({ denyUnknownFields: true }) */
 class StrictUser {
   name: string;
   email: string;
