@@ -8,10 +8,10 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `static deserialize()`, `static deserializeWithContext()` | Static factory methods |
-//! | Enum | `myEnumDeserialize(input)`, `myEnumdeserializeWithContext(data)`, `myEnumIs(value)` | Standalone functions |
-//! | Interface | `myInterfaceDeserialize(input)`, etc. | Standalone functions |
-//! | Type Alias | `myTypeDeserialize(input)`, etc. | Standalone functions |
+//! | Class | `classNameDeserialize(input)` + `static deserialize(input)` | Standalone function + static factory method |
+//! | Enum | `enumNameDeserialize(input)`, `enumNameDeserializeWithContext(data)`, `enumNameIs(value)` | Standalone functions |
+//! | Interface | `interfaceNameDeserialize(input)`, etc. | Standalone functions |
+//! | Type Alias | `typeNameDeserialize(input)`, etc. | Standalone functions |
 //!
 //! ## Configuration
 //!
@@ -2200,7 +2200,32 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
+            let naming_style = input.context.function_naming_style;
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
+
+            // Generate function names based on naming style
+            let (fn_deserialize, fn_deserialize_internal, fn_is) = match naming_style {
+                FunctionNamingStyle::Namespace => (
+                    "deserialize".to_string(),
+                    "deserializeWithContext".to_string(),
+                    "is".to_string(),
+                ),
+                FunctionNamingStyle::Generic => (
+                    "deserialize".to_string(),
+                    "deserializeWithContext".to_string(),
+                    "is".to_string(),
+                ),
+                FunctionNamingStyle::Prefix => (
+                    format!("{}Deserialize", to_camel_case(class_name)),
+                    format!("{}DeserializeWithContext", to_camel_case(class_name)),
+                    format!("{}Is", to_camel_case(class_name)),
+                ),
+                FunctionNamingStyle::Suffix => (
+                    format!("deserialize{}", class_name),
+                    format!("deserializeWithContext{}", class_name),
+                    format!("is{}", class_name),
+                ),
+            };
 
             // Check for user-defined constructor with parameters
             if let Some(ctor) = class.method("constructor")
@@ -2720,6 +2745,39 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
             result.add_import("DeserializeError", "macroforge/serde");
             result.add_type_import("DeserializeOptions", "macroforge/serde");
             result.add_import("PendingRef", "macroforge/serde");
+
+            // Generate standalone functions that delegate to static methods
+            if naming_style != FunctionNamingStyle::Namespace {
+                let mut standalone = ts_template! {
+                    {>> "Deserializes input to an instance.\nAutomatically detects whether input is a JSON string or object.\n@param input - JSON string or object to deserialize\n@param opts - Optional deserialization options\n@returns Result containing the deserialized instance or validation errors" <<}
+                    export function @{fn_deserialize}(input: unknown, opts?: DeserializeOptions): Result<@{class_name}, Array<{ field: string; message: string }>> {
+                        return @{class_name}.deserialize(input, opts);
+                    }
+
+                    {>> "Deserializes with an existing context for nested/cyclic object graphs.\n@param value - The raw value to deserialize\n@param ctx - The deserialization context" <<}
+                    export function @{fn_deserialize_internal}(value: any, ctx: DeserializeContext): @{class_name} | PendingRef {
+                        return @{class_name}.deserializeWithContext(value, ctx);
+                    }
+
+                    {>> "Type guard: checks if a value can be successfully deserialized.\n@param value - The value to check\n@returns True if the value can be deserialized to this type" <<}
+                    export function @{fn_is}(value: unknown): value is @{class_name} {
+                        return @{class_name}.is(value);
+                    }
+                };
+                standalone.add_import("Result", "macroforge/utils");
+                standalone.add_import("DeserializeContext", "macroforge/serde");
+                standalone.add_type_import("DeserializeOptions", "macroforge/serde");
+                standalone.add_import("PendingRef", "macroforge/serde");
+
+                // Combine standalone functions with class body by concatenating sources
+                // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
+                let combined_source = format!("{}\n{}", standalone.source(), result.source());
+                let mut combined = TsStream::from_string(combined_source);
+                combined.runtime_patches = standalone.runtime_patches;
+                combined.runtime_patches.extend(result.runtime_patches);
+                return Ok(combined);
+            }
+
             Ok(result)
         }
         Data::Enum(_) => {

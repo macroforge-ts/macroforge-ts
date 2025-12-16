@@ -8,10 +8,10 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `compareTo(other): Option<number>` | Instance method with optional result |
-//! | Enum | `partialCompareEnumName(a: EnumName, b: EnumName): Option<number>` | Standalone function returning Option |
-//! | Interface | `partialCompareInterfaceName(a: InterfaceName, b: InterfaceName): Option<number>` | Standalone function with Option |
-//! | Type Alias | `partialCompareTypeName(a: TypeName, b: TypeName): Option<number>` | Standalone function with Option |
+//! | Class | `classNamePartialCompare(a, b)` + `static compareTo(a, b)` | Standalone function + static wrapper method |
+//! | Enum | `enumNamePartialCompare(a: EnumName, b: EnumName): Option<number>` | Standalone function returning Option |
+//! | Interface | `interfaceNamePartialCompare(a: InterfaceName, b: InterfaceName): Option<number>` | Standalone function with Option |
+//! | Type Alias | `typeNamePartialCompare(a: TypeName, b: TypeName): Option<number>` | Standalone function with Option |
 //!
 //! ## Configuration
 //!
@@ -25,9 +25,9 @@
 //!
 //! Unlike `Ord`, `PartialOrd` returns an `Option<number>` to handle incomparable values:
 //!
-//! - **Option.some(-1)**: `this` is less than `other`
-//! - **Option.some(0)**: `this` is equal to `other`
-//! - **Option.some(1)**: `this` is greater than `other`
+//! - **Option.some(-1)**: `a` is less than `b`
+//! - **Option.some(0)**: `a` is equal to `b`
+//! - **Option.some(1)**: `a` is greater than `b`
 //! - **Option.none()**: Values are incomparable
 //!
 //! ## When to Use PartialOrd vs Ord
@@ -339,6 +339,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
+            let naming_style = input.context.function_naming_style;
 
             // Collect fields for comparison
             let ord_fields: Vec<OrdField> = class
@@ -358,8 +359,15 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
 
             let has_fields = !ord_fields.is_empty();
 
-            // Build comparison logic - lexicographic by field order
-            // Internal comparisons use raw numbers, final result wrapped in Option
+            // Generate function name based on naming style
+            let fn_name = match naming_style {
+                FunctionNamingStyle::Prefix => format!("{}PartialCompare", to_camel_case(class_name)),
+                FunctionNamingStyle::Suffix => format!("partialCompare{}", class_name),
+                FunctionNamingStyle::Generic => "partialCompare".to_string(),
+                FunctionNamingStyle::Namespace => format!("{}.compareTo", class_name),
+            };
+
+            // Build comparison logic using a and b parameters
             let compare_body = if has_fields {
                 ord_fields
                     .iter()
@@ -368,7 +376,7 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         let var_name = format!("cmp{}", i);
                         format!(
                             "const {var_name} = {};\n                    if ({var_name} === null) return Option.none();\n                    if ({var_name} !== 0) return Option.some({var_name});",
-                            generate_field_compare(f, true)
+                            generate_field_compare_for_interface(f, "a", "b", true)
                         )
                     })
                     .collect::<Vec<_>>()
@@ -377,19 +385,34 @@ pub fn derive_partial_ord_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                 String::new()
             };
 
-            let mut result = body! {
-                compareTo(other: unknown): Option<number> {
-                    if (this === other) return Option.some(0);
-                    if (!(other instanceof @{class_name})) return Option.none();
-                    const typedOther = other as @{class_name};
+            // Generate standalone function with two parameters
+            let mut standalone = ts_template! {
+                export function @{fn_name}(a: @{class_name}, b: @{class_name}): Option<number> {
+                    if (a === b) return Option.some(0);
                     {#if has_fields}
                         @{compare_body}
                     {/if}
                     return Option.some(0);
                 }
             };
-            result.add_import("Option", "macroforge/utils");
-            Ok(result)
+            standalone.add_import("Option", "macroforge/utils");
+
+            // Generate static wrapper method that delegates to standalone function
+            let class_body = body! {
+                static compareTo(a: @{class_name}, b: @{class_name}): Option<number> {
+                    return @{fn_name}(a, b);
+                }
+            };
+
+            // Combine standalone function with class body by concatenating sources
+            // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
+            let combined_source = format!("{}\n{}", standalone.source(), class_body.source());
+            let mut combined = TsStream::from_string(combined_source);
+            combined.runtime_patches = standalone.runtime_patches;
+            combined.runtime_patches.extend(class_body.runtime_patches);
+            combined.add_import("Option", "macroforge/utils");
+
+            Ok(combined)
         }
         Data::Enum(_) => {
             let enum_name = input.name();

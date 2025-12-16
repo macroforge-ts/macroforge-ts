@@ -22,5 +22,5 @@ export class User {
 
 const user = new User(1, 'John Doe', 'john@example.com', 'tok_live_secret');
 
-export const derivedSummary = user.toString();
+export const derivedSummary = User.toString(user);
 export const derivedJson = user.toJSON();

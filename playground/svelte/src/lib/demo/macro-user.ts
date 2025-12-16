@@ -21,5 +21,5 @@ const showcaseUser = new MacroUser({
     apiToken: 'svelte-secret-token'
 });
 
-export const showcaseUserSummary = showcaseUser.toString();
-export const showcaseUserJson = JSON.parse(showcaseUser.serialize());
+export const showcaseUserSummary = MacroUser.toString(showcaseUser);
+export const showcaseUserJson = JSON.parse(MacroUser.serialize(showcaseUser));
