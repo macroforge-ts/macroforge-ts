@@ -641,7 +641,6 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
-            let naming_style = input.context.function_naming_style;
 
             // Collect fields that should be included in equality comparison
             let eq_fields: Vec<EqField> = class
@@ -659,13 +658,8 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                 })
                 .collect();
 
-            // Generate function name based on naming style
-            let fn_name = match naming_style {
-                FunctionNamingStyle::Prefix => format!("{}Equals", to_camel_case(class_name)),
-                FunctionNamingStyle::Suffix => format!("equals{}", class_name),
-                FunctionNamingStyle::Generic => "equals".to_string(),
-                FunctionNamingStyle::Namespace => format!("{}.equals", class_name),
-            };
+            // Generate function name (always prefix style)
+            let fn_name = format!("{}Equals", to_camel_case(class_name));
 
             // Build comparison expression using a and b parameters
             let comparison = if eq_fields.is_empty() {
