@@ -115,6 +115,66 @@
 //! }
 //! ```
 //!
+//! Generated output:
+//!
+//! ```typescript
+//! /** @derive(Default) */
+//! enum Status {
+//!     @default
+//!     Pending,
+//!     Active,
+//!     Completed
+//! }
+//! ```
+//!
+//! Generated output:
+//!
+//! ```typescript
+//! /** @derive(Default) */
+//! enum Status {
+//!     @default
+//!     Pending,
+//!     Active,
+//!     Completed
+//! }
+//! ```
+//!
+//! Generated output:
+//!
+//! ```typescript
+//! /** @derive(Default) */
+//! enum Status {
+//!     @default
+//!     Pending,
+//!     Active,
+//!     Completed
+//! }
+//! ```
+//!
+//! Generated output:
+//!
+//! ```typescript
+//! /** @derive(Default) */
+//! enum Status {
+//!     @default
+//!     Pending,
+//!     Active,
+//!     Completed
+//! }
+//! ```
+//!
+//! Generated output:
+//!
+//! ```typescript
+//! /** @derive(Default) */
+//! enum Status {
+//!     @default
+//!     Pending,
+//!     Active,
+//!     Completed
+//! }
+//! ```
+//!
 //! ## Error Handling
 //!
 //! The macro will return an error if:
