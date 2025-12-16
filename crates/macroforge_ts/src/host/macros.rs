@@ -9,8 +9,26 @@
 //! a macro package. It works with the `inventory` crate to collect registrations
 //! at link time.
 //!
-//! ```ignore
+//! ```rust,no_run
 //! use macroforge_ts::register_macro_package;
+//! use macroforge_ts::host::{MacroRegistry, Macroforge, Result};
+//! use macroforge_ts_syn::{TsStream, MacroKind, MacroResult};
+//! use std::sync::Arc;
+//!
+//! struct MacroA;
+//! struct MacroB;
+//!
+//! impl Macroforge for MacroA {
+//!     fn name(&self) -> &str { "MacroA" }
+//!     fn kind(&self) -> MacroKind { MacroKind::Derive }
+//!     fn run(&self, _: TsStream) -> MacroResult { MacroResult::default() }
+//! }
+//!
+//! impl Macroforge for MacroB {
+//!     fn name(&self) -> &str { "MacroB" }
+//!     fn kind(&self) -> MacroKind { MacroKind::Derive }
+//!     fn run(&self, _: TsStream) -> MacroResult { MacroResult::default() }
+//! }
 //!
 //! fn my_registrar(registry: &MacroRegistry) -> Result<()> {
 //!     registry.register("my-module", "MacroA", Arc::new(MacroA))?;
@@ -37,13 +55,19 @@
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```rust,no_run
 /// use macroforge_ts::register_macro_package;
-/// use macroforge_ts::host::{MacroRegistry, Result};
+/// use macroforge_ts::host::{MacroRegistry, Macroforge, Result};
+/// use macroforge_ts_syn::{TsStream, MacroKind, MacroResult};
 /// use std::sync::Arc;
 ///
 /// struct MyMacro;
-/// // ... implement Macroforge for MyMacro ...
+///
+/// impl Macroforge for MyMacro {
+///     fn name(&self) -> &str { "MyMacro" }
+///     fn kind(&self) -> MacroKind { MacroKind::Derive }
+///     fn run(&self, _input: TsStream) -> MacroResult { MacroResult::default() }
+/// }
 ///
 /// fn register_my_macros(registry: &MacroRegistry) -> Result<()> {
 ///     registry.register("my-module", "MyMacro", Arc::new(MyMacro))?;

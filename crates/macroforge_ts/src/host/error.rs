@@ -14,13 +14,14 @@
 //!
 //! ## Error Handling Patterns
 //!
-//! ```ignore
+//! ```rust,no_run
 //! use macroforge_ts::host::{MacroExpander, MacroError, Result};
 //!
 //! fn process_file(code: &str) -> Result<String> {
 //!     let expander = MacroExpander::new()?;
 //!
-//!     match expander.expand(code, &ast, "file.ts") {
+//!     // expand_source returns Result<MacroExpansion, MacroError>
+//!     match expander.expand_source(code, "file.ts") {
 //!         Ok(expansion) => Ok(expansion.code),
 //!         Err(MacroError::MacroNotFound { module, name }) => {
 //!             eprintln!("Unknown macro: {}::{}", module, name);
@@ -40,7 +41,7 @@ use thiserror::Error;
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```rust,no_run
 /// use macroforge_ts::host::Result;
 ///
 /// fn my_function() -> Result<String> {

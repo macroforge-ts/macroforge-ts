@@ -282,7 +282,9 @@ pub struct MacroManifest {
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```rust,no_run
+/// use macroforge_ts::host::derived::get_manifest;
+///
 /// let manifest = get_manifest();
 /// println!("Available macros:");
 /// for macro_entry in &manifest.macros {
