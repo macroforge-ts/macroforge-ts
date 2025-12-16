@@ -1726,7 +1726,7 @@ class User {
             "Should have serialize method"
         );
         assert!(
-            type_output.contains("SerializeWithContext(ctx: SerializeContext)"),
+            type_output.contains("serializeWithContext(ctx: SerializeContext)"),
             "Should have serializeWithContext method"
         );
     });
@@ -1755,7 +1755,7 @@ class Data {
             "Should have serialize method"
         );
         assert!(
-            result.code.contains("SerializeWithContext"),
+            result.code.contains("serializeWithContext"),
             "Should have serializeWithContext method"
         );
         assert!(
@@ -1821,7 +1821,7 @@ class Data {
             "Should have deserialize method"
         );
         assert!(
-            result.code.contains("DeserializeWithContext"),
+            result.code.contains("deserializeWithContext"),
             "Should have deserializeWithContext method"
         );
         assert!(result.code.contains("static"), "Methods should be static");
@@ -2019,8 +2019,8 @@ export interface User {
         assert!(
             result
                 .code
-                .contains("import { metadataDeserializeWithContext} from \"./metadata.svelte\";"),
-            "Expected metadataDeserializeWithContextimport to be added"
+                .contains("import { metadataDeserializeWithContext } from \"./metadata.svelte\";"),
+            "Expected metadataDeserializeWithContext import to be added"
         );
         assert!(
             result

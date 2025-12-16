@@ -83,21 +83,47 @@
 //! Generated output:
 //!
 //! ```typescript
-//! import { SerializeContext } from "macroforge/serde";
-//!
+//! import { SerializeContext } from 'macroforge/serde';
+//! 
 //! class User {
 //!     id: number;
-//!
-//!
+//! 
 //!     name: string;
-//!
-//!
+//! 
 //!     password: string;
-//!
-//!
+//! 
 //!     metadata: UserMetadata;
-//! /** macroforge warning: Failed to parse macro output for @macro/derive::Serialize: Failed to parse macro output into class members */
-//! # [doc = "\n                 * Serializes this instance to a JSON string.\n                 * @returns JSON string representation with cycle detection metadata\n                 " ]serialize(): string {const ctx = SerializeContext.create(); return JSON.stringify(this.serializeWithContext(ctx));}# [doc = " @internal " ]SerializeWithContext(ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(this); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(this); const result: Record<string, unknown>= {__type: "User" , __id,}; result["id" ]= this.id; result["userName" ]= this.name; {const __flattened = userMetadataSerializeWithContext(this.metadata, ctx); const {__type: _, __id: __,...rest}= __flattened as any; Object.assign(result, rest);}return result;}}
+//!     /** Serializes this instance to a JSON string.
+//! @returns JSON string representation with cycle detection metadata  */
+//! 
+//!     serialize(): string {
+//!         const ctx = SerializeContext.create();
+//!         return JSON.stringify(this.serializeWithContext(ctx));
+//!     }
+//!     /** @internal Serializes with an existing context for nested/cyclic object graphs.  */
+//! 
+//!     serializeWithContext(ctx: SerializeContext): Record<string, unknown> {
+//!         const existingId = ctx.getId(this);
+//!         if (existingId !== undefined) {
+//!             return {
+//!                 __ref: existingId
+//!             };
+//!         }
+//!         const __id = ctx.register(this);
+//!         const result: Record<string, unknown> = {
+//!             __type: 'User',
+//!             __id
+//!         };
+//!         result['id'] = this.id;
+//!         result['userName'] = this.name;
+//!         {
+//!             const __flattened = userMetadataserializeWithContext(this.metadata, ctx);
+//!             const { __type: _, __id: __, ...rest } = __flattened as any;
+//!             Object.assign(result, rest);
+//!         }
+//!         return result;
+//!     }
+//! }
 //! ```
 //!
 //! ## Required Import
@@ -125,7 +151,7 @@ fn nested_serialize_fn_name(type_name: &str, naming_style: FunctionNamingStyle) 
     match naming_style {
         FunctionNamingStyle::Namespace => format!("{type_name}.serializeWithContext"),
         FunctionNamingStyle::Generic => "serializeWithContext".to_string(),
-        FunctionNamingStyle::Prefix => format!("{}serializeWithContext", to_camel_case(type_name)),
+        FunctionNamingStyle::Prefix => format!("{}SerializeWithContext", to_camel_case(type_name)),
         FunctionNamingStyle::Suffix => format!("serializeWithContext{type_name}"),
     }
 }
