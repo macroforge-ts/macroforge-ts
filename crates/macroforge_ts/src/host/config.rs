@@ -19,7 +19,6 @@
 //!   "macroPackages": ["@my-org/custom-macros"],
 //!   "allowNativeMacros": false,
 //!   "keepDecorators": false,
-//!   "functionNamingStyle": "prefix",
 //!   "limits": {
 //!     "maxExecutionTimeMs": 5000,
 //!     "maxMemoryBytes": 104857600,
@@ -38,9 +37,6 @@
 use super::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
-
-// Re-export FunctionNamingStyle so users can configure it
-pub use crate::ts_syn::abi::FunctionNamingStyle;
 
 /// Default configuration filename (preferred).
 const DEFAULT_CONFIG_FILENAME: &str = "macroforge.json";
@@ -108,15 +104,6 @@ pub struct MacroConfig {
     /// When `true`, decorators remain in the output (useful for debugging).
     #[serde(default)]
     pub keep_decorators: bool,
-
-    /// Function naming style for generated functions on non-class types.
-    ///
-    /// Controls how standalone functions are named when generated for enums,
-    /// interfaces, and type aliases. Classes always use instance methods.
-    ///
-    /// Default: `Prefix` (e.g., `myTypeClone`)
-    #[serde(default)]
-    pub function_naming_style: FunctionNamingStyle,
 }
 
 /// Runtime mode for macro execution.
@@ -369,7 +356,6 @@ mod tests {
             macro_runtime_overrides: Default::default(),
             limits: Default::default(),
             keep_decorators: false,
-            function_naming_style: FunctionNamingStyle::Suffix,
         };
 
         let json = serde_json::to_string(&config).unwrap();
@@ -377,27 +363,5 @@ mod tests {
 
         assert_eq!(config.macro_packages, parsed.macro_packages);
         assert_eq!(config.allow_native_macros, parsed.allow_native_macros);
-        assert_eq!(config.function_naming_style, parsed.function_naming_style);
-    }
-
-    #[test]
-    fn test_function_naming_style_default() {
-        let config = MacroConfig::default();
-        assert_eq!(config.function_naming_style, FunctionNamingStyle::Prefix);
-    }
-
-    #[test]
-    fn test_function_naming_style_deserialization() {
-        let json = r#"{"functionNamingStyle": "generic"}"#;
-        let config: MacroConfig = serde_json::from_str(json).unwrap();
-        assert_eq!(config.function_naming_style, FunctionNamingStyle::Generic);
-
-        let json = r#"{"functionNamingStyle": "prefix"}"#;
-        let config: MacroConfig = serde_json::from_str(json).unwrap();
-        assert_eq!(config.function_naming_style, FunctionNamingStyle::Prefix);
-
-        let json = r#"{"functionNamingStyle": "namespace"}"#;
-        let config: MacroConfig = serde_json::from_str(json).unwrap();
-        assert_eq!(config.function_naming_style, FunctionNamingStyle::Namespace);
     }
 }

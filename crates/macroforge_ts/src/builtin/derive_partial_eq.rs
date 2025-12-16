@@ -13,14 +13,6 @@
 //! | Interface | `equalsInterfaceName(a: InterfaceName, b: InterfaceName): boolean` | Standalone function comparing fields |
 //! | Type Alias | `equalsTypeName(a: TypeName, b: TypeName): boolean` | Standalone function with type-appropriate comparison |
 //!
-//! ## Configuration
-//!
-//! The `functionNamingStyle` option in `macroforge.json` controls naming:
-//! - `"prefix"` (default): Prefixes with type name (e.g., `myTypeEquals`)
-//! - `"suffix"`: Suffixes with type name (e.g., `equalsMyType`)
-//! - `"generic"`: Uses TypeScript generics (e.g., `equals<T extends MyType>`)
-//! - `"namespace"`: Legacy namespace wrapping
-//!
 //! ## Comparison Strategy
 //!
 //! The generated equality check:
@@ -481,7 +473,6 @@
 
 use crate::builtin::derive_common::{CompareFieldOptions, is_primitive_type};
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::abi::FunctionNamingStyle;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 /// Convert a PascalCase name to camelCase (for prefix naming style)
@@ -708,42 +699,16 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
         Data::Enum(_) => {
             // Enums: direct comparison with ===
             let enum_name = input.name();
-            let naming_style = input.context.function_naming_style;
+            let fn_name = format!("{}Equals", to_camel_case(enum_name));
 
-            match naming_style {
-                FunctionNamingStyle::Namespace => Ok(ts_template! {
-                    export namespace @{enum_name} {
-                        export function equals(a: @{enum_name}, b: @{enum_name}): boolean {
-                            return a === b;
-                        }
-                    }
-                }),
-                FunctionNamingStyle::Generic => Ok(ts_template! {
-                    export function equals<T extends @{enum_name}>(a: T, b: T): boolean {
-                        return a === b;
-                    }
-                }),
-                FunctionNamingStyle::Prefix => {
-                    let fn_name = format!("{}Equals", to_camel_case(enum_name));
-                    Ok(ts_template! {
-                        export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): boolean {
-                            return a === b;
-                        }
-                    })
+            Ok(ts_template! {
+                export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): boolean {
+                    return a === b;
                 }
-                FunctionNamingStyle::Suffix => {
-                    let fn_name = format!("equals{}", enum_name);
-                    Ok(ts_template! {
-                        export function @{fn_name}(a: @{enum_name}, b: @{enum_name}): boolean {
-                            return a === b;
-                        }
-                    })
-                }
-            }
+            })
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
-            let naming_style = input.context.function_naming_style;
 
             // Collect fields for comparison
             let eq_fields: Vec<EqField> = interface
@@ -772,55 +737,17 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                     .join(" && ")
             };
 
-            match naming_style {
-                FunctionNamingStyle::Namespace => {
-                    let comparison_self = if eq_fields.is_empty() {
-                        "true".to_string()
-                    } else {
-                        eq_fields
-                            .iter()
-                            .map(|f| generate_field_equality_for_interface(f, "self", "other"))
-                            .collect::<Vec<_>>()
-                            .join(" && ")
-                    };
-                    Ok(ts_template! {
-                        export namespace @{interface_name} {
-                            export function equals(self: @{interface_name}, other: @{interface_name}): boolean {
-                                if (self === other) return true;
-                                return @{comparison_self};
-                            }
-                        }
-                    })
+            let fn_name = format!("{}Equals", to_camel_case(interface_name));
+
+            Ok(ts_template! {
+                export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): boolean {
+                    if (a === b) return true;
+                    return @{comparison};
                 }
-                FunctionNamingStyle::Generic => Ok(ts_template! {
-                    export function equals<T extends @{interface_name}>(a: T, b: T): boolean {
-                        if (a === b) return true;
-                        return @{comparison};
-                    }
-                }),
-                FunctionNamingStyle::Prefix => {
-                    let fn_name = format!("{}Equals", to_camel_case(interface_name));
-                    Ok(ts_template! {
-                        export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): boolean {
-                            if (a === b) return true;
-                            return @{comparison};
-                        }
-                    })
-                }
-                FunctionNamingStyle::Suffix => {
-                    let fn_name = format!("equals{}", interface_name);
-                    Ok(ts_template! {
-                        export function @{fn_name}(a: @{interface_name}, b: @{interface_name}): boolean {
-                            if (a === b) return true;
-                            return @{comparison};
-                        }
-                    })
-                }
-            }
+            })
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
-            let naming_style = input.context.function_naming_style;
 
             if type_alias.is_object() {
                 // Object type: field-by-field comparison
@@ -851,88 +778,27 @@ pub fn derive_partial_eq_macro(mut input: TsStream) -> Result<TsStream, Macrofor
                         .join(" && ")
                 };
 
-                match naming_style {
-                    FunctionNamingStyle::Namespace => Ok(ts_template! {
-                        export namespace @{type_name} {
-                            export function equals(a: @{type_name}, b: @{type_name}): boolean {
-                                if (a === b) return true;
-                                return @{comparison};
-                            }
-                        }
-                    }),
-                    FunctionNamingStyle::Generic => Ok(ts_template! {
-                        export function equals<T extends @{type_name}>(a: T, b: T): boolean {
-                            if (a === b) return true;
-                            return @{comparison};
-                        }
-                    }),
-                    FunctionNamingStyle::Prefix => {
-                        let fn_name = format!("{}Equals", to_camel_case(type_name));
-                        Ok(ts_template! {
-                            export function @{fn_name}(a: @{type_name}, b: @{type_name}): boolean {
-                                if (a === b) return true;
-                                return @{comparison};
-                            }
-                        })
+                let fn_name = format!("{}Equals", to_camel_case(type_name));
+
+                Ok(ts_template! {
+                    export function @{fn_name}(a: @{type_name}, b: @{type_name}): boolean {
+                        if (a === b) return true;
+                        return @{comparison};
                     }
-                    FunctionNamingStyle::Suffix => {
-                        let fn_name = format!("equals{}", type_name);
-                        Ok(ts_template! {
-                            export function @{fn_name}(a: @{type_name}, b: @{type_name}): boolean {
-                                if (a === b) return true;
-                                return @{comparison};
-                            }
-                        })
-                    }
-                }
+                })
             } else {
                 // Union, tuple, or simple alias: use strict equality and JSON fallback
-                match naming_style {
-                    FunctionNamingStyle::Namespace => Ok(ts_template! {
-                        export namespace @{type_name} {
-                            export function equals(a: @{type_name}, b: @{type_name}): boolean {
-                                if (a === b) return true;
-                                if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
-                                    return JSON.stringify(a) === JSON.stringify(b);
-                                }
-                                return false;
-                            }
+                let fn_name = format!("{}Equals", to_camel_case(type_name));
+
+                Ok(ts_template! {
+                    export function @{fn_name}(a: @{type_name}, b: @{type_name}): boolean {
+                        if (a === b) return true;
+                        if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
+                            return JSON.stringify(a) === JSON.stringify(b);
                         }
-                    }),
-                    FunctionNamingStyle::Generic => Ok(ts_template! {
-                        export function equals<T extends @{type_name}>(a: T, b: T): boolean {
-                            if (a === b) return true;
-                            if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
-                                return JSON.stringify(a) === JSON.stringify(b);
-                            }
-                            return false;
-                        }
-                    }),
-                    FunctionNamingStyle::Prefix => {
-                        let fn_name = format!("{}Equals", to_camel_case(type_name));
-                        Ok(ts_template! {
-                            export function @{fn_name}(a: @{type_name}, b: @{type_name}): boolean {
-                                if (a === b) return true;
-                                if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
-                                    return JSON.stringify(a) === JSON.stringify(b);
-                                }
-                                return false;
-                            }
-                        })
+                        return false;
                     }
-                    FunctionNamingStyle::Suffix => {
-                        let fn_name = format!("equals{}", type_name);
-                        Ok(ts_template! {
-                            export function @{fn_name}(a: @{type_name}, b: @{type_name}): boolean {
-                                if (a === b) return true;
-                                if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
-                                    return JSON.stringify(a) === JSON.stringify(b);
-                                }
-                                return false;
-                            }
-                        })
-                    }
-                }
+                })
             }
         }
     }
