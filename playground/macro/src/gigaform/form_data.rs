@@ -1,7 +1,6 @@
 //! Generates the fromFormData() function for parsing FormData with type coercion.
 
 use macroforge_ts::macros::ts_template;
-use macroforge_ts::ts_syn::abi::FunctionNamingStyle;
 use macroforge_ts::ts_syn::TsStream;
 
 use crate::gigaform::GenericInfo;
@@ -12,12 +11,11 @@ use crate::gigaform::parser::{ParsedField, UnionConfig, UnionMode};
 pub fn generate(
     interface_name: &str,
     fields: &[ParsedField],
-    naming_style: FunctionNamingStyle,
 ) -> TsStream {
-    let fn_name = fn_name_from_form_data(interface_name, "", naming_style);
+    let fn_name = fn_name_from_form_data(interface_name, "");
     let field_extractions = generate_field_extractions(fields, "");
     let delegate_call =
-        call_from_stringified_json(interface_name, "", naming_style, "JSON.stringify(obj)");
+        call_from_stringified_json(interface_name, "", "JSON.stringify(obj)");
 
     ts_template! {
         {>> "Parses FormData and validates it, returning a Result with the parsed data or errors. Delegates validation to fromStringifiedJSON() from @derive(Deserialize)." <<}
@@ -37,20 +35,18 @@ pub fn generate_with_generics(
     interface_name: &str,
     fields: &[ParsedField],
     generics: &GenericInfo,
-    naming_style: FunctionNamingStyle,
 ) -> TsStream {
     if generics.is_empty() {
-        return generate(interface_name, fields, naming_style);
+        return generate(interface_name, fields);
     }
 
     let generic_decl = generics.decl();
-    let fn_name = fn_name_from_form_data(interface_name, &generic_decl, naming_style);
+    let fn_name = fn_name_from_form_data(interface_name, &generic_decl);
     let field_extractions = generate_field_extractions(fields, "");
     let generic_args = generics.args();
     let delegate_call = call_from_stringified_json(
         interface_name,
         &generic_args,
-        naming_style,
         "JSON.stringify(obj)",
     );
 
@@ -72,15 +68,14 @@ pub fn generate_union_with_generics(
     type_name: &str,
     config: &UnionConfig,
     _generics: &GenericInfo,
-    naming_style: FunctionNamingStyle,
 ) -> TsStream {
     // Unions typically don't have type parameters
-    generate_union(type_name, config, naming_style)
+    generate_union(type_name, config)
 }
 
 /// Generates the fromFormData function for discriminated unions.
-pub fn generate_union(type_name: &str, config: &UnionConfig, naming_style: FunctionNamingStyle) -> TsStream {
-    let fn_name = fn_name_from_form_data(type_name, "", naming_style);
+pub fn generate_union(type_name: &str, config: &UnionConfig) -> TsStream {
+    let fn_name = fn_name_from_form_data(type_name, "");
     let discriminant_field = match &config.mode {
         UnionMode::Tagged { field } => field.as_str(),
         UnionMode::Untagged => "_variant", // synthetic field for untagged
@@ -94,7 +89,7 @@ pub fn generate_union(type_name: &str, config: &UnionConfig, naming_style: Funct
         .collect::<Vec<_>>()
         .join(" | ");
     let delegate_call =
-        call_from_stringified_json(type_name, "", naming_style, "JSON.stringify(obj)");
+        call_from_stringified_json(type_name, "", "JSON.stringify(obj)");
 
     ts_template! {
         {>> "Parses FormData for union type, determining variant from discriminant field" <<}
