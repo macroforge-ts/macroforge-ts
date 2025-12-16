@@ -1,7 +1,7 @@
 {
   "name": "macroforge_ts_quote",
   "kind": "rust_crate",
-  "version": "0.1.37",
+  "version": "0.1.38",
   "description": "Quote macro for generating TypeScript code at compile time",
   "overview": "TypeScript code generation macros for macroforge.\n\nThis crate provides procedural macros for generating TypeScript code from Rust.\nIt offers two primary approaches:\n\n- [`ts_quote!`] - A thin wrapper around SWC's `quote!` macro with enhanced\n  interpolation syntax for compile-time validated TypeScript generation.\n\n- [`ts_template!`] - A Rust-style template syntax with control flow (`{#if}`,\n  `{#for}`, `{#match}`) and expression interpolation (`@{expr}`).\n\nAdditionally, scoped template macros are provided for code injection:\n- [`above!`] - Inject code above a definition\n- [`below!`] - Inject code below a definition\n- [`body!`] - Inject code into method/function bodies\n- [`signature!`] - Inject code into function signatures\n\n# Architecture\n\nThe crate is designed to decouple code generation utilities from the heavier\nparsing utilities in `ts_syn`. Templates compile to string-building Rust code\nat macro expansion time, then produce [`TsStream`] objects at runtime that can\nbe parsed by SWC into typed AST nodes.\n\n# Examples\n\nUsing `ts_quote!` for simple interpolation:\n\n```ignore\nlet name = quote_ident(\"MyClass\");\nlet stmt = ts_quote!(class $name {} as Stmt, name = name);\n```\n\nUsing `ts_template!` for complex code generation:\n\n```ignore\nlet fields = vec![\"name\", \"age\"];\nlet stream = ts_template! {\n    {#for field in &fields}\n        this.@{field} = @{field};\n    {/for}\n};\n```\n\n[`TsStream`]: macroforge_ts::ts_syn::TsStream",
   "items": [

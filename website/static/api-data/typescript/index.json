@@ -1,10 +1,10 @@
 {
-  "generated": "2025-12-15T08:15:24.254Z",
+  "generated": "2025-12-16T02:42:51.747Z",
   "packages": [
     {
       "name": "@macroforge/typescript-plugin",
       "version": "0.1.37",
-      "itemCount": 49,
+      "itemCount": 57,
       "hasOverview": true
     },
     {

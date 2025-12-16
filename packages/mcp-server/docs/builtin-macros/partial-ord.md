@@ -69,11 +69,39 @@ The `@ord` decorator supports:
 
 ## Example
 
-```typescript
-@derive(PartialOrd)
+```typescript before
+/** @derive(PartialOrd) */
 class Temperature {
-    value: number | null;  // null represents "unknown"
+    value: number | null; // null represents "unknown"
     unit: string;
+}
+```
+
+```typescript after
+import { Option } from 'macroforge/utils';
+
+class Temperature {
+    value: number | null; // null represents "unknown"
+    unit: string;
+
+    compareTo(other: unknown): Option<number> {
+        if (this === other) return Option.some(0);
+        if (!(other instanceof Temperature)) return Option.none();
+        const typedOther = other as Temperature;
+        const cmp0 = (() => {
+            if (typeof (this.value as any)?.compareTo === 'function') {
+                const optResult = (this.value as any).compareTo(typedOther.value);
+                return Option.isNone(optResult) ? null : optResult.value;
+            }
+            return this.value === typedOther.value ? 0 : null;
+        })();
+        if (cmp0 === null) return Option.none();
+        if (cmp0 !== 0) return Option.some(cmp0);
+        const cmp1 = this.unit.localeCompare(typedOther.unit);
+        if (cmp1 === null) return Option.none();
+        if (cmp1 !== 0) return Option.some(cmp1);
+        return Option.some(0);
+    }
 }
 ```
 
