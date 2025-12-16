@@ -5,6 +5,7 @@
     interface Props {
         code: string;
         lang?: string;
+        html?: string; // Pre-highlighted HTML from Shiki
         filename?: string;
         showLineNumbers?: boolean;
     }
@@ -12,13 +13,13 @@
     let {
         code,
         lang = "typescript",
+        html,
         filename,
         showLineNumbers = false,
     }: Props = $props();
 
-    // Simple syntax highlighting using CSS classes
-    // For production, you'd integrate Shiki here
-    const lines = $derived(code.trim().split("\n"));
+    // Only compute lines if not using pre-highlighted HTML
+    const lines = $derived(html ? [] : code.trim().split("\n"));
 
     // Get language display name
     const langDisplay: Record<string, string> = {
@@ -31,6 +32,12 @@
         shell: "Shell",
         json: "JSON",
         toml: "TOML",
+        svelte: "Svelte",
+        html: "HTML",
+        css: "CSS",
+        markdown: "Markdown",
+        md: "Markdown",
+        text: "Text",
     };
 </script>
 
@@ -58,14 +65,22 @@
             </div>
         {/if}
     {/if}
-    <pre
-        class="overflow-x-auto p-4 bg-card text-sm {filename
-            ? ''
-            : 'pt-8'}"><code class="text-card-foreground font-mono"
-            >{#each lines as line, i}{#if showLineNumbers}<span
-                        class="inline-block w-8 text-right mr-4 text-muted-foreground select-none"
-                        >{i + 1}</span
-                    >{/if}<span>{line}</span
-                >{#if i < lines.length - 1}{"\n"}{/if}{/each}</code
-        ></pre>
+    {#if html}
+        <!-- Render pre-highlighted Shiki HTML -->
+        <div class="shiki-wrapper overflow-x-auto text-sm {filename ? '' : 'pt-8'}">
+            {@html html}
+        </div>
+    {:else}
+        <!-- Fallback to plain text rendering -->
+        <pre
+            class="overflow-x-auto p-4 bg-card text-sm {filename
+                ? ''
+                : 'pt-8'}"><code class="text-card-foreground font-mono"
+                >{#each lines as line, i}{#if showLineNumbers}<span
+                            class="inline-block w-8 text-right mr-4 text-muted-foreground select-none"
+                            >{i + 1}</span
+                        >{/if}<span>{line}</span
+                    >{#if i < lines.length - 1}{"\n"}{/if}{/each}</code
+            ></pre>
+    {/if}
 </div>
