@@ -8,18 +8,18 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `toStringifiedJSON()`, `toObject()`, `__serialize(ctx)` | Instance methods |
-//! | Enum | `toStringifiedJSONEnumName(value)`, `__serializeEnumName` | Standalone functions |
-//! | Interface | `toStringifiedJSONInterfaceName(value)`, etc. | Standalone functions |
-//! | Type Alias | `toStringifiedJSONTypeName(value)`, etc. | Standalone functions |
+//! | Class | `serialize()`, `__serialize(ctx)` | Instance methods |
+//! | Enum | `myEnumSerialize(value)`, `myEnum__serialize` | Standalone functions |
+//! | Interface | `myInterfaceSerialize(value)`, etc. | Standalone functions |
+//! | Type Alias | `myTypeSerialize(value)`, etc. | Standalone functions |
 //!
 //! ## Configuration
 //!
 //! The `functionNamingStyle` option in `macroforge.json` controls naming:
-//! - `"prefix"` (default): Prefixes with type name (e.g., `myTypeToStringifiedJSON`)
-//! - `"suffix"`: Suffixes with type name (e.g., `toStringifiedJSONMyType`)
-//! - `"generic"`: Uses TypeScript generics (e.g., `toStringifiedJSON<T extends MyType>`)
-//! - `"namespace"`: Legacy namespace wrapping
+//! - `"prefix"` (default): Prefixes with type name (e.g., `myTypeSerialize`)
+//! - `"suffix"`: Suffixes with type name (e.g., `serializeMyType`)
+//! - `"generic"`: Uses TypeScript generics (e.g., `serialize<T extends MyType>`)
+//! - `"namespace"`: Namespace wrapping (e.g., `MyType.serialize`)
 //!
 //! ## Cycle Detection Protocol
 //!
@@ -58,7 +58,7 @@
 //!
 //! The `@serde` decorator supports:
 //!
-//! - `skip` / `skip_serializing` - Exclude field from serialization
+//! - `skip` / `skipSerializing` - Exclude field from serialization
 //! - `rename = "jsonKey"` - Use different JSON property name
 //! - `flatten` - Merge nested object's fields into parent
 //!
@@ -72,7 +72,7 @@
 //!     @serde(rename = "userName")
 //!     name: string;
 //!
-//!     @serde(skip_serializing)
+//!     @serde(skipSerializing)
 //!     password: string;
 //!
 //!     @serde(flatten)
@@ -81,37 +81,34 @@
 //!
 //! // Usage:
 //! const user = new User();
-//! const json = user.toStringifiedJSON();
+//! const json = user.serialize();
 //! // => '{"__type":"User","__id":1,"id":1,"userName":"Alice",...}'
-//!
-//! const obj = user.toObject();
-//! // => { __type: "User", __id: 1, id: 1, userName: "Alice", ... }
 //! ```
 //!
 //! Generated output:
 //!
 //! ```typescript
 //! import { SerializeContext } from 'macroforge/serde';
-//! 
+//!
 //! class User {
 //!     id: number;
-//! 
+//!
 //!     name: string;
-//! 
+//!
 //!     password: string;
-//! 
+//!
 //!     metadata: UserMetadata;
-//! 
-//!     toStringifiedJSON(): string {
+//!
+//!     /**
+//!      * Serializes this instance to a JSON string.
+//!      * @returns JSON string representation with cycle detection metadata
+//!      */
+//!     serialize(): string {
 //!         const ctx = SerializeContext.create();
 //!         return JSON.stringify(this.__serialize(ctx));
 //!     }
-//! 
-//!     toObject(): Record<string, unknown> {
-//!         const ctx = SerializeContext.create();
-//!         return this.__serialize(ctx);
-//!     }
-//! 
+//!
+//!     /** @internal */
 //!     __serialize(ctx: SerializeContext): Record<string, unknown> {
 //!         const existingId = ctx.getId(this);
 //!         if (existingId !== undefined) {
@@ -134,14 +131,11 @@
 //!         return result;
 //!     }
 //! }
-//! 
+//!
 //! // Usage:
 //! const user = new User();
-//! const json = user.toStringifiedJSON();
+//! const json = user.serialize();
 //! // => '{"__type":"User","__id":1,"id":1,"userName":"Alice",...}'
-//! 
-//! const obj = user.toObject();
-//! // => { __type: "User", __id: 1, id: 1, userName: "Alice", ... }
 //! ```
 //!
 //! ## Required Import
@@ -417,16 +411,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let has_flatten = !flatten_fields.is_empty();
 
             let mut result = body! {
-                toStringifiedJSON(): string {
+                /**
+                 * Serializes this instance to a JSON string.
+                 * @returns JSON string representation with cycle detection metadata
+                 */
+                serialize(): string {
                     const ctx = SerializeContext.create();
                     return JSON.stringify(this.__serialize(ctx));
                 }
 
-                toObject(): Record<string, unknown> {
-                    const ctx = SerializeContext.create();
-                    return this.__serialize(ctx);
-                }
-
+                /** @internal */
                 __serialize(ctx: SerializeContext): Record<string, unknown> {
                     // Check if already serialized (cycle detection)
                     const existingId = ctx.getId(this);
@@ -720,46 +714,70 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             match naming_style {
                 FunctionNamingStyle::Namespace => Ok(ts_template! {
                     export namespace @{enum_name} {
-                        export function toStringifiedJSON(value: @{enum_name}): string {
+                        /**
+                         * Serializes an enum value to a JSON string.
+                         * @param value - The enum value to serialize
+                         * @returns JSON string representation
+                         */
+                        export function serialize(value: @{enum_name}): string {
                             return JSON.stringify(value);
                         }
 
-                        export function __serialize(_ctx: SerializeContext): string | number {
+                        /** @internal */
+                        export function __serialize(value: @{enum_name}, _ctx: SerializeContext): string | number {
                             return value;
                         }
                     }
                 }),
                 FunctionNamingStyle::Generic => Ok(ts_template! {
-                    export function toStringifiedJSON<T extends @{enum_name}>(value: T): string {
+                    /**
+                     * Serializes an enum value to a JSON string.
+                     * @param value - The enum value to serialize
+                     * @returns JSON string representation
+                     */
+                    export function serialize<T extends @{enum_name}>(value: T): string {
                         return JSON.stringify(value);
                     }
 
-                    export function __serialize<T extends @{enum_name}>(_ctx: SerializeContext): T {
+                    /** @internal */
+                    export function __serialize<T extends @{enum_name}>(value: T, _ctx: SerializeContext): T {
                         return value;
                     }
                 }),
                 FunctionNamingStyle::Prefix => {
-                    let fn_name_json = format!("{}ToStringifiedJSON", to_camel_case(enum_name));
-                    let fn_name_serialize = format!("{}__serialize", to_camel_case(enum_name));
+                    let fn_name = format!("{}Serialize", to_camel_case(enum_name));
+                    let fn_name_internal = format!("{}__serialize", to_camel_case(enum_name));
                     Ok(ts_template! {
-                        export function @{fn_name_json}(value: @{enum_name}): string {
+                        /**
+                         * Serializes an enum value to a JSON string.
+                         * @param value - The enum value to serialize
+                         * @returns JSON string representation
+                         */
+                        export function @{fn_name}(value: @{enum_name}): string {
                             return JSON.stringify(value);
                         }
 
-                        export function @{fn_name_serialize}(_ctx: SerializeContext): string | number {
+                        /** @internal */
+                        export function @{fn_name_internal}(value: @{enum_name}, _ctx: SerializeContext): string | number {
                             return value;
                         }
                     })
                 }
                 FunctionNamingStyle::Suffix => {
-                    let fn_name_json = format!("toStringifiedJSON{}", enum_name);
-                    let fn_name_serialize = format!("__serialize{}", enum_name);
+                    let fn_name = format!("serialize{}", enum_name);
+                    let fn_name_internal = format!("__serialize{}", enum_name);
                     Ok(ts_template! {
-                        export function @{fn_name_json}(value: @{enum_name}): string {
+                        /**
+                         * Serializes an enum value to a JSON string.
+                         * @param value - The enum value to serialize
+                         * @returns JSON string representation
+                         */
+                        export function @{fn_name}(value: @{enum_name}): string {
                             return JSON.stringify(value);
                         }
 
-                        export function @{fn_name_serialize}(_ctx: SerializeContext): string | number {
+                        /** @internal */
+                        export function @{fn_name_internal}(value: @{enum_name}, _ctx: SerializeContext): string | number {
                             return value;
                         }
                     })
@@ -870,25 +888,21 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let has_flatten = !flatten_fields.is_empty();
 
             // Generate function names based on naming style
-            let (fn_to_json, fn_to_obj, fn_serialize) = match naming_style {
+            let (fn_serialize, fn_serialize_internal) = match naming_style {
                 FunctionNamingStyle::Namespace => (
-                    "toStringifiedJSON".to_string(),
-                    "toObject".to_string(),
+                    "serialize".to_string(),
                     "__serialize".to_string(),
                 ),
                 FunctionNamingStyle::Generic => (
-                    "toStringifiedJSON".to_string(),
-                    "toObject".to_string(),
+                    "serialize".to_string(),
                     "__serialize".to_string(),
                 ),
                 FunctionNamingStyle::Prefix => (
-                    format!("{}ToStringifiedJSON", to_camel_case(interface_name)),
-                    format!("{}ToObject", to_camel_case(interface_name)),
+                    format!("{}Serialize", to_camel_case(interface_name)),
                     format!("{}__serialize", to_camel_case(interface_name)),
                 ),
                 FunctionNamingStyle::Suffix => (
-                    format!("toStringifiedJSON{}", interface_name),
-                    format!("toObject{}", interface_name),
+                    format!("serialize{}", interface_name),
                     format!("__serialize{}", interface_name),
                 ),
             };
@@ -897,16 +911,17 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 FunctionNamingStyle::Namespace => {
                     ts_template! {
                         export namespace @{interface_name} {
-                            export function toStringifiedJSON(self: @{interface_name}): string {
+                            /**
+                             * Serializes a value to a JSON string.
+                             * @param self - The value to serialize
+                             * @returns JSON string representation with cycle detection metadata
+                             */
+                            export function serialize(self: @{interface_name}): string {
                                 const ctx = SerializeContext.create();
                                 return JSON.stringify(__serialize(self, ctx));
                             }
 
-                            export function toObject(self: @{interface_name}): Record<string, unknown> {
-                                const ctx = SerializeContext.create();
-                                return __serialize(self, ctx);
-                            }
-
+                            /** @internal */
                             export function __serialize(self: @{interface_name}, ctx: SerializeContext): Record<string, unknown> {
                                 // Check if already serialized (cycle detection)
                                 const existingId = ctx.getId(self);
@@ -1250,17 +1265,18 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                 _ => {
                     // For non-namespace styles (Generic, Prefix, Suffix), use standalone functions
                     ts_template! {
-                        export function @{fn_to_json}(value: @{interface_name}): string {
+                        /**
+                         * Serializes a value to a JSON string.
+                         * @param value - The value to serialize
+                         * @returns JSON string representation with cycle detection metadata
+                         */
+                        export function @{fn_serialize}(value: @{interface_name}): string {
                             const ctx = SerializeContext.create();
-                            return JSON.stringify(@{fn_serialize}(value, ctx));
+                            return JSON.stringify(@{fn_serialize_internal}(value, ctx));
                         }
 
-                        export function @{fn_to_obj}(value: @{interface_name}): Record<string, unknown> {
-                            const ctx = SerializeContext.create();
-                            return @{fn_serialize}(value, ctx);
-                        }
-
-                        export function @{fn_serialize}(value: @{interface_name}, ctx: SerializeContext): Record<string, unknown> {
+                        /** @internal */
+                        export function @{fn_serialize_internal}(value: @{interface_name}, ctx: SerializeContext): Record<string, unknown> {
                             // Check if already serialized (cycle detection)
                             const existingId = ctx.getId(value);
                             if (existingId !== undefined) {
@@ -1618,29 +1634,21 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let full_type_name = format!("{}{}", type_name, generic_args);
 
             // Generate function names based on naming style
-            let (fn_to_json, fn_to_obj, fn_serialize) = match naming_style {
+            let (fn_serialize, fn_serialize_internal) = match naming_style {
                 FunctionNamingStyle::Namespace => (
-                    format!("toStringifiedJSON{}", generic_decl),
-                    format!("toObject{}", generic_decl),
+                    format!("serialize{}", generic_decl),
                     format!("__serialize{}", generic_decl),
                 ),
                 FunctionNamingStyle::Generic => (
-                    format!("toStringifiedJSON{}", generic_decl),
-                    format!("toObject{}", generic_decl),
+                    format!("serialize{}", generic_decl),
                     format!("__serialize{}", generic_decl),
                 ),
                 FunctionNamingStyle::Prefix => (
-                    format!(
-                        "{}ToStringifiedJSON{}",
-                        to_camel_case(type_name),
-                        generic_decl
-                    ),
-                    format!("{}ToObject{}", to_camel_case(type_name), generic_decl),
+                    format!("{}Serialize{}", to_camel_case(type_name), generic_decl),
                     format!("{}__serialize{}", to_camel_case(type_name), generic_decl),
                 ),
                 FunctionNamingStyle::Suffix => (
-                    format!("toStringifiedJSON{}{}", type_name, generic_decl),
-                    format!("toObject{}{}", type_name, generic_decl),
+                    format!("serialize{}{}", type_name, generic_decl),
                     format!("__serialize{}{}", type_name, generic_decl),
                 ),
             };
@@ -1749,16 +1757,17 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     FunctionNamingStyle::Namespace => {
                         ts_template! {
                             export namespace @{type_name} {
-                                export function {|toStringifiedJSON@{generic_decl}|}(value: @{full_type_name}): string {
+                                /**
+                                 * Serializes a value to a JSON string.
+                                 * @param value - The value to serialize
+                                 * @returns JSON string representation with cycle detection metadata
+                                 */
+                                export function {|serialize@{generic_decl}|}(value: @{full_type_name}): string {
                                     const ctx = SerializeContext.create();
                                     return JSON.stringify(__serialize(value, ctx));
                                 }
 
-                                export function {|toObject@{generic_decl}|}(value: @{full_type_name}): Record<string, unknown> {
-                                    const ctx = SerializeContext.create();
-                                    return __serialize(value, ctx);
-                                }
-
+                                /** @internal */
                                 export function {|__serialize@{generic_decl}|}(value: @{full_type_name}, ctx: SerializeContext): Record<string, unknown> {
                                     const existingId = ctx.getId(value);
                                     if (existingId !== undefined) {
@@ -1790,17 +1799,18 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     }
                     _ => {
                         ts_template! {
-                            export function {|@{fn_to_json}|}(value: @{full_type_name}): string {
+                            /**
+                             * Serializes a value to a JSON string.
+                             * @param value - The value to serialize
+                             * @returns JSON string representation with cycle detection metadata
+                             */
+                            export function {|@{fn_serialize}|}(value: @{full_type_name}): string {
                                 const ctx = SerializeContext.create();
-                                return JSON.stringify({|@{fn_serialize}|}(value, ctx));
+                                return JSON.stringify({|@{fn_serialize_internal}|}(value, ctx));
                             }
 
-                            export function {|@{fn_to_obj}|}(value: @{full_type_name}): Record<string, unknown> {
-                                const ctx = SerializeContext.create();
-                                return {|@{fn_serialize}|}(value, ctx);
-                            }
-
-                            export function {|@{fn_serialize}|}(value: @{full_type_name}, ctx: SerializeContext): Record<string, unknown> {
+                            /** @internal */
+                            export function {|@{fn_serialize_internal}|}(value: @{full_type_name}, ctx: SerializeContext): Record<string, unknown> {
                                 const existingId = ctx.getId(value);
                                 if (existingId !== undefined) {
                                     return { __ref: existingId };
@@ -1837,16 +1847,17 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     FunctionNamingStyle::Namespace => {
                         ts_template! {
                             export namespace @{type_name} {
-                                export function {|toStringifiedJSON@{generic_decl}|}(value: @{full_type_name}): string {
+                                /**
+                                 * Serializes a value to a JSON string.
+                                 * @param value - The value to serialize
+                                 * @returns JSON string representation with cycle detection metadata
+                                 */
+                                export function {|serialize@{generic_decl}|}(value: @{full_type_name}): string {
                                     const ctx = SerializeContext.create();
                                     return JSON.stringify(__serialize(value, ctx));
                                 }
 
-                                export function {|toObject@{generic_decl}|}(value: @{full_type_name}): unknown {
-                                    const ctx = SerializeContext.create();
-                                    return __serialize(value, ctx);
-                                }
-
+                                /** @internal */
                                 export function {|__serialize@{generic_decl}|}(value: @{full_type_name}, ctx: SerializeContext): unknown {
                                     if (typeof (value as any)?.__serialize === "function") {
                                         return (value as any).__serialize(ctx);
@@ -1858,17 +1869,18 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                     }
                     _ => {
                         ts_template! {
-                            export function {|@{fn_to_json}|}(value: @{full_type_name}): string {
+                            /**
+                             * Serializes a value to a JSON string.
+                             * @param value - The value to serialize
+                             * @returns JSON string representation with cycle detection metadata
+                             */
+                            export function {|@{fn_serialize}|}(value: @{full_type_name}): string {
                                 const ctx = SerializeContext.create();
-                                return JSON.stringify({|@{fn_serialize}|}(value, ctx));
+                                return JSON.stringify({|@{fn_serialize_internal}|}(value, ctx));
                             }
 
-                            export function {|@{fn_to_obj}|}(value: @{full_type_name}): unknown {
-                                const ctx = SerializeContext.create();
-                                return {|@{fn_serialize}|}(value, ctx);
-                            }
-
-                            export function {|@{fn_serialize}|}(value: @{full_type_name}, ctx: SerializeContext): unknown {
+                            /** @internal */
+                            export function {|@{fn_serialize_internal}|}(value: @{full_type_name}, ctx: SerializeContext): unknown {
                                 if (typeof (value as any)?.__serialize === "function") {
                                     return (value as any).__serialize(ctx);
                                 }

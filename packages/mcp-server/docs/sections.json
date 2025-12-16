@@ -88,12 +88,35 @@
     "use_cases": "compareTo, ordering, sorting, comparison, total order"
   },
   {
+    "id": "partial-eq/overview",
+    "title": "PartialEq: Overview",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/partial-eq/overview.md",
+    "use_cases": "equals, equality, partialeq, equals()",
+    "parent_id": "partial-eq"
+  },
+  {
+    "id": "partial-eq/example",
+    "title": "PartialEq: Example",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/partial-eq/example.md",
+    "use_cases": "equals, equality",
+    "parent_id": "partial-eq"
+  },
+  {
     "id": "partial-eq",
     "title": "PartialEq",
     "category": "builtin-macros",
     "category_title": "Built-in Macros",
     "path": "builtin-macros/partial-eq.md",
-    "use_cases": "equals, equality, comparison, value equality"
+    "use_cases": "equals, equality, comparison, value equality",
+    "is_chunked": true,
+    "chunk_ids": [
+      "partial-eq/overview",
+      "partial-eq/example"
+    ]
   },
   {
     "id": "partial-ord",
@@ -112,12 +135,65 @@
     "use_cases": "toJSON, serialization, json, api, data transfer"
   },
   {
+    "id": "deserialize/overview",
+    "title": "Deserialize: Overview",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize/overview.md",
+    "use_cases": "fromJSON, deserialization, deserialize, myenumdeserialize(input), myenum__deserialize(data)",
+    "parent_id": "deserialize"
+  },
+  {
+    "id": "deserialize/cycleforward-reference-support",
+    "title": "Deserialize: Cycle/Forward-Reference Support",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize/cycleforward-reference-support.md",
+    "use_cases": "fromJSON, deserialization, pendingref, ctx.applypatches(), __ref",
+    "parent_id": "deserialize"
+  },
+  {
+    "id": "deserialize/validation",
+    "title": "Deserialize: Validation",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize/validation.md",
+    "use_cases": "fromJSON, deserialization, @serde(validate(...)), email, url, uuid",
+    "parent_id": "deserialize"
+  },
+  {
+    "id": "deserialize/union-type-deserialization",
+    "title": "Deserialize: Union Type Deserialization",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize/union-type-deserialization.md",
+    "use_cases": "fromJSON, deserialization, typeof, __type",
+    "parent_id": "deserialize"
+  },
+  {
+    "id": "deserialize/example",
+    "title": "Deserialize: Example",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/deserialize/example.md",
+    "use_cases": "fromJSON, deserialization",
+    "parent_id": "deserialize"
+  },
+  {
     "id": "deserialize",
     "title": "Deserialize",
     "category": "builtin-macros",
     "category_title": "Built-in Macros",
     "path": "builtin-macros/deserialize.md",
-    "use_cases": "fromJSON, deserialization, parsing, validation, json"
+    "use_cases": "fromJSON, deserialization, parsing, validation, json",
+    "is_chunked": true,
+    "chunk_ids": [
+      "deserialize/overview",
+      "deserialize/cycleforward-reference-support",
+      "deserialize/validation",
+      "deserialize/union-type-deserialization",
+      "deserialize/example"
+    ]
   },
   {
     "id": "custom-overview",

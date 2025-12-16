@@ -171,6 +171,94 @@ enum Status {
 }
 ```
 
+Generated output:
+
+```typescript before
+/** @derive(Default) */
+enum Status {
+    @default
+    Pending,
+    Active,
+    Completed
+}
+```
+
+```typescript after
+/** @derive(Default) */
+enum Status {
+    @default
+    Pending,
+    Active,
+    Completed
+}
+```
+
+Generated output:
+
+```typescript before
+/** @derive(Default) */
+enum Status {
+    @default
+    Pending,
+    Active,
+    Completed
+}
+```
+
+```typescript after
+/** @derive(Default) */
+enum Status {
+    @default
+    Pending,
+    Active,
+    Completed
+}
+```
+
+Generated output:
+
+```typescript before
+/** @derive(Default) */
+enum Status {
+    @default
+    Pending,
+    Active,
+    Completed
+}
+```
+
+```typescript after
+/** @derive(Default) */
+enum Status {
+    @default
+    Pending,
+    Active,
+    Completed
+}
+```
+
+Generated output:
+
+```typescript before
+/** @derive(Default) */
+enum Status {
+    @default
+    Pending,
+    Active,
+    Completed
+}
+```
+
+```typescript after
+/** @derive(Default) */
+enum Status {
+    @default
+    Pending,
+    Active,
+    Completed
+}
+```
+
 ## Error Handling
 
 The macro will return an error if:

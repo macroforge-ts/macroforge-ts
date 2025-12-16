@@ -8,18 +8,18 @@ including circular references.
 
 | Type | Generated Code | Description |
 |------|----------------|-------------|
-| Class | `toStringifiedJSON()`, `toObject()`, `__serialize(ctx)` | Instance methods |
-| Enum | `toStringifiedJSONEnumName(value)`, `__serializeEnumName` | Standalone functions |
-| Interface | `toStringifiedJSONInterfaceName(value)`, etc. | Standalone functions |
-| Type Alias | `toStringifiedJSONTypeName(value)`, etc. | Standalone functions |
+| Class | `serialize()`, `__serialize(ctx)` | Instance methods |
+| Enum | `myEnumSerialize(value)`, `myEnum__serialize` | Standalone functions |
+| Interface | `myInterfaceSerialize(value)`, etc. | Standalone functions |
+| Type Alias | `myTypeSerialize(value)`, etc. | Standalone functions |
 
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypeToStringifiedJSON`)
-- `"suffix"`: Suffixes with type name (e.g., `toStringifiedJSONMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `toStringifiedJSON<T extends MyType>`)
-- `"namespace"`: Legacy namespace wrapping
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypeSerialize`)
+- `"suffix"`: Suffixes with type name (e.g., `serializeMyType`)
+- `"generic"`: Uses TypeScript generics (e.g., `serialize<T extends MyType>`)
+- `"namespace"`: Namespace wrapping (e.g., `MyType.serialize`)
 
 ## Cycle Detection Protocol
 
@@ -58,39 +58,34 @@ avoid runtime feature detection on primitives and literal unions.
 
 The `@serde` decorator supports:
 
-- `skip` / `skip_serializing` - Exclude field from serialization
+- `skip` / `skipSerializing` - Exclude field from serialization
 - `rename = "jsonKey"` - Use different JSON property name
 - `flatten` - Merge nested object's fields into parent
 
 ## Example
 
-```typescript
-@derive(Serialize)
+```typescript before
+/** @derive(Serialize) */
 class User {
     id: number;
 
-    @serde(rename = "userName")
+    /** @serde({ rename: "userName" }) */
     name: string;
 
-    @serde(skip_serializing)
+    /** @serde({ skipSerializing: true }) */
     password: string;
 
-    @serde(flatten)
+    /** @serde({ flatten: true }) */
     metadata: UserMetadata;
 }
 
 // Usage:
 const user = new User();
-const json = user.toStringifiedJSON();
+const json = user.serialize();
 // => '{"__type":"User","__id":1,"id":1,"userName":"Alice",...}'
-
-const obj = user.toObject();
-// => { __type: "User", __id: 1, id: 1, userName: "Alice", ... }
 ```
 
-Generated output:
-
-```typescript
+```typescript after
 import { SerializeContext } from 'macroforge/serde';
 
 class User {
@@ -126,6 +121,7 @@ class User {
         };
         result['id'] = this.id;
         result['userName'] = this.name;
+        result['password'] = this.password;
         {
             const __flattened = userMetadata__serialize(this.metadata, ctx);
             const { __type: _, __id: __, ...rest } = __flattened as any;
@@ -137,11 +133,61 @@ class User {
 
 // Usage:
 const user = new User();
-const json = user.toStringifiedJSON();
+const json = user.serialize();
 // => '{"__type":"User","__id":1,"id":1,"userName":"Alice",...}'
+```
 
-const obj = user.toObject();
-// => { __type: "User", __id: 1, id: 1, userName: "Alice", ... }
+Generated output:
+
+```typescript
+import { SerializeContext } from 'macroforge/serde';
+
+class User {
+    id: number;
+
+    name: string;
+
+    password: string;
+
+    metadata: UserMetadata;
+
+    /**
+     * Serializes this instance to a JSON string.
+     * @returns JSON string representation with cycle detection metadata
+     */
+    serialize(): string {
+        const ctx = SerializeContext.create();
+        return JSON.stringify(this.__serialize(ctx));
+    }
+
+    /** @internal */
+    __serialize(ctx: SerializeContext): Record<string, unknown> {
+        const existingId = ctx.getId(this);
+        if (existingId !== undefined) {
+            return {
+                __ref: existingId
+            };
+        }
+        const __id = ctx.register(this);
+        const result: Record<string, unknown> = {
+            __type: 'User',
+            __id
+        };
+        result['id'] = this.id;
+        result['userName'] = this.name;
+        {
+            const __flattened = userMetadata__serialize(this.metadata, ctx);
+            const { __type: _, __id: __, ...rest } = __flattened as any;
+            Object.assign(result, rest);
+        }
+        return result;
+    }
+}
+
+// Usage:
+const user = new User();
+const json = user.serialize();
+// => '{"__type":"User","__id":1,"id":1,"userName":"Alice",...}'
 ```
 
 ## Required Import
