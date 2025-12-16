@@ -32,9 +32,10 @@
 //!
 //! ## Example Usage
 //!
-//! ```rust,ignore
-//! use macroforge_ts_syn::{MacroContextIR, MacroResult, DeriveInput};
+//! ```rust
+//! use macroforge_ts_syn::{MacroContextIR, MacroResult};
 //!
+//! // This shows the typical signature of a derive macro
 //! pub fn my_derive_macro(ctx: MacroContextIR) -> MacroResult {
 //!     // Access macro metadata
 //!     println!("Macro: {} from {}", ctx.macro_name, ctx.module_path);
@@ -45,7 +46,7 @@
 //!         println!("Processing class: {}", class.name);
 //!     }
 //!
-//!     MacroResult::ok()
+//!     MacroResult::default()
 //! }
 //! ```
 
@@ -91,7 +92,7 @@ pub enum MacroKind {
 ///
 /// # Example
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::TargetIR;
 ///
 /// fn get_target_name(target: &TargetIR) -> &str {
@@ -146,8 +147,8 @@ pub enum TargetIR {
 ///
 /// # Example
 ///
-/// ```rust,ignore
-/// use macroforge_ts_syn::{MacroContextIR, MacroResult, Patch};
+/// ```rust
+/// use macroforge_ts_syn::{MacroContextIR, MacroResult, insert_into_class};
 ///
 /// pub fn debug_derive(ctx: MacroContextIR) -> MacroResult {
 ///     let class = ctx.as_class().expect("Debug requires a class");
@@ -161,9 +162,10 @@ pub enum TargetIR {
 ///     );
 ///
 ///     // Insert at end of class body
-///     MacroResult::ok().with_patches(vec![
-///         Patch::insert_into_class(class.body_span, method_code)
-///     ])
+///     MacroResult {
+///         runtime_patches: vec![insert_into_class(class.body_span, method_code)],
+///         ..Default::default()
+///     }
 /// }
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]

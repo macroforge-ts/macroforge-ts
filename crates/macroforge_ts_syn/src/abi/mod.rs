@@ -29,7 +29,7 @@
 //!
 //! ## Example: Macro Flow
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use macroforge_ts_syn::{MacroContextIR, MacroResult, Patch, SpanIR};
 //!
 //! pub fn my_macro(ctx: MacroContextIR) -> MacroResult {

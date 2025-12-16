@@ -13,7 +13,7 @@
 //!
 //! ## Example
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use macroforge_ts_syn::SpanIR;
 //!
 //! // Create a span for bytes 10-25
@@ -46,7 +46,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// # Example
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::SpanIR;
 ///
 /// // Span covering "hello" in "say hello world"
@@ -79,7 +79,7 @@ impl SpanIR {
     ///
     /// # Example
     ///
-    /// ```rust,ignore
+    /// ```rust,no_run
     /// use macroforge_ts_syn::SpanIR;
     ///
     /// let span = SpanIR::new(0, 10);
@@ -97,7 +97,7 @@ impl SpanIR {
     ///
     /// # Example
     ///
-    /// ```rust,ignore
+    /// ```rust,no_run
     /// use macroforge_ts_syn::SpanIR;
     ///
     /// let span = SpanIR::new(5, 15);
@@ -114,7 +114,7 @@ impl SpanIR {
     ///
     /// # Example
     ///
-    /// ```rust,ignore
+    /// ```rust,no_run
     /// use macroforge_ts_syn::SpanIR;
     ///
     /// let insertion_point = SpanIR::new(42, 42);

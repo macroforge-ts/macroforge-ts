@@ -51,7 +51,7 @@ use crate::abi::{SpanIR, swc_ast};
 ///
 /// # Example
 ///
-/// ```rust,ignore
+/// ```rust,no_run
 /// use macroforge_ts_syn::DecoratorIR;
 ///
 /// fn has_skip_decorator(decorators: &[DecoratorIR]) -> bool {

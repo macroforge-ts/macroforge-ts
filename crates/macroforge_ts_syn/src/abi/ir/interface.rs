@@ -41,7 +41,7 @@ use crate::abi::{DecoratorIR, SpanIR};
 ///
 /// # Example
 ///
-/// ```rust,ignore
+/// ```rust
 /// use macroforge_ts_syn::InterfaceIR;
 ///
 /// fn generate_type_guard(iface: &InterfaceIR) -> String {
@@ -49,10 +49,10 @@ use crate::abi::{DecoratorIR, SpanIR};
 ///
 ///     for field in &iface.fields {
 ///         if !field.optional {
+///             // Generate property existence checks
 ///             checks.push(format!(
-///                 "'{}' in obj && typeof obj.{} === '{}'",
-///                 field.name, field.name,
-///                 ts_type_to_typeof(&field.ts_type)
+///                 "'{}' in obj",
+///                 field.name
 ///             ));
 ///         }
 ///     }

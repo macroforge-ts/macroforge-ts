@@ -28,7 +28,7 @@
 //! The [`TypeBody`] enum classifies the type alias body and provides
 //! convenient accessor methods:
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use macroforge_ts_syn::{TypeAliasIR, TypeBody};
 //!
 //! fn process_type_alias(alias: &TypeAliasIR) {
