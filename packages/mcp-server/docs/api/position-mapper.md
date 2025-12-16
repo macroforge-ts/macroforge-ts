@@ -2,16 +2,16 @@
   *Bidirectional position mapper for translating between original and expanded source positions. This mapper enables IDE features like error reporting, go-to-definition, and hover to work correctly with macro-expanded code by translating positions between the original source (what the user wrote) and the expanded source (what the compiler sees).*
  ## Getting a Mapper
  ```
-import { NativePlugin, PositionMapper } from "macroforge";
+import &#123; NativePlugin, PositionMapper &#125; from "macroforge";
 
 const plugin = new NativePlugin();
-const result = plugin.processFile("user.ts", code, { version: "1" });
+const result = plugin.processFile("user.ts", code, &#123; version: "1" &#125;);
 
 // Get the mapper for this file
 const mapper = plugin.getMapper("user.ts");
-if (mapper) {
+if (mapper) &#123;
   // Use the mapper...
-}
+&#125;
 ``` ## Methods
  ### isEmpty()
  Check if the mapper has any mappings:
@@ -39,10 +39,10 @@ generatedBy(pos: number): string | null
  ```
 mapSpanToOriginal(start: number, length: number): SpanResult | null
 
-interface SpanResult {
+interface SpanResult &#123;
   start: number;
   length: number;
-}
+&#125;
 ``` ### mapSpanToExpanded()
  Map a span from original to expanded code:
  ```

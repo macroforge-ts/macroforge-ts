@@ -2,14 +2,14 @@
  <span class="stats svelte-1c8t0id">52 exported items *Macroforge provides a programmatic API for expanding macros in TypeScript code.*
  ## Overview
  ```
-import {
+import &#123;
   expandSync,
   transformSync,
   checkSyntax,
   parseImportSources,
   NativePlugin,
   PositionMapper
-} from "macroforge";
+&#125; from "macroforge";
 ``` ## Core Functions
  | Function | Description |
 | --- | --- |
@@ -24,28 +24,28 @@ import {
 | [`PositionMapper`](../docs/api/position-mapper) | Maps positions between original and expanded code |
  ## Quick Example
  ```
-import { expandSync } from "macroforge";
+import &#123; expandSync &#125; from "macroforge";
 
-const sourceCode = `
+const sourceCode = \`
 /** @derive(Debug) */
-class User {
+class User &#123;
   name: string;
-  constructor(name: string) {
+  constructor(name: string) &#123;
     this.name = name;
-  }
-}
-`;
+  &#125;
+&#125;
+\`;
 
-const result = expandSync(sourceCode, "user.ts", {
+const result = expandSync(sourceCode, "user.ts", &#123;
   keepDecorators: false
-});
+&#125;);
 
 console.log(result.code);
 // Output: class with toString() method generated
 
-if (result.diagnostics.length > 0) {
+if (result.diagnostics.length > 0) &#123;
   console.error("Errors:", result.diagnostics);
-}
+&#125;
 ``` ## Detailed Reference
  - [`expandSync()`](../docs/api/expand-sync) - Full options and return types
  - [`transformSync()`](../docs/api/transform-sync) - Transform with source maps

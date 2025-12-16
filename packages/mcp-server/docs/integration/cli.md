@@ -15,7 +15,7 @@ cargo build --release --bin macroforge
  ### macroforge expand
  Expands macros in a TypeScript file and outputs the transformed code.
  ```
-macroforge expand <input> [options]
+macroforge expand &#x3C;input> [options]
 ``` #### Arguments
  | Argument | Description |
 | --- | --- |
@@ -60,15 +60,15 @@ macroforge tsc -p tsconfig.build.json
  When expanding a file like this:
  ```
 /** @derive(Debug) */
-class User {
+class User &#123;
   name: string;
   age: number;
 
-  constructor(name: string, age: number) {
+  constructor(name: string, age: number) &#123;
     this.name = name;
     this.age = age;
-  }
-}
+  &#125;
+&#125;
 ``` The CLI outputs the expanded code with the generated methods:
  ```
 class User {
@@ -94,11 +94,11 @@ class User {
  Use `macroforge tsc` in your CI pipeline to type-check with macro expansion:
  ```
 # package.json
-{
-  "scripts": {
+&#123;
+  "scripts": &#123;
     "typecheck": "macroforge tsc"
-  }
-}
+  &#125;
+&#125;
 ``` ### Debugging Macro Output
  Use `macroforge expand` to inspect what code your macros generate:
  ```

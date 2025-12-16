@@ -15,13 +15,13 @@ function expandSync(
 | `options` | `ExpandOptions` | Optional configuration |
  ## ExpandOptions
  ```
-interface ExpandOptions {
+interface ExpandOptions &#123;
   // Keep @derive decorators in output (default: false)
   keepDecorators?: boolean;
-}
+&#125;
 ``` ## ExpandResult
  ```
-interface ExpandResult {
+interface ExpandResult &#123;
   // Transformed TypeScript code
   code: string;
 
@@ -36,17 +36,17 @@ interface ExpandResult {
 
   // Position mapping data for source maps
   sourceMapping?: SourceMappingResult;
-}
+&#125;
 ``` ## MacroDiagnostic
  ```
-interface MacroDiagnostic {
+interface MacroDiagnostic &#123;
   message: string;
   severity: "error" | "warning" | "info";
-  span: {
+  span: &#123;
     start: number;
     end: number;
-  };
-}
+  &#125;;
+&#125;
 ``` ## Example
  ```
 import { expandSync } from "macroforge";

@@ -12,14 +12,14 @@ claude mcp add -t stdio -s [scope] macroforge -- npx -y @macroforge/mcp-server
  ## Claude Desktop
  In the Settings > Developer section, click on Edit Config. It will open the folder with a `claude_desktop_config.json` file in it. Edit the file to include the following configuration:
  ```
-{
-    "mcpServers": {
-        "macroforge": {
+&#123;
+    "mcpServers": &#123;
+        "macroforge": &#123;
             "command": "npx",
             "args": ["-y", "@macroforge/mcp-server"]
-        }
-    }
-}
+        &#125;
+    &#125;
+&#125;
 ``` ## Codex CLI
  Add the following to your `config.toml` (which defaults to `~/.codex/config.toml`, but refer to [the configuration documentation](https://github.com/openai/codex/blob/main/docs/config.md) for more advanced setups):
  ```

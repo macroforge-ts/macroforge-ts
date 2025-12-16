@@ -25,21 +25,21 @@ class User {
 ```  ### The import macro Statement
  To use macros from external packages, you must declare them with `import macro`:
  ```
-/** import macro { MacroName } from "package-name"; */
+/** import macro &#123; MacroName &#125; from "package-name"; */
 ``` Syntax rules:
  - Must be inside a JSDoc comment (`/** */`)
  - Can appear anywhere in the file (typically at the top)
  - Multiple macros can be imported: `import macro { A, B } from "pkg";`
  - Multiple import statements can be used for different packages
  ```
-/** import macro { JSON, Validate } from "@my/macros"; */
-/** import macro { Builder } from "@other/macros"; */
+/** import macro &#123; JSON, Validate &#125; from "@my/macros"; */
+/** import macro &#123; Builder &#125; from "@other/macros"; */
 
 /** @derive(JSON, Validate, Builder) */
-class User {
+class User &#123;
   name: string;
   email: string;
-}
+&#125;
 ```  **Built-in macros Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement. ### Field Attributes
  Macros can define field-level attributes to customize behavior per field:
  ****Before:**

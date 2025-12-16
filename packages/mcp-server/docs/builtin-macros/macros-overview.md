@@ -16,57 +16,57 @@
  Built-in macros don't require imports. Just use them with `@derive`:
  ```
 /** @derive(Debug, Clone, PartialEq) */
-class User {
+class User &#123;
   name: string;
   age: number;
 
-  constructor(name: string, age: number) {
+  constructor(name: string, age: number) &#123;
     this.name = name;
     this.age = age;
-  }
-}
+  &#125;
+&#125;
 ``` ## Interface Support
  All built-in macros work with interfaces. For interfaces, methods are generated as functions in a namespace with the same name, using `self` as the first parameter:
  ```
 /** @derive(Debug, Clone, PartialEq) */
-interface Point {
+interface Point &#123;
   x: number;
   y: number;
-}
+&#125;
 
 // Generated namespace:
-// namespace Point {
-//   export function toString(self: Point): string { ... }
-//   export function clone(self: Point): Point { ... }
-//   export function equals(self: Point, other: Point): boolean { ... }
-//   export function hashCode(self: Point): number { ... }
-// }
+// namespace Point &#123;
+//   export function toString(self: Point): string &#123; ... &#125;
+//   export function clone(self: Point): Point &#123; ... &#125;
+//   export function equals(self: Point, other: Point): boolean &#123; ... &#125;
+//   export function hashCode(self: Point): number &#123; ... &#125;
+// &#125;
 
-const point: Point = { x: 10, y: 20 };
+const point: Point = &#123; x: 10, y: 20 &#125;;
 
 // Use the namespace functions
-console.log(Point.toString(point));     // "Point { x: 10, y: 20 }"
-const copy = Point.clone(point);        // { x: 10, y: 20 }
+console.log(Point.toString(point));     // "Point &#123; x: 10, y: 20 &#125;"
+const copy = Point.clone(point);        // &#123; x: 10, y: 20 &#125;
 console.log(Point.equals(point, copy)); // true
 ``` ## Enum Support
  All built-in macros work with enums. For enums, methods are generated as functions in a namespace with the same name:
  ```
 /** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
-enum Status {
+enum Status &#123;
   Active = "active",
   Inactive = "inactive",
   Pending = "pending",
-}
+&#125;
 
 // Generated namespace:
-// namespace Status {
-//   export function toString(value: Status): string { ... }
-//   export function clone(value: Status): Status { ... }
-//   export function equals(a: Status, b: Status): boolean { ... }
-//   export function hashCode(value: Status): number { ... }
-//   export function toJSON(value: Status): string | number { ... }
-//   export function fromJSON(data: unknown): Status { ... }
-// }
+// namespace Status &#123;
+//   export function toString(value: Status): string &#123; ... &#125;
+//   export function clone(value: Status): Status &#123; ... &#125;
+//   export function equals(a: Status, b: Status): boolean &#123; ... &#125;
+//   export function hashCode(value: Status): number &#123; ... &#125;
+//   export function toJSON(value: Status): string | number &#123; ... &#125;
+//   export function fromJSON(data: unknown): Status &#123; ... &#125;
+// &#125;
 
 // Use the namespace functions
 console.log(Status.toString(Status.Active));     // "Status.Active"
@@ -77,24 +77,24 @@ const parsed = Status.fromJSON("active");        // Status.Active
  All built-in macros work with type aliases. For object type aliases, field-aware methods are generated in a namespace:
  ```
 /** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
-type Point = {
+type Point = &#123;
   x: number;
   y: number;
-};
+&#125;;
 
 // Generated namespace:
-// namespace Point {
-//   export function toString(value: Point): string { ... }
-//   export function clone(value: Point): Point { ... }
-//   export function equals(a: Point, b: Point): boolean { ... }
-//   export function hashCode(value: Point): number { ... }
-//   export function toJSON(value: Point): Record<string, unknown> { ... }
-//   export function fromJSON(data: unknown): Point { ... }
-// }
+// namespace Point &#123;
+//   export function toString(value: Point): string &#123; ... &#125;
+//   export function clone(value: Point): Point &#123; ... &#125;
+//   export function equals(a: Point, b: Point): boolean &#123; ... &#125;
+//   export function hashCode(value: Point): number &#123; ... &#125;
+//   export function toJSON(value: Point): Record&#x3C;string, unknown> &#123; ... &#125;
+//   export function fromJSON(data: unknown): Point &#123; ... &#125;
+// &#125;
 
-const point: Point = { x: 10, y: 20 };
-console.log(Point.toString(point));     // "Point { x: 10, y: 20 }"
-const copy = Point.clone(point);        // { x: 10, y: 20 }
+const point: Point = &#123; x: 10, y: 20 &#125;;
+console.log(Point.toString(point));     // "Point &#123; x: 10, y: 20 &#125;"
+const copy = Point.clone(point);        // &#123; x: 10, y: 20 &#125;
 console.log(Point.equals(point, copy)); // true
 ``` Union type aliases also work, using JSON-based implementations:
  ```
@@ -102,7 +102,7 @@ console.log(Point.equals(point, copy)); // true
 type ApiStatus = "loading" | "success" | "error";
 
 const status: ApiStatus = "success";
-console.log(ApiStatus.toString(status)); // "ApiStatus(\"success\")"
+console.log(ApiStatus.toString(status)); // "ApiStatus(\\"success\\")"
 console.log(ApiStatus.equals("success", "success")); // true
 ``` ## Combining Macros
  All macros can be used together. They don't conflict and each generates independent methods:
@@ -111,7 +111,7 @@ const user = new User("Alice", 30);
 
 // Debug
 console.log(user.toString());
-// "User { name: Alice, age: 30 }"
+// "User &#123; name: Alice, age: 30 &#125;"
 
 // Clone
 const copy = user.clone();

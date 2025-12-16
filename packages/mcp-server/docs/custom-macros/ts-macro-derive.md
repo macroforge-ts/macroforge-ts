@@ -3,12 +3,12 @@
  ## Basic Syntax
  ```
 use macroforge_ts::macros::ts_macro_derive;
-use macroforge_ts::ts_syn::{TsStream, MacroforgeError};
+use macroforge_ts::ts_syn::&#123;TsStream, MacroforgeError&#125;;
 
 #[ts_macro_derive(MacroName)]
-pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
+pub fn my_macro(mut input: TsStream) -> Result&#x3C;TsStream, MacroforgeError> &#123;
     // Macro implementation
-}
+&#125;
 ``` ## Attribute Options
  ### Name (Required)
  The first argument is the macro name that users will reference in `@derive()`:
@@ -29,12 +29,12 @@ pub fn derive_json(...)
 #[ts_macro_derive(
     Debug,
     description = "Generates toString()",
-    attributes(debug)  // Allows @debug({ ... }) on fields
+    attributes(debug)  // Allows @debug(&#123; ... &#125;) on fields
 )]
 pub fn derive_debug(...)
 ``` > **Note:** Declared attributes become available as @attributeName({ options }) decorators in TypeScript. ## Function Signature
  ```
-pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError>
+pub fn my_macro(mut input: TsStream) -> Result&#x3C;TsStream, MacroforgeError>
 ``` | Parameter | Description |
 | --- | --- |
 | `input: TsStream` | Token stream containing the class/interface AST |
@@ -42,135 +42,135 @@ pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError>
  ## Parsing Input
  Use `parse_ts_macro_input!` to convert the token stream:
  ```
-use macroforge_ts::ts_syn::{Data, DeriveInput, parse_ts_macro_input};
+use macroforge_ts::ts_syn::&#123;Data, DeriveInput, parse_ts_macro_input&#125;;
 
 #[ts_macro_derive(MyMacro)]
-pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
+pub fn my_macro(mut input: TsStream) -> Result&#x3C;TsStream, MacroforgeError> &#123;
     let input = parse_ts_macro_input!(input as DeriveInput);
 
     // Access class data
-    match &input.data {
-        Data::Class(class) => {
+    match &#x26;input.data &#123;
+        Data::Class(class) => &#123;
             let class_name = input.name();
             let fields = class.fields();
             // ...
-        }
-        Data::Interface(interface) => {
+        &#125;
+        Data::Interface(interface) => &#123;
             // Handle interfaces
-        }
-        Data::Enum(_) => {
+        &#125;
+        Data::Enum(_) => &#123;
             // Handle enums (if supported)
-        }
-    }
-}
+        &#125;
+    &#125;
+&#125;
 ``` ## DeriveInput Structure
  ```
-struct DeriveInput {
+struct DeriveInput &#123;
     pub ident: Ident,           // The type name
     pub span: SpanIR,           // Span of the type definition
-    pub attrs: Vec<Attribute>,  // Decorators (excluding @derive)
+    pub attrs: Vec&#x3C;Attribute>,  // Decorators (excluding @derive)
     pub data: Data,             // The parsed type data
     pub context: MacroContextIR, // Macro context with spans
 
     // Helper methods
-    fn name(&self) -> &str;              // Get the type name
-    fn decorator_span(&self) -> SpanIR;  // Span of @derive decorator
-    fn as_class(&self) -> Option<&DataClass>;
-    fn as_interface(&self) -> Option<&DataInterface>;
-    fn as_enum(&self) -> Option<&DataEnum>;
-}
+    fn name(&#x26;self) -> &#x26;str;              // Get the type name
+    fn decorator_span(&#x26;self) -> SpanIR;  // Span of @derive decorator
+    fn as_class(&#x26;self) -> Option&#x3C;&#x26;DataClass>;
+    fn as_interface(&#x26;self) -> Option&#x3C;&#x26;DataInterface>;
+    fn as_enum(&#x26;self) -> Option&#x3C;&#x26;DataEnum>;
+&#125;
 
-enum Data {
+enum Data &#123;
     Class(DataClass),
     Interface(DataInterface),
     Enum(DataEnum),
     TypeAlias(DataTypeAlias),
-}
+&#125;
 
-impl DataClass {
-    fn fields(&self) -> &[FieldIR];
-    fn methods(&self) -> &[MethodSigIR];
-    fn field_names(&self) -> impl Iterator<Item = &str>;
-    fn field(&self, name: &str) -> Option<&FieldIR>;
-    fn body_span(&self) -> SpanIR;      // For inserting code into class body
-    fn type_params(&self) -> &[String]; // Generic type parameters
-    fn heritage(&self) -> &[String];    // extends/implements clauses
-    fn is_abstract(&self) -> bool;
-}
+impl DataClass &#123;
+    fn fields(&#x26;self) -> &#x26;[FieldIR];
+    fn methods(&#x26;self) -> &#x26;[MethodSigIR];
+    fn field_names(&#x26;self) -> impl Iterator&#x3C;Item = &#x26;str>;
+    fn field(&#x26;self, name: &#x26;str) -> Option&#x3C;&#x26;FieldIR>;
+    fn body_span(&#x26;self) -> SpanIR;      // For inserting code into class body
+    fn type_params(&#x26;self) -> &#x26;[String]; // Generic type parameters
+    fn heritage(&#x26;self) -> &#x26;[String];    // extends/implements clauses
+    fn is_abstract(&#x26;self) -> bool;
+&#125;
 
-impl DataInterface {
-    fn fields(&self) -> &[InterfaceFieldIR];
-    fn methods(&self) -> &[InterfaceMethodIR];
-    fn field_names(&self) -> impl Iterator<Item = &str>;
-    fn field(&self, name: &str) -> Option<&InterfaceFieldIR>;
-    fn body_span(&self) -> SpanIR;
-    fn type_params(&self) -> &[String];
-    fn heritage(&self) -> &[String];    // extends clauses
-}
+impl DataInterface &#123;
+    fn fields(&#x26;self) -> &#x26;[InterfaceFieldIR];
+    fn methods(&#x26;self) -> &#x26;[InterfaceMethodIR];
+    fn field_names(&#x26;self) -> impl Iterator&#x3C;Item = &#x26;str>;
+    fn field(&#x26;self, name: &#x26;str) -> Option&#x3C;&#x26;InterfaceFieldIR>;
+    fn body_span(&#x26;self) -> SpanIR;
+    fn type_params(&#x26;self) -> &#x26;[String];
+    fn heritage(&#x26;self) -> &#x26;[String];    // extends clauses
+&#125;
 
-impl DataEnum {
-    fn variants(&self) -> &[EnumVariantIR];
-    fn variant_names(&self) -> impl Iterator<Item = &str>;
-    fn variant(&self, name: &str) -> Option<&EnumVariantIR>;
-}
+impl DataEnum &#123;
+    fn variants(&#x26;self) -> &#x26;[EnumVariantIR];
+    fn variant_names(&#x26;self) -> impl Iterator&#x3C;Item = &#x26;str>;
+    fn variant(&#x26;self, name: &#x26;str) -> Option&#x3C;&#x26;EnumVariantIR>;
+&#125;
 
-impl DataTypeAlias {
-    fn body(&self) -> &TypeBody;
-    fn type_params(&self) -> &[String];
-    fn is_union(&self) -> bool;
-    fn is_object(&self) -> bool;
-    fn as_union(&self) -> Option<&[TypeMember]>;
-    fn as_object(&self) -> Option<&[InterfaceFieldIR]>;
-}
+impl DataTypeAlias &#123;
+    fn body(&#x26;self) -> &#x26;TypeBody;
+    fn type_params(&#x26;self) -> &#x26;[String];
+    fn is_union(&#x26;self) -> bool;
+    fn is_object(&#x26;self) -> bool;
+    fn as_union(&#x26;self) -> Option&#x3C;&#x26;[TypeMember]>;
+    fn as_object(&#x26;self) -> Option&#x3C;&#x26;[InterfaceFieldIR]>;
+&#125;
 ``` ## Accessing Field Data
  ### Class Fields (FieldIR)
  ```
-struct FieldIR {
+struct FieldIR &#123;
     pub name: String,               // Field name
     pub span: SpanIR,               // Field span
     pub ts_type: String,            // TypeScript type annotation
     pub optional: bool,             // Whether field has ?
     pub readonly: bool,             // Whether field is readonly
     pub visibility: Visibility,     // Public, Protected, Private
-    pub decorators: Vec<DecoratorIR>, // Field decorators
-}
+    pub decorators: Vec&#x3C;DecoratorIR>, // Field decorators
+&#125;
 ``` ### Interface Fields (InterfaceFieldIR)
  ```
-struct InterfaceFieldIR {
+struct InterfaceFieldIR &#123;
     pub name: String,
     pub span: SpanIR,
     pub ts_type: String,
     pub optional: bool,
     pub readonly: bool,
-    pub decorators: Vec<DecoratorIR>,
+    pub decorators: Vec&#x3C;DecoratorIR>,
     // Note: No visibility field (interfaces are always public)
-}
+&#125;
 ``` ### Enum Variants (EnumVariantIR)
  ```
-struct EnumVariantIR {
+struct EnumVariantIR &#123;
     pub name: String,
     pub span: SpanIR,
     pub value: EnumValue,  // Auto, String(String), or Number(f64)
-    pub decorators: Vec<DecoratorIR>,
-}
+    pub decorators: Vec&#x3C;DecoratorIR>,
+&#125;
 ``` ### Decorator Structure
  ```
-struct DecoratorIR {
+struct DecoratorIR &#123;
     pub name: String,      // e.g., "serde"
     pub args_src: String,  // Raw args text, e.g., "skip, rename: 'id'"
     pub span: SpanIR,
-}
+&#125;
 ``` > **Note:** To check for decorators, iterate through field.decorators and check decorator.name. For parsing options, you can write helper functions like the built-in macros do. ## Adding Imports
  If your macro generates code that requires imports, use the `add_import` method on `TsStream`:
  ```
 // Add an import to be inserted at the top of the file
-let mut output = body! {
-    validate(): ValidationResult {
+let mut output = body! &#123;
+    validate(): ValidationResult &#123;
         return validateFields(this);
-    }
-};
+    &#125;
+&#125;;
 
-// This will add: import { validateFields, ValidationResult } from "my-validation-lib";
+// This will add: import &#123; validateFields, ValidationResult &#125; from "my-validation-lib";
 output.add_import("validateFields", "my-validation-lib");
 output.add_import("ValidationResult", "my-validation-lib");
 
@@ -179,64 +179,64 @@ Ok(output)
  Use `MacroforgeError` to report errors with source locations:
  ```
 #[ts_macro_derive(ClassOnly)]
-pub fn class_only(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
+pub fn class_only(mut input: TsStream) -> Result&#x3C;TsStream, MacroforgeError> &#123;
     let input = parse_ts_macro_input!(input as DeriveInput);
 
-    match &input.data {
-        Data::Class(_) => {
+    match &#x26;input.data &#123;
+        Data::Class(_) => &#123;
             // Generate code...
-            Ok(body! { /* ... */ })
-        }
+            Ok(body! &#123; /* ... */ &#125;)
+        &#125;
         _ => Err(MacroforgeError::new(
             input.decorator_span(),
             "@derive(ClassOnly) can only be used on classes",
         )),
-    }
-}
+    &#125;
+&#125;
 ``` ## Complete Example
  ```
-use macroforge_ts::macros::{ts_macro_derive, body};
-use macroforge_ts::ts_syn::{
+use macroforge_ts::macros::&#123;ts_macro_derive, body&#125;;
+use macroforge_ts::ts_syn::&#123;
     Data, DeriveInput, FieldIR, MacroforgeError, TsStream, parse_ts_macro_input,
-};
+&#125;;
 
 // Helper function to check if a field has a decorator
-fn has_decorator(field: &FieldIR, name: &str) -> bool {
+fn has_decorator(field: &#x26;FieldIR, name: &#x26;str) -> bool &#123;
     field.decorators.iter().any(|d| d.name.eq_ignore_ascii_case(name))
-}
+&#125;
 
 #[ts_macro_derive(
     Validate,
     description = "Generates a validate() method",
     attributes(validate)
 )]
-pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
+pub fn derive_validate(mut input: TsStream) -> Result&#x3C;TsStream, MacroforgeError> &#123;
     let input = parse_ts_macro_input!(input as DeriveInput);
 
-    match &input.data {
-        Data::Class(class) => {
-            let validations: Vec<_> = class.fields()
+    match &#x26;input.data &#123;
+        Data::Class(class) => &#123;
+            let validations: Vec&#x3C;_> = class.fields()
                 .iter()
                 .filter(|f| has_decorator(f, "validate"))
                 .collect();
 
-            Ok(body! {
-                validate(): string[] {
+            Ok(body! &#123;
+                validate(): string[] &#123;
                     const errors: string[] = [];
-                    {#for field in validations}
-                        if (!this.@{field.name}) {
-                            errors.push("@{field.name} is required");
-                        }
-                    {/for}
+                    &#123;#for field in validations&#125;
+                        if (!this.@&#123;field.name&#125;) &#123;
+                            errors.push("@&#123;field.name&#125; is required");
+                        &#125;
+                    &#123;/for&#125;
                     return errors;
-                }
-            })
-        }
+                &#125;
+            &#125;)
+        &#125;
         _ => Err(MacroforgeError::new(
             input.decorator_span(),
             "@derive(Validate) only works on classes",
         )),
-    }
-}
+    &#125;
+&#125;
 ``` ## Next Steps
  - [Learn the template syntax](../../docs/custom-macros/ts-quote)
