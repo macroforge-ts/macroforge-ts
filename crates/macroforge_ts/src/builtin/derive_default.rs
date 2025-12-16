@@ -245,7 +245,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 let fn_name = match naming_style {
                     FunctionNamingStyle::Suffix => format!("defaultValue{}", class_name),
                     FunctionNamingStyle::Prefix => format!("{}DefaultValue", to_camel_case(class_name)),
-                    FunctionNamingStyle::Generic => "defaultValue".to_string(), // Generic style usually means defaultValue<T> but for class it might be ambiguous without type params?
+                    FunctionNamingStyle::Generic => "defaultValue".to_string(),
                     _ => String::new(),
                 };
 
@@ -255,7 +255,13 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                             return @{class_name}.defaultValue();
                         }
                     };
-                    class_body.runtime_patches.extend(sibling.runtime_patches);
+                    // Combine standalone function with class body by concatenating sources
+                    // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
+                    let combined_source = format!("{}\n{}", sibling.source(), class_body.source());
+                    let mut combined = TsStream::from_string(combined_source);
+                    combined.runtime_patches = sibling.runtime_patches;
+                    combined.runtime_patches.extend(class_body.runtime_patches);
+                    return Ok(combined);
                 }
             }
 
