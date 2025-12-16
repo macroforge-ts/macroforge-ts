@@ -741,28 +741,30 @@ impl MacroExpander {
                 collector.add_type_patches(result.type_patches);
             }
 
-            // Generate convenience const for non-class types
-            // Skip if there's already a namespace or const with the same name in the source
-            if let Some(type_name) = get_derive_target_name(&target.target_ir)
-                && !has_existing_namespace_or_const(source, type_name)
-            {
-                let new_patches = collector.runtime_patches_slice(patches_start);
-                let functions = extract_function_names_from_patches(new_patches, type_name);
+            // Generate convenience const for non-class types (Prefix style)
+            // Skip if disabled in config or there's already a namespace or const with the same name
+            if let Some(type_name) = get_derive_target_name(&target.target_ir) {
+                if self.config.generate_convenience_const
+                    && !has_existing_namespace_or_const(source, type_name)
+                {
+                    let new_patches = collector.runtime_patches_slice(patches_start);
+                    let functions = extract_function_names_from_patches(new_patches, type_name);
 
-                if !functions.is_empty() {
-                    let const_code = generate_convenience_const(type_name, &functions);
-                    let end_pos = get_derive_target_end_span(&target.target_ir);
+                    if !functions.is_empty() {
+                        let const_code = generate_convenience_const(type_name, &functions);
+                        let end_pos = get_derive_target_end_span(&target.target_ir);
 
-                    let patch = Patch::Insert {
-                        at: SpanIR {
-                            start: end_pos,
-                            end: end_pos,
-                        },
-                        code: PatchCode::Text(format!("\n\n{}", const_code)),
-                        source_macro: Some("__convenience_const".to_string()),
-                    };
-                    collector.add_runtime_patches(vec![patch.clone()]);
-                    collector.add_type_patches(vec![patch]);
+                        let patch = Patch::Insert {
+                            at: SpanIR {
+                                start: end_pos,
+                                end: end_pos,
+                            },
+                            code: PatchCode::Text(format!("\n\n{}", const_code)),
+                            source_macro: Some("__convenience_const".to_string()),
+                        };
+                        collector.add_runtime_patches(vec![patch.clone()]);
+                        collector.add_type_patches(vec![patch]);
+                    }
                 }
             }
         }
@@ -1730,12 +1732,10 @@ fn external_type_function_import_patches(
             format!("{camel}SerializeWithContext"),
             format!("{camel}DeserializeWithContext"),
             format!("{camel}DefaultValue"),
-            format!("{camel}FromObject"),
-            format!("{camel}FromStringifiedJSON"),
+            format!("{camel}Serialize"),
+            format!("{camel}Deserialize"),
             format!("{camel}ValidateField"),
             format!("{camel}ValidateFields"),
-            format!("{camel}ToObject"),
-            format!("{camel}ToStringifiedJSON"),
         ];
 
         for ident in candidates {
@@ -2332,12 +2332,13 @@ fn parse_members_from_tokens(tokens: &str) -> anyhow::Result<Vec<MemberWithComme
         .ok_or_else(|| anyhow::anyhow!("Failed to parse macro output into class members"))?;
 
     // Match parsed members with their extracted JSDoc comments
-    // We rely on the fact that members appear in the same order
+    // Use enumerate instead of zip to handle cases where there are more members than segments
+    // (e.g., when no JSDoc comments exist, all code is in one segment but parses to multiple members)
     let result = class_body
         .into_iter()
-        .zip(segments.iter())
-        .map(|(member, (comment, _))| MemberWithComment {
-            leading_comment: comment.clone(),
+        .enumerate()
+        .map(|(i, member)| MemberWithComment {
+            leading_comment: segments.get(i).and_then(|(comment, _)| comment.clone()),
             member,
         })
         .collect();
