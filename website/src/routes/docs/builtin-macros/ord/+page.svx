@@ -72,26 +72,61 @@ The `@ord` decorator supports:
 
 ## Example
 
-```typescript
-@derive(Ord)
+```typescript before
+/** @derive(Ord) */
 class Version {
     major: number;
     minor: number;
     patch: number;
 }
 
-// Generated:
-// compareTo(other: Version): number {
-//     if (this === other) return 0;
-//     const typedOther = other;
-//     const cmp0 = this.major < typedOther.major ? -1 : this.major > typedOther.major ? 1 : 0;
-//     if (cmp0 !== 0) return cmp0;
-//     const cmp1 = this.minor < typedOther.minor ? -1 : ...;
-//     if (cmp1 !== 0) return cmp1;
-//     const cmp2 = this.patch < typedOther.patch ? -1 : ...;
-//     if (cmp2 !== 0) return cmp2;
-//     return 0;
-// }
+// Usage:
+versions.sort((a, b) => a.compareTo(b));
+```
+
+```typescript after
+class Version {
+    major: number;
+    minor: number;
+    patch: number;
+
+    compareTo(other: Version): number {
+        if (this === other) return 0;
+        const typedOther = other;
+        const cmp0 = this.major < typedOther.major ? -1 : this.major > typedOther.major ? 1 : 0;
+        if (cmp0 !== 0) return cmp0;
+        const cmp1 = this.minor < typedOther.minor ? -1 : this.minor > typedOther.minor ? 1 : 0;
+        if (cmp1 !== 0) return cmp1;
+        const cmp2 = this.patch < typedOther.patch ? -1 : this.patch > typedOther.patch ? 1 : 0;
+        if (cmp2 !== 0) return cmp2;
+        return 0;
+    }
+}
+
+// Usage:
+versions.sort((a, b) => a.compareTo(b));
+```
+
+Generated output:
+
+```typescript
+class Version {
+    major: number;
+    minor: number;
+    patch: number;
+
+    compareTo(other: Version): number {
+        if (this === other) return 0;
+        const typedOther = other;
+        const cmp0 = this.major < typedOther.major ? -1 : this.major > typedOther.major ? 1 : 0;
+        if (cmp0 !== 0) return cmp0;
+        const cmp1 = this.minor < typedOther.minor ? -1 : this.minor > typedOther.minor ? 1 : 0;
+        if (cmp1 !== 0) return cmp1;
+        const cmp2 = this.patch < typedOther.patch ? -1 : this.patch > typedOther.patch ? 1 : 0;
+        if (cmp2 !== 0) return cmp2;
+        return 0;
+    }
+}
 
 // Usage:
 versions.sort((a, b) => a.compareTo(b));

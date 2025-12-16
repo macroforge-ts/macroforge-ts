@@ -44,20 +44,51 @@ The `@debug` decorator supports:
 
 ## Example
 
-```typescript
-@derive(Debug)
+```typescript before
+/** @derive(Debug) */
 class User {
-    @debug(rename = "id")
+    /** @debug({ rename: "id" }) */
     userId: number;
 
-    @debug(skip)
+    /** @debug({ skip: true }) */
     password: string;
 
     email: string;
 }
+```
 
-// Generated:
-// toString(): string {
-//     return "User { id: " + this.userId + ", email: " + this.email + " }";
-// }
+```typescript after
+class User {
+    userId: number;
+
+    password: string;
+
+    email: string;
+
+    toString(): string {
+        const parts: string[] = [];
+        parts.push('id: ' + this.userId);
+        parts.push('email: ' + this.email);
+        return 'User { ' + parts.join(', ') + ' }';
+    }
+}
+```
+
+Generated output:
+
+```typescript
+class User {
+    userId: number;
+
+    password: string;
+
+    email: string;
+
+    toString(): string {
+        const parts: string[] = [];
+        parts.push('id: ' + this.userId);
+        parts.push('email: ' + this.email);
+        return 'User { ' + parts.join(', ') + ' }';
+    }
+}
 ```

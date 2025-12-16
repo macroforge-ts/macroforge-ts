@@ -62,47 +62,113 @@ The `@default` decorator allows specifying explicit default values:
 
 ## Example
 
-```typescript
-@derive(Default)
+```typescript before
+/** @derive(Default) */
 class UserSettings {
-    @default("light")
+    /** @default({ "light" }) */
     theme: string;
 
-    @default(10)
+    /** @default({ 10: true }) */
+    pageSize: number;
+
+    notifications: boolean; // Uses type default: false
+}
+```
+
+```typescript after
+class UserSettings {
+    
+    theme: string;
+
+    
     pageSize: number;
 
     notifications: boolean;  // Uses type default: false
-}
 
-// Generated:
-// static defaultValue(): UserSettings {
-//     const instance = new UserSettings();
-//     instance.theme = "light";
-//     instance.pageSize = 10;
-//     instance.notifications = false;
-//     return instance;
-// }
+    static defaultValue(): UserSettings {
+    const instance = new UserSettings();
+    instance.theme = {
+        "light": <invalid>
+    };
+    instance.pageSize = {
+        10: true
+    };
+    instance.notifications = false;
+    return instance;
+}
+}
+```
+
+Generated output:
+
+```typescript
+class UserSettings {
+
+    theme: string;
+
+
+    pageSize: number;
+
+    notifications: boolean;  // Uses type default: false
+
+    static defaultValue(): UserSettings {
+    const instance = new UserSettings();
+    instance.theme = {
+        "light": <invalid>
+    };
+    instance.pageSize = {
+        10: true
+    };
+    instance.notifications = false;
+    return instance;
+}
+}
 ```
 
 ## Enum Defaults
 
 For enums, mark one variant with `@default`:
 
-```typescript
-@derive(Default)
+```typescript before
+/** @derive(Default) */
 enum Status {
     @default
     Pending,
     Active,
     Completed
 }
+```
 
-// Generated:
-// export namespace Status {
-//     export function defaultValue(): Status {
-//         return Status.Pending;
-//     }
-// }
+```typescript after
+/** @derive(Default) */
+enum Status {
+    @default
+    Pending,
+    Active,
+    Completed
+}
+```
+
+Generated output:
+
+```typescript before
+/** @derive(Default) */
+enum Status {
+    @default
+    Pending,
+    Active,
+    Completed
+}
+```
+
+```typescript after
+/** @derive(Default) */
+enum Status {
+    @default
+    Pending,
+    Active,
+    Completed
+}
 ```
 
 ## Error Handling
