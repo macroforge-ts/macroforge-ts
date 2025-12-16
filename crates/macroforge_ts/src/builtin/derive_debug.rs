@@ -44,11 +44,25 @@
 //!
 //!     email: string;
 //! }
+//! ```
 //!
-//! // Generated:
-//! // toString(): string {
-//! //     return "User { id: " + this.userId + ", email: " + this.email + " }";
-//! // }
+//! Generated output:
+//!
+//! ```typescript
+//! class User {
+//!     userId: number;
+//! 
+//!     password: string;
+//! 
+//!     email: string;
+//! 
+//!     toString(): string {
+//!         const parts: string[] = [];
+//!         parts.push('id: ' + this.userId);
+//!         parts.push('email: ' + this.email);
+//!         return 'User { ' + parts.join(', ') + ' }';
+//!     }
+//! }
 //! ```
 
 use crate::macros::{body, ts_macro_derive, ts_template};

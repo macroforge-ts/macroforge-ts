@@ -12,6 +12,25 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
+
+// Try to load macroforge for macro expansion
+// Note: macroforge is a dependency of the website package
+let expandSync = null;
+try {
+	// Try loading from website's node_modules
+	const websiteNodeModules = path.join(__dirname, '..', 'website', 'node_modules', 'macroforge');
+	const macroforge = require(websiteNodeModules);
+	expandSync = macroforge.expandSync;
+} catch (e) {
+	try {
+		// Fallback to global/local require
+		const macroforge = require('macroforge');
+		expandSync = macroforge.expandSync;
+	} catch (e2) {
+		console.warn('Warning: macroforge not available, macro expansion disabled');
+	}
+}
 
 const cratesRoot = path.join(__dirname, '..', 'crates');
 const defaultOutput = path.join(__dirname, '..', 'website', 'static', 'api-data', 'rust');
@@ -473,6 +492,226 @@ function extractCodeBlocks(content) {
 }
 
 /**
+ * Format TypeScript code using Biome CLI.
+ * @param {string} code - Code to format
+ * @returns {string} - Formatted code
+ */
+function formatCode(code) {
+	try {
+		const result = execSync('npx @biomejs/biome format --stdin-file-path=example.ts', {
+			input: code,
+			encoding: 'utf-8',
+			maxBuffer: 10 * 1024 * 1024,
+			cwd: path.join(__dirname, '..', 'website')
+		});
+		return result.trim();
+	} catch {
+		return code.trim();
+	}
+}
+
+/**
+ * Check if code contains macro decorators.
+ * @param {string} code - Code to check
+ * @returns {boolean} - True if code contains macro decorators
+ */
+function containsMacroDecorators(code) {
+	return (
+		/@derive\s*\(/.test(code) ||
+		/\/\*\*[\s\S]*?@derive/.test(code) ||
+		/@serde\s*\(/.test(code) ||
+		/@debug\s*\(/.test(code) ||
+		/@clone\s*\(/.test(code) ||
+		/@default\s*\(/.test(code) ||
+		/@hash\s*\(/.test(code) ||
+		/@ord\s*\(/.test(code) ||
+		/@partialEq\s*\(/.test(code)
+	);
+}
+
+/**
+ * Expand macro code blocks in markdown content.
+ * Transforms single code blocks with macros into before/after pairs.
+ * @param {string} markdown - Markdown content
+ * @returns {string} - Markdown with expanded macro code blocks
+ */
+function expandMacroCodeBlocks(markdown) {
+	if (!expandSync) {
+		// macroforge not available, return unchanged
+		return markdown;
+	}
+
+	const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+
+	return markdown.replace(codeBlockRegex, (match, lang, code) => {
+		const trimmedCode = code.trim();
+		const transformedCode = transformToJSDocSyntax(trimmedCode);
+
+		// Check if this code block contains macro decorators
+		if (!containsMacroDecorators(transformedCode)) {
+			// Not a macro example, return unchanged
+			return match;
+		}
+
+		// Check if language is TypeScript/JavaScript
+		const language = (lang || 'typescript').toLowerCase();
+		if (!['typescript', 'ts', 'javascript', 'js'].includes(language)) {
+			return match;
+		}
+
+		try {
+			// Expand the macro
+			const result = expandSync(transformedCode, 'example.ts');
+			let expandedCode = result.code;
+
+			// Remove the macroforge import line if present
+			expandedCode = expandedCode.replace(
+				/^import\s+\{[^}]+\}\s+from\s+['"]macroforge['"];\s*\n?/m,
+				''
+			);
+
+			// Format both codes
+			const formattedBefore = formatCode(transformedCode);
+			const formattedAfter = formatCode(expandedCode);
+
+			// Return before/after pair with flags
+			return `\`\`\`${lang || 'typescript'} before\n${formattedBefore}\n\`\`\`\n\n\`\`\`${lang || 'typescript'} after\n${formattedAfter}\n\`\`\``;
+		} catch (e) {
+			console.warn(`  Warning: Failed to expand macro in code block: ${e.message}`);
+			// Return original code with interactive flag for client-side expansion
+			return `\`\`\`${lang || 'typescript'} interactive\n${transformedCode}\n\`\`\``;
+		}
+	});
+}
+
+/**
+ * Sync expanded macro output back to Rust doc comments.
+ * For each code example containing @derive, expands the macro and
+ * adds the generated output as a separate code block in the doc comment.
+ */
+function syncExpandedOutputToRustDocs() {
+	if (!expandSync) {
+		console.warn('  Warning: macroforge not available, skipping doc sync');
+		return;
+	}
+
+	console.log('\nSyncing expanded output to Rust doc comments...');
+
+	for (const macro of BUILTIN_MACROS) {
+		const filePath = path.join(cratesRoot, 'macroforge_ts', macro.file);
+
+		if (!fs.existsSync(filePath)) {
+			console.warn(`  Warning: File not found: ${filePath}`);
+			continue;
+		}
+
+		const source = fs.readFileSync(filePath, 'utf-8');
+		const lines = source.split('\n');
+		const newLines = [];
+		let i = 0;
+		let modified = false;
+
+		while (i < lines.length) {
+			const line = lines[i];
+			const trimmed = line.trim();
+
+			// Check if we're at the start of a code block in doc comments
+			if (trimmed.startsWith('//!') && trimmed.includes('```typescript')) {
+				// Collect the entire code block
+				const codeBlockLines = [line];
+				i++;
+
+				while (i < lines.length) {
+					const blockLine = lines[i];
+					codeBlockLines.push(blockLine);
+
+					if (blockLine.trim().startsWith('//!') && blockLine.trim().includes('```')) {
+						// End of code block
+						break;
+					}
+					i++;
+				}
+
+				// Extract the code from the block
+				const codeContent = codeBlockLines
+					.slice(1, -1) // Remove opening and closing ```
+					.map((l) => {
+						const content = l.trim().slice(3); // Remove //!
+						return content.startsWith(' ') ? content.slice(1) : content;
+					})
+					.join('\n');
+
+				const transformedCode = transformToJSDocSyntax(codeContent);
+
+				// Check if this is a macro example (contains @derive)
+				if (containsMacroDecorators(transformedCode)) {
+					// Check if next lines already have "Generated output:" section
+					let hasGeneratedSection = false;
+					let j = i + 1;
+					while (j < lines.length && j < i + 5) {
+						if (lines[j].trim().startsWith('//!') && lines[j].includes('Generated output:')) {
+							hasGeneratedSection = true;
+							break;
+						}
+						if (lines[j].trim().startsWith('//!') && lines[j].includes('## ')) {
+							// Hit next section, no generated output exists
+							break;
+						}
+						j++;
+					}
+
+					// Add the original code block
+					newLines.push(...codeBlockLines);
+
+					if (!hasGeneratedSection) {
+						try {
+							// Expand the macro
+							const result = expandSync(transformedCode, 'example.ts');
+							let expandedCode = result.code;
+
+							// Remove macroforge imports
+							expandedCode = expandedCode.replace(
+								/^import\s+\{[^}]+\}\s+from\s+['"]macroforge(?:\/utils)?['"];\s*\n?/gm,
+								''
+							);
+
+							// Format the expanded code
+							const formattedExpanded = formatCode(expandedCode);
+
+							// Add the "Generated output:" section
+							newLines.push('//!');
+							newLines.push('//! Generated output:');
+							newLines.push('//!');
+							newLines.push('//! ```typescript');
+							for (const codeLine of formattedExpanded.split('\n')) {
+								newLines.push(`//! ${codeLine}`);
+							}
+							newLines.push('//! ```');
+
+							modified = true;
+							console.log(`  -> Added generated output to ${macro.name}`);
+						} catch (e) {
+							console.warn(`  Warning: Failed to expand ${macro.name}: ${e.message}`);
+						}
+					}
+				} else {
+					// Not a macro example, just add as-is
+					newLines.push(...codeBlockLines);
+				}
+			} else {
+				newLines.push(line);
+			}
+
+			i++;
+		}
+
+		if (modified) {
+			fs.writeFileSync(filePath, newLines.join('\n'));
+		}
+	}
+}
+
+/**
  * Parse module docs into structured sections for builtin macros.
  * @param {string} moduleDocs - Raw module documentation
  * @returns {Object} - Parsed sections
@@ -642,16 +881,19 @@ function writeBuiltinMacroMarkdownPages(builtinMacros) {
 		const description =
 			(macro.description && macro.description.trim()) || `${title} derive macro documentation.`;
 
-		const mdBody = normalizeBuiltinMacroMarkdown(macro);
+		let mdBody = normalizeBuiltinMacroMarkdown(macro);
 
-		// Website mdsvex route
+		// Expand macro code blocks for the website version
+		const expandedMdBody = expandMacroCodeBlocks(mdBody);
+
+		// Website mdsvex route (with expanded macros)
 		const websiteDir = path.join(websiteDocsRoot, slug);
 		fs.mkdirSync(websiteDir, { recursive: true });
 		const websitePagePath = path.join(websiteDir, '+page.svx');
-		const websitePage = `<!--\n  Generated by node scripts/extract-rust-docs.cjs.\n  Do not edit manually — edit the Rust module docs instead.\n-->\n\n<svelte:head>\n\t<title>${title} Macro - Macroforge Documentation</title>\n\t<meta name=\"description\" content=\"${description.replace(/\"/g, '&quot;')}\" />\n</svelte:head>\n\n${mdBody}`;
+		const websitePage = `<!--\n  Generated by node scripts/extract-rust-docs.cjs.\n  Do not edit manually — edit the Rust module docs instead.\n-->\n\n<svelte:head>\n\t<title>${title} Macro - Macroforge Documentation</title>\n\t<meta name=\"description\" content=\"${description.replace(/\"/g, '&quot;')}\" />\n</svelte:head>\n\n${expandedMdBody}`;
 		fs.writeFileSync(websitePagePath, websitePage);
 
-		// MCP markdown doc (plain markdown, no Svelte/HTML)
+		// MCP markdown doc (plain markdown without expansion, no Svelte/HTML)
 		fs.mkdirSync(mcpDocsRoot, { recursive: true });
 		const mcpPath = path.join(mcpDocsRoot, `${slug}.md`);
 		fs.writeFileSync(mcpPath, mdBody);
@@ -824,6 +1066,9 @@ function main() {
 			console.log(`     ${docs.items.length} documented items`);
 		}
 	}
+
+	// Sync expanded output to Rust doc comments first
+	syncExpandedOutputToRustDocs();
 
 	// Process builtin macros
 	console.log('\nProcessing builtin macros...');

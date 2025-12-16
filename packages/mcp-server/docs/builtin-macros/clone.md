@@ -41,13 +41,24 @@ class Point {
     y: number;
 }
 
-// Generated:
-// clone(): Point {
-//     const cloned = Object.create(Object.getPrototypeOf(this));
-//     cloned.x = this.x;
-//     cloned.y = this.y;
-//     return cloned;
-// }
+const p1 = new Point();
+const p2 = p1.clone(); // Creates a new Point with same values
+```
+
+Generated output:
+
+```typescript
+class Point {
+    x: number;
+    y: number;
+
+    clone(): Point {
+        const cloned = Object.create(Object.getPrototypeOf(this));
+        cloned.x = this.x;
+        cloned.y = this.y;
+        return cloned;
+    }
+}
 
 const p1 = new Point();
 const p2 = p1.clone(); // Creates a new Point with same values

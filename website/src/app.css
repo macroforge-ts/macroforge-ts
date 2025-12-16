@@ -226,3 +226,52 @@
     @apply italic;
   }
 }
+
+/* Shiki syntax highlighting - dual theme support */
+.shiki,
+.shiki span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+
+.dark .shiki,
+.dark .shiki span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+}
+
+/* Shiki code block styling */
+.shiki {
+  @apply p-4 rounded-lg overflow-x-auto font-mono text-sm;
+}
+
+.shiki code {
+  @apply block;
+}
+
+/* Code block wrapper styling for mdsvex output */
+.code-block-wrapper {
+  @apply relative my-4 rounded-lg overflow-hidden border border-border;
+}
+
+.code-block-wrapper .shiki {
+  @apply rounded-none border-none;
+}
+
+/* Macro code block styling (before/after pairs) */
+.macro-code-block {
+  @apply relative my-4 rounded-lg overflow-hidden border border-border;
+}
+
+.macro-code-block .shiki {
+  @apply rounded-none border-none;
+}
+
+/* Interactive macro block styling */
+.interactive-macro-block {
+  @apply relative my-4 rounded-lg overflow-hidden border border-border;
+}
+
+.interactive-macro-block .shiki {
+  @apply rounded-none border-none;
+}

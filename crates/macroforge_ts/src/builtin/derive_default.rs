@@ -61,15 +61,32 @@
 //!
 //!     notifications: boolean;  // Uses type default: false
 //! }
+//! ```
 //!
-//! // Generated:
-//! // static defaultValue(): UserSettings {
-//! //     const instance = new UserSettings();
-//! //     instance.theme = "light";
-//! //     instance.pageSize = 10;
-//! //     instance.notifications = false;
-//! //     return instance;
-//! // }
+//! Generated output:
+//!
+//! ```typescript
+//! class UserSettings {
+//!     
+//!     theme: string;
+//! 
+//!     
+//!     pageSize: number;
+//! 
+//!     notifications: boolean;  // Uses type default: false
+//! 
+//!     static defaultValue(): UserSettings {
+//!     const instance = new UserSettings();
+//!     instance.theme = {
+//!         "light": <invalid>
+//!     };
+//!     instance.pageSize = {
+//!         10: true
+//!     };
+//!     instance.notifications = false;
+//!     return instance;
+//! }
+//! }
 //! ```
 //!
 //! ## Enum Defaults
@@ -84,13 +101,18 @@
 //!     Active,
 //!     Completed
 //! }
+//! ```
 //!
-//! // Generated:
-//! // export namespace Status {
-//! //     export function defaultValue(): Status {
-//! //         return Status.Pending;
-//! //     }
-//! // }
+//! Generated output:
+//!
+//! ```typescript
+//! /** @derive(Default) */
+//! enum Status {
+//!     @default
+//!     Pending,
+//!     Active,
+//!     Completed
+//! }
 //! ```
 //!
 //! ## Error Handling

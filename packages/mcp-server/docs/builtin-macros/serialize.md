@@ -88,6 +88,62 @@ const obj = user.toObject();
 // => { __type: "User", __id: 1, id: 1, userName: "Alice", ... }
 ```
 
+Generated output:
+
+```typescript
+import { SerializeContext } from 'macroforge/serde';
+
+class User {
+    id: number;
+
+    name: string;
+
+    password: string;
+
+    metadata: UserMetadata;
+
+    toStringifiedJSON(): string {
+        const ctx = SerializeContext.create();
+        return JSON.stringify(this.__serialize(ctx));
+    }
+
+    toObject(): Record<string, unknown> {
+        const ctx = SerializeContext.create();
+        return this.__serialize(ctx);
+    }
+
+    __serialize(ctx: SerializeContext): Record<string, unknown> {
+        const existingId = ctx.getId(this);
+        if (existingId !== undefined) {
+            return {
+                __ref: existingId
+            };
+        }
+        const __id = ctx.register(this);
+        const result: Record<string, unknown> = {
+            __type: 'User',
+            __id
+        };
+        result['id'] = this.id;
+        result['userName'] = this.name;
+        {
+            const __flattened = userMetadata__serialize(this.metadata, ctx);
+            const { __type: _, __id: __, ...rest } = __flattened as any;
+            Object.assign(result, rest);
+        }
+        return result;
+    }
+}
+
+// Usage:
+const user = new User();
+const json = user.toStringifiedJSON();
+// => '{"__type":"User","__id":1,"id":1,"userName":"Alice",...}'
+
+const obj = user.toObject();
+// => { __type: "User", __id: 1, id: 1, userName: "Alice", ... }
+```
+
 ## Required Import
 
 The generated code automatically imports `SerializeContext` from `macroforge/serde`.

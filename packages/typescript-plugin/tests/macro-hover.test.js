@@ -364,3 +364,117 @@ class User {}`;
     assert.strictEqual(spanText, "Debug", "span should cover exactly 'Debug'");
   }
 });
+
+test("macro hover on @derive keyword itself", async (t) => {
+  const source = `/** @derive(Debug) */
+class User { name: string; }`;
+
+  const env = createPluginEnvironment(source);
+
+  // Position on 'd' in @derive
+  const derivePos = source.indexOf("@derive") + 1;
+  const hover = env.languageServiceWithPlugin.getQuickInfoAtPosition(
+    env.fileName,
+    derivePos,
+  );
+
+  assert.ok(hover, "expected hover info for @derive keyword");
+  const displayText = hover.displayParts.map((p) => p.text).join("");
+  assert.ok(displayText.includes("@derive"), "display should show @derive");
+  assert.strictEqual(hover.kind, ts.ScriptElementKind.keyword, "kind should be keyword");
+
+  const docText = (hover.documentation ?? []).map((d) => d.text).join("");
+  assert.ok(docText.includes("Derive directive"), "should have derive directive description");
+  assert.ok(docText.includes("Built-in macros"), "should mention built-in macros");
+});
+
+test("macro hover on external macro in @derive", async (t) => {
+  const source = `/** import macro {Gigaform} from "@playground/macro"; */
+
+/** @derive(Debug, Gigaform) */
+interface Account { id: string; }`;
+
+  const env = createPluginEnvironment(source);
+
+  // Position on "Gigaform" in @derive
+  const gigaformPos = source.lastIndexOf("Gigaform");
+  const hover = env.languageServiceWithPlugin.getQuickInfoAtPosition(
+    env.fileName,
+    gigaformPos,
+  );
+
+  assert.ok(hover, "expected hover for external macro");
+  const docText = (hover.documentation ?? []).map((d) => d.text).join("");
+  assert.ok(docText.includes("@playground/macro"), "should mention source module");
+  assert.ok(docText.includes("External macro"), "should indicate it's an external macro");
+});
+
+test("macro hover on custom field decorator from external macro", async (t) => {
+  const source = `/** import macro {Gigaform} from "@playground/macro"; */
+
+/** @derive(Gigaform) */
+interface Account {
+  /** @hiddenController({}) */
+  id: string;
+}`;
+
+  const env = createPluginEnvironment(source);
+
+  // Position on "hiddenController" in @hiddenController
+  const decoratorPos = source.indexOf("@hiddenController") + 1;
+  const hover = env.languageServiceWithPlugin.getQuickInfoAtPosition(
+    env.fileName,
+    decoratorPos,
+  );
+
+  assert.ok(hover, "expected hover for custom decorator");
+  const docText = (hover.documentation ?? []).map((d) => d.text).join("");
+  assert.ok(docText.includes("Gigaform"), "should mention source macro");
+  assert.ok(
+    docText.includes("Field decorator") || docText.includes("decorator"),
+    "should indicate it's a field decorator",
+  );
+});
+
+test("macro hover on unknown macro shows helpful message", async (t) => {
+  const source = `/** @derive(Debug, UnknownMacro) */
+class User { name: string; }`;
+
+  const env = createPluginEnvironment(source);
+
+  const unknownPos = source.indexOf("UnknownMacro");
+  const hover = env.languageServiceWithPlugin.getQuickInfoAtPosition(
+    env.fileName,
+    unknownPos,
+  );
+
+  assert.ok(hover, "expected hover for unknown macro");
+  const docText = (hover.documentation ?? []).map((d) => d.text).join("");
+  assert.ok(
+    docText.includes("import macro") || docText.includes("Macro:"),
+    "should suggest import syntax or show macro name",
+  );
+});
+
+test("macro hover on field decorator in derive context without import", async (t) => {
+  const source = `/** @derive(Debug, CustomMacro) */
+class User {
+  /** @customField({}) */
+  name: string;
+}`;
+
+  const env = createPluginEnvironment(source);
+
+  const decoratorPos = source.indexOf("@customField") + 1;
+  const hover = env.languageServiceWithPlugin.getQuickInfoAtPosition(
+    env.fileName,
+    decoratorPos,
+  );
+
+  assert.ok(hover, "expected hover for decorator in derive context");
+  const docText = (hover.documentation ?? []).map((d) => d.text).join("");
+  assert.ok(
+    docText.includes("@derive") || docText.includes("Debug") || docText.includes("CustomMacro"),
+    "should mention the enclosing derive context",
+  );
+});
