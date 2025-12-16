@@ -13,13 +13,6 @@
 //! | Interface | `defaultValueInterfaceName(): InterfaceName` | Standalone function returning object literal |
 //! | Type Alias | `defaultValueTypeName(): TypeName` | Standalone function with type-appropriate default |
 //!
-//! ## Configuration
-//!
-//! The `functionNamingStyle` option in `macroforge.json` controls naming:
-//! - `"prefix"` (default): Prefixes with type name (e.g., `myTypeDefaultValue`)
-//! - `"suffix"`: Suffixes with type name (e.g., `defaultValueMyType`)
-//! - `"generic"`: Uses TypeScript generics (e.g., `defaultValue<T extends MyType>`)
-//! - `"namespace"`: Legacy namespace wrapping
 //!
 //! ## Default Values by Type
 //!
@@ -124,11 +117,8 @@
 //! - An enum has no variant marked with `@default`
 //! - A union type has no `@default` on a variant
 
-use crate::builtin::derive_common::{
-    DefaultFieldOptions, get_type_default, has_known_default,
-};
+use crate::builtin::derive_common::{DefaultFieldOptions, get_type_default, has_known_default};
 use crate::macros::{body, ts_macro_derive, ts_template};
-use crate::ts_syn::abi::FunctionNamingStyle;
 use crate::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 /// Convert a PascalCase name to camelCase (for prefix naming style)
@@ -166,7 +156,6 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
-            let naming_style = input.context.function_naming_style;
 
             // Check for required non-primitive fields missing @default (like Rust's derive(Default))
             let missing_defaults: Vec<&str> = class
@@ -210,9 +199,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     let opts = DefaultFieldOptions::from_decorators(&field.decorators);
                     DefaultField {
                         name: field.name.clone(),
-                        value: opts
-                            .value
-                            .unwrap_or_else(|| get_type_default(&field.ts_type, naming_style)),
+                        value: opts.value.unwrap_or_else(|| get_type_default(&field.ts_type)),
                     }
                 })
                 .collect();
@@ -240,36 +227,19 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 }
             };
 
-            // Also generate standalone function for consistency if not using namespace style
-            if naming_style != FunctionNamingStyle::Namespace {
-                let fn_name = match naming_style {
-                    FunctionNamingStyle::Suffix => format!("defaultValue{}", class_name),
-                    FunctionNamingStyle::Prefix => format!("{}DefaultValue", to_camel_case(class_name)),
-                    FunctionNamingStyle::Generic => "defaultValue".to_string(),
-                    _ => String::new(),
-                };
-
-                if !fn_name.is_empty() {
-                    let sibling = ts_template! {
-                        export function @{fn_name}(): @{class_name} {
-                            return @{class_name}.defaultValue();
-                        }
-                    };
-                    // Combine standalone function with class body by concatenating sources
-                    // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
-                    let combined_source = format!("{}\n{}", sibling.source(), class_body.source());
-                    let mut combined = TsStream::from_string(combined_source);
-                    combined.runtime_patches = sibling.runtime_patches;
-                    combined.runtime_patches.extend(class_body.runtime_patches);
-                    return Ok(combined);
+            // Also generate standalone function for consistency
+            let fn_name = format!("{}DefaultValue", to_camel_case(class_name));
+            let sibling = ts_template! {
+                export function @{fn_name}(): @{class_name} {
+                    return @{class_name}.defaultValue();
                 }
-            }
+            };
+            class_body.runtime_patches.extend(sibling.runtime_patches);
 
             Ok(class_body)
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
-            let naming_style = input.context.function_naming_style;
 
             // Find variant with @default attribute (like Rust's #[default] on enums)
             let default_variant = enum_data.variants().iter().find(|v| {
@@ -281,36 +251,12 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
             match default_variant {
                 Some(variant) => {
                     let variant_name = &variant.name;
-                    match naming_style {
-                        FunctionNamingStyle::Namespace => Ok(ts_template! {
-                            export namespace @{enum_name} {
-                                export function defaultValue(): @{enum_name} {
-                                    return @{enum_name}.@{variant_name};
-                                }
-                            }
-                        }),
-                        FunctionNamingStyle::Generic => Ok(ts_template! {
-                            export function defaultValue<T extends @{enum_name}>(): T {
-                                return @{enum_name}.@{variant_name} as T;
-                            }
-                        }),
-                        FunctionNamingStyle::Prefix => {
-                            let fn_name = format!("{}DefaultValue", to_camel_case(enum_name));
-                            Ok(ts_template! {
-                                export function @{fn_name}(): @{enum_name} {
-                                    return @{enum_name}.@{variant_name};
-                                }
-                            })
+                    let fn_name = format!("{}DefaultValue", to_camel_case(enum_name));
+                    Ok(ts_template! {
+                        export function @{fn_name}(): @{enum_name} {
+                            return @{enum_name}.@{variant_name};
                         }
-                        FunctionNamingStyle::Suffix => {
-                            let fn_name = format!("defaultValue{}", enum_name);
-                            Ok(ts_template! {
-                                export function @{fn_name}(): @{enum_name} {
-                                    return @{enum_name}.@{variant_name};
-                                }
-                            })
-                        }
-                    }
+                    })
                 }
                 None => Err(MacroforgeError::new(
                     input.decorator_span(),
@@ -324,7 +270,6 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
         }
         Data::Interface(interface) => {
             let interface_name = input.name();
-            let naming_style = input.context.function_naming_style;
 
             // Check for required non-primitive fields missing @default (like Rust's derive(Default))
             let missing_defaults: Vec<&str> = interface
@@ -368,9 +313,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     let opts = DefaultFieldOptions::from_decorators(&field.decorators);
                     DefaultField {
                         name: field.name.clone(),
-                        value: opts
-                            .value
-                            .unwrap_or_else(|| get_type_default(&field.ts_type, naming_style)),
+                        value: opts.value.unwrap_or_else(|| get_type_default(&field.ts_type)),
                     }
                 })
                 .collect();
@@ -388,56 +331,19 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 String::new()
             };
 
-            match naming_style {
-                FunctionNamingStyle::Namespace => Ok(ts_template! {
-                    export namespace @{interface_name} {
-                        export function defaultValue(): @{interface_name} {
-                            return {
-                                {#if has_defaults}
-                                    @{object_body}
-                                {/if}
-                            } as @{interface_name};
-                        }
-                    }
-                }),
-                FunctionNamingStyle::Generic => Ok(ts_template! {
-                    export function defaultValue<T extends @{interface_name}>(): T {
-                        return {
-                            {#if has_defaults}
-                                @{object_body}
-                            {/if}
-                        } as T;
-                    }
-                }),
-                FunctionNamingStyle::Prefix => {
-                    let fn_name = format!("{}DefaultValue", to_camel_case(interface_name));
-                    Ok(ts_template! {
-                        export function @{fn_name}(): @{interface_name} {
-                            return {
-                                {#if has_defaults}
-                                    @{object_body}
-                                {/if}
-                            } as @{interface_name};
-                        }
-                    })
+            let fn_name = format!("{}DefaultValue", to_camel_case(interface_name));
+            Ok(ts_template! {
+                export function @{fn_name}(): @{interface_name} {
+                    return {
+                        {#if has_defaults}
+                            @{object_body}
+                        {/if}
+                    } as @{interface_name};
                 }
-                FunctionNamingStyle::Suffix => {
-                    let fn_name = format!("defaultValue{}", interface_name);
-                    Ok(ts_template! {
-                        export function @{fn_name}(): @{interface_name} {
-                            return {
-                                {#if has_defaults}
-                                    @{object_body}
-                                {/if}
-                            } as @{interface_name};
-                        }
-                    })
-                }
-            }
+            })
         }
         Data::TypeAlias(type_alias) => {
             let type_name = input.name();
-            let naming_style = input.context.function_naming_style;
 
             // Build generic type signature if type has type params
             let type_params = type_alias.type_params();
@@ -494,7 +400,7 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                             name: field.name.clone(),
                             value: opts
                                 .value
-                                .unwrap_or_else(|| get_type_default(&field.ts_type, naming_style)),
+                                .unwrap_or_else(|| get_type_default(&field.ts_type)),
                         }
                     })
                     .collect();
@@ -511,52 +417,16 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     String::new()
                 };
 
-                match naming_style {
-                    FunctionNamingStyle::Namespace => Ok(ts_template! {
-                        export namespace @{type_name} {
-                            export function {|defaultValue@{generic_decl}|}(): @{full_type_name} {
-                                return {
-                                    {#if has_defaults}
-                                        @{object_body}
-                                    {/if}
-                                } as @{full_type_name};
-                            }
-                        }
-                    }),
-                    FunctionNamingStyle::Generic => Ok(ts_template! {
-                        export function {|defaultValue@{generic_decl}|}(): @{full_type_name} {
-                            return {
-                                {#if has_defaults}
-                                    @{object_body}
-                                {/if}
-                            } as @{full_type_name};
-                        }
-                    }),
-                    FunctionNamingStyle::Prefix => {
-                        let fn_name = format!("{}DefaultValue", to_camel_case(type_name));
-                        Ok(ts_template! {
-                            export function {|@{fn_name}@{generic_decl}|}(): @{full_type_name} {
-                                return {
-                                    {#if has_defaults}
-                                        @{object_body}
-                                    {/if}
-                                } as @{full_type_name};
-                            }
-                        })
+                let fn_name = format!("{}DefaultValue", to_camel_case(type_name));
+                Ok(ts_template! {
+                    export function {|@{fn_name}@{generic_decl}|}(): @{full_type_name} {
+                        return {
+                            {#if has_defaults}
+                                @{object_body}
+                            {/if}
+                        } as @{full_type_name};
                     }
-                    FunctionNamingStyle::Suffix => {
-                        let fn_name = format!("defaultValue{}", type_name);
-                        Ok(ts_template! {
-                            export function {|@{fn_name}@{generic_decl}|}(): @{full_type_name} {
-                                return {
-                                    {#if has_defaults}
-                                        @{object_body}
-                                    {/if}
-                                } as @{full_type_name};
-                            }
-                        })
-                    }
-                }
+                })
             } else if type_alias.is_union() {
                 // Union type: check for @default on a variant OR @default(...) on the type
                 let members = type_alias.as_union().unwrap();
@@ -618,11 +488,11 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                     let default_expr = if is_expression || is_string_literal || is_primitive_value {
                         variant // Use as-is
                     } else {
-                        // Use get_type_default which properly handles naming_style for all types:
+                        // Use get_type_default which properly handles all types:
                         // - Primitives (string, number, boolean, bigint)
                         // - Generic types (RecordLink<Service>)
                         // - Named types (CompanyName, PersonName - interfaces/classes)
-                        get_type_default(&variant, naming_style)
+                        get_type_default(&variant)
                     };
 
                     // Handle generic type aliases (e.g., type RecordLink<T> = ...)
@@ -639,36 +509,12 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                         type_name.to_string()
                     };
 
-                    match naming_style {
-                        FunctionNamingStyle::Namespace => Ok(ts_template! {
-                            export namespace @{type_name} {
-                                export function defaultValue@{generic_params}(): @{return_type} {
-                                    return @{default_expr};
-                                }
-                            }
-                        }),
-                        FunctionNamingStyle::Generic => Ok(ts_template! {
-                            export function defaultValue@{generic_params}(): @{return_type} {
-                                return @{default_expr};
-                            }
-                        }),
-                        FunctionNamingStyle::Prefix => {
-                            let fn_name = format!("{}DefaultValue", to_camel_case(type_name));
-                            Ok(ts_template! {
-                                export function @{fn_name}@{generic_params}(): @{return_type} {
-                                    return @{default_expr};
-                                }
-                            })
+                    let fn_name = format!("{}DefaultValue", to_camel_case(type_name));
+                    Ok(ts_template! {
+                        export function @{fn_name}@{generic_params}(): @{return_type} {
+                            return @{default_expr};
                         }
-                        FunctionNamingStyle::Suffix => {
-                            let fn_name = format!("defaultValue{}", type_name);
-                            Ok(ts_template! {
-                                export function @{fn_name}@{generic_params}(): @{return_type} {
-                                    return @{default_expr};
-                                }
-                            })
-                        }
-                    }
+                    })
                 } else {
                     Err(MacroforgeError::new(
                         input.decorator_span(),
@@ -690,36 +536,12 @@ pub fn derive_default_macro(mut input: TsStream) -> Result<TsStream, MacroforgeE
                 );
 
                 if let Some(default_variant) = default_opts.value {
-                    match naming_style {
-                        FunctionNamingStyle::Namespace => Ok(ts_template! {
-                            export namespace @{type_name} {
-                                export function {|defaultValue@{generic_decl}|}(): @{full_type_name} {
-                                    return @{default_variant};
-                                }
-                            }
-                        }),
-                        FunctionNamingStyle::Generic => Ok(ts_template! {
-                            export function {|defaultValue@{generic_decl}|}(): @{full_type_name} {
-                                return @{default_variant};
-                            }
-                        }),
-                        FunctionNamingStyle::Prefix => {
-                            let fn_name = format!("{}DefaultValue", to_camel_case(type_name));
-                            Ok(ts_template! {
-                                export function {|@{fn_name}@{generic_decl}|}(): @{full_type_name} {
-                                    return @{default_variant};
-                                }
-                            })
+                    let fn_name = format!("{}DefaultValue", to_camel_case(type_name));
+                    Ok(ts_template! {
+                        export function {|@{fn_name}@{generic_decl}|}(): @{full_type_name} {
+                            return @{default_variant};
                         }
-                        FunctionNamingStyle::Suffix => {
-                            let fn_name = format!("defaultValue{}", type_name);
-                            Ok(ts_template! {
-                                export function {|@{fn_name}@{generic_decl}|}(): @{full_type_name} {
-                                    return @{default_variant};
-                                }
-                            })
-                        }
-                    }
+                    })
                 } else {
                     Err(MacroforgeError::new(
                         input.decorator_span(),

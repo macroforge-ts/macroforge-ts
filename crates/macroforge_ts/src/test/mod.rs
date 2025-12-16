@@ -52,11 +52,9 @@
 //! cargo test -p macroforge_ts
 //! ```
 
-use crate::host::MacroConfig;
 use crate::host::PatchCollector;
 use crate::ts_syn::abi::{
-    ClassIR, DiagnosticLevel, FunctionNamingStyle, MacroContextIR, MacroResult, Patch, PatchCode,
-    SpanIR,
+    ClassIR, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode, SpanIR,
 };
 use crate::{
     GeneratedRegionResult, MappingSegmentResult, NativePositionMapper, SourceMappingResult,
@@ -1768,44 +1766,6 @@ export interface Point {
                 "Expected prefix-style function: {expected}"
             );
         }
-    });
-}
-
-#[test]
-fn test_interface_derive_macros_can_emit_namespaces_when_configured() {
-    let source = r#"
-/** @derive(Debug, Clone, PartialEq, Hash, PartialOrd, Ord, Default, Serialize, Deserialize) */
-export interface Point {
-    x: number;
-    y: number;
-}
-"#;
-
-    GLOBALS.set(&Default::default(), || {
-        let program = parse_module(source);
-        let config = MacroConfig {
-            function_naming_style: FunctionNamingStyle::Namespace,
-            ..Default::default()
-        };
-        let host = MacroExpander::with_config(config, std::env::current_dir().unwrap()).unwrap();
-        let result = host.expand(source, &program, "test.ts").unwrap();
-
-        assert!(
-            result.code.contains("export namespace Point"),
-            "Namespace naming style should emit `export namespace Point`"
-        );
-        assert!(
-            result
-                .code
-                .contains("export function serializeWithContext("),
-            "Namespace naming style should emit `SerializeWithContext` inside the namespace"
-        );
-        assert!(
-            !result
-                .code
-                .contains("export function serializeWithContextPoint"),
-            "Namespace naming style should not emit suffix-style names"
-        );
     });
 }
 
