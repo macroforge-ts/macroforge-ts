@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { createHighlighter } from './src/lib/shiki-highlighter.js';
 import remarkMacroBlocks from './src/lib/remark-macro-blocks.js';
+import { codeBlockPreprocess } from './src/lib/codeblock-preprocessor.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -18,6 +19,7 @@ const config = {
 	extensions: ['.svelte', '.svx'],
 
 	preprocess: [
+		codeBlockPreprocess(),
 		vitePreprocess(),
 		mdsvex({
 			extensions: ['.svx'],

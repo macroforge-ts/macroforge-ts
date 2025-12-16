@@ -87,12 +87,16 @@ export async function createHighlighter() {
 		const effectiveLang = loadedLangs.includes(language) ? language : 'text';
 
 		// Generate Shiki HTML with dual themes
+		// Using defaultColor: false outputs only CSS variables (no inline colors)
+		// This allows pure CSS theme switching without !important overrides
 		let html = highlighter.codeToHtml(code.trim(), {
 			lang: effectiveLang,
 			themes: {
 				dark: 'github-dark',
 				light: 'github-light'
-			}
+			},
+			defaultColor: false,
+			tabindex: false // Disable tabindex to avoid a11y warnings
 		});
 
 		// Escape curly braces for Svelte compatibility

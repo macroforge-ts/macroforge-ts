@@ -227,7 +227,9 @@
   }
 }
 
-/* Shiki syntax highlighting - dual theme support */
+/* Shiki syntax highlighting - dual theme support with CSS variables */
+/* With defaultColor: false, Shiki outputs only CSS variables (no inline colors) */
+/* Each span has both --shiki-light and --shiki-dark variables for theme switching */
 .shiki,
 .shiki span {
   color: var(--shiki-light);
