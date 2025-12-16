@@ -2396,12 +2396,13 @@ fn parse_members_from_tokens(tokens: &str) -> anyhow::Result<Vec<MemberWithComme
         .ok_or_else(|| anyhow::anyhow!("Failed to parse macro output into class members"))?;
 
     // Match parsed members with their extracted JSDoc comments
-    // We rely on the fact that members appear in the same order
+    // Use enumerate instead of zip to handle cases where there are more members than segments
+    // (e.g., when no JSDoc comments exist, all code is in one segment but parses to multiple members)
     let result = class_body
         .into_iter()
-        .zip(segments.iter())
-        .map(|(member, (comment, _))| MemberWithComment {
-            leading_comment: comment.clone(),
+        .enumerate()
+        .map(|(i, member)| MemberWithComment {
+            leading_comment: segments.get(i).and_then(|(comment, _)| comment.clone()),
             member,
         })
         .collect();
