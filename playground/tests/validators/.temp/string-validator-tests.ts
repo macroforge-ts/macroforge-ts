@@ -1,8 +1,8 @@
 import { Result } from "macroforge/utils";
 import { DeserializeContext } from "macroforge/serde";
-import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
 import { PendingRef } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
 /**
  * String validator test classes for comprehensive deserializer validation testing.
  * Each class tests a single validator for isolation.
@@ -173,6 +173,16 @@ Automatically detects whether input is a JSON string or object.
     return Result.isOk(result);
 }
 }
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function emailValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<EmailValidator, Array<{field: string; message: string}>>{return EmailValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function emailValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): EmailValidator | PendingRef {return EmailValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function emailValidatorIs(value: unknown): value is EmailValidator {return EmailValidator.is(value);}
 
 // URL validator
 
@@ -361,6 +371,16 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function urlValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<UrlValidator, Array<{field: string; message: string}>>{return UrlValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function urlValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): UrlValidator | PendingRef {return UrlValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function urlValidatorIs(value: unknown): value is UrlValidator {return UrlValidator.is(value);}
+
 // UUID validator
 
 export class UuidValidator {
@@ -526,6 +546,16 @@ Automatically detects whether input is a JSON string or object.
     return Result.isOk(result);
 }
 }
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function uuidValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<UuidValidator, Array<{field: string; message: string}>>{return UuidValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function uuidValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): UuidValidator | PendingRef {return UuidValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function uuidValidatorIs(value: unknown): value is UuidValidator {return UuidValidator.is(value);}
 
 // MaxLength validator
 
@@ -693,6 +723,16 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function maxLengthValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<MaxLengthValidator, Array<{field: string; message: string}>>{return MaxLengthValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function maxLengthValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): MaxLengthValidator | PendingRef {return MaxLengthValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function maxLengthValidatorIs(value: unknown): value is MaxLengthValidator {return MaxLengthValidator.is(value);}
+
 // MinLength validator
 
 export class MinLengthValidator {
@@ -858,6 +898,16 @@ Automatically detects whether input is a JSON string or object.
     return Result.isOk(result);
 }
 }
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function minLengthValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<MinLengthValidator, Array<{field: string; message: string}>>{return MinLengthValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function minLengthValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): MinLengthValidator | PendingRef {return MinLengthValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function minLengthValidatorIs(value: unknown): value is MinLengthValidator {return MinLengthValidator.is(value);}
 
 // Length validator (exact)
 
@@ -1025,6 +1075,16 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function lengthValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<LengthValidator, Array<{field: string; message: string}>>{return LengthValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function lengthValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): LengthValidator | PendingRef {return LengthValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function lengthValidatorIs(value: unknown): value is LengthValidator {return LengthValidator.is(value);}
+
 // LengthRange validator (use length with 2 args)
 
 export class LengthRangeValidator {
@@ -1190,6 +1250,16 @@ Automatically detects whether input is a JSON string or object.
     return Result.isOk(result);
 }
 }
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function lengthRangeValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<LengthRangeValidator, Array<{field: string; message: string}>>{return LengthRangeValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function lengthRangeValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): LengthRangeValidator | PendingRef {return LengthRangeValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function lengthRangeValidatorIs(value: unknown): value is LengthRangeValidator {return LengthRangeValidator.is(value);}
 
 // Pattern validator
 
@@ -1357,6 +1427,16 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function patternValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<PatternValidator, Array<{field: string; message: string}>>{return PatternValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function patternValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): PatternValidator | PendingRef {return PatternValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function patternValidatorIs(value: unknown): value is PatternValidator {return PatternValidator.is(value);}
+
 // NonEmpty validator
 
 export class NonEmptyValidator {
@@ -1522,6 +1602,16 @@ Automatically detects whether input is a JSON string or object.
     return Result.isOk(result);
 }
 }
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function nonEmptyValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<NonEmptyValidator, Array<{field: string; message: string}>>{return NonEmptyValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function nonEmptyValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): NonEmptyValidator | PendingRef {return NonEmptyValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function nonEmptyValidatorIs(value: unknown): value is NonEmptyValidator {return NonEmptyValidator.is(value);}
 
 // Trimmed validator
 
@@ -1689,6 +1779,16 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function trimmedValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<TrimmedValidator, Array<{field: string; message: string}>>{return TrimmedValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function trimmedValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): TrimmedValidator | PendingRef {return TrimmedValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function trimmedValidatorIs(value: unknown): value is TrimmedValidator {return TrimmedValidator.is(value);}
+
 // Lowercase validator
 
 export class LowercaseValidator {
@@ -1854,6 +1954,16 @@ Automatically detects whether input is a JSON string or object.
     return Result.isOk(result);
 }
 }
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function lowercaseValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<LowercaseValidator, Array<{field: string; message: string}>>{return LowercaseValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function lowercaseValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): LowercaseValidator | PendingRef {return LowercaseValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function lowercaseValidatorIs(value: unknown): value is LowercaseValidator {return LowercaseValidator.is(value);}
 
 // Uppercase validator
 
@@ -2021,6 +2131,16 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function uppercaseValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<UppercaseValidator, Array<{field: string; message: string}>>{return UppercaseValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function uppercaseValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): UppercaseValidator | PendingRef {return UppercaseValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function uppercaseValidatorIs(value: unknown): value is UppercaseValidator {return UppercaseValidator.is(value);}
+
 // Capitalized validator
 
 export class CapitalizedValidator {
@@ -2186,6 +2306,16 @@ Automatically detects whether input is a JSON string or object.
     return Result.isOk(result);
 }
 }
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function capitalizedValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<CapitalizedValidator, Array<{field: string; message: string}>>{return CapitalizedValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function capitalizedValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): CapitalizedValidator | PendingRef {return CapitalizedValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function capitalizedValidatorIs(value: unknown): value is CapitalizedValidator {return CapitalizedValidator.is(value);}
 
 // Uncapitalized validator
 
@@ -2353,6 +2483,16 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function uncapitalizedValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<UncapitalizedValidator, Array<{field: string; message: string}>>{return UncapitalizedValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function uncapitalizedValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): UncapitalizedValidator | PendingRef {return UncapitalizedValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function uncapitalizedValidatorIs(value: unknown): value is UncapitalizedValidator {return UncapitalizedValidator.is(value);}
+
 // StartsWith validator
 
 export class StartsWithValidator {
@@ -2518,6 +2658,16 @@ Automatically detects whether input is a JSON string or object.
     return Result.isOk(result);
 }
 }
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function startsWithValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<StartsWithValidator, Array<{field: string; message: string}>>{return StartsWithValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function startsWithValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): StartsWithValidator | PendingRef {return StartsWithValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function startsWithValidatorIs(value: unknown): value is StartsWithValidator {return StartsWithValidator.is(value);}
 
 // EndsWith validator
 
@@ -2685,6 +2835,16 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function endsWithValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<EndsWithValidator, Array<{field: string; message: string}>>{return EndsWithValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function endsWithValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): EndsWithValidator | PendingRef {return EndsWithValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function endsWithValidatorIs(value: unknown): value is EndsWithValidator {return EndsWithValidator.is(value);}
+
 // Includes validator
 
 export class IncludesValidator {
@@ -2850,3 +3010,13 @@ Automatically detects whether input is a JSON string or object.
     return Result.isOk(result);
 }
 }
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function includesValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<IncludesValidator, Array<{field: string; message: string}>>{return IncludesValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function includesValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): IncludesValidator | PendingRef {return IncludesValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function includesValidatorIs(value: unknown): value is IncludesValidator {return IncludesValidator.is(value);}

@@ -1,8 +1,8 @@
 import { Result } from "macroforge/utils";
 import { DeserializeContext } from "macroforge/serde";
-import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
 import { PendingRef } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
 /**
  * Array validator test classes for comprehensive deserializer validation testing.
  */
@@ -175,6 +175,16 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function maxItemsValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<MaxItemsValidator, Array<{field: string; message: string}>>{return MaxItemsValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function maxItemsValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): MaxItemsValidator | PendingRef {return MaxItemsValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function maxItemsValidatorIs(value: unknown): value is MaxItemsValidator {return MaxItemsValidator.is(value);}
+
 // MinItems validator
 
 export class MinItemsValidator {
@@ -343,6 +353,16 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function minItemsValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<MinItemsValidator, Array<{field: string; message: string}>>{return MinItemsValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function minItemsValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): MinItemsValidator | PendingRef {return MinItemsValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function minItemsValidatorIs(value: unknown): value is MinItemsValidator {return MinItemsValidator.is(value);}
+
 // ItemsCount validator
 
 export class ItemsCountValidator {
@@ -510,3 +530,13 @@ Automatically detects whether input is a JSON string or object.
     return Result.isOk(result);
 }
 }
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function itemsCountValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<ItemsCountValidator, Array<{field: string; message: string}>>{return ItemsCountValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function itemsCountValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): ItemsCountValidator | PendingRef {return ItemsCountValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function itemsCountValidatorIs(value: unknown): value is ItemsCountValidator {return ItemsCountValidator.is(value);}

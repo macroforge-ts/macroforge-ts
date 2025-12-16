@@ -27,15 +27,28 @@ function assertDecoratorsStripped(output, fileLabel) {
 }
 
 function assertMethodsGenerated(output, fileLabel, serializeMethod = "serialize") {
+  // Debug macro now generates static toString method
   assert.ok(
-    /toString\s*\(\).*?\{/.test(output),
-    `${fileLabel}: expected generated toString() implementation`,
+    /static\s+toString\s*\(value:/.test(output),
+    `${fileLabel}: expected generated static toString(value:) implementation`,
   );
-  const methodPattern = new RegExp(`${serializeMethod}\\s*\\(\\).*?\\{`);
-  assert.ok(
-    methodPattern.test(output),
-    `${fileLabel}: expected generated ${serializeMethod}() implementation`,
-  );
+  // Some macros (like JSON) still use instance methods, others (like Serialize) use static
+  // Check for either static or instance method depending on the macro
+  if (serializeMethod === "toJSON") {
+    // JSON macro generates instance method
+    const methodPattern = new RegExp(`${serializeMethod}\\s*\\(\\).*?\\{`);
+    assert.ok(
+      methodPattern.test(output),
+      `${fileLabel}: expected generated ${serializeMethod}() instance method`,
+    );
+  } else {
+    // Serialize macro generates static method
+    const methodPattern = new RegExp(`static\\s+${serializeMethod}\\s*\\(value:`);
+    assert.ok(
+      methodPattern.test(output),
+      `${fileLabel}: expected generated static ${serializeMethod}(value:) method`,
+    );
+  }
 }
 
 test("vanilla: decorators stripped and methods generated", () => {

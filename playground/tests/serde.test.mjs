@@ -28,13 +28,14 @@ describe("Serialize macro expansion", () => {
     `;
     const result = expandSync(code, "test.ts");
 
+    // New format uses static methods
     assert.ok(
-      result.code.includes("serialize():"),
-      "Should generate serialize method",
+      result.code.includes("static serialize(value: User)"),
+      "Should generate static serialize method",
     );
     assert.ok(
-      result.code.includes("serializeWithContext("),
-      "Should generate serializeWithContext method",
+      result.code.includes("static serializeWithContext(value: User, ctx"),
+      "Should generate static serializeWithContext method",
     );
     assert.ok(
       result.code.includes("SerializeContext"),
@@ -72,13 +73,14 @@ describe("Serialize macro expansion", () => {
     `;
     const result = expandSync(code, "test.ts");
 
+    // New format uses 'value' parameter instead of 'this'
     assert.ok(
-      result.code.includes("ctx.getId(this)"),
+      result.code.includes("ctx.getId(value)"),
       "Should check for existing ID",
     );
     assert.ok(result.code.includes("__ref:"), "Should return __ref for cycles");
     assert.ok(
-      result.code.includes("ctx.register(this)"),
+      result.code.includes("ctx.register(value)"),
       "Should register object",
     );
   });
@@ -582,14 +584,14 @@ describe("Combined Serialize + Deserialize", () => {
     `;
     const result = expandSync(code, "test.ts");
 
-    // Serialize methods
+    // Serialize methods (now static)
     assert.ok(
-      result.code.includes("serialize():"),
-      "Should have serialize",
+      result.code.includes("static serialize(value: Entity)"),
+      "Should have static serialize",
     );
     assert.ok(
-      result.code.includes("serializeWithContext(ctx:"),
-      "Should have serializeWithContext",
+      result.code.includes("static serializeWithContext(value: Entity, ctx"),
+      "Should have static serializeWithContext",
     );
 
     // Deserialize methods
@@ -778,13 +780,14 @@ describe("Edge cases", () => {
     `;
     const result = expandSync(code, "test.ts");
 
+    // New format uses static methods
     assert.ok(
-      result.code.includes("serialize()"),
-      "Should generate serialize",
+      result.code.includes("static serialize(value: Empty)"),
+      "Should generate static serialize",
     );
     assert.ok(
-      result.code.includes("deserialize"),
-      "Should generate deserialize",
+      result.code.includes("static deserialize"),
+      "Should generate static deserialize",
     );
     assert.ok(
       result.code.includes('__type: "Empty"'),
