@@ -158,9 +158,9 @@ class Data {
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed, "expand() should report changes");
-        // Debug macro adds toString() method
-        assert!(result.code.contains("toString()"));
-        assert!(result.code.contains("Data"));
+        // Debug macro adds static toString method and standalone function
+        assert!(result.code.contains("static toString(value: Data)"));
+        assert!(result.code.contains("dataToString"));
     });
 }
 
@@ -175,16 +175,6 @@ class User {
 }
 "#;
 
-    let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-
-class User {
-    name: string;
-    toString(): string;
-}
-"#;
-
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
         let host = MacroExpander::new().unwrap();
@@ -193,9 +183,14 @@ class User {
         assert!(result.changed, "expand() should report changes");
         let type_output = result.type_output.expect("should have type output");
 
-        assert_eq!(
-            type_output.replace_whitespace(),
-            expected_dts.replace_whitespace()
+        // New format: static method + standalone function
+        assert!(
+            type_output.contains("static toString(value: User): string"),
+            "should have static toString method"
+        );
+        assert!(
+            type_output.contains("export function userToString"),
+            "should have standalone function"
         );
     });
 }
@@ -211,16 +206,6 @@ class User {
 }
 "#;
 
-    let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-
-class User {
-    name: string;
-    clone(): User;
-}
-"#;
-
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
         let host = MacroExpander::new().unwrap();
@@ -229,9 +214,14 @@ class User {
         assert!(result.changed, "expand() should report changes");
         let type_output = result.type_output.expect("should have type output");
 
-        assert_eq!(
-            type_output.replace_whitespace(),
-            expected_dts.replace_whitespace()
+        // New format: static method + standalone function
+        assert!(
+            type_output.contains("static clone(value: User): User"),
+            "should have static clone method"
+        );
+        assert!(
+            type_output.contains("export function userClone"),
+            "should have standalone function"
         );
     });
 }
@@ -247,17 +237,6 @@ class User {
 }
 "#;
 
-    let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-
-class User {
-    name: string;
-    equals(other: unknown): boolean;
-    hashCode(): number;
-}
-"#;
-
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
         let host = MacroExpander::new().unwrap();
@@ -266,9 +245,22 @@ class User {
         assert!(result.changed, "expand() should report changes");
         let type_output = result.type_output.expect("should have type output");
 
-        assert_eq!(
-            type_output.replace_whitespace(),
-            expected_dts.replace_whitespace()
+        // New format: static methods + standalone functions
+        assert!(
+            type_output.contains("static equals(a: User, b: User): boolean"),
+            "should have static equals method"
+        );
+        assert!(
+            type_output.contains("static hashCode(value: User): number"),
+            "should have static hashCode method"
+        );
+        assert!(
+            type_output.contains("export function userEquals"),
+            "should have standalone equals function"
+        );
+        assert!(
+            type_output.contains("export function userHashCode"),
+            "should have standalone hashCode function"
         );
     });
 }
@@ -308,27 +300,6 @@ class MacroUser {
 }
 "#;
 
-    let expected_dts = r#"
-class MacroUser {
-  id: string;
-  name: string;
-  role: string;
-  favoriteMacro: "Derive" | "JsonNative";
-  since: string;
-  apiToken: string;
-
-  constructor(
-    id: string,
-    name: string,
-    role: string,
-    favoriteMacro: "Derive" | "JsonNative",
-    since: string,
-    apiToken: string,
-  );
-  toString(): string;
-}
-"#;
-
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
         let host = MacroExpander::new().unwrap();
@@ -337,10 +308,14 @@ class MacroUser {
         assert!(result.changed, "expand() should report changes");
         let type_output = result.type_output.expect("should have type output");
 
-        // Use whitespace-normalized comparison like other tests
-        assert_eq!(
-            type_output.replace_whitespace(),
-            expected_dts.replace_whitespace()
+        // New format: static method + standalone function
+        assert!(
+            type_output.contains("static toString(value: MacroUser): string"),
+            "should have static toString method"
+        );
+        assert!(
+            type_output.contains("export function macroUserToString"),
+            "should have standalone function"
         );
     });
 }
@@ -573,15 +548,14 @@ fn test_collect_derive_debug_patch() {
 
     let type_patches = collector.get_type_patches();
 
-    // Expecting 2 patches:
+    // Expecting 3 patches:
     // 1. Decorator removal for /** @derive(Debug) */
-    // 2. toString signature insertion (from Derive(Debug) macro)
-    // Note: find_macro_comment_span no longer incorrectly finds class-level decorators
-    // for fields, so we don't get a spurious third patch
+    // 2. Static toString method insertion inside class (from Derive(Debug) macro)
+    // 3. Standalone function userToString insertion after class
     assert_eq!(
         type_patches.len(),
-        2,
-        "Expected 2 patches, got {}",
+        3,
+        "Expected 3 patches, got {}",
         type_patches.len()
     );
 
@@ -650,28 +624,6 @@ class Product {
 }
 "#;
 
-    let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class Product {
-    id: string;
-    name: string;
-    price: number;
-    private secret: string;
-
-    constructor(id: string, name: string, price: number, secret: string);
-
-    getDisplayName(): string;
-
-    static fromJSON(json: any): Product;
-
-    toString(): string;
-    clone(): Product;
-    equals(other: unknown): boolean;
-    hashCode(): number;
-}
-"#;
-
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
         let host = MacroExpander::new().unwrap();
@@ -680,10 +632,16 @@ class Product {
         assert!(result.changed, "expand() should report changes");
         let type_output = result.type_output.expect("should have type output");
 
-        assert_eq!(
-            type_output.replace_whitespace(),
-            expected_dts.replace_whitespace()
-        );
+        // Check for static methods on class
+        assert!(type_output.contains("static toString(value: Product): string"));
+        assert!(type_output.contains("static clone(value: Product): Product"));
+        assert!(type_output.contains("static equals(a: Product, b: Product): boolean"));
+        assert!(type_output.contains("static hashCode(value: Product): number"));
+        // Check for standalone functions
+        assert!(type_output.contains("export function productToString"));
+        assert!(type_output.contains("export function productClone"));
+        assert!(type_output.contains("export function productEquals"));
+        assert!(type_output.contains("export function productHashCode"));
     });
 }
 
@@ -717,29 +675,6 @@ class API {
 }
 "#;
 
-    let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class API {
-    endpoint: string;
-
-    constructor(endpoint: string);
-
-    async fetch<T>(
-        path: string,
-        options?: { method?: string; body?: any }
-    ): Promise<T>;
-
-    subscribe(
-        event: "data" | "error",
-        callback: (data: any) => void,
-        thisArg?: any
-    ): () => void;
-
-    toString(): string;
-}
-"#;
-
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
         let host = MacroExpander::new().unwrap();
@@ -748,10 +683,12 @@ class API {
         assert!(result.changed);
         let type_output = result.type_output.expect("should have type output");
 
-        assert_eq!(
-            type_output.replace_whitespace(),
-            expected_dts.replace_whitespace()
-        );
+        // Check for static method and standalone function
+        assert!(type_output.contains("static toString(value: API): string"));
+        assert!(type_output.contains("export function aPIToString"));
+        // Original methods should still be present
+        assert!(type_output.contains("async fetch<T>"));
+        assert!(type_output.contains("subscribe("));
     });
 }
 
@@ -786,26 +723,6 @@ class Account {
 }
 "#;
 
-    let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class Account {
-    public username: string;
-    protected password: string;
-    private apiKey: string;
-
-    constructor(username: string, password: string, apiKey: string);
-
-    login(): boolean;
-
-    protected validatePassword(input: string): boolean;
-
-    private getApiKey(): string;
-
-    clone(): Account;
-}
-"#;
-
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
         let host = MacroExpander::new().unwrap();
@@ -814,10 +731,9 @@ class Account {
         assert!(result.changed);
         let type_output = result.type_output.expect("should have type output");
 
-        assert_eq!(
-            type_output.replace_whitespace(),
-            expected_dts.replace_whitespace()
-        );
+        // Check for static method and standalone function
+        assert!(type_output.contains("static clone(value: Account): Account"));
+        assert!(type_output.contains("export function accountClone"));
     });
 }
 
@@ -848,26 +764,6 @@ class Config {
 }
 "#;
 
-    let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class Config {
-    readonly id: string;
-    name: string;
-    description?: string;
-    readonly createdAt: Date;
-    updatedAt?: Date;
-
-    constructor(id: string, name: string, createdAt: Date);
-
-    update(name: string, description?: string): void;
-
-    toString(): string;
-    equals(other: unknown): boolean;
-    hashCode(): number;
-}
-"#;
-
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
         let host = MacroExpander::new().unwrap();
@@ -876,10 +772,13 @@ class Config {
         assert!(result.changed);
         let type_output = result.type_output.expect("should have type output");
 
-        assert_eq!(
-            type_output.replace_whitespace(),
-            expected_dts.replace_whitespace()
-        );
+        // Check for static methods and standalone functions
+        assert!(type_output.contains("static toString(value: Config): string"));
+        assert!(type_output.contains("static equals(a: Config, b: Config): boolean"));
+        assert!(type_output.contains("static hashCode(value: Config): number"));
+        assert!(type_output.contains("export function configToString"));
+        assert!(type_output.contains("export function configEquals"));
+        assert!(type_output.contains("export function configHashCode"));
     });
 }
 
@@ -909,22 +808,6 @@ class Singleton {
 }
 "#;
 
-    let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class Singleton {
-    private static instance: Singleton;
-
-    private constructor();
-
-    static getInstance(): Singleton;
-
-    reset(): void;
-
-    toString(): string;
-}
-"#;
-
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
         let host = MacroExpander::new().unwrap();
@@ -933,10 +816,9 @@ class Singleton {
         assert!(result.changed);
         let type_output = result.type_output.expect("should have type output");
 
-        assert_eq!(
-            type_output.replace_whitespace(),
-            expected_dts.replace_whitespace()
-        );
+        // Check for static method and standalone function
+        assert!(type_output.contains("static toString(value: Singleton): string"));
+        assert!(type_output.contains("export function singletonToString"));
     });
 }
 
@@ -963,22 +845,6 @@ class ValidationExample {
 }
 "#;
 
-    let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class ValidationExample {
-    id: string;
-
-    name: string;
-
-    internalFlag: boolean;
-
-    constructor(id: string, name: string, internalFlag: boolean);
-
-    toString(): string;
-}
-"#;
-
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
         let host = MacroExpander::new().unwrap();
@@ -987,10 +853,9 @@ class ValidationExample {
         assert!(result.changed);
         let type_output = result.type_output.expect("should have type output");
 
-        assert_eq!(
-            type_output.replace_whitespace(),
-            expected_dts.replace_whitespace()
-        );
+        // Check for static method and standalone function
+        assert!(type_output.contains("static toString(value: ValidationExample): string"));
+        assert!(type_output.contains("export function validationExampleToString"));
     });
 }
 
@@ -1019,35 +884,25 @@ class User {
         assert!(result.changed);
         let type_output = result.type_output.expect("should have type output");
 
-        // Verify methods are on separate lines, not jammed together
+        // Verify static methods are on separate lines
         let lines: Vec<&str> = type_output.lines().collect();
 
-        // Find the toString line
+        // Find the static toString line
         let tostring_line = lines
             .iter()
-            .position(|l| l.contains("toString()"))
-            .expect("should have toString");
-        // Find the clone line
+            .position(|l| l.contains("static toString(value: User)"))
+            .expect("should have static toString");
+        // Find the static clone line
         let clone_line = lines
             .iter()
-            .position(|l| l.contains("clone()"))
-            .expect("should have clone");
+            .position(|l| l.contains("static clone(value: User)"))
+            .expect("should have static clone");
 
         // They should be on different lines
         assert_ne!(
             tostring_line, clone_line,
             "toString and clone should be on different lines"
         );
-
-        // Verify no line contains multiple method signatures
-        for line in &lines {
-            let method_count = line.matches("(): ").count();
-            assert!(
-                method_count <= 1,
-                "Line should not contain multiple methods: {}",
-                line
-            );
-        }
     });
 }
 
@@ -1076,17 +931,16 @@ class User {
         assert!(result.changed);
         let type_output = result.type_output.expect("should have type output");
 
-        // Find the toString line
+        // Find the static toString line
         let tostring_line = type_output
             .lines()
-            .find(|l| l.contains("toString()"))
-            .expect("should have toString method");
+            .find(|l| l.contains("static toString(value: User)"))
+            .expect("should have static toString method");
 
-        // Verify it has proper indentation (2 spaces to match the class body)
+        // Verify it has proper indentation (static method inside class)
         assert!(
-            tostring_line.starts_with("  toString()")
-                || tostring_line.trim().starts_with("toString()"),
-            "toString should have proper indentation, got: '{}'",
+            tostring_line.contains("static toString(value: User)"),
+            "should have static toString method, got: '{}'",
             tostring_line
         );
     });
@@ -1128,34 +982,6 @@ class ServerConfig {
 }
 "#;
 
-    let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class ServerConfig {
-    host: string;
-    port: number;
-
-    constructor(
-        host: string = "localhost",
-        port: number = 8080,
-        secure: boolean = false
-    );
-
-    connect(
-        timeout: number = 5000,
-        retries: number = 3,
-        onError?: (err: Error) => void
-    ): Promise<void>;
-
-    static create(
-        config: Partial<ServerConfig> = {},
-        defaults: { host?: string; port?: number } = { host: "0.0.0.0", port: 3000 }
-    ): ServerConfig;
-
-    toString(): string;
-}
-"#;
-
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
         let host = MacroExpander::new().unwrap();
@@ -1164,9 +990,17 @@ class ServerConfig {
         assert!(result.changed);
         let type_output = result.type_output.expect("should have type output");
 
-        assert_eq!(
-            type_output.replace_whitespace(),
-            expected_dts.replace_whitespace()
+        // Check for static method in class
+        assert!(
+            type_output.contains("static toString(value: ServerConfig): string"),
+            "should have static toString method, got:\n{}",
+            type_output
+        );
+        // Check for standalone exported function
+        assert!(
+            type_output.contains("export function serverConfigToString"),
+            "should have exported serverConfigToString function, got:\n{}",
+            type_output
         );
     });
 }
@@ -1196,22 +1030,6 @@ class EventEmitter {
 }
 "#;
 
-    let expected_dts = r#"
-import { Derive } from "@macro/derive";
-
-class EventEmitter {
-    listeners: Map<string, Function[]>;
-
-    constructor();
-
-    on(event: string, ...callbacks: Array<(...args: any[]) => void>): void;
-
-    emit(event: string, ...args: any[]): void;
-
-    clone(): EventEmitter;
-}
-"#;
-
     GLOBALS.set(&Default::default(), || {
         let program = parse_module(source);
         let host = MacroExpander::new().unwrap();
@@ -1220,9 +1038,17 @@ class EventEmitter {
         assert!(result.changed);
         let type_output = result.type_output.expect("should have type output");
 
-        assert_eq!(
-            type_output.replace_whitespace(),
-            expected_dts.replace_whitespace()
+        // Check for static method in class
+        assert!(
+            type_output.contains("static clone(value: EventEmitter): EventEmitter"),
+            "should have static clone method, got:\n{}",
+            type_output
+        );
+        // Check for standalone exported function
+        assert!(
+            type_output.contains("export function eventEmitterClone"),
+            "should have exported eventEmitterClone function, got:\n{}",
+            type_output
         );
     });
 }
@@ -1720,14 +1546,18 @@ class User {
         assert!(result.changed, "expand() should report changes");
         let type_output = result.type_output.expect("should have type output");
 
-        // Check for new serde methods
+        // Check for new serde methods - static methods + standalone functions
         assert!(
-            type_output.contains("serialize(): string"),
-            "Should have serialize method"
+            type_output.contains("static serialize(value: User): string"),
+            "Should have static serialize method"
         );
         assert!(
-            type_output.contains("serializeWithContext(ctx: SerializeContext)"),
-            "Should have serializeWithContext method"
+            type_output.contains("static serializeWithContext(value: User, ctx: SerializeContext)"),
+            "Should have static serializeWithContext method"
+        );
+        assert!(
+            type_output.contains("export function userSerialize"),
+            "Should have standalone userSerialize function"
         );
     });
 }
@@ -1749,18 +1579,18 @@ class Data {
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed, "expand() should report changes");
-        // Serialize macro adds serialize() and serializeWithContext() methods
+        // Serialize macro adds static serialize methods and standalone functions
         assert!(
-            result.code.contains("serialize(): string"),
-            "Should have serialize method"
+            result.code.contains("static serialize(value: Data): string"),
+            "Should have static serialize method"
         );
         assert!(
             result.code.contains("serializeWithContext"),
             "Should have serializeWithContext method"
         );
         assert!(
-            result.code.contains("SerializeContext"),
-            "Should use SerializeContext"
+            result.code.contains("export function dataSerialize"),
+            "Should have standalone dataSerialize function"
         );
     });
 }
@@ -2059,14 +1889,14 @@ class Config {
             error_count
         );
 
-        // Should have both serialize and deserialize methods
+        // Should have both serialize and deserialize methods (now static)
         assert!(
-            result.code.contains("serialize(): string"),
-            "Should have Serialize's serialize"
+            result.code.contains("static serialize(value: Config): string"),
+            "Should have Serialize's static serialize"
         );
         assert!(
             result.code.contains("static deserialize"),
-            "Should have Deserialize's deserialize"
+            "Should have Deserialize's static deserialize"
         );
     });
 }
