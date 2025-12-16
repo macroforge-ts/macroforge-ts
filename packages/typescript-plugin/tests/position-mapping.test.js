@@ -216,6 +216,7 @@ obj.`;
 });
 
 test("definition for generated method reports original coordinates", () => {
+  // With the new code generation, toString is a static method: User.toString(u)
   const source = `
 /** @derive(Debug) */
 class User {
@@ -223,10 +224,11 @@ class User {
 }
 
 const u = new User();
-u.toString();`;
+User.toString(u);`;
 
-  const usagePos = findMarker(source, "toString");
-  const fieldPos = findMarker(source, "id: string");
+  // Find the static method call position (User.toString)
+  const usagePos = findMarker(source, "User.toString");
+  const classPos = findMarker(source, "class User");
 
   const env = createEnv({
     "/virtual/test.ts": source,
@@ -236,9 +238,11 @@ u.toString();`;
 
   env.info.languageServiceHost.getScriptSnapshot("/virtual/test.ts");
 
+  // Look for definition at the "toString" part (offset past "User.")
+  const toStringOffset = usagePos.offset + "User.".length;
   const definitions = env.pluginService.getDefinitionAtPosition(
     "/virtual/test.ts",
-    usagePos.offset,
+    toStringOffset,
   );
 
   if (!definitions || definitions.length === 0) {
@@ -247,5 +251,6 @@ u.toString();`;
   }
 
   const def = definitions[0];
-  assert.strictEqual(def.textSpan.start, fieldPos.offset);
+  // Definition should point to the class (where the static method is generated)
+  assert.strictEqual(def.textSpan.start, classPos.offset);
 });

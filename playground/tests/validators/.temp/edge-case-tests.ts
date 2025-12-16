@@ -1,8 +1,8 @@
 import { Result } from "macroforge/utils";
 import { DeserializeContext } from "macroforge/serde";
-import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
 import { PendingRef } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
 /**
  * Edge case test classes for comprehensive deserializer validation testing.
  */
@@ -209,6 +209,16 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function multipleValidatorsTestDeserialize(input: unknown, opts?: DeserializeOptions): Result<MultipleValidatorsTest, Array<{field: string; message: string}>>{return MultipleValidatorsTest.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function multipleValidatorsTestDeserializeWithContext(value: any, ctx: DeserializeContext): MultipleValidatorsTest | PendingRef {return MultipleValidatorsTest.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function multipleValidatorsTestIs(value: unknown): value is MultipleValidatorsTest {return MultipleValidatorsTest.is(value);}
+
 // Custom error message
 
 export class CustomMessageTest {
@@ -374,6 +384,16 @@ Automatically detects whether input is a JSON string or object.
     return Result.isOk(result);
 }
 }
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function customMessageTestDeserialize(input: unknown, opts?: DeserializeOptions): Result<CustomMessageTest, Array<{field: string; message: string}>>{return CustomMessageTest.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function customMessageTestDeserializeWithContext(value: any, ctx: DeserializeContext): CustomMessageTest | PendingRef {return CustomMessageTest.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function customMessageTestIs(value: unknown): value is CustomMessageTest {return CustomMessageTest.is(value);}
 
 // Mixed validators with custom message
 
@@ -558,6 +578,16 @@ Automatically detects whether input is a JSON string or object.
     return Result.isOk(result);
 }
 }
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function mixedValidatorsTestDeserialize(input: unknown, opts?: DeserializeOptions): Result<MixedValidatorsTest, Array<{field: string; message: string}>>{return MixedValidatorsTest.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function mixedValidatorsTestDeserializeWithContext(value: any, ctx: DeserializeContext): MixedValidatorsTest | PendingRef {return MixedValidatorsTest.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function mixedValidatorsTestIs(value: unknown): value is MixedValidatorsTest {return MixedValidatorsTest.is(value);}
 
 // Combined string validators
 
@@ -761,6 +791,16 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function combinedStringValidatorsTestDeserialize(input: unknown, opts?: DeserializeOptions): Result<CombinedStringValidatorsTest, Array<{field: string; message: string}>>{return CombinedStringValidatorsTest.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function combinedStringValidatorsTestDeserializeWithContext(value: any, ctx: DeserializeContext): CombinedStringValidatorsTest | PendingRef {return CombinedStringValidatorsTest.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function combinedStringValidatorsTestIs(value: unknown): value is CombinedStringValidatorsTest {return CombinedStringValidatorsTest.is(value);}
+
 // Combined number validators
 
 export class CombinedNumberValidatorsTest {
@@ -962,3 +1002,13 @@ Automatically detects whether input is a JSON string or object.
     return Result.isOk(result);
 }
 }
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function combinedNumberValidatorsTestDeserialize(input: unknown, opts?: DeserializeOptions): Result<CombinedNumberValidatorsTest, Array<{field: string; message: string}>>{return CombinedNumberValidatorsTest.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function combinedNumberValidatorsTestDeserializeWithContext(value: any, ctx: DeserializeContext): CombinedNumberValidatorsTest | PendingRef {return CombinedNumberValidatorsTest.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function combinedNumberValidatorsTestIs(value: unknown): value is CombinedNumberValidatorsTest {return CombinedNumberValidatorsTest.is(value);}

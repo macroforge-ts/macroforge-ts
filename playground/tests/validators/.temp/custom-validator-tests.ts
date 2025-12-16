@@ -1,8 +1,8 @@
 import { Result } from "macroforge/utils";
 import { DeserializeContext } from "macroforge/serde";
-import { DeserializeError } from "macroforge/serde";
 import type { DeserializeOptions } from "macroforge/serde";
 import { PendingRef } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
 /**
  * Custom validator test classes for comprehensive deserializer validation testing.
  */
@@ -192,6 +192,16 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function customNumberValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<CustomNumberValidator, Array<{field: string; message: string}>>{return CustomNumberValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function customNumberValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): CustomNumberValidator | PendingRef {return CustomNumberValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function customNumberValidatorIs(value: unknown): value is CustomNumberValidator {return CustomNumberValidator.is(value);}
+
 // Custom string validator
 
 export class CustomStringValidator {
@@ -367,6 +377,16 @@ Automatically detects whether input is a JSON string or object.
 }
 }
 
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function customStringValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<CustomStringValidator, Array<{field: string; message: string}>>{return CustomStringValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function customStringValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): CustomStringValidator | PendingRef {return CustomStringValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function customStringValidatorIs(value: unknown): value is CustomStringValidator {return CustomStringValidator.is(value);}
+
 // Custom validator with custom message
 
 export class CustomWithMessageValidator {
@@ -541,3 +561,13 @@ Automatically detects whether input is a JSON string or object.
     return Result.isOk(result);
 }
 }
+
+/** Deserializes input to an instance.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors */export function customWithMessageValidatorDeserialize(input: unknown, opts?: DeserializeOptions): Result<CustomWithMessageValidator, Array<{field: string; message: string}>>{return CustomWithMessageValidator.deserialize(input, opts);}/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */export function customWithMessageValidatorDeserializeWithContext(value: any, ctx: DeserializeContext): CustomWithMessageValidator | PendingRef {return CustomWithMessageValidator.deserializeWithContext(value, ctx);}/** Type guard: checks if a value can be successfully deserialized.
+@param value - The value to check
+@returns True if the value can be deserialized to this type */export function customWithMessageValidatorIs(value: unknown): value is CustomWithMessageValidator {return CustomWithMessageValidator.is(value);}

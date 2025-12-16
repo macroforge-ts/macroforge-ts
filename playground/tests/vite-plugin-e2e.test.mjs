@@ -63,10 +63,11 @@ describe("Transform Pipeline", () => {
       assert.ok(result, "Transform should return a result");
       assert.ok(result.code, "Result should have code");
 
-      // Verify macro expansion happened
+      // Verify macro expansion happened - Debug macro now generates static method
+      // Note: Vite strips type annotations, so check for JavaScript output
       assert.ok(
-        result.code.includes("toString()"),
-        "Should include generated toString method"
+        result.code.includes("static toString(value)"),
+        "Should include generated static toString method"
       );
       // vanilla uses @derive(JSON) which generates toJSON()
       assert.ok(
@@ -77,7 +78,7 @@ describe("Transform Pipeline", () => {
       // Verify decorator comments are processed
       assert.ok(
         !result.code.includes("/** @derive(Debug, JSON) */") ||
-        result.code.includes("toString()"),
+        result.code.includes("static toString"),
         "Macro should be expanded"
       );
     });
@@ -121,10 +122,11 @@ describe("Transform Pipeline", () => {
       assert.ok(userResult?.code, "user.ts should be transformed");
       assert.ok(mainResult?.code, "main.ts should be transformed");
 
-      // Each file should be transformed correctly
+      // Each file should be transformed correctly - Debug now generates static method
+      // Note: Vite strips type annotations, so check for JavaScript output
       assert.ok(
-        userResult.code.includes("toString()"),
-        "user.ts should have generated methods"
+        userResult.code.includes("static toString(value)"),
+        "user.ts should have generated static toString method"
       );
     });
   });
