@@ -38,20 +38,20 @@
 //! Generated output:
 //!
 //! ```typescript
+//! class Point {
+//!     x: number;
+//!     y: number;
+//! 
+//!     static clone(value: Point): Point {
+//!         return pointClone(value);
+//!     }
+//! }
+//! 
 //! export function pointClone(value: Point): Point {
 //!     const cloned = Object.create(Object.getPrototypeOf(value));
 //!     cloned.x = value.x;
 //!     cloned.y = value.y;
 //!     return cloned;
-//! }
-//!
-//! class Point {
-//!     x: number;
-//!     y: number;
-//!
-//!     static clone(value: Point): Point {
-//!         return pointClone(value);
-//!     }
 //! }
 //! ```
 //!
