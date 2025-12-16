@@ -76,24 +76,26 @@
 //!     value: number | null;
 //!     unit: string;
 //! 
-//!     compareTo(other: unknown): Option<number> {
-//!         if (this === other) return Option.some(0);
-//!         if (!(other instanceof Temperature)) return Option.none();
-//!         const typedOther = other as Temperature;
-//!         const cmp0 = (() => {
-//!             if (typeof (this.value as any)?.compareTo === 'function') {
-//!                 const optResult = (this.value as any).compareTo(typedOther.value);
-//!                 return Option.isNone(optResult) ? null : optResult.value;
-//!             }
-//!             return this.value === typedOther.value ? 0 : null;
-//!         })();
-//!         if (cmp0 === null) return Option.none();
-//!         if (cmp0 !== 0) return Option.some(cmp0);
-//!         const cmp1 = this.unit.localeCompare(typedOther.unit);
-//!         if (cmp1 === null) return Option.none();
-//!         if (cmp1 !== 0) return Option.some(cmp1);
-//!         return Option.some(0);
+//!     static compareTo(a: Temperature, b: Temperature): Option<number> {
+//!         return temperaturePartialCompare(a, b);
 //!     }
+//! }
+//! 
+//! export function temperaturePartialCompare(a: Temperature, b: Temperature): Option<number> {
+//!     if (a === b) return Option.some(0);
+//!     const cmp0 = (() => {
+//!         if (typeof (a.value as any)?.compareTo === 'function') {
+//!             const optResult = (a.value as any).compareTo(b.value);
+//!             return Option.isNone(optResult) ? null : optResult.value;
+//!         }
+//!         return a.value === b.value ? 0 : null;
+//!     })();
+//!     if (cmp0 === null) return Option.none();
+//!     if (cmp0 !== 0) return Option.some(cmp0);
+//!     const cmp1 = a.unit.localeCompare(b.unit);
+//!     if (cmp1 === null) return Option.none();
+//!     if (cmp1 !== 0) return Option.some(cmp1);
+//!     return Option.some(0);
 //! }
 //! ```
 //!

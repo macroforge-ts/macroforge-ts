@@ -20,10 +20,11 @@ independent copies of values.
 
 | Type | Generated Code | Description |
 |------|----------------|-------------|
-| Class | `clone(): ClassName` | Instance method creating a new instance with copied fields |
-| Enum | `cloneEnumName(value: EnumName): EnumName` | Standalone function (enums are primitives, returns value as-is) |
-| Interface | `cloneInterfaceName(value: InterfaceName): InterfaceName` | Standalone function creating a new object literal |
-| Type Alias | `cloneTypeName(value: TypeName): TypeName` | Standalone function with spread copy for objects |
+| Class | `classNameClone(value)` + `static clone(value)` | Standalone function + static wrapper method |
+| Enum | `enumNameClone(value: EnumName): EnumName` | Standalone function (enums are primitives, returns value as-is) |
+| Interface | `interfaceNameClone(value: InterfaceName): InterfaceName` | Standalone function creating a new object literal |
+| Type Alias | `typeNameClone(value: TypeName): TypeName` | Standalone function with spread copy for objects |
+
 
 ## Cloning Strategy
 
@@ -51,12 +52,16 @@ class Point {
     x: number;
     y: number;
 
-    clone(): Point {
-        const cloned = Object.create(Object.getPrototypeOf(this));
-        cloned.x = this.x;
-        cloned.y = this.y;
-        return cloned;
+    static clone(value: Point): Point {
+        return pointClone(value);
     }
+}
+
+export function pointClone(value: Point): Point {
+    const cloned = Object.create(Object.getPrototypeOf(value));
+    cloned.x = value.x;
+    cloned.y = value.y;
+    return cloned;
 }
 ```
 
@@ -67,18 +72,22 @@ class Point {
     x: number;
     y: number;
 
-    clone(): Point {
-        const cloned = Object.create(Object.getPrototypeOf(this));
-        cloned.x = this.x;
-        cloned.y = this.y;
-        return cloned;
+    static clone(value: Point): Point {
+        return pointClone(value);
     }
+}
+
+export function pointClone(value: Point): Point {
+    const cloned = Object.create(Object.getPrototypeOf(value));
+    cloned.x = value.x;
+    cloned.y = value.y;
+    return cloned;
 }
 ```
 
 ## Implementation Notes
 
-- **Classes**: Uses `Object.create(Object.getPrototypeOf(this))` to preserve
+- **Classes**: Uses `Object.create(Object.getPrototypeOf(value))` to preserve
   the prototype chain, ensuring `instanceof` checks work correctly
 - **Enums**: Simply returns the value (enums are primitives in TypeScript)
 - **Interfaces/Type Aliases**: Creates new object literals with spread operator

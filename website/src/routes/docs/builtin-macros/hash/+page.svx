@@ -20,10 +20,11 @@ objects to be used as keys in hash-based collections.
 
 | Type | Generated Code | Description |
 |------|----------------|-------------|
-| Class | `hashCode(): number` | Instance method computing hash from all fields |
-| Enum | `hashCodeEnumName(value: EnumName): number` | Standalone function hashing by enum value |
-| Interface | `hashCodeInterfaceName(value: InterfaceName): number` | Standalone function computing hash |
-| Type Alias | `hashCodeTypeName(value: TypeName): number` | Standalone function computing hash |
+| Class | `classNameHashCode(value)` + `static hashCode(value)` | Standalone function + static wrapper method |
+| Enum | `enumNameHashCode(value: EnumName): number` | Standalone function hashing by enum value |
+| Interface | `interfaceNameHashCode(value: InterfaceName): number` | Standalone function computing hash |
+| Type Alias | `typeNameHashCode(value: TypeName): number` | Standalone function computing hash |
+
 
 ## Hash Algorithm
 
@@ -77,34 +78,36 @@ class User {
 
     cachedScore: number;
 
-    hashCode(): number {
-        let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.id)
-                    ? this.id | 0
-                    : this.id
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-            0;
-        hash =
-            (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
-            0;
-        return hash;
+    static hashCode(value: User): number {
+        return userHashCode(value);
     }
 
-    equals(other: unknown): boolean {
-        if (this === other) return true;
-        if (!(other instanceof User)) return false;
-        const typedOther = other as User;
-        return (
-            this.id === typedOther.id &&
-            this.name === typedOther.name &&
-            this.cachedScore === typedOther.cachedScore
-        );
+    static equals(a: User, b: User): boolean {
+        return userEquals(a, b);
     }
+}
+
+export function userHashCode(value: User): number {
+    let hash = 17;
+    hash =
+        (hash * 31 +
+            (Number.isInteger(value.id)
+                ? value.id | 0
+                : value.id
+                      .toString()
+                      .split('')
+                      .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        0;
+    hash =
+        (hash * 31 +
+            (value.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        0;
+    return hash;
+}
+
+export function userEquals(a: User, b: User): boolean {
+    if (a === b) return true;
+    return a.id === b.id && a.name === b.name && a.cachedScore === b.cachedScore;
 }
 ```
 
@@ -117,34 +120,36 @@ class User {
 
     cachedScore: number;
 
-    hashCode(): number {
-        let hash = 17;
-        hash =
-            (hash * 31 +
-                (Number.isInteger(this.id)
-                    ? this.id | 0
-                    : this.id
-                          .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
-            0;
-        hash =
-            (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
-            0;
-        return hash;
+    static hashCode(value: User): number {
+        return userHashCode(value);
     }
 
-    equals(other: unknown): boolean {
-        if (this === other) return true;
-        if (!(other instanceof User)) return false;
-        const typedOther = other as User;
-        return (
-            this.id === typedOther.id &&
-            this.name === typedOther.name &&
-            this.cachedScore === typedOther.cachedScore
-        );
+    static equals(a: User, b: User): boolean {
+        return userEquals(a, b);
     }
+}
+
+export function userHashCode(value: User): number {
+    let hash = 17;
+    hash =
+        (hash * 31 +
+            (Number.isInteger(value.id)
+                ? value.id | 0
+                : value.id
+                      .toString()
+                      .split('')
+                      .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+        0;
+    hash =
+        (hash * 31 +
+            (value.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+        0;
+    return hash;
+}
+
+export function userEquals(a: User, b: User): boolean {
+    if (a === b) return true;
+    return a.id === b.id && a.name === b.name && a.cachedScore === b.cachedScore;
 }
 ```
 

@@ -1,17 +1,11 @@
 # The Derive System
-
-_The derive system is inspired by Rust's derive macros. It allows you to automatically implement common patterns by annotating your classes with `@derive`._
-
-## Syntax Reference
-
-Macroforge uses JSDoc comments for all macro annotations. This ensures compatibility with standard TypeScript tooling.
-
-### The @derive Statement
-
-The `@derive` decorator triggers macro expansion on a class or interface:
-**Source:**
-
-````
+ *The derive system is inspired by Rust's derive macros. It allows you to automatically implement common patterns by annotating your classes with `@derive`.*
+ ## Syntax Reference
+ Macroforge uses JSDoc comments for all macro annotations. This ensures compatibility with standard TypeScript tooling.
+ ### The @derive Statement
+ The `@derive` decorator triggers macro expansion on a class or interface:
+ **Source:**
+```
 /** @derive(Debug) */
 class MyClass {
   value: string;
@@ -22,46 +16,39 @@ class MyClass {
  - Multiple macros can be comma-separated: `@derive(A, B, C)`
  - Multiple `@derive` statements can be stacked
  **Source:**
-````
-
-/\*_ @derive(Debug, Clone) _/
-class User {
-name: string;
-email: string;
-}
-
-```### The import macro Statement
- To use macros from external packages, you must declare them with `import macro`:
 ```
-
-/\*_ import macro { MacroName } from "package-name"; _/
-
-```Syntax rules:
+/** @derive(Debug, Clone) */
+class User {
+  name: string;
+  email: string;
+}
+```  ### The import macro Statement
+ To use macros from external packages, you must declare them with `import macro`:
+ ```
+/** import macro { MacroName } from "package-name"; */
+``` Syntax rules:
  - Must be inside a JSDoc comment (`/** */`)
  - Can appear anywhere in the file (typically at the top)
  - Multiple macros can be imported: `import macro { A, B } from "pkg";`
  - Multiple import statements can be used for different packages
-```
+ ```
+/** import macro { JSON, Validate } from "@my/macros"; */
+/** import macro { Builder } from "@other/macros"; */
 
-/** import macro { JSON, Validate } from "@my/macros"; \*/
-/** import macro { Builder } from "@other/macros"; \*/
-
-/\*_ @derive(JSON, Validate, Builder) _/
+/** @derive(JSON, Validate, Builder) */
 class User {
-name: string;
-email: string;
+  name: string;
+  email: string;
 }
-
-```**Built-in macros Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement. ### Field Attributes
+```  **Built-in macros Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement. ### Field Attributes
  Macros can define field-level attributes to customize behavior per field:
  ****Before:**
 ```
-
-/** @derive(Debug, Serialize) \*/
+/** @derive(Debug, Serialize) */
 class User {
-/** @debug({ rename: "userId" }) _/
-/\*\* @serde({ rename: "user_id" }) _/
-id: number;
+    /** @debug({ rename: "userId" }) */
+    /** @serde({ rename: "user_id" }) */
+    id: number;
 
     name: string;
 
@@ -71,67 +58,53 @@ id: number;
 
     /** @serde({ flatten: true }) */
     metadata: Record<string, unknown>;
-
 }
-
-```
+```  
 **After:**
 ```
-
 import { SerializeContext } from "macroforge/serde";
 
 class User {
+  
+  
+  id: number;
 
-id: number;
+  name: string;
 
-name: string;
+  
+  
+  password: string;
 
-password: string;
+  
+  metadata: Record<string, unknown>;
 
-metadata: Record<string, unknown>;
-
-toString(): string {
-const parts: string[] = [];
-parts.push("userId: " + this.id);
-parts.push("name: " + this.name);
-parts.push("metadata: " + this.metadata);
-return "User { " + parts.join(", ") + " }";
+  static toString(value: User): string {
+    return userToString(value);
 }
+/** Serializes a value to a JSON string.
+@param value - The value to serialize
+@returns JSON string representation with cycle detection metadata  */
 
-toStringifiedJSON(): string {
-const ctx = SerializeContext.create();
-return JSON.stringify(this.\_\_serialize(ctx));
+  static serialize(value: User): string {
+    return userSerialize(value);
 }
+/** @internal Serializes with an existing context for nested/cyclic object graphs.
+@param value - The value to serialize
+@param ctx - The serialization context  */
 
-toObject(): Record<string, unknown> {
-const ctx = SerializeContext.create();
-return this.\_\_serialize(ctx);
-}
-
-serializeWithContext(ctx: SerializeContext): Record<string, unknown> {
-const existingId = ctx.getId(this);
-if (existingId !== undefined) {
-return {
-**ref: existingId
-};
-}
-const **id = ctx.register(this);
-const result: Record<string, unknown> = {
-**type: "User",
-**id
-};
-result["user_id"] = this.id;
-result["name"] = this.name;
-{
-const **flattened = record < string, unknown;
-const { **type: \_, **id: **, ...rest } = \_\_flattened as any;
-Object.assign(result, rest);
-}
-return result;
+  static serializeWithContext(value: User, ctx: SerializeContext): Record<string, unknown> {
+    return userSerializeWithContext(value, ctx);
 }
 }
 
-```Syntax rules:
+export function userToString(value: User): string {const parts: string[]= []; parts.push("userId: " + value.id); parts.push("name: " + value.name); parts.push("metadata: " + value.metadata); return "User { " + parts.join(", " )+ " }" ; }
+
+/** Serializes a value to a JSON string.
+@param value - The value to serialize
+@returns JSON string representation with cycle detection metadata */export function userSerialize(value: User): string {const ctx = SerializeContext.create(); return JSON.stringify(userSerializeWithContext(value, ctx));}/** @internal Serializes with an existing context for nested/cyclic object graphs.
+@param value - The value to serialize
+@param ctx - The serialization context */export function userSerializeWithContext(value: User, ctx: SerializeContext): Record<string, unknown>{const existingId = ctx.getId(value); if(existingId!== undefined){return {__ref: existingId};}const __id = ctx.register(value); const result: Record<string, unknown>= {__type: "User" , __id,}; result["user_id" ]= value.id; result["name" ]= value.name; {const __flattened = record<string, unknown>SerializeWithContext(value.metadata, ctx); const {__type: _, __id: __,...rest}= __flattened as any; Object.assign(result, rest);}return result;}
+``` Syntax rules:
  - Must be inside a JSDoc comment immediately before the field
  - Options use object literal syntax: `@attr({ key: value })`
  - Boolean options: `@attr({ skip: true })`
@@ -165,4 +138,3 @@ return result;
  ## Next Steps
  - [Explore built-in macros](../../docs/builtin-macros)
  - [Create custom macros](../../docs/custom-macros)
-```

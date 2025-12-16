@@ -13,6 +13,7 @@ a standard way to create "zero" or "empty" instances of types.
 | Interface | `defaultValueInterfaceName(): InterfaceName` | Standalone function returning object literal |
 | Type Alias | `defaultValueTypeName(): TypeName` | Standalone function with type-appropriate default |
 
+
 ## Default Values by Type
 
 The macro uses Rust-like default semantics:
@@ -42,7 +43,7 @@ The `@default` decorator allows specifying explicit default values:
 
 ## Example
 
-```typescript
+```typescript before
 /** @derive(Default) */
 class UserSettings {
     /** @default("light") */
@@ -51,7 +52,25 @@ class UserSettings {
     /** @default(10) */
     pageSize: number;
 
-    notifications: boolean;  // Uses type default: false
+    notifications: boolean; // Uses type default: false
+}
+```
+
+```typescript after
+class UserSettings {
+    theme: string;
+
+    pageSize: number;
+
+    notifications: boolean; // Uses type default: false
+
+    static defaultValue(): UserSettings {
+        const instance = new UserSettings();
+        instance.theme = 'light';
+        instance.pageSize = 10;
+        instance.notifications = false;
+        return instance;
+    }
 }
 ```
 
@@ -79,7 +98,7 @@ class UserSettings {
 
 For enums, mark one variant with `@default`:
 
-```typescript
+```typescript before
 /** @derive(Default) */
 enum Status {
     /** @default */
@@ -87,6 +106,23 @@ enum Status {
     Active,
     Completed
 }
+```
+
+```typescript after
+enum Status {
+    /** @default */
+    Pending,
+    Active,
+    Completed
+}
+
+export function statusDefaultValue(): Status {
+    return Status.Pending;
+}
+
+export const Status = {
+    defaultValue: statusDefaultValue
+} as const;
 ```
 
 Generated output:

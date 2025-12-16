@@ -85,36 +85,50 @@
 //!     password: string;
 //! 
 //!     metadata: UserMetadata;
-//!     /** Serializes this instance to a JSON string.
+//!     /** Serializes a value to a JSON string.
+//! @param value - The value to serialize
 //! @returns JSON string representation with cycle detection metadata  */
 //! 
-//!     serialize(): string {
-//!         const ctx = SerializeContext.create();
-//!         return JSON.stringify(this.serializeWithContext(ctx));
+//!     static serialize(value: User): string {
+//!         return userSerialize(value);
 //!     }
-//!     /** @internal Serializes with an existing context for nested/cyclic object graphs.  */
+//!     /** @internal Serializes with an existing context for nested/cyclic object graphs.
+//! @param value - The value to serialize
+//! @param ctx - The serialization context  */
 //! 
-//!     serializeWithContext(ctx: SerializeContext): Record<string, unknown> {
-//!         const existingId = ctx.getId(this);
-//!         if (existingId !== undefined) {
-//!             return {
-//!                 __ref: existingId
-//!             };
-//!         }
-//!         const __id = ctx.register(this);
-//!         const result: Record<string, unknown> = {
-//!             __type: 'User',
-//!             __id
-//!         };
-//!         result['id'] = this.id;
-//!         result['userName'] = this.name;
-//!         {
-//!             const __flattened = userMetadataserializeWithContext(this.metadata, ctx);
-//!             const { __type: _, __id: __, ...rest } = __flattened as any;
-//!             Object.assign(result, rest);
-//!         }
-//!         return result;
+//!     static serializeWithContext(value: User, ctx: SerializeContext): Record<string, unknown> {
+//!         return userSerializeWithContext(value, ctx);
 //!     }
+//! }
+//! 
+//! /** Serializes a value to a JSON string.
+//! @param value - The value to serialize
+//! @returns JSON string representation with cycle detection metadata */ export function userSerialize(
+//!     value: User
+//! ): string {
+//!     const ctx = SerializeContext.create();
+//!     return JSON.stringify(userSerializeWithContext(value, ctx));
+//! } /** @internal Serializes with an existing context for nested/cyclic object graphs.
+//! @param value - The value to serialize
+//! @param ctx - The serialization context */
+//! export function userSerializeWithContext(
+//!     value: User,
+//!     ctx: SerializeContext
+//! ): Record<string, unknown> {
+//!     const existingId = ctx.getId(value);
+//!     if (existingId !== undefined) {
+//!         return { __ref: existingId };
+//!     }
+//!     const __id = ctx.register(value);
+//!     const result: Record<string, unknown> = { __type: 'User', __id };
+//!     result['id'] = value.id;
+//!     result['userName'] = value.name;
+//!     {
+//!         const __flattened = userMetadataSerializeWithContext(value.metadata, ctx);
+//!         const { __type: _, __id: __, ...rest } = __flattened as any;
+//!         Object.assign(result, rest);
+//!     }
+//!     return result;
 //! }
 //! ```
 //!

@@ -482,21 +482,18 @@ function checkFormatErrors() {
 }
 
 /**
- * Check if code contains macro decorators.
+ * Check if code contains @derive decorator (the main trigger for macro expansion).
+ * Field-level decorators like @hash, @serde, etc. should NOT trigger expansion by themselves.
  * @param {string} code - Code to check
- * @returns {boolean} - True if code contains macro decorators
+ * @returns {boolean} - True if code contains @derive decorator
  */
 function containsMacroDecorators(code) {
+	// Only @derive should trigger macro expansion
+	// Field-level decorators (@hash, @serde, @debug, etc.) are just configuration
+	// and shouldn't cause a "Generated output:" section to be added
 	return (
 		/@derive\s*\(/.test(code) ||
-		/\/\*\*[\s\S]*?@derive/.test(code) ||
-		/@serde\s*\(/.test(code) ||
-		/@debug\s*\(/.test(code) ||
-		/@clone\s*\(/.test(code) ||
-		/@default\s*\(/.test(code) ||
-		/@hash\s*\(/.test(code) ||
-		/@ord\s*\(/.test(code) ||
-		/@partialEq\s*\(/.test(code)
+		/\/\*\*[\s\S]*?@derive/.test(code)
 	);
 }
 

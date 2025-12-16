@@ -18,11 +18,15 @@ class User {
 class User {
     name: string;
 
-    toString(): string {
-        const parts: string[] = [];
-        parts.push('name: ' + this.name);
-        return 'User { ' + parts.join(', ') + ' }';
+    static toString(value: User): string {
+        return userToString(value);
     }
+}
+
+export function userToString(value: User): string {
+    const parts: string[] = [];
+    parts.push('name: ' + value.name);
+    return 'User { ' + parts.join(', ') + ' }';
 }
 ``` ## Zero Runtime Overhead
  Because code generation happens at compile time, there's no:

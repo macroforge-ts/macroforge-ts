@@ -20,21 +20,22 @@ compared with a guaranteed ordering relationship.
 
 | Type | Generated Code | Description |
 |------|----------------|-------------|
-| Class | `compareTo(other): number` | Instance method returning -1, 0, or 1 |
-| Enum | `compareEnumName(a: EnumName, b: EnumName): number` | Standalone function comparing enum values |
-| Interface | `compareInterfaceName(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields |
-| Type Alias | `compareTypeName(a: TypeName, b: TypeName): number` | Standalone function with type-appropriate comparison |
+| Class | `classNameCompare(a, b)` + `static compareTo(a, b)` | Standalone function + static wrapper method |
+| Enum | `enumNameCompare(a: EnumName, b: EnumName): number` | Standalone function comparing enum values |
+| Interface | `interfaceNameCompare(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields |
+| Type Alias | `typeNameCompare(a: TypeName, b: TypeName): number` | Standalone function with type-appropriate comparison |
+
 
 ## Return Values
 
 Unlike `PartialOrd`, `Ord` provides **total ordering** - every pair of values
 can be compared:
 
-- **-1**: `this` is less than `other`
-- **0**: `this` is equal to `other`
-- **1**: `this` is greater than `other`
+- **-1**: `a` is less than `b`
+- **0**: `a` is equal to `b`
+- **1**: `a` is greater than `b`
 
-The method **never returns null** - all values must be comparable.
+The function **never returns null** - all values must be comparable.
 
 ## Comparison Strategy
 
@@ -79,17 +80,20 @@ class Version {
     minor: number;
     patch: number;
 
-    compareTo(other: Version): number {
-        if (this === other) return 0;
-        const typedOther = other;
-        const cmp0 = this.major < typedOther.major ? -1 : this.major > typedOther.major ? 1 : 0;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = this.minor < typedOther.minor ? -1 : this.minor > typedOther.minor ? 1 : 0;
-        if (cmp1 !== 0) return cmp1;
-        const cmp2 = this.patch < typedOther.patch ? -1 : this.patch > typedOther.patch ? 1 : 0;
-        if (cmp2 !== 0) return cmp2;
-        return 0;
+    static compareTo(a: Version, b: Version): number {
+        return versionCompare(a, b);
     }
+}
+
+export function versionCompare(a: Version, b: Version): number {
+    if (a === b) return 0;
+    const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : 0;
+    if (cmp1 !== 0) return cmp1;
+    const cmp2 = a.patch < b.patch ? -1 : a.patch > b.patch ? 1 : 0;
+    if (cmp2 !== 0) return cmp2;
+    return 0;
 }
 ```
 
@@ -101,17 +105,20 @@ class Version {
     minor: number;
     patch: number;
 
-    compareTo(other: Version): number {
-        if (this === other) return 0;
-        const typedOther = other;
-        const cmp0 = this.major < typedOther.major ? -1 : this.major > typedOther.major ? 1 : 0;
-        if (cmp0 !== 0) return cmp0;
-        const cmp1 = this.minor < typedOther.minor ? -1 : this.minor > typedOther.minor ? 1 : 0;
-        if (cmp1 !== 0) return cmp1;
-        const cmp2 = this.patch < typedOther.patch ? -1 : this.patch > typedOther.patch ? 1 : 0;
-        if (cmp2 !== 0) return cmp2;
-        return 0;
+    static compareTo(a: Version, b: Version): number {
+        return versionCompare(a, b);
     }
+}
+
+export function versionCompare(a: Version, b: Version): number {
+    if (a === b) return 0;
+    const cmp0 = a.major < b.major ? -1 : a.major > b.major ? 1 : 0;
+    if (cmp0 !== 0) return cmp0;
+    const cmp1 = a.minor < b.minor ? -1 : a.minor > b.minor ? 1 : 0;
+    if (cmp1 !== 0) return cmp1;
+    const cmp2 = a.patch < b.patch ? -1 : a.patch > b.patch ? 1 : 0;
+    if (cmp2 !== 0) return cmp2;
+    return 0;
 }
 ```
 
