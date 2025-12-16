@@ -779,12 +779,22 @@ export interface ExpandOptions {
  *
  * # Example
  *
- * ```ignore
- * let result = expand_sync(env, code, filepath, None)?;
+ * ```rust
+ * use macroforge_ts::{ExpandResult, MacroDiagnostic};
+ *
+ * // Create an ExpandResult programmatically
+ * let result = ExpandResult {
+ *     code: "class User {}".to_string(),
+ *     types: None,
+ *     metadata: None,
+ *     diagnostics: vec![],
+ *     source_mapping: None,
+ * };
+ *
+ * // Check for errors
  * if result.diagnostics.iter().any(|d| d.level == "error") {
  *     // Handle errors
  * }
- * // Use result.code for the expanded source
  * ```
  */
 export interface ExpandResult {
@@ -906,13 +916,15 @@ export interface JsDiagnostic {
  *
  * # Example
  *
- * ```ignore
- * MacroDiagnostic {
+ * ```rust
+ * use macroforge_ts::MacroDiagnostic;
+ *
+ * let _diag = MacroDiagnostic {
  *     level: "error".to_string(),
  *     message: "Unknown macro 'Foo'".to_string(),
  *     start: Some(42),
  *     end: Some(45),
- * }
+ * };
  * ```
  */
 export interface MacroDiagnostic {

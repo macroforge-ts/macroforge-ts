@@ -55,17 +55,24 @@
 //!
 //! ## Usage Example
 //!
-//! ```ignore
-//! use macroforge_ts::host::{MacroExpander, MacroError};
+//! ```rust,no_run
+//! use macroforge_ts::host::{MacroExpander, Result};
 //!
-//! // Create a new expander (registers all built-in macros)
-//! let expander = MacroExpander::new()?;
+//! fn example() -> Result<()> {
+//!     // Create a new expander (registers all built-in macros)
+//!     let expander = MacroExpander::new()?;
 //!
-//! // Expand macros in source code
-//! let expansion = expander.expand(source_code, &ast, "file.ts")?;
+//!     // Parse TypeScript source code
+//!     let source = r#"
+//!         /** @derive(Debug) */
+//!         class User { name: string; }
+//!     "#;
 //!
-//! // Use the expanded code
-//! println!("Expanded: {}", expansion.code);
+//!     // Expand macros (handles parsing internally)
+//!     let result = expander.expand_source(source, "file.ts")?;
+//!     println!("Expanded: {}", result.code);
+//!     Ok(())
+//! }
 //! ```
 
 /// Configuration loading and management.

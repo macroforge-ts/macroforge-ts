@@ -214,6 +214,17 @@ pub fn get_type_default(ts_type: &str) -> String {
                 format_default_call(t)
             }
         }
+        // String literal types: "active", 'pending', `template`
+        t if (t.starts_with('"') && t.ends_with('"'))
+            || (t.starts_with('\'') && t.ends_with('\''))
+            || (t.starts_with('`') && t.ends_with('`')) =>
+        {
+            t.to_string()
+        }
+        // Number literal types: 42, 3.14
+        t if t.parse::<f64>().is_ok() => t.to_string(),
+        // Boolean literal types
+        "true" | "false" => t.to_string(),
         // Unknown types: assume they implement Default trait
         type_name => format_default_call(type_name),
     }

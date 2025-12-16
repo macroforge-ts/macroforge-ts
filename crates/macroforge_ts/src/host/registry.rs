@@ -31,9 +31,13 @@ use std::sync::Arc;
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```rust
+/// use macroforge_ts::host::registry::MacroKey;
+///
 /// let key = MacroKey::new("builtin", "Debug");
 /// // Identifies the "Debug" macro from the "builtin" module
+/// assert_eq!(key.module, "builtin");
+/// assert_eq!(key.name, "Debug");
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct MacroKey {
@@ -72,17 +76,31 @@ impl MacroKey {
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```rust,no_run
 /// use macroforge_ts::host::{MacroRegistry, Macroforge};
+/// use macroforge_ts_syn::{TsStream, MacroKind, MacroResult};
 /// use std::sync::Arc;
 ///
+/// // Define a simple macro
+/// struct MyMacro;
+///
+/// impl Macroforge for MyMacro {
+///     fn name(&self) -> &str { "MyMacro" }
+///     fn kind(&self) -> MacroKind { MacroKind::Derive }
+///     fn run(&self, _input: TsStream) -> MacroResult { MacroResult::default() }
+/// }
+///
+/// // Create registry and register the macro
 /// let registry = MacroRegistry::new();
+/// registry.register("my-module", "MyMacro", Arc::new(MyMacro)).unwrap();
 ///
-/// // Register a macro
-/// registry.register("my-module", "MyMacro", Arc::new(my_macro))?;
+/// // Look up by exact module and name
+/// let macro_impl = registry.lookup("my-module", "MyMacro").unwrap();
+/// assert_eq!(macro_impl.name(), "MyMacro");
 ///
-/// // Look up a macro
-/// let macro_impl = registry.lookup("my-module", "MyMacro")?;
+/// // Look up by name only (fallback for flexible resolution)
+/// let macro_impl = registry.lookup_by_name("MyMacro").unwrap();
+/// assert_eq!(macro_impl.name(), "MyMacro");
 /// ```
 pub struct MacroRegistry {
     /// Map from (module, name) to macro implementation.

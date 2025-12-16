@@ -125,15 +125,15 @@ fn to_camel_case(name: &str) -> String {
 /// Each field that participates in hashing is represented by this struct,
 /// which captures both the field name (for access) and its TypeScript type
 /// (to select the appropriate hashing strategy).
-struct HashField {
+pub struct HashField {
     /// The field name as it appears in the source TypeScript class.
     /// Used to generate property access expressions like `this.name`.
-    name: String,
+    pub name: String,
 
     /// The TypeScript type annotation for this field.
     /// Used to determine which hashing strategy to apply
     /// (e.g., numeric comparison, string hashing, recursive hashCode call).
-    ts_type: String,
+    pub ts_type: String,
 }
 
 /// Generates JavaScript code that computes a hash contribution for a single class field.
@@ -260,11 +260,15 @@ fn generate_field_hash(field: &HashField) -> String {
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```rust
+/// use macroforge_ts::builtin::derive_hash::{HashField, generate_field_hash_for_interface};
+///
+/// let field = HashField { name: "name".to_string(), ts_type: "string".to_string() };
 /// let code = generate_field_hash_for_interface(&field, "self");
-/// // Generates: "(self.name ?? '').split('').reduce(...)"
+/// assert!(code.contains("self.name"));
+/// assert!(code.contains("reduce"));
 /// ```
-fn generate_field_hash_for_interface(field: &HashField, var: &str) -> String {
+pub fn generate_field_hash_for_interface(field: &HashField, var: &str) -> String {
     let field_name = &field.name;
     let ts_type = &field.ts_type;
 

@@ -54,26 +54,31 @@
 //!
 //! ## Usage Example
 //!
-//! ```ignore
-//! use macroforge_ts::host::MacroExpander;
+//! ```rust,no_run
+//! use macroforge_ts::host::{MacroExpander, DiagnosticLevel, Result};
 //!
-//! let expander = MacroExpander::new()?;
+//! fn example() -> Result<()> {
+//!     let expander = MacroExpander::new()?;
 //!
-//! // Simple API for CLI usage
-//! let expansion = expander.expand_source(source_code, "file.ts")?;
+//!     let source = r#"
+//!         /** @derive(Debug) */
+//!         class User { name: string; }
+//!     "#;
 //!
-//! // Or with a pre-parsed AST
-//! let expansion = expander.expand(source_code, &program, "file.ts")?;
+//!     // Simple API - handles parsing internally
+//!     let expansion = expander.expand_source(source, "file.ts")?;
 //!
-//! // Check for errors
-//! for diag in &expansion.diagnostics {
-//!     if diag.level == DiagnosticLevel::Error {
-//!         eprintln!("Error: {}", diag.message);
+//!     // Check for errors
+//!     for diag in &expansion.diagnostics {
+//!         if diag.level == DiagnosticLevel::Error {
+//!             eprintln!("Error: {}", diag.message);
+//!         }
 //!     }
-//! }
 //!
-//! // Use the expanded code
-//! println!("{}", expansion.code);
+//!     // Use the expanded code
+//!     println!("{}", expansion.code);
+//!     Ok(())
+//! }
 //! ```
 
 use std::collections::HashMap;
