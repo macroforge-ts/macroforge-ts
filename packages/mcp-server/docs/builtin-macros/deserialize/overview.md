@@ -1,16 +1,29 @@
 # Deserialize
 
-*The `Deserialize` macro generates a static `fromJSON()` method that parses JSON data into your class with runtime validation and automatic type conversion.*
+The `Deserialize` macro generates JSON deserialization methods with **cycle and
+forward-reference support**, plus comprehensive runtime validation. This enables
+safe parsing of complex JSON structures including circular references.
 
-## Basic Usage
+## Generated Output
 
-<MacroExample before={data.examples.basic.before} after={data.examples.basic.after} />
+| Type | Generated Code | Description |
+|------|----------------|-------------|
+| Class | `static deserialize()`, `static __deserialize()` | Static factory methods |
+| Enum | `myEnumDeserialize(input)`, `myEnum__deserialize(data)`, `myEnumIs(value)` | Standalone functions |
+| Interface | `myInterfaceDeserialize(input)`, etc. | Standalone functions |
+| Type Alias | `myTypeDeserialize(input)`, etc. | Standalone functions |
 
-```typescript
-const json = '{"name":"Alice","age":30,"createdAt":"2024-01-15T10:30:00.000Z"}';
-const user = User.fromJSON(JSON.parse(json));
+## Configuration
 
-console.log(user.name);                    // "Alice"
-console.log(user.age);                     // 30
-console.log(user.createdAt instanceof Date); // true
-```
+The `functionNamingStyle` option in `macroforge.json` controls naming:
+- `"prefix"` (default): Prefixes with type name (e.g., `myTypeDeserialize`)
+- `"suffix"`: Suffixes with type name (e.g., `deserializeMyType`)
+- `"generic"`: Uses TypeScript generics (e.g., `deserialize<T extends MyType>`)
+- `"namespace"`: Namespace wrapping (e.g., `MyType.deserialize`)
+
+## Return Type
+
+All public deserialization methods return `Result<T, Array<{ field: string; message: string }>>`:
+
+- `Result.ok(value)` - Successfully deserialized value
+- `Result.err(errors)` - Array of validation errors with field names and messages
