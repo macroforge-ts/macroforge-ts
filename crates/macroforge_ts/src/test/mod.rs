@@ -52,7 +52,6 @@
 //! cargo test -p macroforge_ts
 //! ```
 
-use crate::host::MacroConfig;
 use crate::host::PatchCollector;
 use crate::ts_syn::abi::{
     ClassIR, DiagnosticLevel, MacroContextIR, MacroResult, Patch, PatchCode, SpanIR,
