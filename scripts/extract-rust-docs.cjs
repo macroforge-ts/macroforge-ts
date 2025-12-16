@@ -414,62 +414,6 @@ function parseExamples(content) {
 	return examples.length > 0 ? examples : undefined;
 }
 
-/**
- * Transform decorator argument syntax from `name = value` to `name: value`.
- * @param {string} args - Decorator arguments
- * @returns {string} - Transformed arguments
- */
-function transformDecoratorArgs(args) {
-	// Transform `name = "value"` to `name: "value"`
-	// Transform `name = value` to `name: value`
-	return args
-		.replace(/(\w+)\s*=\s*/g, '$1: ')
-		// Handle boolean-like flags (e.g., "skip" -> "skip: true")
-		.replace(/^(\w+)$/, '$1: true');
-}
-
-/**
- * Transform shorthand @derive syntax to proper JSDoc comment syntax.
- * Converts `@derive(...)` to `/** @derive(...) * /` (without space)
- * Also transforms `@serde(...)`, `@debug(...)`, etc.
- * @param {string} code - TypeScript code with shorthand decorators
- * @returns {string} - Code with proper JSDoc comment decorators
- */
-function transformToJSDocSyntax(code) {
-	// Match @derive(...) and similar decorators at the start of a line
-	// Transform them to JSDoc comment style
-	return code
-		// Handle @derive(...) on its own line
-		.replace(/^(\s*)@derive\(([^)]+)\)$/gm, '$1/** @derive($2) */')
-		// Handle @serde(...) on its own line - transform args
-		.replace(/^(\s*)@serde\(([^)]+)\)$/gm, (_, indent, args) =>
-			`${indent}/** @serde({ ${transformDecoratorArgs(args)} }) */`
-		)
-		// Handle @debug(...) on its own line - transform args
-		.replace(/^(\s*)@debug\(([^)]+)\)$/gm, (_, indent, args) =>
-			`${indent}/** @debug({ ${transformDecoratorArgs(args)} }) */`
-		)
-		// Handle @clone(...) on its own line - transform args
-		.replace(/^(\s*)@clone\(([^)]+)\)$/gm, (_, indent, args) =>
-			`${indent}/** @clone({ ${transformDecoratorArgs(args)} }) */`
-		)
-		// Handle @hash(...) on its own line - transform args
-		.replace(/^(\s*)@hash\(([^)]+)\)$/gm, (_, indent, args) =>
-			`${indent}/** @hash({ ${transformDecoratorArgs(args)} }) */`
-		)
-		// Handle @ord(...) on its own line - transform args
-		.replace(/^(\s*)@ord\(([^)]+)\)$/gm, (_, indent, args) =>
-			`${indent}/** @ord({ ${transformDecoratorArgs(args)} }) */`
-		)
-		// Handle @partialEq(...) on its own line - transform args
-		.replace(/^(\s*)@partialEq\(([^)]+)\)$/gm, (_, indent, args) =>
-			`${indent}/** @partialEq({ ${transformDecoratorArgs(args)} }) */`
-		)
-		// Handle @default(...) on its own line - transform args
-		.replace(/^(\s*)@default\(([^)]+)\)$/gm, (_, indent, args) =>
-			`${indent}/** @default({ ${transformDecoratorArgs(args)} }) */`
-		);
-}
 
 /**
  * Extract code blocks from markdown content.
@@ -484,29 +428,56 @@ function extractCodeBlocks(content) {
 		const rawCode = match[2].trim();
 		codeBlocks.push({
 			lang: match[1] || 'typescript',
-			code: transformToJSDocSyntax(rawCode),
+			code: rawCode,
 			rawCode: rawCode
 		});
 	}
 	return codeBlocks;
 }
 
+// Track formatting errors globally
+const formatErrors = [];
+
 /**
  * Format TypeScript code using Biome CLI.
  * @param {string} code - Code to format
+ * @param {string} [context] - Optional context for error messages
  * @returns {string} - Formatted code
  */
-function formatCode(code) {
+function formatCode(code, context = 'unknown') {
 	try {
 		const result = execSync('npx @biomejs/biome format --stdin-file-path=example.ts', {
 			input: code,
 			encoding: 'utf-8',
 			maxBuffer: 10 * 1024 * 1024,
-			cwd: path.join(__dirname, '..', 'website')
+			cwd: path.join(__dirname, '..', 'website'),
+			stdio: ['pipe', 'pipe', 'pipe']
 		});
 		return result.trim();
-	} catch {
+	} catch (e) {
+		const stderr = e.stderr?.toString() || '';
+		if (stderr.includes('parsing errors')) {
+			formatErrors.push({ context, code: code.slice(0, 200) + '...' });
+			console.error(`\n❌ Parse error in ${context}:`);
+			console.error(stderr.split('\n').slice(0, 5).join('\n'));
+		}
 		return code.trim();
+	}
+}
+
+/**
+ * Check if there were any formatting errors and exit if so.
+ */
+function checkFormatErrors() {
+	if (formatErrors.length > 0) {
+		console.error(`\n\n${'='.repeat(60)}`);
+		console.error(`❌ FAILED: ${formatErrors.length} file(s) have parsing errors`);
+		console.error('='.repeat(60));
+		for (const err of formatErrors) {
+			console.error(`  - ${err.context}`);
+		}
+		console.error('\nFix the parsing errors in the doc comments before publishing.');
+		process.exit(1);
 	}
 }
 
@@ -545,10 +516,9 @@ function expandMacroCodeBlocks(markdown) {
 
 	return markdown.replace(codeBlockRegex, (match, lang, code) => {
 		const trimmedCode = code.trim();
-		const transformedCode = transformToJSDocSyntax(trimmedCode);
 
 		// Check if this code block contains macro decorators
-		if (!containsMacroDecorators(transformedCode)) {
+		if (!containsMacroDecorators(trimmedCode)) {
 			// Not a macro example, return unchanged
 			return match;
 		}
@@ -561,7 +531,7 @@ function expandMacroCodeBlocks(markdown) {
 
 		try {
 			// Expand the macro
-			const result = expandSync(transformedCode, 'example.ts');
+			const result = expandSync(trimmedCode, 'example.ts');
 			let expandedCode = result.code;
 
 			// Remove the macroforge import line if present
@@ -571,15 +541,15 @@ function expandMacroCodeBlocks(markdown) {
 			);
 
 			// Format both codes
-			const formattedBefore = formatCode(transformedCode);
-			const formattedAfter = formatCode(expandedCode);
+			const formattedBefore = formatCode(trimmedCode, 'macro code block (before)');
+			const formattedAfter = formatCode(expandedCode, 'macro code block (after)');
 
 			// Return before/after pair with flags
 			return `\`\`\`${lang || 'typescript'} before\n${formattedBefore}\n\`\`\`\n\n\`\`\`${lang || 'typescript'} after\n${formattedAfter}\n\`\`\``;
 		} catch (e) {
 			console.warn(`  Warning: Failed to expand macro in code block: ${e.message}`);
 			// Return original code with interactive flag for client-side expansion
-			return `\`\`\`${lang || 'typescript'} interactive\n${transformedCode}\n\`\`\``;
+			return `\`\`\`${lang || 'typescript'} interactive\n${trimmedCode}\n\`\`\``;
 		}
 	});
 }
@@ -641,58 +611,75 @@ function syncExpandedOutputToRustDocs() {
 					})
 					.join('\n');
 
-				const transformedCode = transformToJSDocSyntax(codeContent);
-
 				// Check if this is a macro example (contains @derive)
-				if (containsMacroDecorators(transformedCode)) {
-					// Check if next lines already have "Generated output:" section
-					let hasGeneratedSection = false;
+				if (containsMacroDecorators(codeContent)) {
+					// Skip any existing "Generated output:" section that follows
+					// We'll regenerate it fresh
 					let j = i + 1;
-					while (j < lines.length && j < i + 5) {
-						if (lines[j].trim().startsWith('//!') && lines[j].includes('Generated output:')) {
-							hasGeneratedSection = true;
+					while (j < lines.length) {
+						const nextLine = lines[j].trim();
+						// Empty doc comment lines before Generated output
+						if (nextLine === '//!') {
+							j++;
+							continue;
+						}
+						// Found start of Generated output section - skip until we exit the code block
+						if (nextLine.startsWith('//!') && nextLine.includes('Generated output:')) {
+							j++; // Skip "Generated output:" line
+							// Skip any blank lines
+							while (j < lines.length && lines[j].trim() === '//!') {
+								j++;
+							}
+							// Skip the code block if present
+							if (j < lines.length && lines[j].includes('```')) {
+								j++; // Skip opening ```
+								while (j < lines.length && !lines[j].includes('```')) {
+									j++; // Skip code lines
+								}
+								if (j < lines.length) {
+									j++; // Skip closing ```
+								}
+							}
+							// Update i to skip these lines in the main loop
+							i = j - 1; // -1 because the loop will increment
+							modified = true;
 							break;
 						}
-						if (lines[j].trim().startsWith('//!') && lines[j].includes('## ')) {
-							// Hit next section, no generated output exists
-							break;
-						}
-						j++;
+						// Hit something else (next section, different content), stop looking
+						break;
 					}
 
 					// Add the original code block
 					newLines.push(...codeBlockLines);
 
-					if (!hasGeneratedSection) {
-						try {
-							// Expand the macro
-							const result = expandSync(transformedCode, 'example.ts');
-							let expandedCode = result.code;
+					try {
+						// Expand the macro
+						const result = expandSync(codeContent, 'example.ts');
+						let expandedCode = result.code;
 
-							// Remove macroforge imports
-							expandedCode = expandedCode.replace(
-								/^import\s+\{[^}]+\}\s+from\s+['"]macroforge(?:\/utils)?['"];\s*\n?/gm,
-								''
-							);
+						// Remove macroforge imports
+						expandedCode = expandedCode.replace(
+							/^import\s+\{[^}]+\}\s+from\s+['"]macroforge(?:\/utils)?['"];\s*\n?/gm,
+							''
+						);
 
-							// Format the expanded code
-							const formattedExpanded = formatCode(expandedCode);
+						// Format the expanded code
+						const formattedExpanded = formatCode(expandedCode, `${macro.name} generated output`);
 
-							// Add the "Generated output:" section
-							newLines.push('//!');
-							newLines.push('//! Generated output:');
-							newLines.push('//!');
-							newLines.push('//! ```typescript');
-							for (const codeLine of formattedExpanded.split('\n')) {
-								newLines.push(`//! ${codeLine}`);
-							}
-							newLines.push('//! ```');
-
-							modified = true;
-							console.log(`  -> Added generated output to ${macro.name}`);
-						} catch (e) {
-							console.warn(`  Warning: Failed to expand ${macro.name}: ${e.message}`);
+						// Add the "Generated output:" section
+						newLines.push('//!');
+						newLines.push('//! Generated output:');
+						newLines.push('//!');
+						newLines.push('//! ```typescript');
+						for (const codeLine of formattedExpanded.split('\n')) {
+							newLines.push(`//! ${codeLine}`);
 						}
+						newLines.push('//! ```');
+
+						modified = true;
+						console.log(`  -> Regenerated output for ${macro.name}`);
+					} catch (e) {
+						console.warn(`  Warning: Failed to expand ${macro.name}: ${e.message}`);
 					}
 				} else {
 					// Not a macro example, just add as-is
@@ -1117,6 +1104,9 @@ function main() {
 	if (cliDocs) {
 		console.log(`Total: ${Object.keys(cliDocs.commands).length} CLI commands`);
 	}
+
+	// Check for any formatting errors and fail if found
+	checkFormatErrors();
 }
 
 main();

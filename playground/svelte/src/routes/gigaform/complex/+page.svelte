@@ -8,7 +8,7 @@
     type Settings,
     type PhoneNumber,
     type JobTitle,
-  } from "$lib/demo/types.svelte";
+  } from "$lib/demo/types";
 
   // Create Employee form - complex type with nested Settings, arrays, nullable fields
   const employeeForm = employeeCreateForm({

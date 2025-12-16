@@ -6,7 +6,7 @@
     type PhoneNumber,
     type Gradient,
     type Coordinates,
-  } from "$lib/demo/types.svelte";
+  } from "$lib/demo/types";
 
   // Create form instances
   const phoneForm = phoneNumberCreateForm();

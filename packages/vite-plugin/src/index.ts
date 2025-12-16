@@ -32,7 +32,7 @@ import { createRequire } from "module";
 import * as fs from "fs";
 import * as path from "path";
 import type ts from "typescript";
-import { ExpandResult } from "macroforge";
+import type { ExpandOptions, ExpandResult, MacroManifest } from "macroforge";
 
 const moduleRequire = createRequire(import.meta.url);
 let tsModule: typeof ts | undefined;
@@ -47,6 +47,100 @@ try {
 
 const compilerOptionsCache = new Map<string, ts.CompilerOptions>();
 let cachedRequire: NodeJS.Require | undefined;
+
+/**
+ * Cache for external macro package manifests.
+ * Maps package path to its manifest (or null if failed to load).
+ */
+const externalManifestCache = new Map<string, MacroManifest | null>();
+
+/**
+ * Parses macro import comments from TypeScript code.
+ *
+ * @remarks
+ * Extracts macro names mapped to their source module paths from
+ * `/** import macro { ... } from "package" * /` comments.
+ *
+ * @param text - The TypeScript source code to parse
+ * @returns Map of macro names to their module paths
+ *
+ * @example
+ * ```typescript
+ * const text = `/** import macro {JSON, FieldController} from "@playground/macro"; * /`;
+ * parseMacroImportComments(text);
+ * // => Map { "JSON" => "@playground/macro", "FieldController" => "@playground/macro" }
+ * ```
+ *
+ * @internal
+ */
+function parseMacroImportComments(text: string): Map<string, string> {
+  const imports = new Map<string, string>();
+  const pattern =
+    /\/\*\*\s*import\s+macro\s*\{([^}]+)\}\s*from\s*["']([^"']+)["']/gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = pattern.exec(text)) !== null) {
+    const names = match[1]
+      .split(",")
+      .map((n) => n.trim())
+      .filter(Boolean);
+    const modulePath = match[2];
+    for (const name of names) {
+      imports.set(name, modulePath);
+    }
+  }
+  return imports;
+}
+
+/**
+ * Attempts to load the manifest from an external macro package.
+ *
+ * External macro packages (like `@playground/macro`) export their own
+ * `__macroforgeGetManifest()` function that provides macro metadata
+ * including descriptions.
+ *
+ * @param modulePath - The package path (e.g., "@playground/macro")
+ * @returns The macro manifest, or null if loading failed
+ *
+ * @internal
+ */
+function getExternalManifest(modulePath: string): MacroManifest | null {
+  if (externalManifestCache.has(modulePath)) {
+    return externalManifestCache.get(modulePath) ?? null;
+  }
+
+  try {
+    const pkg = moduleRequire(modulePath);
+    if (typeof pkg.__macroforgeGetManifest === "function") {
+      const manifest: MacroManifest = pkg.__macroforgeGetManifest();
+      externalManifestCache.set(modulePath, manifest);
+      return manifest;
+    }
+  } catch {
+    // Package not found or doesn't export manifest
+  }
+
+  externalManifestCache.set(modulePath, null);
+  return null;
+}
+
+/**
+ * Collects decorator modules from external macro packages referenced in the code.
+ *
+ * @param code - The TypeScript source code to scan
+ * @returns Array of decorator module names from external packages
+ *
+ * @internal
+ */
+function collectExternalDecoratorModules(code: string): string[] {
+  const imports = parseMacroImportComments(code);
+  const modulePaths = [...new Set(imports.values())];
+
+  return modulePaths.flatMap((modulePath) => {
+    const manifest = getExternalManifest(modulePath);
+    return manifest?.decorators.map((d) => d.module) ?? [];
+  });
+}
 
 /**
  * Ensures that `require()` is available in the current execution context.
@@ -556,7 +650,7 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
         expandSync: (
           code: string,
           filepath: string,
-          options?: { keepDecorators?: boolean },
+          options?: ExpandOptions,
         ) => ExpandResult;
       }
     | undefined;
@@ -783,9 +877,13 @@ function napiMacrosPlugin(options: NapiMacrosPluginOptions = {}): Plugin {
       }
 
       try {
+        // Collect external decorator modules from macro imports
+        const externalDecoratorModules = collectExternalDecoratorModules(code);
+
         // Perform macro expansion via the Rust binary
         const result: ExpandResult = rustTransformer.expandSync(code, id, {
           keepDecorators: macroConfig.keepDecorators,
+          externalDecoratorModules,
         });
 
         // Report diagnostics from macro expansion

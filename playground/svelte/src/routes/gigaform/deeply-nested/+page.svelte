@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { orderCreateForm, siteDefaultValue, type Order, type Site, type Coordinates, type OrderStage } from "$lib/demo/types.svelte";
+  import { orderCreateForm, siteDefaultValue, type Order, type Site, type Coordinates, type OrderStage } from "$lib/demo/types";
 
   // Create Order form to test deeply nested paths
   // Order -> site (Site) -> coordinates (Coordinates) -> lat/lng

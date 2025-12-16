@@ -1,21 +1,24 @@
 # Macroforge Documentation
 
-*TypeScript Macros - Rust-Powered Code Generation*
+_TypeScript Macros - Rust-Powered Code Generation_
 
 ---
 
 ## Table of Contents
 
 ### Getting Started
+
 - [Installation](#installation)
 - [First Macro](#first-macro)
 
 ### Core Concepts
+
 - [How Macros Work](#how-macros-work)
 - [The Derive System](#the-derive-system)
 - [Architecture](#architecture)
 
 ### Built-in Macros
+
 - [Overview](#overview)
 - [Debug](#debug)
 - [Clone](#clone)
@@ -28,12 +31,14 @@
 - [Deserialize](#deserialize)
 
 ### Custom Macros
+
 - [Overview](#overview)
 - [Rust Setup](#rust-setup)
 - [ts_macro_derive](#ts-macro-derive)
 - [Template Syntax](#template-syntax)
 
 ### Integration
+
 - [Overview](#overview)
 - [CLI](#cli)
 - [TypeScript Plugin](#typescript-plugin)
@@ -41,11 +46,13 @@
 - [Configuration](#configuration)
 
 ### Language Servers
+
 - [Overview](#overview)
 - [Svelte](#svelte)
 - [Zed Extensions](#zed-extensions)
 
 ### API Reference
+
 - [Overview](#overview)
 - [expandSync()](#expandsync-)
 - [transformSync()](#transformsync-)
@@ -57,67 +64,79 @@
 # Getting Started
 
 # Installation
- *Get started with Macroforge in just a few minutes. Install the package and configure your project to start using TypeScript macros.*
- ## Requirements
- - Node.js 24.0 or later
- - TypeScript 5.9 or later
- ## Install the Package
- Install Macroforge using your preferred package manager:
- ```
+
+_Get started with Macroforge in just a few minutes. Install the package and configure your project to start using TypeScript macros._
+
+## Requirements
+
+- Node.js 24.0 or later
+- TypeScript 5.9 or later
+
+## Install the Package
+
+Install Macroforge using your preferred package manager:
+
+````
 npm install macroforge
 ``` ```
 bun add macroforge
 ``` ```
 pnpm add macroforge
 ```  **Info Macroforge includes pre-built native binaries for macOS (x64, arm64), Linux (x64, arm64), and Windows (x64, arm64). ## Basic Usage
- The simplest way to use Macroforge is with the built-in derive macros. Add a `@derive` comment decorator to your class:
- ```
-/** @derive(Debug, Clone, PartialEq) */
-class User {
-  name: string;
-  age: number;
+The simplest way to use Macroforge is with the built-in derive macros. Add a `@derive` comment decorator to your class:
+````
 
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-  }
+/\*_ @derive(Debug, Clone, PartialEq) _/
+class User {
+name: string;
+age: number;
+
+constructor(name: string, age: number) {
+this.name = name;
+this.age = age;
+}
 }
 
 // After macro expansion, User has:
-// - toString(): string              (from Debug)
-// - clone(): User                   (from Clone)
+// - toString(): string (from Debug)
+// - clone(): User (from Clone)
 // - equals(other: unknown): boolean (from PartialEq)
-``` ## IDE Integration
+
+```## IDE Integration
  For the best development experience, add the TypeScript plugin to your `tsconfig.json`:
- ```
+```
+
 {
-  "compilerOptions": {
-    "plugins": [
-      {
-        "name": "@macroforge/typescript-plugin"
-      }
-    ]
-  }
+"compilerOptions": {
+"plugins": [
+{
+"name": "@macroforge/typescript-plugin"
 }
-``` This enables features like:
+]
+}
+}
+
+```This enables features like:
  - Accurate error positions in your source code
  - Autocompletion for generated methods
  - Type checking for expanded code
  ## Build Integration (Vite)
  If you're using Vite, add the plugin to your config for automatic macro expansion during build:
- ```
+```
+
 import macroforge from "@macroforge/vite-plugin";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [
-    macroforge({
-      generateTypes: true,
-      typesOutputDir: ".macroforge/types"
-    })
-  ]
+plugins: [
+macroforge({
+generateTypes: true,
+typesOutputDir: ".macroforge/types"
+})
+]
 });
-``` ## Next Steps
+
+```## Next Steps
  Now that you have Macroforge installed, learn how to use it:
  - [Create your first macro](../docs/getting-started/first-macro)
  - [Understand how macros work](../docs/concepts)
@@ -130,28 +149,32 @@ export default defineConfig({
  *Let's create a class that uses Macroforge's derive macros to automatically generate useful methods.*
  ## Creating a Class with Derive Macros
  Start by creating a simple `User` class. We'll use the `@derive` decorator to automatically generate methods.
- 
+
 **Before:**
 ```
-/** @derive(Debug, Clone, PartialEq) */
+
+/\*_ @derive(Debug, Clone, PartialEq) _/
 export class User {
-    name: string;
-    age: number;
-    email: string;
+name: string;
+age: number;
+email: string;
 
     constructor(name: string, age: number, email: string) {
         this.name = name;
         this.age = age;
         this.email = email;
     }
+
 }
-```  
+
+```
 **After:**
 ```
+
 export class User {
-    name: string;
-    age: number;
-    email: string;
+name: string;
+age: number;
+email: string;
 
     constructor(name: string, age: number, email: string) {
         this.name = name;
@@ -185,9 +208,13 @@ export class User {
             this.email === typedOther.email
         );
     }
+
 }
-``` ## Using the Generated Methods
- ```
+
+```## Using the Generated Methods
+
+```
+
 const user = new User("Alice", 30, "alice@example.com");
 
 // Debug: toString()
@@ -203,15 +230,17 @@ console.log(user.equals(copy)); // true
 
 const different = new User("Bob", 25, "bob@example.com");
 console.log(user.equals(different)); // false
-``` ## Customizing Behavior
+
+```## Customizing Behavior
  You can customize how macros work using field-level decorators. For example, with the Debug macro:
- 
+
 **Before:**
 ```
-/** @derive(Debug) */
+
+/** @derive(Debug) \*/
 export class User {
-    /** @debug({ rename: "userId" }) */
-    id: number;
+/** @debug({ rename: "userId" }) \*/
+id: number;
 
     name: string;
 
@@ -223,12 +252,15 @@ export class User {
         this.name = name;
         this.password = password;
     }
+
 }
-```  
+
+```
 **After:**
 ```
+
 export class User {
-    id: number;
+id: number;
 
     name: string;
 
@@ -246,13 +278,15 @@ export class User {
         parts.push('name: ' + this.name);
         return 'User { ' + parts.join(', ') + ' }';
     }
+
 }
-``` ```
+` `
 const user = new User(42, "Alice", "secret123");
 console.log(user.toString());
 // Output: User { userId: 42, name: Alice }
 // Note: 'id' is renamed to 'userId', 'password' is skipped
-```  **Field-level decorators Field-level decorators let you control exactly how each field is handled by the macro. ## Next Steps
+
+```**Field-level decorators Field-level decorators let you control exactly how each field is handled by the macro. ## Next Steps
  - [Learn how macros work under the hood](../../docs/concepts)
  - [Explore all Debug options](../../docs/builtin-macros/debug)
  - [Create your own custom macros](../../docs/custom-macros)
@@ -270,26 +304,31 @@ console.log(user.toString());
  2. **Find**: Macroforge finds `@derive` decorators and their associated items
  3. **Expand**: Each macro generates new code based on the class structure
  4. **Output**: The transformed TypeScript is written out, ready for normal compilation
- 
+
 **Before:**
 ```
-/** @derive(Debug) */
+
+/\*_ @derive(Debug) _/
 class User {
-    name: string;
+name: string;
 }
-```  
+
+```
 **After:**
 ```
+
 class User {
-    name: string;
+name: string;
 
     toString(): string {
         const parts: string[] = [];
         parts.push('name: ' + this.name);
         return 'User { ' + parts.join(', ') + ' }';
     }
+
 }
-``` ## Zero Runtime Overhead
+
+```## Zero Runtime Overhead
  Because code generation happens at compile time, there's no:
  - Runtime reflection or metadata
  - Proxy objects or wrappers
@@ -325,54 +364,63 @@ class User {
  Macroforge uses JSDoc comments for all macro annotations. This ensures compatibility with standard TypeScript tooling.
  ### The @derive Statement
  The `@derive` decorator triggers macro expansion on a class or interface:
- 
+
 **Source:**
 ```
-/** @derive(Debug) */
+
+/\*_ @derive(Debug) _/
 class MyClass {
-  value: string;
+value: string;
 }
-```  Syntax rules:
+
+```Syntax rules:
  - Must be inside a JSDoc comment (`/** */`)
  - Must appear immediately before the class/interface declaration
  - Multiple macros can be comma-separated: `@derive(A, B, C)`
  - Multiple `@derive` statements can be stacked
- 
+
 **Source:**
 ```
-/** @derive(Debug, Clone) */
+
+/\*_ @derive(Debug, Clone) _/
 class User {
-  name: string;
-  email: string;
+name: string;
+email: string;
 }
-```  ### The import macro Statement
+
+```### The import macro Statement
  To use macros from external packages, you must declare them with `import macro`:
- ```
-/** import macro { MacroName } from "package-name"; */
-``` Syntax rules:
+```
+
+/\*_ import macro { MacroName } from "package-name"; _/
+
+```Syntax rules:
  - Must be inside a JSDoc comment (`/** */`)
  - Can appear anywhere in the file (typically at the top)
  - Multiple macros can be imported: `import macro { A, B } from "pkg";`
  - Multiple import statements can be used for different packages
- ```
-/** import macro { JSON, Validate } from "@my/macros"; */
-/** import macro { Builder } from "@other/macros"; */
+```
 
-/** @derive(JSON, Validate, Builder) */
+/** import macro { JSON, Validate } from "@my/macros"; \*/
+/** import macro { Builder } from "@other/macros"; \*/
+
+/\*_ @derive(JSON, Validate, Builder) _/
 class User {
-  name: string;
-  email: string;
+name: string;
+email: string;
 }
-```  **Built-in macros Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement. ### Field Attributes
+
+```**Built-in macros Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement. ### Field Attributes
  Macros can define field-level attributes to customize behavior per field:
  **
 **Before:**
 ```
-/** @derive(Debug, Serialize) */
+
+/** @derive(Debug, Serialize) \*/
 class User {
-    /** @debug({ rename: "userId" }) */
-    /** @serde({ rename: "user_id" }) */
-    id: number;
+/** @debug({ rename: "userId" }) _/
+/\*\* @serde({ rename: "user_id" }) _/
+id: number;
 
     name: string;
 
@@ -382,67 +430,67 @@ class User {
 
     /** @serde({ flatten: true }) */
     metadata: Record<string, unknown>;
+
 }
-```  
+
+```
 **After:**
 ```
+
 import { SerializeContext } from "macroforge/serde";
 
 class User {
-  
-  
-  id: number;
 
-  name: string;
+id: number;
 
-  
-  
-  password: string;
+name: string;
 
-  
-  metadata: Record<string, unknown>;
+password: string;
 
-  toString(): string {
-    const parts: string[] = [];
-    parts.push("userId: " + this.id);
-    parts.push("name: " + this.name);
-    parts.push("metadata: " + this.metadata);
-    return "User { " + parts.join(", ") + " }";
+metadata: Record<string, unknown>;
+
+toString(): string {
+const parts: string[] = [];
+parts.push("userId: " + this.id);
+parts.push("name: " + this.name);
+parts.push("metadata: " + this.metadata);
+return "User { " + parts.join(", ") + " }";
 }
 
-  toStringifiedJSON(): string {
-    const ctx = SerializeContext.create();
-    return JSON.stringify(this.__serialize(ctx));
+toStringifiedJSON(): string {
+const ctx = SerializeContext.create();
+return JSON.stringify(this.serializeWithContext(ctx));
 }
 
-  toObject(): Record<string, unknown> {
-    const ctx = SerializeContext.create();
-    return this.__serialize(ctx);
+toObject(): Record<string, unknown> {
+const ctx = SerializeContext.create();
+return this.serializeWithContext(ctx);
 }
 
-  __serialize(ctx: SerializeContext): Record<string, unknown> {
-    const existingId = ctx.getId(this);
-    if (existingId !== undefined) {
-        return {
-            __ref: existingId
-        };
-    }
-    const __id = ctx.register(this);
-    const result: Record<string, unknown> = {
-        __type: "User",
-        __id
-    };
-    result["user_id"] = this.id;
-    result["name"] = this.name;
-    {
-        const __flattened = record < string, unknown;
-        const { __type: _, __id: __, ...rest } = __flattened as any;
-        Object.assign(result, rest);
-    }
-    return result;
+serializeWithContext(ctx: SerializeContext): Record<string, unknown> {
+const existingId = ctx.getId(this);
+if (existingId !== undefined) {
+return {
+**ref: existingId
+};
+}
+const **id = ctx.register(this);
+const result: Record<string, unknown> = {
+**type: "User",
+**id
+};
+result["user_id"] = this.id;
+result["name"] = this.name;
+{
+const **flattened = record < string, unknown;
+const { **type: \_, **id: **, ...rest } = \_\_flattened as any;
+Object.assign(result, rest);
+}
+return result;
 }
 }
-``` Syntax rules:
+
+```Syntax rules:
  - Must be inside a JSDoc comment immediately before the field
  - Options use object literal syntax: `@attr({ key: value })`
  - Boolean options: `@attr({ skip: true })`
@@ -516,7 +564,8 @@ class User {
  - **Zero-copy**: SWC's arena allocator minimizes allocations
  ## Re-exported Crates
  For custom macro development, `macroforge_ts` re-exports everything you need:
- ```
+```
+
 // Convenient re-exports for macro development
 use macroforge_ts::macros::{ts_macro_derive, body, ts_template, above, below, signature};
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
@@ -525,7 +574,8 @@ use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_
 use macroforge_ts::swc_core;
 use macroforge_ts::swc_common;
 use macroforge_ts::swc_ecma_ast;
-``` ## Next Steps
+
+```## Next Steps
  - [Write custom macros](../../docs/custom-macros)
  - [Explore the API reference](../../docs/api)
 
@@ -549,99 +599,111 @@ use macroforge_ts::swc_ecma_ast;
 | [`Deserialize`](../docs/builtin-macros/deserialize) | `static fromJSON(data: unknown): T` | JSON deserialization with validation |
  ## Using Built-in Macros
  Built-in macros don't require imports. Just use them with `@derive`:
- ```
-/** @derive(Debug, Clone, PartialEq) */
-class User {
-  name: string;
-  age: number;
+```
 
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-  }
+/\*_ @derive(Debug, Clone, PartialEq) _/
+class User {
+name: string;
+age: number;
+
+constructor(name: string, age: number) {
+this.name = name;
+this.age = age;
 }
-``` ## Interface Support
+}
+
+```## Interface Support
  All built-in macros work with interfaces. For interfaces, methods are generated as functions in a namespace with the same name, using `self` as the first parameter:
- ```
-/** @derive(Debug, Clone, PartialEq) */
+```
+
+/\*_ @derive(Debug, Clone, PartialEq) _/
 interface Point {
-  x: number;
-  y: number;
+x: number;
+y: number;
 }
 
 // Generated namespace:
 // namespace Point {
-//   export function toString(self: Point): string { ... }
-//   export function clone(self: Point): Point { ... }
-//   export function equals(self: Point, other: Point): boolean { ... }
-//   export function hashCode(self: Point): number { ... }
+// export function toString(self: Point): string { ... }
+// export function clone(self: Point): Point { ... }
+// export function equals(self: Point, other: Point): boolean { ... }
+// export function hashCode(self: Point): number { ... }
 // }
 
 const point: Point = { x: 10, y: 20 };
 
 // Use the namespace functions
-console.log(Point.toString(point));     // "Point { x: 10, y: 20 }"
-const copy = Point.clone(point);        // { x: 10, y: 20 }
+console.log(Point.toString(point)); // "Point { x: 10, y: 20 }"
+const copy = Point.clone(point); // { x: 10, y: 20 }
 console.log(Point.equals(point, copy)); // true
-``` ## Enum Support
+
+```## Enum Support
  All built-in macros work with enums. For enums, methods are generated as functions in a namespace with the same name:
- ```
-/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
+```
+
+/\*_ @derive(Debug, Clone, PartialEq, Serialize, Deserialize) _/
 enum Status {
-  Active = "active",
-  Inactive = "inactive",
-  Pending = "pending",
+Active = "active",
+Inactive = "inactive",
+Pending = "pending",
 }
 
 // Generated namespace:
 // namespace Status {
-//   export function toString(value: Status): string { ... }
-//   export function clone(value: Status): Status { ... }
-//   export function equals(a: Status, b: Status): boolean { ... }
-//   export function hashCode(value: Status): number { ... }
-//   export function toJSON(value: Status): string | number { ... }
-//   export function fromJSON(data: unknown): Status { ... }
+// export function toString(value: Status): string { ... }
+// export function clone(value: Status): Status { ... }
+// export function equals(a: Status, b: Status): boolean { ... }
+// export function hashCode(value: Status): number { ... }
+// export function toJSON(value: Status): string | number { ... }
+// export function fromJSON(data: unknown): Status { ... }
 // }
 
 // Use the namespace functions
-console.log(Status.toString(Status.Active));     // "Status.Active"
+console.log(Status.toString(Status.Active)); // "Status.Active"
 console.log(Status.equals(Status.Active, Status.Active)); // true
-const json = Status.toJSON(Status.Pending);      // "pending"
-const parsed = Status.fromJSON("active");        // Status.Active
-``` ## Type Alias Support
+const json = Status.toJSON(Status.Pending); // "pending"
+const parsed = Status.fromJSON("active"); // Status.Active
+
+```## Type Alias Support
  All built-in macros work with type aliases. For object type aliases, field-aware methods are generated in a namespace:
- ```
-/** @derive(Debug, Clone, PartialEq, Serialize, Deserialize) */
+```
+
+/\*_ @derive(Debug, Clone, PartialEq, Serialize, Deserialize) _/
 type Point = {
-  x: number;
-  y: number;
+x: number;
+y: number;
 };
 
 // Generated namespace:
 // namespace Point {
-//   export function toString(value: Point): string { ... }
-//   export function clone(value: Point): Point { ... }
-//   export function equals(a: Point, b: Point): boolean { ... }
-//   export function hashCode(value: Point): number { ... }
-//   export function toJSON(value: Point): Record<string, unknown> { ... }
-//   export function fromJSON(data: unknown): Point { ... }
+// export function toString(value: Point): string { ... }
+// export function clone(value: Point): Point { ... }
+// export function equals(a: Point, b: Point): boolean { ... }
+// export function hashCode(value: Point): number { ... }
+// export function toJSON(value: Point): Record<string, unknown> { ... }
+// export function fromJSON(data: unknown): Point { ... }
 // }
 
 const point: Point = { x: 10, y: 20 };
-console.log(Point.toString(point));     // "Point { x: 10, y: 20 }"
-const copy = Point.clone(point);        // { x: 10, y: 20 }
+console.log(Point.toString(point)); // "Point { x: 10, y: 20 }"
+const copy = Point.clone(point); // { x: 10, y: 20 }
 console.log(Point.equals(point, copy)); // true
-``` Union type aliases also work, using JSON-based implementations:
- ```
-/** @derive(Debug, PartialEq) */
+
+```Union type aliases also work, using JSON-based implementations:
+
+```
+
+/\*_ @derive(Debug, PartialEq) _/
 type ApiStatus = "loading" | "success" | "error";
 
 const status: ApiStatus = "success";
 console.log(ApiStatus.toString(status)); // "ApiStatus(\"success\")"
 console.log(ApiStatus.equals("success", "success")); // true
-``` ## Combining Macros
+
+```## Combining Macros
  All macros can be used together. They don't conflict and each generates independent methods:
- ```
+```
+
 const user = new User("Alice", 30);
 
 // Debug
@@ -654,7 +716,8 @@ console.log(copy.name); // "Alice"
 
 // Eq
 console.log(user.equals(copy)); // true
-``` ## Detailed Documentation
+
+````## Detailed Documentation
  Each macro has its own options and behaviors:
  - [**Debug**](../docs/builtin-macros/debug) - Customizable field renaming and skipping
  - [**Clone**](../docs/builtin-macros/clone) - Deep copying for all field types
@@ -714,7 +777,7 @@ class User {
 
     email: string;
 }
-```
+````
 
 ```typescript after
 class User {
@@ -726,9 +789,9 @@ class User {
 
     toString(): string {
         const parts: string[] = [];
-        parts.push('id: ' + this.userId);
-        parts.push('email: ' + this.email);
-        return 'User { ' + parts.join(', ') + ' }';
+        parts.push("id: " + this.userId);
+        parts.push("email: " + this.email);
+        return "User { " + parts.join(", ") + " }";
     }
 }
 ```
@@ -745,13 +808,12 @@ class User {
 
     toString(): string {
         const parts: string[] = [];
-        parts.push('id: ' + this.userId);
-        parts.push('email: ' + this.email);
-        return 'User { ' + parts.join(', ') + ' }';
+        parts.push("id: " + this.userId);
+        parts.push("email: " + this.email);
+        return "User { " + parts.join(", ") + " }";
     }
 }
 ```
-
 
 ---
 
@@ -763,16 +825,17 @@ independent copies of values.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `clone(): ClassName` | Instance method creating a new instance with copied fields |
-| Enum | `cloneEnumName(value: EnumName): EnumName` | Standalone function (enums are primitives, returns value as-is) |
-| Interface | `cloneInterfaceName(value: InterfaceName): InterfaceName` | Standalone function creating a new object literal |
-| Type Alias | `cloneTypeName(value: TypeName): TypeName` | Standalone function with spread copy for objects |
+| Type       | Generated Code                                            | Description                                                     |
+| ---------- | --------------------------------------------------------- | --------------------------------------------------------------- |
+| Class      | `clone(): ClassName`                                      | Instance method creating a new instance with copied fields      |
+| Enum       | `cloneEnumName(value: EnumName): EnumName`                | Standalone function (enums are primitives, returns value as-is) |
+| Interface  | `cloneInterfaceName(value: InterfaceName): InterfaceName` | Standalone function creating a new object literal               |
+| Type Alias | `cloneTypeName(value: TypeName): TypeName`                | Standalone function with spread copy for objects                |
 
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
+
 - `"prefix"` (default): Prefixes with type name (e.g., `myTypeClone`)
 - `"suffix"`: Suffixes with type name (e.g., `cloneMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `clone<T extends MyType>`)
@@ -846,7 +909,6 @@ const p2 = p1.clone(); // Creates a new Point with same values
 - **Interfaces/Type Aliases**: Creates new object literals with spread operator
   for union/tuple types, or field-by-field copy for object types
 
-
 ---
 
 # Default
@@ -857,16 +919,17 @@ a standard way to create "zero" or "empty" instances of types.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `static defaultValue(): ClassName` | Static factory method |
-| Enum | `defaultValueEnumName(): EnumName` | Standalone function returning marked variant |
-| Interface | `defaultValueInterfaceName(): InterfaceName` | Standalone function returning object literal |
-| Type Alias | `defaultValueTypeName(): TypeName` | Standalone function with type-appropriate default |
+| Type       | Generated Code                               | Description                                       |
+| ---------- | -------------------------------------------- | ------------------------------------------------- |
+| Class      | `static defaultValue(): ClassName`           | Static factory method                             |
+| Enum       | `defaultValueEnumName(): EnumName`           | Standalone function returning marked variant      |
+| Interface  | `defaultValueInterfaceName(): InterfaceName` | Standalone function returning object literal      |
+| Type Alias | `defaultValueTypeName(): TypeName`           | Standalone function with type-appropriate default |
 
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
+
 - `"prefix"` (default): Prefixes with type name (e.g., `myTypeDefaultValue`)
 - `"suffix"`: Suffixes with type name (e.g., `defaultValueMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `defaultValue<T extends MyType>`)
@@ -876,18 +939,18 @@ The `functionNamingStyle` option in `macroforge.json` controls naming:
 
 The macro uses Rust-like default semantics:
 
-| Type | Default Value |
-|------|---------------|
-| `string` | `""` (empty string) |
-| `number` | `0` |
-| `boolean` | `false` |
-| `bigint` | `0n` |
-| `T[]` | `[]` (empty array) |
-| `Array<T>` | `[]` (empty array) |
-| `Map<K,V>` | `new Map()` |
-| `Set<T>` | `new Set()` |
-| `Date` | `new Date()` (current time) |
-| `T \| null` | `null` |
+| Type         | Default Value                           |
+| ------------ | --------------------------------------- |
+| `string`     | `""` (empty string)                     |
+| `number`     | `0`                                     |
+| `boolean`    | `false`                                 |
+| `bigint`     | `0n`                                    |
+| `T[]`        | `[]` (empty array)                      |
+| `Array<T>`   | `[]` (empty array)                      |
+| `Map<K,V>`   | `new Map()`                             |
+| `Set<T>`     | `new Set()`                             |
+| `Date`       | `new Date()` (current time)             |
+| `T \| null`  | `null`                                  |
 | `CustomType` | `CustomType.defaultValue()` (recursive) |
 
 ## Field-Level Options
@@ -916,10 +979,10 @@ class UserSettings {
 
 ```typescript after
 class UserSettings {
-    
+
     theme: string;
 
-    
+
     pageSize: number;
 
     notifications: boolean;  // Uses type default: false
@@ -1106,7 +1169,6 @@ The macro will return an error if:
 - An enum has no variant marked with `@default`
 - A union type has no `@default` on a variant
 
-
 ---
 
 # Hash
@@ -1117,16 +1179,17 @@ objects to be used as keys in hash-based collections.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `hashCode(): number` | Instance method computing hash from all fields |
-| Enum | `hashCodeEnumName(value: EnumName): number` | Standalone function hashing by enum value |
-| Interface | `hashCodeInterfaceName(value: InterfaceName): number` | Standalone function computing hash |
-| Type Alias | `hashCodeTypeName(value: TypeName): number` | Standalone function computing hash |
+| Type       | Generated Code                                        | Description                                    |
+| ---------- | ----------------------------------------------------- | ---------------------------------------------- |
+| Class      | `hashCode(): number`                                  | Instance method computing hash from all fields |
+| Enum       | `hashCodeEnumName(value: EnumName): number`           | Standalone function hashing by enum value      |
+| Interface  | `hashCodeInterfaceName(value: InterfaceName): number` | Standalone function computing hash             |
+| Type Alias | `hashCodeTypeName(value: TypeName): number`           | Standalone function computing hash             |
 
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
+
 - `"prefix"` (default): Prefixes with type name (e.g., `myTypeHashCode`)
 - `"suffix"`: Suffixes with type name (e.g., `hashCodeMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `hashCode<T extends MyType>`)
@@ -1146,17 +1209,17 @@ This algorithm is consistent with Java's `Objects.hash()` implementation.
 
 ## Type-Specific Hashing
 
-| Type | Hash Strategy |
-|------|---------------|
-| `number` | Integer: direct value; Float: string hash of decimal |
-| `bigint` | String hash of decimal representation |
-| `string` | Character-by-character polynomial hash |
-| `boolean` | 1231 for true, 1237 for false (Java convention) |
-| `Date` | `getTime()` timestamp |
-| Arrays | Element-by-element hash combination |
-| `Map` | Entry-by-entry key+value hash |
-| `Set` | Element-by-element hash |
-| Objects | Calls `hashCode()` if available, else JSON string hash |
+| Type      | Hash Strategy                                          |
+| --------- | ------------------------------------------------------ |
+| `number`  | Integer: direct value; Float: string hash of decimal   |
+| `bigint`  | String hash of decimal representation                  |
+| `string`  | Character-by-character polynomial hash                 |
+| `boolean` | 1231 for true, 1237 for false (Java convention)        |
+| `Date`    | `getTime()` timestamp                                  |
+| Arrays    | Element-by-element hash combination                    |
+| `Map`     | Entry-by-entry key+value hash                          |
+| `Set`     | Element-by-element hash                                |
+| Objects   | Calls `hashCode()` if available, else JSON string hash |
 
 ## Field-Level Options
 
@@ -1193,12 +1256,17 @@ class User {
                     ? this.id | 0
                     : this.id
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         hash =
             (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+                (this.name ?? "")
+                    .split("")
+                    .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
             0;
         return hash;
     }
@@ -1234,12 +1302,17 @@ class User {
                     ? this.id | 0
                     : this.id
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         hash =
             (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+                (this.name ?? "")
+                    .split("")
+                    .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
             0;
         return hash;
     }
@@ -1263,7 +1336,6 @@ Objects that are equal (`PartialEq`) should produce the same hash code.
 When using `@hash(skip)`, ensure the same fields are skipped in both
 `Hash` and `PartialEq` to maintain this contract.
 
-
 ---
 
 # Ord
@@ -1274,16 +1346,17 @@ compared with a guaranteed ordering relationship.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `compareTo(other): number` | Instance method returning -1, 0, or 1 |
-| Enum | `compareEnumName(a: EnumName, b: EnumName): number` | Standalone function comparing enum values |
-| Interface | `compareInterfaceName(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields |
-| Type Alias | `compareTypeName(a: TypeName, b: TypeName): number` | Standalone function with type-appropriate comparison |
+| Type       | Generated Code                                                     | Description                                          |
+| ---------- | ------------------------------------------------------------------ | ---------------------------------------------------- |
+| Class      | `compareTo(other): number`                                         | Instance method returning -1, 0, or 1                |
+| Enum       | `compareEnumName(a: EnumName, b: EnumName): number`                | Standalone function comparing enum values            |
+| Interface  | `compareInterfaceName(a: InterfaceName, b: InterfaceName): number` | Standalone function comparing fields                 |
+| Type Alias | `compareTypeName(a: TypeName, b: TypeName): number`                | Standalone function with type-appropriate comparison |
 
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
+
 - `"prefix"` (default): Prefixes with type name (e.g., `myTypeCompare`)
 - `"suffix"`: Suffixes with type name (e.g., `compareMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `compare<T extends MyType>`)
@@ -1311,14 +1384,14 @@ Fields are compared **lexicographically** in declaration order:
 
 ## Type-Specific Comparisons
 
-| Type | Comparison Method |
-|------|-------------------|
-| `number`/`bigint` | Direct `<` and `>` comparison |
-| `string` | `localeCompare()` (clamped to -1, 0, 1) |
-| `boolean` | false &lt; true |
-| Arrays | Lexicographic element-by-element |
-| `Date` | `getTime()` timestamp comparison |
-| Objects | Calls `compareTo()` if available, else 0 |
+| Type              | Comparison Method                        |
+| ----------------- | ---------------------------------------- |
+| `number`/`bigint` | Direct `<` and `>` comparison            |
+| `string`          | `localeCompare()` (clamped to -1, 0, 1)  |
+| `boolean`         | false &lt; true                          |
+| Arrays            | Lexicographic element-by-element         |
+| `Date`            | `getTime()` timestamp comparison         |
+| Objects           | Calls `compareTo()` if available, else 0 |
 
 ## Field-Level Options
 
@@ -1349,11 +1422,26 @@ class Version {
     compareTo(other: Version): number {
         if (this === other) return 0;
         const typedOther = other;
-        const cmp0 = this.major < typedOther.major ? -1 : this.major > typedOther.major ? 1 : 0;
+        const cmp0 =
+            this.major < typedOther.major
+                ? -1
+                : this.major > typedOther.major
+                  ? 1
+                  : 0;
         if (cmp0 !== 0) return cmp0;
-        const cmp1 = this.minor < typedOther.minor ? -1 : this.minor > typedOther.minor ? 1 : 0;
+        const cmp1 =
+            this.minor < typedOther.minor
+                ? -1
+                : this.minor > typedOther.minor
+                  ? 1
+                  : 0;
         if (cmp1 !== 0) return cmp1;
-        const cmp2 = this.patch < typedOther.patch ? -1 : this.patch > typedOther.patch ? 1 : 0;
+        const cmp2 =
+            this.patch < typedOther.patch
+                ? -1
+                : this.patch > typedOther.patch
+                  ? 1
+                  : 0;
         if (cmp2 !== 0) return cmp2;
         return 0;
     }
@@ -1374,11 +1462,26 @@ class Version {
     compareTo(other: Version): number {
         if (this === other) return 0;
         const typedOther = other;
-        const cmp0 = this.major < typedOther.major ? -1 : this.major > typedOther.major ? 1 : 0;
+        const cmp0 =
+            this.major < typedOther.major
+                ? -1
+                : this.major > typedOther.major
+                  ? 1
+                  : 0;
         if (cmp0 !== 0) return cmp0;
-        const cmp1 = this.minor < typedOther.minor ? -1 : this.minor > typedOther.minor ? 1 : 0;
+        const cmp1 =
+            this.minor < typedOther.minor
+                ? -1
+                : this.minor > typedOther.minor
+                  ? 1
+                  : 0;
         if (cmp1 !== 0) return cmp1;
-        const cmp2 = this.patch < typedOther.patch ? -1 : this.patch > typedOther.patch ? 1 : 0;
+        const cmp2 =
+            this.patch < typedOther.patch
+                ? -1
+                : this.patch > typedOther.patch
+                  ? 1
+                  : 0;
         if (cmp2 !== 0) return cmp2;
         return 0;
     }
@@ -1393,7 +1496,6 @@ versions.sort((a, b) => a.compareTo(b));
 - Use **Ord** when all values are comparable (total ordering)
 - Use **PartialOrd** when some values may be incomparable (returns `Option<number>`)
 
-
 ---
 
 # PartialEq
@@ -1404,16 +1506,17 @@ enabling value-based equality semantics instead of reference equality.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `equals(other: unknown): boolean` | Instance method with instanceof check |
-| Enum | `equalsEnumName(a: EnumName, b: EnumName): boolean` | Standalone function using strict equality |
-| Interface | `equalsInterfaceName(a: InterfaceName, b: InterfaceName): boolean` | Standalone function comparing fields |
-| Type Alias | `equalsTypeName(a: TypeName, b: TypeName): boolean` | Standalone function with type-appropriate comparison |
+| Type       | Generated Code                                                     | Description                                          |
+| ---------- | ------------------------------------------------------------------ | ---------------------------------------------------- |
+| Class      | `equals(other: unknown): boolean`                                  | Instance method with instanceof check                |
+| Enum       | `equalsEnumName(a: EnumName, b: EnumName): boolean`                | Standalone function using strict equality            |
+| Interface  | `equalsInterfaceName(a: InterfaceName, b: InterfaceName): boolean` | Standalone function comparing fields                 |
+| Type Alias | `equalsTypeName(a: TypeName, b: TypeName): boolean`                | Standalone function with type-appropriate comparison |
 
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
+
 - `"prefix"` (default): Prefixes with type name (e.g., `myTypeEquals`)
 - `"suffix"`: Suffixes with type name (e.g., `equalsMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `equals<T extends MyType>`)
@@ -1429,14 +1532,14 @@ The generated equality check:
 
 ## Type-Specific Comparisons
 
-| Type | Comparison Method |
-|------|-------------------|
-| Primitives | Strict equality (`===`) |
-| Arrays | Length + element-by-element (recursive) |
-| `Date` | `getTime()` comparison |
-| `Map` | Size + entry-by-entry comparison |
-| `Set` | Size + membership check |
-| Objects | Calls `equals()` if available, else `===` |
+| Type       | Comparison Method                         |
+| ---------- | ----------------------------------------- |
+| Primitives | Strict equality (`===`)                   |
+| Arrays     | Length + element-by-element (recursive)   |
+| `Date`     | `getTime()` comparison                    |
+| `Map`      | Size + entry-by-entry comparison          |
+| `Set`      | Size + membership check                   |
+| Objects    | Calls `equals()` if available, else `===` |
 
 ## Field-Level Options
 
@@ -1482,12 +1585,17 @@ class User {
                     ? this.id | 0
                     : this.id
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         hash =
             (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+                (this.name ?? "")
+                    .split("")
+                    .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
             0;
         hash =
             (hash * 31 +
@@ -1495,8 +1603,11 @@ class User {
                     ? this.cachedScore | 0
                     : this.cachedScore
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         return hash;
     }
@@ -1529,12 +1640,17 @@ class User {
                     ? this.id | 0
                     : this.id
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         hash =
             (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+                (this.name ?? "")
+                    .split("")
+                    .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
             0;
         hash =
             (hash * 31 +
@@ -1542,8 +1658,11 @@ class User {
                     ? this.cachedScore | 0
                     : this.cachedScore
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         return hash;
     }
@@ -1574,12 +1693,17 @@ class User {
                     ? this.id | 0
                     : this.id
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         hash =
             (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+                (this.name ?? "")
+                    .split("")
+                    .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
             0;
         hash =
             (hash * 31 +
@@ -1587,8 +1711,11 @@ class User {
                     ? this.cachedScore | 0
                     : this.cachedScore
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         return hash;
     }
@@ -1621,12 +1748,17 @@ class User {
                     ? this.id | 0
                     : this.id
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         hash =
             (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+                (this.name ?? "")
+                    .split("")
+                    .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
             0;
         hash =
             (hash * 31 +
@@ -1634,8 +1766,11 @@ class User {
                     ? this.cachedScore | 0
                     : this.cachedScore
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         return hash;
     }
@@ -1666,12 +1801,17 @@ class User {
                     ? this.id | 0
                     : this.id
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         hash =
             (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+                (this.name ?? "")
+                    .split("")
+                    .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
             0;
         hash =
             (hash * 31 +
@@ -1679,8 +1819,11 @@ class User {
                     ? this.cachedScore | 0
                     : this.cachedScore
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         return hash;
     }
@@ -1713,12 +1856,17 @@ class User {
                     ? this.id | 0
                     : this.id
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         hash =
             (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+                (this.name ?? "")
+                    .split("")
+                    .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
             0;
         hash =
             (hash * 31 +
@@ -1726,8 +1874,11 @@ class User {
                     ? this.cachedScore | 0
                     : this.cachedScore
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         return hash;
     }
@@ -1758,12 +1909,17 @@ class User {
                     ? this.id | 0
                     : this.id
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         hash =
             (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+                (this.name ?? "")
+                    .split("")
+                    .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
             0;
         hash =
             (hash * 31 +
@@ -1771,8 +1927,11 @@ class User {
                     ? this.cachedScore | 0
                     : this.cachedScore
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         return hash;
     }
@@ -1805,12 +1964,17 @@ class User {
                     ? this.id | 0
                     : this.id
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         hash =
             (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+                (this.name ?? "")
+                    .split("")
+                    .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
             0;
         hash =
             (hash * 31 +
@@ -1818,8 +1982,11 @@ class User {
                     ? this.cachedScore | 0
                     : this.cachedScore
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         return hash;
     }
@@ -1850,12 +2017,17 @@ class User {
                     ? this.id | 0
                     : this.id
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         hash =
             (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+                (this.name ?? "")
+                    .split("")
+                    .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
             0;
         hash =
             (hash * 31 +
@@ -1863,8 +2035,11 @@ class User {
                     ? this.cachedScore | 0
                     : this.cachedScore
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         return hash;
     }
@@ -1897,12 +2072,17 @@ class User {
                     ? this.id | 0
                     : this.id
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         hash =
             (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+                (this.name ?? "")
+                    .split("")
+                    .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
             0;
         hash =
             (hash * 31 +
@@ -1910,8 +2090,11 @@ class User {
                     ? this.cachedScore | 0
                     : this.cachedScore
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         return hash;
     }
@@ -1942,12 +2125,17 @@ class User {
                     ? this.id | 0
                     : this.id
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         hash =
             (hash * 31 +
-                (this.name ?? '').split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
+                (this.name ?? "")
+                    .split("")
+                    .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) |
             0;
         hash =
             (hash * 31 +
@@ -1955,8 +2143,11 @@ class User {
                     ? this.cachedScore | 0
                     : this.cachedScore
                           .toString()
-                          .split('')
-                          .reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0))) |
+                          .split("")
+                          .reduce(
+                              (h, c) => (h * 31 + c.charCodeAt(0)) | 0,
+                              0,
+                          ))) |
             0;
         return hash;
     }
@@ -1971,7 +2162,6 @@ When implementing `PartialEq`, consider also implementing `Hash`:
 - **Symmetry**: `a.equals(b)` implies `b.equals(a)`
 - **Hash consistency**: Equal objects must have equal hash codes
 
-
 ---
 
 # PartialOrd
@@ -1982,16 +2172,17 @@ between values where some pairs may be incomparable.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `compareTo(other): Option<number>` | Instance method with optional result |
-| Enum | `partialCompareEnumName(a: EnumName, b: EnumName): Option<number>` | Standalone function returning Option |
-| Interface | `partialCompareInterfaceName(a: InterfaceName, b: InterfaceName): Option<number>` | Standalone function with Option |
-| Type Alias | `partialCompareTypeName(a: TypeName, b: TypeName): Option<number>` | Standalone function with Option |
+| Type       | Generated Code                                                                    | Description                          |
+| ---------- | --------------------------------------------------------------------------------- | ------------------------------------ |
+| Class      | `compareTo(other): Option<number>`                                                | Instance method with optional result |
+| Enum       | `partialCompareEnumName(a: EnumName, b: EnumName): Option<number>`                | Standalone function returning Option |
+| Interface  | `partialCompareInterfaceName(a: InterfaceName, b: InterfaceName): Option<number>` | Standalone function with Option      |
+| Type Alias | `partialCompareTypeName(a: TypeName, b: TypeName): Option<number>`                | Standalone function with Option      |
 
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
+
 - `"prefix"` (default): Prefixes with type name (e.g., `myTypePartialCompare`)
 - `"suffix"`: Suffixes with type name (e.g., `partialCompareMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `partialCompare<T extends MyType>`)
@@ -2009,9 +2200,9 @@ Unlike `Ord`, `PartialOrd` returns an `Option<number>` to handle incomparable va
 ## When to Use PartialOrd vs Ord
 
 - **PartialOrd**: When some values may not be comparable
-  - Example: Floating-point NaN values
-  - Example: Mixed-type unions
-  - Example: Type mismatches between objects
+    - Example: Floating-point NaN values
+    - Example: Mixed-type unions
+    - Example: Type mismatches between objects
 
 - **Ord**: When all values are guaranteed comparable (total ordering)
 
@@ -2027,15 +2218,15 @@ Fields are compared **lexicographically** in declaration order:
 
 ## Type-Specific Comparisons
 
-| Type | Comparison Method |
-|------|-------------------|
-| `number`/`bigint` | Direct comparison, returns some() |
-| `string` | `localeCompare()` wrapped in some() |
-| `boolean` | false &lt; true, wrapped in some() |
-| null/undefined | Returns none() for mismatched nullability |
-| Arrays | Lexicographic, propagates none() on incomparable elements |
-| `Date` | Timestamp comparison, none() if invalid |
-| Objects | Unwraps nested Option from compareTo() |
+| Type              | Comparison Method                                         |
+| ----------------- | --------------------------------------------------------- |
+| `number`/`bigint` | Direct comparison, returns some()                         |
+| `string`          | `localeCompare()` wrapped in some()                       |
+| `boolean`         | false &lt; true, wrapped in some()                        |
+| null/undefined    | Returns none() for mismatched nullability                 |
+| Arrays            | Lexicographic, propagates none() on incomparable elements |
+| `Date`            | Timestamp comparison, none() if invalid                   |
+| Objects           | Unwraps nested Option from compareTo()                    |
 
 ## Field-Level Options
 
@@ -2054,7 +2245,7 @@ class Temperature {
 ```
 
 ```typescript after
-import { Option } from 'macroforge/utils';
+import { Option } from "macroforge/utils";
 
 class Temperature {
     value: number | null; // null represents "unknown"
@@ -2065,8 +2256,10 @@ class Temperature {
         if (!(other instanceof Temperature)) return Option.none();
         const typedOther = other as Temperature;
         const cmp0 = (() => {
-            if (typeof (this.value as any)?.compareTo === 'function') {
-                const optResult = (this.value as any).compareTo(typedOther.value);
+            if (typeof (this.value as any)?.compareTo === "function") {
+                const optResult = (this.value as any).compareTo(
+                    typedOther.value,
+                );
                 return Option.isNone(optResult) ? null : optResult.value;
             }
             return this.value === typedOther.value ? 0 : null;
@@ -2093,8 +2286,10 @@ class Temperature {
         if (!(other instanceof Temperature)) return Option.none();
         const typedOther = other as Temperature;
         const cmp0 = (() => {
-            if (typeof (this.value as any)?.compareTo === 'function') {
-                const optResult = (this.value as any).compareTo(typedOther.value);
+            if (typeof (this.value as any)?.compareTo === "function") {
+                const optResult = (this.value as any).compareTo(
+                    typedOther.value,
+                );
                 return Option.isNone(optResult) ? null : optResult.value;
             }
             return this.value === typedOther.value ? 0 : null;
@@ -2113,7 +2308,6 @@ class Temperature {
 
 The generated code automatically adds an import for `Option` from `macroforge/utils`.
 
-
 ---
 
 # Serialize
@@ -2124,16 +2318,17 @@ including circular references.
 
 ## Generated Methods
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `serialize()`, `__serialize(ctx)` | Instance methods |
-| Enum | `myEnumSerialize(value)`, `myEnum__serialize` | Standalone functions |
-| Interface | `myInterfaceSerialize(value)`, etc. | Standalone functions |
-| Type Alias | `myTypeSerialize(value)`, etc. | Standalone functions |
+| Type       | Generated Code                                | Description          |
+| ---------- | --------------------------------------------- | -------------------- |
+| Class      | `serialize()`, `SerializeWithContext(ctx)`             | Instance methods     |
+| Enum       | `myEnumSerialize(value)`, `myEnumSerializeWithContext` | Standalone functions |
+| Interface  | `myInterfaceSerialize(value)`, etc.           | Standalone functions |
+| Type Alias | `myTypeSerialize(value)`, etc.                | Standalone functions |
 
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
+
 - `"prefix"` (default): Prefixes with type name (e.g., `myTypeSerialize`)
 - `"suffix"`: Suffixes with type name (e.g., `serializeMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `serialize<T extends MyType>`)
@@ -2148,26 +2343,27 @@ The generated code handles circular references using `__id` and `__ref` markers:
     "__type": "User",
     "__id": 1,
     "name": "Alice",
-    "friend": { "__ref": 2 }  // Reference to object with __id: 2
+    "friend": { "__ref": 2 } // Reference to object with __id: 2
 }
 ```
 
 When an object is serialized:
+
 1. Check if it's already been serialized (has an `__id`)
 2. If so, return `{ "__ref": existingId }` instead
 3. Otherwise, register the object and serialize its fields
 
 ## Type-Specific Serialization
 
-| Type | Serialization Strategy |
-|------|------------------------|
-| Primitives | Direct value |
-| `Date` | `toISOString()` |
-| Arrays | For primitive-like element types, pass through; for `Date`/`Date | null`, map to ISO strings; otherwise map and call `__serialize(ctx)` when available |
-| `Map<K,V>` | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date | null`, convert to ISO strings; otherwise call `__serialize(ctx)` per value when available |
-| `Set<T>` | Convert to array; element handling matches `Array<T>` |
-| Nullable | Include `null` explicitly; for primitive-like and `Date` unions the generator avoids runtime `__serialize` checks |
-| Objects | Call `__serialize(ctx)` if available (to support user-defined implementations) |
+| Type       | Serialization Strategy                                                                                            |
+| ---------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Primitives | Direct value                                                                                                      |
+| `Date`     | `toISOString()`                                                                                                   |
+| Arrays     | For primitive-like element types, pass through; for `Date`/`Date                                                  | null`, map to ISO strings; otherwise map and call `\_\_serialize(ctx)` when available       |
+| `Map<K,V>` | For primitive-like values, `Object.fromEntries(map.entries())`; for `Date`/`Date                                  | null`, convert to ISO strings; otherwise call `\_\_serialize(ctx)` per value when available |
+| `Set<T>`   | Convert to array; element handling matches `Array<T>`                                                             |
+| Nullable   | Include `null` explicitly; for primitive-like and `Date` unions the generator avoids runtime `SerializeWithContext` checks |
+| Objects    | Call `SerializeWithContext(ctx)` if available (to support user-defined implementations)                                    |
 
 Note: the generator specializes some code paths based on the declared TypeScript type to
 avoid runtime feature detection on primitives and literal unions.
@@ -2204,7 +2400,7 @@ const json = user.serialize();
 ```
 
 ```typescript after
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext } from "macroforge/serde";
 
 class User {
     id: number;
@@ -2217,31 +2413,31 @@ class User {
 
     toStringifiedJSON(): string {
         const ctx = SerializeContext.create();
-        return JSON.stringify(this.__serialize(ctx));
+        return JSON.stringify(this.serializeWithContext(ctx));
     }
 
     toObject(): Record<string, unknown> {
         const ctx = SerializeContext.create();
-        return this.__serialize(ctx);
+        return this.serializeWithContext(ctx);
     }
 
-    __serialize(ctx: SerializeContext): Record<string, unknown> {
+    serializeWithContext(ctx: SerializeContext): Record<string, unknown> {
         const existingId = ctx.getId(this);
         if (existingId !== undefined) {
             return {
-                __ref: existingId
+                __ref: existingId,
             };
         }
         const __id = ctx.register(this);
         const result: Record<string, unknown> = {
-            __type: 'User',
-            __id
+            __type: "User",
+            __id,
         };
-        result['id'] = this.id;
-        result['userName'] = this.name;
-        result['password'] = this.password;
+        result["id"] = this.id;
+        result["userName"] = this.name;
+        result["password"] = this.password;
         {
-            const __flattened = userMetadata__serialize(this.metadata, ctx);
+            const __flattened = userMetadataSerializeWithContext(this.metadata, ctx);
             const { __type: _, __id: __, ...rest } = __flattened as any;
             Object.assign(result, rest);
         }
@@ -2258,7 +2454,7 @@ const json = user.serialize();
 Generated output:
 
 ```typescript
-import { SerializeContext } from 'macroforge/serde';
+import { SerializeContext } from "macroforge/serde";
 
 class User {
     id: number;
@@ -2275,26 +2471,26 @@ class User {
      */
     serialize(): string {
         const ctx = SerializeContext.create();
-        return JSON.stringify(this.__serialize(ctx));
+        return JSON.stringify(this.serializeWithContext(ctx));
     }
 
     /** @internal */
-    __serialize(ctx: SerializeContext): Record<string, unknown> {
+    serializeWithContext(ctx: SerializeContext): Record<string, unknown> {
         const existingId = ctx.getId(this);
         if (existingId !== undefined) {
             return {
-                __ref: existingId
+                __ref: existingId,
             };
         }
         const __id = ctx.register(this);
         const result: Record<string, unknown> = {
-            __type: 'User',
-            __id
+            __type: "User",
+            __id,
         };
-        result['id'] = this.id;
-        result['userName'] = this.name;
+        result["id"] = this.id;
+        result["userName"] = this.name;
         {
-            const __flattened = userMetadata__serialize(this.metadata, ctx);
+            const __flattened = userMetadataSerializeWithContext(this.metadata, ctx);
             const { __type: _, __id: __, ...rest } = __flattened as any;
             Object.assign(result, rest);
         }
@@ -2312,7 +2508,6 @@ const json = user.serialize();
 
 The generated code automatically imports `SerializeContext` from `macroforge/serde`.
 
-
 ---
 
 # Deserialize
@@ -2323,16 +2518,17 @@ safe parsing of complex JSON structures including circular references.
 
 ## Generated Output
 
-| Type | Generated Code | Description |
-|------|----------------|-------------|
-| Class | `static deserialize()`, `static __deserialize()` | Static factory methods |
-| Enum | `myEnumDeserialize(input)`, `myEnum__deserialize(data)`, `myEnumIs(value)` | Standalone functions |
-| Interface | `myInterfaceDeserialize(input)`, etc. | Standalone functions |
-| Type Alias | `myTypeDeserialize(input)`, etc. | Standalone functions |
+| Type       | Generated Code                                                                      | Description            |
+| ---------- | ----------------------------------------------------------------------------------- | ---------------------- |
+| Class      | `static deserialize()`, `static deserializeWithContext()`                           | Static factory methods |
+| Enum       | `myEnumDeserialize(input)`, `myEnumDeserializeWithContext(data)`, `myEnumIs(value)` | Standalone functions   |
+| Interface  | `myInterfaceDeserialize(input)`, etc.                                               | Standalone functions   |
+| Type Alias | `myTypeDeserialize(input)`, etc.                                                    | Standalone functions   |
 
 ## Configuration
 
 The `functionNamingStyle` option in `macroforge.json` controls naming:
+
 - `"prefix"` (default): Prefixes with type name (e.g., `myTypeDeserialize`)
 - `"suffix"`: Suffixes with type name (e.g., `deserializeMyType`)
 - `"generic"`: Uses TypeScript generics (e.g., `deserialize<T extends MyType>`)
@@ -2362,19 +2558,23 @@ and it parses `Date` / `Date | null` from ISO strings without treating them as r
 The macro supports 30+ validators via `@serde(validate(...))`:
 
 ### String Validators
+
 - `email`, `url`, `uuid` - Format validation
 - `minLength(n)`, `maxLength(n)`, `length(n)` - Length constraints
 - `pattern("regex")` - Regular expression matching
 - `nonEmpty`, `trimmed`, `lowercase`, `uppercase` - String properties
 
 ### Number Validators
+
 - `gt(n)`, `gte(n)`, `lt(n)`, `lte(n)`, `between(min, max)` - Range checks
 - `int`, `positive`, `nonNegative`, `finite` - Number properties
 
 ### Array Validators
+
 - `minItems(n)`, `maxItems(n)`, `itemsCount(n)` - Collection size
 
 ### Date Validators
+
 - `validDate`, `afterDate("ISO")`, `beforeDate("ISO")` - Date validation
 
 ## Field-Level Options
@@ -2397,23 +2597,29 @@ The `@serde` decorator supports:
 Union types are deserialized based on their member types:
 
 ### Literal Unions
+
 For unions of literal values (`"A" | "B" | 123`), the value is validated against
 the allowed literals directly.
 
 ### Primitive Unions
+
 For unions containing primitive types (`string | number`), the deserializer uses
 `typeof` checks to validate the value type. No `__type` discriminator is needed.
 
 ### Class/Interface Unions
+
 For unions of serializable types (`User | Admin`), the deserializer requires a
-`__type` field in the JSON to dispatch to the correct type's `__deserialize` method.
+`__type` field in the JSON to dispatch to the correct type's `DeserializeWithContext` method.
 
 ### Generic Type Parameters
+
 For generic unions like `type Result<T> = T | Error`, the generic type parameter `T`
 is passed through as-is since its concrete type is only known at the call site.
 
 ### Mixed Unions
+
 Mixed unions (e.g., `string | Date | User`) check in order:
+
 1. Literal values
 2. Primitives (via `typeof`)
 3. Date (via `instanceof` or ISO string parsing)
@@ -2448,11 +2654,11 @@ if (Result.isOk(result)) {
 ```
 
 ```typescript after
-import { Result } from 'macroforge/utils';
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { Result } from "macroforge/utils";
+import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions } from "macroforge/serde";
+import { PendingRef } from "macroforge/serde";
 
 /** @serde({ denyUnknownFields: true }) */
 class User {
@@ -2478,7 +2684,7 @@ class User {
 
     static fromStringifiedJSON(
         json: string,
-        opts?: DeserializeOptions
+        opts?: DeserializeOptions,
     ): Result<
         User,
         Array<{
@@ -2496,16 +2702,16 @@ class User {
             const message = e instanceof Error ? e.message : String(e);
             return Result.err([
                 {
-                    field: '_root',
-                    message
-                }
+                    field: "_root",
+                    message,
+                },
             ]);
         }
     }
 
     static fromObject(
         obj: unknown,
-        opts?: DeserializeOptions
+        opts?: DeserializeOptions,
     ): Result<
         User,
         Array<{
@@ -2515,13 +2721,14 @@ class User {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(obj, ctx);
+            const resultOrRef = User.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
-                        field: '_root',
-                        message: 'User.fromObject: root cannot be a forward reference'
-                    }
+                        field: "_root",
+                        message:
+                            "User.fromObject: root cannot be a forward reference",
+                    },
                 ]);
             }
             ctx.applyPatches();
@@ -2536,23 +2743,30 @@ class User {
             const message = e instanceof Error ? e.message : String(e);
             return Result.err([
                 {
-                    field: '_root',
-                    message
-                }
+                    field: "_root",
+                    message,
+                },
             ]);
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext,
+    ): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        if (
+            typeof value !== "object" ||
+            value === null ||
+            Array.isArray(value)
+        ) {
             throw new DeserializeError([
                 {
-                    field: '_root',
-                    message: 'User.__deserialize: expected an object'
-                }
+                    field: "_root",
+                    message: "User.deserializeWithContext: expected an object",
+                },
             ]);
         }
         const obj = value as Record<string, unknown>;
@@ -2560,16 +2774,16 @@ class User {
             field: string;
             message: string;
         }> = [];
-        if (!('id' in obj)) {
+        if (!("id" in obj)) {
             errors.push({
-                field: 'id',
-                message: 'missing required field'
+                field: "id",
+                message: "missing required field",
             });
         }
-        if (!('email' in obj)) {
+        if (!("email" in obj)) {
             errors.push({
-                field: 'email',
-                message: 'missing required field'
+                field: "email",
+                message: "missing required field",
             });
         }
         if (errors.length > 0) {
@@ -2581,21 +2795,21 @@ class User {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'] as number;
+            const __raw_id = obj["id"] as number;
             instance.id = __raw_id;
         }
         {
-            const __raw_email = obj['email'] as string;
+            const __raw_email = obj["email"] as string;
             instance.email = __raw_email;
         }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
+        if ("name" in obj && obj["name"] !== undefined) {
+            const __raw_name = obj["name"] as string;
             instance.name = __raw_name;
         } else {
             instance.name = guest;
         }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
+        if ("age" in obj && obj["age"] !== undefined) {
+            const __raw_age = obj["age"] as number;
             instance.age = __raw_age;
         }
         if (errors.length > 0) {
@@ -2606,7 +2820,7 @@ class User {
 
     static validateField<K extends keyof User>(
         field: K,
-        value: User[K]
+        value: User[K],
     ): Array<{
         field: string;
         message: string;
@@ -2622,11 +2836,11 @@ class User {
     }
 
     static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
             return false;
         }
         const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
+        return "id" in o && "email" in o;
     }
 
     static is(obj: unknown): obj is User {
@@ -2653,10 +2867,10 @@ if (Result.isOk(result)) {
 Generated output:
 
 ```typescript before
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions } from "macroforge/serde";
+import { PendingRef } from "macroforge/serde";
 
 /** @serde({ denyUnknownFields: true }) */
 class User {
@@ -2689,7 +2903,7 @@ class User {
      */
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
+        opts?: DeserializeOptions,
     ): Result<
         User,
         Array<{
@@ -2699,16 +2913,17 @@ class User {
     > {
         try {
             // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const data = typeof input === "string" ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
+                        field: "_root",
+                        message:
+                            "User.deserialize: root cannot be a forward reference",
+                    },
                 ]);
             }
             ctx.applyPatches();
@@ -2723,24 +2938,31 @@ class User {
             const message = e instanceof Error ? e.message : String(e);
             return Result.err([
                 {
-                    field: '_root',
-                    message
-                }
+                    field: "_root",
+                    message,
+                },
             ]);
         }
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext,
+    ): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        if (
+            typeof value !== "object" ||
+            value === null ||
+            Array.isArray(value)
+        ) {
             throw new DeserializeError([
                 {
-                    field: '_root',
-                    message: 'User.__deserialize: expected an object'
-                }
+                    field: "_root",
+                    message: "User.deserializeWithContext: expected an object",
+                },
             ]);
         }
         const obj = value as Record<string, unknown>;
@@ -2748,25 +2970,33 @@ class User {
             field: string;
             message: string;
         }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
+        const knownKeys = new Set([
+            "__type",
+            "__id",
+            "__ref",
+            "id",
+            "email",
+            "name",
+            "age",
+        ]);
         for (const key of Object.keys(obj)) {
             if (!knownKeys.has(key)) {
                 errors.push({
                     field: key,
-                    message: 'unknown field'
+                    message: "unknown field",
                 });
             }
         }
-        if (!('id' in obj)) {
+        if (!("id" in obj)) {
             errors.push({
-                field: 'id',
-                message: 'missing required field'
+                field: "id",
+                message: "missing required field",
             });
         }
-        if (!('email' in obj)) {
+        if (!("email" in obj)) {
             errors.push({
-                field: 'email',
-                message: 'missing required field'
+                field: "email",
+                message: "missing required field",
             });
         }
         if (errors.length > 0) {
@@ -2778,21 +3008,21 @@ class User {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'] as number;
+            const __raw_id = obj["id"] as number;
             instance.id = __raw_id;
         }
         {
-            const __raw_email = obj['email'] as string;
+            const __raw_email = obj["email"] as string;
             instance.email = __raw_email;
         }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
+        if ("name" in obj && obj["name"] !== undefined) {
+            const __raw_name = obj["name"] as string;
             instance.name = __raw_name;
         } else {
             instance.name = guest;
         }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
+        if ("age" in obj && obj["age"] !== undefined) {
+            const __raw_age = obj["age"] as number;
             instance.age = __raw_age;
         }
         if (errors.length > 0) {
@@ -2803,7 +3033,7 @@ class User {
 
     static validateField<K extends keyof User>(
         field: K,
-        value: User[K]
+        value: User[K],
     ): Array<{
         field: string;
         message: string;
@@ -2819,11 +3049,11 @@ class User {
     }
 
     static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
             return false;
         }
         const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
+        return "id" in o && "email" in o;
     }
 
     static is(obj: unknown): obj is User {
@@ -2848,10 +3078,10 @@ if (Result.isOk(result)) {
 ```
 
 ```typescript after
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions } from "macroforge/serde";
+import { PendingRef } from "macroforge/serde";
 
 /** @serde({ denyUnknownFields: true }) */
 class User {
@@ -2884,7 +3114,7 @@ class User {
      */
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
+        opts?: DeserializeOptions,
     ): Result<
         User,
         Array<{
@@ -2894,16 +3124,17 @@ class User {
     > {
         try {
             // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const data = typeof input === "string" ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
+                        field: "_root",
+                        message:
+                            "User.deserialize: root cannot be a forward reference",
+                    },
                 ]);
             }
             ctx.applyPatches();
@@ -2918,24 +3149,31 @@ class User {
             const message = e instanceof Error ? e.message : String(e);
             return Result.err([
                 {
-                    field: '_root',
-                    message
-                }
+                    field: "_root",
+                    message,
+                },
             ]);
         }
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext,
+    ): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        if (
+            typeof value !== "object" ||
+            value === null ||
+            Array.isArray(value)
+        ) {
             throw new DeserializeError([
                 {
-                    field: '_root',
-                    message: 'User.__deserialize: expected an object'
-                }
+                    field: "_root",
+                    message: "User.deserializeWithContext: expected an object",
+                },
             ]);
         }
         const obj = value as Record<string, unknown>;
@@ -2943,25 +3181,33 @@ class User {
             field: string;
             message: string;
         }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
+        const knownKeys = new Set([
+            "__type",
+            "__id",
+            "__ref",
+            "id",
+            "email",
+            "name",
+            "age",
+        ]);
         for (const key of Object.keys(obj)) {
             if (!knownKeys.has(key)) {
                 errors.push({
                     field: key,
-                    message: 'unknown field'
+                    message: "unknown field",
                 });
             }
         }
-        if (!('id' in obj)) {
+        if (!("id" in obj)) {
             errors.push({
-                field: 'id',
-                message: 'missing required field'
+                field: "id",
+                message: "missing required field",
             });
         }
-        if (!('email' in obj)) {
+        if (!("email" in obj)) {
             errors.push({
-                field: 'email',
-                message: 'missing required field'
+                field: "email",
+                message: "missing required field",
             });
         }
         if (errors.length > 0) {
@@ -2973,21 +3219,21 @@ class User {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'] as number;
+            const __raw_id = obj["id"] as number;
             instance.id = __raw_id;
         }
         {
-            const __raw_email = obj['email'] as string;
+            const __raw_email = obj["email"] as string;
             instance.email = __raw_email;
         }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
+        if ("name" in obj && obj["name"] !== undefined) {
+            const __raw_name = obj["name"] as string;
             instance.name = __raw_name;
         } else {
             instance.name = guest;
         }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
+        if ("age" in obj && obj["age"] !== undefined) {
+            const __raw_age = obj["age"] as number;
             instance.age = __raw_age;
         }
         if (errors.length > 0) {
@@ -2998,7 +3244,7 @@ class User {
 
     static validateField<K extends keyof User>(
         field: K,
-        value: User[K]
+        value: User[K],
     ): Array<{
         field: string;
         message: string;
@@ -3014,11 +3260,11 @@ class User {
     }
 
     static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
             return false;
         }
         const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
+        return "id" in o && "email" in o;
     }
 
     static is(obj: unknown): obj is User {
@@ -3045,10 +3291,10 @@ if (Result.isOk(result)) {
 Generated output:
 
 ```typescript before
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions } from "macroforge/serde";
+import { PendingRef } from "macroforge/serde";
 
 /** @serde({ denyUnknownFields: true }) */
 class User {
@@ -3081,7 +3327,7 @@ class User {
      */
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
+        opts?: DeserializeOptions,
     ): Result<
         User,
         Array<{
@@ -3091,16 +3337,17 @@ class User {
     > {
         try {
             // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const data = typeof input === "string" ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
+                        field: "_root",
+                        message:
+                            "User.deserialize: root cannot be a forward reference",
+                    },
                 ]);
             }
             ctx.applyPatches();
@@ -3115,24 +3362,31 @@ class User {
             const message = e instanceof Error ? e.message : String(e);
             return Result.err([
                 {
-                    field: '_root',
-                    message
-                }
+                    field: "_root",
+                    message,
+                },
             ]);
         }
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext,
+    ): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        if (
+            typeof value !== "object" ||
+            value === null ||
+            Array.isArray(value)
+        ) {
             throw new DeserializeError([
                 {
-                    field: '_root',
-                    message: 'User.__deserialize: expected an object'
-                }
+                    field: "_root",
+                    message: "User.deserializeWithContext: expected an object",
+                },
             ]);
         }
         const obj = value as Record<string, unknown>;
@@ -3140,25 +3394,33 @@ class User {
             field: string;
             message: string;
         }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
+        const knownKeys = new Set([
+            "__type",
+            "__id",
+            "__ref",
+            "id",
+            "email",
+            "name",
+            "age",
+        ]);
         for (const key of Object.keys(obj)) {
             if (!knownKeys.has(key)) {
                 errors.push({
                     field: key,
-                    message: 'unknown field'
+                    message: "unknown field",
                 });
             }
         }
-        if (!('id' in obj)) {
+        if (!("id" in obj)) {
             errors.push({
-                field: 'id',
-                message: 'missing required field'
+                field: "id",
+                message: "missing required field",
             });
         }
-        if (!('email' in obj)) {
+        if (!("email" in obj)) {
             errors.push({
-                field: 'email',
-                message: 'missing required field'
+                field: "email",
+                message: "missing required field",
             });
         }
         if (errors.length > 0) {
@@ -3170,21 +3432,21 @@ class User {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'] as number;
+            const __raw_id = obj["id"] as number;
             instance.id = __raw_id;
         }
         {
-            const __raw_email = obj['email'] as string;
+            const __raw_email = obj["email"] as string;
             instance.email = __raw_email;
         }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
+        if ("name" in obj && obj["name"] !== undefined) {
+            const __raw_name = obj["name"] as string;
             instance.name = __raw_name;
         } else {
             instance.name = guest;
         }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
+        if ("age" in obj && obj["age"] !== undefined) {
+            const __raw_age = obj["age"] as number;
             instance.age = __raw_age;
         }
         if (errors.length > 0) {
@@ -3195,7 +3457,7 @@ class User {
 
     static validateField<K extends keyof User>(
         field: K,
-        value: User[K]
+        value: User[K],
     ): Array<{
         field: string;
         message: string;
@@ -3211,11 +3473,11 @@ class User {
     }
 
     static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
             return false;
         }
         const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
+        return "id" in o && "email" in o;
     }
 
     static is(obj: unknown): obj is User {
@@ -3240,10 +3502,10 @@ if (Result.isOk(result)) {
 ```
 
 ```typescript after
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions } from "macroforge/serde";
+import { PendingRef } from "macroforge/serde";
 
 /** @serde({ denyUnknownFields: true }) */
 class User {
@@ -3276,7 +3538,7 @@ class User {
      */
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
+        opts?: DeserializeOptions,
     ): Result<
         User,
         Array<{
@@ -3286,16 +3548,17 @@ class User {
     > {
         try {
             // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const data = typeof input === "string" ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
+                        field: "_root",
+                        message:
+                            "User.deserialize: root cannot be a forward reference",
+                    },
                 ]);
             }
             ctx.applyPatches();
@@ -3310,24 +3573,31 @@ class User {
             const message = e instanceof Error ? e.message : String(e);
             return Result.err([
                 {
-                    field: '_root',
-                    message
-                }
+                    field: "_root",
+                    message,
+                },
             ]);
         }
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext,
+    ): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        if (
+            typeof value !== "object" ||
+            value === null ||
+            Array.isArray(value)
+        ) {
             throw new DeserializeError([
                 {
-                    field: '_root',
-                    message: 'User.__deserialize: expected an object'
-                }
+                    field: "_root",
+                    message: "User.deserializeWithContext: expected an object",
+                },
             ]);
         }
         const obj = value as Record<string, unknown>;
@@ -3335,25 +3605,33 @@ class User {
             field: string;
             message: string;
         }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
+        const knownKeys = new Set([
+            "__type",
+            "__id",
+            "__ref",
+            "id",
+            "email",
+            "name",
+            "age",
+        ]);
         for (const key of Object.keys(obj)) {
             if (!knownKeys.has(key)) {
                 errors.push({
                     field: key,
-                    message: 'unknown field'
+                    message: "unknown field",
                 });
             }
         }
-        if (!('id' in obj)) {
+        if (!("id" in obj)) {
             errors.push({
-                field: 'id',
-                message: 'missing required field'
+                field: "id",
+                message: "missing required field",
             });
         }
-        if (!('email' in obj)) {
+        if (!("email" in obj)) {
             errors.push({
-                field: 'email',
-                message: 'missing required field'
+                field: "email",
+                message: "missing required field",
             });
         }
         if (errors.length > 0) {
@@ -3365,21 +3643,21 @@ class User {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'] as number;
+            const __raw_id = obj["id"] as number;
             instance.id = __raw_id;
         }
         {
-            const __raw_email = obj['email'] as string;
+            const __raw_email = obj["email"] as string;
             instance.email = __raw_email;
         }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
+        if ("name" in obj && obj["name"] !== undefined) {
+            const __raw_name = obj["name"] as string;
             instance.name = __raw_name;
         } else {
             instance.name = guest;
         }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
+        if ("age" in obj && obj["age"] !== undefined) {
+            const __raw_age = obj["age"] as number;
             instance.age = __raw_age;
         }
         if (errors.length > 0) {
@@ -3390,7 +3668,7 @@ class User {
 
     static validateField<K extends keyof User>(
         field: K,
-        value: User[K]
+        value: User[K],
     ): Array<{
         field: string;
         message: string;
@@ -3406,11 +3684,11 @@ class User {
     }
 
     static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
             return false;
         }
         const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
+        return "id" in o && "email" in o;
     }
 
     static is(obj: unknown): obj is User {
@@ -3437,10 +3715,10 @@ if (Result.isOk(result)) {
 Generated output:
 
 ```typescript before
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions } from "macroforge/serde";
+import { PendingRef } from "macroforge/serde";
 
 /** @serde({ denyUnknownFields: true }) */
 class User {
@@ -3473,7 +3751,7 @@ class User {
      */
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
+        opts?: DeserializeOptions,
     ): Result<
         User,
         Array<{
@@ -3483,16 +3761,17 @@ class User {
     > {
         try {
             // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const data = typeof input === "string" ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
+                        field: "_root",
+                        message:
+                            "User.deserialize: root cannot be a forward reference",
+                    },
                 ]);
             }
             ctx.applyPatches();
@@ -3507,24 +3786,31 @@ class User {
             const message = e instanceof Error ? e.message : String(e);
             return Result.err([
                 {
-                    field: '_root',
-                    message
-                }
+                    field: "_root",
+                    message,
+                },
             ]);
         }
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext,
+    ): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        if (
+            typeof value !== "object" ||
+            value === null ||
+            Array.isArray(value)
+        ) {
             throw new DeserializeError([
                 {
-                    field: '_root',
-                    message: 'User.__deserialize: expected an object'
-                }
+                    field: "_root",
+                    message: "User.deserializeWithContext: expected an object",
+                },
             ]);
         }
         const obj = value as Record<string, unknown>;
@@ -3532,25 +3818,33 @@ class User {
             field: string;
             message: string;
         }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
+        const knownKeys = new Set([
+            "__type",
+            "__id",
+            "__ref",
+            "id",
+            "email",
+            "name",
+            "age",
+        ]);
         for (const key of Object.keys(obj)) {
             if (!knownKeys.has(key)) {
                 errors.push({
                     field: key,
-                    message: 'unknown field'
+                    message: "unknown field",
                 });
             }
         }
-        if (!('id' in obj)) {
+        if (!("id" in obj)) {
             errors.push({
-                field: 'id',
-                message: 'missing required field'
+                field: "id",
+                message: "missing required field",
             });
         }
-        if (!('email' in obj)) {
+        if (!("email" in obj)) {
             errors.push({
-                field: 'email',
-                message: 'missing required field'
+                field: "email",
+                message: "missing required field",
             });
         }
         if (errors.length > 0) {
@@ -3562,21 +3856,21 @@ class User {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'] as number;
+            const __raw_id = obj["id"] as number;
             instance.id = __raw_id;
         }
         {
-            const __raw_email = obj['email'] as string;
+            const __raw_email = obj["email"] as string;
             instance.email = __raw_email;
         }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
+        if ("name" in obj && obj["name"] !== undefined) {
+            const __raw_name = obj["name"] as string;
             instance.name = __raw_name;
         } else {
             instance.name = guest;
         }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
+        if ("age" in obj && obj["age"] !== undefined) {
+            const __raw_age = obj["age"] as number;
             instance.age = __raw_age;
         }
         if (errors.length > 0) {
@@ -3587,7 +3881,7 @@ class User {
 
     static validateField<K extends keyof User>(
         field: K,
-        value: User[K]
+        value: User[K],
     ): Array<{
         field: string;
         message: string;
@@ -3603,11 +3897,11 @@ class User {
     }
 
     static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
             return false;
         }
         const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
+        return "id" in o && "email" in o;
     }
 
     static is(obj: unknown): obj is User {
@@ -3632,10 +3926,10 @@ if (Result.isOk(result)) {
 ```
 
 ```typescript after
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions } from "macroforge/serde";
+import { PendingRef } from "macroforge/serde";
 
 /** @serde({ denyUnknownFields: true }) */
 class User {
@@ -3668,7 +3962,7 @@ class User {
      */
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
+        opts?: DeserializeOptions,
     ): Result<
         User,
         Array<{
@@ -3678,16 +3972,17 @@ class User {
     > {
         try {
             // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const data = typeof input === "string" ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
+                        field: "_root",
+                        message:
+                            "User.deserialize: root cannot be a forward reference",
+                    },
                 ]);
             }
             ctx.applyPatches();
@@ -3702,24 +3997,31 @@ class User {
             const message = e instanceof Error ? e.message : String(e);
             return Result.err([
                 {
-                    field: '_root',
-                    message
-                }
+                    field: "_root",
+                    message,
+                },
             ]);
         }
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext,
+    ): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        if (
+            typeof value !== "object" ||
+            value === null ||
+            Array.isArray(value)
+        ) {
             throw new DeserializeError([
                 {
-                    field: '_root',
-                    message: 'User.__deserialize: expected an object'
-                }
+                    field: "_root",
+                    message: "User.deserializeWithContext: expected an object",
+                },
             ]);
         }
         const obj = value as Record<string, unknown>;
@@ -3727,25 +4029,33 @@ class User {
             field: string;
             message: string;
         }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
+        const knownKeys = new Set([
+            "__type",
+            "__id",
+            "__ref",
+            "id",
+            "email",
+            "name",
+            "age",
+        ]);
         for (const key of Object.keys(obj)) {
             if (!knownKeys.has(key)) {
                 errors.push({
                     field: key,
-                    message: 'unknown field'
+                    message: "unknown field",
                 });
             }
         }
-        if (!('id' in obj)) {
+        if (!("id" in obj)) {
             errors.push({
-                field: 'id',
-                message: 'missing required field'
+                field: "id",
+                message: "missing required field",
             });
         }
-        if (!('email' in obj)) {
+        if (!("email" in obj)) {
             errors.push({
-                field: 'email',
-                message: 'missing required field'
+                field: "email",
+                message: "missing required field",
             });
         }
         if (errors.length > 0) {
@@ -3757,21 +4067,21 @@ class User {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'] as number;
+            const __raw_id = obj["id"] as number;
             instance.id = __raw_id;
         }
         {
-            const __raw_email = obj['email'] as string;
+            const __raw_email = obj["email"] as string;
             instance.email = __raw_email;
         }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
+        if ("name" in obj && obj["name"] !== undefined) {
+            const __raw_name = obj["name"] as string;
             instance.name = __raw_name;
         } else {
             instance.name = guest;
         }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
+        if ("age" in obj && obj["age"] !== undefined) {
+            const __raw_age = obj["age"] as number;
             instance.age = __raw_age;
         }
         if (errors.length > 0) {
@@ -3782,7 +4092,7 @@ class User {
 
     static validateField<K extends keyof User>(
         field: K,
-        value: User[K]
+        value: User[K],
     ): Array<{
         field: string;
         message: string;
@@ -3798,11 +4108,11 @@ class User {
     }
 
     static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
             return false;
         }
         const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
+        return "id" in o && "email" in o;
     }
 
     static is(obj: unknown): obj is User {
@@ -3829,10 +4139,10 @@ if (Result.isOk(result)) {
 Generated output:
 
 ```typescript before
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions } from "macroforge/serde";
+import { PendingRef } from "macroforge/serde";
 
 /** @serde({ denyUnknownFields: true }) */
 class User {
@@ -3865,7 +4175,7 @@ class User {
      */
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
+        opts?: DeserializeOptions,
     ): Result<
         User,
         Array<{
@@ -3875,16 +4185,17 @@ class User {
     > {
         try {
             // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const data = typeof input === "string" ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
+                        field: "_root",
+                        message:
+                            "User.deserialize: root cannot be a forward reference",
+                    },
                 ]);
             }
             ctx.applyPatches();
@@ -3899,24 +4210,31 @@ class User {
             const message = e instanceof Error ? e.message : String(e);
             return Result.err([
                 {
-                    field: '_root',
-                    message
-                }
+                    field: "_root",
+                    message,
+                },
             ]);
         }
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext,
+    ): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        if (
+            typeof value !== "object" ||
+            value === null ||
+            Array.isArray(value)
+        ) {
             throw new DeserializeError([
                 {
-                    field: '_root',
-                    message: 'User.__deserialize: expected an object'
-                }
+                    field: "_root",
+                    message: "User.deserializeWithContext: expected an object",
+                },
             ]);
         }
         const obj = value as Record<string, unknown>;
@@ -3924,25 +4242,33 @@ class User {
             field: string;
             message: string;
         }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
+        const knownKeys = new Set([
+            "__type",
+            "__id",
+            "__ref",
+            "id",
+            "email",
+            "name",
+            "age",
+        ]);
         for (const key of Object.keys(obj)) {
             if (!knownKeys.has(key)) {
                 errors.push({
                     field: key,
-                    message: 'unknown field'
+                    message: "unknown field",
                 });
             }
         }
-        if (!('id' in obj)) {
+        if (!("id" in obj)) {
             errors.push({
-                field: 'id',
-                message: 'missing required field'
+                field: "id",
+                message: "missing required field",
             });
         }
-        if (!('email' in obj)) {
+        if (!("email" in obj)) {
             errors.push({
-                field: 'email',
-                message: 'missing required field'
+                field: "email",
+                message: "missing required field",
             });
         }
         if (errors.length > 0) {
@@ -3954,21 +4280,21 @@ class User {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'] as number;
+            const __raw_id = obj["id"] as number;
             instance.id = __raw_id;
         }
         {
-            const __raw_email = obj['email'] as string;
+            const __raw_email = obj["email"] as string;
             instance.email = __raw_email;
         }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
+        if ("name" in obj && obj["name"] !== undefined) {
+            const __raw_name = obj["name"] as string;
             instance.name = __raw_name;
         } else {
             instance.name = guest;
         }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
+        if ("age" in obj && obj["age"] !== undefined) {
+            const __raw_age = obj["age"] as number;
             instance.age = __raw_age;
         }
         if (errors.length > 0) {
@@ -3979,7 +4305,7 @@ class User {
 
     static validateField<K extends keyof User>(
         field: K,
-        value: User[K]
+        value: User[K],
     ): Array<{
         field: string;
         message: string;
@@ -3995,11 +4321,11 @@ class User {
     }
 
     static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
             return false;
         }
         const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
+        return "id" in o && "email" in o;
     }
 
     static is(obj: unknown): obj is User {
@@ -4024,10 +4350,10 @@ if (Result.isOk(result)) {
 ```
 
 ```typescript after
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions } from "macroforge/serde";
+import { PendingRef } from "macroforge/serde";
 
 /** @serde({ denyUnknownFields: true }) */
 class User {
@@ -4060,7 +4386,7 @@ class User {
      */
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
+        opts?: DeserializeOptions,
     ): Result<
         User,
         Array<{
@@ -4070,16 +4396,17 @@ class User {
     > {
         try {
             // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const data = typeof input === "string" ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
+                        field: "_root",
+                        message:
+                            "User.deserialize: root cannot be a forward reference",
+                    },
                 ]);
             }
             ctx.applyPatches();
@@ -4094,24 +4421,31 @@ class User {
             const message = e instanceof Error ? e.message : String(e);
             return Result.err([
                 {
-                    field: '_root',
-                    message
-                }
+                    field: "_root",
+                    message,
+                },
             ]);
         }
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext,
+    ): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        if (
+            typeof value !== "object" ||
+            value === null ||
+            Array.isArray(value)
+        ) {
             throw new DeserializeError([
                 {
-                    field: '_root',
-                    message: 'User.__deserialize: expected an object'
-                }
+                    field: "_root",
+                    message: "User.deserializeWithContext: expected an object",
+                },
             ]);
         }
         const obj = value as Record<string, unknown>;
@@ -4119,25 +4453,33 @@ class User {
             field: string;
             message: string;
         }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
+        const knownKeys = new Set([
+            "__type",
+            "__id",
+            "__ref",
+            "id",
+            "email",
+            "name",
+            "age",
+        ]);
         for (const key of Object.keys(obj)) {
             if (!knownKeys.has(key)) {
                 errors.push({
                     field: key,
-                    message: 'unknown field'
+                    message: "unknown field",
                 });
             }
         }
-        if (!('id' in obj)) {
+        if (!("id" in obj)) {
             errors.push({
-                field: 'id',
-                message: 'missing required field'
+                field: "id",
+                message: "missing required field",
             });
         }
-        if (!('email' in obj)) {
+        if (!("email" in obj)) {
             errors.push({
-                field: 'email',
-                message: 'missing required field'
+                field: "email",
+                message: "missing required field",
             });
         }
         if (errors.length > 0) {
@@ -4149,21 +4491,21 @@ class User {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'] as number;
+            const __raw_id = obj["id"] as number;
             instance.id = __raw_id;
         }
         {
-            const __raw_email = obj['email'] as string;
+            const __raw_email = obj["email"] as string;
             instance.email = __raw_email;
         }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
+        if ("name" in obj && obj["name"] !== undefined) {
+            const __raw_name = obj["name"] as string;
             instance.name = __raw_name;
         } else {
             instance.name = guest;
         }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
+        if ("age" in obj && obj["age"] !== undefined) {
+            const __raw_age = obj["age"] as number;
             instance.age = __raw_age;
         }
         if (errors.length > 0) {
@@ -4174,7 +4516,7 @@ class User {
 
     static validateField<K extends keyof User>(
         field: K,
-        value: User[K]
+        value: User[K],
     ): Array<{
         field: string;
         message: string;
@@ -4190,11 +4532,11 @@ class User {
     }
 
     static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
             return false;
         }
         const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
+        return "id" in o && "email" in o;
     }
 
     static is(obj: unknown): obj is User {
@@ -4221,10 +4563,10 @@ if (Result.isOk(result)) {
 Generated output:
 
 ```typescript before
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions } from "macroforge/serde";
+import { PendingRef } from "macroforge/serde";
 
 /** @serde({ denyUnknownFields: true }) */
 class User {
@@ -4257,7 +4599,7 @@ class User {
      */
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
+        opts?: DeserializeOptions,
     ): Result<
         User,
         Array<{
@@ -4267,16 +4609,17 @@ class User {
     > {
         try {
             // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const data = typeof input === "string" ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
+                        field: "_root",
+                        message:
+                            "User.deserialize: root cannot be a forward reference",
+                    },
                 ]);
             }
             ctx.applyPatches();
@@ -4291,24 +4634,31 @@ class User {
             const message = e instanceof Error ? e.message : String(e);
             return Result.err([
                 {
-                    field: '_root',
-                    message
-                }
+                    field: "_root",
+                    message,
+                },
             ]);
         }
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext,
+    ): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        if (
+            typeof value !== "object" ||
+            value === null ||
+            Array.isArray(value)
+        ) {
             throw new DeserializeError([
                 {
-                    field: '_root',
-                    message: 'User.__deserialize: expected an object'
-                }
+                    field: "_root",
+                    message: "User.deserializeWithContext: expected an object",
+                },
             ]);
         }
         const obj = value as Record<string, unknown>;
@@ -4316,25 +4666,33 @@ class User {
             field: string;
             message: string;
         }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
+        const knownKeys = new Set([
+            "__type",
+            "__id",
+            "__ref",
+            "id",
+            "email",
+            "name",
+            "age",
+        ]);
         for (const key of Object.keys(obj)) {
             if (!knownKeys.has(key)) {
                 errors.push({
                     field: key,
-                    message: 'unknown field'
+                    message: "unknown field",
                 });
             }
         }
-        if (!('id' in obj)) {
+        if (!("id" in obj)) {
             errors.push({
-                field: 'id',
-                message: 'missing required field'
+                field: "id",
+                message: "missing required field",
             });
         }
-        if (!('email' in obj)) {
+        if (!("email" in obj)) {
             errors.push({
-                field: 'email',
-                message: 'missing required field'
+                field: "email",
+                message: "missing required field",
             });
         }
         if (errors.length > 0) {
@@ -4346,21 +4704,21 @@ class User {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'] as number;
+            const __raw_id = obj["id"] as number;
             instance.id = __raw_id;
         }
         {
-            const __raw_email = obj['email'] as string;
+            const __raw_email = obj["email"] as string;
             instance.email = __raw_email;
         }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
+        if ("name" in obj && obj["name"] !== undefined) {
+            const __raw_name = obj["name"] as string;
             instance.name = __raw_name;
         } else {
             instance.name = guest;
         }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
+        if ("age" in obj && obj["age"] !== undefined) {
+            const __raw_age = obj["age"] as number;
             instance.age = __raw_age;
         }
         if (errors.length > 0) {
@@ -4371,7 +4729,7 @@ class User {
 
     static validateField<K extends keyof User>(
         field: K,
-        value: User[K]
+        value: User[K],
     ): Array<{
         field: string;
         message: string;
@@ -4387,11 +4745,11 @@ class User {
     }
 
     static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
             return false;
         }
         const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
+        return "id" in o && "email" in o;
     }
 
     static is(obj: unknown): obj is User {
@@ -4416,10 +4774,10 @@ if (Result.isOk(result)) {
 ```
 
 ```typescript after
-import { DeserializeContext } from 'macroforge/serde';
-import { DeserializeError } from 'macroforge/serde';
-import type { DeserializeOptions } from 'macroforge/serde';
-import { PendingRef } from 'macroforge/serde';
+import { DeserializeContext } from "macroforge/serde";
+import { DeserializeError } from "macroforge/serde";
+import type { DeserializeOptions } from "macroforge/serde";
+import { PendingRef } from "macroforge/serde";
 
 /** @serde({ denyUnknownFields: true }) */
 class User {
@@ -4452,7 +4810,7 @@ class User {
      */
     static deserialize(
         input: unknown,
-        opts?: DeserializeOptions
+        opts?: DeserializeOptions,
     ): Result<
         User,
         Array<{
@@ -4462,16 +4820,17 @@ class User {
     > {
         try {
             // Auto-detect: if string, parse as JSON first
-            const data = typeof input === 'string' ? JSON.parse(input) : input;
+            const data = typeof input === "string" ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
-                        field: '_root',
-                        message: 'User.deserialize: root cannot be a forward reference'
-                    }
+                        field: "_root",
+                        message:
+                            "User.deserialize: root cannot be a forward reference",
+                    },
                 ]);
             }
             ctx.applyPatches();
@@ -4486,24 +4845,31 @@ class User {
             const message = e instanceof Error ? e.message : String(e);
             return Result.err([
                 {
-                    field: '_root',
-                    message
-                }
+                    field: "_root",
+                    message,
+                },
             ]);
         }
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext,
+    ): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
-        if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        if (
+            typeof value !== "object" ||
+            value === null ||
+            Array.isArray(value)
+        ) {
             throw new DeserializeError([
                 {
-                    field: '_root',
-                    message: 'User.__deserialize: expected an object'
-                }
+                    field: "_root",
+                    message: "User.deserializeWithContext: expected an object",
+                },
             ]);
         }
         const obj = value as Record<string, unknown>;
@@ -4511,25 +4877,33 @@ class User {
             field: string;
             message: string;
         }> = [];
-        const knownKeys = new Set(['__type', '__id', '__ref', 'id', 'email', 'name', 'age']);
+        const knownKeys = new Set([
+            "__type",
+            "__id",
+            "__ref",
+            "id",
+            "email",
+            "name",
+            "age",
+        ]);
         for (const key of Object.keys(obj)) {
             if (!knownKeys.has(key)) {
                 errors.push({
                     field: key,
-                    message: 'unknown field'
+                    message: "unknown field",
                 });
             }
         }
-        if (!('id' in obj)) {
+        if (!("id" in obj)) {
             errors.push({
-                field: 'id',
-                message: 'missing required field'
+                field: "id",
+                message: "missing required field",
             });
         }
-        if (!('email' in obj)) {
+        if (!("email" in obj)) {
             errors.push({
-                field: 'email',
-                message: 'missing required field'
+                field: "email",
+                message: "missing required field",
             });
         }
         if (errors.length > 0) {
@@ -4541,21 +4915,21 @@ class User {
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'] as number;
+            const __raw_id = obj["id"] as number;
             instance.id = __raw_id;
         }
         {
-            const __raw_email = obj['email'] as string;
+            const __raw_email = obj["email"] as string;
             instance.email = __raw_email;
         }
-        if ('name' in obj && obj['name'] !== undefined) {
-            const __raw_name = obj['name'] as string;
+        if ("name" in obj && obj["name"] !== undefined) {
+            const __raw_name = obj["name"] as string;
             instance.name = __raw_name;
         } else {
             instance.name = guest;
         }
-        if ('age' in obj && obj['age'] !== undefined) {
-            const __raw_age = obj['age'] as number;
+        if ("age" in obj && obj["age"] !== undefined) {
+            const __raw_age = obj["age"] as number;
             instance.age = __raw_age;
         }
         if (errors.length > 0) {
@@ -4566,7 +4940,7 @@ class User {
 
     static validateField<K extends keyof User>(
         field: K,
-        value: User[K]
+        value: User[K],
     ): Array<{
         field: string;
         message: string;
@@ -4582,11 +4956,11 @@ class User {
     }
 
     static hasShape(obj: unknown): boolean {
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+        if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
             return false;
         }
         const o = obj as Record<string, unknown>;
-        return 'id' in o && 'email' in o;
+        return "id" in o && "email" in o;
     }
 
     static is(obj: unknown): obj is User {
@@ -4613,71 +4987,79 @@ if (Result.isOk(result)) {
 ## Required Imports
 
 The generated code automatically imports:
+
 - `Result` from `macroforge/utils`
 - `DeserializeContext`, `DeserializeError`, `PendingRef` from `macroforge/serde`
-
 
 ---
 
 # Custom Macros
 
 # Custom Macros
- *Macroforge allows you to create custom derive macros in Rust. Your macros have full access to the class AST and can generate any TypeScript code.*
- ## Overview
- Custom macros are written in Rust and compiled to native Node.js addons. The process involves:
- 1. Creating a Rust crate with NAPI bindings
- 2. Defining macro functions with `#[ts_macro_derive]`
- 3. Using `macroforge_ts_quote` to generate TypeScript code
- 4. Building and publishing as an npm package
- ## Quick Example
- ```
+
+_Macroforge allows you to create custom derive macros in Rust. Your macros have full access to the class AST and can generate any TypeScript code._
+
+## Overview
+
+Custom macros are written in Rust and compiled to native Node.js addons. The process involves:
+
+1.  Creating a Rust crate with NAPI bindings
+2.  Defining macro functions with `#[ts_macro_derive]`
+3.  Using `macroforge_ts_quote` to generate TypeScript code
+4.  Building and publishing as an npm package
+
+## Quick Example
+
+````
 use macroforge_ts::macros::{ts_macro_derive, body};
 use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
 
 #[ts_macro_derive(
-    JSON,
-    description = "Generates toJSON() returning a plain object"
+   JSON,
+   description = "Generates toJSON() returning a plain object"
 )]
 pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
-    let input = parse_ts_macro_input!(input as DeriveInput);
+   let input = parse_ts_macro_input!(input as DeriveInput);
 
-    match &input.data {
-        Data::Class(class) => {
-            Ok(body! {
-                toJSON(): Record<string, unknown> {
-                    return {
-                        {#for field in class.field_names()}
-                            @{field}: this.@{field},
-                        {/for}
-                    };
-                }
-            })
-        }
-        _ => Err(MacroforgeError::new(
-            input.decorator_span(),
-            "@derive(JSON) only works on classes",
-        )),
-    }
+   match &input.data {
+       Data::Class(class) => {
+           Ok(body! {
+               toJSON(): Record<string, unknown> {
+                   return {
+                       {#for field in class.field_names()}
+                           @{field}: this.@{field},
+                       {/for}
+                   };
+               }
+           })
+       }
+       _ => Err(MacroforgeError::new(
+           input.decorator_span(),
+           "@derive(JSON) only works on classes",
+       )),
+   }
 }
 ``` ## Using Custom Macros
- Once your macro package is published, users can import and use it:
- ```
-/** import macro { JSON } from "@my/macros"; */
+Once your macro package is published, users can import and use it:
+````
 
-/** @derive(JSON) */
+/\*_ import macro { JSON } from "@my/macros"; _/
+
+/\*_ @derive(JSON) _/
 class User {
-  name: string;
-  age: number;
+name: string;
+age: number;
 
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-  }
+constructor(name: string, age: number) {
+this.name = name;
+this.age = age;
+}
 }
 
 const user = new User("Alice", 30);
 console.log(user.toJSON()); // { name: "Alice", age: 30 }
-``` > **Note:** The import macro comment tells Macroforge which package provides the macro. ## Getting Started
+
+```> **Note:** The import macro comment tells Macroforge which package provides the macro. ## Getting Started
  Follow these guides to create your own macros:
  - [Set up a Rust macro crate](../docs/custom-macros/rust-setup)
  - [Learn the #[ts_macro_derive] attribute](../docs/custom-macros/ts-macro-derive)
@@ -4692,16 +5074,21 @@ console.log(user.toJSON()); // { name: "Alice", age: 30 }
  - Node.js 24 or later
  - NAPI-RS CLI: `cargo install macroforge_ts`
  ## Create the Project
- ```
+```
+
 # Create a new directory
+
 mkdir my-macros
 cd my-macros
 
 # Initialize with NAPI-RS
+
 napi new --platform --name my-macros
-``` ## Configure Cargo.toml
+
+```## Configure Cargo.toml
  Update your `Cargo.toml` with the required dependencies:
- ```
+```
+
 [package]
 name = "my-macros"
 version = "0.1.0"
@@ -4721,24 +5108,30 @@ napi-build = "2"
 [profile.release]
 lto = true
 strip = true
-``` ## Create build.rs
- ```
+
+```## Create build.rs
+
+```
+
 fn main() {
-    napi_build::setup();
+napi_build::setup();
 }
-``` ## Create src/lib.rs
- ```
+
+```## Create src/lib.rs
+
+```
+
 use macroforge_ts::macros::{ts_macro_derive, body};
 use macroforge_ts::ts_syn::{
-    Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
+Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
 };
 
 #[ts_macro_derive(
-    JSON,
-    description = "Generates toJSON() returning a plain object"
+JSON,
+description = "Generates toJSON() returning a plain object"
 )]
 pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
-    let input = parse_ts_macro_input!(input as DeriveInput);
+let input = parse_ts_macro_input!(input as DeriveInput);
 
     match &input.data {
         Data::Class(class) => {
@@ -4757,43 +5150,55 @@ pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
             "@derive(JSON) only works on classes",
         )),
     }
+
 }
-``` ## Create package.json
- ```
+
+```## Create package.json
+
+```
+
 {
-  "name": "@my-org/macros",
-  "version": "0.1.0",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "napi": {
-    "name": "my-macros",
-    "triples": {
-      "defaults": true
-    }
-  },
-  "files": [
-    "index.js",
-    "index.d.ts",
-    "*.node"
-  ],
-  "scripts": {
-    "build": "napi build --release",
-    "prepublishOnly": "napi build --release"
-  },
-  "devDependencies": {
-    "@napi-rs/cli": "^3.0.0-alpha.0"
-  }
+"name": "@my-org/macros",
+"version": "0.1.0",
+"main": "index.js",
+"types": "index.d.ts",
+"napi": {
+"name": "my-macros",
+"triples": {
+"defaults": true
 }
-``` ## Build the Package
- ```
+},
+"files": [
+"index.js",
+"index.d.ts",
+"*.node"
+],
+"scripts": {
+"build": "napi build --release",
+"prepublishOnly": "napi build --release"
+},
+"devDependencies": {
+"@napi-rs/cli": "^3.0.0-alpha.0"
+}
+}
+
+```## Build the Package
+
+```
+
 # Build the native addon
+
 npm run build
 
 # This creates:
+
 # - index.js (JavaScript bindings)
+
 # - index.d.ts (TypeScript types)
-# - *.node (native binary)
-```  **Tip For cross-platform builds, use GitHub Actions with the NAPI-RS CI template. ## Next Steps
+
+# - \*.node (native binary)
+
+```**Tip For cross-platform builds, use GitHub Actions with the NAPI-RS CI template. ## Next Steps
  - [Learn the #[ts_macro_derive] attribute](../../docs/custom-macros/ts-macro-derive)
  - [Master the template syntax](../../docs/custom-macros/ts-quote)
 **
@@ -4803,52 +5208,64 @@ npm run build
 # ts_macro_derive
  *The `#[ts_macro_derive]` attribute is a Rust procedural macro that registers your function as a Macroforge derive macro.*
  ## Basic Syntax
- ```
+```
+
 use macroforge_ts::macros::ts_macro_derive;
 use macroforge_ts::ts_syn::{TsStream, MacroforgeError};
 
 #[ts_macro_derive(MacroName)]
 pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
-    // Macro implementation
+// Macro implementation
 }
-``` ## Attribute Options
+
+```## Attribute Options
  ### Name (Required)
  The first argument is the macro name that users will reference in `@derive()`:
- ```
-#[ts_macro_derive(JSON)]  // Users write: @derive(JSON)
+```
+
+#[ts_macro_derive(JSON)] // Users write: @derive(JSON)
 pub fn derive_json(...)
-``` ### Description
+
+```### Description
  Provides documentation for the macro:
- ```
+```
+
 #[ts_macro_derive(
-    JSON,
-    description = "Generates toJSON() returning a plain object"
+JSON,
+description = "Generates toJSON() returning a plain object"
 )]
 pub fn derive_json(...)
-``` ### Attributes
+
+```### Attributes
  Declare which field-level decorators your macro accepts:
- ```
+```
+
 #[ts_macro_derive(
-    Debug,
-    description = "Generates toString()",
-    attributes(debug)  // Allows @debug({ ... }) on fields
+Debug,
+description = "Generates toString()",
+attributes(debug) // Allows @debug({ ... }) on fields
 )]
 pub fn derive_debug(...)
-``` > **Note:** Declared attributes become available as @attributeName({ options }) decorators in TypeScript. ## Function Signature
- ```
+
+```> **Note:** Declared attributes become available as @attributeName({ options }) decorators in TypeScript. ## Function Signature
+
+```
+
 pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError>
-``` | Parameter | Description |
+
+```| Parameter | Description |
 | --- | --- |
 | `input: TsStream` | Token stream containing the class/interface AST |
 | `Result<TsStream, MacroforgeError>` | Returns generated code or an error with source location |
  ## Parsing Input
  Use `parse_ts_macro_input!` to convert the token stream:
- ```
+```
+
 use macroforge_ts::ts_syn::{Data, DeriveInput, parse_ts_macro_input};
 
 #[ts_macro_derive(MyMacro)]
 pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
-    let input = parse_ts_macro_input!(input as DeriveInput);
+let input = parse_ts_macro_input!(input as DeriveInput);
 
     // Access class data
     match &input.data {
@@ -4864,15 +5281,19 @@ pub fn my_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
             // Handle enums (if supported)
         }
     }
+
 }
-``` ## DeriveInput Structure
- ```
+
+```## DeriveInput Structure
+
+```
+
 struct DeriveInput {
-    pub ident: Ident,           // The type name
-    pub span: SpanIR,           // Span of the type definition
-    pub attrs: Vec<Attribute>,  // Decorators (excluding @derive)
-    pub data: Data,             // The parsed type data
-    pub context: MacroContextIR, // Macro context with spans
+pub ident: Ident, // The type name
+pub span: SpanIR, // Span of the type definition
+pub attrs: Vec<Attribute>, // Decorators (excluding @derive)
+pub data: Data, // The parsed type data
+pub context: MacroContextIR, // Macro context with spans
 
     // Helper methods
     fn name(&self) -> &str;              // Get the type name
@@ -4880,96 +5301,110 @@ struct DeriveInput {
     fn as_class(&self) -> Option<&DataClass>;
     fn as_interface(&self) -> Option<&DataInterface>;
     fn as_enum(&self) -> Option<&DataEnum>;
+
 }
 
 enum Data {
-    Class(DataClass),
-    Interface(DataInterface),
-    Enum(DataEnum),
-    TypeAlias(DataTypeAlias),
+Class(DataClass),
+Interface(DataInterface),
+Enum(DataEnum),
+TypeAlias(DataTypeAlias),
 }
 
 impl DataClass {
-    fn fields(&self) -> &[FieldIR];
-    fn methods(&self) -> &[MethodSigIR];
-    fn field_names(&self) -> impl Iterator<Item = &str>;
-    fn field(&self, name: &str) -> Option<&FieldIR>;
-    fn body_span(&self) -> SpanIR;      // For inserting code into class body
-    fn type_params(&self) -> &[String]; // Generic type parameters
-    fn heritage(&self) -> &[String];    // extends/implements clauses
-    fn is_abstract(&self) -> bool;
+fn fields(&self) -> &[FieldIR];
+fn methods(&self) -> &[MethodSigIR];
+fn field_names(&self) -> impl Iterator<Item = &str>;
+fn field(&self, name: &str) -> Option<&FieldIR>;
+fn body_span(&self) -> SpanIR; // For inserting code into class body
+fn type_params(&self) -> &[String]; // Generic type parameters
+fn heritage(&self) -> &[String]; // extends/implements clauses
+fn is_abstract(&self) -> bool;
 }
 
 impl DataInterface {
-    fn fields(&self) -> &[InterfaceFieldIR];
-    fn methods(&self) -> &[InterfaceMethodIR];
-    fn field_names(&self) -> impl Iterator<Item = &str>;
-    fn field(&self, name: &str) -> Option<&InterfaceFieldIR>;
-    fn body_span(&self) -> SpanIR;
-    fn type_params(&self) -> &[String];
-    fn heritage(&self) -> &[String];    // extends clauses
+fn fields(&self) -> &[InterfaceFieldIR];
+fn methods(&self) -> &[InterfaceMethodIR];
+fn field_names(&self) -> impl Iterator<Item = &str>;
+fn field(&self, name: &str) -> Option<&InterfaceFieldIR>;
+fn body_span(&self) -> SpanIR;
+fn type_params(&self) -> &[String];
+fn heritage(&self) -> &[String]; // extends clauses
 }
 
 impl DataEnum {
-    fn variants(&self) -> &[EnumVariantIR];
-    fn variant_names(&self) -> impl Iterator<Item = &str>;
-    fn variant(&self, name: &str) -> Option<&EnumVariantIR>;
+fn variants(&self) -> &[EnumVariantIR];
+fn variant_names(&self) -> impl Iterator<Item = &str>;
+fn variant(&self, name: &str) -> Option<&EnumVariantIR>;
 }
 
 impl DataTypeAlias {
-    fn body(&self) -> &TypeBody;
-    fn type_params(&self) -> &[String];
-    fn is_union(&self) -> bool;
-    fn is_object(&self) -> bool;
-    fn as_union(&self) -> Option<&[TypeMember]>;
-    fn as_object(&self) -> Option<&[InterfaceFieldIR]>;
+fn body(&self) -> &TypeBody;
+fn type_params(&self) -> &[String];
+fn is_union(&self) -> bool;
+fn is_object(&self) -> bool;
+fn as_union(&self) -> Option<&[TypeMember]>;
+fn as_object(&self) -> Option<&[InterfaceFieldIR]>;
 }
-``` ## Accessing Field Data
+
+```## Accessing Field Data
  ### Class Fields (FieldIR)
- ```
+```
+
 struct FieldIR {
-    pub name: String,               // Field name
-    pub span: SpanIR,               // Field span
-    pub ts_type: String,            // TypeScript type annotation
-    pub optional: bool,             // Whether field has ?
-    pub readonly: bool,             // Whether field is readonly
-    pub visibility: Visibility,     // Public, Protected, Private
-    pub decorators: Vec<DecoratorIR>, // Field decorators
+pub name: String, // Field name
+pub span: SpanIR, // Field span
+pub ts_type: String, // TypeScript type annotation
+pub optional: bool, // Whether field has ?
+pub readonly: bool, // Whether field is readonly
+pub visibility: Visibility, // Public, Protected, Private
+pub decorators: Vec<DecoratorIR>, // Field decorators
 }
-``` ### Interface Fields (InterfaceFieldIR)
- ```
+
+```### Interface Fields (InterfaceFieldIR)
+
+```
+
 struct InterfaceFieldIR {
-    pub name: String,
-    pub span: SpanIR,
-    pub ts_type: String,
-    pub optional: bool,
-    pub readonly: bool,
-    pub decorators: Vec<DecoratorIR>,
-    // Note: No visibility field (interfaces are always public)
+pub name: String,
+pub span: SpanIR,
+pub ts_type: String,
+pub optional: bool,
+pub readonly: bool,
+pub decorators: Vec<DecoratorIR>,
+// Note: No visibility field (interfaces are always public)
 }
-``` ### Enum Variants (EnumVariantIR)
- ```
+
+```### Enum Variants (EnumVariantIR)
+
+```
+
 struct EnumVariantIR {
-    pub name: String,
-    pub span: SpanIR,
-    pub value: EnumValue,  // Auto, String(String), or Number(f64)
-    pub decorators: Vec<DecoratorIR>,
+pub name: String,
+pub span: SpanIR,
+pub value: EnumValue, // Auto, String(String), or Number(f64)
+pub decorators: Vec<DecoratorIR>,
 }
-``` ### Decorator Structure
- ```
+
+```### Decorator Structure
+
+```
+
 struct DecoratorIR {
-    pub name: String,      // e.g., "serde"
-    pub args_src: String,  // Raw args text, e.g., "skip, rename: 'id'"
-    pub span: SpanIR,
+pub name: String, // e.g., "serde"
+pub args_src: String, // Raw args text, e.g., "skip, rename: 'id'"
+pub span: SpanIR,
 }
-``` > **Note:** To check for decorators, iterate through field.decorators and check decorator.name. For parsing options, you can write helper functions like the built-in macros do. ## Adding Imports
+
+```> **Note:** To check for decorators, iterate through field.decorators and check decorator.name. For parsing options, you can write helper functions like the built-in macros do. ## Adding Imports
  If your macro generates code that requires imports, use the `add_import` method on `TsStream`:
- ```
+```
+
 // Add an import to be inserted at the top of the file
 let mut output = body! {
-    validate(): ValidationResult {
-        return validateFields(this);
-    }
+validate(): ValidationResult {
+return validateFields(this);
+}
 };
 
 // This will add: import { validateFields, ValidationResult } from "my-validation-lib";
@@ -4977,12 +5412,14 @@ output.add_import("validateFields", "my-validation-lib");
 output.add_import("ValidationResult", "my-validation-lib");
 
 Ok(output)
-``` > **Note:** Imports are automatically deduplicated. If the same import already exists in the file, it won't be added again. ## Returning Errors
+
+```> **Note:** Imports are automatically deduplicated. If the same import already exists in the file, it won't be added again. ## Returning Errors
  Use `MacroforgeError` to report errors with source locations:
- ```
+```
+
 #[ts_macro_derive(ClassOnly)]
 pub fn class_only(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
-    let input = parse_ts_macro_input!(input as DeriveInput);
+let input = parse_ts_macro_input!(input as DeriveInput);
 
     match &input.data {
         Data::Class(_) => {
@@ -4994,26 +5431,30 @@ pub fn class_only(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
             "@derive(ClassOnly) can only be used on classes",
         )),
     }
+
 }
-``` ## Complete Example
- ```
+
+```## Complete Example
+
+```
+
 use macroforge_ts::macros::{ts_macro_derive, body};
 use macroforge_ts::ts_syn::{
-    Data, DeriveInput, FieldIR, MacroforgeError, TsStream, parse_ts_macro_input,
+Data, DeriveInput, FieldIR, MacroforgeError, TsStream, parse_ts_macro_input,
 };
 
 // Helper function to check if a field has a decorator
 fn has_decorator(field: &FieldIR, name: &str) -> bool {
-    field.decorators.iter().any(|d| d.name.eq_ignore_ascii_case(name))
+field.decorators.iter().any(|d| d.name.eq_ignore_ascii_case(name))
 }
 
 #[ts_macro_derive(
-    Validate,
-    description = "Generates a validate() method",
-    attributes(validate)
+Validate,
+description = "Generates a validate() method",
+attributes(validate)
 )]
 pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
-    let input = parse_ts_macro_input!(input as DeriveInput);
+let input = parse_ts_macro_input!(input as DeriveInput);
 
     match &input.data {
         Data::Class(class) => {
@@ -5039,8 +5480,10 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError>
             "@derive(Validate) only works on classes",
         )),
     }
+
 }
-``` ## Next Steps
+
+```## Next Steps
  - [Learn the template syntax](../../docs/custom-macros/ts-quote)
 
 ---
@@ -5077,37 +5520,43 @@ pub fn derive_validate(mut input: TsStream) -> Result<TsStream, MacroforgeError>
  **Note:** A single `@` not followed by `{` passes through unchanged (e.g., `email@domain.com` works as expected).
  ## Interpolation: `@{expr}`
  Insert Rust expressions into the generated TypeScript:
- ```
+```
+
 let class_name = "User";
 let method = "toString";
 
 let code = ts_template! {
-    @{class_name}.prototype.@{method} = function() {
-        return "User instance";
-    };
+@{class_name}.prototype.@{method} = function() {
+return "User instance";
 };
-``` **Generates:**
- ```
+};
+
+```**Generates:**
+
+```
+
 User.prototype.toString = function () {
-  return "User instance";
+return "User instance";
 };
-``` ## Identifier Concatenation: `{| content |}`
- When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block syntax. Everything inside `{| |}` is concatenated without spaces:
- ```
+```## Identifier Concatenation:`{| content |}` When you need to build identifiers dynamically (like`getUser`, `setName`), use the ident block syntax. Everything inside `{| |}` is concatenated without spaces:
+
+````
 let field_name = "User";
 
 let code = ts_template! {
-    function {|get@{field_name}|}() {
-        return this.@{field_name.to_lowercase()};
-    }
+   function {|get@{field_name}|}() {
+       return this.@{field_name.to_lowercase()};
+   }
 };
 ``` **Generates:**
- ```
+````
+
 function getUser() {
-  return this.user;
+return this.user;
 }
-``` Without ident blocks, `@{}` always adds a space after for readability. Use `{| |}` when you explicitly want concatenation:
- ```
+```Without ident blocks,`@{}`always adds a space after for readability. Use`{| |}` when you explicitly want concatenation:
+
+````
 let name = "Status";
 
 // With space (default behavior)
@@ -5116,382 +5565,451 @@ ts_template! { namespace @{name} }  // → "namespace Status"
 // Without space (ident block)
 ts_template! { {|namespace@{name}|} }  // → "namespaceStatus"
 ``` Multiple interpolations can be combined:
- ```
+````
+
 let entity = "user";
 let action = "create";
 
-ts_template! { {|@{entity}_@{action}|} }  // → "user_create"
-``` ## Comments: `{> "..." <}` and `{>> "..." <<}`
- Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve exact spacing in comments:
- ### Block Comments
- Use `{> "comment" <}` for block comments:
- ```
+ts*template! { {|@{entity}*@{action}|} } // → "user_create"
+```## Comments:`{> "..." <}`and`{>> "..." <<}`
+Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve exact spacing in comments:
+
+### Block Comments
+
+Use `{> "comment" <}` for block comments:
+
+````
 let code = ts_template! {
-    {> "This is a block comment" <}
-    const x = 42;
+   {> "This is a block comment" <}
+   const x = 42;
 };
 ``` **Generates:**
- ```
-/* This is a block comment */
+````
+
+/_ This is a block comment _/
 const x = 42;
-``` ### Doc Comments (JSDoc)
+
+```### Doc Comments (JSDoc)
  Use `{>> "doc" <<}` for JSDoc comments:
- ```
+```
+
 let code = ts_template! {
-    {>> "@param {string} name - The user's name" <<}
-    {>> "@returns {string} A greeting message" <<}
-    function greet(name: string): string {
-        return "Hello, " + name;
-    }
-};
-``` **Generates:**
- ```
-/** @param {string} name - The user's name */
-/** @returns {string} A greeting message */
+{>> "@param {string} name - The user's name" <<}
+{>> "@returns {string} A greeting message" <<}
 function greet(name: string): string {
-    return "Hello, " + name;
+return "Hello, " + name;
 }
-``` ### Comments with Interpolation
+};
+
+```**Generates:**
+
+```
+
+/** @param {string} name - The user's name \*/
+/** @returns {string} A greeting message \*/
+function greet(name: string): string {
+return "Hello, " + name;
+}
+
+```### Comments with Interpolation
  Use `format!()` or similar to build dynamic comment strings:
- ```
+```
+
 let param_name = "userId";
 let param_type = "number";
 let comment = format!("@param {{{}}} {} - The user ID", param_type, param_name);
 
 let code = ts_template! {
-    {>> @{comment} <<}
-    function getUser(userId: number) {}
-};
-``` **Generates:**
- ```
-/** @param {number} userId - The user ID */
+{>> @{comment} <<}
 function getUser(userId: number) {}
-``` ## String Interpolation: `"text @{expr}"`
- Interpolation works automatically inside string literals - no `format!()` needed:
- ```
+};
+
+```**Generates:**
+
+```
+
+/\*_ @param {number} userId - The user ID _/
+function getUser(userId: number) {}
+```## String Interpolation:`"text @{expr}"` Interpolation works automatically inside string literals - no`format!()` needed:
+
+````
 let name = "World";
 let count = 42;
 
 let code = ts_template! {
-    console.log("Hello @{name}!");
-    console.log("Count: @{count}, doubled: @{count * 2}");
+   console.log("Hello @{name}!");
+   console.log("Count: @{count}, doubled: @{count * 2}");
 };
 ``` **Generates:**
- ```
+````
+
 console.log("Hello World!");
 console.log("Count: 42, doubled: 84");
-``` This also works with method calls and complex expressions:
- ```
+
+```This also works with method calls and complex expressions:
+
+```
+
 let field = "username";
 
 let code = ts_template! {
-    throw new Error("Invalid @{field.to_uppercase()}");
+throw new Error("Invalid @{field.to_uppercase()}");
 };
-``` ## Backtick Template Literals: `"'^...^'"`
- For JavaScript template literals (backtick strings), use the `'^...^'` syntax. This outputs actual backticks and passes through `$${}` for JS interpolation:
- ```
+```## Backtick Template Literals:`"'^...^'"` For JavaScript template literals (backtick strings), use the`'^...^'`syntax. This outputs actual backticks and passes through`$${}` for JS interpolation:
+
+````
 let tag_name = "div";
 
 let code = ts_template! {
-    const html = "'^<@{tag_name}>${content}</@{tag_name}>^'";
+   const html = "'^<@{tag_name}>${content}</@{tag_name}>^'";
 };
 ``` **Generates:**
- ```
+````
+
 const html = `${content}`;
-``` You can mix Rust `@{}` interpolation (evaluated at macro expansion time) with JS `$${}` interpolation (evaluated at runtime):
- ```
+```You can mix Rust`@{}`interpolation (evaluated at macro expansion time) with JS`$${}` interpolation (evaluated at runtime):
+
+````
 let class_name = "User";
 
 let code = ts_template! {
-    "'^Hello ${this.name}, you are a @{class_name}^'"
+   "'^Hello ${this.name}, you are a @{class_name}^'"
 };
 ``` **Generates:**
- ```
+````
+
 `Hello ${this.name}, you are a User`
-``` ## Conditionals: `{#if}...{/if}`
- Basic conditional:
- ```
+```## Conditionals:`{#if}...{/if}`
+Basic conditional:
+
+````
 let needs_validation = true;
 
 let code = ts_template! {
-    function save() {
-        {#if needs_validation}
-            if (!this.isValid()) return false;
-        {/if}
-        return this.doSave();
-    }
+   function save() {
+       {#if needs_validation}
+           if (!this.isValid()) return false;
+       {/if}
+       return this.doSave();
+   }
 };
 ``` ### If-Else
- ```
+````
+
 let has_default = true;
 
 let code = ts_template! {
-    {#if has_default}
-        return defaultValue;
-    {:else}
-        throw new Error("No default");
-    {/if}
+{#if has_default}
+return defaultValue;
+{:else}
+throw new Error("No default");
+{/if}
 };
-``` ### If-Else-If Chains
- ```
+
+```### If-Else-If Chains
+
+```
+
 let level = 2;
 
 let code = ts_template! {
-    {#if level == 1}
-        console.log("Level 1");
-    {:else if level == 2}
-        console.log("Level 2");
-    {:else}
-        console.log("Other level");
-    {/if}
+{#if level == 1}
+console.log("Level 1");
+{:else if level == 2}
+console.log("Level 2");
+{:else}
+console.log("Other level");
+{/if}
 };
-``` ## Pattern Matching: `{#if let}`
- Use `if let` for pattern matching on `Option`, `Result`, or other Rust enums:
- ```
+```## Pattern Matching:`{#if let}` Use`if let`for pattern matching on`Option`, `Result`, or other Rust enums:
+
+````
 let maybe_name: Option<&str> = Some("Alice");
 
 let code = ts_template! {
-    {#if let Some(name) = maybe_name}
-        console.log("Hello, @{name}!");
-    {:else}
-        console.log("Hello, anonymous!");
-    {/if}
+   {#if let Some(name) = maybe_name}
+       console.log("Hello, @{name}!");
+   {:else}
+       console.log("Hello, anonymous!");
+   {/if}
 };
 ``` **Generates:**
- ```
+````
+
 console.log("Hello, Alice!");
-``` This is useful when working with optional values from your IR:
- ```
+
+```This is useful when working with optional values from your IR:
+
+```
+
 let code = ts_template! {
-    {#if let Some(default_val) = field.default_value}
-        this.@{field.name} = @{default_val};
-    {:else}
-        this.@{field.name} = undefined;
-    {/if}
+{#if let Some(default_val) = field.default_value}
+this.@{field.name} = @{default_val};
+{:else}
+this.@{field.name} = undefined;
+{/if}
 };
-``` ## Match Expressions: `{#match}`
- Use `match` for exhaustive pattern matching:
- ```
+```## Match Expressions:`{#match}` Use`match` for exhaustive pattern matching:
+
+````
 enum Visibility { Public, Private, Protected }
 let visibility = Visibility::Public;
 
 let code = ts_template! {
-    {#match visibility}
-        {:case Visibility::Public}
-            public
-        {:case Visibility::Private}
-            private
-        {:case Visibility::Protected}
-            protected
-    {/match}
-    field: string;
+   {#match visibility}
+       {:case Visibility::Public}
+           public
+       {:case Visibility::Private}
+           private
+       {:case Visibility::Protected}
+           protected
+   {/match}
+   field: string;
 };
 ``` **Generates:**
- ```
+````
+
 public field: string;
-``` ### Match with Value Extraction
- ```
+
+```### Match with Value Extraction
+
+```
+
 let result: Result<i32, &str> = Ok(42);
 
 let code = ts_template! {
-    const value = {#match result}
-        {:case Ok(val)}
-            @{val}
-        {:case Err(msg)}
-            throw new Error("@{msg}")
-    {/match};
+const value = {#match result}
+{:case Ok(val)}
+@{val}
+{:case Err(msg)}
+throw new Error("@{msg}")
+{/match};
 };
-``` ### Match with Wildcard
- ```
+
+```### Match with Wildcard
+
+```
+
 let count = 5;
 
-let code = ts_template! {
-    {#match count}
-        {:case 0}
-            console.log("none");
-        {:case 1}
-            console.log("one");
-        {:case _}
-            console.log("many");
-    {/match}
+let code = ts*template! {
+{#match count}
+{:case 0}
+console.log("none");
+{:case 1}
+console.log("one");
+{:case *}
+console.log("many");
+{/match}
 };
-``` ## Iteration: `{#for}`
- ```
+```## Iteration:`{#for}`
+
+````
 let fields = vec!["name", "email", "age"];
 
 let code = ts_template! {
-    function toJSON() {
-        const result = {};
-        {#for field in fields}
-            result.@{field} = this.@{field};
-        {/for}
-        return result;
-    }
+   function toJSON() {
+       const result = {};
+       {#for field in fields}
+           result.@{field} = this.@{field};
+       {/for}
+       return result;
+   }
 };
 ``` **Generates:**
- ```
+````
+
 function toJSON() {
-  const result = {};
-  result.name = this.name;
-  result.email = this.email;
-  result.age = this.age;
-  return result;
+const result = {};
+result.name = this.name;
+result.email = this.email;
+result.age = this.age;
+return result;
 }
-``` ### Tuple Destructuring in Loops
- ```
+
+```### Tuple Destructuring in Loops
+
+```
+
 let items = vec![("user", "User"), ("post", "Post")];
 
 let code = ts_template! {
-    {#for (key, class_name) in items}
-        const @{key} = new @{class_name}();
-    {/for}
+{#for (key, class_name) in items}
+const @{key} = new @{class_name}();
+{/for}
 };
-``` ### Nested Iterations
- ```
+
+```### Nested Iterations
+
+```
+
 let classes = vec![
-    ("User", vec!["name", "email"]),
-    ("Post", vec!["title", "content"]),
+("User", vec!["name", "email"]),
+("Post", vec!["title", "content"]),
 ];
 
 ts_template! {
-    {#for (class_name, fields) in classes}
-        @{class_name}.prototype.toJSON = function() {
-            return {
-                {#for field in fields}
-                    @{field}: this.@{field},
-                {/for}
-            };
-        };
-    {/for}
+{#for (class_name, fields) in classes}
+@{class_name}.prototype.toJSON = function() {
+return {
+{#for field in fields}
+@{field}: this.@{field},
+{/for}
+};
+};
+{/for}
 }
-``` ## While Loops: `{#while}`
- Use `while` for loops that need to continue until a condition is false:
- ```
+```## While Loops:`{#while}` Use`while` for loops that need to continue until a condition is false:
+
+````
 let items = get_items();
 let mut idx = 0;
 
 let code = ts_template! {
-    {$let mut i = 0}
-    {#while i < items.len()}
-        console.log("Item @{i}");
-        {$do i += 1}
-    {/while}
+   {$let mut i = 0}
+   {#while i < items.len()}
+       console.log("Item @{i}");
+       {$do i += 1}
+   {/while}
 };
 ``` ### While-Let Pattern Matching
- Use `while let` for iterating with pattern matching, similar to `if let`:
- ```
+Use `while let` for iterating with pattern matching, similar to `if let`:
+````
+
 let mut items = vec!["a", "b", "c"].into_iter();
 
 let code = ts_template! {
-    {#while let Some(item) = items.next()}
-        console.log("@{item}");
-    {/while}
+{#while let Some(item) = items.next()}
+console.log("@{item}");
+{/while}
 };
-``` **Generates:**
- ```
+
+```**Generates:**
+
+```
+
 console.log("a");
 console.log("b");
 console.log("c");
-``` This is especially useful when working with iterators or consuming optional values:
- ```
+
+```This is especially useful when working with iterators or consuming optional values:
+
+```
+
 let code = ts_template! {
-    {#while let Some(next_field) = remaining_fields.pop()}
-        result.@{next_field.name} = this.@{next_field.name};
-    {/while}
+{#while let Some(next_field) = remaining_fields.pop()}
+result.@{next_field.name} = this.@{next_field.name};
+{/while}
 };
-``` ## Local Constants: `{$let}`
- Define local variables within the template scope:
- ```
+```## Local Constants:`{$let}`
+Define local variables within the template scope:
+
+````
 let items = vec![("user", "User"), ("post", "Post")];
 
 let code = ts_template! {
-    {#for (key, class_name) in items}
-        {$let upper = class_name.to_uppercase()}
-        console.log("Processing @{upper}");
-        const @{key} = new @{class_name}();
-    {/for}
+   {#for (key, class_name) in items}
+       {$let upper = class_name.to_uppercase()}
+       console.log("Processing @{upper}");
+       const @{key} = new @{class_name}();
+   {/for}
 };
 ``` This is useful for computing derived values inside loops without cluttering the Rust code.
- ## Mutable Variables: `{$let mut}`
- When you need to modify a variable within the template (e.g., in a `while` loop), use `{$let mut}`:
- ```
+## Mutable Variables: `{$let mut}`
+When you need to modify a variable within the template (e.g., in a `while` loop), use `{$let mut}`:
+````
+
 let code = ts_template! {
-    {$let mut count = 0}
+{$let mut count = 0}
     {#for item in items}
         console.log("Item @{count}: @{item}");
         {$do count += 1}
-    {/for}
-    console.log("Total: @{count}");
+{/for}
+console.log("Total: @{count}");
 };
-``` ## Side Effects: `{$do}`
- Execute an expression for its side effects without producing output. This is commonly used with mutable variables:
- ```
+```## Side Effects:`{$do}`
+Execute an expression for its side effects without producing output. This is commonly used with mutable variables:
+
+````
 let code = ts_template! {
-    {$let mut results: Vec<String> = Vec::new()}
-    {#for field in fields}
-        {$do results.push(format!("this.{}", field))}
-    {/for}
-    return [@{results.join(", ")}];
+   {$let mut results: Vec<String> = Vec::new()}
+   {#for field in fields}
+       {$do results.push(format!("this.{}", field))}
+   {/for}
+   return [@{results.join(", ")}];
 };
 ``` Common uses for `{$do}`:
- - Incrementing counters: `{$do i += 1}`
- - Building collections: `{$do vec.push(item)}`
- - Setting flags: `{$do found = true}`
- - Any mutating operation
- ## TsStream Injection: `{$typescript}`
- Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via `add_import()`):
- ```
+- Incrementing counters: `{$do i += 1}`
+- Building collections: `{$do vec.push(item)}`
+- Setting flags: `{$do found = true}`
+- Any mutating operation
+## TsStream Injection: `{$typescript}`
+Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via `add_import()`):
+````
+
 // Create a helper method with its own import
 let mut helper = body! {
-    validateEmail(email: string): boolean {
-        return Result.ok(true);
-    }
+validateEmail(email: string): boolean {
+return Result.ok(true);
+}
 };
 helper.add_import("Result", "macroforge/utils");
 
 // Inject the helper into the main template
 let result = body! {
-    {$typescript helper}
+{$typescript helper}
 
     process(data: Record<string, unknown>): void {
         // ...
     }
+
 };
 // result now includes helper's source AND its Result import
-``` This is essential for composing multiple macro outputs while preserving imports and patches:
- ```
+
+```This is essential for composing multiple macro outputs while preserving imports and patches:
+
+```
+
 let extra_methods = if include_validation {
-    Some(body! {
-        validate(): boolean { return true; }
-    })
+Some(body! {
+validate(): boolean { return true; }
+})
 } else {
-    None
+None
 };
 
 body! {
-    mainMethod(): void {}
+mainMethod(): void {}
 
     {#if let Some(methods) = extra_methods}
         {$typescript methods}
     {/if}
+
 }
-``` ## Escape Syntax
+
+```## Escape Syntax
  If you need a literal `@{` in your output (not interpolation), use `@@{`:
- ```
+```
+
 ts_template! {
-    // This outputs a literal @{foo}
-    const example = "Use @@{foo} for templates";
+// This outputs a literal @{foo}
+const example = "Use @@{foo} for templates";
 }
-``` **Generates:**
- ```
+
+```**Generates:**
+
+```
+
 // This outputs a literal @{foo}
 const example = "Use @{foo} for templates";
-``` ## Complete Example: JSON Derive Macro
+
+```## Complete Example: JSON Derive Macro
  Here's a comparison showing how `ts_template!` simplifies code generation:
  ### Before (Manual AST Building)
- ```
+```
+
 pub fn derive_json_macro(input: TsStream) -> MacroResult {
-    let input = parse_ts_macro_input!(input as DeriveInput);
+let input = parse_ts_macro_input!(input as DeriveInput);
 
     match &input.data {
         Data::Class(class) => {
@@ -5517,11 +6035,15 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
             // ...
         }
     }
+
 }
-``` ### After (With ts_template!)
- ```
+
+```### After (With ts_template!)
+
+```
+
 pub fn derive_json_macro(input: TsStream) -> MacroResult {
-    let input = parse_ts_macro_input!(input as DeriveInput);
+let input = parse_ts_macro_input!(input as DeriveInput);
 
     match &input.data {
         Data::Class(class) => {
@@ -5541,36 +6063,42 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
             // ...
         }
     }
+
 }
-``` ## How It Works
+
+```## How It Works
  1. **Compile-Time:** The template is parsed during macro expansion
  2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
  3. **SWC Parsing:** The generated string is parsed with SWC to produce a typed AST
  4. **Result:** Returns `Stmt` that can be used in `MacroResult` patches
  ## Return Type
  `ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro automatically unwraps and provides helpful error messages showing the generated TypeScript code if parsing fails:
- ```
+```
+
 Failed to parse generated TypeScript:
 User.prototype.toJSON = function( {
-    return {};
+return {};
 }
-``` This shows you exactly what was generated, making debugging easy!
+
+```This shows you exactly what was generated, making debugging easy!
  ## Nesting and Regular TypeScript
  You can mix template syntax with regular TypeScript. Braces `{}` are recognized as either:
  - **Template tags** if they start with `#`, `$`, `:`, or `/`
  - **Regular TypeScript blocks** otherwise
- ```
+```
+
 ts_template! {
-    const config = {
-        {#if use_strict}
-            strict: true,
-        {:else}
-            strict: false,
-        {/if}
-        timeout: 5000
-    };
+const config = {
+{#if use_strict}
+strict: true,
+{:else}
+strict: false,
+{/if}
+timeout: 5000
+};
 }
-``` ## Comparison with Alternatives
+
+```## Comparison with Alternatives
  | Approach | Pros | Cons |
 | --- | --- | --- |
 | `ts_quote!` | Compile-time validation, type-safe | Can't handle Vec<Stmt>, verbose |
@@ -5597,10 +6125,13 @@ ts_template! {
  For the best development experience, use both integrations:
  1. **TypeScript Plugin**: Provides real-time feedback in your IDE
  2. **Vite Plugin**: Expands macros during development and production builds
- ```
+```
+
 # Install both plugins
+
 npm install -D @macroforge/typescript-plugin @macroforge/vite-plugin
-``` ## How They Work Together
+
+```## How They Work Together
  <div class="flex justify-center"><div class="border-2 border-primary bg-primary/10 rounded-lg px-6 py-3 text-center">Your Code TypeScript with @derive decorators  <div class="absolute top-0 h-px bg-border" style="width: 50%; left: 25%;">
 
 ---
@@ -5609,21 +6140,28 @@ npm install -D @macroforge/typescript-plugin @macroforge/vite-plugin
   *This binary provides command-line utilities for working with Macroforge TypeScript macros. It is designed for development workflows, enabling macro expansion and type checking without requiring Node.js integration.*
  ## Installation
  The CLI is a Rust binary. You can install it using Cargo:
- ```
+```
+
 cargo install macroforge_ts
-``` Or build from source:
- ```
+
+```Or build from source:
+
+```
+
 git clone https://github.com/rymskip/macroforge-ts.git
 cd macroforge-ts/crates
 cargo build --release --bin macroforge
 
 # The binary is at target/release/macroforge
-``` ## Commands
+
+```## Commands
  ### macroforge expand
  Expands macros in a TypeScript file and outputs the transformed code.
- ```
+```
+
 macroforge expand <input> [options]
-``` #### Arguments
+
+```#### Arguments
  | Argument | Description |
 | --- | --- |
 | `<input>` | Path to the TypeScript or TSX file to expand |
@@ -5636,89 +6174,121 @@ macroforge expand <input> [options]
 | `--builtin-only` | Use only built-in Rust macros (faster, but no external macro support) |
  #### Examples
  Expand a file and print to stdout:
- ```
+```
+
 macroforge expand src/user.ts
-``` Expand and write to a file:
- ```
+
+```Expand and write to a file:
+
+```
+
 macroforge expand src/user.ts --out dist/user.js
-``` Expand with both runtime output and type declarations:
- ```
+
+```Expand with both runtime output and type declarations:
+
+```
+
 macroforge expand src/user.ts --out dist/user.js --types-out dist/user.d.ts
-``` Use fast built-in macros only (no external macro support):
- ```
+
+```Use fast built-in macros only (no external macro support):
+
+```
+
 macroforge expand src/user.ts --builtin-only
-``` > **Note:** By default, the CLI uses Node.js for full macro support (including external macros). It must be run from your project's root directory where macroforge and any external macro packages are installed in node_modules. ### macroforge tsc
+
+```> **Note:** By default, the CLI uses Node.js for full macro support (including external macros). It must be run from your project's root directory where macroforge and any external macro packages are installed in node_modules. ### macroforge tsc
  Runs TypeScript type checking with macro expansion. This wraps `tsc --noEmit` and expands macros before type checking, so your generated methods are properly type-checked.
- ```
+```
+
 macroforge tsc [options]
-``` #### Options
+
+```#### Options
  | Option | Description |
 | --- | --- |
 | `-p, --project <path>` | Path to `tsconfig.json` (defaults to `tsconfig.json` in current directory) |
  #### Examples
  Type check with default tsconfig.json:
- ```
+```
+
 macroforge tsc
-``` Type check with a specific config:
- ```
+
+```Type check with a specific config:
+
+```
+
 macroforge tsc -p tsconfig.build.json
-``` ## Output Format
+
+```## Output Format
  ### Expanded Code
  When expanding a file like this:
- ```
-/** @derive(Debug) */
+```
+
+/\*_ @derive(Debug) _/
 class User {
-  name: string;
-  age: number;
+name: string;
+age: number;
 
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-  }
+constructor(name: string, age: number) {
+this.name = name;
+this.age = age;
 }
-``` The CLI outputs the expanded code with the generated methods:
- ```
+}
+
+```The CLI outputs the expanded code with the generated methods:
+
+```
+
 class User {
-  name: string;
-  age: number;
+name: string;
+age: number;
 
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-  }
-
-  [Symbol.for("nodejs.util.inspect.custom")](): string {
-    return `User { name: ${this.name}, age: ${this.age} }`;
-  }
+constructor(name: string, age: number) {
+this.name = name;
+this.age = age;
 }
-``` ### Diagnostics
+
+[Symbol.for("nodejs.util.inspect.custom")](): string {
+return `User { name: ${this.name}, age: ${this.age} }`;
+}
+}
+
+```### Diagnostics
  Errors and warnings are printed to stderr in a readable format:
- ```
+```
+
 [macroforge] error at src/user.ts:5:1: Unknown derive macro: InvalidMacro
 [macroforge] warning at src/user.ts:10:3: Field 'unused' is never used
-``` ## Use Cases
+
+```## Use Cases
  ### CI/CD Type Checking
  Use `macroforge tsc` in your CI pipeline to type-check with macro expansion:
- ```
+```
+
 # package.json
+
 {
-  "scripts": {
-    "typecheck": "macroforge tsc"
-  }
+"scripts": {
+"typecheck": "macroforge tsc"
 }
-``` ### Debugging Macro Output
+}
+
+```### Debugging Macro Output
  Use `macroforge expand` to inspect what code your macros generate:
- ```
+```
+
 macroforge expand src/models/user.ts | less
-``` ### Build Pipeline
+
+```### Build Pipeline
  Generate expanded files as part of a custom build:
- ```
+```
+
 #!/bin/bash
-for file in src/**/*.ts; do
-  outfile="dist/$(basename "$file" .ts).js"
-  macroforge expand "$file" --out "$outfile"
+for file in src/\*_/_.ts; do
+outfile="dist/$(basename "$file" .ts).js"
+macroforge expand "$file" --out "$outfile"
 done
-``` ## Built-in vs Full Mode
+
+```## Built-in vs Full Mode
  By default, the CLI uses Node.js for full macro support including external macros. Use `--builtin-only` for faster expansion when you only need built-in macros:
  | Feature | Default (Node.js) | `--builtin-only` (Rust) |
 | --- | --- | --- |
@@ -5732,21 +6302,25 @@ done
 # TypeScript Plugin
  *The TypeScript plugin provides IDE integration for Macroforge, including error reporting, completions, and type checking for generated code.*
  ## Installation
- ```
+```
+
 npm install -D @macroforge/typescript-plugin
-``` ## Configuration
+
+```## Configuration
  Add the plugin to your `tsconfig.json`:
- ```
+```
+
 {
-  "compilerOptions": {
-    "plugins": [
-      {
-        "name": "@macroforge/typescript-plugin"
-      }
-    ]
-  }
+"compilerOptions": {
+"plugins": [
+{
+"name": "@macroforge/typescript-plugin"
 }
-``` ## VS Code Setup
+]
+}
+}
+
+````## VS Code Setup
  VS Code uses its own TypeScript version by default. To use the workspace version (which includes plugins):
  1. Open the Command Palette (`Cmd/Ctrl + Shift + P`)
  2. Search for "TypeScript: Select TypeScript Version"
@@ -5758,23 +6332,29 @@ npm install -D @macroforge/typescript-plugin
 ``` ## Features
  ### Error Reporting
  Errors in macro-generated code are reported at the `@derive` decorator position:
- ```
-/** @derive(Debug) */  // **<- Errors appear here
+````
+
+/** @derive(Debug) \*/ // **<- Errors appear here
 class User {
-  name: string;
+name: string;
 }
-``` ### Completions
+
+```### Completions
  The plugin provides completions for generated methods:
- ```
+```
+
 const user = new User("Alice");
-user.to  // Suggests: toString(), toJSON(), etc.
-``` ### Type Information
+user.to // Suggests: toString(), toJSON(), etc.
+
+```### Type Information
  Hover over generated methods to see their types:
- ```
+```
+
 // Hover over 'clone' shows:
 // (method) User.clone(): User
 const copy = user.clone();
-``` ## Troubleshooting
+
+```## Troubleshooting
  ### Plugin Not Loading
  1. Ensure you're using the workspace TypeScript version
  2. Restart the TypeScript server (Command Palette → "TypeScript: Restart TS Server")
@@ -5789,39 +6369,46 @@ const copy = user.clone();
 # Vite Plugin
  *The Vite plugin provides build-time macro expansion, transforming your code during development and production builds.*
  ## Installation
- ```
+```
+
 npm install -D @macroforge/vite-plugin
-``` ## Configuration
+
+```## Configuration
  Add the plugin to your `vite.config.ts`:
- ```
+```
+
 import macroforge from "@macroforge/vite-plugin";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [
-    macroforge()
-  ]
+plugins: [
+macroforge()
+]
 });
-``` ## Options
- ```
+
+```## Options
+
+```
+
 macroforge({
-  // Generate .d.ts files for expanded code
-  generateTypes: true,
+// Generate .d.ts files for expanded code
+generateTypes: true,
 
-  // Output directory for generated types
-  typesOutputDir: ".macroforge/types",
+// Output directory for generated types
+typesOutputDir: ".macroforge/types",
 
-  // Emit metadata files for debugging
-  emitMetadata: false,
+// Emit metadata files for debugging
+emitMetadata: false,
 
-  // Keep @derive decorators in output (for debugging)
-  keepDecorators: false,
+// Keep @derive decorators in output (for debugging)
+keepDecorators: false,
 
-  // File patterns to process
-  include: ["**/*.ts", "**/*.tsx"],
-  exclude: ["node_modules/**"]
+// File patterns to process
+include: ["**/*.ts", "**/*.tsx"],
+exclude: ["node_modules/**"]
 })
-``` ### Option Reference
+
+```### Option Reference
  | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `generateTypes` | `boolean` | `true` | Generate .d.ts files |
@@ -5830,30 +6417,35 @@ macroforge({
 | `keepDecorators` | `boolean` | `false` | Keep decorators in output |
  ## Framework Integration
  ### React (Vite)
- ```
+```
+
 import macroforge from "@macroforge/vite-plugin";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [
-    macroforge(),  // Before React plugin
-    react()
-  ]
+plugins: [
+macroforge(), // Before React plugin
+react()
+]
 });
-``` ### SvelteKit
- ```
+
+```### SvelteKit
+
+```
+
 import macroforge from "@macroforge/vite-plugin";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [
-    macroforge(),  // Before SvelteKit
-    sveltekit()
-  ]
+plugins: [
+macroforge(), // Before SvelteKit
+sveltekit()
+]
 });
-``` > **Note:** Always place the Macroforge plugin before other framework plugins to ensure macros are expanded first. ## Development Server
+
+```> **Note:** Always place the Macroforge plugin before other framework plugins to ensure macros are expanded first. ## Development Server
  During development, the plugin:
  - Watches for file changes
  - Expands macros on save
@@ -5870,19 +6462,21 @@ export default defineConfig({
  *Macroforge can be configured with a `macroforge.json` file in your project root.*
  ## Configuration File
  Create a `macroforge.json` file:
- ```
+```
+
 {
-  "allowNativeMacros": true,
-  "macroPackages": [],
-  "keepDecorators": false,
-  "limits": {
-    "maxExecutionTimeMs": 5000,
-    "maxMemoryBytes": 104857600,
-    "maxOutputSize": 10485760,
-    "maxDiagnostics": 100
-  }
+"allowNativeMacros": true,
+"macroPackages": [],
+"keepDecorators": false,
+"limits": {
+"maxExecutionTimeMs": 5000,
+"maxMemoryBytes": 104857600,
+"maxOutputSize": 10485760,
+"maxDiagnostics": 100
 }
-``` ## Options Reference
+}
+
+```## Options Reference
  ### allowNativeMacros
  | Type | `boolean` |
 | Default | `true` |
@@ -5891,24 +6485,27 @@ export default defineConfig({
  | Type | `string[]` |
 | Default | `[]` |
  List of npm packages that provide macros. Macroforge will look for macros in these packages.
- ```
+```
+
 {
-  "macroPackages": [
-    "@my-org/custom-macros",
-    "community-macros"
-  ]
+"macroPackages": [
+"@my-org/custom-macros",
+"community-macros"
+]
 }
-``` ### keepDecorators
+
+```### keepDecorators
  | Type | `boolean` |
 | Default | `false` |
  Keep `@derive` decorators in the output. Useful for debugging.
  ### limits
  Configure resource limits for macro expansion:
- ```
+```
+
 {
-  "limits": {
-    // Maximum time for a single macro expansion (ms)
-    "maxExecutionTimeMs": 5000,
+"limits": {
+// Maximum time for a single macro expansion (ms)
+"maxExecutionTimeMs": 5000,
 
     // Maximum memory usage (bytes)
     "maxMemoryBytes": 104857600,  // 100MB
@@ -5918,26 +6515,32 @@ export default defineConfig({
 
     // Maximum number of diagnostics per file
     "maxDiagnostics": 100
-  }
+
 }
-``` ## Macro Runtime Overrides
+}
+
+```## Macro Runtime Overrides
  Override settings for specific macros:
- ```
+```
+
 {
-  "macroRuntimeOverrides": {
-    "@my-org/macros": {
-      "maxExecutionTimeMs": 10000
-    }
-  }
+"macroRuntimeOverrides": {
+"@my-org/macros": {
+"maxExecutionTimeMs": 10000
 }
-```  **Warning Be careful when increasing limits, as this could allow malicious macros to consume excessive resources. ## Environment Variables
+}
+}
+
+```**Warning Be careful when increasing limits, as this could allow malicious macros to consume excessive resources. ## Environment Variables
  Some settings can be overridden with environment variables:
  | Variable | Description |
 | --- | --- |
 | `MACROFORGE_DEBUG` | Enable debug logging |
 | `MACROFORGE_LOG_FILE` | Write logs to a file |
- ```
+```
+
 MACROFORGE_DEBUG=1 npm run dev
+
 ```**
 
 ---
@@ -5981,23 +6584,33 @@ MACROFORGE_DEBUG=1 npm run dev
  - **Code actions** - Quick fixes and refactorings
  ## Installation
  ### 1. Clone the Repository
- ```
+```
+
 git clone https://github.com/rymskip/macroforge-ts.git
 cd macroforge-ts
-``` ### 2. Build the Language Server
- ```
+
+```### 2. Build the Language Server
+
+```
+
 # Install dependencies
+
 npm install
 
 # Build the Svelte language server
+
 cd packages/svelte-language-server
 npm run build
-``` ### 3. Configure Your Editor
+
+```### 3. Configure Your Editor
  The language server exposes a `svelteserver` binary that implements the Language Server Protocol (LSP). Configure your editor to use it:
- ```
+```
+
 # The binary is located at:
+
 ./packages/svelte-language-server/bin/server.js
-``` ## Package Info
+
+```## Package Info
  | Package | `@macroforge/svelte-language-server` |
 | Version | 0.1.7 |
 | CLI Command | `svelteserver` |
@@ -6023,27 +6636,37 @@ npm run build
 | `svelte-macroforge` | Svelte language support with macroforge | `crates/extensions/svelte-macroforge` |
  ## Installation
  ### 1. Clone the Repository
- ```
+```
+
 git clone https://github.com/rymskip/macroforge-ts.git
 cd macroforge-ts
-``` ### 2. Build the Extension
+
+```### 2. Build the Extension
  Build the extension you want to use:
- ```
+```
+
 # For VTSLS (TypeScript)
+
 cd crates/extensions/vtsls-macroforge
 
 # Or for Svelte
+
 cd crates/extensions/svelte-macroforge
-``` ### 3. Install as Dev Extension in Zed
+
+```### 3. Install as Dev Extension in Zed
  In Zed, open the command palette and run **zed: install dev extension**, then select the extension directory.
  Alternatively, symlink the extension to your Zed extensions directory:
- ```
+```
+
 # macOS
+
 ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/Library/Application\ Support/Zed/extensions/installed/vtsls-macroforge
 
 # Linux
+
 ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/.config/zed/extensions/installed/vtsls-macroforge
-``` ## vtsls-macroforge
+
+```## vtsls-macroforge
  This extension wraps [VTSLS](https://github.com/yioneko/vtsls) (a TypeScript language server) with macroforge integration. It provides:
  - Full TypeScript language features
  - Macro expansion at edit time
@@ -6068,16 +6691,18 @@ ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/.config/zed/ex
 # API Reference
  *Macroforge provides a programmatic API for expanding macros in TypeScript code.*
  ## Overview
- ```
+```
+
 import {
-  expandSync,
-  transformSync,
-  checkSyntax,
-  parseImportSources,
-  NativePlugin,
-  PositionMapper
+expandSync,
+transformSync,
+checkSyntax,
+parseImportSources,
+NativePlugin,
+PositionMapper
 } from "macroforge";
-``` ## Core Functions
+
+```## Core Functions
  | Function | Description |
 | --- | --- |
 | [`expandSync()`](../docs/api/expand-sync) | Expand macros synchronously |
@@ -6090,30 +6715,30 @@ import {
 | [`NativePlugin`](../docs/api/native-plugin) | Stateful plugin with caching |
 | [`PositionMapper`](../docs/api/position-mapper) | Maps positions between original and expanded code |
  ## Quick Example
- ```
+```
+
 import { expandSync } from "macroforge";
 
-const sourceCode = `
-/** @derive(Debug) */
+const sourceCode = `/** @derive(Debug) */
 class User {
   name: string;
   constructor(name: string) {
     this.name = name;
   }
-}
-`;
+}`;
 
 const result = expandSync(sourceCode, "user.ts", {
-  keepDecorators: false
+keepDecorators: false
 });
 
 console.log(result.code);
 // Output: class with toString() method generated
 
 if (result.diagnostics.length > 0) {
-  console.error("Errors:", result.diagnostics);
+console.error("Errors:", result.diagnostics);
 }
-``` ## Detailed Reference
+
+```## Detailed Reference
  - [`expandSync()`](../docs/api/expand-sync) - Full options and return types
  - [`transformSync()`](../docs/api/transform-sync) - Transform with source maps
  - [`NativePlugin`](../docs/api/native-plugin) - Caching for language servers
@@ -6124,66 +6749,78 @@ if (result.diagnostics.length > 0) {
 # expandSync()
   *Synchronously expands macros in TypeScript code. This is the standalone macro expansion function that doesn't use caching. For cached expansion, use [`NativePlugin::process_file`] instead.*
  ## Signature
- ```
+```
+
 function expandSync(
-  code: string,
-  filepath: string,
-  options?: ExpandOptions
+code: string,
+filepath: string,
+options?: ExpandOptions
 ): ExpandResult
-``` ## Parameters
+
+```## Parameters
  | Parameter | Type | Description |
 | --- | --- | --- |
 | `code` | `string` | TypeScript source code to transform |
 | `filepath` | `string` | File path (used for error reporting) |
 | `options` | `ExpandOptions` | Optional configuration |
  ## ExpandOptions
- ```
+```
+
 interface ExpandOptions {
-  // Keep @derive decorators in output (default: false)
-  keepDecorators?: boolean;
+// Keep @derive decorators in output (default: false)
+keepDecorators?: boolean;
 }
-``` ## ExpandResult
- ```
+
+```## ExpandResult
+
+```
+
 interface ExpandResult {
-  // Transformed TypeScript code
-  code: string;
+// Transformed TypeScript code
+code: string;
 
-  // Generated type declarations (.d.ts content)
-  types?: string;
+// Generated type declarations (.d.ts content)
+types?: string;
 
-  // Macro expansion metadata (JSON string)
-  metadata?: string;
+// Macro expansion metadata (JSON string)
+metadata?: string;
 
-  // Warnings and errors from macro expansion
-  diagnostics: MacroDiagnostic[];
+// Warnings and errors from macro expansion
+diagnostics: MacroDiagnostic[];
 
-  // Position mapping data for source maps
-  sourceMapping?: SourceMappingResult;
+// Position mapping data for source maps
+sourceMapping?: SourceMappingResult;
 }
-``` ## MacroDiagnostic
- ```
+
+```## MacroDiagnostic
+
+```
+
 interface MacroDiagnostic {
-  message: string;
-  severity: "error" | "warning" | "info";
-  span: {
-    start: number;
-    end: number;
-  };
+message: string;
+severity: "error" | "warning" | "info";
+span: {
+start: number;
+end: number;
+};
 }
-``` ## Example
- ```
+
+```## Example
+
+```
+
 import { expandSync } from "macroforge";
 
 const sourceCode = `
-/** @derive(Debug) */
+/\*_ @derive(Debug) _/
 class User {
-  name: string;
-  age: number;
+name: string;
+age: number;
 
-  constructor(name: string, age: number) {
-    this.name = name;
-    this.age = age;
-  }
+constructor(name: string, age: number) {
+this.name = name;
+this.age = age;
+}
 }
 `;
 
@@ -6193,25 +6830,28 @@ console.log("Transformed code:");
 console.log(result.code);
 
 if (result.types) {
-  console.log("Type declarations:");
-  console.log(result.types);
+console.log("Type declarations:");
+console.log(result.types);
 }
 
 if (result.diagnostics.length > 0) {
-  for (const diag of result.diagnostics) {
-    console.log(`[${diag.severity}] ${diag.message}`);
-  }
+for (const diag of result.diagnostics) {
+console.log(`[${diag.severity}] ${diag.message}`);
 }
-``` ## Error Handling
+}
+
+```## Error Handling
  Syntax errors and macro errors are returned in the `diagnostics` array, not thrown as exceptions:
- ```
+```
+
 const result = expandSync(invalidCode, "file.ts");
 
 for (const diag of result.diagnostics) {
-  if (diag.severity === "error") {
-    console.error(`Error at ${diag.span.start}: ${diag.message}`);
-  }
+if (diag.severity === "error") {
+console.error(`Error at ${diag.span.start}: ${diag.message}`);
 }
+}
+
 ```
 
 ---
@@ -6219,32 +6859,36 @@ for (const diag of result.diagnostics) {
 # transformSync()
   *Synchronously transforms TypeScript code through the macro expansion system. This is similar to [`expand_sync`] but returns a [`TransformResult`] which includes source map information (when available).*
  ## Signature
- ```
+```
+
 function transformSync(
-  code: string,
-  filepath: string
+code: string,
+filepath: string
 ): TransformResult
-``` ## Parameters
+
+```## Parameters
  | Parameter | Type | Description |
 | --- | --- | --- |
 | `code` | `string` | TypeScript source code to transform |
 | `filepath` | `string` | File path (used for error reporting) |
  ## TransformResult
- ```
+```
+
 interface TransformResult {
-  // Transformed TypeScript code
-  code: string;
+// Transformed TypeScript code
+code: string;
 
-  // Source map (JSON string, not yet implemented)
-  map?: string;
+// Source map (JSON string, not yet implemented)
+map?: string;
 
-  // Generated type declarations
-  types?: string;
+// Generated type declarations
+types?: string;
 
-  // Macro expansion metadata
-  metadata?: string;
+// Macro expansion metadata
+metadata?: string;
 }
-``` ## Comparison with expandSync()
+
+```## Comparison with expandSync()
  | Feature | `expandSync` | `transformSync` |
 | --- | --- | --- |
 | Options | Yes | No |
@@ -6252,31 +6896,31 @@ interface TransformResult {
 | Source Mapping | Yes | Limited |
 | Use Case | General purpose | Build tools |
  ## Example
- ```
+```
+
 import { transformSync } from "macroforge";
 
-const sourceCode = `
-/** @derive(Debug) */
+const sourceCode = `/** @derive(Debug) */
 class User {
   name: string;
-}
-`;
+}`;
 
 const result = transformSync(sourceCode, "user.ts");
 
 console.log(result.code);
 
 if (result.types) {
-  // Write to .d.ts file
-  fs.writeFileSync("user.d.ts", result.types);
+// Write to .d.ts file
+fs.writeFileSync("user.d.ts", result.types);
 }
 
 if (result.metadata) {
-  // Parse and use metadata
-  const meta = JSON.parse(result.metadata);
-  console.log("Macros expanded:", meta);
+// Parse and use metadata
+const meta = JSON.parse(result.metadata);
+console.log("Macros expanded:", meta);
 }
-``` ## When to Use
+
+```## When to Use
  Use `transformSync` when:
  - Building custom integrations
  - You need raw output without diagnostics
@@ -6288,41 +6932,52 @@ if (result.metadata) {
 # NativePlugin
   *The main plugin class for macro expansion with caching support. `NativePlugin` is designed to be instantiated once and reused across multiple file processing operations. It maintains a cache of expansion results keyed by filepath and version, enabling efficient incremental processing.*
  ## Constructor
- ```
+```
+
 const plugin = new NativePlugin();
-``` ## Methods
+
+```## Methods
  ### processFile()
  Process a file with version-based caching:
- ```
+```
+
 processFile(
-  filepath: string,
-  code: string,
-  options?: ProcessFileOptions
+filepath: string,
+code: string,
+options?: ProcessFileOptions
 ): ExpandResult
-``` ```
+` `
 interface ProcessFileOptions {
-  // Cache key - if unchanged, returns cached result
-  version?: string;
+// Cache key - if unchanged, returns cached result
+version?: string;
 }
-``` ### getMapper()
+
+```### getMapper()
  Get the position mapper for a previously processed file:
- ```
+```
+
 getMapper(filepath: string): NativeMapper | null
-``` ### mapDiagnostics()
+
+```### mapDiagnostics()
  Map diagnostics from expanded positions to original positions:
- ```
+```
+
 mapDiagnostics(
-  filepath: string,
-  diagnostics: JsDiagnostic[]
+filepath: string,
+diagnostics: JsDiagnostic[]
 ): JsDiagnostic[]
-``` ### log() / setLogFile()
+
+```### log() / setLogFile()
  Logging utilities for debugging:
- ```
+```
+
 log(message: string): void
 setLogFile(path: string): void
-``` ## Caching Behavior
+
+```## Caching Behavior
  The plugin caches expansion results by file path and version:
- ```
+```
+
 const plugin = new NativePlugin();
 
 // First call - performs expansion
@@ -6333,31 +6988,36 @@ const result2 = plugin.processFile("user.ts", code, { version: "1" });
 
 // Different version - re-expands
 const result3 = plugin.processFile("user.ts", newCode, { version: "2" });
-``` ## Example: Language Server Integration
- ```
+
+```## Example: Language Server Integration
+
+```
+
 import { NativePlugin } from "macroforge";
 
 class MacroforgeLanguageService {
-  private plugin = new NativePlugin();
+private plugin = new NativePlugin();
 
-  processDocument(uri: string, content: string, version: number) {
-    // Process with version-based caching
-    const result = this.plugin.processFile(uri, content, {
-      version: String(version)
-    });
+processDocument(uri: string, content: string, version: number) {
+// Process with version-based caching
+const result = this.plugin.processFile(uri, content, {
+version: String(version)
+});
 
     // Get mapper for position translation
     const mapper = this.plugin.getMapper(uri);
 
     return { result, mapper };
-  }
 
-  getSemanticDiagnostics(uri: string, diagnostics: Diagnostic[]) {
-    // Map positions from expanded to original
-    return this.plugin.mapDiagnostics(uri, diagnostics);
-  }
 }
-``` ## Thread Safety
+
+getSemanticDiagnostics(uri: string, diagnostics: Diagnostic[]) {
+// Map positions from expanded to original
+return this.plugin.mapDiagnostics(uri, diagnostics);
+}
+}
+
+```## Thread Safety
  The `NativePlugin` class is thread-safe and can be used from multiple async contexts. Each file is processed in an isolated thread with its own stack space.
 
 ---
@@ -6365,7 +7025,8 @@ class MacroforgeLanguageService {
 # PositionMapper
   *Bidirectional position mapper for translating between original and expanded source positions. This mapper enables IDE features like error reporting, go-to-definition, and hover to work correctly with macro-expanded code by translating positions between the original source (what the user wrote) and the expanded source (what the compiler sees).*
  ## Getting a Mapper
- ```
+```
+
 import { NativePlugin, PositionMapper } from "macroforge";
 
 const plugin = new NativePlugin();
@@ -6374,78 +7035,97 @@ const result = plugin.processFile("user.ts", code, { version: "1" });
 // Get the mapper for this file
 const mapper = plugin.getMapper("user.ts");
 if (mapper) {
-  // Use the mapper...
+// Use the mapper...
 }
-``` ## Methods
+
+```## Methods
  ### isEmpty()
  Check if the mapper has any mappings:
- ```
+```
+
 isEmpty(): boolean
-``` ### originalToExpanded()
+
+```### originalToExpanded()
  Map a position from original to expanded code:
- ```
+```
+
 originalToExpanded(pos: number): number
-``` ### expandedToOriginal()
+
+```### expandedToOriginal()
  Map a position from expanded to original code:
- ```
+```
+
 expandedToOriginal(pos: number): number | null
-``` Returns `null` if the position is in generated code.
- ### isInGenerated()
- Check if a position is in macro-generated code:
- ```
+```Returns`null` if the position is in generated code.
+
+### isInGenerated()
+
+Check if a position is in macro-generated code:
+
+````
 isInGenerated(pos: number): boolean
 ``` ### generatedBy()
- Get the name of the macro that generated code at a position:
- ```
+Get the name of the macro that generated code at a position:
+````
+
 generatedBy(pos: number): string | null
-``` ### mapSpanToOriginal()
+
+```### mapSpanToOriginal()
  Map a span (range) from expanded to original code:
- ```
+```
+
 mapSpanToOriginal(start: number, length: number): SpanResult | null
 
 interface SpanResult {
-  start: number;
-  length: number;
+start: number;
+length: number;
 }
-``` ### mapSpanToExpanded()
+
+```### mapSpanToExpanded()
  Map a span from original to expanded code:
- ```
+```
+
 mapSpanToExpanded(start: number, length: number): SpanResult
-``` ## Example: Error Position Mapping
- ```
+
+```## Example: Error Position Mapping
+
+```
+
 import { NativePlugin } from "macroforge";
 
 const plugin = new NativePlugin();
 
 function mapError(filepath: string, expandedPos: number, message: string) {
-  const mapper = plugin.getMapper(filepath);
-  if (!mapper) return null;
+const mapper = plugin.getMapper(filepath);
+if (!mapper) return null;
 
-  // Check if the error is in generated code
-  if (mapper.isInGenerated(expandedPos)) {
-    const macroName = mapper.generatedBy(expandedPos);
-    return {
-      message: `Error in code generated by @derive(${macroName}): ${message}`,
-      // Find the @derive decorator position
-      position: findDecoratorPosition(filepath)
-    };
-  }
-
-  // Map to original position
-  const originalPos = mapper.expandedToOriginal(expandedPos);
-  if (originalPos !== null) {
-    return {
-      message,
-      position: originalPos
-    };
-  }
-
-  return null;
+// Check if the error is in generated code
+if (mapper.isInGenerated(expandedPos)) {
+const macroName = mapper.generatedBy(expandedPos);
+return {
+message: `Error in code generated by @derive(${macroName}): ${message}`,
+// Find the @derive decorator position
+position: findDecoratorPosition(filepath)
+};
 }
-``` ## Performance
+
+// Map to original position
+const originalPos = mapper.expandedToOriginal(expandedPos);
+if (originalPos !== null) {
+return {
+message,
+position: originalPos
+};
+}
+
+return null;
+}
+
+```## Performance
  Position mapping uses binary search with O(log n) complexity:
  - Fast lookups even for large files
  - Minimal memory overhead
  - Thread-safe access
 
 ---
+```

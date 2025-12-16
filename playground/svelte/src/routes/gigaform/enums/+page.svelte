@@ -10,7 +10,7 @@
     type RowHeight,
     type OrderStage,
     type Weekday,
-  } from "$lib/demo/types.svelte";
+  } from "$lib/demo/types";
 
   // Create Appointment form to test enum fields
   const appointmentForm = appointmentCreateForm({

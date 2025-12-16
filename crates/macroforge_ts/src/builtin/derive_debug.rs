@@ -34,12 +34,12 @@
 //! ## Example
 //!
 //! ```typescript
-//! @derive(Debug)
+//! /** @derive(Debug) */
 //! class User {
-//!     @debug(rename = "id")
+//!     /** @debug({ rename: "id" }) */
 //!     userId: number;
 //!
-//!     @debug(skip)
+//!     /** @debug({ skip: true }) */
 //!     password: string;
 //!
 //!     email: string;

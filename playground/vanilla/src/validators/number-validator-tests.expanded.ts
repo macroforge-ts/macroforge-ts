@@ -57,7 +57,7 @@ export class GreaterThanValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = GreaterThanValidator.__deserialize(obj, ctx);
+            const resultOrRef = GreaterThanValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -86,7 +86,10 @@ export class GreaterThanValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): GreaterThanValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): GreaterThanValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -94,7 +97,7 @@ export class GreaterThanValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'GreaterThanValidator.__deserialize: expected an object'
+                    message: 'GreaterThanValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -249,7 +252,7 @@ export class GreaterThanOrEqualToValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = GreaterThanOrEqualToValidator.__deserialize(obj, ctx);
+            const resultOrRef = GreaterThanOrEqualToValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -278,7 +281,7 @@ export class GreaterThanOrEqualToValidator {
         }
     }
 
-    static __deserialize(
+    static deserializeWithContext(
         value: any,
         ctx: DeserializeContext
     ): GreaterThanOrEqualToValidator | PendingRef {
@@ -289,7 +292,8 @@ export class GreaterThanOrEqualToValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'GreaterThanOrEqualToValidator.__deserialize: expected an object'
+                    message:
+                        'GreaterThanOrEqualToValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -446,7 +450,7 @@ export class LessThanValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = LessThanValidator.__deserialize(obj, ctx);
+            const resultOrRef = LessThanValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -474,7 +478,10 @@ export class LessThanValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): LessThanValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): LessThanValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -482,7 +489,7 @@ export class LessThanValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'LessThanValidator.__deserialize: expected an object'
+                    message: 'LessThanValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -637,7 +644,7 @@ export class LessThanOrEqualToValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = LessThanOrEqualToValidator.__deserialize(obj, ctx);
+            const resultOrRef = LessThanOrEqualToValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -666,7 +673,7 @@ export class LessThanOrEqualToValidator {
         }
     }
 
-    static __deserialize(
+    static deserializeWithContext(
         value: any,
         ctx: DeserializeContext
     ): LessThanOrEqualToValidator | PendingRef {
@@ -677,7 +684,7 @@ export class LessThanOrEqualToValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'LessThanOrEqualToValidator.__deserialize: expected an object'
+                    message: 'LessThanOrEqualToValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -834,7 +841,7 @@ export class BetweenValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = BetweenValidator.__deserialize(obj, ctx);
+            const resultOrRef = BetweenValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -862,7 +869,10 @@ export class BetweenValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): BetweenValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): BetweenValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -870,7 +880,7 @@ export class BetweenValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'BetweenValidator.__deserialize: expected an object'
+                    message: 'BetweenValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -1025,7 +1035,7 @@ export class IntValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = IntValidator.__deserialize(obj, ctx);
+            const resultOrRef = IntValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -1053,7 +1063,7 @@ export class IntValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): IntValidator | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): IntValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -1061,7 +1071,7 @@ export class IntValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'IntValidator.__deserialize: expected an object'
+                    message: 'IntValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -1216,7 +1226,7 @@ export class NonNaNValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = NonNaNValidator.__deserialize(obj, ctx);
+            const resultOrRef = NonNaNValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -1244,7 +1254,10 @@ export class NonNaNValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): NonNaNValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): NonNaNValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -1252,7 +1265,7 @@ export class NonNaNValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'NonNaNValidator.__deserialize: expected an object'
+                    message: 'NonNaNValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -1407,7 +1420,7 @@ export class FiniteValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = FiniteValidator.__deserialize(obj, ctx);
+            const resultOrRef = FiniteValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -1435,7 +1448,10 @@ export class FiniteValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): FiniteValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): FiniteValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -1443,7 +1459,7 @@ export class FiniteValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'FiniteValidator.__deserialize: expected an object'
+                    message: 'FiniteValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -1598,7 +1614,7 @@ export class PositiveValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = PositiveValidator.__deserialize(obj, ctx);
+            const resultOrRef = PositiveValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -1626,7 +1642,10 @@ export class PositiveValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): PositiveValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): PositiveValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -1634,7 +1653,7 @@ export class PositiveValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'PositiveValidator.__deserialize: expected an object'
+                    message: 'PositiveValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -1789,7 +1808,7 @@ export class NonNegativeValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = NonNegativeValidator.__deserialize(obj, ctx);
+            const resultOrRef = NonNegativeValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -1818,7 +1837,10 @@ export class NonNegativeValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): NonNegativeValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): NonNegativeValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -1826,7 +1848,7 @@ export class NonNegativeValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'NonNegativeValidator.__deserialize: expected an object'
+                    message: 'NonNegativeValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -1981,7 +2003,7 @@ export class NegativeValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = NegativeValidator.__deserialize(obj, ctx);
+            const resultOrRef = NegativeValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -2009,7 +2031,10 @@ export class NegativeValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): NegativeValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): NegativeValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -2017,7 +2042,7 @@ export class NegativeValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'NegativeValidator.__deserialize: expected an object'
+                    message: 'NegativeValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -2172,7 +2197,7 @@ export class NonPositiveValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = NonPositiveValidator.__deserialize(obj, ctx);
+            const resultOrRef = NonPositiveValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -2201,7 +2226,10 @@ export class NonPositiveValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): NonPositiveValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): NonPositiveValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -2209,7 +2237,7 @@ export class NonPositiveValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'NonPositiveValidator.__deserialize: expected an object'
+                    message: 'NonPositiveValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -2364,7 +2392,7 @@ export class MultipleOfValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = MultipleOfValidator.__deserialize(obj, ctx);
+            const resultOrRef = MultipleOfValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -2393,7 +2421,10 @@ export class MultipleOfValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): MultipleOfValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): MultipleOfValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -2401,7 +2432,7 @@ export class MultipleOfValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'MultipleOfValidator.__deserialize: expected an object'
+                    message: 'MultipleOfValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -2556,7 +2587,7 @@ export class Uint8Validator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = Uint8Validator.__deserialize(obj, ctx);
+            const resultOrRef = Uint8Validator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -2584,7 +2615,10 @@ export class Uint8Validator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): Uint8Validator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): Uint8Validator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -2592,7 +2626,7 @@ export class Uint8Validator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'Uint8Validator.__deserialize: expected an object'
+                    message: 'Uint8Validator.deserializeWithContext: expected an object'
                 }
             ]);
         }

@@ -212,12 +212,12 @@ function assertNamingStyle(results, namingStyleLabel) {
 
       expectMatches(
         codeByName["external-imports"],
-        /import\s+\{\s*__serializeMetadata\s*\}\s+from\s+['"]\.\/metadata\.svelte['"];/,
+        /import\s+\{\s*SerializeWithContextMetadata\s*\}\s+from\s+['"]\.\/metadata\.svelte['"];/,
         "suffix external-imports",
       );
       expectMatches(
         codeByName["external-imports"],
-        /import\s+\{\s*__deserializeMetadata\s*\}\s+from\s+['"]\.\/metadata\.svelte['"];/,
+        /import\s+\{\s*DeserializeWithContextMetadata\s*\}\s+from\s+['"]\.\/metadata\.svelte['"];/,
         "suffix external-imports",
       );
       // `metadata: Metadata` (non-null) should require a default value helper.
@@ -228,12 +228,12 @@ function assertNamingStyle(results, namingStyleLabel) {
       );
       expectContains(
         codeByName["external-imports"],
-        "__serializeMetadata(",
+        "SerializeWithContextMetadata(",
         "suffix external-imports",
       );
       expectContains(
         codeByName["external-imports"],
-        "__deserializeMetadata(",
+        "DeserializeWithContextMetadata(",
         "suffix external-imports",
       );
       break;

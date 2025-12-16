@@ -52,8 +52,8 @@
 //! cargo test -p macroforge_ts
 //! ```
 
-use crate::host::PatchCollector;
 use crate::host::MacroConfig;
+use crate::host::PatchCollector;
 use crate::ts_syn::abi::{
     ClassIR, DiagnosticLevel, FunctionNamingStyle, MacroContextIR, MacroResult, Patch, PatchCode,
     SpanIR,
@@ -1726,8 +1726,8 @@ class User {
             "Should have serialize method"
         );
         assert!(
-            type_output.contains("__serialize(ctx: SerializeContext)"),
-            "Should have __serialize method"
+            type_output.contains("SerializeWithContext(ctx: SerializeContext)"),
+            "Should have serializeWithContext method"
         );
     });
 }
@@ -1749,14 +1749,14 @@ class Data {
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed, "expand() should report changes");
-        // Serialize macro adds serialize() and __serialize() methods
+        // Serialize macro adds serialize() and serializeWithContext() methods
         assert!(
             result.code.contains("serialize(): string"),
             "Should have serialize method"
         );
         assert!(
-            result.code.contains("__serialize"),
-            "Should have __serialize method"
+            result.code.contains("SerializeWithContext"),
+            "Should have serializeWithContext method"
         );
         assert!(
             result.code.contains("SerializeContext"),
@@ -1791,8 +1791,9 @@ class User {
             "Should have deserialize method"
         );
         assert!(
-            type_output.contains("static __deserialize(value: any, ctx: DeserializeContext)"),
-            "Should have __deserialize method"
+            type_output
+                .contains("static deserializeWithContext(value: any, ctx: DeserializeContext)"),
+            "Should have deserializeWithContext method"
         );
     });
 }
@@ -1814,14 +1815,14 @@ class Data {
         let result = host.expand(source, &program, "test.ts").unwrap();
 
         assert!(result.changed, "expand() should report changes");
-        // Deserialize macro adds static deserialize() and __deserialize() methods
+        // Deserialize macro adds static deserialize() and deserializeWithContext() methods
         assert!(
             result.code.contains("deserialize"),
             "Should have deserialize method"
         );
         assert!(
-            result.code.contains("__deserialize"),
-            "Should have __deserialize method"
+            result.code.contains("DeserializeWithContext"),
+            "Should have deserializeWithContext method"
         );
         assert!(result.code.contains("static"), "Methods should be static");
         assert!(
@@ -1860,8 +1861,8 @@ interface Point {
             "Should generate prefix-style pointSerialize function"
         );
         assert!(
-            result.code.contains("point__serialize"),
-            "Should generate prefix-style point__serialize function"
+            result.code.contains("pointSerializeWithContext"),
+            "Should generate prefix-style pointSerializeWithContext function"
         );
     });
 }
@@ -1895,8 +1896,8 @@ interface Point {
             "Should generate prefix-style pointDeserialize function"
         );
         assert!(
-            result.code.contains("point__deserialize"),
-            "Should generate prefix-style point__deserialize function"
+            result.code.contains("pointDeserializeWithContext"),
+            "Should generate prefix-style pointDeserializeWithContextfunction"
         );
     });
 }
@@ -1929,8 +1930,8 @@ export interface Point {
             "export function pointPartialCompare",
             "export function pointCompare",
             "export function pointDefaultValue",
-            "export function point__serialize",
-            "export function point__deserialize",
+            "export function pointSerializeWithContext",
+            "export function pointDeserializeWithContext",
         ] {
             assert!(
                 result.code.contains(expected),
@@ -1964,11 +1965,15 @@ export interface Point {
             "Namespace naming style should emit `export namespace Point`"
         );
         assert!(
-            result.code.contains("export function __serialize("),
-            "Namespace naming style should emit `__serialize` inside the namespace"
+            result
+                .code
+                .contains("export function serializeWithContext("),
+            "Namespace naming style should emit `SerializeWithContext` inside the namespace"
         );
         assert!(
-            !result.code.contains("export function __serializePoint"),
+            !result
+                .code
+                .contains("export function serializeWithContextPoint"),
             "Namespace naming style should not emit suffix-style names"
         );
     });
@@ -1992,12 +1997,12 @@ export interface User {
 
         // The expansion should call into the imported type's generated functions
         assert!(
-            result.code.contains("metadata__serialize"),
-            "Expected User serialization to reference metadata__serialize"
+            result.code.contains("metadataSerializeWithContext"),
+            "Expected User serialization to reference metadataSerializeWithContext"
         );
         assert!(
-            result.code.contains("metadata__deserialize"),
-            "Expected User deserialization to reference metadata__deserialize"
+            result.code.contains("metadataDeserializeWithContext"),
+            "Expected User deserialization to reference metadataDeserializeWithContext"
         );
         assert!(
             result.code.contains("metadataDefaultValue"),
@@ -2006,15 +2011,21 @@ export interface User {
 
         // ...and it should add corresponding imports from the original module specifier.
         assert!(
-            result.code.contains("import { metadata__serialize } from \"./metadata.svelte\";"),
-            "Expected metadata__serialize import to be added"
+            result
+                .code
+                .contains("import { metadataSerializeWithContext } from \"./metadata.svelte\";"),
+            "Expected metadataSerializeWithContext import to be added"
         );
         assert!(
-            result.code.contains("import { metadata__deserialize } from \"./metadata.svelte\";"),
-            "Expected metadata__deserialize import to be added"
+            result
+                .code
+                .contains("import { metadataDeserializeWithContext} from \"./metadata.svelte\";"),
+            "Expected metadataDeserializeWithContextimport to be added"
         );
         assert!(
-            result.code.contains("import { metadataDefaultValue } from \"./metadata.svelte\";"),
+            result
+                .code
+                .contains("import { metadataDefaultValue } from \"./metadata.svelte\";"),
             "Expected metadataDefaultValue import to be added"
         );
     });

@@ -56,12 +56,12 @@
 //! ## Example
 //!
 //! ```typescript
-//! @derive(Hash, PartialEq)
+//! /** @derive(Hash, PartialEq) */
 //! class User {
 //!     id: number;
 //!     name: string;
 //!
-//!     @hash(skip)  // Cached value shouldn't affect hash
+//!     /** @hash({ skip: true }) */
 //!     cachedScore: number;
 //! }
 //! ```
@@ -73,7 +73,6 @@
 //!     id: number;
 //!     name: string;
 //! 
-//!     // Cached value shouldn't affect hash
 //!     cachedScore: number;
 //! 
 //!     hashCode(): number {

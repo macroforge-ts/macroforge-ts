@@ -57,7 +57,7 @@ export class MaxItemsValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = MaxItemsValidator.__deserialize(obj, ctx);
+            const resultOrRef = MaxItemsValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -85,7 +85,10 @@ export class MaxItemsValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): MaxItemsValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): MaxItemsValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -93,7 +96,7 @@ export class MaxItemsValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'MaxItemsValidator.__deserialize: expected an object'
+                    message: 'MaxItemsValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -250,7 +253,7 @@ export class MinItemsValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = MinItemsValidator.__deserialize(obj, ctx);
+            const resultOrRef = MinItemsValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -278,7 +281,10 @@ export class MinItemsValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): MinItemsValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): MinItemsValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -286,7 +292,7 @@ export class MinItemsValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'MinItemsValidator.__deserialize: expected an object'
+                    message: 'MinItemsValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -443,7 +449,7 @@ export class ItemsCountValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = ItemsCountValidator.__deserialize(obj, ctx);
+            const resultOrRef = ItemsCountValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -472,7 +478,10 @@ export class ItemsCountValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): ItemsCountValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): ItemsCountValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -480,7 +489,7 @@ export class ItemsCountValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'ItemsCountValidator.__deserialize: expected an object'
+                    message: 'ItemsCountValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }

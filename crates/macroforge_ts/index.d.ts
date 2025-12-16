@@ -749,6 +749,26 @@ export interface ExpandOptions {
    * If `false` (default), decorators are stripped after expansion.
    */
   keepDecorators?: boolean
+  /**
+   * Additional decorator module names from external macros.
+   *
+   * These are used during decorator stripping to identify Macroforge-specific
+   * decorators that should be removed from the output. Built-in decorator modules
+   * (like "serde", "debug") are automatically included.
+   *
+   * External macro packages should export their decorator module names, which
+   * plugins can collect and pass here.
+   *
+   * # Example
+   *
+   * ```javascript
+   * expandSync(code, filepath, {
+   *   keepDecorators: false,
+   *   externalDecoratorModules: ["myMacro", "customValidator"]
+   * });
+   * ```
+   */
+  externalDecoratorModules?: Array<string>
 }
 
 /**
@@ -1023,6 +1043,11 @@ export interface ProcessFileOptions {
    * When provided, cached results are only reused if versions match.
    */
   version?: string
+  /**
+   * Additional decorator module names from external macros.
+   * See [`ExpandOptions::external_decorator_modules`] for details.
+   */
+  externalDecoratorModules?: Array<string>
 }
 
 /**

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { userCreateForm, settingsDefaultValue, type User, type Settings, type UserRole } from "$lib/demo/types.svelte";
+  import { userCreateForm, settingsDefaultValue, type User, type Settings, type UserRole } from "$lib/demo/types";
 
   // Create User form with nested Settings, Metadata, AppPermissions
   const userForm = userCreateForm();

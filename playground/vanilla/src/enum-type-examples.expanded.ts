@@ -21,7 +21,7 @@ export enum Status {
     Pending = 'pending'
 }
 
-export function toStringStatus(value: Status): string {
+export function statusToString(value: Status): string {
     const key = Status[value as unknown as keyof typeof Status];
     if (key !== undefined) {
         return 'Status.' + key;
@@ -29,15 +29,15 @@ export function toStringStatus(value: Status): string {
     return 'Status(' + String(value) + ')';
 }
 
-export function cloneStatus(value: Status): Status {
+export function statusClone(value: Status): Status {
     return value;
 }
 
-export function equalsStatus(a: Status, b: Status): boolean {
+export function statusEquals(a: Status, b: Status): boolean {
     return a === b;
 }
 
-export function hashCodeStatus(value: Status): number {
+export function statusHashCode(value: Status): number {
     if (typeof value === 'string') {
         let hash = 0;
         for (let i = 0; i < value.length; i++) {
@@ -48,18 +48,26 @@ export function hashCodeStatus(value: Status): number {
     return value as number;
 }
 
-export function toStringifiedJSONStatus(value: Status): string {
+/** Serializes this enum value to a JSON string. */ export function statusSerialize(
+    value: Status
+): string {
     return JSON.stringify(value);
-}
-export function __serializeStatus(_ctx: SerializeContext): string | number {
+} /** Serializes with an existing context for nested/cyclic object graphs. */
+export function statusSerializeWithContext(value: Status, _ctx: SerializeContext): string | number {
     return value;
 }
 
-export function fromStringifiedJSONStatus(json: string): Status {
-    const data = JSON.parse(json);
-    return __deserializeStatus(data);
-}
-export function __deserializeStatus(data: unknown): Status {
+/** Deserializes input to an enum value.
+Automatically detects whether input is a JSON string or value.
+@param input - JSON string or value to deserialize
+@returns The enum value
+@throws Error if the value is not a valid enum member */ export function statusDeserialize(
+    input: unknown
+): Status {
+    const data = typeof input === 'string' ? JSON.parse(input) : input;
+    return statusDeserializeWithContext(data);
+} /** Deserializes with an existing context (for consistency with other types). */
+export function statusDeserializeWithContext(data: unknown): Status {
     for (const key of Object.keys(Status)) {
         const enumValue = Status[key as keyof typeof Status];
         if (enumValue === data) {
@@ -68,7 +76,7 @@ export function __deserializeStatus(data: unknown): Status {
     }
     throw new Error('Invalid Status value: ' + JSON.stringify(data));
 }
-export function isStatus(value: unknown): value is Status {
+export function statusIs(value: unknown): value is Status {
     for (const key of Object.keys(Status)) {
         const enumValue = Status[key as keyof typeof Status];
         if (enumValue === value) {
@@ -78,6 +86,18 @@ export function isStatus(value: unknown): value is Status {
     return false;
 }
 
+export const Status = {
+    toString: statusToString,
+    clone: statusClone,
+    equals: statusEquals,
+    hashCode: statusHashCode,
+    serialize: statusSerialize,
+    serializeWithContext: statusSerializeWithContext,
+    deserialize: statusDeserialize,
+    deserializeWithContext: statusDeserializeWithContext,
+    is: statusIs
+} as const;
+
 export enum Priority {
     Low = 1,
     Medium = 2,
@@ -85,7 +105,7 @@ export enum Priority {
     Critical = 4
 }
 
-export function toStringPriority(value: Priority): string {
+export function priorityToString(value: Priority): string {
     const key = Priority[value as unknown as keyof typeof Priority];
     if (key !== undefined) {
         return 'Priority.' + key;
@@ -93,15 +113,15 @@ export function toStringPriority(value: Priority): string {
     return 'Priority(' + String(value) + ')';
 }
 
-export function clonePriority(value: Priority): Priority {
+export function priorityClone(value: Priority): Priority {
     return value;
 }
 
-export function equalsPriority(a: Priority, b: Priority): boolean {
+export function priorityEquals(a: Priority, b: Priority): boolean {
     return a === b;
 }
 
-export function hashCodePriority(value: Priority): number {
+export function priorityHashCode(value: Priority): number {
     if (typeof value === 'string') {
         let hash = 0;
         for (let i = 0; i < value.length; i++) {
@@ -112,18 +132,29 @@ export function hashCodePriority(value: Priority): number {
     return value as number;
 }
 
-export function toStringifiedJSONPriority(value: Priority): string {
+/** Serializes this enum value to a JSON string. */ export function prioritySerialize(
+    value: Priority
+): string {
     return JSON.stringify(value);
-}
-export function __serializePriority(_ctx: SerializeContext): string | number {
+} /** Serializes with an existing context for nested/cyclic object graphs. */
+export function prioritySerializeWithContext(
+    value: Priority,
+    _ctx: SerializeContext
+): string | number {
     return value;
 }
 
-export function fromStringifiedJSONPriority(json: string): Priority {
-    const data = JSON.parse(json);
-    return __deserializePriority(data);
-}
-export function __deserializePriority(data: unknown): Priority {
+/** Deserializes input to an enum value.
+Automatically detects whether input is a JSON string or value.
+@param input - JSON string or value to deserialize
+@returns The enum value
+@throws Error if the value is not a valid enum member */ export function priorityDeserialize(
+    input: unknown
+): Priority {
+    const data = typeof input === 'string' ? JSON.parse(input) : input;
+    return priorityDeserializeWithContext(data);
+} /** Deserializes with an existing context (for consistency with other types). */
+export function priorityDeserializeWithContext(data: unknown): Priority {
     for (const key of Object.keys(Priority)) {
         const enumValue = Priority[key as keyof typeof Priority];
         if (enumValue === data) {
@@ -132,7 +163,7 @@ export function __deserializePriority(data: unknown): Priority {
     }
     throw new Error('Invalid Priority value: ' + JSON.stringify(data));
 }
-export function isPriority(value: unknown): value is Priority {
+export function priorityIs(value: unknown): value is Priority {
     for (const key of Object.keys(Priority)) {
         const enumValue = Priority[key as keyof typeof Priority];
         if (enumValue === value) {
@@ -142,13 +173,25 @@ export function isPriority(value: unknown): value is Priority {
     return false;
 }
 
+export const Priority = {
+    toString: priorityToString,
+    clone: priorityClone,
+    equals: priorityEquals,
+    hashCode: priorityHashCode,
+    serialize: prioritySerialize,
+    serializeWithContext: prioritySerializeWithContext,
+    deserialize: priorityDeserialize,
+    deserializeWithContext: priorityDeserializeWithContext,
+    is: priorityIs
+} as const;
+
 export enum Color {
     Red,
     Green,
     Blue
 }
 
-export function toStringColor(value: Color): string {
+export function colorToString(value: Color): string {
     const key = Color[value as unknown as keyof typeof Color];
     if (key !== undefined) {
         return 'Color.' + key;
@@ -156,11 +199,11 @@ export function toStringColor(value: Color): string {
     return 'Color(' + String(value) + ')';
 }
 
-export function equalsColor(a: Color, b: Color): boolean {
+export function colorEquals(a: Color, b: Color): boolean {
     return a === b;
 }
 
-export function hashCodeColor(value: Color): number {
+export function colorHashCode(value: Color): number {
     if (typeof value === 'string') {
         let hash = 0;
         for (let i = 0; i < value.length; i++) {
@@ -171,6 +214,12 @@ export function hashCodeColor(value: Color): number {
     return value as number;
 }
 
+export const Color = {
+    toString: colorToString,
+    equals: colorEquals,
+    hashCode: colorHashCode
+} as const;
+
 // ==================== TYPE ALIAS EXAMPLES ====================
 
 export type Point = {
@@ -178,23 +227,23 @@ export type Point = {
     y: number;
 };
 
-export function toStringPoint(value: Point): string {
+export function pointToString(value: Point): string {
     const parts: string[] = [];
     parts.push('x: ' + value.x);
     parts.push('y: ' + value.y);
     return 'Point { ' + parts.join(', ') + ' }';
 }
 
-export function clonePoint(value: Point): Point {
+export function pointClone(value: Point): Point {
     return { x: value.x, y: value.y };
 }
 
-export function equalsPoint(a: Point, b: Point): boolean {
+export function pointEquals(a: Point, b: Point): boolean {
     if (a === b) return true;
     return a.x === b.x && a.y === b.y;
 }
 
-export function hashCodePoint(value: Point): number {
+export function pointHashCode(value: Point): number {
     let hash = 17;
     hash =
         (hash * 31 +
@@ -217,15 +266,20 @@ export function hashCodePoint(value: Point): number {
     return hash;
 }
 
-export function toStringifiedJSONPoint(value: Point): string {
+/** Serializes a value to a JSON string.
+@param value - The value to serialize
+@returns JSON string representation with cycle detection metadata */ export function pointSerialize(
+    value: Point
+): string {
     const ctx = SerializeContext.create();
-    return JSON.stringify(__serializePoint(value, ctx));
-}
-export function toObjectPoint(value: Point): Record<string, unknown> {
-    const ctx = SerializeContext.create();
-    return __serializePoint(value, ctx);
-}
-export function __serializePoint(value: Point, ctx: SerializeContext): Record<string, unknown> {
+    return JSON.stringify(pointSerializeWithContext(value, ctx));
+} /** Serializes with an existing context for nested/cyclic object graphs.
+@param value - The value to serialize
+@param ctx - The serialization context */
+export function pointSerializeWithContext(
+    value: Point,
+    ctx: SerializeContext
+): Record<string, unknown> {
     const existingId = ctx.getId(value);
     if (existingId !== undefined) {
         return { __ref: existingId };
@@ -237,31 +291,21 @@ export function __serializePoint(value: Point, ctx: SerializeContext): Record<st
     return result;
 }
 
-export function fromStringifiedJSONPoint(
-    json: string,
+/** Deserializes input to this type.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized value or validation errors */ export function pointDeserialize(
+    input: unknown,
     opts?: DeserializeOptions
 ): Result<Point, Array<{ field: string; message: string }>> {
     try {
-        const raw = JSON.parse(json);
-        return fromObjectPoint(raw, opts);
-    } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
-    }
-}
-export function fromObjectPoint(
-    obj: unknown,
-    opts?: DeserializeOptions
-): Result<Point, Array<{ field: string; message: string }>> {
-    try {
+        const data = typeof input === 'string' ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
-        const resultOrRef = __deserializePoint(obj, ctx);
+        const resultOrRef = pointDeserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
-                { field: '_root', message: 'Point.fromObject: root cannot be a forward reference' }
+                { field: '_root', message: 'Point.deserialize: root cannot be a forward reference' }
             ]);
         }
         ctx.applyPatches();
@@ -276,14 +320,14 @@ export function fromObjectPoint(
         const message = e instanceof Error ? e.message : String(e);
         return Result.err([{ field: '_root', message }]);
     }
-}
-export function __deserializePoint(value: any, ctx: DeserializeContext): Point | PendingRef {
+} /** @internal */
+function pointDeserializeWithContext(value: any, ctx: DeserializeContext): Point | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref) as Point | PendingRef;
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
         throw new DeserializeError([
-            { field: '_root', message: 'Point.__deserialize: expected an object' }
+            { field: '_root', message: 'Point.deserializeWithContext: expected an object' }
         ]);
     }
     const obj = value as Record<string, unknown>;
@@ -315,24 +359,36 @@ export function __deserializePoint(value: any, ctx: DeserializeContext): Point |
     }
     return instance as Point;
 }
-export function validateFieldPoint<K extends keyof Point>(
+export function pointValidateField<K extends keyof Point>(
     field: K,
     value: Point[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
-export function validateFieldsPoint(
+export function pointValidateFields(
     partial: Partial<Point>
 ): Array<{ field: string; message: string }> {
     return [];
 }
-export function isPoint(obj: unknown): obj is Point {
+export function pointIs(obj: unknown): obj is Point {
     if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
         return false;
     }
     const o = obj as Record<string, unknown>;
     return 'x' in o && 'y' in o;
 }
+
+export const Point = {
+    toString: pointToString,
+    clone: pointClone,
+    equals: pointEquals,
+    hashCode: pointHashCode,
+    serialize: pointSerialize,
+    serializeWithContext: pointSerializeWithContext,
+    deserialize: pointDeserialize,
+    validateFields: pointValidateFields,
+    is: pointIs
+} as const;
 
 export type UserProfile = {
     id: string;
@@ -342,7 +398,7 @@ export type UserProfile = {
     isVerified: boolean;
 };
 
-export function toStringUserProfile(value: UserProfile): string {
+export function userProfileToString(value: UserProfile): string {
     const parts: string[] = [];
     parts.push('id: ' + value.id);
     parts.push('username: ' + value.username);
@@ -352,7 +408,7 @@ export function toStringUserProfile(value: UserProfile): string {
     return 'UserProfile { ' + parts.join(', ') + ' }';
 }
 
-export function cloneUserProfile(value: UserProfile): UserProfile {
+export function userProfileClone(value: UserProfile): UserProfile {
     return {
         id: value.id,
         username: value.username,
@@ -362,7 +418,7 @@ export function cloneUserProfile(value: UserProfile): UserProfile {
     };
 }
 
-export function equalsUserProfile(a: UserProfile, b: UserProfile): boolean {
+export function userProfileEquals(a: UserProfile, b: UserProfile): boolean {
     if (a === b) return true;
     return (
         a.id === b.id &&
@@ -373,7 +429,7 @@ export function equalsUserProfile(a: UserProfile, b: UserProfile): boolean {
     );
 }
 
-export function hashCodeUserProfile(value: UserProfile): number {
+export function userProfileHashCode(value: UserProfile): number {
     let hash = 17;
     hash =
         (hash * 31 +
@@ -400,15 +456,17 @@ export function hashCodeUserProfile(value: UserProfile): number {
     return hash;
 }
 
-export function toStringifiedJSONUserProfile(value: UserProfile): string {
+/** Serializes a value to a JSON string.
+@param value - The value to serialize
+@returns JSON string representation with cycle detection metadata */ export function userProfileSerialize(
+    value: UserProfile
+): string {
     const ctx = SerializeContext.create();
-    return JSON.stringify(__serializeUserProfile(value, ctx));
-}
-export function toObjectUserProfile(value: UserProfile): Record<string, unknown> {
-    const ctx = SerializeContext.create();
-    return __serializeUserProfile(value, ctx);
-}
-export function __serializeUserProfile(
+    return JSON.stringify(userProfileSerializeWithContext(value, ctx));
+} /** Serializes with an existing context for nested/cyclic object graphs.
+@param value - The value to serialize
+@param ctx - The serialization context */
+export function userProfileSerializeWithContext(
     value: UserProfile,
     ctx: SerializeContext
 ): Record<string, unknown> {
@@ -426,33 +484,23 @@ export function __serializeUserProfile(
     return result;
 }
 
-export function fromStringifiedJSONUserProfile(
-    json: string,
+/** Deserializes input to this type.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized value or validation errors */ export function userProfileDeserialize(
+    input: unknown,
     opts?: DeserializeOptions
 ): Result<UserProfile, Array<{ field: string; message: string }>> {
     try {
-        const raw = JSON.parse(json);
-        return fromObjectUserProfile(raw, opts);
-    } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return Result.err([{ field: '_root', message }]);
-    }
-}
-export function fromObjectUserProfile(
-    obj: unknown,
-    opts?: DeserializeOptions
-): Result<UserProfile, Array<{ field: string; message: string }>> {
-    try {
+        const data = typeof input === 'string' ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
-        const resultOrRef = __deserializeUserProfile(obj, ctx);
+        const resultOrRef = userProfileDeserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: '_root',
-                    message: 'UserProfile.fromObject: root cannot be a forward reference'
+                    message: 'UserProfile.deserialize: root cannot be a forward reference'
                 }
             ]);
         }
@@ -468,8 +516,8 @@ export function fromObjectUserProfile(
         const message = e instanceof Error ? e.message : String(e);
         return Result.err([{ field: '_root', message }]);
     }
-}
-export function __deserializeUserProfile(
+} /** @internal */
+function userProfileDeserializeWithContext(
     value: any,
     ctx: DeserializeContext
 ): UserProfile | PendingRef {
@@ -478,7 +526,7 @@ export function __deserializeUserProfile(
     }
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
         throw new DeserializeError([
-            { field: '_root', message: 'UserProfile.__deserialize: expected an object' }
+            { field: '_root', message: 'UserProfile.deserializeWithContext: expected an object' }
         ]);
     }
     const obj = value as Record<string, unknown>;
@@ -531,18 +579,18 @@ export function __deserializeUserProfile(
     }
     return instance as UserProfile;
 }
-export function validateFieldUserProfile<K extends keyof UserProfile>(
+export function userProfileValidateField<K extends keyof UserProfile>(
     field: K,
     value: UserProfile[K]
 ): Array<{ field: string; message: string }> {
     return [];
 }
-export function validateFieldsUserProfile(
+export function userProfileValidateFields(
     partial: Partial<UserProfile>
 ): Array<{ field: string; message: string }> {
     return [];
 }
-export function isUserProfile(obj: unknown): obj is UserProfile {
+export function userProfileIs(obj: unknown): obj is UserProfile {
     if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
         return false;
     }
@@ -550,13 +598,25 @@ export function isUserProfile(obj: unknown): obj is UserProfile {
     return 'id' in o && 'username' in o && 'email' in o && 'age' in o && 'isVerified' in o;
 }
 
+export const UserProfile = {
+    toString: userProfileToString,
+    clone: userProfileClone,
+    equals: userProfileEquals,
+    hashCode: userProfileHashCode,
+    serialize: userProfileSerialize,
+    serializeWithContext: userProfileSerializeWithContext,
+    deserialize: userProfileDeserialize,
+    validateFields: userProfileValidateFields,
+    is: userProfileIs
+} as const;
+
 export type Coordinate3D = {
     x: number;
     y: number;
     z: number;
 };
 
-export function toStringCoordinate3D(value: Coordinate3D): string {
+export function coordinate3DToString(value: Coordinate3D): string {
     const parts: string[] = [];
     parts.push('x: ' + value.x);
     parts.push('y: ' + value.y);
@@ -564,16 +624,16 @@ export function toStringCoordinate3D(value: Coordinate3D): string {
     return 'Coordinate3D { ' + parts.join(', ') + ' }';
 }
 
-export function cloneCoordinate3D(value: Coordinate3D): Coordinate3D {
+export function coordinate3DClone(value: Coordinate3D): Coordinate3D {
     return { x: value.x, y: value.y, z: value.z };
 }
 
-export function equalsCoordinate3D(a: Coordinate3D, b: Coordinate3D): boolean {
+export function coordinate3DEquals(a: Coordinate3D, b: Coordinate3D): boolean {
     if (a === b) return true;
     return a.x === b.x && a.y === b.y && a.z === b.z;
 }
 
-export function hashCodeCoordinate3D(value: Coordinate3D): number {
+export function coordinate3DHashCode(value: Coordinate3D): number {
     let hash = 17;
     hash =
         (hash * 31 +
@@ -605,13 +665,20 @@ export function hashCodeCoordinate3D(value: Coordinate3D): number {
     return hash;
 }
 
+export const Coordinate3D = {
+    toString: coordinate3DToString,
+    clone: coordinate3DClone,
+    equals: coordinate3DEquals,
+    hashCode: coordinate3DHashCode
+} as const;
+
 export type ApiStatus = 'loading' | 'success' | 'error';
 
-export function toStringApiStatus(value: ApiStatus): string {
+export function apiStatusToString(value: ApiStatus): string {
     return 'ApiStatus(' + JSON.stringify(value) + ')';
 }
 
-export function equalsApiStatus(a: ApiStatus, b: ApiStatus): boolean {
+export function apiStatusEquals(a: ApiStatus, b: ApiStatus): boolean {
     if (a === b) return true;
     if (typeof a === 'object' && typeof b === 'object' && a !== null && b !== null) {
         return JSON.stringify(a) === JSON.stringify(b);
@@ -619,7 +686,7 @@ export function equalsApiStatus(a: ApiStatus, b: ApiStatus): boolean {
     return false;
 }
 
-export function hashCodeApiStatus(value: ApiStatus): number {
+export function apiStatusHashCode(value: ApiStatus): number {
     const str = JSON.stringify(value);
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -627,6 +694,12 @@ export function hashCodeApiStatus(value: ApiStatus): number {
     }
     return hash;
 }
+
+export const ApiStatus = {
+    toString: apiStatusToString,
+    equals: apiStatusEquals,
+    hashCode: apiStatusHashCode
+} as const;
 
 // ==================== USAGE EXAMPLES ====================
 

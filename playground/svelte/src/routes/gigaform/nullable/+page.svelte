@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { userCreateForm, metadataDefaultValue, type User, type Metadata } from "$lib/demo/types.svelte";
+  import { userCreateForm, metadataDefaultValue, type User, type Metadata } from "$lib/demo/types";
 
   // Create User form to test nullable fields
   const userForm = userCreateForm({

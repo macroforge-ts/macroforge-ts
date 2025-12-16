@@ -40,34 +40,6 @@ export class FormModel {
         };
         return baseProps;
     }
-
-    memoFieldPath = ['memo'];
-
-    memoFieldController(
-        superForm: SuperForm<FormModel>
-    ): MemoFieldController<FormModel, string | null, 1> {
-        const fieldPath = this.memoFieldPath;
-        return {
-            fieldPath,
-            baseProps: this.makeFormModelBaseProps(superForm, fieldPath, {
-                labelText: 'Memo'
-            })
-        };
-    }
-
-    descriptionFieldPath = ['description'];
-
-    descriptionFieldController(
-        superForm: SuperForm<FormModel>
-    ): DescriptionFieldController<FormModel, string, 1> {
-        const fieldPath = this.descriptionFieldPath;
-        return {
-            fieldPath,
-            baseProps: this.makeFormModelBaseProps(superForm, fieldPath, {
-                labelText: 'Description'
-            })
-        };
-    }
 }
 
 let formy = new FormModel('sdfsdf', 'dfsdf', 'sdfsdf');

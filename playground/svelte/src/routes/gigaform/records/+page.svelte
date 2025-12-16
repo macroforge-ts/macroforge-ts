@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { taxRateCreateForm, type TaxRate } from "$lib/demo/types.svelte";
+  import { taxRateCreateForm, type TaxRate } from "$lib/demo/types";
 
   // Create TaxRate form to test Record/Map types
   const taxRateForm = taxRateCreateForm({

@@ -67,7 +67,7 @@ export class CustomNumberValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = CustomNumberValidator.__deserialize(obj, ctx);
+            const resultOrRef = CustomNumberValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -96,7 +96,10 @@ export class CustomNumberValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): CustomNumberValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): CustomNumberValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -104,7 +107,7 @@ export class CustomNumberValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'CustomNumberValidator.__deserialize: expected an object'
+                    message: 'CustomNumberValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -268,7 +271,7 @@ export class CustomStringValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = CustomStringValidator.__deserialize(obj, ctx);
+            const resultOrRef = CustomStringValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -297,7 +300,10 @@ export class CustomStringValidator {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): CustomStringValidator | PendingRef {
+    static deserializeWithContext(
+        value: any,
+        ctx: DeserializeContext
+    ): CustomStringValidator | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -305,7 +311,7 @@ export class CustomStringValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'CustomStringValidator.__deserialize: expected an object'
+                    message: 'CustomStringValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -469,7 +475,7 @@ export class CustomWithMessageValidator {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = CustomWithMessageValidator.__deserialize(obj, ctx);
+            const resultOrRef = CustomWithMessageValidator.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -498,7 +504,7 @@ export class CustomWithMessageValidator {
         }
     }
 
-    static __deserialize(
+    static deserializeWithContext(
         value: any,
         ctx: DeserializeContext
     ): CustomWithMessageValidator | PendingRef {
@@ -509,7 +515,7 @@ export class CustomWithMessageValidator {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'CustomWithMessageValidator.__deserialize: expected an object'
+                    message: 'CustomWithMessageValidator.deserializeWithContext: expected an object'
                 }
             ]);
         }
