@@ -26,7 +26,7 @@ function assertDecoratorsStripped(output, fileLabel) {
   );
 }
 
-function assertMethodsGenerated(output, fileLabel, serializeMethod = "toObject") {
+function assertMethodsGenerated(output, fileLabel, serializeMethod = "serialize") {
   assert.ok(
     /toString\s*\(\).*?\{/.test(output),
     `${fileLabel}: expected generated toString() implementation`,
@@ -48,6 +48,6 @@ test("vanilla: decorators stripped and methods generated", () => {
 test("svelte: decorators stripped and methods generated", () => {
   const { code } = expandFile("playground/svelte/src/lib/demo/macro-user.ts");
   assertDecoratorsStripped(code, "svelte/macro-user.ts");
-  // svelte uses @derive(Serialize) which generates toObject()
-  assertMethodsGenerated(code, "svelte/macro-user.ts", "toObject");
+  // svelte uses @derive(Serialize) which generates serialize()
+  assertMethodsGenerated(code, "svelte/macro-user.ts", "serialize");
 });
