@@ -4,67 +4,49 @@ import { DeserializeContext } from 'macroforge/serde';
 import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
-/**
- * Comprehensive test class demonstrating all available macros.
- * Used for Playwright e2e tests to verify macro expansion works at runtime.
- */
+/** import macro { JSON } from "@playground/macro"; */
 
-export class AllMacrosTestClass {
-    id: number;
-
+export class MacroUser {
+    id: string;
     name: string;
+    role: string;
+    favoriteMacro: 'Derive' | 'JsonNative';
+    since: string;
 
-    email: string;
+    apiToken: string;
 
-    secretToken: string;
-
-    isActive: boolean;
-
-    score: number;
-
-    static toString(value: AllMacrosTestClass): string {
-        return allMacrosTestClassToString(value);
-    }
-
-    static clone(value: AllMacrosTestClass): AllMacrosTestClass {
-        return allMacrosTestClassClone(value);
-    }
-
-    static equals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean {
-        return allMacrosTestClassEquals(a, b);
+    static toString(value: MacroUser): string {
+        return macroUserToString(value);
     }
     /** Serializes a value to a JSON string.
 @param value - The value to serialize
 @returns JSON string representation with cycle detection metadata  */
 
-    static serialize(value: AllMacrosTestClass): string {
-        return allMacrosTestClassSerialize(value);
+    static serialize(value: MacroUser): string {
+        return macroUserSerialize(value);
     }
     /** @internal Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context  */
 
-    static serializeWithContext(
-        value: AllMacrosTestClass,
-        ctx: SerializeContext
-    ): Record<string, unknown> {
-        return allMacrosTestClassSerializeWithContext(value, ctx);
+    static serializeWithContext(value: MacroUser, ctx: SerializeContext): Record<string, unknown> {
+        return macroUserSerializeWithContext(value, ctx);
     }
 
     constructor(props: {
-        id: number;
+        id: string;
         name: string;
-        email: string;
-        secretToken: string;
-        isActive: boolean;
-        score: number;
+        role: string;
+        favoriteMacro: 'Derive' | 'JsonNative';
+        since: string;
+        apiToken: string;
     }) {
         this.id = props.id;
         this.name = props.name;
-        this.email = props.email;
-        this.secretToken = props.secretToken;
-        this.isActive = props.isActive;
-        this.score = props.score;
+        this.role = props.role;
+        this.favoriteMacro = props.favoriteMacro;
+        this.since = props.since;
+        this.apiToken = props.apiToken;
     }
     /** Deserializes input to an instance of this class.
 Automatically detects whether input is a JSON string or object.
@@ -76,7 +58,7 @@ Automatically detects whether input is a JSON string or object.
         input: unknown,
         opts?: DeserializeOptions
     ): Result<
-        AllMacrosTestClass,
+        MacroUser,
         Array<{
             field: string;
             message: string;
@@ -85,13 +67,12 @@ Automatically detects whether input is a JSON string or object.
         try {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
             const ctx = DeserializeContext.create();
-            const resultOrRef = AllMacrosTestClass.deserializeWithContext(data, ctx);
+            const resultOrRef = MacroUser.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
                         field: '_root',
-                        message:
-                            'AllMacrosTestClass.deserialize: root cannot be a forward reference'
+                        message: 'MacroUser.deserialize: root cannot be a forward reference'
                     }
                 ]);
             }
@@ -117,10 +98,7 @@ Automatically detects whether input is a JSON string or object.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context  */
 
-    static deserializeWithContext(
-        value: any,
-        ctx: DeserializeContext
-    ): AllMacrosTestClass | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): MacroUser | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -128,7 +106,7 @@ Automatically detects whether input is a JSON string or object.
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'AllMacrosTestClass.deserializeWithContext: expected an object'
+                    message: 'MacroUser.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -149,40 +127,40 @@ Automatically detects whether input is a JSON string or object.
                 message: 'missing required field'
             });
         }
-        if (!('email' in obj)) {
+        if (!('role' in obj)) {
             errors.push({
-                field: 'email',
+                field: 'role',
                 message: 'missing required field'
             });
         }
-        if (!('secretToken' in obj)) {
+        if (!('favoriteMacro' in obj)) {
             errors.push({
-                field: 'secretToken',
+                field: 'favoriteMacro',
                 message: 'missing required field'
             });
         }
-        if (!('isActive' in obj)) {
+        if (!('since' in obj)) {
             errors.push({
-                field: 'isActive',
+                field: 'since',
                 message: 'missing required field'
             });
         }
-        if (!('score' in obj)) {
+        if (!('apiToken' in obj)) {
             errors.push({
-                field: 'score',
+                field: 'apiToken',
                 message: 'missing required field'
             });
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
         }
-        const instance = Object.create(AllMacrosTestClass.prototype) as AllMacrosTestClass;
+        const instance = Object.create(MacroUser.prototype) as MacroUser;
         if (obj.__id !== undefined) {
             ctx.register(obj.__id as number, instance);
         }
         ctx.trackForFreeze(instance);
         {
-            const __raw_id = obj['id'] as number;
+            const __raw_id = obj['id'] as string;
             instance.id = __raw_id;
         }
         {
@@ -190,20 +168,20 @@ Automatically detects whether input is a JSON string or object.
             instance.name = __raw_name;
         }
         {
-            const __raw_email = obj['email'] as string;
-            instance.email = __raw_email;
+            const __raw_role = obj['role'] as string;
+            instance.role = __raw_role;
         }
         {
-            const __raw_secretToken = obj['secretToken'] as string;
-            instance.secretToken = __raw_secretToken;
+            const __raw_favoriteMacro = obj['favoriteMacro'] as 'Derive' | 'JsonNative';
+            instance.favoriteMacro = __raw_favoriteMacro;
         }
         {
-            const __raw_isActive = obj['isActive'] as boolean;
-            instance.isActive = __raw_isActive;
+            const __raw_since = obj['since'] as string;
+            instance.since = __raw_since;
         }
         {
-            const __raw_score = obj['score'] as number;
-            instance.score = __raw_score;
+            const __raw_apiToken = obj['apiToken'] as string;
+            instance.apiToken = __raw_apiToken;
         }
         if (errors.length > 0) {
             throw new DeserializeError(errors);
@@ -211,9 +189,9 @@ Automatically detects whether input is a JSON string or object.
         return instance;
     }
 
-    static validateField<K extends keyof AllMacrosTestClass>(
+    static validateField<K extends keyof MacroUser>(
         field: K,
-        value: AllMacrosTestClass[K]
+        value: MacroUser[K]
     ): Array<{
         field: string;
         message: string;
@@ -221,7 +199,7 @@ Automatically detects whether input is a JSON string or object.
         return [];
     }
 
-    static validateFields(partial: Partial<AllMacrosTestClass>): Array<{
+    static validateFields(partial: Partial<MacroUser>): Array<{
         field: string;
         message: string;
     }> {
@@ -236,70 +214,47 @@ Automatically detects whether input is a JSON string or object.
         return (
             'id' in o &&
             'name' in o &&
-            'email' in o &&
-            'secretToken' in o &&
-            'isActive' in o &&
-            'score' in o
+            'role' in o &&
+            'favoriteMacro' in o &&
+            'since' in o &&
+            'apiToken' in o
         );
     }
 
-    static is(obj: unknown): obj is AllMacrosTestClass {
-        if (obj instanceof AllMacrosTestClass) {
+    static is(obj: unknown): obj is MacroUser {
+        if (obj instanceof MacroUser) {
             return true;
         }
-        if (!AllMacrosTestClass.hasShape(obj)) {
+        if (!MacroUser.hasShape(obj)) {
             return false;
         }
-        const result = AllMacrosTestClass.deserialize(obj);
+        const result = MacroUser.deserialize(obj);
         return Result.isOk(result);
     }
 }
 
-export function allMacrosTestClassToString(value: AllMacrosTestClass): string {
+export function macroUserToString(value: MacroUser): string {
     const parts: string[] = [];
-    parts.push('identifier: ' + value.id);
+    parts.push('userId: ' + value.id);
     parts.push('name: ' + value.name);
-    parts.push('email: ' + value.email);
-    parts.push('isActive: ' + value.isActive);
-    parts.push('score: ' + value.score);
-    return 'AllMacrosTestClass { ' + parts.join(', ') + ' }';
-}
-
-export function allMacrosTestClassClone(value: AllMacrosTestClass): AllMacrosTestClass {
-    const cloned = Object.create(Object.getPrototypeOf(value));
-    cloned.id = value.id;
-    cloned.name = value.name;
-    cloned.email = value.email;
-    cloned.secretToken = value.secretToken;
-    cloned.isActive = value.isActive;
-    cloned.score = value.score;
-    return cloned;
-}
-
-export function allMacrosTestClassEquals(a: AllMacrosTestClass, b: AllMacrosTestClass): boolean {
-    if (a === b) return true;
-    return (
-        a.id === b.id &&
-        a.name === b.name &&
-        a.email === b.email &&
-        a.secretToken === b.secretToken &&
-        a.isActive === b.isActive &&
-        a.score === b.score
-    );
+    parts.push('role: ' + value.role);
+    parts.push('favoriteMacro: ' + value.favoriteMacro);
+    parts.push('since: ' + value.since);
+    return 'MacroUser { ' + parts.join(', ') + ' }';
 }
 
 /** Serializes a value to a JSON string.
 @param value - The value to serialize
-@returns JSON string representation with cycle detection metadata */ export function allMacrosTestClassSerialize(
-    value: AllMacrosTestClass
+@returns JSON string representation with cycle detection metadata */ export function macroUserSerialize(
+    value: MacroUser
 ): string {
     const ctx = SerializeContext.create();
-    return JSON.stringify(allMacrosTestClassSerializeWithContext(value, ctx));
+    return JSON.stringify(macroUserSerializeWithContext(value, ctx));
 } /** @internal Serializes with an existing context for nested/cyclic object graphs.
 @param value - The value to serialize
 @param ctx - The serialization context */
-export function allMacrosTestClassSerializeWithContext(
-    value: AllMacrosTestClass,
+export function macroUserSerializeWithContext(
+    value: MacroUser,
     ctx: SerializeContext
 ): Record<string, unknown> {
     const existingId = ctx.getId(value);
@@ -307,13 +262,13 @@ export function allMacrosTestClassSerializeWithContext(
         return { __ref: existingId };
     }
     const __id = ctx.register(value);
-    const result: Record<string, unknown> = { __type: 'AllMacrosTestClass', __id };
+    const result: Record<string, unknown> = { __type: 'MacroUser', __id };
     result['id'] = value.id;
     result['name'] = value.name;
-    result['email'] = value.email;
-    result['secretToken'] = value.secretToken;
-    result['isActive'] = value.isActive;
-    result['score'] = value.score;
+    result['role'] = value.role;
+    result['favoriteMacro'] = value.favoriteMacro;
+    result['since'] = value.since;
+    result['apiToken'] = value.apiToken;
     return result;
 }
 
@@ -321,32 +276,34 @@ export function allMacrosTestClassSerializeWithContext(
 Automatically detects whether input is a JSON string or object.
 @param input - JSON string or object to deserialize
 @param opts - Optional deserialization options
-@returns Result containing the deserialized instance or validation errors */ export function allMacrosTestClassDeserialize(
+@returns Result containing the deserialized instance or validation errors */ export function macroUserDeserialize(
     input: unknown,
     opts?: DeserializeOptions
-): Result<AllMacrosTestClass, Array<{ field: string; message: string }>> {
-    return AllMacrosTestClass.deserialize(input, opts);
+): Result<MacroUser, Array<{ field: string; message: string }>> {
+    return MacroUser.deserialize(input, opts);
 } /** Deserializes with an existing context for nested/cyclic object graphs.
 @param value - The raw value to deserialize
 @param ctx - The deserialization context */
-export function allMacrosTestClassDeserializeWithContext(
+export function macroUserDeserializeWithContext(
     value: any,
     ctx: DeserializeContext
-): AllMacrosTestClass | PendingRef {
-    return AllMacrosTestClass.deserializeWithContext(value, ctx);
+): MacroUser | PendingRef {
+    return MacroUser.deserializeWithContext(value, ctx);
 } /** Type guard: checks if a value can be successfully deserialized.
 @param value - The value to check
 @returns True if the value can be deserialized to this type */
-export function allMacrosTestClassIs(value: unknown): value is AllMacrosTestClass {
-    return AllMacrosTestClass.is(value);
+export function macroUserIs(value: unknown): value is MacroUser {
+    return MacroUser.is(value);
 }
 
-// Pre-instantiated test instance for e2e tests
-export const testInstance = new AllMacrosTestClass({
-    id: 42,
-    name: 'Test User',
-    email: 'test@example.com',
-    secretToken: 'secret-token-123',
-    isActive: true,
-    score: 100
+const showcaseUser = new MacroUser({
+    id: 'usr_2626',
+    name: 'Alya Vector',
+    role: 'Macro Explorer',
+    favoriteMacro: 'Derive',
+    since: '2024-09-12',
+    apiToken: 'svelte-secret-token'
 });
+
+export const showcaseUserSummary = MacroUser.toString(showcaseUser);
+export const showcaseUserJson = JSON.parse(MacroUser.serialize(showcaseUser));

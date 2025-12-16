@@ -34,55 +34,55 @@
 let class_name = "User";
 let method = "toString";
 
-let code = ts_template! {
-    @{class_name}.prototype.@{method} = function() {
+let code = ts_template! &#123;
+    @&#123;class_name&#125;.prototype.@&#123;method&#125; = function() &#123;
         return "User instance";
-    };
-};
+    &#125;;
+&#125;;
 ``` **Generates:**
  ```
-User.prototype.toString = function () {
+User.prototype.toString = function () &#123;
   return "User instance";
-};
+&#125;;
 ``` ## Identifier Concatenation: `{| content |}`
  When you need to build identifiers dynamically (like `getUser`, `setName`), use the ident block syntax. Everything inside `{| |}` is concatenated without spaces:
  ```
 let field_name = "User";
 
-let code = ts_template! {
-    function {|get@{field_name}|}() {
-        return this.@{field_name.to_lowercase()};
-    }
-};
+let code = ts_template! &#123;
+    function &#123;|get@&#123;field_name&#125;|&#125;() &#123;
+        return this.@&#123;field_name.to_lowercase()&#125;;
+    &#125;
+&#125;;
 ``` **Generates:**
  ```
-function getUser() {
+function getUser() &#123;
   return this.user;
-}
+&#125;
 ``` Without ident blocks, `@{}` always adds a space after for readability. Use `{| |}` when you explicitly want concatenation:
  ```
 let name = "Status";
 
 // With space (default behavior)
-ts_template! { namespace @{name} }  // → "namespace Status"
+ts_template! &#123; namespace @&#123;name&#125; &#125;  // → "namespace Status"
 
 // Without space (ident block)
-ts_template! { {|namespace@{name}|} }  // → "namespaceStatus"
+ts_template! &#123; &#123;|namespace@&#123;name&#125;|&#125; &#125;  // → "namespaceStatus"
 ``` Multiple interpolations can be combined:
  ```
 let entity = "user";
 let action = "create";
 
-ts_template! { {|@{entity}_@{action}|} }  // → "user_create"
+ts_template! &#123; &#123;|@&#123;entity&#125;_@&#123;action&#125;|&#125; &#125;  // → "user_create"
 ``` ## Comments: `{> "..." <}` and `{>> "..." <<}`
  Since Rust's tokenizer strips whitespace before macros see them, use string literals to preserve exact spacing in comments:
  ### Block Comments
  Use `{> "comment" <}` for block comments:
  ```
-let code = ts_template! {
-    {> "This is a block comment" <}
+let code = ts_template! &#123;
+    &#123;> "This is a block comment" &#x3C;&#125;
     const x = 42;
-};
+&#125;;
 ``` **Generates:**
  ```
 /* This is a block comment */
@@ -90,45 +90,45 @@ const x = 42;
 ``` ### Doc Comments (JSDoc)
  Use `{>> "doc" <<}` for JSDoc comments:
  ```
-let code = ts_template! {
-    {>> "@param {string} name - The user's name" <<}
-    {>> "@returns {string} A greeting message" <<}
-    function greet(name: string): string {
+let code = ts_template! &#123;
+    &#123;>> "@param &#123;string&#125; name - The user's name" &#x3C;&#x3C;&#125;
+    &#123;>> "@returns &#123;string&#125; A greeting message" &#x3C;&#x3C;&#125;
+    function greet(name: string): string &#123;
         return "Hello, " + name;
-    }
-};
+    &#125;
+&#125;;
 ``` **Generates:**
  ```
-/** @param {string} name - The user's name */
-/** @returns {string} A greeting message */
-function greet(name: string): string {
+/** @param &#123;string&#125; name - The user's name */
+/** @returns &#123;string&#125; A greeting message */
+function greet(name: string): string &#123;
     return "Hello, " + name;
-}
+&#125;
 ``` ### Comments with Interpolation
  Use `format!()` or similar to build dynamic comment strings:
  ```
 let param_name = "userId";
 let param_type = "number";
-let comment = format!("@param {{{}}} {} - The user ID", param_type, param_name);
+let comment = format!("@param &#123;&#123;&#123;&#125;&#125;&#125; &#123;&#125; - The user ID", param_type, param_name);
 
-let code = ts_template! {
-    {>> @{comment} <<}
-    function getUser(userId: number) {}
-};
+let code = ts_template! &#123;
+    &#123;>> @&#123;comment&#125; &#x3C;&#x3C;&#125;
+    function getUser(userId: number) &#123;&#125;
+&#125;;
 ``` **Generates:**
  ```
-/** @param {number} userId - The user ID */
-function getUser(userId: number) {}
+/** @param &#123;number&#125; userId - The user ID */
+function getUser(userId: number) &#123;&#125;
 ``` ## String Interpolation: `"text @{expr}"`
  Interpolation works automatically inside string literals - no `format!()` needed:
  ```
 let name = "World";
 let count = 42;
 
-let code = ts_template! {
-    console.log("Hello @{name}!");
-    console.log("Count: @{count}, doubled: @{count * 2}");
-};
+let code = ts_template! &#123;
+    console.log("Hello @&#123;name&#125;!");
+    console.log("Count: @&#123;count&#125;, doubled: @&#123;count * 2&#125;");
+&#125;;
 ``` **Generates:**
  ```
 console.log("Hello World!");
@@ -137,9 +137,9 @@ console.log("Count: 42, doubled: 84");
  ```
 let field = "username";
 
-let code = ts_template! {
-    throw new Error("Invalid @{field.to_uppercase()}");
-};
+let code = ts_template! &#123;
+    throw new Error("Invalid @&#123;field.to_uppercase()&#125;");
+&#125;;
 ``` ## Backtick Template Literals: `"'^...^'"`
  For JavaScript template literals (backtick strings), use the `'^...^'` syntax. This outputs actual backticks and passes through `$${}` for JS interpolation:
  ```
@@ -160,145 +160,145 @@ let code = ts_template! {
 };
 ``` **Generates:**
  ```
-`Hello ${this.name}, you are a User`
+`Hello $&#123;this.name&#125;, you are a User`
 ``` ## Conditionals: `{#if}...{/if}`
  Basic conditional:
  ```
 let needs_validation = true;
 
-let code = ts_template! {
-    function save() {
-        {#if needs_validation}
+let code = ts_template! &#123;
+    function save() &#123;
+        &#123;#if needs_validation&#125;
             if (!this.isValid()) return false;
-        {/if}
+        &#123;/if&#125;
         return this.doSave();
-    }
-};
+    &#125;
+&#125;;
 ``` ### If-Else
  ```
 let has_default = true;
 
-let code = ts_template! {
-    {#if has_default}
+let code = ts_template! &#123;
+    &#123;#if has_default&#125;
         return defaultValue;
-    {:else}
+    &#123;:else&#125;
         throw new Error("No default");
-    {/if}
-};
+    &#123;/if&#125;
+&#125;;
 ``` ### If-Else-If Chains
  ```
 let level = 2;
 
-let code = ts_template! {
-    {#if level == 1}
+let code = ts_template! &#123;
+    &#123;#if level == 1&#125;
         console.log("Level 1");
-    {:else if level == 2}
+    &#123;:else if level == 2&#125;
         console.log("Level 2");
-    {:else}
+    &#123;:else&#125;
         console.log("Other level");
-    {/if}
-};
+    &#123;/if&#125;
+&#125;;
 ``` ## Pattern Matching: `{#if let}`
  Use `if let` for pattern matching on `Option`, `Result`, or other Rust enums:
  ```
-let maybe_name: Option<&str> = Some("Alice");
+let maybe_name: Option&#x3C;&#x26;str> = Some("Alice");
 
-let code = ts_template! {
-    {#if let Some(name) = maybe_name}
-        console.log("Hello, @{name}!");
-    {:else}
+let code = ts_template! &#123;
+    &#123;#if let Some(name) = maybe_name&#125;
+        console.log("Hello, @&#123;name&#125;!");
+    &#123;:else&#125;
         console.log("Hello, anonymous!");
-    {/if}
-};
+    &#123;/if&#125;
+&#125;;
 ``` **Generates:**
  ```
 console.log("Hello, Alice!");
 ``` This is useful when working with optional values from your IR:
  ```
-let code = ts_template! {
-    {#if let Some(default_val) = field.default_value}
-        this.@{field.name} = @{default_val};
-    {:else}
-        this.@{field.name} = undefined;
-    {/if}
-};
+let code = ts_template! &#123;
+    &#123;#if let Some(default_val) = field.default_value&#125;
+        this.@&#123;field.name&#125; = @&#123;default_val&#125;;
+    &#123;:else&#125;
+        this.@&#123;field.name&#125; = undefined;
+    &#123;/if&#125;
+&#125;;
 ``` ## Match Expressions: `{#match}`
  Use `match` for exhaustive pattern matching:
  ```
-enum Visibility { Public, Private, Protected }
+enum Visibility &#123; Public, Private, Protected &#125;
 let visibility = Visibility::Public;
 
-let code = ts_template! {
-    {#match visibility}
-        {:case Visibility::Public}
+let code = ts_template! &#123;
+    &#123;#match visibility&#125;
+        &#123;:case Visibility::Public&#125;
             public
-        {:case Visibility::Private}
+        &#123;:case Visibility::Private&#125;
             private
-        {:case Visibility::Protected}
+        &#123;:case Visibility::Protected&#125;
             protected
-    {/match}
+    &#123;/match&#125;
     field: string;
-};
+&#125;;
 ``` **Generates:**
  ```
 public field: string;
 ``` ### Match with Value Extraction
  ```
-let result: Result<i32, &str> = Ok(42);
+let result: Result&#x3C;i32, &#x26;str> = Ok(42);
 
-let code = ts_template! {
-    const value = {#match result}
-        {:case Ok(val)}
-            @{val}
-        {:case Err(msg)}
-            throw new Error("@{msg}")
-    {/match};
-};
+let code = ts_template! &#123;
+    const value = &#123;#match result&#125;
+        &#123;:case Ok(val)&#125;
+            @&#123;val&#125;
+        &#123;:case Err(msg)&#125;
+            throw new Error("@&#123;msg&#125;")
+    &#123;/match&#125;;
+&#125;;
 ``` ### Match with Wildcard
  ```
 let count = 5;
 
-let code = ts_template! {
-    {#match count}
-        {:case 0}
+let code = ts_template! &#123;
+    &#123;#match count&#125;
+        &#123;:case 0&#125;
             console.log("none");
-        {:case 1}
+        &#123;:case 1&#125;
             console.log("one");
-        {:case _}
+        &#123;:case _&#125;
             console.log("many");
-    {/match}
-};
+    &#123;/match&#125;
+&#125;;
 ``` ## Iteration: `{#for}`
  ```
 let fields = vec!["name", "email", "age"];
 
-let code = ts_template! {
-    function toJSON() {
-        const result = {};
-        {#for field in fields}
-            result.@{field} = this.@{field};
-        {/for}
+let code = ts_template! &#123;
+    function toJSON() &#123;
+        const result = &#123;&#125;;
+        &#123;#for field in fields&#125;
+            result.@&#123;field&#125; = this.@&#123;field&#125;;
+        &#123;/for&#125;
         return result;
-    }
-};
+    &#125;
+&#125;;
 ``` **Generates:**
  ```
-function toJSON() {
-  const result = {};
+function toJSON() &#123;
+  const result = &#123;&#125;;
   result.name = this.name;
   result.email = this.email;
   result.age = this.age;
   return result;
-}
+&#125;
 ``` ### Tuple Destructuring in Loops
  ```
 let items = vec![("user", "User"), ("post", "Post")];
 
-let code = ts_template! {
-    {#for (key, class_name) in items}
-        const @{key} = new @{class_name}();
-    {/for}
-};
+let code = ts_template! &#123;
+    &#123;#for (key, class_name) in items&#125;
+        const @&#123;key&#125; = new @&#123;class_name&#125;();
+    &#123;/for&#125;
+&#125;;
 ``` ### Nested Iterations
  ```
 let classes = vec![
@@ -306,40 +306,40 @@ let classes = vec![
     ("Post", vec!["title", "content"]),
 ];
 
-ts_template! {
-    {#for (class_name, fields) in classes}
-        @{class_name}.prototype.toJSON = function() {
-            return {
-                {#for field in fields}
-                    @{field}: this.@{field},
-                {/for}
-            };
-        };
-    {/for}
-}
+ts_template! &#123;
+    &#123;#for (class_name, fields) in classes&#125;
+        @&#123;class_name&#125;.prototype.toJSON = function() &#123;
+            return &#123;
+                &#123;#for field in fields&#125;
+                    @&#123;field&#125;: this.@&#123;field&#125;,
+                &#123;/for&#125;
+            &#125;;
+        &#125;;
+    &#123;/for&#125;
+&#125;
 ``` ## While Loops: `{#while}`
  Use `while` for loops that need to continue until a condition is false:
  ```
 let items = get_items();
 let mut idx = 0;
 
-let code = ts_template! {
-    {$let mut i = 0}
-    {#while i < items.len()}
-        console.log("Item @{i}");
-        {$do i += 1}
-    {/while}
-};
+let code = ts_template! &#123;
+    &#123;$let mut i = 0&#125;
+    &#123;#while i &#x3C; items.len()&#125;
+        console.log("Item @&#123;i&#125;");
+        &#123;$do i += 1&#125;
+    &#123;/while&#125;
+&#125;;
 ``` ### While-Let Pattern Matching
  Use `while let` for iterating with pattern matching, similar to `if let`:
  ```
 let mut items = vec!["a", "b", "c"].into_iter();
 
-let code = ts_template! {
-    {#while let Some(item) = items.next()}
-        console.log("@{item}");
-    {/while}
-};
+let code = ts_template! &#123;
+    &#123;#while let Some(item) = items.next()&#125;
+        console.log("@&#123;item&#125;");
+    &#123;/while&#125;
+&#125;;
 ``` **Generates:**
  ```
 console.log("a");
@@ -347,45 +347,45 @@ console.log("b");
 console.log("c");
 ``` This is especially useful when working with iterators or consuming optional values:
  ```
-let code = ts_template! {
-    {#while let Some(next_field) = remaining_fields.pop()}
-        result.@{next_field.name} = this.@{next_field.name};
-    {/while}
-};
+let code = ts_template! &#123;
+    &#123;#while let Some(next_field) = remaining_fields.pop()&#125;
+        result.@&#123;next_field.name&#125; = this.@&#123;next_field.name&#125;;
+    &#123;/while&#125;
+&#125;;
 ``` ## Local Constants: `{$let}`
  Define local variables within the template scope:
  ```
 let items = vec![("user", "User"), ("post", "Post")];
 
-let code = ts_template! {
-    {#for (key, class_name) in items}
-        {$let upper = class_name.to_uppercase()}
-        console.log("Processing @{upper}");
-        const @{key} = new @{class_name}();
-    {/for}
-};
+let code = ts_template! &#123;
+    &#123;#for (key, class_name) in items&#125;
+        &#123;$let upper = class_name.to_uppercase()&#125;
+        console.log("Processing @&#123;upper&#125;");
+        const @&#123;key&#125; = new @&#123;class_name&#125;();
+    &#123;/for&#125;
+&#125;;
 ``` This is useful for computing derived values inside loops without cluttering the Rust code.
  ## Mutable Variables: `{$let mut}`
  When you need to modify a variable within the template (e.g., in a `while` loop), use `{$let mut}`:
  ```
-let code = ts_template! {
-    {$let mut count = 0}
-    {#for item in items}
-        console.log("Item @{count}: @{item}");
-        {$do count += 1}
-    {/for}
-    console.log("Total: @{count}");
-};
+let code = ts_template! &#123;
+    &#123;$let mut count = 0&#125;
+    &#123;#for item in items&#125;
+        console.log("Item @&#123;count&#125;: @&#123;item&#125;");
+        &#123;$do count += 1&#125;
+    &#123;/for&#125;
+    console.log("Total: @&#123;count&#125;");
+&#125;;
 ``` ## Side Effects: `{$do}`
  Execute an expression for its side effects without producing output. This is commonly used with mutable variables:
  ```
-let code = ts_template! {
-    {$let mut results: Vec<String> = Vec::new()}
-    {#for field in fields}
-        {$do results.push(format!("this.{}", field))}
-    {/for}
-    return [@{results.join(", ")}];
-};
+let code = ts_template! &#123;
+    &#123;$let mut results: Vec&#x3C;String> = Vec::new()&#125;
+    &#123;#for field in fields&#125;
+        &#123;$do results.push(format!("this.&#123;&#125;", field))&#125;
+    &#123;/for&#125;
+    return [@&#123;results.join(", ")&#125;];
+&#125;;
 ``` Common uses for `{$do}`:
  - Incrementing counters: `{$do i += 1}`
  - Building collections: `{$do vec.push(item)}`
@@ -395,69 +395,69 @@ let code = ts_template! {
  Inject another TsStream into your template, preserving both its source code and runtime patches (like imports added via `add_import()`):
  ```
 // Create a helper method with its own import
-let mut helper = body! {
-    validateEmail(email: string): boolean {
+let mut helper = body! &#123;
+    validateEmail(email: string): boolean &#123;
         return Result.ok(true);
-    }
-};
+    &#125;
+&#125;;
 helper.add_import("Result", "macroforge/utils");
 
 // Inject the helper into the main template
-let result = body! {
-    {$typescript helper}
+let result = body! &#123;
+    &#123;$typescript helper&#125;
 
-    process(data: Record<string, unknown>): void {
+    process(data: Record&#x3C;string, unknown>): void &#123;
         // ...
-    }
-};
+    &#125;
+&#125;;
 // result now includes helper's source AND its Result import
 ``` This is essential for composing multiple macro outputs while preserving imports and patches:
  ```
-let extra_methods = if include_validation {
-    Some(body! {
-        validate(): boolean { return true; }
-    })
-} else {
+let extra_methods = if include_validation &#123;
+    Some(body! &#123;
+        validate(): boolean &#123; return true; &#125;
+    &#125;)
+&#125; else &#123;
     None
-};
+&#125;;
 
-body! {
-    mainMethod(): void {}
+body! &#123;
+    mainMethod(): void &#123;&#125;
 
-    {#if let Some(methods) = extra_methods}
-        {$typescript methods}
-    {/if}
-}
+    &#123;#if let Some(methods) = extra_methods&#125;
+        &#123;$typescript methods&#125;
+    &#123;/if&#125;
+&#125;
 ``` ## Escape Syntax
  If you need a literal `@{` in your output (not interpolation), use `@@{`:
  ```
-ts_template! {
-    // This outputs a literal @{foo}
-    const example = "Use @@{foo} for templates";
-}
+ts_template! &#123;
+    // This outputs a literal @&#123;foo&#125;
+    const example = "Use @@&#123;foo&#125; for templates";
+&#125;
 ``` **Generates:**
  ```
-// This outputs a literal @{foo}
-const example = "Use @{foo} for templates";
+// This outputs a literal @&#123;foo&#125;
+const example = "Use @&#123;foo&#125; for templates";
 ``` ## Complete Example: JSON Derive Macro
  Here's a comparison showing how `ts_template!` simplifies code generation:
  ### Before (Manual AST Building)
  ```
-pub fn derive_json_macro(input: TsStream) -> MacroResult {
+pub fn derive_json_macro(input: TsStream) -> MacroResult &#123;
     let input = parse_ts_macro_input!(input as DeriveInput);
 
-    match &input.data {
-        Data::Class(class) => {
+    match &#x26;input.data &#123;
+        Data::Class(class) => &#123;
             let class_name = input.name();
 
-            let mut body_stmts = vec![ts_quote!( const result = {}; as Stmt )];
+            let mut body_stmts = vec![ts_quote!( const result = &#123;&#125;; as Stmt )];
 
-            for field_name in class.field_names() {
+            for field_name in class.field_names() &#123;
                 body_stmts.push(ts_quote!(
-                    result.$(ident!("{}", field_name)) = this.$(ident!("{}", field_name));
+                    result.$(ident!("&#123;&#125;", field_name)) = this.$(ident!("&#123;&#125;", field_name));
                     as Stmt
                 ));
-            }
+            &#125;
 
             body_stmts.push(ts_quote!( return result; as Stmt ));
 
@@ -468,33 +468,33 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
             );
 
             // ...
-        }
-    }
-}
+        &#125;
+    &#125;
+&#125;
 ``` ### After (With ts_template!)
  ```
-pub fn derive_json_macro(input: TsStream) -> MacroResult {
+pub fn derive_json_macro(input: TsStream) -> MacroResult &#123;
     let input = parse_ts_macro_input!(input as DeriveInput);
 
-    match &input.data {
-        Data::Class(class) => {
+    match &#x26;input.data &#123;
+        Data::Class(class) => &#123;
             let class_name = input.name();
             let fields = class.field_names();
 
-            let runtime_code = ts_template! {
-                @{class_name}.prototype.toJSON = function() {
-                    const result = {};
-                    {#for field in fields}
-                        result.@{field} = this.@{field};
-                    {/for}
+            let runtime_code = ts_template! &#123;
+                @&#123;class_name&#125;.prototype.toJSON = function() &#123;
+                    const result = &#123;&#125;;
+                    &#123;#for field in fields&#125;
+                        result.@&#123;field&#125; = this.@&#123;field&#125;;
+                    &#123;/for&#125;
                     return result;
-                };
-            };
+                &#125;;
+            &#125;;
 
             // ...
-        }
-    }
-}
+        &#125;
+    &#125;
+&#125;
 ``` ## How It Works
  1. **Compile-Time:** The template is parsed during macro expansion
  2. **String Building:** Generates Rust code that builds a TypeScript string at runtime
@@ -504,25 +504,25 @@ pub fn derive_json_macro(input: TsStream) -> MacroResult {
  `ts_template!` returns a `Result<Stmt, TsSynError>` by default. The macro automatically unwraps and provides helpful error messages showing the generated TypeScript code if parsing fails:
  ```
 Failed to parse generated TypeScript:
-User.prototype.toJSON = function( {
-    return {};
-}
+User.prototype.toJSON = function( &#123;
+    return &#123;&#125;;
+&#125;
 ``` This shows you exactly what was generated, making debugging easy!
  ## Nesting and Regular TypeScript
  You can mix template syntax with regular TypeScript. Braces `{}` are recognized as either:
  - **Template tags** if they start with `#`, `$`, `:`, or `/`
  - **Regular TypeScript blocks** otherwise
  ```
-ts_template! {
-    const config = {
-        {#if use_strict}
+ts_template! &#123;
+    const config = &#123;
+        &#123;#if use_strict&#125;
             strict: true,
-        {:else}
+        &#123;:else&#125;
             strict: false,
-        {/if}
+        &#123;/if&#125;
         timeout: 5000
-    };
-}
+    &#125;;
+&#125;
 ``` ## Comparison with Alternatives
  | Approach | Pros | Cons |
 | --- | --- | --- |

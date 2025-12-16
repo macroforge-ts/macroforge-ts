@@ -6,32 +6,32 @@ npm install -D @macroforge/typescript-plugin
 ``` ## Configuration
  Add the plugin to your `tsconfig.json`:
  ```
-{
-  "compilerOptions": {
+&#123;
+  "compilerOptions": &#123;
     "plugins": [
-      {
+      &#123;
         "name": "@macroforge/typescript-plugin"
-      }
+      &#125;
     ]
-  }
-}
+  &#125;
+&#125;
 ``` ## VS Code Setup
  VS Code uses its own TypeScript version by default. To use the workspace version (which includes plugins):
  1. Open the Command Palette (`Cmd/Ctrl + Shift + P`)
  2. Search for "TypeScript: Select TypeScript Version"
  3. Choose "Use Workspace Version"
   **Tip Add this setting to your `.vscode/settings.json` to make it permanent: ```
-{
+&#123;
   "typescript.tsdk": "node_modules/typescript/lib"
-}
+&#125;
 ``` ## Features
  ### Error Reporting
  Errors in macro-generated code are reported at the `@derive` decorator position:
  ```
-/** @derive(Debug) */  // **<- Errors appear here
-class User {
+/** @derive(Debug) */  // &#x3C;- Errors appear here
+class User &#123;
   name: string;
-}
+&#125;
 ``` ### Completions
  The plugin provides completions for generated methods:
  ```
@@ -52,3 +52,4 @@ const copy = user.clone();
  If errors from macros aren't appearing:
  1. Make sure the Vite plugin is also installed (for source file watching)
  2. Check that your file is saved (plugins process on save)
+**

@@ -69,7 +69,7 @@ const user = new User("Alice", 30, "alice@example.com");
 
 // Debug: toString()
 console.log(user.toString());
-// Output: User { name: Alice, age: 30, email: alice@example.com }
+// Output: User &#123; name: Alice, age: 30, email: alice@example.com &#125;
 
 // Clone: clone()
 const copy = user.clone();
@@ -130,7 +130,7 @@ export function userToString(value: User): string {
 ``` ```
 const user = new User(42, "Alice", "secret123");
 console.log(user.toString());
-// Output: User { userId: 42, name: Alice }
+// Output: User &#123; userId: 42, name: Alice &#125;
 // Note: 'id' is renamed to 'userId', 'password' is skipped
 ```  **Field-level decorators Field-level decorators let you control exactly how each field is handled by the macro. ## Next Steps
  - [Learn how macros work under the hood](../../docs/concepts)

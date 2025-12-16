@@ -21,15 +21,15 @@ window.macroTestResults = {};
 function runAllMacroTests() {
     const results = window.macroTestResults;
 
-    // Test Debug macro -> toString()
-    const debugResult = testInstance.toString();
+    // Test Debug macro -> static toString()
+    const debugResult = AllMacrosTestClass.toString(testInstance);
     results.debug = debugResult;
     document.getElementById('result-debug')!.innerHTML =
         `<strong>Debug (toString):</strong> <code>${debugResult}</code>`;
 
-    // Test Clone macro -> clone()
-    if (typeof (testInstance as any).clone === 'function') {
-        const cloned = (testInstance as any).clone();
+    // Test Clone macro -> static clone()
+    if (typeof (AllMacrosTestClass as any).clone === 'function') {
+        const cloned = (AllMacrosTestClass as any).clone(testInstance);
         results.clone = cloned;
         document.getElementById('result-clone')!.innerHTML =
             `<strong>Clone:</strong> <pre>${JSON.stringify(cloned, null, 2)}</pre>`;
@@ -38,9 +38,9 @@ function runAllMacroTests() {
             `<strong>Clone:</strong> <em>Not available</em>`;
     }
 
-    // Test Eq macro -> equals()
-    if (typeof (testInstance as any).equals === 'function') {
-        const equalsSelf = (testInstance as any).equals(testInstance);
+    // Test PartialEq macro -> static equals()
+    if (typeof (AllMacrosTestClass as any).equals === 'function') {
+        const equalsSelf = (AllMacrosTestClass as any).equals(testInstance, testInstance);
         results.equals = equalsSelf;
         document.getElementById('result-equals')!.innerHTML =
             `<strong>Equals (self):</strong> <code>${equalsSelf}</code>`;
@@ -49,9 +49,9 @@ function runAllMacroTests() {
             `<strong>Equals:</strong> <em>Not available</em>`;
     }
 
-    // Test Eq macro -> hashCode()
-    if (typeof (testInstance as any).hashCode === 'function') {
-        const hashCode = (testInstance as any).hashCode();
+    // Test Hash macro -> static hashCode()
+    if (typeof (AllMacrosTestClass as any).hashCode === 'function') {
+        const hashCode = (AllMacrosTestClass as any).hashCode(testInstance);
         results.hashCode = hashCode;
         document.getElementById('result-hashcode')!.innerHTML =
             `<strong>HashCode:</strong> <code>${hashCode}</code>`;
@@ -60,14 +60,14 @@ function runAllMacroTests() {
             `<strong>HashCode:</strong> <em>Not available</em>`;
     }
 
-    // Test Serialize macro -> toObject()
-    const serialized = (testInstance as any).toObject();
+    // Test Serialize macro -> static serialize()
+    const serialized = (AllMacrosTestClass as any).serialize(testInstance);
     results.serialize = serialized;
     document.getElementById('result-serialize')!.innerHTML =
-        `<strong>Serialize (toObject):</strong> <pre>${JSON.stringify(serialized, null, 2)}</pre>`;
+        `<strong>Serialize:</strong> <pre>${serialized}</pre>`;
 
-    // Test Deserialize macro -> fromObject()
-    if (typeof (AllMacrosTestClass as any).fromObject === 'function') {
+    // Test Deserialize macro -> deserialize()
+    if (typeof (AllMacrosTestClass as any).deserialize === 'function') {
         const testData = {
             id: 99,
             name: 'Deserialized User',
@@ -76,14 +76,14 @@ function runAllMacroTests() {
             isActive: false,
             score: 50
         };
-        // fromObject returns a Result, need to unwrap it
-        const result = (AllMacrosTestClass as any).fromObject(testData);
+        // deserialize returns a Result, need to unwrap it
+        const result = (AllMacrosTestClass as any).deserialize(testData);
         // Result uses static methods
         if (Result.isOk(result)) {
             const deserialized = Result.unwrap(result);
             results.deserialize = deserialized;
             document.getElementById('result-deserialize')!.innerHTML =
-                `<strong>Deserialize (fromObject):</strong> <pre>${JSON.stringify(deserialized, null, 2)}</pre>`;
+                `<strong>Deserialize:</strong> <pre>${JSON.stringify(deserialized, null, 2)}</pre>`;
         } else {
             const errors = Result.unwrapErr(result);
             document.getElementById('result-deserialize')!.innerHTML =
@@ -100,7 +100,7 @@ function runAllMacroTests() {
 
 function testMacros() {
     const user = new User(1, 'John Doe', 'john@example.com', 'tok_live_secret');
-    const derivedSummary = user.toString();
+    const derivedSummary = User.toString(user);
     const derivedJson = user.toJSON();
 
     const app = document.getElementById('app');

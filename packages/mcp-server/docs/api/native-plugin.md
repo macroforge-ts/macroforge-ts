@@ -13,10 +13,10 @@ processFile(
   options?: ProcessFileOptions
 ): ExpandResult
 ``` ```
-interface ProcessFileOptions {
+interface ProcessFileOptions &#123;
   // Cache key - if unchanged, returns cached result
   version?: string;
-}
+&#125;
 ``` ### getMapper()
  Get the position mapper for a previously processed file:
  ```
@@ -39,36 +39,36 @@ setLogFile(path: string): void
 const plugin = new NativePlugin();
 
 // First call - performs expansion
-const result1 = plugin.processFile("user.ts", code, { version: "1" });
+const result1 = plugin.processFile("user.ts", code, &#123; version: "1" &#125;);
 
 // Same version - returns cached result instantly
-const result2 = plugin.processFile("user.ts", code, { version: "1" });
+const result2 = plugin.processFile("user.ts", code, &#123; version: "1" &#125;);
 
 // Different version - re-expands
-const result3 = plugin.processFile("user.ts", newCode, { version: "2" });
+const result3 = plugin.processFile("user.ts", newCode, &#123; version: "2" &#125;);
 ``` ## Example: Language Server Integration
  ```
-import { NativePlugin } from "macroforge";
+import &#123; NativePlugin &#125; from "macroforge";
 
-class MacroforgeLanguageService {
+class MacroforgeLanguageService &#123;
   private plugin = new NativePlugin();
 
-  processDocument(uri: string, content: string, version: number) {
+  processDocument(uri: string, content: string, version: number) &#123;
     // Process with version-based caching
-    const result = this.plugin.processFile(uri, content, {
+    const result = this.plugin.processFile(uri, content, &#123;
       version: String(version)
-    });
+    &#125;);
 
     // Get mapper for position translation
     const mapper = this.plugin.getMapper(uri);
 
-    return { result, mapper };
-  }
+    return &#123; result, mapper &#125;;
+  &#125;
 
-  getSemanticDiagnostics(uri: string, diagnostics: Diagnostic[]) {
+  getSemanticDiagnostics(uri: string, diagnostics: Diagnostic[]) &#123;
     // Map positions from expanded to original
     return this.plugin.mapDiagnostics(uri, diagnostics);
-  }
-}
+  &#125;
+&#125;
 ``` ## Thread Safety
  The `NativePlugin` class is thread-safe and can be used from multiple async contexts. Each file is processed in an isolated thread with its own stack space.

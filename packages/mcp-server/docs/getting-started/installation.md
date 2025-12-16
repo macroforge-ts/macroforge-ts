@@ -15,15 +15,15 @@ pnpm add macroforge
  The simplest way to use Macroforge is with the built-in derive macros. Add a `@derive` comment decorator to your class:
  ```
 /** @derive(Debug, Clone, PartialEq) */
-class User {
+class User &#123;
   name: string;
   age: number;
 
-  constructor(name: string, age: number) {
+  constructor(name: string, age: number) &#123;
     this.name = name;
     this.age = age;
-  }
-}
+  &#125;
+&#125;
 
 // After macro expansion, User has:
 // - toString(): string              (from Debug)
@@ -32,15 +32,15 @@ class User {
 ``` ## IDE Integration
  For the best development experience, add the TypeScript plugin to your `tsconfig.json`:
  ```
-{
-  "compilerOptions": {
+&#123;
+  "compilerOptions": &#123;
     "plugins": [
-      {
+      &#123;
         "name": "@macroforge/typescript-plugin"
-      }
+      &#125;
     ]
-  }
-}
+  &#125;
+&#125;
 ``` This enables features like:
  - Accurate error positions in your source code
  - Autocompletion for generated methods
@@ -49,16 +49,16 @@ class User {
  If you're using Vite, add the plugin to your config for automatic macro expansion during build:
  ```
 import macroforge from "@macroforge/vite-plugin";
-import { defineConfig } from "vite";
+import &#123; defineConfig &#125; from "vite";
 
-export default defineConfig({
+export default defineConfig(&#123;
   plugins: [
-    macroforge({
+    macroforge(&#123;
       generateTypes: true,
       typesOutputDir: ".macroforge/types"
-    })
+    &#125;)
   ]
-});
+&#125;);
 ``` ## Next Steps
  Now that you have Macroforge installed, learn how to use it:
  - [Create your first macro](../docs/getting-started/first-macro)

@@ -105,13 +105,36 @@ function main(options) {
   // Format expanded files with biome
   for (const playgroundRoot of playgroundRoots) {
     if (!fs.existsSync(playgroundRoot)) continue;
+    const playgroundName = path.basename(playgroundRoot);
     try {
       execSync("npx biome format --write src", {
-        stdio: "inherit",
+        stdio: "pipe",
         cwd: playgroundRoot,
       });
-    } catch {
-      // Formatting is best-effort, don't fail if biome isn't available
+      console.log(`formatted playground/${playgroundName}/src`);
+    } catch (err) {
+      const stderr = err.stderr?.toString() || "";
+      const stdout = err.stdout?.toString() || "";
+      const output = stderr || stdout || err.message || "unknown error";
+
+      // Try to extract which files failed from biome output
+      const failedFiles = [];
+      const filePattern = /(?:^|\s)(src\/[^\s:]+)/gm;
+      let match;
+      while ((match = filePattern.exec(output)) !== null) {
+        failedFiles.push(match[1]);
+      }
+
+      console.error(`\n❌ Formatting failed in playground/${playgroundName}`);
+      if (failedFiles.length > 0) {
+        console.error(`   Failed files:`);
+        for (const file of [...new Set(failedFiles)]) {
+          console.error(`     - ${file}`);
+        }
+      }
+      console.error(`\n   Biome output:\n${output.split('\n').map(l => '   ' + l).join('\n')}`);
+      console.error(`\n   To debug, run: cd playground/${playgroundName} && npx biome format --write src\n`);
+      process.exitCode = 1;
     }
   }
 }
