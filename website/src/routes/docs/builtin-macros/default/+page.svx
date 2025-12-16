@@ -25,6 +25,7 @@ a standard way to create "zero" or "empty" instances of types.
 | Interface | `defaultValueInterfaceName(): InterfaceName` | Standalone function returning object literal |
 | Type Alias | `defaultValueTypeName(): TypeName` | Standalone function with type-appropriate default |
 
+
 ## Default Values by Type
 
 The macro uses Rust-like default semantics:
