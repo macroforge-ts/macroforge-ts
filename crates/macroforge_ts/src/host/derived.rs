@@ -228,6 +228,22 @@ pub fn decorator_metadata() -> Vec<DecoratorMetadata> {
         .collect()
 }
 
+/// Returns all unique decorator module names.
+///
+/// These are the keywords used in field-level decorators like `@serde({ ... })`.
+/// Used by `strip_decorators` to identify Macroforge-specific decorators.
+///
+/// # Returns
+///
+/// A set of module names (e.g., `{"serde", "debug", "hash"}`).
+pub fn decorator_modules() -> BTreeSet<&'static str> {
+    inventory::iter::<DerivedMacroRegistration>
+        .into_iter()
+        .flat_map(|entry| entry.descriptor.decorators)
+        .map(|decorator| decorator.module)
+        .collect()
+}
+
 /// Manifest entry describing a single macro.
 ///
 /// Used in [`MacroManifest`] for tooling and documentation.

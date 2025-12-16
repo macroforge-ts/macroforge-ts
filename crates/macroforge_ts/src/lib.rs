@@ -738,6 +738,9 @@ pub struct ProcessFileOptions {
     /// Version string for cache invalidation.
     /// When provided, cached results are only reused if versions match.
     pub version: Option<String>,
+    /// Additional decorator module names from external macros.
+    /// See [`ExpandOptions::external_decorator_modules`] for details.
+    pub external_decorator_modules: Option<Vec<String>>,
 }
 
 /// Options for macro expansion.
@@ -748,6 +751,25 @@ pub struct ExpandOptions {
     /// If `true`, preserves `@derive` decorators in the output.
     /// If `false` (default), decorators are stripped after expansion.
     pub keep_decorators: Option<bool>,
+
+    /// Additional decorator module names from external macros.
+    ///
+    /// These are used during decorator stripping to identify Macroforge-specific
+    /// decorators that should be removed from the output. Built-in decorator modules
+    /// (like "serde", "debug") are automatically included.
+    ///
+    /// External macro packages should export their decorator module names, which
+    /// plugins can collect and pass here.
+    ///
+    /// # Example
+    ///
+    /// ```javascript
+    /// expandSync(code, filepath, {
+    ///   keepDecorators: false,
+    ///   externalDecoratorModules: ["myMacro", "customValidator"]
+    /// });
+    /// ```
+    pub external_decorator_modules: Option<Vec<String>>,
 }
 
 /// The main plugin class for macro expansion with caching support.
@@ -804,11 +826,12 @@ struct CachedResult {
 
 /// Converts `ProcessFileOptions` to `ExpandOptions`.
 ///
-/// Extracts only the options relevant for expansion (currently just `keep_decorators`),
-/// discarding cache-related options like `version`.
+/// Extracts only the options relevant for expansion, discarding cache-related
+/// options like `version`.
 fn option_expand_options(opts: Option<ProcessFileOptions>) -> Option<ExpandOptions> {
     opts.map(|o| ExpandOptions {
         keep_decorators: o.keep_decorators,
+        external_decorator_modules: o.external_decorator_modules,
     })
 }
 
@@ -1323,10 +1346,13 @@ fn expand_inner(
     })?;
 
     // Apply options if provided
-    if let Some(opts) = options
-        && let Some(keep) = opts.keep_decorators
-    {
-        macro_host.set_keep_decorators(keep);
+    if let Some(ref opts) = options {
+        if let Some(keep) = opts.keep_decorators {
+            macro_host.set_keep_decorators(keep);
+        }
+        if let Some(ref modules) = opts.external_decorator_modules {
+            macro_host.set_external_decorator_modules(modules.clone());
+        }
     }
 
     // Parse the code into an AST.

@@ -61,15 +61,12 @@
 //! ## Example
 //!
 //! ```typescript
-//! @derive(Ord)
+//! /** @derive(Ord) */
 //! class Version {
 //!     major: number;
 //!     minor: number;
 //!     patch: number;
 //! }
-//!
-//! // Usage:
-//! versions.sort((a, b) => a.compareTo(b));
 //! ```
 //!
 //! Generated output:
@@ -92,9 +89,6 @@
 //!         return 0;
 //!     }
 //! }
-//! 
-//! // Usage:
-//! versions.sort((a, b) => a.compareTo(b));
 //! ```
 //!
 //! ## Ord vs PartialOrd

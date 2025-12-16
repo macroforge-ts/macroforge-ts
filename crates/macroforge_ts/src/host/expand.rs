@@ -88,8 +88,11 @@ use crate::ts_syn::{lower_classes, lower_enums, lower_interfaces, lower_type_ali
 use anyhow::Context;
 use napi::Status;
 use swc_core::{
-    common::Span,
-    ecma::ast::{ClassMember, Module, Program},
+    common::{FileName, SourceMap, Span, sync::Lrc},
+    ecma::{
+        ast::{ClassMember, EsVersion, Module, Program},
+        parser::{Parser, StringInput, Syntax, TsSyntax, lexer::Lexer},
+    },
 };
 
 use super::{
@@ -140,6 +143,8 @@ pub struct MacroExpander {
     config: MacroConfig,
     /// Whether to keep decorators in emitted output (used only by host integrations that need mapping)
     keep_decorators: bool,
+    /// Additional decorator module names from external macros
+    external_decorator_modules: Vec<String>,
     external_loader: Option<ExternalMacroLoader>,
 }
 
@@ -239,6 +244,7 @@ impl MacroExpander {
             dispatcher: MacroDispatcher::new(registry),
             config,
             keep_decorators,
+            external_decorator_modules: Vec::new(),
             external_loader: Some(ExternalMacroLoader::new(root_dir)),
         })
     }
@@ -246,6 +252,14 @@ impl MacroExpander {
     /// Control whether decorators are preserved in the expanded output.
     pub fn set_keep_decorators(&mut self, keep: bool) {
         self.keep_decorators = keep;
+    }
+
+    /// Set additional decorator module names from external macros.
+    ///
+    /// These are used during decorator stripping to identify Macroforge-specific
+    /// decorators that should be removed from the output.
+    pub fn set_external_decorator_modules(&mut self, modules: Vec<String>) {
+        self.external_decorator_modules = modules;
     }
 
     /// Expand all macros in the source code (simple API for CLI usage)
@@ -402,7 +416,7 @@ impl MacroExpander {
         // Check for imports of built-in macros and add warnings
         diagnostics.extend(check_builtin_import_warnings(module, source));
 
-        // Used for external type function imports (e.g. __serializeFoo) based on existing type imports.
+        // Used for external type function imports (e.g. serializeWithContextFoo) based on existing type imports.
         let import_sources = collect_import_sources(module, source);
 
         let class_map: HashMap<SpanKey, ClassIR> = classes
@@ -828,8 +842,35 @@ impl MacroExpander {
                             "body" => {
                                 let insert_pos = derive_insert_pos(class_ir, source);
                                 match parse_members_from_tokens(&code) {
-                                    Ok(members) => {
-                                        for member in members {
+                                    Ok(members_with_comments) => {
+                                        for MemberWithComment {
+                                            leading_comment,
+                                            member,
+                                        } in members_with_comments
+                                        {
+                                            // Insert leading JSDoc comment if present
+                                            if let Some(comment_text) = &leading_comment {
+                                                let jsdoc = format!("/**{} */\n", comment_text);
+                                                runtime_patches.push(Patch::InsertRaw {
+                                                    at: SpanIR {
+                                                        start: insert_pos,
+                                                        end: insert_pos,
+                                                    },
+                                                    code: jsdoc.clone(),
+                                                    context: Some("JSDoc comment".into()),
+                                                    source_macro: macro_name.clone(),
+                                                });
+                                                type_patches.push(Patch::InsertRaw {
+                                                    at: SpanIR {
+                                                        start: insert_pos,
+                                                        end: insert_pos,
+                                                    },
+                                                    code: jsdoc,
+                                                    context: Some("JSDoc comment".into()),
+                                                    source_macro: macro_name.clone(),
+                                                });
+                                            }
+
                                             runtime_patches.push(Patch::Insert {
                                                 at: SpanIR {
                                                     start: insert_pos,
@@ -1051,7 +1092,13 @@ impl MacroExpander {
 
         let mut code = runtime_result.code;
         if !self.keep_decorators {
-            code = strip_decorators(&code);
+            // Convert Vec<String> to Vec<&str> for strip_decorators
+            let external_modules: Vec<&str> = self
+                .external_decorator_modules
+                .iter()
+                .map(|s| s.as_str())
+                .collect();
+            code = strip_decorators(&code, &external_modules);
         }
 
         let mut expansion = MacroExpansion {
@@ -1110,11 +1157,58 @@ fn is_macro_not_found(result: &MacroResult) -> bool {
         .any(|d| d.message.contains("Macro") && d.message.contains("not found"))
 }
 
-fn strip_decorators(code: &str) -> String {
-    code.lines()
-        .filter(|line| !line.trim_start().starts_with('@'))
-        .collect::<Vec<_>>()
-        .join("\n")
+/// Strips Macroforge decorator lines from expanded code.
+///
+/// Only strips lines that contain Macroforge-specific decorators, preserving
+/// standard JSDoc annotations like @returns, @param, @internal, etc.
+///
+/// # Arguments
+///
+/// * `code` - The expanded source code
+/// * `external_decorator_modules` - Additional decorator module names from external macros
+///
+/// # Decorator patterns stripped
+///
+/// - `@derive(...)` - the main macro invocation keyword
+/// - `@<decorator_module>({ ... })` - field-level decorators (e.g., @serde, @debug)
+fn strip_decorators(code: &str, external_decorator_modules: &[&str]) -> String {
+    // Get built-in decorator modules from the macro registry
+    let builtin_modules = derived::decorator_modules();
+
+    let lines: Vec<&str> = code.lines().collect();
+    let mut result = Vec::with_capacity(lines.len());
+
+    for line in &lines {
+        let trimmed = line.trim_start();
+        if trimmed.starts_with('@') {
+            // Extract the keyword after @
+            let after_at = &trimmed[1..];
+            let keyword_end = after_at
+                .find(|c: char| !c.is_alphanumeric() && c != '_')
+                .unwrap_or(after_at.len());
+            let keyword = &after_at[..keyword_end];
+
+            // Check if this is:
+            // 1. The main macro keyword "derive" (case-insensitive)
+            // 2. A built-in decorator module name (case-insensitive)
+            // 3. An external decorator module name (case-insensitive)
+            let is_derive = keyword.eq_ignore_ascii_case("derive");
+            let is_builtin_module = builtin_modules
+                .iter()
+                .any(|m| m.eq_ignore_ascii_case(keyword));
+            let is_external_module = external_decorator_modules
+                .iter()
+                .any(|m| m.eq_ignore_ascii_case(keyword));
+
+            if is_derive || is_builtin_module || is_external_module {
+                // This is a Macroforge decorator, skip it
+                continue;
+            }
+        }
+        result.push(*line);
+    }
+
+    result.join("\n")
 }
 
 // ============================================================================
@@ -1464,8 +1558,14 @@ fn extract_function_names_from_patches(
             let start = search_start + pos + "export function ".len();
             if let Some(paren_pos) = code[start..].find('(') {
                 let fn_name = code[start..start + paren_pos].trim();
-                if !fn_name.is_empty() && fn_name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
-                    if let Some(short_name) = extract_short_name(fn_name, type_name, &camel_type_name, naming_style) {
+                if !fn_name.is_empty()
+                    && fn_name
+                        .chars()
+                        .all(|c| c.is_ascii_alphanumeric() || c == '_')
+                {
+                    if let Some(short_name) =
+                        extract_short_name(fn_name, type_name, &camel_type_name, naming_style)
+                    {
                         functions.push((fn_name.to_string(), short_name));
                     }
                 }
@@ -1562,7 +1662,10 @@ fn has_existing_namespace_or_const(source: &str, type_name: &str) -> bool {
                 return true;
             }
             let next_char = source[after_pos..].chars().next();
-            if matches!(next_char, Some('{') | Some(' ') | Some('\t') | Some('\n') | Some('<')) {
+            if matches!(
+                next_char,
+                Some('{') | Some(' ') | Some('\t') | Some('\n') | Some('<')
+            ) {
                 return true;
             }
         }
@@ -1576,7 +1679,10 @@ fn has_existing_namespace_or_const(source: &str, type_name: &str) -> bool {
                 return true;
             }
             let next_char = source[after_pos..].chars().next();
-            if matches!(next_char, Some('=') | Some(' ') | Some('\t') | Some('\n') | Some(':') | Some('<')) {
+            if matches!(
+                next_char,
+                Some('=') | Some(' ') | Some('\t') | Some('\n') | Some(':') | Some('<')
+            ) {
                 return true;
             }
         }
@@ -1625,11 +1731,8 @@ fn contains_identifier(haystack: &str, ident: &str) -> bool {
                 .chars()
                 .next_back()
                 .is_some_and(is_ident_char);
-        let next_ok = end >= haystack.len()
-            || !haystack[end..]
-                .chars()
-                .next()
-                .is_some_and(is_ident_char);
+        let next_ok =
+            end >= haystack.len() || !haystack[end..].chars().next().is_some_and(is_ident_char);
 
         if prev_ok && next_ok {
             return true;
@@ -1646,7 +1749,10 @@ fn external_type_function_import_patches(
     import_sources: &HashMap<String, String>,
     naming_style: FunctionNamingStyle,
 ) -> Vec<Patch> {
-    if matches!(naming_style, FunctionNamingStyle::Namespace | FunctionNamingStyle::Generic) {
+    if matches!(
+        naming_style,
+        FunctionNamingStyle::Namespace | FunctionNamingStyle::Generic
+    ) {
         return vec![];
     }
 
@@ -1671,8 +1777,8 @@ fn external_type_function_import_patches(
             FunctionNamingStyle::Prefix => {
                 let camel = to_camel_case(type_name);
                 vec![
-                    format!("{camel}__serialize"),
-                    format!("{camel}__deserialize"),
+                    format!("{camel}SerializeWithContext"),
+                    format!("{camel}DeserializeWithContext"),
                     format!("{camel}DefaultValue"),
                     format!("{camel}FromObject"),
                     format!("{camel}FromStringifiedJSON"),
@@ -1683,8 +1789,8 @@ fn external_type_function_import_patches(
                 ]
             }
             FunctionNamingStyle::Suffix => vec![
-                format!("__serialize{type_name}"),
-                format!("__deserialize{type_name}"),
+                format!("SerializeWithContext{type_name}"),
+                format!("DeserializeWithContext{type_name}"),
                 format!("defaultValue{type_name}"),
                 format!("fromObject{type_name}"),
                 format!("fromStringifiedJSON{type_name}"),
@@ -2237,30 +2343,116 @@ fn split_by_markers(source: &str) -> Vec<(&str, String)> {
     chunks
 }
 
-fn parse_members_from_tokens(
-    tokens: &str,
-) -> anyhow::Result<Vec<swc_core::ecma::ast::ClassMember>> {
-    let wrapped_stmt = format!("class __Temp {{ {} }}", tokens);
-    if let Ok(swc_core::ecma::ast::Stmt::Decl(swc_core::ecma::ast::Decl::Class(class_decl))) =
-        crate::ts_syn::parse_ts_stmt(&wrapped_stmt)
-    {
-        return Ok(class_decl.class.body);
-    }
+/// A class member with its associated leading JSDoc comment (if any).
+struct MemberWithComment {
+    /// The leading JSDoc comment text (without /** */)
+    leading_comment: Option<String>,
+    /// The class member AST node
+    member: swc_core::ecma::ast::ClassMember,
+}
 
-    if let Ok(module) = crate::ts_syn::parse_ts_module(&wrapped_stmt) {
-        for item in module.body {
+fn parse_members_from_tokens(tokens: &str) -> anyhow::Result<Vec<MemberWithComment>> {
+    // First, extract JSDoc comments and their associated code segments
+    // The body! macro outputs: /** comment */code /** comment */code ...
+    let segments = extract_jsdoc_segments(tokens);
+
+    // Build class body without comments for parsing
+    let code_only: String = segments.iter().map(|(_, code)| code.as_str()).collect();
+    let wrapped_stmt = format!("class __Temp {{ {} }}", code_only);
+
+    // Parse using standard SWC (comments stripped)
+    let cm: Lrc<SourceMap> = Lrc::new(Default::default());
+    let fm = cm.new_source_file(
+        FileName::Custom("macro_body.ts".into()).into(),
+        wrapped_stmt,
+    );
+
+    let syntax = Syntax::Typescript(TsSyntax {
+        tsx: true,
+        decorators: true,
+        ..Default::default()
+    });
+
+    let lexer = Lexer::new(syntax, EsVersion::latest(), StringInput::from(&*fm), None);
+    let mut parser = Parser::new_from(lexer);
+
+    let module = parser
+        .parse_module()
+        .map_err(|e| anyhow::anyhow!("Failed to parse macro output: {:?}", e))?;
+
+    let class_body = module
+        .body
+        .into_iter()
+        .find_map(|item| {
             if let swc_core::ecma::ast::ModuleItem::Stmt(swc_core::ecma::ast::Stmt::Decl(
                 swc_core::ecma::ast::Decl::Class(class_decl),
             )) = item
             {
-                return Ok(class_decl.class.body);
+                Some(class_decl.class.body)
+            } else {
+                None
+            }
+        })
+        .ok_or_else(|| anyhow::anyhow!("Failed to parse macro output into class members"))?;
+
+    // Match parsed members with their extracted JSDoc comments
+    // We rely on the fact that members appear in the same order
+    let result = class_body
+        .into_iter()
+        .zip(segments.iter())
+        .map(|(member, (comment, _))| MemberWithComment {
+            leading_comment: comment.clone(),
+            member,
+        })
+        .collect();
+
+    Ok(result)
+}
+
+/// Extract JSDoc comments and their following code segments from body! output.
+/// Returns a vec of (Option<comment_text>, code_segment) pairs.
+fn extract_jsdoc_segments(input: &str) -> Vec<(Option<String>, String)> {
+    let mut result = Vec::new();
+    let mut remaining = input;
+
+    while !remaining.is_empty() {
+        remaining = remaining.trim_start();
+        if remaining.is_empty() {
+            break;
+        }
+
+        // Check if starts with JSDoc comment
+        if remaining.starts_with("/**") {
+            // Find the end of the comment
+            if let Some(end_idx) = remaining.find("*/") {
+                let comment_text = &remaining[3..end_idx]; // Skip /** and exclude */
+                remaining = &remaining[end_idx + 2..]; // Skip past */
+                // Now find the code until the next JSDoc or end
+                let code_end = remaining.find("/**").unwrap_or(remaining.len());
+                let code = remaining[..code_end].to_string();
+                remaining = &remaining[code_end..];
+
+                if !code.trim().is_empty() {
+                    result.push((Some(comment_text.to_string()), code));
+                }
+            } else {
+                // Malformed comment, treat rest as code
+                result.push((None, remaining.to_string()));
+                break;
+            }
+        } else {
+            // No JSDoc comment, find code until next JSDoc or end
+            let code_end = remaining.find("/**").unwrap_or(remaining.len());
+            let code = remaining[..code_end].to_string();
+            remaining = &remaining[code_end..];
+
+            if !code.trim().is_empty() {
+                result.push((None, code));
             }
         }
     }
 
-    Err(anyhow::anyhow!(
-        "Failed to parse macro output into class members"
-    ))
+    result
 }
 
 // ============================================================================
