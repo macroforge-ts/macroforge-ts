@@ -109,15 +109,9 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let class_name = input.name();
             let field_names: Vec<&str> = class.field_names().collect();
             let has_fields = !field_names.is_empty();
-            let naming_style = input.context.function_naming_style;
 
-            // Generate function name based on naming style
-            let fn_name = match naming_style {
-                FunctionNamingStyle::Prefix => format!("{}Clone", to_camel_case(class_name)),
-                FunctionNamingStyle::Suffix => format!("clone{}", class_name),
-                FunctionNamingStyle::Generic => "clone".to_string(),
-                FunctionNamingStyle::Namespace => format!("{}.clone", class_name),
-            };
+            // Generate function name (always prefix style)
+            let fn_name = format!("{}Clone", to_camel_case(class_name));
 
             // Generate standalone function with value parameter
             let standalone = ts_template! {

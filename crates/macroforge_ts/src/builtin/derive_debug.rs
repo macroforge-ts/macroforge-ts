@@ -184,7 +184,6 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
-            let naming_style = input.context.function_naming_style;
 
             // Collect fields that should be included in debug output
             let debug_fields: Vec<DebugField> = class
@@ -202,13 +201,8 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
             let has_fields = !debug_fields.is_empty();
 
-            // Generate function name based on naming style
-            let fn_name = match naming_style {
-                FunctionNamingStyle::Prefix => format!("{}ToString", to_camel_case(class_name)),
-                FunctionNamingStyle::Suffix => format!("toString{}", class_name),
-                FunctionNamingStyle::Generic => "toString".to_string(),
-                FunctionNamingStyle::Namespace => format!("{}.toString", class_name),
-            };
+            // Generate function name (always prefix style)
+            let fn_name = format!("{}ToString", to_camel_case(class_name));
 
             // Generate standalone function with value parameter
             let standalone = ts_template! {
