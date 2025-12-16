@@ -8,10 +8,10 @@
 //!
 //! | Type | Generated Code | Description |
 //! |------|----------------|-------------|
-//! | Class | `clone(): ClassName` | Instance method creating a new instance with copied fields |
-//! | Enum | `cloneEnumName(value: EnumName): EnumName` | Standalone function (enums are primitives, returns value as-is) |
-//! | Interface | `cloneInterfaceName(value: InterfaceName): InterfaceName` | Standalone function creating a new object literal |
-//! | Type Alias | `cloneTypeName(value: TypeName): TypeName` | Standalone function with spread copy for objects |
+//! | Class | `classNameClone(value)` + `static clone(value)` | Standalone function + static wrapper method |
+//! | Enum | `enumNameClone(value: EnumName): EnumName` | Standalone function (enums are primitives, returns value as-is) |
+//! | Interface | `interfaceNameClone(value: InterfaceName): InterfaceName` | Standalone function creating a new object literal |
+//! | Type Alias | `typeNameClone(value: TypeName): TypeName` | Standalone function with spread copy for objects |
 //!
 //! ## Configuration
 //!
@@ -45,22 +45,26 @@
 //! Generated output:
 //!
 //! ```typescript
+//! export function pointClone(value: Point): Point {
+//!     const cloned = Object.create(Object.getPrototypeOf(value));
+//!     cloned.x = value.x;
+//!     cloned.y = value.y;
+//!     return cloned;
+//! }
+//!
 //! class Point {
 //!     x: number;
 //!     y: number;
-//! 
-//!     clone(): Point {
-//!         const cloned = Object.create(Object.getPrototypeOf(this));
-//!         cloned.x = this.x;
-//!         cloned.y = this.y;
-//!         return cloned;
+//!
+//!     static clone(value: Point): Point {
+//!         return pointClone(value);
 //!     }
 //! }
 //! ```
 //!
 //! ## Implementation Notes
 //!
-//! - **Classes**: Uses `Object.create(Object.getPrototypeOf(this))` to preserve
+//! - **Classes**: Uses `Object.create(Object.getPrototypeOf(value))` to preserve
 //!   the prototype chain, ensuring `instanceof` checks work correctly
 //! - **Enums**: Simply returns the value (enums are primitives in TypeScript)
 //! - **Interfaces/Type Aliases**: Creates new object literals with spread operator
@@ -113,20 +117,46 @@ pub fn derive_clone_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
             let class_name = input.name();
             let field_names: Vec<&str> = class.field_names().collect();
             let has_fields = !field_names.is_empty();
+            let naming_style = input.context.function_naming_style;
 
-            Ok(body! {
-                clone(): @{class_name} {
-                    const cloned = Object.create(Object.getPrototypeOf(this));
+            // Generate function name based on naming style
+            let fn_name = match naming_style {
+                FunctionNamingStyle::Prefix => format!("{}Clone", to_camel_case(class_name)),
+                FunctionNamingStyle::Suffix => format!("clone{}", class_name),
+                FunctionNamingStyle::Generic => "clone".to_string(),
+                FunctionNamingStyle::Namespace => format!("{}.clone", class_name),
+            };
+
+            // Generate standalone function with value parameter
+            let standalone = ts_template! {
+                export function @{fn_name}(value: @{class_name}): @{class_name} {
+                    const cloned = Object.create(Object.getPrototypeOf(value));
 
                     {#if has_fields}
                         {#for field in field_names}
-                            cloned.@{field} = this.@{field};
+                            cloned.@{field} = value.@{field};
                         {/for}
                     {/if}
 
                     return cloned;
                 }
-            })
+            };
+
+            // Generate static wrapper method that delegates to standalone function
+            let class_body = body! {
+                static clone(value: @{class_name}): @{class_name} {
+                    return @{fn_name}(value);
+                }
+            };
+
+            // Combine standalone function with class body by concatenating sources
+            // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
+            let combined_source = format!("{}\n{}", standalone.source(), class_body.source());
+            let mut combined = TsStream::from_string(combined_source);
+            combined.runtime_patches = standalone.runtime_patches;
+            combined.runtime_patches.extend(class_body.runtime_patches);
+
+            Ok(combined)
         }
         Data::Enum(_) => {
             // Enums are primitive values, cloning is just returning the value
