@@ -289,7 +289,6 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
-            let naming_style = input.context.function_naming_style;
 
             // Collect fields for comparison
             let ord_fields: Vec<OrdField> = class
@@ -309,13 +308,8 @@ pub fn derive_ord_macro(mut input: TsStream) -> Result<TsStream, MacroforgeError
 
             let has_fields = !ord_fields.is_empty();
 
-            // Generate function name based on naming style
-            let fn_name = match naming_style {
-                FunctionNamingStyle::Prefix => format!("{}Compare", to_camel_case(class_name)),
-                FunctionNamingStyle::Suffix => format!("compare{}", class_name),
-                FunctionNamingStyle::Generic => "compare".to_string(),
-                FunctionNamingStyle::Namespace => format!("{}.compareTo", class_name),
-            };
+            // Generate function name (always prefix style)
+            let fn_name = format!("{}Compare", to_camel_case(class_name));
 
             // Build comparison logic using a and b parameters
             let compare_body = if has_fields {
