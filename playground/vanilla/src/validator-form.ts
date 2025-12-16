@@ -80,16 +80,16 @@ export function toValidationResult<T>(result: any): ValidationResult<T> {
 
 // Form validation functions
 export function validateUserRegistration(data: unknown): ValidationResult<UserRegistrationForm> {
-    const result = (UserRegistrationForm as any).fromStringifiedJSON(JSON.stringify(data));
+    const result = (UserRegistrationForm as any).deserialize(JSON.stringify(data));
     return toValidationResult(result);
 }
 
 export function validateProduct(data: unknown): ValidationResult<ProductForm> {
-    const result = (ProductForm as any).fromStringifiedJSON(JSON.stringify(data));
+    const result = (ProductForm as any).deserialize(JSON.stringify(data));
     return toValidationResult(result);
 }
 
 export function validateEvent(data: unknown): ValidationResult<EventForm> {
-    const result = (EventForm as any).fromStringifiedJSON(JSON.stringify(data));
+    const result = (EventForm as any).deserialize(JSON.stringify(data));
     return toValidationResult(result);
 }

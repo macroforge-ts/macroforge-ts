@@ -18,40 +18,25 @@ export class ValidDateValidator {
 }){
     this.date = props.date;
 }
+/** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<ValidDateValidator, Array<{
+    static deserialize(input: unknown, opts?: DeserializeOptions): Result<ValidDateValidator, Array<{
     field: string;
     message: string;
 }>> {
     try {
-        const raw = JSON.parse(json);
-        return ValidDateValidator.fromObject(raw, opts);
-    } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return Result.err([
-            {
-                field: "_root",
-                message
-            }
-        ]);
-    }
-}
-
-    static fromObject(obj: unknown, opts?: DeserializeOptions): Result<ValidDateValidator, Array<{
-    field: string;
-    message: string;
-}>> {
-    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
-        const resultOrRef = ValidDateValidator.deserializeWithContext(obj, ctx);
+        const resultOrRef = ValidDateValidator.deserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: "_root",
-                    message: "ValidDateValidator.fromObject: root cannot be a forward reference"
+                    message: "ValidDateValidator.deserialize: root cannot be a forward reference"
                 }
             ]);
         }
@@ -73,6 +58,9 @@ export class ValidDateValidator {
         ]);
     }
 }
+/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
     static deserializeWithContext(value: any, ctx: DeserializeContext): ValidDateValidator | PendingRef {
     if (value?.__ref !== undefined) {
@@ -183,7 +171,7 @@ export class ValidDateValidator {
     if (!ValidDateValidator.hasShape(obj)) {
         return false;
     }
-    const result = ValidDateValidator.fromObject(obj);
+    const result = ValidDateValidator.deserialize(obj);
     return Result.isOk(result);
 }
 }
@@ -199,40 +187,25 @@ export class GreaterThanDateValidator {
 }){
     this.date = props.date;
 }
+/** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<GreaterThanDateValidator, Array<{
+    static deserialize(input: unknown, opts?: DeserializeOptions): Result<GreaterThanDateValidator, Array<{
     field: string;
     message: string;
 }>> {
     try {
-        const raw = JSON.parse(json);
-        return GreaterThanDateValidator.fromObject(raw, opts);
-    } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return Result.err([
-            {
-                field: "_root",
-                message
-            }
-        ]);
-    }
-}
-
-    static fromObject(obj: unknown, opts?: DeserializeOptions): Result<GreaterThanDateValidator, Array<{
-    field: string;
-    message: string;
-}>> {
-    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
-        const resultOrRef = GreaterThanDateValidator.deserializeWithContext(obj, ctx);
+        const resultOrRef = GreaterThanDateValidator.deserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: "_root",
-                    message: "GreaterThanDateValidator.fromObject: root cannot be a forward reference"
+                    message: "GreaterThanDateValidator.deserialize: root cannot be a forward reference"
                 }
             ]);
         }
@@ -254,6 +227,9 @@ export class GreaterThanDateValidator {
         ]);
     }
 }
+/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
     static deserializeWithContext(value: any, ctx: DeserializeContext): GreaterThanDateValidator | PendingRef {
     if (value?.__ref !== undefined) {
@@ -364,7 +340,7 @@ export class GreaterThanDateValidator {
     if (!GreaterThanDateValidator.hasShape(obj)) {
         return false;
     }
-    const result = GreaterThanDateValidator.fromObject(obj);
+    const result = GreaterThanDateValidator.deserialize(obj);
     return Result.isOk(result);
 }
 }
@@ -380,40 +356,25 @@ export class GreaterThanOrEqualToDateValidator {
 }){
     this.date = props.date;
 }
+/** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<GreaterThanOrEqualToDateValidator, Array<{
+    static deserialize(input: unknown, opts?: DeserializeOptions): Result<GreaterThanOrEqualToDateValidator, Array<{
     field: string;
     message: string;
 }>> {
     try {
-        const raw = JSON.parse(json);
-        return GreaterThanOrEqualToDateValidator.fromObject(raw, opts);
-    } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return Result.err([
-            {
-                field: "_root",
-                message
-            }
-        ]);
-    }
-}
-
-    static fromObject(obj: unknown, opts?: DeserializeOptions): Result<GreaterThanOrEqualToDateValidator, Array<{
-    field: string;
-    message: string;
-}>> {
-    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
-        const resultOrRef = GreaterThanOrEqualToDateValidator.deserializeWithContext(obj, ctx);
+        const resultOrRef = GreaterThanOrEqualToDateValidator.deserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: "_root",
-                    message: "GreaterThanOrEqualToDateValidator.fromObject: root cannot be a forward reference"
+                    message: "GreaterThanOrEqualToDateValidator.deserialize: root cannot be a forward reference"
                 }
             ]);
         }
@@ -435,6 +396,9 @@ export class GreaterThanOrEqualToDateValidator {
         ]);
     }
 }
+/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
     static deserializeWithContext(value: any, ctx: DeserializeContext): GreaterThanOrEqualToDateValidator | PendingRef {
     if (value?.__ref !== undefined) {
@@ -545,7 +509,7 @@ export class GreaterThanOrEqualToDateValidator {
     if (!GreaterThanOrEqualToDateValidator.hasShape(obj)) {
         return false;
     }
-    const result = GreaterThanOrEqualToDateValidator.fromObject(obj);
+    const result = GreaterThanOrEqualToDateValidator.deserialize(obj);
     return Result.isOk(result);
 }
 }
@@ -561,40 +525,25 @@ export class LessThanDateValidator {
 }){
     this.date = props.date;
 }
+/** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<LessThanDateValidator, Array<{
+    static deserialize(input: unknown, opts?: DeserializeOptions): Result<LessThanDateValidator, Array<{
     field: string;
     message: string;
 }>> {
     try {
-        const raw = JSON.parse(json);
-        return LessThanDateValidator.fromObject(raw, opts);
-    } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return Result.err([
-            {
-                field: "_root",
-                message
-            }
-        ]);
-    }
-}
-
-    static fromObject(obj: unknown, opts?: DeserializeOptions): Result<LessThanDateValidator, Array<{
-    field: string;
-    message: string;
-}>> {
-    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
-        const resultOrRef = LessThanDateValidator.deserializeWithContext(obj, ctx);
+        const resultOrRef = LessThanDateValidator.deserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: "_root",
-                    message: "LessThanDateValidator.fromObject: root cannot be a forward reference"
+                    message: "LessThanDateValidator.deserialize: root cannot be a forward reference"
                 }
             ]);
         }
@@ -616,6 +565,9 @@ export class LessThanDateValidator {
         ]);
     }
 }
+/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
     static deserializeWithContext(value: any, ctx: DeserializeContext): LessThanDateValidator | PendingRef {
     if (value?.__ref !== undefined) {
@@ -726,7 +678,7 @@ export class LessThanDateValidator {
     if (!LessThanDateValidator.hasShape(obj)) {
         return false;
     }
-    const result = LessThanDateValidator.fromObject(obj);
+    const result = LessThanDateValidator.deserialize(obj);
     return Result.isOk(result);
 }
 }
@@ -742,40 +694,25 @@ export class LessThanOrEqualToDateValidator {
 }){
     this.date = props.date;
 }
+/** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<LessThanOrEqualToDateValidator, Array<{
+    static deserialize(input: unknown, opts?: DeserializeOptions): Result<LessThanOrEqualToDateValidator, Array<{
     field: string;
     message: string;
 }>> {
     try {
-        const raw = JSON.parse(json);
-        return LessThanOrEqualToDateValidator.fromObject(raw, opts);
-    } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return Result.err([
-            {
-                field: "_root",
-                message
-            }
-        ]);
-    }
-}
-
-    static fromObject(obj: unknown, opts?: DeserializeOptions): Result<LessThanOrEqualToDateValidator, Array<{
-    field: string;
-    message: string;
-}>> {
-    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
-        const resultOrRef = LessThanOrEqualToDateValidator.deserializeWithContext(obj, ctx);
+        const resultOrRef = LessThanOrEqualToDateValidator.deserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: "_root",
-                    message: "LessThanOrEqualToDateValidator.fromObject: root cannot be a forward reference"
+                    message: "LessThanOrEqualToDateValidator.deserialize: root cannot be a forward reference"
                 }
             ]);
         }
@@ -797,6 +734,9 @@ export class LessThanOrEqualToDateValidator {
         ]);
     }
 }
+/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
     static deserializeWithContext(value: any, ctx: DeserializeContext): LessThanOrEqualToDateValidator | PendingRef {
     if (value?.__ref !== undefined) {
@@ -907,7 +847,7 @@ export class LessThanOrEqualToDateValidator {
     if (!LessThanOrEqualToDateValidator.hasShape(obj)) {
         return false;
     }
-    const result = LessThanOrEqualToDateValidator.fromObject(obj);
+    const result = LessThanOrEqualToDateValidator.deserialize(obj);
     return Result.isOk(result);
 }
 }
@@ -923,40 +863,25 @@ export class BetweenDateValidator {
 }){
     this.date = props.date;
 }
+/** Deserializes input to an instance of this class.
+Automatically detects whether input is a JSON string or object.
+@param input - JSON string or object to deserialize
+@param opts - Optional deserialization options
+@returns Result containing the deserialized instance or validation errors  */
 
-    static fromStringifiedJSON(json: string, opts?: DeserializeOptions): Result<BetweenDateValidator, Array<{
+    static deserialize(input: unknown, opts?: DeserializeOptions): Result<BetweenDateValidator, Array<{
     field: string;
     message: string;
 }>> {
     try {
-        const raw = JSON.parse(json);
-        return BetweenDateValidator.fromObject(raw, opts);
-    } catch (e) {
-        if (e instanceof DeserializeError) {
-            return Result.err(e.errors);
-        }
-        const message = e instanceof Error ? e.message : String(e);
-        return Result.err([
-            {
-                field: "_root",
-                message
-            }
-        ]);
-    }
-}
-
-    static fromObject(obj: unknown, opts?: DeserializeOptions): Result<BetweenDateValidator, Array<{
-    field: string;
-    message: string;
-}>> {
-    try {
+        const data = typeof input === "string" ? JSON.parse(input) : input;
         const ctx = DeserializeContext.create();
-        const resultOrRef = BetweenDateValidator.deserializeWithContext(obj, ctx);
+        const resultOrRef = BetweenDateValidator.deserializeWithContext(data, ctx);
         if (PendingRef.is(resultOrRef)) {
             return Result.err([
                 {
                     field: "_root",
-                    message: "BetweenDateValidator.fromObject: root cannot be a forward reference"
+                    message: "BetweenDateValidator.deserialize: root cannot be a forward reference"
                 }
             ]);
         }
@@ -978,6 +903,9 @@ export class BetweenDateValidator {
         ]);
     }
 }
+/** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context  */
 
     static deserializeWithContext(value: any, ctx: DeserializeContext): BetweenDateValidator | PendingRef {
     if (value?.__ref !== undefined) {
@@ -1088,7 +1016,7 @@ export class BetweenDateValidator {
     if (!BetweenDateValidator.hasShape(obj)) {
         return false;
     }
-    const result = BetweenDateValidator.fromObject(obj);
+    const result = BetweenDateValidator.deserialize(obj);
     return Result.isOk(result);
 }
 }

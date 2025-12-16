@@ -1,14 +1,14 @@
 {
   "name": "@macroforge/vite-plugin",
   "kind": "typescript_package",
-  "version": "0.1.39",
+  "version": "0.1.38",
   "description": "",
   "overview": "@macroforge/vite-plugin\n\nVite plugin for Macroforge compile-time TypeScript macro expansion.\n\nThis plugin integrates Macroforge's Rust-based macro expander into the Vite build pipeline,\nenabling compile-time code generation through `@derive` decorators. It processes TypeScript\nfiles during the build, expands macros, generates type definitions, and emits metadata.\n\n@example\n```typescript\nimport { defineConfig } from 'vite';\nimport macroforgePlugin from '@macroforge/vite-plugin';\n\nexport default defineConfig({\nplugins: [\nmacroforgePlugin({\ngenerateTypes: true,\ntypesOutputDir: 'src/types/generated',\nemitMetadata: true,\n}),\n],\n});\n```",
   "items": [
     {
-      "name": "ensureRequire",
-      "kind": "function",
-      "signature": "import",
+      "name": "externalManifestCache",
+      "kind": "variable",
+      "signature": "import { Plugin } from \"vite\";\nimport { createRequire } from \"module\";\nimport * as fs from \"fs\";\nimport * as path from \"path\";\nimport type ts from \"typescript\";\nimport type { ExpandOptions, ExpandResult, MacroManifest } from \"macroforge\";\n\nconst moduleRequire = createRequire(import.meta.url);\nlet tsModule: typeof ts | undefined;\ntry {\n  tsModule = moduleRequire(\"typescript\") as typeof ts;\n} catch (error) {\n  tsModule = undefined;\n  console.warn(\n    \"[@macroforge/vite-plugin] TypeScript not found. Generated .d.ts files will be skipped.\",\n  );\n}\n\nconst compilerOptionsCache = new Map<string, ts.CompilerOptions>();\nlet cachedRequire: NodeJS.Require | undefined;\n\n/**\n * Cache for external macro package manifests.\n * Maps package path to its manifest (or null if failed to load).\n */\nconst externalManifestCache",
       "description": "",
       "returns": null,
       "examples": [

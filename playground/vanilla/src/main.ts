@@ -60,14 +60,14 @@ function runAllMacroTests() {
             `<strong>HashCode:</strong> <em>Not available</em>`;
     }
 
-    // Test Serialize macro -> toObject()
-    const serialized = (testInstance as any).toObject();
+    // Test Serialize macro -> serialize()
+    const serialized = (testInstance as any).serialize();
     results.serialize = serialized;
     document.getElementById('result-serialize')!.innerHTML =
-        `<strong>Serialize (toObject):</strong> <pre>${JSON.stringify(serialized, null, 2)}</pre>`;
+        `<strong>Serialize:</strong> <pre>${serialized}</pre>`;
 
-    // Test Deserialize macro -> fromObject()
-    if (typeof (AllMacrosTestClass as any).fromObject === 'function') {
+    // Test Deserialize macro -> deserialize()
+    if (typeof (AllMacrosTestClass as any).deserialize === 'function') {
         const testData = {
             id: 99,
             name: 'Deserialized User',
@@ -76,14 +76,14 @@ function runAllMacroTests() {
             isActive: false,
             score: 50
         };
-        // fromObject returns a Result, need to unwrap it
-        const result = (AllMacrosTestClass as any).fromObject(testData);
+        // deserialize returns a Result, need to unwrap it
+        const result = (AllMacrosTestClass as any).deserialize(testData);
         // Result uses static methods
         if (Result.isOk(result)) {
             const deserialized = Result.unwrap(result);
             results.deserialize = deserialized;
             document.getElementById('result-deserialize')!.innerHTML =
-                `<strong>Deserialize (fromObject):</strong> <pre>${JSON.stringify(deserialized, null, 2)}</pre>`;
+                `<strong>Deserialize:</strong> <pre>${JSON.stringify(deserialized, null, 2)}</pre>`;
         } else {
             const errors = Result.unwrapErr(result);
             document.getElementById('result-deserialize')!.innerHTML =
