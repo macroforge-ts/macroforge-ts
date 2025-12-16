@@ -25,14 +25,6 @@ including circular references.
 | Interface | `myInterfaceSerialize(value)`, etc. | Standalone functions |
 | Type Alias | `myTypeSerialize(value)`, etc. | Standalone functions |
 
-## Configuration
-
-The `functionNamingStyle` option in `macroforge.json` controls naming:
-- `"prefix"` (default): Prefixes with type name (e.g., `myTypeSerialize`)
-- `"suffix"`: Suffixes with type name (e.g., `serializeMyType`)
-- `"generic"`: Uses TypeScript generics (e.g., `serialize<T extends MyType>`)
-- `"namespace"`: Namespace wrapping (e.g., `MyType.serialize`)
-
 ## Cycle Detection Protocol
 
 The generated code handles circular references using `__id` and `__ref` markers:
