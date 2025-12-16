@@ -7,16 +7,16 @@ npm install -D @macroforge/vite-plugin
  Add the plugin to your `vite.config.ts`:
  ```
 import macroforge from "@macroforge/vite-plugin";
-import { defineConfig } from "vite";
+import &#123; defineConfig &#125; from "vite";
 
-export default defineConfig({
+export default defineConfig(&#123;
   plugins: [
     macroforge()
   ]
-});
+&#125;);
 ``` ## Options
  ```
-macroforge({
+macroforge(&#123;
   // Generate .d.ts files for expanded code
   generateTypes: true,
 
@@ -32,7 +32,7 @@ macroforge({
   // File patterns to process
   include: ["**/*.ts", "**/*.tsx"],
   exclude: ["node_modules/**"]
-})
+&#125;)
 ``` ### Option Reference
  | Option | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -45,26 +45,26 @@ macroforge({
  ```
 import macroforge from "@macroforge/vite-plugin";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import &#123; defineConfig &#125; from "vite";
 
-export default defineConfig({
+export default defineConfig(&#123;
   plugins: [
     macroforge(),  // Before React plugin
     react()
   ]
-});
+&#125;);
 ``` ### SvelteKit
  ```
 import macroforge from "@macroforge/vite-plugin";
-import { sveltekit } from "@sveltejs/kit/vite";
-import { defineConfig } from "vite";
+import &#123; sveltekit &#125; from "@sveltejs/kit/vite";
+import &#123; defineConfig &#125; from "vite";
 
-export default defineConfig({
+export default defineConfig(&#123;
   plugins: [
     macroforge(),  // Before SvelteKit
     sveltekit()
   ]
-});
+&#125;);
 ``` > **Note:** Always place the Macroforge plugin before other framework plugins to ensure macros are expanded first. ## Development Server
  During development, the plugin:
  - Watches for file changes

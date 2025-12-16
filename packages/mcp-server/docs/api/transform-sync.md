@@ -13,7 +13,7 @@ function transformSync(
 | `filepath` | `string` | File path (used for error reporting) |
  ## TransformResult
  ```
-interface TransformResult {
+interface TransformResult &#123;
   // Transformed TypeScript code
   code: string;
 
@@ -25,7 +25,7 @@ interface TransformResult {
 
   // Macro expansion metadata
   metadata?: string;
-}
+&#125;
 ``` ## Comparison with expandSync()
  | Feature | `expandSync` | `transformSync` |
 | --- | --- | --- |
@@ -35,29 +35,29 @@ interface TransformResult {
 | Use Case | General purpose | Build tools |
  ## Example
  ```
-import { transformSync } from "macroforge";
+import &#123; transformSync &#125; from "macroforge";
 
-const sourceCode = `
+const sourceCode = \`
 /** @derive(Debug) */
-class User {
+class User &#123;
   name: string;
-}
-`;
+&#125;
+\`;
 
 const result = transformSync(sourceCode, "user.ts");
 
 console.log(result.code);
 
-if (result.types) {
+if (result.types) &#123;
   // Write to .d.ts file
   fs.writeFileSync("user.d.ts", result.types);
-}
+&#125;
 
-if (result.metadata) {
+if (result.metadata) &#123;
   // Parse and use metadata
   const meta = JSON.parse(result.metadata);
   console.log("Macros expanded:", meta);
-}
+&#125;
 ``` ## When to Use
  Use `transformSync` when:
  - Building custom integrations

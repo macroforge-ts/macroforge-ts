@@ -976,7 +976,7 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
 name = "macroforge_ts"
-version = "0.1.38"
+version = "0.1.39"
 dependencies = [
  "anyhow",
  "clap",
@@ -998,7 +998,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_macros"
-version = "0.1.38"
+version = "0.1.39"
 dependencies = [
  "convert_case 0.6.0",
  "proc-macro2",
@@ -1008,7 +1008,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_quote"
-version = "0.1.38"
+version = "0.1.39"
 dependencies = [
  "convert_case 0.6.0",
  "proc-macro2",
@@ -1018,7 +1018,7 @@ dependencies = [
 
 [[package]]
 name = "macroforge_ts_syn"
-version = "0.1.38"
+version = "0.1.39"
 dependencies = [
  "serde",
  "swc_core",

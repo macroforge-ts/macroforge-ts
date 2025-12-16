@@ -25,7 +25,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 macroforge_ts = "0.1"
-napi = { version = "3", features = ["napi8", "compat-mode"] }
+napi = &#123; version = "3", features = ["napi8", "compat-mode"] &#125;
 napi-derive = "3"
 
 [build-dependencies]
@@ -36,67 +36,67 @@ lto = true
 strip = true
 ``` ## Create build.rs
  ```
-fn main() {
+fn main() &#123;
     napi_build::setup();
-}
+&#125;
 ``` ## Create src/lib.rs
  ```
-use macroforge_ts::macros::{ts_macro_derive, body};
-use macroforge_ts::ts_syn::{
+use macroforge_ts::macros::&#123;ts_macro_derive, body&#125;;
+use macroforge_ts::ts_syn::&#123;
     Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input,
-};
+&#125;;
 
 #[ts_macro_derive(
     JSON,
     description = "Generates toJSON() returning a plain object"
 )]
-pub fn derive_json(mut input: TsStream) -> Result<TsStream, MacroforgeError> {
+pub fn derive_json(mut input: TsStream) -> Result&#x3C;TsStream, MacroforgeError> &#123;
     let input = parse_ts_macro_input!(input as DeriveInput);
 
-    match &input.data {
-        Data::Class(class) => {
-            Ok(body! {
-                toJSON(): Record<string, unknown> {
-                    return {
-                        {#for field in class.field_names()}
-                            @{field}: this.@{field},
-                        {/for}
-                    };
-                }
-            })
-        }
+    match &#x26;input.data &#123;
+        Data::Class(class) => &#123;
+            Ok(body! &#123;
+                toJSON(): Record&#x3C;string, unknown> &#123;
+                    return &#123;
+                        &#123;#for field in class.field_names()&#125;
+                            @&#123;field&#125;: this.@&#123;field&#125;,
+                        &#123;/for&#125;
+                    &#125;;
+                &#125;
+            &#125;)
+        &#125;
         _ => Err(MacroforgeError::new(
             input.decorator_span(),
             "@derive(JSON) only works on classes",
         )),
-    }
-}
+    &#125;
+&#125;
 ``` ## Create package.json
  ```
-{
+&#123;
   "name": "@my-org/macros",
   "version": "0.1.0",
   "main": "index.js",
   "types": "index.d.ts",
-  "napi": {
+  "napi": &#123;
     "name": "my-macros",
-    "triples": {
+    "triples": &#123;
       "defaults": true
-    }
-  },
+    &#125;
+  &#125;,
   "files": [
     "index.js",
     "index.d.ts",
     "*.node"
   ],
-  "scripts": {
+  "scripts": &#123;
     "build": "napi build --release",
     "prepublishOnly": "napi build --release"
-  },
-  "devDependencies": {
+  &#125;,
+  "devDependencies": &#123;
     "@napi-rs/cli": "^3.0.0-alpha.0"
-  }
-}
+  &#125;
+&#125;
 ``` ## Build the Package
  ```
 # Build the native addon

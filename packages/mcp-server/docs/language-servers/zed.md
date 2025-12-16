@@ -23,7 +23,7 @@ cd crates/extensions/svelte-macroforge
  Alternatively, symlink the extension to your Zed extensions directory:
  ```
 # macOS
-ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/Library/Application\ Support/Zed/extensions/installed/vtsls-macroforge
+ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/Library/Application\\ Support/Zed/extensions/installed/vtsls-macroforge
 
 # Linux
 ln -s /path/to/macroforge-ts/crates/extensions/vtsls-macroforge ~/.config/zed/extensions/installed/vtsls-macroforge

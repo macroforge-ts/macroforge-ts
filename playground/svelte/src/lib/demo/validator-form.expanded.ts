@@ -4,11 +4,9 @@ import type { DeserializeOptions } from 'macroforge/serde';
 import { PendingRef } from 'macroforge/serde';
 import { DeserializeError } from 'macroforge/serde';
 /**
- * Validator form model for E2E testing.
+ * Validator form model for E2E testing in Svelte.
  * Tests string, number, array, and date validators with real form validation.
  */
-
-import { Result } from 'macroforge/utils';
 
 export class UserRegistrationForm {
     email: string;
@@ -1305,32 +1303,27 @@ export type ValidationResult<T> = {
 };
 
 // Helper to convert Result to ValidationResult
-// The Result type uses static methods
+// The Result type is provided by the macro expansion
 export function toValidationResult<T>(result: any): ValidationResult<T> {
-    if (Result.isOk(result)) {
-        return { success: true, data: Result.unwrap(result) };
+    if (result.isOk()) {
+        return { success: true, data: result.unwrap() };
     } else {
-        // Errors are now structured as {field, message} objects
-        const errors = Result.unwrapErr(result);
-        return {
-            success: false,
-            errors: errors.map((e: any) => (typeof e === 'string' ? e : e.message))
-        };
+        return { success: false, errors: result.unwrapErr() };
     }
 }
 
 // Form validation functions
 export function validateUserRegistration(data: unknown): ValidationResult<UserRegistrationForm> {
-    const result = (UserRegistrationForm as any).deserialize(JSON.stringify(data));
+    const result = UserRegistrationForm.fromStringifiedJSON(JSON.stringify(data));
     return toValidationResult(result);
 }
 
 export function validateProduct(data: unknown): ValidationResult<ProductForm> {
-    const result = (ProductForm as any).deserialize(JSON.stringify(data));
+    const result = ProductForm.fromStringifiedJSON(JSON.stringify(data));
     return toValidationResult(result);
 }
 
 export function validateEvent(data: unknown): ValidationResult<EventForm> {
-    const result = (EventForm as any).deserialize(JSON.stringify(data));
+    const result = EventForm.fromStringifiedJSON(JSON.stringify(data));
     return toValidationResult(result);
 }

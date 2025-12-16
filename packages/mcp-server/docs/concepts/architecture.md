@@ -37,8 +37,8 @@
  For custom macro development, `macroforge_ts` re-exports everything you need:
  ```
 // Convenient re-exports for macro development
-use macroforge_ts::macros::{ts_macro_derive, body, ts_template, above, below, signature};
-use macroforge_ts::ts_syn::{Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input};
+use macroforge_ts::macros::&#123;ts_macro_derive, body, ts_template, above, below, signature&#125;;
+use macroforge_ts::ts_syn::&#123;Data, DeriveInput, MacroforgeError, TsStream, parse_ts_macro_input&#125;;
 
 // Also available: raw crate access and SWC modules
 use macroforge_ts::swc_core;

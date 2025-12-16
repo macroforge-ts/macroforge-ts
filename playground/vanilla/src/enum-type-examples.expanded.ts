@@ -320,8 +320,13 @@ Automatically detects whether input is a JSON string or object.
         const message = e instanceof Error ? e.message : String(e);
         return Result.err([{ field: '_root', message }]);
     }
-} /** @internal */
-function pointDeserializeWithContext(value: any, ctx: DeserializeContext): Point | PendingRef {
+} /** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */
+export function pointDeserializeWithContext(
+    value: any,
+    ctx: DeserializeContext
+): Point | PendingRef {
     if (value?.__ref !== undefined) {
         return ctx.getOrDefer(value.__ref) as Point | PendingRef;
     }
@@ -386,6 +391,7 @@ export const Point = {
     serialize: pointSerialize,
     serializeWithContext: pointSerializeWithContext,
     deserialize: pointDeserialize,
+    deserializeWithContext: pointDeserializeWithContext,
     validateFields: pointValidateFields,
     is: pointIs
 } as const;
@@ -516,8 +522,10 @@ Automatically detects whether input is a JSON string or object.
         const message = e instanceof Error ? e.message : String(e);
         return Result.err([{ field: '_root', message }]);
     }
-} /** @internal */
-function userProfileDeserializeWithContext(
+} /** Deserializes with an existing context for nested/cyclic object graphs.
+@param value - The raw value to deserialize
+@param ctx - The deserialization context */
+export function userProfileDeserializeWithContext(
     value: any,
     ctx: DeserializeContext
 ): UserProfile | PendingRef {
@@ -606,6 +614,7 @@ export const UserProfile = {
     serialize: userProfileSerialize,
     serializeWithContext: userProfileSerializeWithContext,
     deserialize: userProfileDeserialize,
+    deserializeWithContext: userProfileDeserializeWithContext,
     validateFields: userProfileValidateFields,
     is: userProfileIs
 } as const;

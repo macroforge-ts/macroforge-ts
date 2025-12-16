@@ -286,6 +286,10 @@ struct SerializeField {
     set_elem_serializable_type: Option<String>,
     /// For `Map<K, V>` where V is Serializable: the type name.
     map_value_serializable_type: Option<String>,
+
+    /// Custom serialization function name (from `@serde({serializeWith: "fn"})`)
+    /// When set, this function is called instead of type-based serialization.
+    serialize_with: Option<String>,
 }
 
 #[ts_macro_derive(
@@ -386,6 +390,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         array_elem_serializable_type,
                         set_elem_serializable_type,
                         map_value_serializable_type,
+                        serialize_with: opts.serialize_with.clone(),
                     })
                 })
                 .collect();
@@ -428,6 +433,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                     {#if has_regular}
                         {#for field in regular_fields}
+                            {#if let Some(fn_name) = &field.serialize_with}
+                                // Custom serialization function (serializeWith)
+                                {#if field.optional}
+                                    if (value.@{field.field_name} !== undefined) {
+                                        result["@{field.json_key}"] = @{fn_name}(value.@{field.field_name});
+                                    }
+                                {:else}
+                                    result["@{field.json_key}"] = @{fn_name}(value.@{field.field_name});
+                                {/if}
+                            {:else}
                             {#match &field.type_cat}
                                 {:case TypeCategory::Primitive}
                                     {#if field.optional}
@@ -647,6 +662,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                         result["@{field.json_key}"] = value.@{field.field_name};
                                     {/if}
                             {/match}
+                            {/if}
                         {/for}
                     {/if}
 
@@ -822,6 +838,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                         array_elem_serializable_type,
                         set_elem_serializable_type,
                         map_value_serializable_type,
+                        serialize_with: opts.serialize_with.clone(),
                     })
                 })
                 .collect();
@@ -869,6 +886,16 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                     {#if has_regular}
                         {#for field in regular_fields}
+                            {#if let Some(fn_name) = &field.serialize_with}
+                                // Custom serialization function (serializeWith)
+                                {#if field.optional}
+                                    if (value.@{field.field_name} !== undefined) {
+                                        result["@{field.json_key}"] = @{fn_name}(value.@{field.field_name});
+                                    }
+                                {:else}
+                                    result["@{field.json_key}"] = @{fn_name}(value.@{field.field_name});
+                                {/if}
+                            {:else}
                             {#match &field.type_cat}
                                 {:case TypeCategory::Primitive}
                                     {#if field.optional}
@@ -1088,6 +1115,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                                         result["@{field.json_key}"] = value.@{field.field_name};
                                     {/if}
                             {/match}
+                            {/if}
                         {/for}
                     {/if}
 
@@ -1303,6 +1331,7 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
                             array_elem_serializable_type,
                             set_elem_serializable_type,
                             map_value_serializable_type,
+                            serialize_with: opts.serialize_with.clone(),
                         })
                     })
                     .collect();
@@ -1338,12 +1367,23 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
 
                         {#if has_regular}
                             {#for field in regular_fields}
-                                {#if field.optional}
-                                    if (value.@{field.field_name} !== undefined) {
-                                        result["@{field.json_key}"] = value.@{field.field_name};
-                                    }
+                                {#if let Some(fn_name) = &field.serialize_with}
+                                    // Custom serialization function (serializeWith)
+                                    {#if field.optional}
+                                        if (value.@{field.field_name} !== undefined) {
+                                            result["@{field.json_key}"] = @{fn_name}(value.@{field.field_name});
+                                        }
+                                    {:else}
+                                        result["@{field.json_key}"] = @{fn_name}(value.@{field.field_name});
+                                    {/if}
                                 {:else}
-                                    result["@{field.json_key}"] = value.@{field.field_name};
+                                    {#if field.optional}
+                                        if (value.@{field.field_name} !== undefined) {
+                                            result["@{field.json_key}"] = value.@{field.field_name};
+                                        }
+                                    {:else}
+                                        result["@{field.json_key}"] = value.@{field.field_name};
+                                    {/if}
                                 {/if}
                             {/for}
                         {/if}
@@ -1399,6 +1439,7 @@ mod tests {
             array_elem_serializable_type: None,
             set_elem_serializable_type: None,
             map_value_serializable_type: None,
+            serialize_with: None,
         };
         assert_eq!(field.json_key, "name");
         assert!(!field.optional);
