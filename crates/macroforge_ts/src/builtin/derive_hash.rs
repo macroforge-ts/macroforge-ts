@@ -323,7 +323,6 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
-            let naming_style = input.context.function_naming_style;
 
             // Collect fields that should be included in hash
             let hash_fields: Vec<HashField> = class
@@ -343,13 +342,8 @@ pub fn derive_hash_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErro
 
             let has_fields = !hash_fields.is_empty();
 
-            // Generate function name based on naming style
-            let fn_name = match naming_style {
-                FunctionNamingStyle::Prefix => format!("{}HashCode", to_camel_case(class_name)),
-                FunctionNamingStyle::Suffix => format!("hashCode{}", class_name),
-                FunctionNamingStyle::Generic => "hashCode".to_string(),
-                FunctionNamingStyle::Namespace => format!("{}.hashCode", class_name),
-            };
+            // Generate function name (always prefix style)
+            let fn_name = format!("{}HashCode", to_camel_case(class_name));
 
             // Build hash computation using value parameter instead of this
             let hash_body = if has_fields {

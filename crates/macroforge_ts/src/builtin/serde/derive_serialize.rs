@@ -287,23 +287,9 @@ pub fn derive_serialize_macro(mut input: TsStream) -> Result<TsStream, Macroforg
             let class_name = input.name();
             let container_opts = SerdeContainerOptions::from_decorators(&class.inner.decorators);
 
-            // Generate function names based on naming style
-            let (fn_serialize, fn_serialize_internal) = match naming_style {
-                FunctionNamingStyle::Namespace => {
-                    ("serialize".to_string(), "serializeWithContext".to_string())
-                }
-                FunctionNamingStyle::Generic => {
-                    ("serialize".to_string(), "serializeWithContext".to_string())
-                }
-                FunctionNamingStyle::Prefix => (
-                    format!("{}Serialize", to_camel_case(class_name)),
-                    format!("{}SerializeWithContext", to_camel_case(class_name)),
-                ),
-                FunctionNamingStyle::Suffix => (
-                    format!("serialize{}", class_name),
-                    format!("serializeWithContext{}", class_name),
-                ),
-            };
+            // Generate function names (always prefix style)
+            let fn_serialize = format!("{}Serialize", to_camel_case(class_name));
+            let fn_serialize_internal = format!("{}SerializeWithContext", to_camel_case(class_name));
 
             // Collect serializable fields with diagnostic collection
             let mut all_diagnostics = DiagnosticCollector::new();
