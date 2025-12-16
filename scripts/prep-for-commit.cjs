@@ -3,8 +3,6 @@
 /**
  * Prepare for commit: bump version, build, test, and sync documentation.
  *
- * Usage: node scripts/prep-for-commit.cjs [version]
- *
  * If no version is specified, the patch version is auto-incremented (e.g., 0.1.22 -> 0.1.23).
  *
  * This script:
@@ -18,11 +16,17 @@
  * If any step fails after the bump, the version is rolled back.
  */
 
+const { program } = require('commander');
 const { execSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
 const root = path.resolve(__dirname, "..");
+
+program
+  .name('prep-for-commit')
+  .description('Prepare a release: bump version, build, test, and sync documentation')
+  .argument('[version]', 'Version string (e.g., 0.1.4). If not provided, auto-increments patch version');
 const websiteDir = path.join(root, "website");
 
 /**
@@ -101,29 +105,30 @@ function incrementPatch(version) {
   return parts.join(".");
 }
 
-let version = process.argv[2];
-
-if (!version) {
-  const current = getCurrentVersion();
-  version = incrementPatch(current);
-  console.log(`No version specified, incrementing ${current} -> ${version}`);
-}
-
 function run(cmd, cwd = root) {
   console.log(`\n> ${cmd}\n`);
   execSync(cmd, { cwd, stdio: "inherit" });
 }
 
-const currentVersion = getCurrentVersion();
+function main(versionArg) {
+  let version = versionArg;
 
-console.log("=".repeat(60));
-console.log(`Preparing release ${version}`);
-console.log("=".repeat(60));
+  if (!version) {
+    const current = getCurrentVersion();
+    version = incrementPatch(current);
+    console.log(`No version specified, incrementing ${current} -> ${version}`);
+  }
 
-let bumped = false;
-let externalConfigAdded = false;
+  const currentVersion = getCurrentVersion();
 
-function rollback() {
+  console.log("=".repeat(60));
+  console.log(`Preparing release ${version}`);
+  console.log("=".repeat(60));
+
+  let bumped = false;
+  let externalConfigAdded = false;
+
+  function rollback() {
   console.log("\n" + "!".repeat(60));
   console.log("Rolling back changes...");
   console.log("!".repeat(60));
@@ -228,3 +233,7 @@ Next steps:
   git tag v${version}
   git push && git push --tags
 `);
+}
+
+program.action(main);
+program.parse();

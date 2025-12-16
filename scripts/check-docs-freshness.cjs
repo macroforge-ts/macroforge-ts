@@ -5,14 +5,17 @@
  *
  * This script is designed for CI - it regenerates docs to a temp location
  * and compares with the committed versions. Exits with code 1 if docs are stale.
- *
- * Usage: node scripts/check-docs-freshness.cjs
  */
 
+const { program } = require('commander');
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const crypto = require('crypto');
+
+program
+	.name('check-docs-freshness')
+	.description('Check if generated documentation is in sync with source code (CI script)');
 
 const rootDir = path.join(__dirname, '..');
 
@@ -161,4 +164,5 @@ function main() {
 	process.exit(0);
 }
 
-main();
+program.action(main);
+program.parse();

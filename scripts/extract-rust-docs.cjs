@@ -5,11 +5,9 @@
  *
  * Parses //! (module docs) and /// (item docs) comments from Rust crates
  * and outputs structured JSON for website/README generation.
- *
- * Usage: node scripts/extract-rust-docs.cjs [output-dir]
- * Output defaults to: website/static/api-data/rust/
  */
 
+const { program } = require('commander');
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -35,6 +33,11 @@ try {
 const cratesRoot = path.join(__dirname, '..', 'crates');
 const defaultOutput = path.join(__dirname, '..', 'website', 'static', 'api-data', 'rust');
 const repoRoot = path.join(__dirname, '..');
+
+program
+	.name('extract-rust-docs')
+	.description('Extract documentation from Rust source files into JSON')
+	.argument('[output-dir]', 'Output directory for JSON files', defaultOutput);
 
 // Crates to process (in order)
 const CRATES = [
@@ -1027,8 +1030,7 @@ function processCliDocs() {
 /**
  * Main entry point.
  */
-function main() {
-	const outputDir = process.argv[2] || defaultOutput;
+function main(outputDir) {
 
 	// Ensure output directory exists
 	fs.mkdirSync(outputDir, { recursive: true });
@@ -1106,4 +1108,5 @@ function main() {
 	checkFormatErrors();
 }
 
-main();
+program.action(main);
+program.parse();

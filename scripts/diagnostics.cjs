@@ -1,6 +1,14 @@
+#!/usr/bin/env node
+
+const { program } = require('commander');
 const { exec } = require('node:child_process');
 const { promises: fs } = require('node:fs');
 const path = require('node:path');
+
+program
+    .name('diagnostics')
+    .description('Run comprehensive multi-tool diagnostics (Biome, Clippy, TypeScript, Svelte, macroforge)')
+    .option('--log', 'Write logs to .tmp/diagnostics/ directory');
 
 const ROOT_DIR = process.cwd();
 const LOGS_DIR = path.join(ROOT_DIR, '.tmp', 'diagnostics');
@@ -34,10 +42,6 @@ function getMacroforgesModule() {
     }
     return macroforgeModule;
 }
-
-// Parse command line arguments
-const args = process.argv.slice(2);
-const WRITE_LOGS = args.includes('--log');
 
 // Cache for git ignore checks to avoid repeated calls for the same path
 const gitIgnoreCache = new Map();
@@ -718,7 +722,8 @@ async function getTsConfigPaths() {
     return primaryTsConfigs;
 }
 
-async function main() {
+async function main(options) {
+    const WRITE_LOGS = options.log;
     if (WRITE_LOGS) {
         await fs.rm(LOGS_DIR, { recursive: true, force: true });
         await fs.mkdir(LOGS_DIR, { recursive: true });
@@ -901,4 +906,5 @@ async function main() {
     }
 }
 
-main().catch(console.error);
+program.action(main);
+program.parse();

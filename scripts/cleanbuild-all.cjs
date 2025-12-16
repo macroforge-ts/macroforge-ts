@@ -1,8 +1,13 @@
 #!/usr/bin/env node
 
+const { program } = require('commander');
 const { execSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
+
+program
+	.name('cleanbuild-all')
+	.description('Complete clean rebuild of all packages and website');
 
 const root = path.resolve(__dirname, "..");
 const websiteDir = path.join(root, "website");
@@ -137,10 +142,15 @@ function runStep(step) {
   }
 }
 
-try {
-  steps.forEach(runStep);
-  console.log("\nAll builds finished successfully.");
-} catch (err) {
-  console.error(`\nFailed during step: ${err?.message ?? err}`);
-  process.exit(err?.status || 1);
+function main() {
+  try {
+    steps.forEach(runStep);
+    console.log("\nAll builds finished successfully.");
+  } catch (err) {
+    console.error(`\nFailed during step: ${err?.message ?? err}`);
+    process.exit(err?.status || 1);
+  }
 }
+
+program.action(main);
+program.parse();
