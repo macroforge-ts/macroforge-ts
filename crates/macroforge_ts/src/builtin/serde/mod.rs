@@ -41,6 +41,8 @@
 //! | `default` | Use type's default if missing |
 //! | `default = "expr"` | Use specific expression if missing |
 //! | `flatten` | Flatten nested object fields into parent |
+//! | `serializeWith = "fn"` | Use custom function for serialization |
+//! | `deserializeWith = "fn"` | Use custom function for deserialization |
 //!
 //! ## Container-Level Options
 //!
@@ -108,6 +110,29 @@
 //!
 //!     /** @serde({ flatten: true }) */
 //!     metadata: UserMetadata;
+//! }
+//! ```
+//!
+//! ## Custom Serialization Functions
+//!
+//! For foreign types that can't be automatically serialized, use custom functions:
+//!
+//! ```typescript
+//! import { ZonedDateTime } from "@internationalized/date";
+//!
+//! // Custom serializer/deserializer functions
+//! function serializeZoned(value: ZonedDateTime): unknown {
+//!     return value.toAbsoluteString();
+//! }
+//! function deserializeZoned(raw: unknown): ZonedDateTime {
+//!     return parseZonedDateTime(raw as string);
+//! }
+//!
+//! /** @derive(Serialize, Deserialize) */
+//! interface Event {
+//!     name: string;
+//!     /** @serde({ serializeWith: "serializeZoned", deserializeWith: "deserializeZoned" }) */
+//!     startTime: ZonedDateTime;
 //! }
 //! ```
 
@@ -196,6 +221,10 @@ pub struct SerdeFieldOptions {
     pub default_expr: Option<String>,
     pub flatten: bool,
     pub validators: Vec<ValidatorSpec>,
+    /// Custom serialization function name (like Rust's `#[serde(serialize_with)]`)
+    pub serialize_with: Option<String>,
+    /// Custom deserialization function name (like Rust's `#[serde(deserialize_with)]`)
+    pub deserialize_with: Option<String>,
 }
 
 /// Result of parsing field options, containing both options and any diagnostics
@@ -243,6 +272,14 @@ impl SerdeFieldOptions {
                 opts.rename = Some(rename);
             }
 
+            // Parse custom serialization/deserialization functions (like Rust's serde)
+            if let Some(fn_name) = extract_named_string(args, "serializeWith") {
+                opts.serialize_with = Some(fn_name);
+            }
+            if let Some(fn_name) = extract_named_string(args, "deserializeWith") {
+                opts.deserialize_with = Some(fn_name);
+            }
+
             // Extract validators with diagnostic collection
             let validators = extract_validators(args, decorator_span, field_name, &mut diagnostics);
             opts.validators.extend(validators);
@@ -280,6 +317,13 @@ pub enum TypeCategory {
 impl TypeCategory {
     pub fn from_ts_type(ts_type: &str) -> Self {
         let trimmed = ts_type.trim();
+
+        // Handle string literal types (e.g., "Zoned", 'foo') - these are primitive-like
+        if (trimmed.starts_with('"') && trimmed.ends_with('"'))
+            || (trimmed.starts_with('\'') && trimmed.ends_with('\''))
+        {
+            return Self::Primitive;
+        }
 
         // Handle primitives
         match trimmed {
@@ -576,20 +620,38 @@ fn flag_explicit_false(args: &str, flag: &str) -> bool {
 pub fn extract_named_string(args: &str, name: &str) -> Option<String> {
     let lower = args.to_ascii_lowercase();
     let name_lower = name.to_ascii_lowercase();
-    let idx = lower.find(&name_lower)?;
-    let remainder = &args[idx + name.len()..];
-    let remainder = remainder.trim_start();
 
-    if remainder.starts_with(':') || remainder.starts_with('=') {
-        let value = remainder[1..].trim_start();
-        return parse_string_literal(value);
-    }
+    // Find all occurrences and check for whole-word match
+    let mut search_start = 0;
+    while let Some(relative_idx) = lower[search_start..].find(&name_lower) {
+        let idx = search_start + relative_idx;
 
-    if remainder.starts_with('(')
-        && let Some(close) = remainder.rfind(')')
-    {
-        let inner = remainder[1..close].trim();
-        return parse_string_literal(inner);
+        // Check that we're at a word boundary (not part of a larger identifier)
+        // The character before must be non-alphanumeric (or we're at the start)
+        let at_word_start = idx == 0 || {
+            let prev_char = lower.chars().nth(idx - 1).unwrap_or(' ');
+            !prev_char.is_alphanumeric() && prev_char != '_'
+        };
+
+        if at_word_start {
+            let remainder = &args[idx + name.len()..];
+            let remainder = remainder.trim_start();
+
+            if remainder.starts_with(':') || remainder.starts_with('=') {
+                let value = remainder[1..].trim_start();
+                return parse_string_literal(value);
+            }
+
+            if remainder.starts_with('(')
+                && let Some(close) = remainder.rfind(')')
+            {
+                let inner = remainder[1..close].trim();
+                return parse_string_literal(inner);
+            }
+        }
+
+        // Continue searching from after this match
+        search_start = idx + 1;
     }
 
     None
@@ -651,6 +713,8 @@ const KNOWN_OPTIONS: &[&str] = &[
     "rename",
     "validate",
     "message",
+    "serializeWith",
+    "deserializeWith",
 ];
 
 /// Extract validators from decorator arguments with diagnostic collection
@@ -1898,5 +1962,92 @@ mod tests {
         let err = result.unwrap_err();
         assert!(err.help.is_some());
         assert!(err.help.as_ref().unwrap().contains("maxLength"));
+    }
+
+    // ========================================================================
+    // Custom serializer/deserializer tests (serializeWith/deserializeWith)
+    // ========================================================================
+
+    #[test]
+    fn test_field_serialize_with() {
+        let decorator = make_decorator(r#"{ serializeWith: "mySerializer" }"#);
+        let result = SerdeFieldOptions::from_decorators(&[decorator], "test_field");
+        let opts = result.options;
+        assert_eq!(opts.serialize_with.as_deref(), Some("mySerializer"));
+        assert!(opts.deserialize_with.is_none());
+    }
+
+    #[test]
+    fn test_field_deserialize_with() {
+        let decorator = make_decorator(r#"{ deserializeWith: "myDeserializer" }"#);
+        let result = SerdeFieldOptions::from_decorators(&[decorator], "test_field");
+        let opts = result.options;
+        assert!(opts.serialize_with.is_none());
+        assert_eq!(opts.deserialize_with.as_deref(), Some("myDeserializer"));
+    }
+
+    #[test]
+    fn test_field_serialize_and_deserialize_with() {
+        let decorator =
+            make_decorator(r#"{ serializeWith: "toJson", deserializeWith: "fromJson" }"#);
+        let result = SerdeFieldOptions::from_decorators(&[decorator], "test_field");
+        let opts = result.options;
+        assert_eq!(opts.serialize_with.as_deref(), Some("toJson"));
+        assert_eq!(opts.deserialize_with.as_deref(), Some("fromJson"));
+    }
+
+    #[test]
+    fn test_field_serialize_with_combined_with_other_options() {
+        let decorator = make_decorator(
+            r#"{ serializeWith: "customSerialize", rename: "custom_field", skip: false }"#,
+        );
+        let result = SerdeFieldOptions::from_decorators(&[decorator], "test_field");
+        let opts = result.options;
+        assert_eq!(opts.serialize_with.as_deref(), Some("customSerialize"));
+        assert_eq!(opts.rename.as_deref(), Some("custom_field"));
+        assert!(!opts.skip);
+    }
+
+    // ========================================================================
+    // String literal type classification tests
+    // ========================================================================
+
+    #[test]
+    fn test_type_category_string_literal_double_quotes() {
+        // String literal types like "Zoned" should be treated as primitives
+        assert_eq!(
+            TypeCategory::from_ts_type(r#""Zoned""#),
+            TypeCategory::Primitive
+        );
+        assert_eq!(
+            TypeCategory::from_ts_type(r#""some_value""#),
+            TypeCategory::Primitive
+        );
+    }
+
+    #[test]
+    fn test_type_category_string_literal_single_quotes() {
+        // Single-quoted string literals should also be primitive
+        assert_eq!(
+            TypeCategory::from_ts_type("'foo'"),
+            TypeCategory::Primitive
+        );
+        assert_eq!(
+            TypeCategory::from_ts_type("'bar_baz'"),
+            TypeCategory::Primitive
+        );
+    }
+
+    #[test]
+    fn test_type_category_non_literal_type_names() {
+        // Regular type names should still be Serializable
+        assert_eq!(
+            TypeCategory::from_ts_type("Zoned"),
+            TypeCategory::Serializable("Zoned".into())
+        );
+        assert_eq!(
+            TypeCategory::from_ts_type("User"),
+            TypeCategory::Serializable("User".into())
+        );
     }
 }

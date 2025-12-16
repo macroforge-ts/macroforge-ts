@@ -1862,6 +1862,10 @@ struct DeserializeField {
     // --- Serializable type tracking for direct function calls ---
     /// For `T | null` where T is Serializable: the type name.
     nullable_serializable_type: Option<String>,
+
+    /// Custom deserialization function name (from `@serde({deserializeWith: "fn"})`)
+    /// When set, this function is called instead of type-based deserialization.
+    deserialize_with: Option<String>,
 }
 
 impl DeserializeField {
@@ -2256,6 +2260,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         nullable_inner_kind,
                         array_elem_kind,
                         nullable_serializable_type,
+                        deserialize_with: opts.deserialize_with.clone(),
                     })
                 })
                 .collect();
@@ -2399,6 +2404,16 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         {#for field in all_fields}
                             {$let raw_var = format!("__raw_{}", field.field_name)}
                             {$let has_validators = field.has_validators()}
+                            {#if let Some(fn_name) = &field.deserialize_with}
+                                // Custom deserialization function (deserializeWith)
+                                {#if field.optional}
+                                    if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
+                                        instance.@{field.field_name} = @{fn_name}(obj["@{field.json_key}"]);
+                                    }
+                                {:else}
+                                    instance.@{field.field_name} = @{fn_name}(obj["@{field.json_key}"]);
+                                {/if}
+                            {:else}
                             {#if field.optional}
                                 if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
                                     const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
@@ -2622,6 +2637,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                     {/match}
                                 }
                             {/if}
+                            {/if}
                         {/for}
                     {/if}
 
@@ -2834,6 +2850,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                         nullable_inner_kind,
                         array_elem_kind,
                         nullable_serializable_type,
+                        deserialize_with: opts.deserialize_with.clone(),
                     })
                 })
                 .collect();
@@ -2971,6 +2988,16 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             {#for field in all_fields}
                                 {$let raw_var = format!("__raw_{}", field.field_name)}
                                 {$let has_validators = field.has_validators()}
+                                {#if let Some(fn_name) = &field.deserialize_with}
+                                    // Custom deserialization function (deserializeWith)
+                                    {#if field.optional}
+                                        if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
+                                            instance.@{field.field_name} = @{fn_name}(obj["@{field.json_key}"]);
+                                        }
+                                    {:else}
+                                        instance.@{field.field_name} = @{fn_name}(obj["@{field.json_key}"]);
+                                    {/if}
+                                {:else}
                                 {#if field.optional}
                                     if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
                                         const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
@@ -3135,6 +3162,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                         {/match}
                                     }
                                 {/if}
+                                {/if}
                             {/for}
                         {/if}
 
@@ -3286,6 +3314,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                             nullable_inner_kind,
                             array_elem_kind,
                             nullable_serializable_type,
+                            deserialize_with: opts.deserialize_with.clone(),
                         })
                     })
                     .collect();
@@ -3414,6 +3443,16 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                 {#for field in all_fields}
                                     {$let raw_var = format!("__raw_{}", field.field_name)}
                                     {$let has_validators = field.has_validators()}
+                                    {#if let Some(fn_name) = &field.deserialize_with}
+                                        // Custom deserialization function (deserializeWith)
+                                        {#if field.optional}
+                                            if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
+                                                instance.@{field.field_name} = @{fn_name}(obj["@{field.json_key}"]);
+                                            }
+                                        {:else}
+                                            instance.@{field.field_name} = @{fn_name}(obj["@{field.json_key}"]);
+                                        {/if}
+                                    {:else}
                                     {#if field.optional}
                                         if ("@{field.json_key}" in obj && obj["@{field.json_key}"] !== undefined) {
                                             const @{raw_var} = obj["@{field.json_key}"] as @{field.ts_type};
@@ -3573,6 +3612,7 @@ pub fn derive_deserialize_macro(mut input: TsStream) -> Result<TsStream, Macrofo
                                                     instance.@{field.field_name} = @{raw_var};
                                             {/match}
                                         }
+                                    {/if}
                                     {/if}
                                 {/for}
                             {/if}
@@ -4043,6 +4083,7 @@ mod tests {
             nullable_inner_kind: None,
             array_elem_kind: None,
             nullable_serializable_type: None,
+            deserialize_with: None,
         };
         assert!(field.has_validators());
 

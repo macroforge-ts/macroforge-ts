@@ -751,7 +751,14 @@ impl MacroExpander {
                     let functions = extract_function_names_from_patches(new_patches, type_name);
 
                     if !functions.is_empty() {
-                        let const_code = generate_convenience_const(type_name, &functions);
+                        let start_pos = get_derive_target_start_span(&target.target_ir);
+                        let is_exported = is_declaration_exported(source, start_pos);
+                        let const_code = generate_convenience_export(
+                            &target.target_ir,
+                            type_name,
+                            &functions,
+                            is_exported,
+                        );
                         let end_pos = get_derive_target_end_span(&target.target_ir);
 
                         let patch = Patch::Insert {
@@ -1579,22 +1586,52 @@ fn extract_short_name(full_name: &str, camel_type_name: &str) -> Option<String> 
     }
 }
 
-/// Generates a convenience const that groups all generated functions for a type.
-fn generate_convenience_const(type_name: &str, functions: &[(String, String)]) -> String {
+/// Generates a convenience export that groups all generated functions for a type.
+/// For enums, uses namespace merging (valid TS). For other types, uses const object.
+fn generate_convenience_export(
+    target: &DeriveTargetIR,
+    type_name: &str,
+    functions: &[(String, String)],
+    is_exported: bool,
+) -> String {
     if functions.is_empty() {
         return String::new();
     }
 
-    let entries: Vec<String> = functions
-        .iter()
-        .map(|(full_name, short_name)| format!("  {}: {}", short_name, full_name))
-        .collect();
+    let export_keyword = if is_exported { "export " } else { "" };
 
-    format!(
-        "export const {} = {{\n{}\n}} as const;",
-        type_name,
-        entries.join(",\n")
-    )
+    match target {
+        DeriveTargetIR::Enum(_) => {
+            // Enums require namespace merging - const redeclaration is invalid TS
+            let entries: Vec<String> = functions
+                .iter()
+                .map(|(full_name, short_name)| {
+                    format!("  export const {} = {};", short_name, full_name)
+                })
+                .collect();
+
+            format!(
+                "{}namespace {} {{\n{}\n}}",
+                export_keyword,
+                type_name,
+                entries.join("\n")
+            )
+        }
+        _ => {
+            // Interfaces and type aliases use const object
+            let entries: Vec<String> = functions
+                .iter()
+                .map(|(full_name, short_name)| format!("  {}: {}", short_name, full_name))
+                .collect();
+
+            format!(
+                "{}const {} = {{\n{}\n}} as const;",
+                export_keyword,
+                type_name,
+                entries.join(",\n")
+            )
+        }
+    }
 }
 
 /// Checks if the source already has a namespace or const declaration with the given name.
@@ -1672,6 +1709,51 @@ fn get_derive_target_end_span(target: &DeriveTargetIR) -> u32 {
         DeriveTargetIR::Enum(e) => e.span.end,
         DeriveTargetIR::TypeAlias(t) => t.span.end,
     }
+}
+
+/// Gets the start span position for a DeriveTargetIR.
+fn get_derive_target_start_span(target: &DeriveTargetIR) -> u32 {
+    match target {
+        DeriveTargetIR::Class(c) => c.span.start,
+        DeriveTargetIR::Interface(i) => i.span.start,
+        DeriveTargetIR::Enum(e) => e.span.start,
+        DeriveTargetIR::TypeAlias(t) => t.span.start,
+    }
+}
+
+/// Checks if a declaration at the given position is exported.
+/// Looks for the `export` keyword before the declaration start.
+fn is_declaration_exported(source: &str, decl_start: u32) -> bool {
+    let start = decl_start as usize;
+    if start == 0 || start > source.len() {
+        return false;
+    }
+
+    // Look at the text before the declaration (up to 50 chars should be enough)
+    let look_back = start.min(50);
+    let prefix = &source[start - look_back..start];
+
+    // Find "export" keyword - must be followed by whitespace and not be part of another word
+    if let Some(pos) = prefix.rfind("export") {
+        let after_export = pos + 6;
+        // Check that "export" is followed by whitespace (or is at the end of prefix)
+        if after_export >= prefix.len() {
+            return true;
+        }
+        let next_char = prefix[after_export..].chars().next();
+        if matches!(next_char, Some(' ') | Some('\t') | Some('\n')) {
+            // Also check it's not part of a larger word (e.g., "reexport")
+            if pos == 0 {
+                return true;
+            }
+            let prev_char = prefix[..pos].chars().last();
+            if !matches!(prev_char, Some(c) if c.is_ascii_alphanumeric() || c == '_') {
+                return true;
+            }
+        }
+    }
+
+    false
 }
 
 fn is_ident_char(c: char) -> bool {
