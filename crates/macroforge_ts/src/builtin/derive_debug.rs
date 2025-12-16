@@ -5,13 +5,13 @@
 //!
 //! ## Generated Output
 //!
-//! **Classes**: Generates an instance method returning a string
-//! like `"ClassName { field1: value1, field2: value2 }"`.
+//! **Classes**: Generates a standalone function `classNameToString(value)` and a static wrapper
+//! method `static toString(value)` returning a string like `"ClassName { field1: value1, field2: value2 }"`.
 //!
-//! **Enums**: Generates a standalone function `toStringEnumName(value)` that performs
+//! **Enums**: Generates a standalone function `enumNameToString(value)` that performs
 //! reverse lookup on numeric enums.
 //!
-//! **Interfaces**: Generates a standalone function `toStringInterfaceName(value)`.
+//! **Interfaces**: Generates a standalone function `interfaceNameToString(value)`.
 //!
 //! **Type Aliases**: Generates a standalone function using JSON.stringify for
 //! complex types, or field enumeration for object types.
@@ -49,18 +49,22 @@
 //! Generated output:
 //!
 //! ```typescript
+//! export function userToString(value: User): string {
+//!     const parts: string[] = [];
+//!     parts.push('id: ' + value.userId);
+//!     parts.push('email: ' + value.email);
+//!     return 'User { ' + parts.join(', ') + ' }';
+//! }
+//!
 //! class User {
 //!     userId: number;
-//! 
+//!
 //!     password: string;
-//! 
+//!
 //!     email: string;
-//! 
-//!     toString(): string {
-//!         const parts: string[] = [];
-//!         parts.push('id: ' + this.userId);
-//!         parts.push('email: ' + this.email);
-//!         return 'User { ' + parts.join(', ') + ' }';
+//!
+//!     static toString(value: User): string {
+//!         return userToString(value);
 //!     }
 //! }
 //! ```
@@ -188,6 +192,7 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
     match &input.data {
         Data::Class(class) => {
             let class_name = input.name();
+            let naming_style = input.context.function_naming_style;
 
             // Collect fields that should be included in debug output
             let debug_fields: Vec<DebugField> = class
@@ -205,19 +210,45 @@ pub fn derive_debug_macro(mut input: TsStream) -> Result<TsStream, MacroforgeErr
 
             let has_fields = !debug_fields.is_empty();
 
-            Ok(body! {
-                toString(): string {
+            // Generate function name based on naming style
+            let fn_name = match naming_style {
+                FunctionNamingStyle::Prefix => format!("{}ToString", to_camel_case(class_name)),
+                FunctionNamingStyle::Suffix => format!("toString{}", class_name),
+                FunctionNamingStyle::Generic => "toString".to_string(),
+                FunctionNamingStyle::Namespace => format!("{}.toString", class_name),
+            };
+
+            // Generate standalone function with value parameter
+            let standalone = ts_template! {
+                export function @{fn_name}(value: @{class_name}): string {
                     {#if has_fields}
                         const parts: string[] = [];
                         {#for (label, name) in debug_fields}
-                            parts.push("@{label}: " + this.@{name});
+                            parts.push("@{label}: " + value.@{name});
                         {/for}
                         return "@{class_name} { " + parts.join(", ") + " }";
                     {:else}
                         return "@{class_name} {}";
                     {/if}
                 }
-            })
+            };
+
+            // Generate static wrapper method that delegates to standalone function
+            let class_body = body! {
+                static toString(value: @{class_name}): string {
+                    return @{fn_name}(value);
+                }
+            };
+
+            // Combine standalone function with class body by concatenating sources
+            // The standalone output (no marker) must come FIRST so it defaults to "below" (after class)
+            // The body! output has /* @macroforge:body */ marker for class body insertion
+            let combined_source = format!("{}\n{}", standalone.source(), class_body.source());
+            let mut combined = TsStream::from_string(combined_source);
+            combined.runtime_patches = standalone.runtime_patches;
+            combined.runtime_patches.extend(class_body.runtime_patches);
+
+            Ok(combined)
         }
         Data::Enum(enum_data) => {
             let enum_name = input.name();
