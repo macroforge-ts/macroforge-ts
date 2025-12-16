@@ -81,8 +81,8 @@ use std::path::Path;
 use std::process::Command;
 
 use crate::ts_syn::abi::{
-    ClassIR, Diagnostic, DiagnosticLevel, EnumIR, FunctionNamingStyle, InterfaceIR, MacroContextIR,
-    MacroResult, Patch, PatchCode, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
+    ClassIR, Diagnostic, DiagnosticLevel, EnumIR, InterfaceIR, MacroContextIR, MacroResult, Patch,
+    PatchCode, SourceMapping, SpanIR, TargetIR, TypeAliasIR,
 };
 use crate::ts_syn::{lower_classes, lower_enums, lower_interfaces, lower_type_aliases};
 use anyhow::Context;
@@ -665,9 +665,6 @@ impl MacroExpander {
             for (macro_name, module_path) in target.macro_names {
                 let mut ctx = ctx_factory(macro_name.clone(), module_path.clone());
 
-                // Apply function naming style from config
-                ctx = ctx.with_function_naming_style(self.config.function_naming_style);
-
                 // Calculate macro_name_span
                 if let Some(macro_name_span) =
                     find_macro_name_span(source, target.decorator_span, &macro_name)
@@ -721,11 +718,8 @@ impl MacroExpander {
                     let mut type_def = type_def;
 
                     if let Some(tokens) = &result.tokens {
-                        let external_imports = external_type_function_import_patches(
-                            tokens,
-                            &import_sources,
-                            self.config.function_naming_style,
-                        );
+                        let external_imports =
+                            external_type_function_import_patches(tokens, &import_sources);
                         runtime.extend(external_imports.clone());
                         type_def.extend(external_imports);
                     }
@@ -747,19 +741,14 @@ impl MacroExpander {
                 collector.add_type_patches(result.type_patches);
             }
 
-            // Generate convenience const for non-class types (Prefix style only)
+            // Generate convenience const for non-class types (Prefix style)
             // Skip if disabled in config or there's already a namespace or const with the same name
             if let Some(type_name) = get_derive_target_name(&target.target_ir) {
                 if self.config.generate_convenience_const
-                    && self.config.function_naming_style == FunctionNamingStyle::Prefix
                     && !has_existing_namespace_or_const(source, type_name)
                 {
                     let new_patches = collector.runtime_patches_slice(patches_start);
-                    let functions = extract_function_names_from_patches(
-                        new_patches,
-                        type_name,
-                        self.config.function_naming_style,
-                    );
+                    let functions = extract_function_names_from_patches(new_patches, type_name);
 
                     if !functions.is_empty() {
                         let const_code = generate_convenience_const(type_name, &functions);
@@ -1533,7 +1522,6 @@ fn to_camel_case(name: &str) -> String {
 fn extract_function_names_from_patches(
     patches: &[Patch],
     type_name: &str,
-    naming_style: FunctionNamingStyle,
 ) -> Vec<(String, String)> {
     let mut functions = Vec::new();
     let camel_type_name = to_camel_case(type_name);
@@ -1562,9 +1550,7 @@ fn extract_function_names_from_patches(
                         .chars()
                         .all(|c| c.is_ascii_alphanumeric() || c == '_')
                 {
-                    if let Some(short_name) =
-                        extract_short_name(fn_name, type_name, &camel_type_name, naming_style)
-                    {
+                    if let Some(short_name) = extract_short_name(fn_name, &camel_type_name) {
                         functions.push((fn_name.to_string(), short_name));
                     }
                 }
@@ -1578,41 +1564,18 @@ fn extract_function_names_from_patches(
     functions
 }
 
-/// Extracts the short function name from the full function name based on naming style.
-fn extract_short_name(
-    full_name: &str,
-    type_name: &str,
-    camel_type_name: &str,
-    naming_style: FunctionNamingStyle,
-) -> Option<String> {
-    match naming_style {
-        FunctionNamingStyle::Prefix => {
-            // userClone -> clone, userDefaultValue -> defaultValue
-            if full_name.starts_with(camel_type_name) {
-                let rest = &full_name[camel_type_name.len()..];
-                if rest.is_empty() {
-                    return None;
-                }
-                // Convert first char to lowercase (UserClone prefix removed, rest is Clone -> clone)
-                Some(to_camel_case(rest))
-            } else {
-                None
-            }
+/// Extracts the short function name from the full function name.
+/// Uses Prefix naming style: userClone -> clone, userDefaultValue -> defaultValue
+fn extract_short_name(full_name: &str, camel_type_name: &str) -> Option<String> {
+    if full_name.starts_with(camel_type_name) {
+        let rest = &full_name[camel_type_name.len()..];
+        if rest.is_empty() {
+            return None;
         }
-        FunctionNamingStyle::Suffix => {
-            // cloneUser -> clone, defaultValueUser -> defaultValue
-            if full_name.ends_with(type_name) {
-                let short = &full_name[..full_name.len() - type_name.len()];
-                if short.is_empty() {
-                    return None;
-                }
-                Some(short.to_string())
-            } else {
-                None
-            }
-        }
-        // Namespace and Generic styles don't need convenience const
-        FunctionNamingStyle::Namespace | FunctionNamingStyle::Generic => None,
+        // Convert first char to lowercase (UserClone prefix removed, rest is Clone -> clone)
+        Some(to_camel_case(rest))
+    } else {
+        None
     }
 }
 
@@ -1746,15 +1709,7 @@ fn contains_identifier(haystack: &str, ident: &str) -> bool {
 fn external_type_function_import_patches(
     tokens: &str,
     import_sources: &HashMap<String, String>,
-    naming_style: FunctionNamingStyle,
 ) -> Vec<Patch> {
-    if matches!(
-        naming_style,
-        FunctionNamingStyle::Namespace | FunctionNamingStyle::Generic
-    ) {
-        return vec![];
-    }
-
     let mut needed: std::collections::BTreeMap<(String, String), ()> = Default::default();
 
     for (type_name, module_src) in import_sources {
@@ -1772,30 +1727,16 @@ fn external_type_function_import_patches(
             continue;
         }
 
-        let candidates: Vec<String> = match naming_style {
-            FunctionNamingStyle::Prefix => {
-                let camel = to_camel_case(type_name);
-                vec![
-                    format!("{camel}SerializeWithContext"),
-                    format!("{camel}DeserializeWithContext"),
-                    format!("{camel}DefaultValue"),
-                    format!("{camel}Serialize"),
-                    format!("{camel}Deserialize"),
-                    format!("{camel}ValidateField"),
-                    format!("{camel}ValidateFields"),
-                ]
-            }
-            FunctionNamingStyle::Suffix => vec![
-                format!("serializeWithContext{type_name}"),
-                format!("deserializeWithContext{type_name}"),
-                format!("defaultValue{type_name}"),
-                format!("serialize{type_name}"),
-                format!("deserialize{type_name}"),
-                format!("validateField{type_name}"),
-                format!("validateFields{type_name}"),
-            ],
-            FunctionNamingStyle::Namespace | FunctionNamingStyle::Generic => unreachable!(),
-        };
+        let camel = to_camel_case(type_name);
+        let candidates = vec![
+            format!("{camel}SerializeWithContext"),
+            format!("{camel}DeserializeWithContext"),
+            format!("{camel}DefaultValue"),
+            format!("{camel}Serialize"),
+            format!("{camel}Deserialize"),
+            format!("{camel}ValidateField"),
+            format!("{camel}ValidateFields"),
+        ];
 
         for ident in candidates {
             if import_sources.contains_key(&ident) {

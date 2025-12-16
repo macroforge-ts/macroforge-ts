@@ -60,10 +60,6 @@ function expectContains(haystack, needle, label) {
   assert.ok(haystack.includes(needle), `${label}: expected to include ${needle}`);
 }
 
-function expectMatches(haystack, re, label) {
-  assert.ok(re.test(haystack), `${label}: expected to match ${re}`);
-}
-
 function buildMacroCases(projectDir) {
   const mk = (name, code) => {
     const filePath = path.join(projectDir, `${name}.ts`);
@@ -135,110 +131,24 @@ function buildMacroCases(projectDir) {
       export interface User { id: string }
     `,
     ),
-    mk(
-      "external-imports",
-      `
-      import type { Metadata } from "./metadata.svelte";
-
-      /** @derive(Default, Serialize, Deserialize) */
-      export interface User { metadata: Metadata }
-    `,
-    ),
   ];
 }
 
-function writeExternalTypeStub(projectDir) {
-  fs.writeFileSync(
-    path.join(projectDir, "metadata.svelte.ts"),
-    `
-      /** @derive(Default, Serialize, Deserialize) */
-      export interface Metadata { createdAt: string }
-    `,
-  );
-}
+describe("function naming style (prefix only)", () => {
+  test("prefix naming style is default", () => {
+    const projectDir = mkTempProjectDir();
+    try {
+      writeProjectFiles(projectDir, {});
 
-function assertNamingStyle(results, namingStyleLabel) {
-  const codeByName = Object.fromEntries(
-    Object.entries(results).map(([k, v]) => [k, v.code]),
-  );
+      const cases = buildMacroCases(projectDir);
+      const results = runExpandCases({ projectDir, cases });
+      expectAllNoErrors(results);
 
-  switch (namingStyleLabel) {
-    case "suffix":
-      expectContains(
-        codeByName["default-interface"],
-        "export function defaultValueUser",
-        "suffix default-interface",
-      );
-      expectContains(
-        codeByName["serialize-interface"],
-        "export function serializeUser",
-        "suffix serialize-interface",
-      );
-      expectContains(
-        codeByName["deserialize-interface"],
-        "export function deserializeUser",
-        "suffix deserialize-interface",
-      );
-      expectContains(
-        codeByName["clone-interface"],
-        "export function cloneUser",
-        "suffix clone-interface",
-      );
-      expectContains(
-        codeByName["debug-interface"],
-        "export function toStringUser",
-        "suffix debug-interface",
-      );
-      expectContains(
-        codeByName["partial-eq-interface"],
-        "export function equalsUser",
-        "suffix partial-eq-interface",
-      );
-      expectContains(
-        codeByName["partial-ord-interface"],
-        "export function partialCompareUser",
-        "suffix partial-ord-interface",
-      );
-      expectContains(
-        codeByName["ord-interface"],
-        "export function compareUser",
-        "suffix ord-interface",
-      );
-      expectContains(
-        codeByName["hash-interface"],
-        "export function hashCodeUser",
-        "suffix hash-interface",
+      const codeByName = Object.fromEntries(
+        Object.entries(results).map(([k, v]) => [k, v.code]),
       );
 
-      expectMatches(
-        codeByName["external-imports"],
-        /import\s+\{\s*serializeWithContextMetadata\s*\}\s+from\s+['"]\.\/metadata\.svelte['"];/,
-        "suffix external-imports",
-      );
-      expectMatches(
-        codeByName["external-imports"],
-        /import\s+\{\s*deserializeWithContextMetadata\s*\}\s+from\s+['"]\.\/metadata\.svelte['"];/,
-        "suffix external-imports",
-      );
-      // `metadata: Metadata` (non-null) should require a default value helper.
-      expectMatches(
-        codeByName["external-imports"],
-        /import\s+\{\s*defaultValueMetadata\s*\}\s+from\s+['"]\.\/metadata\.svelte['"];/,
-        "suffix external-imports",
-      );
-      expectContains(
-        codeByName["external-imports"],
-        "serializeWithContextMetadata(",
-        "suffix external-imports",
-      );
-      expectContains(
-        codeByName["external-imports"],
-        "deserializeWithContextMetadata(",
-        "suffix external-imports",
-      );
-      break;
-
-    case "prefix":
+      // Verify prefix style function names (typeName + FunctionName)
       expectContains(
         codeByName["default-interface"],
         "export function userDefaultValue",
@@ -284,94 +194,8 @@ function assertNamingStyle(results, namingStyleLabel) {
         "export function userHashCode",
         "prefix hash-interface",
       );
-      break;
-
-    case "generic":
-      expectMatches(
-        codeByName["default-interface"],
-        /export function defaultValue\s*<\s*T\s+extends\s+User\s*>/m,
-        "generic default-interface",
-      );
-      // Serde macros use the generic style as "unsuffixed" (not `<T extends User>`).
-      expectMatches(
-        codeByName["serialize-interface"],
-        /export function serialize\s*\(\s*value:\s*User\s*\)/m,
-        "generic serialize-interface",
-      );
-      expectMatches(
-        codeByName["deserialize-interface"],
-        /export function deserialize\s*\(/m,
-        "generic deserialize-interface",
-      );
-      expectMatches(
-        codeByName["clone-interface"],
-        /export function clone\s*<\s*T\s+extends\s+User\s*>/m,
-        "generic clone-interface",
-      );
-      expectMatches(
-        codeByName["debug-interface"],
-        /export function toString\s*<\s*T\s+extends\s+User\s*>/m,
-        "generic debug-interface",
-      );
-      expectMatches(
-        codeByName["partial-eq-interface"],
-        /export function equals\s*<\s*T\s+extends\s+User\s*>/m,
-        "generic partial-eq-interface",
-      );
-      expectMatches(
-        codeByName["partial-ord-interface"],
-        /export function partialCompare\s*<\s*T\s+extends\s+User\s*>/m,
-        "generic partial-ord-interface",
-      );
-      expectMatches(
-        codeByName["ord-interface"],
-        /export function compare\s*<\s*T\s+extends\s+User\s*>/m,
-        "generic ord-interface",
-      );
-      expectMatches(
-        codeByName["hash-interface"],
-        /export function hashCode\s*<\s*T\s+extends\s+User\s*>/m,
-        "generic hash-interface",
-      );
-      break;
-
-    case "namespace":
-      for (const [name, code] of Object.entries(codeByName)) {
-        if (name === "external-imports") continue;
-        expectContains(code, "export namespace User", `namespace ${name}`);
-      }
-      break;
-
-    default:
-      throw new Error(`Unknown naming style: ${namingStyleLabel}`);
-  }
-}
-
-describe("functionNamingStyle (built-ins)", () => {
-  const styles = [
-    { label: "prefix (default)", config: {} },
-    { label: "suffix", config: { functionNamingStyle: "suffix" } },
-    { label: "prefix", config: { functionNamingStyle: "prefix" } },
-    { label: "generic", config: { functionNamingStyle: "generic" } },
-    { label: "namespace", config: { functionNamingStyle: "namespace" } },
-  ];
-
-  for (const style of styles) {
-    test(style.label, () => {
-      const projectDir = mkTempProjectDir();
-      try {
-        writeProjectFiles(projectDir, style.config);
-        writeExternalTypeStub(projectDir);
-
-        const cases = buildMacroCases(projectDir);
-        const results = runExpandCases({ projectDir, cases });
-        expectAllNoErrors(results);
-
-        const namingStyleLabel = style.label === "prefix (default)" ? "prefix" : style.label;
-        assertNamingStyle(results, namingStyleLabel);
-      } finally {
-        fs.rmSync(projectDir, { recursive: true, force: true });
-      }
-    });
-  }
+    } finally {
+      fs.rmSync(projectDir, { recursive: true, force: true });
+    }
+  });
 });
