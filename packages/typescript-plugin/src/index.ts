@@ -109,6 +109,124 @@ function getMacroManifest() {
 }
 
 /**
+ * Parses macro import comments to extract macro name to module path mappings.
+ *
+ * Macroforge supports importing external macros using a special JSDoc comment syntax:
+ * `/** import macro {MacroName, Another} from "@scope/package"; *​/`
+ *
+ * @param text - The source text to search for import comments
+ * @returns A Map of macro name to module path
+ *
+ * @example
+ * ```typescript
+ * const text = `/** import macro {Gigaform, CustomMacro} from "@playground/macro"; *​/`;
+ * parseMacroImportComments(text);
+ * // => Map { "Gigaform" => "@playground/macro", "CustomMacro" => "@playground/macro" }
+ * ```
+ */
+function parseMacroImportComments(text: string): Map<string, string> {
+  const imports = new Map<string, string>();
+  const pattern =
+    /\/\*\*\s*import\s+macro\s*\{([^}]+)\}\s*from\s*["']([^"']+)["']/gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = pattern.exec(text)) !== null) {
+    const names = match[1]
+      .split(",")
+      .map((n) => n.trim())
+      .filter(Boolean);
+    const modulePath = match[2];
+    for (const name of names) {
+      imports.set(name, modulePath);
+    }
+  }
+  return imports;
+}
+
+/**
+ * Cache for external macro package manifests.
+ * Maps package path to its manifest (or null if failed to load).
+ */
+const externalManifestCache = new Map<
+  string,
+  MacroManifest | null
+>();
+
+/**
+ * Attempts to load the manifest from an external macro package.
+ *
+ * External macro packages (like `@playground/macro`) export their own
+ * `__macroforgeGetManifest()` function that provides macro metadata
+ * including descriptions.
+ *
+ * @param modulePath - The package path (e.g., "@playground/macro")
+ * @returns The macro manifest, or null if loading failed
+ */
+function getExternalManifest(modulePath: string): MacroManifest | null {
+  if (externalManifestCache.has(modulePath)) {
+    return externalManifestCache.get(modulePath) ?? null;
+  }
+
+  try {
+    // Try to require the external package
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pkg = require(modulePath);
+    if (typeof pkg.__macroforgeGetManifest === "function") {
+      const manifest: MacroManifest = pkg.__macroforgeGetManifest();
+      externalManifestCache.set(modulePath, manifest);
+      return manifest;
+    }
+  } catch {
+    // Package not found or doesn't export manifest
+  }
+
+  externalManifestCache.set(modulePath, null);
+  return null;
+}
+
+/**
+ * Looks up macro info from an external package manifest.
+ *
+ * @param macroName - The macro name to look up
+ * @param modulePath - The package path
+ * @returns The macro manifest entry, or null if not found
+ */
+function getExternalMacroInfo(
+  macroName: string,
+  modulePath: string,
+): MacroManifestEntry | null {
+  const manifest = getExternalManifest(modulePath);
+  if (!manifest) return null;
+
+  return (
+    manifest.macros.find(
+      (m) => m.name.toLowerCase() === macroName.toLowerCase(),
+    ) ?? null
+  );
+}
+
+/**
+ * Looks up decorator info from an external package manifest.
+ *
+ * @param decoratorName - The decorator name to look up
+ * @param modulePath - The package path
+ * @returns The decorator manifest entry, or null if not found
+ */
+function getExternalDecoratorInfo(
+  decoratorName: string,
+  modulePath: string,
+): DecoratorManifestEntry | null {
+  const manifest = getExternalManifest(modulePath);
+  if (!manifest) return null;
+
+  return (
+    manifest.decorators.find(
+      (d) => d.export.toLowerCase() === decoratorName.toLowerCase(),
+    ) ?? null
+  );
+}
+
+/**
  * Finds a macro name within `@derive(...)` decorators at a given cursor position.
  *
  * This function parses JSDoc comments looking for `@derive` directives and determines
@@ -182,6 +300,47 @@ function findDeriveAtPosition(
 }
 
 /**
+ * Finds the `@derive` keyword at a given cursor position.
+ * This matches the literal "@derive" text before the opening parenthesis,
+ * allowing hover documentation on the directive keyword itself.
+ *
+ * @param text - The source text to search
+ * @param position - The cursor position as a 0-indexed character offset
+ * @returns An object with start/end positions, or `null` if not on @derive keyword
+ *
+ * @example
+ * ```typescript
+ * // Given text: "/** @derive(Debug) *​/"
+ * findDeriveKeywordAtPosition(text, 5);
+ * // => { start: 4, end: 11 }  // covers "@derive"
+ *
+ * // Position on "Debug" (inside parens) returns null
+ * findDeriveKeywordAtPosition(text, 12);
+ * // => null
+ * ```
+ *
+ * @see {@link findDeriveAtPosition} - For macro names inside @derive()
+ */
+function findDeriveKeywordAtPosition(
+  text: string,
+  position: number,
+): { start: number; end: number } | null {
+  // Match @derive only when followed by ( to distinguish from other uses
+  const deriveKeywordPattern = /@derive(?=\s*\()/gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = deriveKeywordPattern.exec(text)) !== null) {
+    const start = match.index; // Position of @
+    const end = start + "@derive".length;
+
+    if (position >= start && position < end) {
+      return { start, end };
+    }
+  }
+  return null;
+}
+
+/**
  * Finds a field decorator (like `@serde` or `@debug`) at a given cursor position.
  *
  * This function searches for decorator patterns (`@name`) in the source text and
@@ -247,11 +406,59 @@ function findDecoratorAtPosition(
 }
 
 /**
+ * Finds what `@derive` macros apply to code at a given position.
+ *
+ * This function uses a heuristic: it finds the nearest `@derive(...)` decorator
+ * that appears before the given position. This is useful for determining which
+ * macros might be responsible for a particular field decorator.
+ *
+ * @param text - The source text to search
+ * @param position - The cursor position as a 0-indexed character offset
+ * @returns An array of macro names from the enclosing @derive, or `null` if not found
+ *
+ * @example
+ * ```typescript
+ * const text = `/** @derive(Debug, Serialize) *​/
+ * class User {
+ *   @serde({ skip: true })
+ *   password: string;
+ * }`;
+ *
+ * // Position on @serde
+ * findEnclosingDeriveContext(text, text.indexOf("@serde"));
+ * // => ["Debug", "Serialize"]
+ * ```
+ */
+function findEnclosingDeriveContext(
+  text: string,
+  position: number,
+): string[] | null {
+  const beforePosition = text.substring(0, position);
+  const derivePattern = /@derive\s*\(\s*([^)]+)\s*\)/gi;
+  let lastMatch: RegExpExecArray | null = null;
+  let match: RegExpExecArray | null;
+
+  while ((match = derivePattern.exec(beforePosition)) !== null) {
+    lastMatch = match;
+  }
+
+  if (lastMatch) {
+    const macros = lastMatch[1]
+      .split(",")
+      .map((m) => m.trim())
+      .filter(Boolean);
+    return macros;
+  }
+  return null;
+}
+
+/**
  * Generates hover information (QuickInfo) for macros and decorators at a cursor position.
  *
  * This function provides IDE hover tooltips for Macroforge-specific syntax:
- * - Macro names within `@derive(...)` JSDoc decorators
- * - Field decorators like `@serde`, `@debug`, etc.
+ * - The `@derive` keyword itself
+ * - Macro names within `@derive(...)` JSDoc decorators (both built-in and external)
+ * - Field decorators like `@serde`, `@debug`, and custom decorators from external macros
  *
  * @param text - The source text to analyze
  * @param position - The cursor position as a 0-indexed character offset
@@ -261,33 +468,60 @@ function findDecoratorAtPosition(
  *
  * @remarks
  * The function checks positions in the following order:
- * 1. First, check if cursor is on a macro name within `@derive(...)` via {@link findDeriveAtPosition}
- * 2. Then, check if cursor is on a field decorator via {@link findDecoratorAtPosition}
+ * 1. Check if cursor is on the `@derive` keyword via {@link findDeriveKeywordAtPosition}
+ * 2. Check if cursor is on a macro name within `@derive(...)` via {@link findDeriveAtPosition}
+ *    - First checks built-in manifest via {@link getMacroManifest}
+ *    - Then checks external macro imports via {@link parseMacroImportComments}
+ *    - Falls back to generic hover for unknown macros
+ * 3. Check if cursor is on a field decorator via {@link findDecoratorAtPosition}
+ *    - First checks built-in manifest (macros and decorators)
+ *    - Then checks external package manifests via {@link getExternalDecoratorInfo}
+ *    - Falls back to generic hover showing enclosing derive context
+ *
+ * For external macros (imported via `/** import macro {Name} from "package"; * /`),
+ * the function attempts to load the external package's manifest to retrieve
+ * descriptions and documentation. See {@link getExternalMacroInfo}.
  *
  * The returned QuickInfo includes:
- * - `kind`: Always `functionElement` (displayed as a function in the IDE)
+ * - `kind`: `keyword` for @derive, `functionElement` for macros/decorators
  * - `textSpan`: The highlighted range in the editor
  * - `displayParts`: The formatted display text (e.g., "@derive(Debug)")
  * - `documentation`: The macro/decorator description from the manifest
  *
  * @example
  * ```typescript
+ * // Hovering over "@derive" keyword
+ * const info = getMacroHoverInfo(text, 4, ts);
+ * // Returns QuickInfo with documentation about the derive directive
+ *
  * // Hovering over "Debug" in "@derive(Debug, Clone)"
  * const info = getMacroHoverInfo(text, 14, ts);
  * // Returns QuickInfo with:
  * // - displayParts: "@derive(Debug)"
  * // - documentation: "Generates a fmt_debug() method for debugging output"
  *
+ * // Hovering over external macro "Gigaform" in "@derive(Gigaform)"
+ * const info = getMacroHoverInfo(text, 14, ts);
+ * // Returns QuickInfo with description loaded from @playground/macro package
+ *
  * // Hovering over "@serde" field decorator
  * const info = getMacroHoverInfo(text, 5, ts);
  * // Returns QuickInfo with:
  * // - displayParts: "@serde"
  * // - documentation: "Serialization/deserialization field options"
+ *
+ * // Hovering over "@hiddenController" from external Gigaform macro
+ * const info = getMacroHoverInfo(text, 5, ts);
+ * // Returns QuickInfo with docs loaded from external package manifest
  * ```
  *
+ * @see {@link findDeriveKeywordAtPosition} - Locates the @derive keyword
  * @see {@link findDeriveAtPosition} - Locates macro names in @derive decorators
  * @see {@link findDecoratorAtPosition} - Locates field decorators
- * @see {@link getMacroManifest} - Provides macro/decorator metadata
+ * @see {@link findEnclosingDeriveContext} - Finds macros that apply to a position
+ * @see {@link getMacroManifest} - Provides built-in macro/decorator metadata
+ * @see {@link getExternalMacroInfo} - Provides external macro metadata
+ * @see {@link getExternalDecoratorInfo} - Provides external decorator metadata
  */
 function getMacroHoverInfo(
   text: string,
@@ -295,12 +529,40 @@ function getMacroHoverInfo(
   tsModule: typeof ts,
 ): ts.QuickInfo | null {
   const manifest = getMacroManifest();
-  if (!manifest) return null;
 
-  // Check for @derive(MacroName) in JSDoc comments
+  // 1. Check if hovering on @derive keyword itself
+  const deriveKeyword = findDeriveKeywordAtPosition(text, position);
+  if (deriveKeyword) {
+    return {
+      kind: tsModule.ScriptElementKind.keyword,
+      kindModifiers: "",
+      textSpan: {
+        start: deriveKeyword.start,
+        length: deriveKeyword.end - deriveKeyword.start,
+      },
+      displayParts: [{ text: "@derive", kind: "keyword" }],
+      documentation: [
+        {
+          text:
+            "Derive directive - applies compile-time macros to generate methods and implementations.\n\n" +
+            "**Usage:** `/** @derive(MacroName, AnotherMacro) */`\n\n" +
+            "**Built-in macros:** Debug, Clone, Default, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize\n\n" +
+            "External macros can be imported using:\n" +
+            '`/** import macro {Name} from "package"; */`',
+          kind: "text",
+        },
+      ],
+    };
+  }
+
+  // Parse external macro imports for later use
+  const externalMacros = parseMacroImportComments(text);
+
+  // 2. Check for @derive(MacroName) in JSDoc comments
   const deriveMatch = findDeriveAtPosition(text, position);
   if (deriveMatch) {
-    const macroInfo = manifest.macros.get(deriveMatch.macroName.toLowerCase());
+    // 2a. Check built-in manifest
+    const macroInfo = manifest?.macros.get(deriveMatch.macroName.toLowerCase());
     if (macroInfo) {
       return {
         kind: tsModule.ScriptElementKind.functionElement,
@@ -319,13 +581,71 @@ function getMacroHoverInfo(
           : [],
       };
     }
+
+    // 2b. Check external macro imports
+    const modulePath = externalMacros.get(deriveMatch.macroName);
+    if (modulePath) {
+      // Try to get detailed info from the external package manifest
+      const externalMacroInfo = getExternalMacroInfo(
+        deriveMatch.macroName,
+        modulePath,
+      );
+      const description = externalMacroInfo?.description
+        ? externalMacroInfo.description
+        : "This macro is loaded from an external package at compile time.";
+
+      return {
+        kind: tsModule.ScriptElementKind.functionElement,
+        kindModifiers: "external",
+        textSpan: {
+          start: deriveMatch.start,
+          length: deriveMatch.end - deriveMatch.start,
+        },
+        displayParts: [
+          { text: "@derive(", kind: "punctuation" },
+          { text: externalMacroInfo?.name ?? deriveMatch.macroName, kind: "functionName" },
+          { text: ")", kind: "punctuation" },
+        ],
+        documentation: [
+          {
+            text: `**External macro** from \`${modulePath}\`\n\n${description}`,
+            kind: "text",
+          },
+        ],
+      };
+    }
+
+    // 2c. Fallback for unknown/unrecognized macros
+    return {
+      kind: tsModule.ScriptElementKind.functionElement,
+      kindModifiers: "",
+      textSpan: {
+        start: deriveMatch.start,
+        length: deriveMatch.end - deriveMatch.start,
+      },
+      displayParts: [
+        { text: "@derive(", kind: "punctuation" },
+        { text: deriveMatch.macroName, kind: "functionName" },
+        { text: ")", kind: "punctuation" },
+      ],
+      documentation: [
+        {
+          text:
+            `**Macro:** ${deriveMatch.macroName}\n\n` +
+            "This macro is not in the built-in manifest. If it's a custom macro, " +
+            "ensure it's imported using:\n\n" +
+            `\`/** import macro {${deriveMatch.macroName}} from "your-package"; */\``,
+          kind: "text",
+        },
+      ],
+    };
   }
 
-  // Check for @decorator patterns
+  // 3. Check for @decorator patterns
   const decoratorMatch = findDecoratorAtPosition(text, position);
   if (decoratorMatch) {
-    // Check if it's a macro name
-    const macroInfo = manifest.macros.get(decoratorMatch.name.toLowerCase());
+    // 3a. Check if it's a built-in macro name
+    const macroInfo = manifest?.macros.get(decoratorMatch.name.toLowerCase());
     if (macroInfo) {
       return {
         kind: tsModule.ScriptElementKind.functionElement,
@@ -344,8 +664,10 @@ function getMacroHoverInfo(
       };
     }
 
-    // Check if it's a decorator
-    const decoratorInfo = manifest.decorators.get(decoratorMatch.name.toLowerCase());
+    // 3b. Check if it's a built-in decorator
+    const decoratorInfo = manifest?.decorators.get(
+      decoratorMatch.name.toLowerCase(),
+    );
     if (decoratorInfo && decoratorInfo.docs) {
       return {
         kind: tsModule.ScriptElementKind.functionElement,
@@ -359,6 +681,73 @@ function getMacroHoverInfo(
           { text: decoratorInfo.export, kind: "functionName" },
         ],
         documentation: [{ text: decoratorInfo.docs, kind: "text" }],
+      };
+    }
+
+    // 3c. Check if this decorator is in a macro context (for external/custom decorators)
+    const enclosingMacros = findEnclosingDeriveContext(
+      text,
+      decoratorMatch.start,
+    );
+    if (enclosingMacros && enclosingMacros.length > 0) {
+      // Find which external macro might define this decorator
+      const likelySourceMacro = enclosingMacros.find((m) =>
+        externalMacros.has(m),
+      );
+
+      if (likelySourceMacro) {
+        const modulePath = externalMacros.get(likelySourceMacro);
+        // Try to get detailed decorator info from the external package
+        const externalDecoratorInfo = modulePath
+          ? getExternalDecoratorInfo(decoratorMatch.name, modulePath)
+          : null;
+        const description = externalDecoratorInfo?.docs
+          ? externalDecoratorInfo.docs
+          : "This decorator configures field-level behavior for the macro.";
+
+        return {
+          kind: tsModule.ScriptElementKind.functionElement,
+          kindModifiers: "external",
+          textSpan: {
+            start: decoratorMatch.start,
+            length: decoratorMatch.end - decoratorMatch.start,
+          },
+          displayParts: [
+            { text: "@", kind: "punctuation" },
+            { text: externalDecoratorInfo?.export ?? decoratorMatch.name, kind: "functionName" },
+          ],
+          documentation: [
+            {
+              text:
+                `**Field decorator** from \`${likelySourceMacro}\` macro (\`${modulePath}\`)\n\n` +
+                description,
+              kind: "text",
+            },
+          ],
+        };
+      }
+
+      // Fallback: Generic decorator in macro context
+      return {
+        kind: tsModule.ScriptElementKind.functionElement,
+        kindModifiers: "",
+        textSpan: {
+          start: decoratorMatch.start,
+          length: decoratorMatch.end - decoratorMatch.start,
+        },
+        displayParts: [
+          { text: "@", kind: "punctuation" },
+          { text: decoratorMatch.name, kind: "functionName" },
+        ],
+        documentation: [
+          {
+            text:
+              `**Field decorator:** ${decoratorMatch.name}\n\n` +
+              `Used with @derive(${enclosingMacros.join(", ")}).\n` +
+              "This decorator configures field-level behavior for the applied macros.",
+            kind: "text",
+          },
+        ],
       };
     }
   }
