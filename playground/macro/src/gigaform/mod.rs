@@ -111,7 +111,6 @@ pub fn generate(input: DeriveInput) -> Result<TsStream, MacroforgeError> {
         &fields,
         &options,
         &generics,
-        naming_style,
     );
 
     // Combine into plain, prefixed exports (no namespace merging)
@@ -220,7 +219,6 @@ fn generate_union_form(
         union_config,
         options,
         generics,
-        naming_style,
     );
     let form_data_fn =
         form_data::generate_union_with_generics(type_name, union_config, generics);

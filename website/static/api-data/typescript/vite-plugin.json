@@ -44,7 +44,7 @@
     {
       "name": "loadMacroConfig",
       "kind": "function",
-      "signature": "keepDecorators: boolean;\n}\n\n/**\n * Loads Macroforge configuration from `macroforge.json`.\n *\n * @remarks\n * Searches for `macroforge.json` starting from `projectRoot` and traversing up the\n * directory tree until found or the filesystem root is reached. This allows monorepo\n * setups where the config may be at the workspace root rather than the package root.\n *\n * If the config file is found but cannot be parsed (invalid JSON), returns the\n * default configuration rather than throwing an error.\n *\n * @param projectRoot - The directory to start searching from (usually Vite's resolved root)\n *\n * @returns The loaded configuration, or a default config if no file is found\n *\n * @example\n * ```typescript\n * // macroforge.json\n *",
+      "signature": "keepDecorators: boolean;\n\n  /**\n   * Whether to generate a convenience const for non-class types.\n   *\n   * @remarks\n   * When `true` (default), generates an `export const TypeName =",
       "description": "Whether to preserve `@derive` decorators in the output code after macro expansion.",
       "returns": null,
       "remarks": "When `false` (default), decorators are removed after expansion since they serve\nonly as compile-time directives. When `true`, decorators are kept in the output,\nwhich can be useful for debugging or when using runtime reflection.",

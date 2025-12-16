@@ -88,35 +88,12 @@
     "use_cases": "compareTo, ordering, sorting, comparison, total order"
   },
   {
-    "id": "partial-eq/overview",
-    "title": "PartialEq: Overview",
-    "category": "builtin-macros",
-    "category_title": "Built-in Macros",
-    "path": "builtin-macros/partial-eq/overview.md",
-    "use_cases": "equals, equality, partialeq, equals()",
-    "parent_id": "partial-eq"
-  },
-  {
-    "id": "partial-eq/example",
-    "title": "PartialEq: Example",
-    "category": "builtin-macros",
-    "category_title": "Built-in Macros",
-    "path": "builtin-macros/partial-eq/example.md",
-    "use_cases": "equals, equality",
-    "parent_id": "partial-eq"
-  },
-  {
     "id": "partial-eq",
     "title": "PartialEq",
     "category": "builtin-macros",
     "category_title": "Built-in Macros",
     "path": "builtin-macros/partial-eq.md",
-    "use_cases": "equals, equality, comparison, value equality",
-    "is_chunked": true,
-    "chunk_ids": [
-      "partial-eq/overview",
-      "partial-eq/example"
-    ]
+    "use_cases": "equals, equality, comparison, value equality"
   },
   {
     "id": "partial-ord",
@@ -127,12 +104,45 @@
     "use_cases": "compareTo, partial ordering, sorting, nullable comparison"
   },
   {
+    "id": "serialize/overview",
+    "title": "Serialize: Overview",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/serialize/overview.md",
+    "use_cases": "toJSON, serialization, serialize, classnameserialize(value), enumnameserialize(value), enumnameserializewithcontext",
+    "parent_id": "serialize"
+  },
+  {
+    "id": "serialize/type-specific-serialization",
+    "title": "Serialize: Type-Specific Serialization",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/serialize/type-specific-serialization.md",
+    "use_cases": "toJSON, serialization, date, toisostring(), serializewithcontext(ctx)",
+    "parent_id": "serialize"
+  },
+  {
+    "id": "serialize/example",
+    "title": "Serialize: Example",
+    "category": "builtin-macros",
+    "category_title": "Built-in Macros",
+    "path": "builtin-macros/serialize/example.md",
+    "use_cases": "toJSON, serialization",
+    "parent_id": "serialize"
+  },
+  {
     "id": "serialize",
     "title": "Serialize",
     "category": "builtin-macros",
     "category_title": "Built-in Macros",
     "path": "builtin-macros/serialize.md",
-    "use_cases": "toJSON, serialization, json, api, data transfer"
+    "use_cases": "toJSON, serialization, json, api, data transfer",
+    "is_chunked": true,
+    "chunk_ids": [
+      "serialize/overview",
+      "serialize/type-specific-serialization",
+      "serialize/example"
+    ]
   },
   {
     "id": "deserialize/overview",
@@ -140,7 +150,7 @@
     "category": "builtin-macros",
     "category_title": "Built-in Macros",
     "path": "builtin-macros/deserialize/overview.md",
-    "use_cases": "fromJSON, deserialization, deserialize, myenumdeserialize(input), myenumDeserializeWithContext(data)",
+    "use_cases": "fromJSON, deserialization, deserialize, classnamedeserialize(input), enumnamedeserialize(input)",
     "parent_id": "deserialize"
   },
   {

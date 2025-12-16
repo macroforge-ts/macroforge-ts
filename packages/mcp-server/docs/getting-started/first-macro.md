@@ -30,32 +30,38 @@ export class User {
         this.email = email;
     }
 
-    toString(): string {
-        const parts: string[] = [];
-        parts.push('name: ' + this.name);
-        parts.push('age: ' + this.age);
-        parts.push('email: ' + this.email);
-        return 'User { ' + parts.join(', ') + ' }';
+    static toString(value: User): string {
+        return userToString(value);
     }
 
-    clone(): User {
-        const cloned = Object.create(Object.getPrototypeOf(this));
-        cloned.name = this.name;
-        cloned.age = this.age;
-        cloned.email = this.email;
-        return cloned;
+    static clone(value: User): User {
+        return userClone(value);
     }
 
-    equals(other: unknown): boolean {
-        if (this === other) return true;
-        if (!(other instanceof User)) return false;
-        const typedOther = other as User;
-        return (
-            this.name === typedOther.name &&
-            this.age === typedOther.age &&
-            this.email === typedOther.email
-        );
+    static equals(a: User, b: User): boolean {
+        return userEquals(a, b);
     }
+}
+
+export function userToString(value: User): string {
+    const parts: string[] = [];
+    parts.push('name: ' + value.name);
+    parts.push('age: ' + value.age);
+    parts.push('email: ' + value.email);
+    return 'User { ' + parts.join(', ') + ' }';
+}
+
+export function userClone(value: User): User {
+    const cloned = Object.create(Object.getPrototypeOf(value));
+    cloned.name = value.name;
+    cloned.age = value.age;
+    cloned.email = value.email;
+    return cloned;
+}
+
+export function userEquals(a: User, b: User): boolean {
+    if (a === b) return true;
+    return a.name === b.name && a.age === b.age && a.email === b.email;
 }
 ``` ## Using the Generated Methods
  ```
@@ -110,12 +116,16 @@ export class User {
         this.password = password;
     }
 
-    toString(): string {
-        const parts: string[] = [];
-        parts.push('userId: ' + this.id);
-        parts.push('name: ' + this.name);
-        return 'User { ' + parts.join(', ') + ' }';
+    static toString(value: User): string {
+        return userToString(value);
     }
+}
+
+export function userToString(value: User): string {
+    const parts: string[] = [];
+    parts.push('userId: ' + value.id);
+    parts.push('name: ' + value.name);
+    return 'User { ' + parts.join(', ') + ' }';
 }
 ``` ```
 const user = new User(42, "Alice", "secret123");

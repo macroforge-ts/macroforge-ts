@@ -7,7 +7,6 @@
   "allowNativeMacros": true,
   "macroPackages": [],
   "keepDecorators": false,
-  "generateConvenienceConst": true,
   "limits": {
     "maxExecutionTimeMs": 5000,
     "maxMemoryBytes": 104857600,
@@ -35,18 +34,6 @@
  | Type | `boolean` |
 | Default | `false` |
  Keep `@derive` decorators in the output. Useful for debugging.
- ### generateConvenienceConst
- | Type | `boolean` |
-| Default | `true` |
- Generate a convenience const that groups all generated functions for a type into a single namespace-like object.
- When enabled (default), generates:
- ```typescript
-export const User = {
-  clone: userClone,
-  serialize: userSerialize,
-} as const;
-```
- Set to `false` to only generate standalone functions without the grouping const.
  ### limits
  Configure resource limits for macro expansion:
  ```
