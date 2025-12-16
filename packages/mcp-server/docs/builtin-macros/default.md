@@ -120,9 +120,9 @@ export function statusDefaultValue(): Status {
     return Status.Pending;
 }
 
-export const Status = {
-    defaultValue: statusDefaultValue
-} as const;
+namespace Status {
+    export const defaultValue = statusDefaultValue;
+}
 ```
 
 Generated output:
@@ -139,9 +139,9 @@ export function statusDefaultValue(): Status {
     return Status.Pending;
 }
 
-export const Status = {
-    defaultValue: statusDefaultValue
-} as const;
+namespace Status {
+    export const defaultValue = statusDefaultValue;
+}
 ```
 
 ## Error Handling
