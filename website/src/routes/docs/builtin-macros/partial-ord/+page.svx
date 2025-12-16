@@ -84,7 +84,7 @@ The `@ord` decorator supports:
 ```typescript before
 /** @derive(PartialOrd) */
 class Temperature {
-    value: number | null; // null represents "unknown"
+    value: number | null;
     unit: string;
 }
 ```
@@ -93,7 +93,7 @@ class Temperature {
 import { Option } from 'macroforge/utils';
 
 class Temperature {
-    value: number | null; // null represents "unknown"
+    value: number | null;
     unit: string;
 
     compareTo(other: unknown): Option<number> {
@@ -121,7 +121,7 @@ Generated output:
 
 ```typescript
 class Temperature {
-    value: number | null; // null represents "unknown"
+    value: number | null;
     unit: string;
 
     compareTo(other: unknown): Option<number> {
