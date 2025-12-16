@@ -93,7 +93,7 @@ class User {
     > {
         try {
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(obj, ctx);
+            const resultOrRef = User.deserializeWithContext(obj, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -121,7 +121,7 @@ class User {
         }
     }
 
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -129,7 +129,7 @@ class User {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'User.__deserialize: expected an object'
+                    message: 'User.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -280,7 +280,7 @@ class User {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -309,7 +309,7 @@ class User {
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -317,7 +317,7 @@ class User {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'User.__deserialize: expected an object'
+                    message: 'User.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -475,7 +475,7 @@ class User {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -504,7 +504,7 @@ class User {
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -512,7 +512,7 @@ class User {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'User.__deserialize: expected an object'
+                    message: 'User.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -672,7 +672,7 @@ class User {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -701,7 +701,7 @@ class User {
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -709,7 +709,7 @@ class User {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'User.__deserialize: expected an object'
+                    message: 'User.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -867,7 +867,7 @@ class User {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -896,7 +896,7 @@ class User {
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -904,7 +904,7 @@ class User {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'User.__deserialize: expected an object'
+                    message: 'User.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -1064,7 +1064,7 @@ class User {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -1093,7 +1093,7 @@ class User {
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -1101,7 +1101,7 @@ class User {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'User.__deserialize: expected an object'
+                    message: 'User.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -1259,7 +1259,7 @@ class User {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -1288,7 +1288,7 @@ class User {
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -1296,7 +1296,7 @@ class User {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'User.__deserialize: expected an object'
+                    message: 'User.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -1456,7 +1456,7 @@ class User {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -1485,7 +1485,7 @@ class User {
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -1493,7 +1493,7 @@ class User {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'User.__deserialize: expected an object'
+                    message: 'User.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -1651,7 +1651,7 @@ class User {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -1680,7 +1680,7 @@ class User {
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -1688,7 +1688,7 @@ class User {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'User.__deserialize: expected an object'
+                    message: 'User.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -1848,7 +1848,7 @@ class User {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -1877,7 +1877,7 @@ class User {
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -1885,7 +1885,7 @@ class User {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'User.__deserialize: expected an object'
+                    message: 'User.deserializeWithContext: expected an object'
                 }
             ]);
         }
@@ -2043,7 +2043,7 @@ class User {
             const data = typeof input === 'string' ? JSON.parse(input) : input;
 
             const ctx = DeserializeContext.create();
-            const resultOrRef = User.__deserialize(data, ctx);
+            const resultOrRef = User.deserializeWithContext(data, ctx);
             if (PendingRef.is(resultOrRef)) {
                 return Result.err([
                     {
@@ -2072,7 +2072,7 @@ class User {
     }
 
     /** @internal */
-    static __deserialize(value: any, ctx: DeserializeContext): User | PendingRef {
+    static deserializeWithContext(value: any, ctx: DeserializeContext): User | PendingRef {
         if (value?.__ref !== undefined) {
             return ctx.getOrDefer(value.__ref);
         }
@@ -2080,7 +2080,7 @@ class User {
             throw new DeserializeError([
                 {
                     field: '_root',
-                    message: 'User.__deserialize: expected an object'
+                    message: 'User.deserializeWithContext: expected an object'
                 }
             ]);
         }

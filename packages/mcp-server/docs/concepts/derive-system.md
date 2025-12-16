@@ -1,11 +1,17 @@
 # The Derive System
- *The derive system is inspired by Rust's derive macros. It allows you to automatically implement common patterns by annotating your classes with `@derive`.*
- ## Syntax Reference
- Macroforge uses JSDoc comments for all macro annotations. This ensures compatibility with standard TypeScript tooling.
- ### The @derive Statement
- The `@derive` decorator triggers macro expansion on a class or interface:
- **Source:**
-```
+
+_The derive system is inspired by Rust's derive macros. It allows you to automatically implement common patterns by annotating your classes with `@derive`._
+
+## Syntax Reference
+
+Macroforge uses JSDoc comments for all macro annotations. This ensures compatibility with standard TypeScript tooling.
+
+### The @derive Statement
+
+The `@derive` decorator triggers macro expansion on a class or interface:
+**Source:**
+
+````
 /** @derive(Debug) */
 class MyClass {
   value: string;
@@ -16,39 +22,46 @@ class MyClass {
  - Multiple macros can be comma-separated: `@derive(A, B, C)`
  - Multiple `@derive` statements can be stacked
  **Source:**
-```
-/** @derive(Debug, Clone) */
+````
+
+/\*_ @derive(Debug, Clone) _/
 class User {
-  name: string;
-  email: string;
+name: string;
+email: string;
 }
-```  ### The import macro Statement
+
+```### The import macro Statement
  To use macros from external packages, you must declare them with `import macro`:
- ```
-/** import macro { MacroName } from "package-name"; */
-``` Syntax rules:
+```
+
+/\*_ import macro { MacroName } from "package-name"; _/
+
+```Syntax rules:
  - Must be inside a JSDoc comment (`/** */`)
  - Can appear anywhere in the file (typically at the top)
  - Multiple macros can be imported: `import macro { A, B } from "pkg";`
  - Multiple import statements can be used for different packages
- ```
-/** import macro { JSON, Validate } from "@my/macros"; */
-/** import macro { Builder } from "@other/macros"; */
+```
 
-/** @derive(JSON, Validate, Builder) */
+/** import macro { JSON, Validate } from "@my/macros"; \*/
+/** import macro { Builder } from "@other/macros"; \*/
+
+/\*_ @derive(JSON, Validate, Builder) _/
 class User {
-  name: string;
-  email: string;
+name: string;
+email: string;
 }
-```  **Built-in macros Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement. ### Field Attributes
+
+```**Built-in macros Built-in macros (Debug, Clone, Default, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize) do not require an import statement. ### Field Attributes
  Macros can define field-level attributes to customize behavior per field:
  ****Before:**
 ```
-/** @derive(Debug, Serialize) */
+
+/** @derive(Debug, Serialize) \*/
 class User {
-    /** @debug({ rename: "userId" }) */
-    /** @serde({ rename: "user_id" }) */
-    id: number;
+/** @debug({ rename: "userId" }) _/
+/\*\* @serde({ rename: "user_id" }) _/
+id: number;
 
     name: string;
 
@@ -58,67 +71,67 @@ class User {
 
     /** @serde({ flatten: true }) */
     metadata: Record<string, unknown>;
+
 }
-```  
+
+```
 **After:**
 ```
+
 import { SerializeContext } from "macroforge/serde";
 
 class User {
-  
-  
-  id: number;
 
-  name: string;
+id: number;
 
-  
-  
-  password: string;
+name: string;
 
-  
-  metadata: Record<string, unknown>;
+password: string;
 
-  toString(): string {
-    const parts: string[] = [];
-    parts.push("userId: " + this.id);
-    parts.push("name: " + this.name);
-    parts.push("metadata: " + this.metadata);
-    return "User { " + parts.join(", ") + " }";
+metadata: Record<string, unknown>;
+
+toString(): string {
+const parts: string[] = [];
+parts.push("userId: " + this.id);
+parts.push("name: " + this.name);
+parts.push("metadata: " + this.metadata);
+return "User { " + parts.join(", ") + " }";
 }
 
-  toStringifiedJSON(): string {
-    const ctx = SerializeContext.create();
-    return JSON.stringify(this.__serialize(ctx));
+toStringifiedJSON(): string {
+const ctx = SerializeContext.create();
+return JSON.stringify(this.\_\_serialize(ctx));
 }
 
-  toObject(): Record<string, unknown> {
-    const ctx = SerializeContext.create();
-    return this.__serialize(ctx);
+toObject(): Record<string, unknown> {
+const ctx = SerializeContext.create();
+return this.\_\_serialize(ctx);
 }
 
-  __serialize(ctx: SerializeContext): Record<string, unknown> {
-    const existingId = ctx.getId(this);
-    if (existingId !== undefined) {
-        return {
-            __ref: existingId
-        };
-    }
-    const __id = ctx.register(this);
-    const result: Record<string, unknown> = {
-        __type: "User",
-        __id
-    };
-    result["user_id"] = this.id;
-    result["name"] = this.name;
-    {
-        const __flattened = record < string, unknown;
-        const { __type: _, __id: __, ...rest } = __flattened as any;
-        Object.assign(result, rest);
-    }
-    return result;
+serializeWithContext(ctx: SerializeContext): Record<string, unknown> {
+const existingId = ctx.getId(this);
+if (existingId !== undefined) {
+return {
+**ref: existingId
+};
+}
+const **id = ctx.register(this);
+const result: Record<string, unknown> = {
+**type: "User",
+**id
+};
+result["user_id"] = this.id;
+result["name"] = this.name;
+{
+const **flattened = record < string, unknown;
+const { **type: \_, **id: **, ...rest } = \_\_flattened as any;
+Object.assign(result, rest);
+}
+return result;
 }
 }
-``` Syntax rules:
+
+```Syntax rules:
  - Must be inside a JSDoc comment immediately before the field
  - Options use object literal syntax: `@attr({ key: value })`
  - Boolean options: `@attr({ skip: true })`
@@ -152,3 +165,4 @@ class User {
  ## Next Steps
  - [Explore built-in macros](../../docs/builtin-macros)
  - [Create custom macros](../../docs/custom-macros)
+```

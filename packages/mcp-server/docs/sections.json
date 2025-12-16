@@ -140,7 +140,7 @@
     "category": "builtin-macros",
     "category_title": "Built-in Macros",
     "path": "builtin-macros/deserialize/overview.md",
-    "use_cases": "fromJSON, deserialization, deserialize, myenumdeserialize(input), myenum__deserialize(data)",
+    "use_cases": "fromJSON, deserialization, deserialize, myenumdeserialize(input), myenumDeserializeWithContext(data)",
     "parent_id": "deserialize"
   },
   {
